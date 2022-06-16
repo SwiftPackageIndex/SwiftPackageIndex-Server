@@ -275,11 +275,10 @@ class TwitterTests: AppTestCase {
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
 
         // MUT - analyze, triggering the tweet
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  mode: .limit(10))
         do {
             let msg = try XCTUnwrap(message)
             XCTAssertTrue(msg.hasPrefix("📦 foo just added a new package, Mock"), "was \(msg)")
@@ -292,11 +291,10 @@ class TwitterTests: AppTestCase {
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
 
         // MUT - analyze, triggering tweets if any
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  mode: .limit(10))
 
         // validate - there are no new tweets to send
         XCTAssertNil(message)
@@ -308,11 +306,10 @@ class TwitterTests: AppTestCase {
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
 
         // MUT - analyze again
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  mode: .limit(10))
 
         // validate
         let msg = try XCTUnwrap(message)

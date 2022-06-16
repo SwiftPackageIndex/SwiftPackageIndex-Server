@@ -176,7 +176,14 @@ func reAnalyzeVersions(client: Client,
                             packages: packages,
                             before: cutoffDate)
             .flatMap { setUpdatedAt(on: tx, packageVersions: $0) }
-            .flatMap { mergeReleaseInfo(on: tx, packageVersions: $0) }
+            .map { results in
+                for result in results {
+                    if let (pkg, versions) = try? result.get() {
+                        Analyze.mergeReleaseInfo(package: pkg, versions: versions)
+                    }
+                }
+                return results
+            }
             .map { Analyze.getPackageInfo(packageAndVersions: $0) }
             .flatMap { Analyze.updateVersions(on: tx, packageResults: $0) }
             .flatMap { Analyze.updateProducts(on: tx, packageResults: $0) }
@@ -196,7 +203,6 @@ func getExistingVersions(client: Client,
         packages.map { pkg in
             Analyze.diffVersions(client: client,
                                  logger: logger,
-                                 threadPool: threadPool,
                                  transaction: transaction,
                                  package: pkg)
                 .map {
@@ -224,20 +230,6 @@ func setUpdatedAt(on database: Database,
             }
             .save(on: database)
             .map { (pkg, versions) }
-    }
-}
-
-
-/// Merge release details from `Repository.releases` into the list of existing `Version`s.
-/// - Parameters:
-///   - transaction: transaction to run the save and delete in
-///   - packageVersions: tuples containing the `Package` and its existing `Version`s
-/// - Returns: future with an array of each `Package` paired with its existing `Version`s for further processing
-func mergeReleaseInfo(on transaction: Database,
-                      packageVersions: [Result<(Joined<Package, Repository>, [Version]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [Version]), Error>]> {
-    packageVersions.whenAllComplete(on: transaction.eventLoop) { pkg, versions in
-        Analyze.mergeReleaseInfo(on: transaction, package: pkg, versions: versions)
-            .map { (pkg, $0) }
     }
 }
 

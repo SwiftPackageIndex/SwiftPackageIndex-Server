@@ -21,7 +21,7 @@ import Vapor
 
 enum Analyze {
 
-    struct Command: Vapor.Command {
+    struct Command: CommandAsync {
         let defaultLimit = 1
 
         struct Signature: CommandSignature {
@@ -38,31 +38,36 @@ enum Analyze {
             case limit(Int)
         }
 
-        func run(using context: CommandContext, signature: Signature) throws {
+        func run(using context: CommandContext, signature: Signature) async {
             let limit = signature.limit ?? defaultLimit
 
             let client = context.application.client
             let db = context.application.db
             let logger = Logger(component: "analyze")
-            let threadPool = context.application.threadPool
 
             Analyze.resetMetrics()
 
             let mode = signature.id.map(Mode.id) ?? .limit(limit)
-            try analyze(client: client,
-                        database: db,
-                        logger: logger,
-                        threadPool: threadPool,
-                        mode: mode)
-            .wait()
-
-            try Analyze.trimCheckouts()
 
             do {
-                try AppMetrics.push(client: client,
-                                    logger: logger,
-                                    jobName: "analyze")
-                .wait()
+                try await analyze(client: client,
+                                  database: db,
+                                  logger: logger,
+                                  mode: mode)
+            } catch {
+                logger.error("\(error.localizedDescription)")
+            }
+
+            do {
+                try Analyze.trimCheckouts()
+            } catch {
+                logger.error("\(error.localizedDescription)")
+            }
+
+            do {
+                try await AppMetrics.push(client: client,
+                                          logger: logger,
+                                          jobName: "analyze")
             } catch {
                 logger.warning("\(error.localizedDescription)")
             }
@@ -71,12 +76,11 @@ enum Analyze {
 
 }
 
+
 extension Analyze {
 
     static func resetMetrics() {
         AppMetrics.analyzeTrimCheckoutsCount?.set(0)
-        AppMetrics.analyzeUpdateRepositorySuccessCount?.set(0)
-        AppMetrics.analyzeUpdateRepositoryFailureCount?.set(0)
         AppMetrics.buildThrottleCount?.set(0)
         AppMetrics.analyzeVersionsAddedCount?.set(0)
         AppMetrics.analyzeVersionsDeletedCount?.set(0)
@@ -119,37 +123,26 @@ extension Analyze {
     static func analyze(client: Client,
                         database: Database,
                         logger: Logger,
-                        threadPool: NIOThreadPool,
-                        mode: Analyze.Command.Mode) -> EventLoopFuture<Void> {
+                        mode: Analyze.Command.Mode) async throws {
         let start = DispatchTime.now().uptimeNanoseconds
+        defer { AppMetrics.analyzeDurationSeconds?.time(since: start) }
+
         switch mode {
             case .id(let id):
                 logger.info("Analyzing (id: \(id)) ...")
-                return Package.fetchCandidate(database, id: id)
-                    .map { [$0] }
-                    .flatMap {
-                        analyze(client: client,
-                                database: database,
-                                logger: logger,
-                                threadPool: threadPool,
-                                packages: $0)
-                    }
-                    .map {
-                        AppMetrics.analyzeDurationSeconds?.time(since: start)
-                    }
+                let pkg = try await Package.fetchCandidate(database, id: id).get()
+                try await analyze(client: client,
+                                  database: database,
+                                  logger: logger,
+                                  packages: [pkg])
+
             case .limit(let limit):
                 logger.info("Analyzing (limit: \(limit)) ...")
-                return Package.fetchCandidates(database, for: .analysis, limit: limit)
-                    .flatMap { analyze(client: client,
-                                       database: database,
-                                       logger: logger,
-                                       threadPool: threadPool,
-                                       packages: $0)
-                    }
-                    .map {
-                        AppMetrics.analyzeDurationSeconds?.time(since: start)
-                    }
-
+                let packages = try await Package.fetchCandidates(database, for: .analysis, limit: limit).get()
+                try await analyze(client: client,
+                                  database: database,
+                                  logger: logger,
+                                  packages: packages)
         }
     }
 
@@ -159,93 +152,112 @@ extension Analyze {
     ///   - client: `Client` object
     ///   - database: `Database` object
     ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running shell commands)
     ///   - packages: packages to be analysed
     /// - Returns: future
     static func analyze(client: Client,
                         database: Database,
                         logger: Logger,
-                        threadPool: NIOThreadPool,
-                        packages: [Joined<Package, Repository>]) -> EventLoopFuture<Void> {
+                        packages: [Joined<Package, Repository>]) async throws {
         AppMetrics.analyzeCandidatesCount?.set(packages.count)
+
         // get or create directory
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         logger.info("Checkout directory: \(checkoutDir)")
         if !Current.fileManager.fileExists(atPath: checkoutDir) {
-            logger.info("Creating checkouts directory at path: \(checkoutDir)")
-            do {
-                try Current.fileManager.createDirectory(atPath: checkoutDir,
-                                                        withIntermediateDirectories: false,
-                                                        attributes: nil)
-            } catch {
-                let msg = "Failed to create checkouts directory: \(error.localizedDescription)"
-                return Current.reportError(client,
-                                           .critical,
-                                           AppError.genericError(nil, msg))
-            }
+            try await createCheckoutsDirectory(client: client, logger: logger, path: checkoutDir)
         }
 
-        let packages = refreshCheckouts(eventLoop: database.eventLoop,
-                                        logger: logger,
-                                        threadPool: threadPool,
-                                        packages: packages)
-            .flatMap { updateRepositories(on: database, packages: $0) }
+        let packageResults = await withThrowingTaskGroup(
+            of: Joined<Package, Repository>.self,
+            returning: [Result<Joined<Package, Repository>, Error>].self
+        ) { group in
+            for pkg in packages {
+                group.addTask {
+                    try refreshCheckout(logger: logger, package: pkg)
+                    try await updateRepository(on: database, package: pkg)
 
-        let packageResults = packages.flatMap { packages in
-            database.transaction { tx in
-                diffVersions(client: client,
-                             logger: logger,
-                             threadPool: threadPool,
-                             transaction: tx,
-                             packages: packages)
-                .flatMap { mergeReleaseInfo(on: tx, packageDeltas: $0) }
-                .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
-                .map { getPackageInfo(packageAndVersions: $0) }
-                .flatMap { updateVersions(on: tx, packageResults: $0) }
-                .flatMap { updateProducts(on: tx, packageResults: $0) }
-                .flatMap { updateTargets(on: tx, packageResults: $0) }
-                .flatMap { updateLatestVersions(on: tx, packageResults: $0) }
-                .flatMap { onNewVersions(client: client,
-                                         logger: logger,
-                                         transaction: tx,
-                                         packageResults: $0)}
+                    let result = try await database.transaction { tx in
+                        // Wrap in a Result to avoid throwing out of the transaction, causing a roll-back
+                        await Result {
+                            try await analyze(client: client,
+                                              transaction: tx,
+                                              logger: logger,
+                                              package: pkg)
+                        }
+                    }
+                    try result.get()
+
+                    return pkg
+                }
             }
+
+            return await group.results()
         }
 
-        let statusOps = packageResults
-            .map(\.packages)
-            .flatMap { updatePackages(client: client,
-                                      database: database,
-                                      logger: logger,
-                                      results: $0,
-                                      stage: .analysis) }
+        try await updatePackages(client: client,
+                                 database: database,
+                                 logger: logger,
+                                 results: packageResults,
+                                 stage: .analysis).get()
 
-        let materializedViewRefresh = statusOps
-            .flatMap { RecentPackage.refresh(on: database) }
-            .flatMap { RecentRelease.refresh(on: database) }
-            .flatMap { Search.refresh(on: database) }
-            .flatMap { Stats.refresh(on: database) }
-
-        return materializedViewRefresh
+        try await RecentPackage.refresh(on: database).get()
+        try await RecentRelease.refresh(on: database).get()
+        try await Search.refresh(on: database).get()
+        try await Stats.refresh(on: database).get()
     }
 
 
-    /// Refresh git checkouts (working copies) for a list of packages.
-    /// - Parameters:
-    ///   - eventLoop: `EventLoop` object
-    ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running shell commands)
-    ///   - packages: list of `Packages`
-    /// - Returns: future with `Result`s
-    static func refreshCheckouts(eventLoop: EventLoop,
-                                 logger: Logger,
-                                 threadPool: NIOThreadPool,
-                                 packages: [Joined<Package, Repository>]) -> EventLoopFuture<[Result<Joined<Package, Repository>, Error>]> {
-        let ops = packages.map { refreshCheckout(eventLoop: eventLoop,
-                                                 logger: logger,
-                                                 threadPool: threadPool,
-                                                 package: $0) }
-        return EventLoopFuture.whenAllComplete(ops, on: eventLoop)
+    static func analyze(client: Client,
+                        transaction: Database,
+                        logger: Logger,
+                        package: Joined<Package, Repository>) async throws {
+        let versionDelta = try await diffVersions(client: client,
+                                                  logger: logger,
+                                                  transaction: transaction,
+                                                  package: package)
+        let newVersions = versionDelta.toAdd
+        mergeReleaseInfo(package: package, versions: newVersions)
+        try await applyVersionDelta(on: transaction, delta: versionDelta)
+        let versionPackageInfo = newVersions.compactMap {
+            // TODO: clean this up by eliminating Result entirely
+            try? getPackageInfo(package: package, version: $0).get()
+        }
+        if !newVersions.isEmpty && versionPackageInfo.isEmpty {
+            throw AppError.noValidVersions(package.model.id, package.model.url)
+        }
+        for (version, pkgInfo) in versionPackageInfo {
+            try await updateVersion(on: transaction, version: version, packageInfo: pkgInfo).get()
+            try await recreateProducts(on: transaction,
+                                       version: version,
+                                       manifest: pkgInfo.packageManifest)
+            try await recreateTargets(on: transaction,
+                                      version: version,
+                                      manifest: pkgInfo.packageManifest)
+        }
+        try await updateLatestVersions(on: transaction, package: package).get()
+        await onNewVersions(client: client,
+                            logger: logger,
+                            transaction: transaction,
+                            package: package,
+                            versions: newVersions)
+    }
+
+
+    static func createCheckoutsDirectory(client: Client,
+                                         logger: Logger,
+                                         path: String) async throws {
+        logger.info("Creating checkouts directory at path: \(path)")
+        do {
+            try Current.fileManager.createDirectory(atPath: path,
+                                                    withIntermediateDirectories: false,
+                                                    attributes: nil)
+        } catch {
+            let msg = "Failed to create checkouts directory: \(error.localizedDescription)"
+            try await Current.reportError(client,
+                                          .critical,
+                                          AppError.genericError(nil, msg)).get()
+            return
+        }
     }
 
 
@@ -291,68 +303,35 @@ extension Analyze {
 
     /// Refresh git checkout (working copy) for a given package.
     /// - Parameters:
-    ///   - eventLoop: `EventLoop` object
     ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running shell commands)
     ///   - package: `Package` to refresh
-    /// - Returns: future
-    static func refreshCheckout(eventLoop: EventLoop,
-                                logger: Logger,
-                                threadPool: NIOThreadPool,
-                                package: Joined<Package, Repository>) -> EventLoopFuture<Joined<Package, Repository>> {
+    static func refreshCheckout(logger: Logger, package: Joined<Package, Repository>) throws {
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
-            return eventLoop.future(
-                error: AppError.invalidPackageCachePath(package.model.id,
-                                                        package.model.url)
-            )
+            throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
-        return threadPool.runIfActive(eventLoop: eventLoop) {
+
+        do {
+            guard Current.fileManager.fileExists(atPath: cacheDir) else {
+                try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
+                return
+            }
+
+            // attempt to fetch - if anything goes wrong we delete the directory
+            // and fall back to cloning
             do {
-                guard Current.fileManager.fileExists(atPath: cacheDir) else {
-                    try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
-                    return
-                }
-
-                // attempt to fetch - if anything goes wrong we delete the directory
-                // and fall back to cloning
-                do {
-                    try fetch(logger: logger,
-                              cacheDir: cacheDir,
-                              branch: package.repository?.defaultBranch ?? "master",
-                              url: package.model.url)
-                } catch {
-                    logger.info("fetch failed: \(error.localizedDescription)")
-                    logger.info("removing directory")
-                    try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
-                    try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
-                }
+                try fetch(logger: logger,
+                          cacheDir: cacheDir,
+                          branch: package.repository?.defaultBranch ?? "master",
+                          url: package.model.url)
             } catch {
-                throw AppError.analysisError(package.model.id, "refreshCheckout failed: \(error.localizedDescription)")
+                logger.info("fetch failed: \(error.localizedDescription)")
+                logger.info("removing directory")
+                try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
+                try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
             }
+        } catch {
+            throw AppError.analysisError(package.model.id, "refreshCheckout failed: \(error.localizedDescription)")
         }
-        .map { package }
-    }
-
-
-    /// Update the `Repository`s of a given set of `Package`s with git repository data (commit count, first commit date, etc).
-    /// - Parameters:
-    ///   - database: `Database` object
-    ///   - packages: `Package`s to update
-    /// - Returns: results future
-    static func updateRepositories(on database: Database,
-                                   packages: [Result<Joined<Package, Repository>, Error>]) -> EventLoopFuture<[Result<Joined<Package, Repository>, Error>]> {
-        let ops = packages.map { result -> EventLoopFuture<Joined<Package, Repository>> in
-            switch result {
-                case .success(let pkg):
-                    AppMetrics.analyzeUpdateRepositorySuccessCount?.inc()
-                    return updateRepository(on: database, package: pkg)
-                        .transform(to: pkg)
-                case .failure(let error):
-                    AppMetrics.analyzeUpdateRepositoryFailureCount?.inc()
-                    return database.eventLoop.future(error: error)
-            }
-        }
-        return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
     }
 
 
@@ -361,24 +340,19 @@ extension Analyze {
     ///   - database: `Database` object
     ///   - package: `Package` to update
     /// - Returns: result future
-    static func updateRepository(on database: Database, package: Joined<Package, Repository>) -> EventLoopFuture<Void> {
+    static func updateRepository(on database: Database, package: Joined<Package, Repository>) async throws {
         guard let repo = package.repository else {
-            return database.eventLoop.future(
-                error: AppError.genericError(package.model.id, "updateRepository: no repository")
-            )
+            throw AppError.genericError(package.model.id, "updateRepository: no repository")
         }
         guard let gitDirectory = Current.fileManager.cacheDirectoryPath(for: package.model) else {
-            return database.eventLoop.future(
-                error: AppError.invalidPackageCachePath(package.model.id,
-                                                        package.model.url)
-            )
+            throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
         repo.commitCount = (try? Current.git.commitCount(gitDirectory)) ?? 0
         repo.firstCommitDate = try? Current.git.firstCommitDate(gitDirectory)
         repo.lastCommitDate = try? Current.git.lastCommitDate(gitDirectory)
 
-        return repo.update(on: database)
+        try await repo.update(on: database)
     }
 
 
@@ -390,6 +364,7 @@ extension Analyze {
     ///   - transaction: database transaction
     ///   - packages: `Package`s to reconcile
     /// - Returns: results future with each `Package` and its pair of new and outdated `Version`s
+    @available(*, deprecated)
     static func diffVersions(client: Client,
                              logger: Logger,
                              threadPool: NIOThreadPool,
@@ -398,7 +373,6 @@ extension Analyze {
         packages.whenAllComplete(on: transaction.eventLoop) { pkg in
             diffVersions(client: client,
                          logger: logger,
-                         threadPool: threadPool,
                          transaction: transaction,
                          package: pkg)
             .map { (pkg, $0) }
@@ -406,46 +380,55 @@ extension Analyze {
     }
 
 
+    // Bridge to new a/a variant, remove when caller `diffVersions -> ELF` is removed
+    @available(*, deprecated)
+    static func diffVersions(client: Client,
+                             logger: Logger,
+                             transaction: Database,
+                             package: Joined<Package, Repository>) -> EventLoopFuture<VersionDelta> {
+        let promise = transaction.eventLoop.makePromise(of: VersionDelta.self)
+        promise.completeWithTask {
+            try await diffVersions(client: client,
+                                   logger: logger,
+                                   transaction: transaction,
+                                   package: package)
+        }
+        return promise.futureResult
+    }
+
+
     /// Find new, outdated, and unchanged versions for a given `Package`, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
     /// - Parameters:
     ///   - client: `Client` object (for Rollbar error reporting)
     ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
     ///   - transaction: database transaction
     ///   - package: `Package` to reconcile
     /// - Returns: future with array of pair of new, outdated, and unchanged `Version`s
     static func diffVersions(client: Client,
                              logger: Logger,
-                             threadPool: NIOThreadPool,
                              transaction: Database,
-                             package: Joined<Package, Repository>) -> EventLoopFuture<VersionDelta> {
+                             package: Joined<Package, Repository>) async throws -> VersionDelta {
         guard let pkgId = package.model.id else {
-            return transaction.eventLoop.future(error: AppError.genericError(nil, "PANIC: package id nil for package \(package.model.url)"))
+            throw AppError.genericError(nil, "PANIC: package id nil for package \(package.model.url)")
         }
 
-        let existing = Version.query(on: transaction)
+        let existing = try await Version.query(on: transaction)
             .filter(\.$package.$id == pkgId)
             .all()
-        let incoming = getIncomingVersions(client: client,
-                                           logger: logger,
-                                           threadPool: threadPool,
-                                           transaction: transaction,
-                                           package: package)
-        return existing.and(incoming)
-            .map { existing, incoming in
-                let throttled = throttle(
-                    lastestExistingVersion: existing.latestBranchVersion,
-                    incoming: incoming
-                )
-                let origDiff = Version.diff(local: existing, incoming: incoming)
-                let newDiff = Version.diff(local: existing, incoming: throttled)
-                let delta = origDiff.toAdd.count - newDiff.toAdd.count
-                if delta > 0 {
-                    logger.info("throttled \(delta) incoming revisions")
-                    AppMetrics.buildThrottleCount?.inc(delta)
-                }
-                return newDiff
-            }
+        let incoming = try await getIncomingVersions(client: client, logger: logger, package: package)
+
+        let throttled = throttle(
+            lastestExistingVersion: existing.latestBranchVersion,
+            incoming: incoming
+        )
+        let origDiff = Version.diff(local: existing, incoming: incoming)
+        let newDiff = Version.diff(local: existing, incoming: throttled)
+        let delta = origDiff.toAdd.count - newDiff.toAdd.count
+        if delta > 0 {
+            logger.info("throttled \(delta) incoming revisions")
+            AppMetrics.buildThrottleCount?.inc(delta)
+        }
+        return newDiff
     }
 
 
@@ -453,51 +436,41 @@ extension Analyze {
     /// - Parameters:
     ///   - client: `Client` object (for Rollbar error reporting)
     ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
-    ///   - transaction: database transaction
     ///   - package: `Package` to reconcile
     /// - Returns: future with incoming `Version`s
     static func getIncomingVersions(client: Client,
                                     logger: Logger,
-                                    threadPool: NIOThreadPool,
-                                    transaction: Database,
-                                    package: Joined<Package, Repository>) -> EventLoopFuture<[Version]> {
+                                    package: Joined<Package, Repository>) async throws -> [Version] {
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
-            return transaction.eventLoop.future(
-                error: AppError.invalidPackageCachePath(
-                    package.model.id,
-                    package.model.url
-                )
-            )
+            throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
         guard let pkgId = package.model.id else {
-            return transaction.eventLoop.future(error: AppError.genericError(nil, "PANIC: package id nil for package \(package.model.url)"))
+            throw AppError.genericError(nil, "PANIC: package id nil for package \(package.model.url)")
         }
 
         let defaultBranch = package.repository?.defaultBranch
             .map { Reference.branch($0) }
 
-        let tags: EventLoopFuture<[Reference]> = threadPool.runIfActive(eventLoop: transaction.eventLoop) {
-            logger.info("listing tags for package \(package.model.url)")
-            return try Current.git.getTags(cacheDir)
+        let tags: [Reference]
+        do {
+            tags = try Current.git.getTags(cacheDir)
+        } catch {
+            let appError = AppError.genericError(pkgId, "Git.tag failed: \(error.localizedDescription)")
+            logger.report(error: appError)
+            try? await Current.reportError(client, .error, appError).get()
+            tags = []
         }
-            .flatMapError {
-                let appError = AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)")
-                logger.report(error: appError)
-                return Current.reportError(client, .error, appError)
-                    .transform(to: [])
-            }
 
-        let references = tags.map { tags in [defaultBranch].compactMap { $0 } + tags }
-        return references
-            .flatMapEachThrowing { ref in
+        let references = [defaultBranch].compactMap { $0 } + tags
+        return try references
+            .map { ref in
                 let revInfo = try Current.git.revisionInfo(ref, cacheDir)
                 let url = package.model.versionUrl(for: ref)
-                return try Version(package: package.model,
-                                   commit: revInfo.commit,
-                                   commitDate: revInfo.date,
-                                   reference: ref,
-                                   url: url)
+                    return try Version(package: package.model,
+                                       commit: revInfo.commit,
+                                       commitDate: revInfo.date,
+                                       reference: ref,
+                                       url: url)
             }
     }
 
@@ -527,38 +500,14 @@ extension Analyze {
     }
 
 
-    /// Merge release details from `Repository.releases` into the list of added `Version`s in a package delta.
-    /// - Parameters:
-    ///   - transaction: transaction to run the save and delete in
-    ///   - packageDeltas: tuples containing the `Package` and its new and outdated `Version`s
-    /// - Returns: future with an array of each `Package` paired with its update package delta for further processing
-    static func mergeReleaseInfo(on transaction: Database,
-                                 packageDeltas: [Result<(Joined<Package, Repository>, VersionDelta), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, VersionDelta), Error>]> {
-        packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
-            mergeReleaseInfo(on: transaction, package: pkg, versions: delta.toAdd)
-                .map { (pkg, .init(toAdd: $0,
-                                   toDelete: delta.toDelete,
-                                   toKeep: delta.toKeep)) }
-        }
-    }
-
-
-    /// Merge release details from `Repository.releases` into a given list of `Version`s.
-    /// - Parameters:
-    ///   - transaction: transaction to run the save and delete in
-    ///   - package: `Package` the `Version`s belong to
-    ///   - versions: list of `Verion`s to update
-    /// - Returns: update `Version`s
-    static func mergeReleaseInfo(on transaction: Database,
-                                 package: Joined<Package, Repository>,
-                                 versions: [Version]) -> EventLoopFuture<[Version]> {
-        guard let releases = package.repository?.releases else {
-            return transaction.eventLoop.future(versions)
-        }
-        let tagToRelease = Dictionary(releases
-            .filter { !$0.isDraft }
-            .map { ($0.tagName, $0) },
-                                      uniquingKeysWith: { $1 })
+    static func mergeReleaseInfo(package: Joined<Package, Repository>, versions: [Version]) {
+        guard let releases = package.repository?.releases else { return }
+        let tagToRelease = Dictionary(
+            releases
+                .filter { !$0.isDraft }
+                .map { ($0.tagName, $0) },
+            uniquingKeysWith: { $1 }
+        )
         versions.forEach { version in
             guard let tagName = version.reference.tagName,
                   let rel = tagToRelease[tagName] else {
@@ -569,21 +518,6 @@ extension Analyze {
             version.releaseNotesHTML = rel.descriptionHTML
             version.url = rel.url
         }
-        return transaction.eventLoop.future(versions)
-    }
-
-
-    /// Saves and deletes the versions specified in the version delta parameter.
-    /// - Parameters:
-    ///   - transaction: transaction to run the save and delete in
-    ///   - packageDeltas: tuples containing the `Package` and its new and outdated `Version`s
-    /// - Returns: future with an array of each `Package` paired with its new `Version`s
-    static func applyVersionDelta(on transaction: Database,
-                           packageDeltas: [Result<(Joined<Package, Repository>, VersionDelta), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [Version]), Error>]> {
-        packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
-            applyVersionDelta(on: transaction, delta: delta)
-                .transform(to: (pkg, delta.toAdd))
-        }
     }
 
 
@@ -593,16 +527,15 @@ extension Analyze {
     ///   - delta: tuple containing the versions to add and remove
     /// - Returns: future
     static func applyVersionDelta(on transaction: Database,
-                                  delta: VersionDelta) -> EventLoopFuture<Void> {
-        let delete = delta.toDelete.delete(on: transaction)
-        let insert = delta.toAdd.create(on: transaction)
-        delta.toAdd.forEach {
-            AppMetrics.analyzeVersionsAddedCount?.inc(1, .init($0.reference))
-        }
+                                  delta: VersionDelta) async throws {
+        try await delta.toDelete.delete(on: transaction)
         delta.toDelete.forEach {
             AppMetrics.analyzeVersionsDeletedCount?.inc(1, .init($0.reference))
         }
-        return delete.flatMap { insert }
+        try await delta.toAdd.create(on: transaction)
+        delta.toAdd.forEach {
+            AppMetrics.analyzeVersionsAddedCount?.inc(1, .init($0.reference))
+        }
     }
 
 
@@ -683,6 +616,7 @@ extension Analyze {
     ///   - database: database connection
     ///   - packageResults: results to process, containing the versions and their manifests
     /// - Returns: the input data for further processing, wrapped in a future
+    @available(*, deprecated)
     static func updateVersions(on database: Database,
                                packageResults: [Result<(Joined<Package, Repository>, [(Version, PackageInfo)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
         packageResults.whenAllComplete(on: database.eventLoop) { (pkg, pkgInfo) in
@@ -734,6 +668,7 @@ extension Analyze {
     ///   - database: database connection
     ///   - packageResults: results to process
     /// - Returns: the input data for further processing, wrapped in a future
+    @available(*, deprecated)
     static func updateProducts(on database: Database,
                                packageResults: [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
         packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
@@ -748,6 +683,12 @@ extension Analyze {
             )
             .transform(to: (pkg, versionsAndManifests))
         }
+    }
+
+
+    static func recreateProducts(on database: Database, version: Version, manifest: Manifest) async throws {
+        try await deleteProducts(on: database, version: version).get()
+        try await createProducts(on: database, version: version, manifest: manifest).get()
     }
 
 
@@ -788,6 +729,7 @@ extension Analyze {
     ///   - database: database connection
     ///   - packageResults: results to process
     /// - Returns: the input data for further processing, wrapped in a future
+    @available(*, deprecated)
     static func updateTargets(on database: Database,
                               packageResults: [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
         packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
@@ -802,6 +744,12 @@ extension Analyze {
             )
             .transform(to: (pkg, versionsAndManifests))
         }
+    }
+
+
+    static func recreateTargets(on database: Database, version: Version, manifest: Manifest) async throws {
+        try await deleteTargets(on: database, version: version).get()
+        try await createTargets(on: database, version: version, manifest: manifest).get()
     }
 
 
@@ -831,20 +779,6 @@ extension Analyze {
             try? Target(version: version, name: manifestTarget.name)
         }
         .create(on: database)
-    }
-
-
-    /// Update the significant versions (stable, beta, latest) for an array of `Package`s (contained in `packageResults`).
-    /// - Parameters:
-    ///   - database: `Database` object
-    ///   - packageResults: packages to update
-    /// - Returns: the input data for further processing, wrapped in a future
-    static func updateLatestVersions(on database: Database,
-                              packageResults: [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
-        packageResults.whenAllComplete(on: database.eventLoop) { pkg, versionsAndManifests in
-            updateLatestVersions(on: database, package: pkg)
-                .map { _ in (pkg, versionsAndManifests) }
-        }
     }
 
 
@@ -894,40 +828,24 @@ extension Analyze {
     /// - Parameters:
     ///   - client: `Client` object for http requests
     ///   - logger: `Logger` object
-    ///   - transaction: database transaction
-    ///   - packageResults: array of `Package`s with their analysis results of `Version`s and `Manifest`s
-    /// - Returns: the packageResults that were passed in, for further processing
+    ///   - transaction: `Database` object representing the current transaction
+    ///   - package: package to update
+    ///   - versions: array of new `Versions`s
     static func onNewVersions(client: Client,
                               logger: Logger,
                               transaction: Database,
-                              packageResults: [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
-        packageResults.whenAllComplete(on: transaction.eventLoop) { pkg, versionsAndManifests in
-            let versions = versionsAndManifests.map { $0.0 }
-            return Twitter.postToFirehose(client: client,
-                                          database: transaction,
-                                          package: pkg,
-                                          versions: versions)
-            .flatMapError { error in
-                logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
-                return client.eventLoop.future()
-            }
-            .map { (pkg, versionsAndManifests) }
+                              package: Joined<Package, Repository>,
+                              versions: [Version]) async {
+        do {
+            try await Twitter.postToFirehose(client: client,
+                                             database: transaction,
+                                             package: package,
+                                             versions: versions).get()
+        } catch {
+            logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
         }
     }
 
-}
-
-
-private extension Array where Element == Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error> {
-    /// Helper to extract the nested `Package` results from the result tuple.
-    /// - Returns: unpacked array of `Result<Package, Error>`
-    var packages: [Result<Joined<Package, Repository>, Error>]  {
-        map { result in
-            result.map { pkg, _ in
-                pkg
-            }
-        }
-    }
 }
 
 

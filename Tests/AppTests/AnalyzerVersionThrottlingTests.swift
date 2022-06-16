@@ -156,17 +156,17 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [new2])
     }
 
-    func test_diffVersions() throws {
+    func test_diffVersions() async throws {
         // Test that diffVersions applies throttling
         // setup
         var t: Date = .t0
         Current.date = { t }
         Current.git.getTags = { _ in [.branch("main")] }
         let pkg = Package(url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let old = try makeVersion(pkg, "sha_old", .hours(-23), .branch("main"))
-        try old.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        try await old.save(on: app.db)
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
         do {  // keep old version if too soon
             Current.git.revisionInfo = { _, _ in
@@ -174,11 +174,10 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             }
 
             // MUT
-            let res = try Analyze.diffVersions(client: app.client,
-                                               logger: app.logger,
-                                               threadPool: app.threadPool,
-                                               transaction: app.db,
-                                               package: jpr).wait()
+            let res = try await Analyze.diffVersions(client: app.client,
+                                                     logger: app.logger,
+                                                     transaction: app.db,
+                                                     package: jpr)
 
             // validate
             XCTAssertEqual(res.toAdd, [])
@@ -195,11 +194,10 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             }
 
             // MUT
-            let res = try Analyze.diffVersions(client: app.client,
-                                               logger: app.logger,
-                                               threadPool: app.threadPool,
-                                               transaction: app.db,
-                                               package: jpr).wait()
+            let res = try await Analyze.diffVersions(client: app.client,
+                                                     logger: app.logger,
+                                                     transaction: app.db,
+                                                     package: jpr)
 
             // validate
             XCTAssertEqual(res.toAdd.map(\.commit), ["sha_new2"])
@@ -208,28 +206,27 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
     }
 
-    func test_progression() throws {
+    func test_progression() async throws {
         // Simulate progression through a time span of branch and tag updates
         // and checking the diffs are as expected.
         // Leaving tags out of it for simplicity - they are tested specifically
         // in test_throttle_ignore_tags above.
 
         // Little helper to simulate minimal version reconciliation
-        func runVersionReconciliation() throws -> VersionDelta {
-            let delta = try Analyze.diffVersions(client: app.client,
-                                                 logger: app.logger,
-                                                 threadPool: app.threadPool,
-                                                 transaction: app.db,
-                                                 package: jpr).wait()
+        func runVersionReconciliation() async throws -> VersionDelta {
+            let delta = try await Analyze.diffVersions(client: app.client,
+                                                       logger: app.logger,
+                                                       transaction: app.db,
+                                                       package: jpr)
             // apply the delta to ensure versions are in place for next cycle
-            try Analyze.applyVersionDelta(on: app.db, delta: delta).wait()
+            try await Analyze.applyVersionDelta(on: app.db, delta: delta)
             return delta
         }
 
         // setup
         let pkg = Package(url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
         // start at t0
         var t = Date.t0
@@ -239,7 +236,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             Current.git.getTags = { _ in [.branch("main")] }
             Current.git.revisionInfo = { _, _ in .init(commit: "sha0", date: t ) }
 
-            let delta = try runVersionReconciliation()
+            let delta = try await runVersionReconciliation()
             XCTAssertEqual(delta.toAdd.map(\.commit), ["sha0"])
             XCTAssertEqual(delta.toDelete, [])
             XCTAssertEqual(delta.toKeep, [])
@@ -250,19 +247,19 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             Current.git.getTags = { _ in [.branch("main")] }
             Current.git.revisionInfo = { _, _ in .init(commit: "sha1", date: t ) }
 
-            let delta = try runVersionReconciliation()
+            let delta = try await runVersionReconciliation()
             XCTAssertEqual(delta.toAdd, [])
             XCTAssertEqual(delta.toDelete, [])
             XCTAssertEqual(delta.toKeep.map(\.commit), ["sha0"])
         }
 
         do {  // run another 5 commits every four hours - they all should be ignored
-            try (1...5).forEach { idx in
+            for idx in 1...5 {
                 t = t.addingTimeInterval(.hours(4))
                 Current.git.getTags = { _ in [.branch("main")] }
                 Current.git.revisionInfo = { _, _ in .init(commit: "sha\(idx+1)", date: t ) }
 
-                let delta = try runVersionReconciliation()
+                let delta = try await runVersionReconciliation()
                 XCTAssertEqual(delta.toAdd, [])
                 XCTAssertEqual(delta.toDelete, [])
                 XCTAssertEqual(delta.toKeep.map(\.commit), ["sha0"])
@@ -274,7 +271,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             Current.git.getTags = { _ in [.branch("main")] }
             Current.git.revisionInfo = { _, _ in .init(commit: "sha7", date: t ) }
 
-            let delta = try runVersionReconciliation()
+            let delta = try await runVersionReconciliation()
             XCTAssertEqual(delta.toAdd.map(\.commit), ["sha7"])
             XCTAssertEqual(delta.toDelete.map(\.commit), ["sha0"])
             XCTAssertEqual(delta.toKeep, [])

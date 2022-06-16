@@ -90,15 +90,11 @@ extension API {
                                      mode: .limit(limit))
                     return .init(status: "ok", rows: limit)
                 case .analyze:
-                    return try await Analyze.analyze(client: req.application.client,
-                                                     database: req.application.db,
-                                                     logger: req.application.logger,
-                                                     threadPool: req.application.threadPool,
-                                                     mode: .limit(limit))
-                        .map {
-                            Command.Response(status: "ok", rows: limit)
-                        }
-                        .get()
+                    try await Analyze.analyze(client: req.application.client,
+                                              database: req.application.db,
+                                              logger: req.application.logger,
+                                              mode: .limit(limit))
+                    return .init(status: "ok", rows: limit)
                 case .none:
                     throw Abort(.notFound)
             }

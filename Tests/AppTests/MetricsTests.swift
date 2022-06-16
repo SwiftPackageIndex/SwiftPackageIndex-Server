@@ -49,7 +49,7 @@ class MetricsTests: AppTestCase {
         })
     }
 
-    func test_versions_added() throws {
+    func test_versions_added() async throws {
         // setup
         let initialAddedBranch = try
             XCTUnwrap(AppMetrics.analyzeVersionsAddedCount?.get(.init("branch")))
@@ -69,10 +69,11 @@ class MetricsTests: AppTestCase {
             try Version(package: pkg, reference: .branch("main")),
             try Version(package: pkg, reference: .tag(1, 0, 0)),
         ]
-        try del.save(on: app.db).wait()
+        try await del.save(on: app.db)
 
         // MUT
-        try Analyze.applyVersionDelta(on: app.db, delta: .init(toAdd: new, toDelete: del)).wait()
+        try await Analyze.applyVersionDelta(on: app.db,
+                                            delta: .init(toAdd: new, toDelete: del))
 
         // validation
         XCTAssertEqual(AppMetrics.analyzeVersionsAddedCount?.get(.init("branch")),
@@ -107,12 +108,12 @@ class MetricsTests: AppTestCase {
         XCTAssert((AppMetrics.ingestDurationSeconds?.get()) ?? 0 > 0)
     }
 
-    func test_analyzeDurationSeconds() throws {
+    func test_analyzeDurationSeconds() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
 
         // MUT
-        try Analyze.analyze(client: app.client, database: app.db, logger: app.logger, threadPool: app.threadPool, mode: .id(pkg.id!)).wait()
+        try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, mode: .id(pkg.id!))
 
         // validation
         XCTAssert((AppMetrics.analyzeDurationSeconds?.get()) ?? 0 > 0)

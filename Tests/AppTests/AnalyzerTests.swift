@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright 2020-2022 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,30 +26,34 @@ import Vapor
 
 class AnalyzerTests: AppTestCase {
 
-    func test_analyze() throws {
+    func test_analyze() async throws {
         // End-to-end test, where we mock at the shell command level (i.e. we
         // don't mock the git commands themselves to ensure we're running the
         // expected shell commands for the happy path.)
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
-        try Repository(package: pkgs[0],
-                       defaultBranch: "main",
-                       name: "1",
-                       owner: "foo",
-                       releases: [
-                        .mock(description: "rel 1.0.0", tagName: "1.0.0")
-                       ],
-                       stars: 25).save(on: app.db).wait()
-        try Repository(package: pkgs[1],
-                       defaultBranch: "main",
-                       name: "2",
-                       owner: "foo",
-                       stars: 100).save(on: app.db).wait()
-        var checkoutDir: String? = nil
+        try await Repository(package: pkgs[0],
+                             defaultBranch: "main",
+                             name: "1",
+                             owner: "foo",
+                             releases: [
+                                .mock(description: "rel 1.0.0", tagName: "1.0.0")
+                             ],
+                             stars: 25).save(on: app.db)
+        try await Repository(package: pkgs[1],
+                             defaultBranch: "main",
+                             name: "2",
+                             owner: "foo",
+                             stars: 100).save(on: app.db)
+        actor Validation {
+            static var checkoutDir: String? = nil
+            static var commands = [Command]()
+        }
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succeed to simulate pull
-            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
+            if let outDir = Validation.checkoutDir,
+               path == "\(outDir)/github.com-foo-2" { return true }
             if path.hasSuffix("Package.swift") { return true }
             if path.hasSuffix("Package.resolved") { return true }
             return false
@@ -61,14 +65,13 @@ class AnalyzerTests: AppTestCase {
                 return nil
             }
         }
-        Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
+        Current.fileManager.createDirectory = { path, _, _ in Validation.checkoutDir = path }
         Current.git = .live
-        var commands = [Command]()
         Current.shell.run = { cmd, path in
             try self.testQueue.sync {
-                let trimmedPath = path.replacingOccurrences(of: checkoutDir!,
+                let trimmedPath = path.replacingOccurrences(of: Validation.checkoutDir!,
                                                             with: ".")
-                commands.append(try XCTUnwrap(.init(command: cmd, path: trimmedPath)))
+                Validation.commands.append(try .init(command: cmd, path: trimmedPath).unwrap())
             }
             if cmd == .gitListTags && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
@@ -131,23 +134,22 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  mode: .limit(10))
 
         // validation
-        let outDir = try XCTUnwrap(checkoutDir)
+        let outDir = try Validation.checkoutDir.unwrap()
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-        XCTAssertEqual(commands.count, 32)
+        XCTAssertEqual(Validation.commands.count, 32)
 
         // Snapshot for each package individually to avoid ordering issues when
         // concurrent processing causes commands to interleave between packages.
-        assertSnapshot(matching: commands
+        assertSnapshot(matching: Validation.commands
                         .filter { $0.path.hasSuffix("foo-1") }
                         .map(\.description), as: .dump)
-        assertSnapshot(matching: commands
+        assertSnapshot(matching: Validation.commands
                         .filter { $0.path.hasSuffix("foo-2") }
                         .map(\.description), as: .dump)
 
@@ -202,7 +204,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try RecentRelease.fetch(on: app.db).wait().count, 2)
     }
 
-    func test_analyze_version_update() throws {
+    func test_analyze_version_update() async throws {
         // Ensure that new incoming versions update the latest properties and
         // move versions in case commits change. Tests both default branch commits
         // changing as well as a tag being moved to a different commit.
@@ -210,23 +212,23 @@ class AnalyzerTests: AppTestCase {
         let pkgId = UUID()
         let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
         try pkg.save(on: app.db).wait()
-        try Repository(package: pkg,
-                       defaultBranch: "main",
-                       name: "1",
-                       owner: "foo").save(on: app.db).wait()
+        try await Repository(package: pkg,
+                             defaultBranch: "main",
+                             name: "1",
+                             owner: "foo").save(on: app.db)
         // add existing versions (to be reconciled)
-        try Version(package: pkg,
-                    commit: "commit0",
-                    commitDate: .t0,
-                    latest: .defaultBranch,
-                    packageName: "foo-1",
-                    reference: .branch("main")).save(on: app.db).wait()
-        try Version(package: pkg,
-                    commit: "commit0",
-                    commitDate: .t0,
-                    latest: .release,
-                    packageName: "foo-1",
-                    reference: .tag(1, 0, 0)).save(on: app.db).wait()
+        try await Version(package: pkg,
+                          commit: "commit0",
+                          commitDate: .t0,
+                          latest: .defaultBranch,
+                          packageName: "foo-1",
+                          reference: .branch("main")).save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "commit0",
+                          commitDate: .t0,
+                          latest: .release,
+                          packageName: "foo-1",
+                          reference: .tag(1, 0, 0)).save(on: app.db)
 
         Current.fileManager.fileExists = { _ in true }
 
@@ -273,14 +275,13 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  mode: .limit(10))
 
         // validate versions
-        let p = try XCTUnwrap(Package.find(pkgId, on: app.db).wait())
+        let p = try await Package.find(pkgId, on: app.db).unwrap()
         try p.$versions.load(on: app.db).wait()
         let versions = p.versions.sorted(by: { $0.commitDate < $1.commitDate })
         XCTAssertEqual(versions.map(\.commitDate), [.t1, .t2, .t3])
@@ -289,13 +290,13 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(versions.map(\.commit), ["commit1", "commit2", "commit3"])
     }
 
-    func test_package_status() throws {
+    func test_package_status() async throws {
         // Ensure packages record success/error status
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
-        try pkgs.forEach {
-            try Repository(package: $0, defaultBranch: "main").save(on: app.db).wait()
+        for p in pkgs {
+            try await Repository(package: p, defaultBranch: "main").save(on: app.db)
         }
         let lastUpdate = Date()
 
@@ -318,25 +319,24 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  mode: .limit(10))
 
         // assert packages have been updated
-        let packages = try Package.query(on: app.db).sort(\.$createdAt).all().wait()
+        let packages = try await Package.query(on: app.db).sort(\.$createdAt).all()
         packages.forEach { XCTAssert($0.updatedAt! > lastUpdate) }
         XCTAssertEqual(packages.map(\.status), [.noValidVersions, .ok])
     }
 
-    func test_continue_on_exception() throws {
-        // Test to ensure exceptions don't break processing
+    func test_continue_on_exception() async throws {
+        // Test to ensure exceptions don't interrupt processing
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
-        try pkgs.forEach {
-            try Repository(package: $0, defaultBranch: "main").save(on: app.db).wait()
+        for p in pkgs {
+            try await Repository(package: p, defaultBranch: "main").save(on: app.db)
         }
         var checkoutDir: String? = nil
 
@@ -361,10 +361,12 @@ class AnalyzerTests: AppTestCase {
             mockResults[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
         }
 
-        var commands = [Command]()
+        actor Validation {
+            static var commands = [Command]()
+        }
         Current.shell.run = { cmd, path in
             try self.testQueue.sync {
-                commands.append(try XCTUnwrap(.init(command: cmd, path: path)))
+                Validation.commands.append(try .init(command: cmd, path: path).unwrap())
             }
 
             if let result = mockResults[cmd] { return result }
@@ -375,66 +377,46 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  mode: .limit(10))
 
         // validation (not in detail, this is just to ensure command count is as expected)
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
-        XCTAssertEqual(commands.count, 32, "was: \(dump(commands))")
+        XCTAssertEqual(Validation.commands.count, 32, "was: \(dump(Validation.commands))")
         // 2 packages with 2 tags + 1 default branch each -> 6 versions
-        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 6)
+        let versionCount = try await Version.query(on: app.db).count()
+        XCTAssertEqual(versionCount, 6)
     }
 
-    func test_refreshCheckout() throws {
+    func test_refreshCheckout() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         Current.fileManager.fileExists = { _ in true }
-        var commands = [String]()
+        actor Validator {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, path in
             self.testQueue.sync {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
-                commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
+                Validator.commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
             }
             return ""
         }
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
         // MUT
-        _ = try Analyze.refreshCheckout(eventLoop: app.eventLoopGroup.next(),
-                                        logger: app.logger,
-                                        threadPool: app.threadPool,
-                                        package: jpr).wait()
+        _ = try Analyze.refreshCheckout(logger: app.logger, package: jpr)
 
         // validate
-        assertSnapshot(matching: commands, as: .dump)
+        assertSnapshot(matching: Validator.commands, as: .dump)
     }
 
-    func test_refreshCheckout_continueOnError() throws {
-        // Test that processing continues on if a url in invalid
-        // setup - first URL is not a valid url
-        try savePackages(on: app.db, ["1", "2".asGithubUrl].asURLs, processingStage: .ingestion)
-        let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
-
-        // MUT
-        let res = try pkgs.flatMap {
-            Analyze.refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
-                                     logger: self.app.logger,
-                                     threadPool: self.app.threadPool,
-                                     packages: $0)
-        }.wait()
-
-        // validation
-        XCTAssertEqual(res.count, 2)
-        XCTAssertEqual(res.map(\.isSuccess), [false, true])
-    }
-
-    func test_updateRepository() throws {
+    func test_updateRepository() async throws {
         // setup
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }
@@ -442,53 +424,21 @@ class AnalyzerTests: AppTestCase {
         Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
-        try Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: .id0).wait()
+        try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
 
-        // MUT
-        try Analyze.updateRepository(on: app.db, package: jpr).wait()
+        do {  // MUT
+            let pkg = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+            try await Analyze.updateRepository(on: app.db, package: pkg)
+        }
 
         // validate
-        let repo = try Repository.find(.id1, on: app.db).wait()
+        let repo = try await Repository.find(.id1, on: app.db)
         XCTAssertEqual(repo?.commitCount, 12)
         XCTAssertEqual(repo?.firstCommitDate, .t0)
         XCTAssertEqual(repo?.lastCommitDate, .t1)
     }
-
-    func test_updateRepositories() throws {
-        // setup
-        Current.git.commitCount = { _ in 12 }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.lastCommitDate = { _ in .t1 }
-        Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
-        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        let packages: [Result<Joined<Package, Repository>, Error>] = [
-            // feed in one error to see it passed through
-            .failure(AppError.invalidPackageUrl(nil, "some reason")),
-            .success(jpr)
-        ]
-
-        // MUT
-        let results: [Result<Joined<Package, Repository>, Error>] =
-        try Analyze.updateRepositories(on: app.db, packages: packages).wait()
-
-        // validate
-        XCTAssertEqual(results.count, 2)
-        XCTAssertEqual(results.map(\.isSuccess), [false, true])
-        // ensure results are persisted
-        let repo = try XCTUnwrap(Repository.query(on: app.db)
-                                    .filter(\.$package.$id == pkg.id!)
-                                    .first()
-                                    .wait())
-        XCTAssertEqual(repo.commitCount, 12)
-        XCTAssertEqual(repo.firstCommitDate, Date(timeIntervalSince1970: 0))
-        XCTAssertEqual(repo.lastCommitDate, Date(timeIntervalSince1970: 1))
-    }
-
-    func test_diffVersions() throws {
+    
+    func test_diffVersions() async throws {
         //setup
         Current.git.getTags = { _ in [.tag(1, 2, 3)] }
         Current.git.revisionInfo = { ref, _ in
@@ -501,16 +451,15 @@ class AnalyzerTests: AppTestCase {
         do {
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url)
             try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         }
-        let pkg = try Package.fetchCandidate(app.db, id: pkgId).wait()
+        let pkg = try await Package.fetchCandidate(app.db, id: pkgId).get()
 
         // MUT
-        let delta = try Analyze.diffVersions(client: app.client,
-                                             logger: app.logger,
-                                             threadPool: app.threadPool,
-                                             transaction: app.db,
-                                             package: pkg).wait()
+        let delta = try await Analyze.diffVersions(client: app.client,
+                                                   logger: app.logger,
+                                                   transaction: app.db,
+                                                   package: pkg)
 
         // validate
         assertEquals(delta.toAdd, \.reference,
@@ -522,39 +471,6 @@ class AnalyzerTests: AppTestCase {
             "https://github.com/foo/1/tree/main",
             "https://github.com/foo/1/releases/tag/1.2.3"
         ])
-        XCTAssertEqual(delta.toDelete, [])
-    }
-
-    func test_diffVersions_package_list() throws {
-        //setup
-        Current.git.getTags = { _ in [.tag(1, 2, 3)] }
-        Current.git.revisionInfo = { ref, _ in .init(commit: "sha", date: .t0) }
-        Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
-        let pkgId = UUID()
-        do {
-            let pkg = Package(id: pkgId, url: "1".asGithubUrl.url)
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        }
-        let pkg = try Package.fetchCandidate(app.db, id: pkgId).wait()
-        let packages: [Result<Joined<Package, Repository>, Error>] = [
-            // feed in one error to see it passed through
-            .failure(AppError.invalidPackageUrl(nil, "some reason")),
-            .success(pkg)
-        ]
-
-        // MUT
-        let results = try Analyze.diffVersions(client: app.client,
-                                               logger: app.logger,
-                                               threadPool: app.threadPool,
-                                               transaction: app.db,
-                                               packages: packages).wait()
-
-        // validate
-        XCTAssertEqual(results.count, 2)
-        XCTAssertEqual(results.map(\.isSuccess), [false, true])
-        let (_, delta) = try XCTUnwrap(results.last).get()
-        assertEquals(delta.toAdd, \.reference.description, ["main", "1.2.3"])
         XCTAssertEqual(delta.toDelete, [])
     }
 
@@ -589,13 +505,10 @@ class AnalyzerTests: AppTestCase {
         let jpr = try Package.fetchCandidate(app.db, id: .id0).wait()
 
         // MUT
-        let res = try Analyze.mergeReleaseInfo(on: app.db,
-                                               package: jpr,
-                                               versions: versions)
-            .wait()
+        Analyze.mergeReleaseInfo(package: jpr, versions: versions)
 
         // validate
-        let sortedResults = res.sorted { $0.commitDate < $1.commitDate }
+        let sortedResults = versions.sorted { $0.commitDate < $1.commitDate }
         XCTAssertEqual(sortedResults.map(\.releaseNotes),
                        ["rel 1.2.3", "rel 2.0.0", nil, nil, "rel 2.3.0", nil, nil])
         XCTAssertEqual(sortedResults.map(\.url),
@@ -853,7 +766,7 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
-    func test_issue_29() throws {
+    func test_issue_29() async throws {
         // Regression test for issue 29
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/29
         // setup
@@ -895,11 +808,10 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  mode: .limit(10))
 
         // validation
         // 1 version for the default branch + 2 for the tags each = 6 versions
@@ -908,57 +820,60 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try Product.query(on: app.db).count().wait(), 12)
     }
 
-    func test_issue_70() throws {
+    func test_issue_70() async throws {
         // Certain git commands fail when index.lock exists
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/70
         // setup
         try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
-        let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
+        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).get()
 
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which
         // we want to trigger the cleanup mechanism
         Current.fileManager.fileExists = { path in true }
 
-        var commands = [String]()
+        actor Validator {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, path in
             self.testQueue.sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "...")
-                commands.append(c)
+                Validator.commands.append(c)
             }
             return ""
         }
 
         // MUT
-        let res = try pkgs.flatMap {
-            Analyze.refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
-                                     logger: self.app.logger,
-                                     threadPool: self.app.threadPool,
-                                     packages: $0)
-        }.wait()
+        let res = pkgs.map { pkg in
+            Result {
+                try Analyze.refreshCheckout(logger: self.app.logger, package: pkg)
+            }
+        }
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
-        assertSnapshot(matching: commands, as: .dump)
+        assertSnapshot(matching: Validator.commands, as: .dump)
     }
 
-    func test_issue_498() throws {
+    func test_issue_498() async throws {
         // git checkout can still fail despite git reset --hard + git clean
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
         // setup
         try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
-        let pkgs = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
+        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).get()
 
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which
         // we want to trigger the cleanup mechanism
         Current.fileManager.fileExists = { path in true }
 
-        var commands = [String]()
+        actor Validator {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, path in
             self.testQueue.sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
-                commands.append(c)
+                Validator.commands.append(c)
             }
             if cmd == .gitCheckout(branch: "master") {
                 throw TestError.simulatedCheckoutError
@@ -967,14 +882,15 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        let res = try Analyze.refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
-                                               logger: self.app.logger,
-                                               threadPool: self.app.threadPool,
-                                               packages: pkgs).wait()
+        let res = pkgs.map { pkg in
+            Result {
+                try Analyze.refreshCheckout(logger: self.app.logger, package: pkg)
+            }
+        }
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
-        assertSnapshot(matching: commands, as: .dump)
+        assertSnapshot(matching: Validator.commands, as: .dump)
     }
 
     func test_dumpPackage_5_4() throws {
@@ -1041,35 +957,34 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
-    func test_issue_693() throws {
+    func test_issue_693() async throws {
         // Handle moved tags
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/693
         // setup
         do {
             let pkg = try savePackage(on: app.db, id: .id0, "1".asGithubUrl.url)
-            try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         }
-        let pkg = try Package.fetchCandidate(app.db, id: .id0).wait()
+        let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
         Current.fileManager.fileExists = { _ in true }
-        var commands = [String]()
+        actor Validator {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, _ in
             self.testQueue.sync {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
-                commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
+                Validator.commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
             }
             if cmd == .gitFetch { throw TestError.simulatedFetchError }
             return ""
         }
 
         // MUT
-        _ = try Analyze.refreshCheckout(eventLoop: app.eventLoopGroup.next(),
-                                        logger: app.logger,
-                                        threadPool: app.threadPool,
-                                        package: pkg).wait()
+        _ = try Analyze.refreshCheckout(logger: app.logger, package: pkg)
 
         // validate
-        assertSnapshot(matching: commands, as: .dump)
+        assertSnapshot(matching: Validator.commands, as: .dump)
     }
 
     func test_updateLatestVersions() throws {
@@ -1132,31 +1047,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, nil])
     }
 
-    func test_onNewVersions() throws {
-        // ensure that onNewVersions does not propagate errors
-        // setup
-        Current.twitterPostTweet = { _, _ in
-            // simulate failure (this is for good measure - our version will also raise an
-            // invalidMessage error, because it is missing a repository)
-            self.app.eventLoopGroup.future(error: Twitter.Error.missingCredentials)
-        }
-        let pkg = Package(url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
-        let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try version.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        let packageResults: [Result<(Joined<Package, Repository>, [(Version, App.Manifest)]), Error>] = [
-            .success((jpr, [(version, .mock)]))
-        ]
-
-        // MUT & validation (no error thrown)
-        _ = try Analyze.onNewVersions(client: app.client,
-                                      logger: app.logger,
-                                      transaction: app.db,
-                                      packageResults: packageResults).wait()
-    }
-
-    func test_issue_914() throws {
+    func test_issue_914() async throws {
         // Ensure we handle 404 repos properly
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/914
         // setup
@@ -1180,14 +1071,13 @@ class AnalyzerTests: AppTestCase {
         let lastUpdated = Date()
 
         // MUT
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  mode: .limit(10))
 
         // validate
-        let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+        let pkg = try await Package.query(on: app.db).first().unwrap()
         XCTAssertTrue(pkg.updatedAt! > lastUpdated)
         XCTAssertEqual(pkg.status, .analysisFailed)
     }

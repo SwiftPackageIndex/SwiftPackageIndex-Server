@@ -130,9 +130,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
-        .get()
 
         // validate
         try await defaultValidation()
@@ -162,9 +160,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
-        .get()
 
         // validate
         try await defaultValidation()
@@ -196,9 +192,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
-        .get()
 
         // validate
         try await defaultValidation()
@@ -227,9 +221,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
-        .get()
 
         // validate
         try await defaultValidation()
