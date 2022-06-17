@@ -28,6 +28,7 @@ struct ProductTypeSearchFilter: SearchFilterProtocol {
     static var key: SearchFilter.Key = .productType
 
     var predicate: SearchFilter.Predicate
+    let productType: Package.ProductType
 
     init(expression: SearchFilter.Expression) throws {
         // We don't support `isNot`, because it's unlikely
@@ -43,6 +44,8 @@ struct ProductTypeSearchFilter: SearchFilterProtocol {
         guard let value = Package.ProductType(rawValue: expression.value) else {
             throw SearchFilterError.invalidValueType
         }
+
+        productType = value
 
         self.predicate = .init(
             operator: .jsonKeyExists,
@@ -63,5 +66,18 @@ private extension Package.ProductType {
             case .plugin:
                 return "Plugin"
         }
+    }
+}
+
+extension ProductTypeSearchFilter {
+    var viewModel: SearchFilter.ViewModel {
+        let article: String
+        switch productType {
+        case .executable: article = "an"
+        default: article = "a"
+        }
+        return .init(key: "Package products",
+              operator: "contain",
+              value: "\(article) \(predicate.displayValue)")
     }
 }

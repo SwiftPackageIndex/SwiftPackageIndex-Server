@@ -159,6 +159,7 @@ The following package metadata fields are supported:
 - `keyword` (Keyword): Filter on matching package keywords.
 - `platform` (Platform(s)): Filter on one or more compatible platforms (iOS, macOS, Linux, tvOS, or watchOS).
 - `stars` (Number): The number of stars the package has.
+- `product` (Product): The type of product the package should contain (executable, library, plugin).
 
 Use `>`, `>=`, `<` and `<=` to filter for values greater than, greater than or equal to, less than, and less than or equal to another value. All filters are combined with an AND operator.
 

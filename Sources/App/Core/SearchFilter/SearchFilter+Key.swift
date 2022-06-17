@@ -25,7 +25,7 @@ extension SearchFilter {
         case license
         case platform
         case stars
-        case productType = "type"
+        case productType = "product"
 
         var searchFilter: SearchFilterProtocol.Type {
             switch self {
@@ -86,7 +86,7 @@ extension SearchFilter.Key: CustomStringConvertible {
             case .platform:
                 return "platform compatibility"
             case .productType:
-                return "type"
+                return "product"
         }
     }
 }
