@@ -14,7 +14,6 @@
 
 @testable import App
 
-import SPIManifest
 import XCTVapor
 
 
