@@ -645,7 +645,7 @@ class SearchTests: AppTestCase {
         // setup
         // p1: decoy
         // p2: match
-        let pkgs = await (0..<2).mapAsync { Package(id: UUID(), url: "\($0)".url) }
+        let pkgs = (0..<2).map { Package(id: UUID(), url: "\($0)".url) }
         try await pkgs.save(on: app.db)
         try await [
             Repository(package: pkgs[0],
@@ -675,9 +675,7 @@ class SearchTests: AppTestCase {
         // setup
         // p1: decoy
         // p2: match
-        let pkgs = await (0..<4).mapAsync {
-            Package(id: UUID(), url: "\($0)".url, score: $0)
-        }
+        let pkgs = (0..<4).map { Package(id: UUID(), url: "\($0)".url, score: $0) }
         try await pkgs.save(on: app.db)
         let keywords = [
             [],
@@ -685,14 +683,14 @@ class SearchTests: AppTestCase {
             ["atopicb"],
             ["topicb"],
         ]
-        try await (0..<4).mapAsync {
+        try await (0..<4).map {
             try Repository(package: pkgs[$0],
                            defaultBranch: "main",
                            keywords: keywords[$0],
                            name: "\($0)",
                            owner: "foo")
         }.save(on: app.db)
-        try await (0..<4).mapAsync {
+        try await (0..<4).map {
             try Version(package: pkgs[$0], packageName: "p\($0)", reference: .branch("main"))
         }.save(on: app.db)
         try await Search.refresh(on: app.db).get()
@@ -711,7 +709,7 @@ class SearchTests: AppTestCase {
         // setup
         // p1: decoy
         // p2: match
-        let pkgs = await (0..<4).mapAsync {
+        let pkgs = (0..<4).map {
             Package(id: UUID(), url: "\($0)".url, score: $0)
         }
         try await pkgs.save(on: app.db)
@@ -721,13 +719,13 @@ class SearchTests: AppTestCase {
             "author",
             "author-2",
         ]
-        try await (0..<4).mapAsync {
+        try await (0..<4).map {
             try Repository(package: pkgs[$0],
                            defaultBranch: "main",
                            name: "\($0)",
                            owner: authors[$0])
         }.save(on: app.db)
-        try await (0..<4).mapAsync {
+        try await (0..<4).map {
             try Version(package: pkgs[$0], packageName: "p\($0)", reference: .branch("main"))
         }.save(on: app.db)
         try await Search.refresh(on: app.db).get()
