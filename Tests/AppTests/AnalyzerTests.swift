@@ -51,6 +51,10 @@ class AnalyzerTests: AppTestCase {
             static var checkoutDir: String? = nil
             static var commands = [Command]()
         }
+        Current.fetchS3DocArchives = { prefix, _, _, _ in
+            if prefix == "foo/1" { return [.mock("foo", "1", "main")] }
+            return []
+        }
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succeed to simulate pull
             if let outDir = Validation.checkoutDir,
@@ -68,6 +72,13 @@ class AnalyzerTests: AppTestCase {
         }
         Current.fileManager.createDirectory = { path, _, _ in Validation.checkoutDir = path }
         Current.git = .live
+        Current.loadSPIManifest = { path in
+            if path.hasSuffix("foo-1") {
+                return .init(builder: .init(configs: [.init(documentationTargets: ["DocTarget"])]))
+            } else {
+                return nil
+            }
+        }
         Current.shell.run = { cmd, path in
             try self.testQueue.sync {
                 let trimmedPath = path.replacingOccurrences(of: Validation.checkoutDir!,
@@ -168,6 +179,10 @@ class AnalyzerTests: AppTestCase {
                         .flatMap { $0.resolvedDependencies ?? [] }
                         .map(\.packageName),
                        ["foo-1", "foo-1", "foo-1"])
+        // default branch version (first one) has doc archives
+        XCTAssertEqual(sortedVersions1.map(\.docArchives), [
+            [.mock("foo", "1", "main")], nil, nil
+        ])
 
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg2.status, .ok)
@@ -520,6 +535,58 @@ class AnalyzerTests: AppTestCase {
                         nil, nil,
                         Date(timeIntervalSince1970: 4),
                         nil, nil])
+    }
+
+    func test_PackageInfo_hasDocumentationTargets() throws {
+        do {  // no spi manifest
+            let pkgInfo = Analyze.PackageInfo(
+                packageManifest: .init(name: "foo",
+                                       products: [],
+                                       targets: []),
+                spiManifest: nil
+            )
+            XCTAssertFalse(pkgInfo.hasDocumentationTargets)
+        }
+        do {  // spi manifest without targets
+            let pkgInfo = Analyze.PackageInfo(
+                packageManifest: .init(name: "foo",
+                                       products: [],
+                                       targets: []),
+                spiManifest: .init(
+                    builder: .init(configs: [.init(documentationTargets: [])])
+                )
+            )
+            XCTAssertFalse(pkgInfo.hasDocumentationTargets)
+        }
+        do {  // spi manifest with targets
+            let pkgInfo = Analyze.PackageInfo(
+                packageManifest: .init(name: "foo",
+                                       products: [],
+                                       targets: []),
+                spiManifest: .init(
+                    builder: .init(configs: [.init(documentationTargets: ["Target"])])
+                )
+            )
+            XCTAssertTrue(pkgInfo.hasDocumentationTargets)
+        }
+        do {  // special casing of swift-docc
+            let pkgInfo = Analyze.PackageInfo(
+                packageManifest: .init(name: "SwiftDocC",
+                                       products: [],
+                                       targets: []),
+                spiManifest: nil
+            )
+            XCTAssertTrue(pkgInfo.hasDocumentationTargets)
+        }
+        do {  // special casing of swift-markdown
+            let pkgInfo = Analyze.PackageInfo(
+                packageManifest: .init(name: "swift-markdown",
+                                       products: [],
+                                       targets: []),
+                spiManifest: nil
+            )
+            XCTAssertTrue(pkgInfo.hasDocumentationTargets)
+        }
     }
 
     func test_getPackageInfo() async throws {

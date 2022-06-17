@@ -14,6 +14,7 @@
 
 import AsyncHTTPClient
 import S3DocArchives
+import SPIManifest
 import ShellOut
 import Vapor
 #if canImport(FoundationNetworking)
@@ -53,6 +54,7 @@ struct AppEnvironment {
     var gitlabPipelineToken: () -> String?
     var gitlabPipelineLimit: () -> Int
     var hideStagingBanner: () -> Bool
+    var loadSPIManifest: (String) -> SPIManifest.Manifest?
     var logger: () -> Logger?
     var metricsPushGatewayUrl: () -> String?
     var random: (_ range: ClosedRange<Double>) -> Double
@@ -141,6 +143,7 @@ extension AppEnvironment {
             Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
                 ?? Constants.defaultHideStagingBanner
         },
+        loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         random: Double.random,

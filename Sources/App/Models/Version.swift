@@ -220,20 +220,3 @@ extension Array where Element == Version {
             .last
     }
 }
-
-
-extension Version {
-    var hasDocumentationTargets: Bool {
-        if let url = url?.lowercased() {
-            // Overrides for repositories without .spi.yml files which we artificially inject in the builder
-            // Don't include .git suffix in the check, because the url shape is
-            //   https://github.com/apple/swift-docc/tree/main
-            // Add a trailing '/' to avoid accidentally matching
-            //   https://github.com/apple/swift-docc-plugin/tree/main
-            // It's a bit of a hack but this whole thing is, the proper fix is upstreaming .spi.yml.
-            if url.contains("https://github.com/apple/swift-docc/") { return true }
-            if url.contains("https://github.com/apple/swift-markdown/") { return true }
-        }
-        return spiManifest?.allDocumentationTargets()?.isEmpty == false
-    }
-}

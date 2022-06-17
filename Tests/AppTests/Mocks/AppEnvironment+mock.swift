@@ -67,6 +67,7 @@ extension AppEnvironment {
             gitlabPipelineToken: { nil },
             gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
             hideStagingBanner: { false },
+            loadSPIManifest: { _ in nil },
             logger: { nil },
             metricsPushGatewayUrl: { "http://pushgateway:9091" },
             random: Double.random,

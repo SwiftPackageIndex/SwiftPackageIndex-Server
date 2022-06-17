@@ -232,8 +232,9 @@ extension Analyze {
             throw AppError.noValidVersions(package.model.id, package.model.url)
         }
 
-        let docArchivesByRef = try await getDocArchives(for: package, versions: newVersions)?
-            .archivesGroupedByRef() ?? [:]
+        let docArchivesByRef = versionsPkgInfo.filter(\.1.hasDocumentationTargets).isEmpty
+        ? [:]
+        : try await getDocArchives(for: package)?.archivesGroupedByRef() ?? [:]
 
         for (version, pkgInfo) in versionsPkgInfo {
             try await updateVersion(on: transaction,
@@ -533,18 +534,23 @@ extension Analyze {
         var packageManifest: Manifest
         var dependencies: [ResolvedDependency]?
         var spiManifest: SPIManifest.Manifest?
+
+        var hasDocumentationTargets: Bool {
+            if ["SwiftDocC", "swift-markdown"].contains(packageManifest.name) {
+                // This is not the strongest of guarantees but it has to do
+                return true
+            }
+            return spiManifest?.allDocumentationTargets()?.isEmpty == false
+        }
     }
 
 
-    static func getDocArchives(for package: Joined<Package, Repository>, versions: [Version]) async throws -> [DocArchive]? {
+    static func getDocArchives(for package: Joined<Package, Repository>) async throws -> [DocArchive]? {
         guard let awsAccessKeyId = Current.awsAccessKeyId(),
               let awsBucketName = Current.awsDocsBucket(),
               let awsSecretAccessKey = Current.awsSecretAccessKey() else {
             throw AppError.envVariableNotSet("AWS env variable")
         }
-
-        let candidates = versions.filter(\.hasDocumentationTargets)
-        guard !candidates.isEmpty else { return nil }
 
         guard let owner = package.repository?.owner,
               let repository = package.repository?.name
@@ -577,7 +583,7 @@ extension Analyze {
             let packageManifest = try dumpPackage(at: cacheDir)
             let resolvedDependencies = getResolvedDependencies(Current.fileManager,
                                                                at: cacheDir)
-            let spiManifest = SPIManifest.Manifest.load(in: cacheDir)
+            let spiManifest = Current.loadSPIManifest(cacheDir)
 
             return PackageInfo(packageManifest: packageManifest,
                                dependencies: resolvedDependencies,
