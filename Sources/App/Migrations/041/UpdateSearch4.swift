@@ -24,6 +24,9 @@ struct UpdateSearch4: Migration {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
         
+        // ** IMPORTANT **
+        // When updating the query underlying the materialized view, make sure to also
+        // update the matching performance test in QueryPerformanceTests.test_Search_refresh!
         return db.raw(dropSQL).run()
             .flatMap { db.raw("""
             -- v5
