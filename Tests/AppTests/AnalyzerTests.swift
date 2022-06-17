@@ -15,6 +15,7 @@
 import XCTest
 
 @testable import App
+@testable import S3DocArchives
 
 import DependencyResolution
 import Fluent
@@ -50,6 +51,10 @@ class AnalyzerTests: AppTestCase {
             static var checkoutDir: String? = nil
             static var commands = [Command]()
         }
+        Current.fetchS3DocArchives = { prefix, _, _, _ in
+            if prefix == "foo/1" { return [.mock("foo", "1", "main")] }
+            return []
+        }
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succeed to simulate pull
             if let outDir = Validation.checkoutDir,
@@ -67,6 +72,13 @@ class AnalyzerTests: AppTestCase {
         }
         Current.fileManager.createDirectory = { path, _, _ in Validation.checkoutDir = path }
         Current.git = .live
+        Current.loadSPIManifest = { path in
+            if path.hasSuffix("foo-1") {
+                return .init(builder: .init(configs: [.init(documentationTargets: ["DocTarget"])]))
+            } else {
+                return nil
+            }
+        }
         Current.shell.run = { cmd, path in
             try self.testQueue.sync {
                 let trimmedPath = path.replacingOccurrences(of: Validation.checkoutDir!,
@@ -167,6 +179,10 @@ class AnalyzerTests: AppTestCase {
                         .flatMap { $0.resolvedDependencies ?? [] }
                         .map(\.packageName),
                        ["foo-1", "foo-1", "foo-1"])
+        // default branch version (first one) has doc archives
+        XCTAssertEqual(sortedVersions1.map(\.docArchives), [
+            [.mock("foo", "1", "main")], nil, nil
+        ])
 
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg2.status, .ok)
@@ -437,7 +453,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(repo?.firstCommitDate, .t0)
         XCTAssertEqual(repo?.lastCommitDate, .t1)
     }
-    
+
     func test_diffVersions() async throws {
         //setup
         Current.git.getTags = { _ in [.tag(1, 2, 3)] }
@@ -521,13 +537,67 @@ class AnalyzerTests: AppTestCase {
                         nil, nil])
     }
 
-    func test_getPackageInfo_package_version() throws {
+    func test_PackageInfo_hasDocumentationTargets() throws {
+        do {  // no spi manifest
+            let pkgInfo = Analyze.PackageInfo(
+                packageManifest: .init(name: "foo",
+                                       products: [],
+                                       targets: []),
+                spiManifest: nil
+            )
+            XCTAssertFalse(pkgInfo.hasDocumentationTargets)
+        }
+        do {  // spi manifest without targets
+            let pkgInfo = Analyze.PackageInfo(
+                packageManifest: .init(name: "foo",
+                                       products: [],
+                                       targets: []),
+                spiManifest: .init(
+                    builder: .init(configs: [.init(documentationTargets: [])])
+                )
+            )
+            XCTAssertFalse(pkgInfo.hasDocumentationTargets)
+        }
+        do {  // spi manifest with targets
+            let pkgInfo = Analyze.PackageInfo(
+                packageManifest: .init(name: "foo",
+                                       products: [],
+                                       targets: []),
+                spiManifest: .init(
+                    builder: .init(configs: [.init(documentationTargets: ["Target"])])
+                )
+            )
+            XCTAssertTrue(pkgInfo.hasDocumentationTargets)
+        }
+        do {  // special casing of swift-docc
+            let pkgInfo = Analyze.PackageInfo(
+                packageManifest: .init(name: "SwiftDocC",
+                                       products: [],
+                                       targets: []),
+                spiManifest: nil
+            )
+            XCTAssertTrue(pkgInfo.hasDocumentationTargets)
+        }
+        do {  // special casing of swift-markdown
+            let pkgInfo = Analyze.PackageInfo(
+                packageManifest: .init(name: "swift-markdown",
+                                       products: [],
+                                       targets: []),
+                spiManifest: nil
+            )
+            XCTAssertTrue(pkgInfo.hasDocumentationTargets)
+        }
+    }
+
+    func test_getPackageInfo() async throws {
         // Tests getPackageInfo(package:version:)
         // setup
-        var commands = [String]()
+        actor Validation {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, _ in
             self.testQueue.sync {
-                commands.append(cmd.string)
+                Validation.commands.append(cmd.string)
             }
             if cmd == .swiftDumpPackage {
                 return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
@@ -538,14 +608,16 @@ class AnalyzerTests: AppTestCase {
             Data.mockPackageResolved(for: "1")
         }
         let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
+        try await Repository(package: pkg, name: "1", owner: "foo").save(on: app.db)
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
         try version.save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let info = try Analyze.getPackageInfo(package: .init(model: pkg), version: version)
+        let info = try Analyze.getPackageInfo(package: jpr, version: version)
 
         // validation
-        XCTAssertEqual(commands, [
+        XCTAssertEqual(Validation.commands, [
             "git checkout \"0.4.2\" --quiet",
             "swift package dump-package"
         ])
@@ -570,7 +642,7 @@ class AnalyzerTests: AppTestCase {
         // setup
         let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
-        let version = try Version(package: pkg)
+        let version = try Version(package: pkg, reference: .branch("main"))
         let manifest = Manifest(name: "foo",
                                 platforms: [.init(platformName: .ios, version: "11.0"),
                                             .init(platformName: .macos, version: "10.10")],
@@ -591,6 +663,7 @@ class AnalyzerTests: AppTestCase {
         // MUT
         _ = try Analyze.updateVersion(on: app.db,
                                       version: version,
+                                      docArchivesByRef: ["main": [.mock()]],
                                       packageInfo: .init(packageManifest: manifest,
                                                          dependencies: [dep],
                                                          spiManifest: spiManifest)).wait()
@@ -604,6 +677,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
         XCTAssertEqual(v.toolsVersion, "5.0.0")
         XCTAssertEqual(v.spiManifest, spiManifest)
+        XCTAssertEqual(v.docArchives, [.mock()])
     }
 
     func test_updateVersion_preserveDependencies() throws {
@@ -627,6 +701,7 @@ class AnalyzerTests: AppTestCase {
         // MUT
         _ = try Analyze.updateVersion(on: app.db,
                                       version: version,
+                                      docArchivesByRef: [:],
                                       packageInfo: .init(packageManifest: manifest,
                                                          dependencies: nil)).wait()
 

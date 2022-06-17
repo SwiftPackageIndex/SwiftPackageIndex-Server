@@ -64,7 +64,7 @@ enum ReAnalyzeVersions {
                 while processed < limit {
                     let currentBatchSize = min(signature.batchSize ?? defaultBatchSize,
                                                limit - processed)
-                    logger.info("Re-analyzing versions (batch: \(processed)..<\(processed + currentBatchSize) ...")
+                    logger.info("Re-analyzing versions (batch: \(processed)..<\(processed + currentBatchSize)) ...")
                     do {
                         try await reAnalyzeVersions(client: client,
                                                     database: db,
@@ -180,15 +180,20 @@ enum ReAnalyzeVersions {
 
                 Analyze.mergeReleaseInfo(package: pkg, into: versions)
 
-                for version in versions {
-                    let pkgInfo: Analyze.PackageInfo
-                    do {
-                        pkgInfo = try Analyze.getPackageInfo(package: pkg, version: version)
-                    } catch {
-                        logger.warning("getPackageInfo failed: \(error.localizedDescription)")
-                        continue
-                    }
-                    try await Analyze.updateVersion(on: tx, version: version, packageInfo: pkgInfo).get()
+                let versionsPkgInfo = versions.compactMap { version -> (Version, Analyze.PackageInfo)? in
+                    guard let pkgInfo = try? Analyze.getPackageInfo(package: pkg, version: version) else { return nil }
+                    return (version, pkgInfo)
+                }
+
+                let docArchivesByRef = versionsPkgInfo.filter(\.1.hasDocumentationTargets).isEmpty
+                ? [:]
+                : try await Analyze.getDocArchives(for: pkg)?.archivesGroupedByRef() ?? [:]
+
+                for (version, pkgInfo) in versionsPkgInfo {
+                    try await Analyze.updateVersion(on: tx,
+                                                    version: version,
+                                                    docArchivesByRef: docArchivesByRef,
+                                                    packageInfo: pkgInfo).get()
                     try await Analyze.recreateProducts(on: tx,
                                                        version: version,
                                                        manifest: pkgInfo.packageManifest)

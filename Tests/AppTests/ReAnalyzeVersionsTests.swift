@@ -13,6 +13,7 @@
 // limitations under the License.
 
 @testable import App
+@testable import S3DocArchives
 
 import Fluent
 import SQLKit
@@ -38,8 +39,13 @@ class ReAnalyzeVersionsTests: AppTestCase {
         try await Repository(id: repoId,
                              package: pkg,
                              defaultBranch: "main",
-                             releases: []).save(on: app.db)
+                             name: "1",
+                             owner: "foo").save(on: app.db)
 
+        Current.fetchS3DocArchives = { prefix, _, _, _ in
+            if prefix == "foo/1" { return [.mock("foo", "1", "main")] }
+            return []
+        }
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
@@ -90,6 +96,14 @@ class ReAnalyzeVersionsTests: AppTestCase {
                 .mock(description: "rel 1.2.3", tagName: "1.2.3")
             ]
             try r.save(on: app.db).wait()
+            // Package has gained a SPI manifest
+            Current.loadSPIManifest = { path in
+                if path.hasSuffix("foo-1") {
+                    return .init(builder: .init(configs: [.init(documentationTargets: ["DocTarget"])]))
+                } else {
+                    return nil
+                }
+            }
         }
         do {  // assert running analysis again does not update existing versions
             try await Analyze.analyze(client: app.client,
@@ -102,6 +116,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
             XCTAssertEqual(versions.map(\.toolsVersion), [nil, nil])
             XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [[], []])
             XCTAssertEqual(versions.map(\.releaseNotes) , [nil, nil])
+            XCTAssertEqual(versions.map(\.docArchives), [nil, nil])
         }
 
         // MUT
@@ -114,10 +129,13 @@ class ReAnalyzeVersionsTests: AppTestCase {
         // validate that re-analysis has now updated existing versions
         let versions = try Version.query(on: app.db)
             .with(\.$targets)
+            .sort(\.$createdAt)
             .all().wait()
         XCTAssertEqual(versions.map(\.toolsVersion), ["5.3", "5.3"])
         XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [["t1"], ["t1"]])
         XCTAssertEqual(versions.compactMap(\.releaseNotes) , ["rel 1.2.3"])
+        XCTAssertEqual(versions.map(\.docArchives), [[.mock("foo", "1", "main")], nil]
+        )
     }
 
     func test_Package_fetchReAnalysisCandidates() async throws {

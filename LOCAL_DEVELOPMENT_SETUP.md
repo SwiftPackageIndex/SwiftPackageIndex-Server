@@ -66,7 +66,6 @@ We check for the presence of some environment variables to control various aspec
 
 | Environment variable     | Description                                       |
 | ------------------------ | ------------------------------------------------- |
-| RUN_IMAGE_SNAPSHOT_TESTS | Enable/disable image snapshots during testing.    |
 | GITHUB_WORKFLOW          | Enable/disable certain tests in a CI environment. |
 
 ## Reconciliation, Ingestion, and Analysis

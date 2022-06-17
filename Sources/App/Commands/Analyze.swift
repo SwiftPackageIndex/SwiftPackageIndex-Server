@@ -14,6 +14,7 @@
 
 import DependencyResolution
 import Fluent
+import S3DocArchives
 import SPIManifest
 import ShellOut
 import Vapor
@@ -80,6 +81,7 @@ enum Analyze {
 extension Analyze {
 
     static func resetMetrics() {
+        AppMetrics.analyzeS3FetchCount?.set(0)
         AppMetrics.analyzeTrimCheckoutsCount?.set(0)
         AppMetrics.buildThrottleCount?.set(0)
         AppMetrics.analyzeVersionsAddedCount?.set(0)
@@ -230,8 +232,15 @@ extension Analyze {
             throw AppError.noValidVersions(package.model.id, package.model.url)
         }
 
+        let docArchivesByRef = versionsPkgInfo.filter(\.1.hasDocumentationTargets).isEmpty
+        ? [:]
+        : try await getDocArchives(for: package)?.archivesGroupedByRef() ?? [:]
+
         for (version, pkgInfo) in versionsPkgInfo {
-            try await updateVersion(on: transaction, version: version, packageInfo: pkgInfo).get()
+            try await updateVersion(on: transaction,
+                                    version: version,
+                                    docArchivesByRef: docArchivesByRef,
+                                    packageInfo: pkgInfo).get()
             try await recreateProducts(on: transaction,
                                        version: version,
                                        manifest: pkgInfo.packageManifest)
@@ -525,6 +534,34 @@ extension Analyze {
         var packageManifest: Manifest
         var dependencies: [ResolvedDependency]?
         var spiManifest: SPIManifest.Manifest?
+
+        var hasDocumentationTargets: Bool {
+            if ["SwiftDocC", "swift-markdown"].contains(packageManifest.name) {
+                // This is not the strongest of guarantees but it has to do
+                return true
+            }
+            return spiManifest?.allDocumentationTargets()?.isEmpty == false
+        }
+    }
+
+
+    static func getDocArchives(for package: Joined<Package, Repository>) async throws -> [DocArchive]? {
+        guard let awsAccessKeyId = Current.awsAccessKeyId(),
+              let awsBucketName = Current.awsDocsBucket(),
+              let awsSecretAccessKey = Current.awsSecretAccessKey() else {
+            throw AppError.envVariableNotSet("AWS env variable")
+        }
+
+        guard let owner = package.repository?.owner,
+              let repository = package.repository?.name
+        else { return nil }
+
+        let prefix = "\(owner)/\(repository)".lowercased()
+        AppMetrics.analyzeS3FetchCount?.inc()
+        return try await Current.fetchS3DocArchives(prefix,
+                                                    awsBucketName,
+                                                    awsAccessKeyId,
+                                                    awsSecretAccessKey)
     }
 
 
@@ -539,13 +576,15 @@ extension Analyze {
             throw AppError.invalidPackageCachePath(package.model.id,
                                                    package.model.url)
         }
+
         try Current.shell.run(command: .gitCheckout(branch: version.reference.description), at: cacheDir)
 
         do {
             let packageManifest = try dumpPackage(at: cacheDir)
             let resolvedDependencies = getResolvedDependencies(Current.fileManager,
                                                                at: cacheDir)
-            let spiManifest = SPIManifest.Manifest.load(in: cacheDir)
+            let spiManifest = Current.loadSPIManifest(cacheDir)
+
             return PackageInfo(packageManifest: packageManifest,
                                dependencies: resolvedDependencies,
                                spiManifest: spiManifest)
@@ -564,6 +603,7 @@ extension Analyze {
     /// - Returns: future
     static func updateVersion(on database: Database,
                               version: Version,
+                              docArchivesByRef: [String: [DocArchive]],
                               packageInfo: PackageInfo) -> EventLoopFuture<Void> {
         let manifest = packageInfo.packageManifest
         version.packageName = manifest.name
@@ -574,7 +614,9 @@ extension Analyze {
         version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
         version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
         version.toolsVersion = manifest.toolsVersion?.version
+        version.docArchives = docArchivesByRef["\(version.reference)"]
         version.spiManifest = packageInfo.spiManifest
+
         return version.save(on: database)
     }
 
