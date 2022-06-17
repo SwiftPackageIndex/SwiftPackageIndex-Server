@@ -64,7 +64,7 @@ enum ReAnalyzeVersions {
                 while processed < limit {
                     let currentBatchSize = min(signature.batchSize ?? defaultBatchSize,
                                                limit - processed)
-                    logger.info("Re-analyzing versions (batch: \(processed)..<\(processed + currentBatchSize) ...")
+                    logger.info("Re-analyzing versions (batch: \(processed)..<\(processed + currentBatchSize)) ...")
                     do {
                         try await reAnalyzeVersions(client: client,
                                                     database: db,
