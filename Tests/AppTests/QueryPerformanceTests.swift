@@ -105,6 +105,39 @@ class QueryPerformanceTests: XCTestCase {
         try await assertQueryPerformance(query, expectedCost: 3940, variation: 150)
     }
 
+    func test_Search_refresh() async throws {
+        // We can't "explain analyze" the refresh itself so we need to measure the underlying
+        // query.
+        // Unfortunately, this means it'll need to be kept in sync when updating the search
+        // view.
+        guard let db = app.db as? SQLDatabase else {
+            XCTFail()
+            return
+        }
+        let query = db.raw("""
+            -- v5
+            --CREATE MATERIALIZED VIEW search AS
+            SELECT
+              p.id AS package_id,
+              p.platform_compatibility,
+              p.score,
+              r.keywords,
+              r.last_commit_date,
+              r.license,
+              r.name AS repo_name,
+              r.owner AS repo_owner,
+              r.stars,
+              r.last_activity_at,
+              r.summary,
+              v.package_name
+            FROM packages p
+              JOIN repositories r ON r.package_id = p.id
+              JOIN versions v ON v.package_id = p.id
+            WHERE v.reference ->> 'branch' = r.default_branch
+            """)
+        try await assertQueryPerformance(query, expectedCost: 0, variation: 0)
+    }
+
 }
 
 
@@ -117,20 +150,20 @@ private extension Environment {
 
 
 public struct SQLExplain: SQLExpression {
-    public var select: SQLSelectBuilder
-    public init(_ select: SQLSelectBuilder) {
-        self.select = select
+    public var builder: SQLQueryBuilder
+    public init(_ builder: SQLQueryBuilder) {
+        self.builder = builder
     }
     public func serialize(to serializer: inout SQLSerializer) {
         serializer.write("EXPLAIN ANALYZE ")
-        select.select.serialize(to: &serializer)
+        builder.query.serialize(to: &serializer)
     }
 }
 
 
 private extension QueryPerformanceTests {
 
-    func assertQueryPerformance(_ query: SQLSelectBuilder,
+    func assertQueryPerformance(_ query: SQLQueryBuilder,
                                 expectedCost: Double,
                                 variation: Double = 0,
                                 filePath: StaticString = #filePath,
