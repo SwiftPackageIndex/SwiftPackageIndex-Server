@@ -30,6 +30,11 @@ export class SPISearchFilterSuggestions {
       filter: `platform:ios,linux`,
       description: 'Filter to packages compatible with both iOS and Linux.',
     },
+    {
+      text: 'product types',
+      filter: `product:plugin`,
+      description: 'Filter to packages that export a plugin product.',
+    },
   ]
 
   constructor() {

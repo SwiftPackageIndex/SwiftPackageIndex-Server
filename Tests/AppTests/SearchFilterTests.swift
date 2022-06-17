@@ -413,7 +413,7 @@ class SearchFilterTests: AppTestCase {
         }
     }
 
-    func test_productTypeFilter_single_value() throws {
+    func test_productTypeFilter() throws {
         // test single value happy path
         let filter = try ProductTypeSearchFilter(expression: .init(operator: .is,
                                                                 value: "executable"))
@@ -423,12 +423,25 @@ class SearchFilterTests: AppTestCase {
                                                displayValue: "Executable"))
 
         // test view representation
-        XCTAssertEqual(filter.viewModel.description, "type contains Executable")
+        XCTAssertEqual(filter.viewModel.description, "Package products contain an Executable")
 
         // test sql representation
         XCTAssertEqual(renderSQL(filter.leftHandSide), #""type""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "?")
         XCTAssertEqual(binds(filter.rightHandSide), ["executable"])
+    }
+
+    func test_productTypeFilter_spelling() throws {
+        let expectedDisplayValues = [
+            Package.ProductType.executable: "Package products contain an Executable",
+            Package.ProductType.plugin: "Package products contain a Plugin",
+            Package.ProductType.library: "Package products contain a Library"
+        ]
+
+        for type in Package.ProductType.allCases {
+            let filter = try ProductTypeSearchFilter(expression: .init(operator: .is, value: type.rawValue))
+            XCTAssertEqual(filter.viewModel.description, expectedDisplayValues[type])
+        }
     }
 
     func test_productTypeFilter_error() throws {
