@@ -135,7 +135,7 @@ class QueryPerformanceTests: XCTestCase {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
-        try await assertQueryPerformance(query, expectedCost: 0, variation: 0)
+        try await assertQueryPerformance(query, expectedCost: 9_800, variation: 200)
     }
 
 }

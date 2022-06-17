@@ -129,6 +129,7 @@ struct QueryPlan: Equatable {
             OneOf {
                 "Append"
                 "Limit"
+                "Nested Loop"
                 "Sort"
             }
             Whitespace()
