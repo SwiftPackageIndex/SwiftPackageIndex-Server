@@ -145,7 +145,7 @@ class QueryPerformanceTests: XCTestCase {
               LEFT JOIN products pr ON pr.version_id = v.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
-        try await assertQueryPerformance(query, expectedCost: 9_800, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 13_700, variation: 200)
     }
 
 }
