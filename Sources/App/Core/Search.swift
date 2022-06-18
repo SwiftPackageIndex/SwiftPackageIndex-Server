@@ -37,9 +37,11 @@ enum Search {
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
     static let productType = SQLIdentifier("product_type")
+    static let exactPackageNameMatch = SQLIdentifier("exact_package_name_match")
 
     static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
+    static let nullBool = SQLRaw("NULL::BOOL")
     static let nullInt = SQLRaw("NULL::INT")
     static let nullUUID = SQLRaw("NULL::UUID")
     static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
@@ -153,13 +155,15 @@ enum Search {
             with: " ",
             packageName, coalesce(summary, emptyString), repoName, repoOwner, arrayToString(keywords, delimiter: " ")
         )
-        let sortOrder = SQLOrderBy(eq(lower(packageName), mergedTerms),
+        let packageNameMatch = eq(lower(packageName), mergedTerms)
+        let sortOrder = SQLOrderBy(exactPackageNameMatch,
                                    .descending)
             .then(score, .descending)
             .then(packageName, .ascending)
 
         let preamble = db
             .select()
+            .distinct()
             .column(.package)
             .column(null, as: keyword)
             .column(packageId)
@@ -173,8 +177,10 @@ enum Search {
             .column(lastCommitDate)
             .column(lastActivityAt)
             .column(keywords)
-            .column(null, as: levenshteinDist)
+            .column(nullInt, as: levenshteinDist)
             .column(productType)
+        // DISTINCT requires us to include the exact package match clause in the select list
+            .column(packageNameMatch, as: exactPackageNameMatch)
             .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
@@ -231,6 +237,8 @@ enum Search {
         select = select
             .column(nullJSONB, as: productType)
         select = select
+            .column(nullBool, as: exactPackageNameMatch)
+        select = select
             .from(searchView)
         select = select
             .from(unnest(keywords), as: keyword)
@@ -286,6 +294,8 @@ enum Search {
                     as: levenshteinDist)
         select = select
             .column(nullJSONB, as: productType)
+        select = select
+            .column(nullBool, as: exactPackageNameMatch)
         select = select
             .from(searchView)
         select = select
