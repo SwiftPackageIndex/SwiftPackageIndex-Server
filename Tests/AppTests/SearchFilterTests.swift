@@ -426,7 +426,7 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "Package products contain an Executable")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""type""#)
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""product_type""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "?")
         XCTAssertEqual(binds(filter.rightHandSide), ["executable"])
     }

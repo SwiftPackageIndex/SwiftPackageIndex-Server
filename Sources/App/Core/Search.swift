@@ -36,7 +36,7 @@ enum Search {
     static let lastCommitDate = SQLIdentifier("last_commit_date")
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
-    static let productType = SQLIdentifier("type")
+    static let productType = SQLIdentifier("product_type")
 
     static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
