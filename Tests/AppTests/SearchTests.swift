@@ -269,6 +269,47 @@ class SearchTests: AppTestCase {
                              ])
         )
     }
+
+    func test_fetch_distinct() async throws {
+        // Ensure we de-duplicate results
+        // setup
+        let p = Package.init(id: .id0, url: "bar".url)
+        try await p.save(on: app.db)
+        try await Repository(package: p,
+                             defaultBranch: "main",
+                             name: "bar",
+                             owner: "foo").save(on: app.db)
+        let v = try Version(package: p)
+        try await v.save(on: app.db)
+        try await Product(version: v, type: .library(.automatic), name: "lib").save(on: app.db)
+        try await Product(version: v, type: .plugin, name: "plugin").save(on: app.db)
+        try await Search.refresh(on: app.db).get()
+
+        // MUT
+        let res = try await Search.fetch(app.db, ["bar"], page: 1, pageSize: 20).get()
+
+        // validate
+        XCTAssertEqual(res.results.count, 1)
+        // FIXME: fill in proper expectation
+//        XCTAssertEqual(res,
+//                       .init(hasMoreResults: false,
+//                             searchTerm: "owner bar",
+//                             searchFilters: [],
+//                             results: [
+//                                .package(
+//                                    .init(packageId: .id0,
+//                                          packageName: "Bar",
+//                                          packageURL: "/owner/package%202",
+//                                          repositoryName: "package 2",
+//                                          repositoryOwner: "owner",
+//                                          stars: 1234,
+//                                          lastActivityAt: .t0,
+//                                          summary: "package 2 description",
+//                                          keywords: [])!
+//                                )
+//                             ])
+//        )
+    }
     
     func test_quoting() throws {
         // Test searching for a `'`
@@ -1201,6 +1242,48 @@ class SearchTests: AppTestCase {
                 res.results.compactMap(\.packageResult?.repositoryName).sorted(),
                 ["1", "2"]
             )
+        }
+    }
+
+    func test_productTypeFilter() async throws {
+        // setup
+        do {
+            let p1 = Package.init(id: .id0, url: "1".url)
+            try await p1.save(on: app.db)
+            try await Repository(package: p1,
+                                 defaultBranch: "main",
+                                 name: "1",
+                                 owner: "foo").save(on: app.db)
+            let v = try Version(package: p1)
+            try await v.save(on: app.db)
+            try await Product(version: v, type: .library(.automatic), name: "lib").save(on: app.db)
+        }
+        do {
+            let p2 = Package.init(id: .id1, url: "2".url)
+            try await p2.save(on: app.db)
+            try await Repository(package: p2,
+                                 defaultBranch: "main",
+                                 name: "2",
+                                 owner: "foo").save(on: app.db)
+            let v = try Version(package: p2)
+            try await v.save(on: app.db)
+            try await Product(version: v, type: .plugin, name: "plugin").save(on: app.db)
+        }
+        try await Search.refresh(on: app.db).get()
+
+        do {
+            // MUT
+            let res = try await Search.fetch(app.db, ["product:plugin"], page: 1, pageSize: 20).get()
+
+            // validate
+            XCTAssertEqual(res.results.count, 1)
+            XCTAssertEqual(
+                res.results.compactMap(\.packageResult?.packageURL), ["1"]
+            )
+        }
+
+        do {
+            // TODO: add test without product plugin filter
         }
     }
 
