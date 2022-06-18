@@ -123,7 +123,7 @@ class QueryPerformanceTests: XCTestCase {
             return
         }
         let query = db.raw("""
-            -- v5
+            -- v6
             --CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,
@@ -137,10 +137,12 @@ class QueryPerformanceTests: XCTestCase {
               r.stars,
               r.last_activity_at,
               r.summary,
-              v.package_name
+              v.package_name,
+              pr.type AS product_type
             FROM packages p
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id
+              LEFT JOIN products pr ON pr.version_id = v.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
         try await assertQueryPerformance(query, expectedCost: 9_800, variation: 200)

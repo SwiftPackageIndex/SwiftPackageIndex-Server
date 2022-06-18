@@ -24,6 +24,9 @@ struct UpdateSearchAddProductType: AsyncMigration {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
+        // ** IMPORTANT **
+        // When updating the query underlying the materialized view, make sure to also
+        // update the matching performance test in QueryPerformanceTests.test_Search_refresh!
         try await db.raw(dropSQL).run()
         try await db.raw("""
             -- v6
