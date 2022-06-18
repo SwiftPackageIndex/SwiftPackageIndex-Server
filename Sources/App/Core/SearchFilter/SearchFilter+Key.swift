@@ -25,7 +25,7 @@ extension SearchFilter {
         case license
         case platform
         case stars
-        case productType = "product"
+        case productType = "product_type"
 
         var searchFilter: SearchFilterProtocol.Type {
             switch self {
@@ -65,7 +65,7 @@ extension SearchFilter {
                 case .stars:
                     return SQLIdentifier("stars")
                 case .productType:
-                    return SQLIdentifier("type")
+                    return SQLIdentifier("product_type")
             }
         }
     }

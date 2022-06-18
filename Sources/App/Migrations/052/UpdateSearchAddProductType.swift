@@ -41,7 +41,7 @@ struct UpdateSearchAddProductType: Migration {
               r.last_activity_at,
               r.summary,
               v.package_name,
-              pr.type
+              pr.type AS product_type
             FROM packages p
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id
