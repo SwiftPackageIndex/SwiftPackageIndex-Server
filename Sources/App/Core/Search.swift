@@ -36,7 +36,6 @@ enum Search {
     static let lastCommitDate = SQLIdentifier("last_commit_date")
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
-    static let productType = SQLIdentifier("product_type")
     static let exactPackageNameMatch = SQLIdentifier("exact_package_name_match")
 
     static let ilike = SQLRaw("ILIKE")
@@ -46,7 +45,6 @@ enum Search {
     static let nullUUID = SQLRaw("NULL::UUID")
     static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
     static let nullTextArray = SQLRaw("NULL::TEXT[]")
-    static let nullJSONB = SQLRaw("NULL::jsonb")
 
     enum MatchType: String, Codable, Equatable {
         case author
@@ -178,7 +176,6 @@ enum Search {
             .column(lastActivityAt)
             .column(keywords)
             .column(nullInt, as: levenshteinDist)
-            .column(productType)
         // DISTINCT requires us to include the exact package match clause in the select list
             .column(packageNameMatch, as: exactPackageNameMatch)
             .from(searchView)
@@ -235,8 +232,6 @@ enum Search {
             .column(SQLFunction("LEVENSHTEIN", args: keyword, SQLBind(mergedTerms)),
                     as: levenshteinDist)
         select = select
-            .column(nullJSONB, as: productType)
-        select = select
             .column(nullBool, as: exactPackageNameMatch)
         select = select
             .from(searchView)
@@ -292,8 +287,6 @@ enum Search {
         select = select
             .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
                     as: levenshteinDist)
-        select = select
-            .column(nullJSONB, as: productType)
         select = select
             .column(nullBool, as: exactPackageNameMatch)
         select = select

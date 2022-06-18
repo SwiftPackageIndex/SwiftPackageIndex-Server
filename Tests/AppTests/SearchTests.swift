@@ -291,25 +291,7 @@ class SearchTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res.results.count, 1)
-        // FIXME: fill in proper expectation
-//        XCTAssertEqual(res,
-//                       .init(hasMoreResults: false,
-//                             searchTerm: "owner bar",
-//                             searchFilters: [],
-//                             results: [
-//                                .package(
-//                                    .init(packageId: .id0,
-//                                          packageName: "Bar",
-//                                          packageURL: "/owner/package%202",
-//                                          repositoryName: "package 2",
-//                                          repositoryOwner: "owner",
-//                                          stars: 1234,
-//                                          lastActivityAt: .t0,
-//                                          summary: "package 2 description",
-//                                          keywords: [])!
-//                                )
-//                             ])
-//        )
+        XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["bar"])
     }
     
     func test_quoting() throws {
