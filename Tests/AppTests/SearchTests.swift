@@ -1253,7 +1253,9 @@ class SearchTests: AppTestCase {
             try await Repository(package: p1,
                                  defaultBranch: "main",
                                  name: "1",
-                                 owner: "foo").save(on: app.db)
+                                 owner: "foo",
+                                 stars: 1,
+                                 summary: "test package").save(on: app.db)
             let v = try Version(package: p1)
             try await v.save(on: app.db)
             try await Product(version: v, type: .library(.automatic), name: "lib").save(on: app.db)
@@ -1264,7 +1266,8 @@ class SearchTests: AppTestCase {
             try await Repository(package: p2,
                                  defaultBranch: "main",
                                  name: "2",
-                                 owner: "foo").save(on: app.db)
+                                 owner: "foo",
+                                 summary: "test package").save(on: app.db)
             let v = try Version(package: p2)
             try await v.save(on: app.db)
             try await Product(version: v, type: .plugin, name: "plugin").save(on: app.db)
@@ -1273,17 +1276,24 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["product:plugin"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "product:plugin"], page: 1, pageSize: 20).get()
 
             // validate
             XCTAssertEqual(res.results.count, 1)
             XCTAssertEqual(
-                res.results.compactMap(\.packageResult?.packageURL), ["1"]
+                res.results.compactMap(\.packageResult?.repositoryName), ["2"]
             )
         }
 
         do {
-            // TODO: add test without product plugin filter
+            // MUT
+            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20).get()
+
+            // validate
+            XCTAssertEqual(res.results.count, 2)
+            XCTAssertEqual(
+                res.results.compactMap(\.packageResult?.repositoryName), ["1", "2"]
+            )
         }
     }
 
