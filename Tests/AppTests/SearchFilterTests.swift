@@ -433,12 +433,12 @@ class SearchFilterTests: AppTestCase {
 
     func test_productTypeFilter_spelling() throws {
         let expectedDisplayValues = [
-            Package.ProductType.executable: "Package products contain an Executable",
-            Package.ProductType.plugin: "Package products contain a Plugin",
-            Package.ProductType.library: "Package products contain a Library"
+            ProductTypeSearchFilter.ProductType.executable: "Package products contain an Executable",
+            ProductTypeSearchFilter.ProductType.plugin: "Package products contain a Plugin",
+            ProductTypeSearchFilter.ProductType.library: "Package products contain a Library"
         ]
 
-        for type in Package.ProductType.allCases {
+        for type in ProductTypeSearchFilter.ProductType.allCases {
             let filter = try ProductTypeSearchFilter(expression: .init(operator: .is, value: type.rawValue))
             XCTAssertEqual(filter.viewModel.description, expectedDisplayValues[type])
         }
@@ -481,11 +481,11 @@ private extension PlatformSearchFilter {
 
 
 private extension ProductTypeSearchFilter {
-    var bindableValue: Set<Package.ProductType>? {
+    var bindableValue: Set<Self.ProductType>? {
         guard case let .value(value) = predicate.bindableValue else {
             return nil
         }
-        return value as? Set<Package.ProductType>
+        return value as? Set<Self.ProductType>
     }
 }
 

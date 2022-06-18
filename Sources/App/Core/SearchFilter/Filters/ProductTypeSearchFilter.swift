@@ -28,7 +28,7 @@ struct ProductTypeSearchFilter: SearchFilterProtocol {
     static var key: SearchFilter.Key = .productType
 
     var predicate: SearchFilter.Predicate
-    let productType: Package.ProductType
+    let productType: ProductType
 
     init(expression: SearchFilter.Expression) throws {
         // We don't support `isNot`, because it's unlikely
@@ -41,7 +41,7 @@ struct ProductTypeSearchFilter: SearchFilterProtocol {
         // We support searching for a single type to lighten the load
         // on the search and because it's somewhat niche use case to
         // search for multiple product types
-        guard let value = Package.ProductType(rawValue: expression.value) else {
+        guard let value = ProductType(rawValue: expression.value) else {
             throw SearchFilterError.invalidValueType
         }
 
@@ -56,18 +56,25 @@ struct ProductTypeSearchFilter: SearchFilterProtocol {
 }
 
 
-private extension Package.ProductType {
-    var displayDescription: String {
-        switch self {
-            case .executable:
-                return "Executable"
-            case .library:
-                return "Library"
-            case .plugin:
-                return "Plugin"
+extension ProductTypeSearchFilter {
+    enum ProductType: String, Codable, CaseIterable {
+        case executable
+        case library
+        case plugin
+
+        var displayDescription: String {
+            switch self {
+                case .executable:
+                    return "Executable"
+                case .library:
+                    return "Library"
+                case .plugin:
+                    return "Plugin"
+            }
         }
     }
 }
+
 
 extension ProductTypeSearchFilter {
     var viewModel: SearchFilter.ViewModel {

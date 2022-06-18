@@ -122,7 +122,7 @@ class SearchTests: AppTestCase {
     }
 
     func test_packageMatchQuery_ProductTypeSearchFilter() throws {
-        for type in Package.ProductType.allCases {
+        for type in ProductTypeSearchFilter.ProductType.allCases {
             let b = Search.packageMatchQueryBuilder(
                 on: app.db, terms: ["a"],
                 filters: [
