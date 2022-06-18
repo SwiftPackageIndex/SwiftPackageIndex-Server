@@ -101,7 +101,7 @@ enum ProductType: Codable, Equatable {
     var isExecutable: Bool {
         switch self {
             case .executable: return true
-        case .library, .test, .plugin: return false
+            case .library, .test, .plugin: return false
         }
     }
 

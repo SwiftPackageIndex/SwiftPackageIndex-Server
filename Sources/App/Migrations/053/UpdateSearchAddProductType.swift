@@ -16,16 +16,16 @@ import Fluent
 import SQLKit
 
 
-struct UpdateSearchAddProductType: Migration {
+struct UpdateSearchAddProductType: AsyncMigration {
     let dropSQL: SQLQueryString = "DROP MATERIALIZED VIEW search"
 
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
+    func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        return db.raw(dropSQL).run()
-            .flatMap { db.raw("""
+        try await db.raw(dropSQL).run()
+        try await db.raw("""
             -- v6
             CREATE MATERIALIZED VIEW search AS
             SELECT
@@ -47,16 +47,16 @@ struct UpdateSearchAddProductType: Migration {
               JOIN versions v ON v.package_id = p.id
               LEFT JOIN products pr ON pr.version_id = v.id
             WHERE v.reference ->> 'branch' = r.default_branch
-            """).run() }
+            """).run()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
+    func revert(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        return db.raw(dropSQL).run()
-            .flatMap { db.raw("""
+        try await db.raw(dropSQL).run()
+        try await db.raw("""
             -- v5
             CREATE MATERIALIZED VIEW search AS
             SELECT
@@ -76,6 +76,6 @@ struct UpdateSearchAddProductType: Migration {
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
-            """).run() }
+            """).run()
     }
 }
