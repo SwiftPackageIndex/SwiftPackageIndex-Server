@@ -84,7 +84,7 @@ enum Search {
         var lastActivityAt: Date?
         var summary: String?
         var keywords: [String]?
-        var productType: String?
+        var productType: ProductType?
         
         enum CodingKeys: String, CodingKey {
             case matchType = "match_type"
