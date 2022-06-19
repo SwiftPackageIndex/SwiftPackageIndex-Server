@@ -175,9 +175,6 @@ extension Analyze {
         ) { group in
             for pkg in packages {
                 group.addTask {
-                    try refreshCheckout(logger: logger, package: pkg)
-                    try await updateRepository(on: database, package: pkg)
-
                     let result = try await database.transaction { tx in
                         // Wrap in a Result to avoid throwing out of the transaction, causing a roll-back
                         await Result {
@@ -213,6 +210,9 @@ extension Analyze {
                         transaction: Database,
                         logger: Logger,
                         package: Joined<Package, Repository>) async throws {
+        try refreshCheckout(logger: logger, package: package)
+        try await updateRepository(on: transaction, package: package)
+
         let versionDelta = try await diffVersions(client: client,
                                                   logger: logger,
                                                   transaction: transaction,

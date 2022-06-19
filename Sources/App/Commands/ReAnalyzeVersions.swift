@@ -169,6 +169,8 @@ enum ReAnalyzeVersions {
 
         for pkg in packages {
             try await database.transaction { tx in
+                try Analyze.refreshCheckout(logger: logger, package: pkg)
+
                 let versions = try await getExistingVersions(client: client,
                                                              logger: logger,
                                                              transaction: tx,
@@ -201,6 +203,9 @@ enum ReAnalyzeVersions {
                                                       version: version,
                                                       manifest: pkgInfo.packageManifest)
                 }
+
+                // No need to run `updateLatestVersions` because we're only operating on existing versions,
+                // not adding any new ones that could change the `latest` marker.
             }
         }
     }
