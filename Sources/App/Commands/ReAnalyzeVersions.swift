@@ -86,7 +86,7 @@ enum ReAnalyzeVersions {
                 logger.warning("\(error.localizedDescription)")
             }
 
-            logger.info("done.")
+            logger.info("Done.")
         }
     }
 
@@ -168,6 +168,8 @@ enum ReAnalyzeVersions {
         // existing ones.
 
         for pkg in packages {
+            logger.info("Re-analyzing package \(pkg.model.url) ...")
+
             try await database.transaction { tx in
                 guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: pkg.model) else { return }
                 if !Current.fileManager.fileExists(atPath: cacheDir) {
@@ -179,7 +181,7 @@ enum ReAnalyzeVersions {
                                                              transaction: tx,
                                                              package: pkg,
                                                              before: cutoffDate)
-                logger.info("updating \(versions.count) versions (id: \(pkg.model.id)) ...")
+                logger.info("Updating \(versions.count) versions (id: \(pkg.model.id)) ...")
 
                 try await setUpdatedAt(on: tx, package: pkg, versions: versions)
 
