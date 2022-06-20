@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/swift-server/async-http-client.git",
         "state": {
           "branch": null,
-          "revision": "24425989dadab6d6e4167174791a23d4e2a6d0c3",
-          "version": "1.10.0"
+          "revision": "0f21b44d1ad5227ccbaa073aa40cd37eb8bbc337",
+          "version": "1.11.0"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "644a2a0d5c676a3930e2378b88d315915269fa94",
-          "version": "1.26.1"
+          "revision": "2b3ac0556740ea8d68f8616917daf64338d54c1b",
+          "version": "1.29.2"
         }
       },
       {
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-postgres-driver.git",
         "state": {
           "branch": null,
-          "revision": "7c266b539f71331ad6e53ea8fae587ccdaf972f2",
-          "version": "2.2.6"
+          "revision": "5230817eaab7184bcaf0b6ebb471f175df980035",
+          "version": "2.3.0"
         }
       },
       {
@@ -204,8 +204,8 @@
         "repositoryURL": "https://github.com/swift-server/swift-backtrace.git",
         "state": {
           "branch": null,
-          "revision": "baf9597d126100550f00397fc9d16b1e5b0814a8",
-          "version": "1.3.2"
+          "revision": "f25620d5d05e2f1ba27154b40cafea2b67566956",
+          "version": "1.3.3"
         }
       },
       {
@@ -285,8 +285,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-extras.git",
         "state": {
           "branch": null,
-          "revision": "e4dc3c8d1d1213298b9883f95a9ded5e6032c939",
-          "version": "1.12.0"
+          "revision": "a75e92bde3683241c15df3dd905b7a6dcac4d551",
+          "version": "1.12.1"
         }
       },
       {
@@ -384,8 +384,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "6c63226a4ab82ce53730eb1afb9ca63866fcf033",
-          "version": "4.61.1"
+          "revision": "12e2e7460ab912b65fb7a0fe47e4f638a7d5e642",
+          "version": "4.62.0"
         }
       },
       {
