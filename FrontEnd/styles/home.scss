@@ -132,3 +132,23 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Twitter Spaces CTA */
+
+.twitter_spaces {
+  padding: 15px;
+  padding-top: 40px;
+  background-color: var(--panel-background);
+  background-image: url('/images/twitter-spaces.svg');
+  background-repeat: no-repeat;
+  background-position: 15px 15px;
+  background-size: 160px;
+
+  p {
+    margin: 0;
+  }
+
+  .twitter_profile {
+    text-align: right;
+  }
+}

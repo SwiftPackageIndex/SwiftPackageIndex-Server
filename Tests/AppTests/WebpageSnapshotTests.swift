@@ -24,6 +24,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_HomeIndexView() throws {
         HomeIndex.Model.currentSponsors = [ .init(sponsorName: "Sample Sponsor", logoSource: "/images/logo.svg", darkLogoSource: "/images/logo.svg", body: "Sponsored links tell everyone about a thing that you can use to do another thing you need to do!", cta: "Learn More", url: "https://example.com/sponsored/link") ]
+        HomeIndex.Model.twitterSpaceLinks = HomeIndex.Model.TwitterSpaceLinks(previousUrl: "https://example.com/previous/twitter/space/", nextUrl: "https://example.com/next/twitter/space/")
 
         let page = { HomeIndex.View(path: "/", model: .mock).document() }
         

@@ -29,6 +29,11 @@ extension HomeIndex {
             SponsoredLink(sponsorName: "Runway", logoSource: "/images/sponsors/runway.svg", darkLogoSource: "/images/sponsors/runway~dark.svg", body: "Release faster and more reliably with Runway. Runway integrates with all of your tools, enabling end-to-end automation and seamless coordination across your team.", cta: "Try Runway for free", url: "https://www.runway.team/?utm_source=sponsorship&utm_medium=website&utm_campaign=swiftpackageindex&utm_content=may_2022")
         ]
 
+        static var twitterSpaceLinks = TwitterSpaceLinks(
+            previousUrl: "https://blog.swiftpackageindex.com/posts/swift-package-indexing-episode-4/",
+            nextUrl: "https://twitter.com/i/spaces/1mnGedQyERNKX"
+        )
+
         struct Release: Equatable {
             var packageName: String
             var version: String
@@ -43,6 +48,11 @@ extension HomeIndex {
             let body: String
             let cta: String
             let url: String
+        }
+
+        struct TwitterSpaceLinks {
+            let previousUrl: String
+            let nextUrl: String
         }
 
         func sponsoredLink() -> SponsoredLink? {
