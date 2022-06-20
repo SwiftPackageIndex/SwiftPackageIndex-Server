@@ -54,7 +54,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 6220, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 6530, variation: 150)
     }
 
     func test_Search_query_authorFilter() async throws {
@@ -102,7 +102,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5760, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 6030, variation: 150)
     }
 
     func test_Search_query_starsFilter() async throws {
