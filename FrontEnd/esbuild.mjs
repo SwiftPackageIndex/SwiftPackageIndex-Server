@@ -26,6 +26,7 @@ try {
     minify: true,
     watch: process.argv.includes('--watch'),
     plugins: [sassPlugin()],
+    external: ['/images/*'],
   })
 } catch {
   process.exit(1)
