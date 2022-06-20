@@ -131,6 +131,7 @@ struct QueryPlan: Equatable {
                 "Limit"
                 "Nested Loop"
                 "Sort"
+                "Unique"
             }
             Whitespace()
             "("
