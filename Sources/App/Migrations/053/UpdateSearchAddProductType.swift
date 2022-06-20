@@ -24,6 +24,11 @@ struct UpdateSearchAddProductType: AsyncMigration {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
+        // Creat an index on products.version_id - this speeds up search view creation
+        // dramatically.
+        try await db.raw("CREATE INDEX idx_products_version_id ON products (version_id)")
+            .run()
+
         // ** IMPORTANT **
         // When updating the query underlying the materialized view, make sure to also
         // update the matching performance test in QueryPerformanceTests.test_Search_refresh!
@@ -44,11 +49,10 @@ struct UpdateSearchAddProductType: AsyncMigration {
               r.last_activity_at,
               r.summary,
               v.package_name,
-              pr.type AS product_type
+              ARRAY(SELECT DISTINCT JSONB_OBJECT_KEYS(type) FROM products WHERE products.version_id = v.id) AS product_types
             FROM packages p
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id
-              LEFT JOIN products pr ON pr.version_id = v.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """).run()
     }
@@ -80,5 +84,7 @@ struct UpdateSearchAddProductType: AsyncMigration {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """).run()
+
+        try await db.raw("DROP INDEX idx_products_version_id").run()
     }
 }
