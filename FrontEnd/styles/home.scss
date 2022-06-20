@@ -136,13 +136,23 @@
 /* Twitter Spaces CTA */
 
 .twitter_spaces {
+  position: relative;
   padding: 15px;
-  padding-top: 40px;
+  margin: 20px 0;
   background-color: var(--panel-background);
-  background-image: url('/images/twitter-spaces.svg');
-  background-repeat: no-repeat;
-  background-position: 15px 15px;
-  background-size: 160px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    display: block;
+    width: 40px;
+    height: 40px;
+    left: -20px;
+    top: -20px;
+    background-image: url('/images/twitter-spaces.svg');
+    background-size: 100%;
+    background-repeat: no-repeat;
+  }
 
   p {
     margin: 0;
