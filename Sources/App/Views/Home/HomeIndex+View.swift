@@ -59,16 +59,47 @@ enum HomeIndex {
             .section(
                 .class("two_column"),
                 .section(
-                    .class("recent"),
-                    .div(
-                        .class("recent_packages"),
-                        .h3("Recently Added"),
-                        .ul(model.recentPackagesSection())
+                    .section(
+                        .class("twitter_spaces"),
+                        .p(
+                            .text("Join us for our "),
+                            .a(
+                                .href(Model.twitterSpaceLinks.nextUrl),
+                                "next Twitter Space"
+                            ),
+                            .text(" discussing new and updated packages. Or catch up by listening to "),
+                            .a(
+                                .href(Model.twitterSpaceLinks.previousUrl),
+                                "our most recent episode"
+                            ),
+                            .text(".")
+                        ),
+                        .p(
+                            .class("twitter_profile"),
+                            .small(
+                                .text("Follow along at "),
+                                .a(
+                                    .href(ExternalURL.twitter),
+                                    "@SwiftPackages"
+                                )
+                            )
+                        )
                     ),
-                    .div(
-                        .class("recent_releases"),
-                        .h3("Recent Releases"),
-                        .ul(model.recentReleasesSection())
+                    .hr(
+                        .class("minor")
+                    ),
+                    .section(
+                        .class("recent"),
+                        .div(
+                            .class("recent_packages"),
+                            .h3("Recently Added"),
+                            .ul(model.recentPackagesSection())
+                        ),
+                        .div(
+                            .class("recent_releases"),
+                            .h3("Recent Releases"),
+                            .ul(model.recentReleasesSection())
+                        )
                     )
                 ),
                 .section(
