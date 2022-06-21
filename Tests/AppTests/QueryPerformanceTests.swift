@@ -138,11 +138,10 @@ class QueryPerformanceTests: XCTestCase {
               r.last_activity_at,
               r.summary,
               v.package_name,
-              pr.type AS product_type
+              ARRAY(SELECT DISTINCT JSONB_OBJECT_KEYS(type) FROM products WHERE products.version_id = v.id) AS product_types
             FROM packages p
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id
-              LEFT JOIN products pr ON pr.version_id = v.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
         try await assertQueryPerformance(query, expectedCost: 9_800, variation: 200)
