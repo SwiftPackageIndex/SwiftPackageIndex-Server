@@ -25,12 +25,18 @@ enum ReAnalyzeVersions {
         struct Signature: CommandSignature {
             @Option(name: "batchSize", short: "b")
             var batchSize: Int?
-            @Option(name: "limit", short: "l")
-            var limit: Int?
-            @Option(name: "id")
-            var id: UUID?
+
             @Option(name: "before")
             var before: Date?
+
+            @Option(name: "id")
+            var id: UUID?
+
+            @Option(name: "limit", short: "l")
+            var limit: Int?
+
+            @Flag(name: "refresh-checkouts", short: "r")
+            var refreshCheckouts: Bool
         }
 
         var help: String { "Run version re-analysis" }
@@ -45,11 +51,14 @@ enum ReAnalyzeVersions {
             if let id = signature.id {
                 logger.info("Re-analyzing versions (id: \(id)) ...")
                 do {
-                    try await reAnalyzeVersions(client: client,
-                                                database: db,
-                                                logger: logger,
-                                                versionsLastUpdatedBefore: Current.date(),
-                                                id: id)
+                    try await reAnalyzeVersions(
+                        client: client,
+                        database: db,
+                        logger: logger,
+                        versionsLastUpdatedBefore: Current.date(),
+                        refreshCheckouts: signature.refreshCheckouts,
+                        id: id
+                    )
                 } catch {
                     logger.error("\(error.localizedDescription)")
                 }
@@ -66,11 +75,14 @@ enum ReAnalyzeVersions {
                                                limit - processed)
                     logger.info("Re-analyzing versions (batch: \(processed)..<\(processed + currentBatchSize)) ...")
                     do {
-                        try await reAnalyzeVersions(client: client,
-                                                    database: db,
-                                                    logger: logger,
-                                                    before: cutoffDate,
-                                                    limit: currentBatchSize)
+                        try await reAnalyzeVersions(
+                            client: client,
+                            database: db,
+                            logger: logger,
+                            before: cutoffDate,
+                            refreshCheckouts: signature.refreshCheckouts,
+                            limit: currentBatchSize
+                        )
                         processed += currentBatchSize
                     } catch {
                         logger.error("\(error.localizedDescription)")
@@ -104,12 +116,14 @@ enum ReAnalyzeVersions {
                                   database: Database,
                                   logger: Logger,
                                   versionsLastUpdatedBefore cutOffDate: Date,
+                                  refreshCheckouts: Bool,
                                   id: Package.Id) async throws {
         let pkg = try await Package.fetchCandidate(database, id: id).get()
         try await reAnalyzeVersions(client: client,
                                     database: database,
                                     logger: logger,
                                     before: cutOffDate,
+                                    refreshCheckouts: refreshCheckouts,
                                     packages: [pkg])
     }
 
@@ -127,6 +141,7 @@ enum ReAnalyzeVersions {
                                   database: Database,
                                   logger: Logger,
                                   before cutOffDate: Date,
+                                  refreshCheckouts: Bool,
                                   limit: Int) async throws {
         let pkgs = try await Package.fetchReAnalysisCandidates(database,
                                                                before: cutOffDate,
@@ -135,6 +150,7 @@ enum ReAnalyzeVersions {
                                     database: database,
                                     logger: logger,
                                     before: cutOffDate,
+                                    refreshCheckouts: refreshCheckouts,
                                     packages: pkgs)
     }
 
@@ -152,6 +168,7 @@ enum ReAnalyzeVersions {
                                   database: Database,
                                   logger: Logger,
                                   before cutoffDate: Date,
+                                  refreshCheckouts: Bool,
                                   packages: [Joined<Package, Repository>]) async throws {
         // Pick essentials parts of companion function `analyze` and run the for
         // re-analysis.
@@ -172,7 +189,7 @@ enum ReAnalyzeVersions {
 
             try await database.transaction { tx in
                 guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: pkg.model) else { return }
-                if !Current.fileManager.fileExists(atPath: cacheDir) {
+                if !Current.fileManager.fileExists(atPath: cacheDir) || refreshCheckouts {
                     try Analyze.refreshCheckout(logger: logger, package: pkg)
                 }
 
