@@ -36,11 +36,9 @@ enum Search {
     static let lastCommitDate = SQLIdentifier("last_commit_date")
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
-    static let exactPackageNameMatch = SQLIdentifier("exact_package_name_match")
 
     static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
-    static let nullBool = SQLRaw("NULL::BOOL")
     static let nullInt = SQLRaw("NULL::INT")
     static let nullUUID = SQLRaw("NULL::UUID")
     static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
@@ -153,15 +151,13 @@ enum Search {
             with: " ",
             packageName, coalesce(summary, emptyString), repoName, repoOwner, arrayToString(keywords, delimiter: " ")
         )
-        let packageNameMatch = eq(lower(packageName), mergedTerms)
-        let sortOrder = SQLOrderBy(exactPackageNameMatch,
-                                   .descending)
+        let exactPackageNameMatch = eq(lower(packageName), mergedTerms)
+        let sortOrder = SQLOrderBy(exactPackageNameMatch, .descending)
             .then(score, .descending)
             .then(packageName, .ascending)
 
         let preamble = db
             .select()
-            .distinct()
             .column(.package)
             .column(null, as: keyword)
             .column(packageId)
@@ -176,8 +172,6 @@ enum Search {
             .column(lastActivityAt)
             .column(keywords)
             .column(nullInt, as: levenshteinDist)
-        // DISTINCT requires us to include the exact package match clause in the select list
-            .column(packageNameMatch, as: exactPackageNameMatch)
             .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
@@ -232,8 +226,6 @@ enum Search {
             .column(SQLFunction("LEVENSHTEIN", args: keyword, SQLBind(mergedTerms)),
                     as: levenshteinDist)
         select = select
-            .column(nullBool, as: exactPackageNameMatch)
-        select = select
             .from(searchView)
         select = select
             .from(unnest(keywords), as: keyword)
@@ -287,8 +279,6 @@ enum Search {
         select = select
             .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
                     as: levenshteinDist)
-        select = select
-            .column(nullBool, as: exactPackageNameMatch)
         select = select
             .from(searchView)
         select = select
