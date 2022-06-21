@@ -124,6 +124,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
                                                       database: app.db,
                                                       logger: app.logger,
                                                       before: Current.date(),
+                                                      refreshCheckouts: false,
                                                       limit: 10)
 
         // validate that re-analysis has now updated existing versions
@@ -210,6 +211,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
                                                       database: app.db,
                                                       logger: app.logger,
                                                       before: Current.date(),
+                                                      refreshCheckouts: false,
                                                       limit: 10)
 
         // validate
