@@ -161,4 +161,8 @@
   .twitter_profile {
     text-align: right;
   }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    margin-left: 20px;
+  }
 }
