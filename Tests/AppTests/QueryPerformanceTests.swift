@@ -47,7 +47,7 @@ class QueryPerformanceTests: XCTestCase {
 
     func test_Search_authorMatchQuery() async throws {
         let query = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
-        try await assertQueryPerformance(query, expectedCost: 420, variation: 50)
+        try await assertQueryPerformance(query, expectedCost: 470, variation: 50)
     }
 
     func test_Search_query_noFilter() async throws {
@@ -102,7 +102,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 0, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 4030, variation: 150)
     }
 
     func test_Search_query_starsFilter() async throws {
@@ -144,7 +144,7 @@ class QueryPerformanceTests: XCTestCase {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
-        try await assertQueryPerformance(query, expectedCost: 9_800, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 14_800, variation: 200)
     }
 
 }
