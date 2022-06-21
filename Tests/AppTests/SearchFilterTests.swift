@@ -418,7 +418,7 @@ class SearchFilterTests: AppTestCase {
         let filter = try ProductTypeSearchFilter(expression: .init(operator: .is,
                                                                 value: "executable"))
         XCTAssertEqual(filter.key, .productType)
-        XCTAssertEqual(filter.predicate, .init(operator: .jsonKeyExists,
+        XCTAssertEqual(filter.predicate, .init(operator: .contains,
                                                bindableValue: .value("executable"),
                                                displayValue: "Executable"))
 
@@ -426,9 +426,9 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "Package products contain an Executable")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""product_type""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "?")
-        XCTAssertEqual(binds(filter.rightHandSide), ["executable"])
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""product_types""#)
+        XCTAssertEqual(renderSQL(filter.sqlOperator), "@>")
+        XCTAssertEqual(binds(filter.rightHandSide), ["{executable}"])
     }
 
     func test_productTypeFilter_spelling() throws {

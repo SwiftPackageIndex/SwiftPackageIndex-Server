@@ -44,13 +44,18 @@ struct ProductTypeSearchFilter: SearchFilterProtocol {
         guard let value = ProductType(rawValue: expression.value) else {
             throw SearchFilterError.invalidValueType
         }
-
         productType = value
 
+        // Package the product type in a set so we can use the existing .contains operator
+        // which requires a collection on the right hand side
+        let bindableValue = Set([productType])
+
+        guard !bindableValue.isEmpty else { throw SearchFilterError.invalidValueType }
+
         self.predicate = .init(
-            operator: .jsonKeyExists,
-            bindableValue: .value(value.rawValue),
-            displayValue: value.displayDescription
+            operator: .contains,
+            bindableValue: .value(bindableValue),
+            displayValue: productType.displayDescription
         )
     }
 }

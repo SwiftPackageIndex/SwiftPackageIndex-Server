@@ -77,7 +77,6 @@ extension SearchFilter {
         case notIn
         case lessThan
         case lessThanOrEqual
-        case jsonKeyExists
 
         var sqlOperator: SQLExpression {
             switch self {
@@ -103,8 +102,6 @@ extension SearchFilter {
                     return SQLBinaryOperator.lessThan
                 case .lessThanOrEqual:
                     return SQLBinaryOperator.lessThanOrEqual
-                case .jsonKeyExists:
-                    return SQLRaw("?")
             }
         }
 
@@ -122,8 +119,6 @@ extension SearchFilter {
                     return "is less than"
                 case .lessThanOrEqual:
                     return "is less than or equal to"
-                case .jsonKeyExists:
-                    return "contains"
             }
         }
 

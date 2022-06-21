@@ -65,7 +65,7 @@ extension SearchFilter {
                 case .stars:
                     return SQLIdentifier("stars")
                 case .productType:
-                    return SQLIdentifier("product_type")
+                    return SQLIdentifier("product_types")
             }
         }
     }
