@@ -138,8 +138,9 @@
 .twitter_spaces {
   position: relative;
   padding: 15px;
-  margin: 20px 0;
+  margin: 20px 0 60px 0;
   background-color: var(--panel-background);
+  border-bottom: 3px var(--twitter-blue) solid;
 
   &::before {
     content: '';
