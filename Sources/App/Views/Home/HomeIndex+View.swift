@@ -85,9 +85,6 @@ enum HomeIndex {
                             )
                         )
                     ),
-                    .hr(
-                        .class("minor")
-                    ),
                     .section(
                         .class("recent"),
                         .div(

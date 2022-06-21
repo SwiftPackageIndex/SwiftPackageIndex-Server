@@ -109,6 +109,7 @@ body.home {
   .scta {
     position: relative;
     border-bottom: 3px var(--pink) solid;
+    margin-bottom: 40px;
 
     &::before {
       content: '';
