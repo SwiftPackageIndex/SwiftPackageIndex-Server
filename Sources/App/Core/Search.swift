@@ -82,7 +82,7 @@ enum Search {
         var lastActivityAt: Date?
         var summary: String?
         var keywords: [String]?
-        
+
         enum CodingKeys: String, CodingKey {
             case matchType = "match_type"
             case keyword
@@ -149,8 +149,8 @@ enum Search {
             with: " ",
             packageName, coalesce(summary, emptyString), repoName, repoOwner, arrayToString(keywords, delimiter: " ")
         )
-        let sortOrder = SQLOrderBy(eq(lower(packageName), mergedTerms),
-                                   .descending)
+        let exactPackageNameMatch = eq(lower(packageName), mergedTerms)
+        let sortOrder = SQLOrderBy(exactPackageNameMatch, .descending)
             .then(score, .descending)
             .then(packageName, .ascending)
 
@@ -169,7 +169,7 @@ enum Search {
             .column(lastCommitDate)
             .column(lastActivityAt)
             .column(keywords)
-            .column(null, as: levenshteinDist)
+            .column(nullInt, as: levenshteinDist)
             .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }

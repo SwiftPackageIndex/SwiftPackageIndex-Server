@@ -392,6 +392,6 @@ fileprivate typealias BuildStatusRow = PackageShow.Model.BuildStatusRow
 
 private extension PackageShow.Model.ProductCounts {
     static var mock: Self {
-        .init(libraries: 0, executables: 0)
+        .init(libraries: 0, executables: 0, plugins: 0)
     }
 }

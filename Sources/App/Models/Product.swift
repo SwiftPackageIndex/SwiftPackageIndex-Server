@@ -68,6 +68,7 @@ enum ProductType: Codable, Equatable {
     case executable
     case library(LibraryType)
     case test
+    case plugin
 
     init(manifestProductType: Manifest.ProductType) {
         switch manifestProductType {
@@ -93,14 +94,21 @@ enum ProductType: Codable, Equatable {
     var isLibrary: Bool {
         switch self {
             case .library: return true
-            case .executable, .test: return false
+            case .executable, .test, .plugin: return false
         }
     }
 
     var isExecutable: Bool {
         switch self {
             case .executable: return true
-            case .library, .test: return false
+            case .library, .test, .plugin: return false
+        }
+    }
+
+    var isPlugin: Bool {
+        switch self {
+            case .plugin: return true
+            default: return false
         }
     }
 }

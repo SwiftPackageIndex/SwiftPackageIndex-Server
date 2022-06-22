@@ -426,6 +426,16 @@ extension PackageShow.Model {
         )
     }
 
+    func pluginsListItem() -> Node<HTML.ListContext> {
+        guard let productCounts = productCounts
+        else { return .empty }
+
+        return .li(
+            .class("plugins"),
+            .text(pluralizedCount(productCounts.plugins, singular: "plugin", capitalized: true))
+        )
+    }
+
     func keywordsListItem() -> Node<HTML.ListContext> {
         if let keywords = keywords {
             return .li(
