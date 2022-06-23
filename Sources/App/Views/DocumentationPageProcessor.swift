@@ -24,6 +24,13 @@ struct DocumentationPageProcessor {
     let packageName: String
     let reference: String
     let docArchives: [String]
+    let isLatestStableVersion: Bool
+    let otherAvailableVersions: [OtherDocumentationVersion]
+
+    struct OtherDocumentationVersion {
+        let kind: Release.Kind
+        let reference: String
+    }
 
     init?(repositoryOwner: String,
           repositoryOwnerName: String,
@@ -31,6 +38,8 @@ struct DocumentationPageProcessor {
           packageName: String,
           reference: String,
           docArchives: [String],
+          isLatestStableVersion: Bool,
+          otherAvailableVersions: [OtherDocumentationVersion],
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
@@ -38,6 +47,8 @@ struct DocumentationPageProcessor {
         self.packageName = packageName
         self.reference = reference
         self.docArchives = docArchives
+        self.isLatestStableVersion = isLatestStableVersion
+        self.otherAvailableVersions = otherAvailableVersions
 
         do {
             document = try SwiftSoup.parse(rawHtml)
