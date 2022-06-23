@@ -46,7 +46,7 @@ extension PackageShow {
         var isArchived: Bool
         var homepageUrl: String?
         var documentationMetadata: DocumentationMetadata?
-        var dependencyCodeSnippets: [SignificantReleases: Link]
+        var dependencyCodeSnippets: [SignificantReleaseKind: Link]
         
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
@@ -72,7 +72,7 @@ extension PackageShow {
                       isArchived: Bool,
                       homepageUrl: String? = nil,
                       documentationMetadata: DocumentationMetadata? = nil,
-                      dependencyCodeSnippets: [SignificantReleases: Link]) {
+                      dependencyCodeSnippets: [SignificantReleaseKind: Link]) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
             self.repositoryOwnerName = repositoryOwnerName
@@ -508,12 +508,6 @@ extension PackageShow.Model {
         )
     }
 
-    enum SignificantReleases: String {
-        case defaultBranch
-        case preRelease
-        case release
-    }
-
     static func packageDependencyCodeSnippet(ref: App.Reference, packageURL: String) -> String {
         switch ref {
             case let .branch(branch):
@@ -527,8 +521,8 @@ extension PackageShow.Model {
     static func packageDependencyCodeSnippets(packageURL: String,
                                               defaultBranchReference: App.Reference?,
                                               releaseReference: App.Reference?,
-                                              preReleaseReference: App.Reference?) -> [SignificantReleases: Link] {
-        var snippets = [SignificantReleases: Link]()
+                                              preReleaseReference: App.Reference?) -> [SignificantReleaseKind: Link] {
+        var snippets = [SignificantReleaseKind: Link]()
         if let ref = defaultBranchReference {
             snippets[.defaultBranch] = Link(label: "\(ref)",
                                             url: packageDependencyCodeSnippet(ref: ref,

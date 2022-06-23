@@ -35,3 +35,9 @@ extension Release {
         url = node.url
     }
 }
+
+enum SignificantReleaseKind: String {
+    case defaultBranch
+    case preRelease
+    case release
+}
