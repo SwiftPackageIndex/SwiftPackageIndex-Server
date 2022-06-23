@@ -147,7 +147,7 @@ header.spi {
       }
     }
 
-    &.targets {
+    &.doc_archives {
       ul {
         display: flex;
         gap: 20px;
@@ -166,7 +166,7 @@ header.spi {
     }
   }
 
-  .targets_wrap {
+  .doc_archives_wrap {
     background-color: rgba(255, 255, 255, 0.15);
 
     @media (prefers-color-scheme: dark) {
