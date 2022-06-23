@@ -37,7 +37,7 @@ class ShellOutCommandExtensionTests: XCTestCase {
     }
 
     func test_gitFetch() throws {
-        XCTAssertEqual(ShellOutCommand.gitFetch.string, "git fetch --tags")
+        XCTAssertEqual(ShellOutCommand.gitFetchAndPruneTags.string, "git fetch --tags --prune-tags --prune")
     }
 
     func test_gitFirstCommitDate() throws {

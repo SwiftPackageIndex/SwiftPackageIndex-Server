@@ -310,7 +310,7 @@ extension Analyze {
         // git reset --hard to deal with stray .DS_Store files on macOS
         try Current.shell.run(command: .gitReset(hard: true), at: cacheDir)
         try Current.shell.run(command: .gitClean, at: cacheDir)
-        try Current.shell.run(command: .gitFetch, at: cacheDir)
+        try Current.shell.run(command: .gitFetchAndPruneTags, at: cacheDir)
         try Current.shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
         try Current.shell.run(command: .gitReset(to: branch, hard: true),
                               at: cacheDir)
