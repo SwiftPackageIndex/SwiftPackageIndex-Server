@@ -116,7 +116,7 @@ struct PackageController {
                                                                  repositoryName: repository,
                                                                  packageName: queryResult.version.packageName ?? repository,
                                                                  reference: reference,
-                                                                 targets: queryResult.version.spiManifest?.allDocumentationTargets() ?? [],
+                                                                 doc_archives: queryResult.version.spiManifest?.allDocumentationTargets() ?? [],
                                                                  rawHtml: body.asString())
                 else {
                     return try await awsResponse.encodeResponse(

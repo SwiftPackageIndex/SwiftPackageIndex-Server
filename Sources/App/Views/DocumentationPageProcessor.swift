@@ -23,21 +23,21 @@ struct DocumentationPageProcessor {
     let repositoryName: String
     let packageName: String
     let reference: String
-    let targets: [String]
+    let doc_archives: [String]
 
     init?(repositoryOwner: String,
           repositoryOwnerName: String,
           repositoryName: String,
           packageName: String,
           reference: String,
-          targets: [String],
+          doc_archives: [String],
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
         self.repositoryName = repositoryName
         self.packageName = packageName
         self.reference = reference
-        self.targets = targets
+        self.doc_archives = doc_archives
 
         do {
             document = try SwiftSoup.parse(rawHtml)
@@ -104,7 +104,7 @@ struct DocumentationPageProcessor {
                         )
                     )
                 ),
-                .if(targets.count > 1, .div(
+                .if(doc_archives.count > 1, .div(
                     .class("targets_wrap"),
                     .div(
                         .class("inner targets"),
@@ -113,11 +113,11 @@ struct DocumentationPageProcessor {
                                 .li(
                                     .text("Documentation for:")
                                 ),
-                                .forEach(targets, { target in
+                                .forEach(doc_archives, { archive in
                                         .li(
                                             .a(
-                                                .href(relativeDocumentationURL(target: target)),
-                                                .text(target)
+                                                .href(relativeDocumentationURL(doc_archive: archive)),
+                                                .text(archive)
                                             )
                                         )
                                 })
@@ -189,7 +189,7 @@ struct DocumentationPageProcessor {
     }
 
     // Note: When this gets merged back with the refactored SiteURL, note that it's duplicated in `PackageShow.Model`.
-    func relativeDocumentationURL(target: String) -> String {
-        "/\(repositoryOwner)/\(repositoryName)/\(reference)/documentation/\(target.lowercased())"
+    func relativeDocumentationURL(doc_archive: String) -> String {
+        "/\(repositoryOwner)/\(repositoryName)/\(reference)/documentation/\(doc_archive.lowercased())"
     }
 }
