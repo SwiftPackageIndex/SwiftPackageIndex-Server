@@ -105,9 +105,9 @@ struct DocumentationPageProcessor {
                     )
                 ),
                 .if(doc_archives.count > 1, .div(
-                    .class("targets_wrap"),
+                    .class("doc_archives_wrap"),
                     .div(
-                        .class("inner targets"),
+                        .class("inner doc_archives"),
                         .nav(
                             .ul(
                                 .li(
