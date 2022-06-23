@@ -24,6 +24,13 @@ struct Release: Codable, Equatable {
     var url: String
 }
 
+extension Release {
+    enum Kind: String {
+        case defaultBranch
+        case preRelease
+        case release
+    }
+}
 
 extension Release {
     init(from node: Github.Metadata.ReleaseNodes.ReleaseNode) {
