@@ -183,5 +183,14 @@ class ManifestTests: XCTestCase {
                        Set(Platform.Name.allCases.map(\.rawValue)))
     }
 
+    func test_decode_plugin_products() throws {
+        let data = try fixtureData(for: "manifest-plugin.json")
+        let m = try JSONDecoder().decode(Manifest.self, from: data)
+        XCTAssertEqual(m.products, [
+            .init(name: "Swift-DocC", targets: ["Swift-DocC"], type: .plugin),
+            .init(name: "Swift-DocC Preview", targets: ["Swift-DocC Preview"], type: .plugin),
+        ])
+    }
+
 }
 
