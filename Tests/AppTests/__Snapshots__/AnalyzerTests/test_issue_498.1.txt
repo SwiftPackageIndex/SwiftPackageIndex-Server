@@ -3,7 +3,7 @@
   - "rm \"-f\" \"${checkouts}/github.com-foo-1/.git/index.lock\""
   - "git reset --hard"
   - "git clean -fdx"
-  - "git fetch --tags"
+  - "git fetch --tags --prune-tags --prune"
   - "git checkout \"master\" --quiet"
   - "rm \"-r\" \"-f\" \"${checkouts}/github.com-foo-1\""
   - "git clone https://github.com/foo/1 \"${checkouts}/github.com-foo-1\" --quiet"

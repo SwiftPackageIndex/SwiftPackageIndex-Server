@@ -118,7 +118,7 @@ final class AnalyzeErrorTests: AppTestCase {
                 case _ where cmd.string.contains("git clone https://github.com/foo/1"):
                     throw SimulatedError()
 
-                case .gitFetch where path.hasSuffix("foo-1"):
+                case .gitFetchAndPruneTags where path.hasSuffix("foo-1"):
                     throw SimulatedError()
 
                 default:

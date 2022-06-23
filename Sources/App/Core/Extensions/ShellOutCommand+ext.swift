@@ -30,8 +30,8 @@ extension ShellOutCommand {
         .init(string: "git rev-list --count HEAD")
     }
 
-    static var gitFetch: Self {
-        .init(string: "git fetch --tags")
+    static var gitFetchAndPruneTags: Self {
+        .init(string: "git fetch --tags --prune-tags --prune")
     }
 
     static var gitFirstCommitDate: Self {

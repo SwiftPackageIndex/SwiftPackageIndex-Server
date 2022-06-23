@@ -1006,7 +1006,7 @@ class AnalyzerTests: AppTestCase {
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
                 Validator.commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
             }
-            if cmd == .gitFetch { throw TestError.simulatedFetchError }
+            if cmd == .gitFetchAndPruneTags { throw TestError.simulatedFetchError }
             return ""
         }
 
@@ -1186,7 +1186,7 @@ private struct Command: CustomStringConvertible {
                 self.kind = .clone(url)
             case .gitCommitCount:
                 self.kind = .commitCount
-            case .gitFetch:
+            case .gitFetchAndPruneTags:
                 self.kind = .fetch
             case .gitFirstCommitDate:
                 self.kind = .firstCommitDate
