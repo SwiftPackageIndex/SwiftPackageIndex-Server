@@ -23,21 +23,21 @@ struct DocumentationPageProcessor {
     let repositoryName: String
     let packageName: String
     let reference: String
-    let doc_archives: [String]
+    let docArchives: [String]
 
     init?(repositoryOwner: String,
           repositoryOwnerName: String,
           repositoryName: String,
           packageName: String,
           reference: String,
-          doc_archives: [String],
+          docArchives: [String],
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
         self.repositoryName = repositoryName
         self.packageName = packageName
         self.reference = reference
-        self.doc_archives = doc_archives
+        self.docArchives = docArchives
 
         do {
             document = try SwiftSoup.parse(rawHtml)
@@ -104,7 +104,7 @@ struct DocumentationPageProcessor {
                         )
                     )
                 ),
-                .if(doc_archives.count > 1, .div(
+                .if(docArchives.count > 1, .div(
                     .class("doc_archives_wrap"),
                     .div(
                         .class("inner doc_archives"),
@@ -113,10 +113,10 @@ struct DocumentationPageProcessor {
                                 .li(
                                     .text("Documentation for:")
                                 ),
-                                .forEach(doc_archives, { archive in
+                                .forEach(docArchives, { archive in
                                         .li(
                                             .a(
-                                                .href(relativeDocumentationURL(doc_archive: archive)),
+                                                .href(relativeDocumentationURL(docArchive: archive)),
                                                 .text(archive)
                                             )
                                         )
@@ -189,7 +189,7 @@ struct DocumentationPageProcessor {
     }
 
     // Note: When this gets merged back with the refactored SiteURL, note that it's duplicated in `PackageShow.Model`.
-    func relativeDocumentationURL(doc_archive: String) -> String {
-        "/\(repositoryOwner)/\(repositoryName)/\(reference)/documentation/\(doc_archive.lowercased())"
+    func relativeDocumentationURL(docArchive: String) -> String {
+        "/\(repositoryOwner)/\(repositoryName)/\(reference)/documentation/\(docArchive.lowercased())"
     }
 }

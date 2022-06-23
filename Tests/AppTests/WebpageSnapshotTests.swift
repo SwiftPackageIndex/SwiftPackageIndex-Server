@@ -358,7 +358,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
                                                                  reference: "main",
-                                                                 doc_archives: [],
+                                                                 docArchives: [],
                                                                  rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
@@ -372,7 +372,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
                                                                  reference: "main",
-                                                                 doc_archives: ["Archive1", "Archive2"],
+                                                                 docArchives: ["Archive1", "Archive2"],
                                                                  rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
