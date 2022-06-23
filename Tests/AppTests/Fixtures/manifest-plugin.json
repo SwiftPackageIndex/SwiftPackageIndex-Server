@@ -1,0 +1,253 @@
+{
+  "cLanguageStandard" : null,
+  "cxxLanguageStandard" : null,
+  "dependencies" : [
+    {
+      "sourceControl" : [
+        {
+          "identity" : "swift-docc-symbolkit",
+          "location" : {
+            "remote" : [
+              "https://github.com/apple/swift-docc-symbolkit"
+            ]
+          },
+          "productFilter" : null,
+          "requirement" : {
+            "branch" : [
+              "main"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "name" : "SwiftDocCPlugin",
+  "packageKind" : {
+    "root" : [
+      "/Users/sas/Projects/SPI/spi-server/SPI-checkouts/github.com-apple-swift-docc-plugin"
+    ]
+  },
+  "pkgConfig" : null,
+  "platforms" : [
+    {
+      "options" : [
+
+      ],
+      "platformName" : "macos",
+      "version" : "10.15.4"
+    }
+  ],
+  "products" : [
+    {
+      "name" : "Swift-DocC",
+      "settings" : [
+
+      ],
+      "targets" : [
+        "Swift-DocC"
+      ],
+      "type" : {
+        "plugin" : null
+      }
+    },
+    {
+      "name" : "Swift-DocC Preview",
+      "settings" : [
+
+      ],
+      "targets" : [
+        "Swift-DocC Preview"
+      ],
+      "type" : {
+        "plugin" : null
+      }
+    }
+  ],
+  "providers" : null,
+  "swiftLanguageVersions" : null,
+  "targets" : [
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "snippet-build",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+        "Symbolic Links/README.md"
+      ],
+      "name" : "Swift-DocC",
+      "path" : "Plugins/Swift-DocC Convert",
+      "pluginCapability" : {
+        "command" : [
+          {
+            "documentationGeneration" : {
+
+            }
+          },
+          [
+
+          ]
+        ]
+      },
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "plugin"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "snippet-build",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+        "Symbolic Links/README.md"
+      ],
+      "name" : "Swift-DocC Preview",
+      "pluginCapability" : {
+        "command" : [
+          {
+            "custom" : {
+              "description" : "Preview the Swift-DocC documentation for a specified target.",
+              "verb" : "preview-documentation"
+            }
+          },
+          [
+
+          ]
+        ]
+      },
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "plugin"
+    },
+    {
+      "dependencies" : [
+
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "SwiftDocCPluginUtilities",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "Snippets",
+            null
+          ]
+        },
+        {
+          "byName" : [
+            "SwiftDocCPluginUtilities",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "SwiftDocCPluginUtilitiesTests",
+      "resources" : [
+        {
+          "path" : "Test Fixtures",
+          "rule" : {
+            "copy" : {
+
+            }
+          }
+        }
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+
+      ],
+      "exclude" : [
+        "README.md"
+      ],
+      "name" : "SwiftDocCPlugin",
+      "path" : "Sources/SwiftDocCPluginDocumentation",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "Snippets",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "Snippets",
+            null
+          ]
+        },
+        {
+          "product" : [
+            "SymbolKit",
+            "swift-docc-symbolkit",
+            null,
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "snippet-build",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "executable"
+    }
+  ],
+  "toolsVersion" : {
+    "_version" : "5.6.0"
+  }
+}
