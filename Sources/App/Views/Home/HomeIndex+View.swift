@@ -67,7 +67,7 @@ enum HomeIndex {
                                 .href(Model.twitterSpaceLinks.nextUrl),
                                 "next Twitter Space"
                             ),
-                            .text(" discussing new and updated packages. Or catch up by listening to "),
+                            .text(" discussing new and updated packages. Or catch up with "),
                             .a(
                                 .href(Model.twitterSpaceLinks.previousUrl),
                                 "our most recent episode"
