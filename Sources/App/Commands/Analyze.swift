@@ -505,11 +505,13 @@ extension Analyze {
                                   delta: VersionDelta) async throws {
         try await delta.toDelete.delete(on: transaction)
         delta.toDelete.forEach {
-            AppMetrics.analyzeVersionsDeletedCount?.inc(1, .init($0.reference))
+            AppMetrics.analyzeVersionsDeletedCount?
+                .inc(1, .versionLabels(reference: $0.reference))
         }
         try await delta.toAdd.create(on: transaction)
         delta.toAdd.forEach {
-            AppMetrics.analyzeVersionsAddedCount?.inc(1, .init($0.reference))
+            AppMetrics.analyzeVersionsAddedCount?
+                .inc(1, .versionLabels(reference: $0.reference))
         }
     }
 

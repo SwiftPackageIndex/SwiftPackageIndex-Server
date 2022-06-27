@@ -45,7 +45,7 @@ enum SearchFilter {
               let expression = Expression(predicate: components[1])
         else { return nil }
 
-        AppMetrics.apiSearchGetWithFilterTotal?.inc(1, .init(key: key))
+        AppMetrics.apiSearchGetWithFilterTotal?.inc(1, .searchFilterLabels(key))
 
         return try? key.searchFilter.init(expression: expression)
     }

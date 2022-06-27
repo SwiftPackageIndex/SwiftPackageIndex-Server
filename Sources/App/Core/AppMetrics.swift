@@ -31,176 +31,120 @@ enum AppMetrics {
 
     // metrics
 
-    enum Labels {
-        struct BuildReport: MetricLabels {
-            var platform: String = ""
-            var runnerId: String = ""
-            var swiftVersion: String = ""
-
-            init() {}
-
-            init(_ platform: App.Build.Platform, _ runnerId: String, _ swiftVersion: SwiftVersion) {
-                self.platform = platform.rawValue
-                self.runnerId = runnerId
-                self.swiftVersion = "\(swiftVersion)"
-            }
-        }
-
-        struct BuildTrigger: MetricLabels {
-            var platform: String = ""
-            var swiftVersion: String = ""
-
-            init() {}
-
-            init(_ platform: App.Build.Platform, _ swiftVersion: SwiftVersion) {
-                self.platform = platform.rawValue
-                self.swiftVersion = "\(swiftVersion)"
-            }
-        }
-
-        struct Version: MetricLabels {
-            var kind: String = ""
-
-            init() {}
-            
-            init(_ kind: String) {
-                self.kind = kind
-            }
-
-            init(_ reference: Reference?) {
-                switch reference {
-                    case .branch:
-                        kind = "branch"
-                    case .tag:
-                        kind = "tag"
-                    case .none:
-                        kind = ""
-                }
-            }
-        }
-
-        struct SearchFilterKey: MetricLabels {
-            var key: String = ""
-
-            init() {} // protocol requirement
-            init(key: App.SearchFilter.Key) { self.key = key.rawValue }
-        }
+    static var analyzeCandidatesCount: PromGauge<Int>? {
+        gauge("spi_analyze_candidates_count")
     }
 
-    static var analyzeCandidatesCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_analyze_candidates_count", EmptyLabels.self)
+    static var analyzeDurationSeconds: PromGauge<Double>? {
+        gauge("spi_analyze_duration_seconds")
     }
 
-    static var analyzeDurationSeconds: PromGauge<Double, EmptyLabels>? {
-        gauge("spi_analyze_duration_seconds", EmptyLabels.self)
+    static var analyzeS3FetchCount: PromGauge<Int>? {
+        gauge("spi_analyze_s3_fetch_count")
     }
 
-    static var analyzeS3FetchCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_analyze_s3_fetch_count", EmptyLabels.self)
+    static var analyzeTrimCheckoutsCount: PromGauge<Int>? {
+        gauge("spi_analyze_trim_checkouts_count")
     }
 
-    static var analyzeTrimCheckoutsCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_analyze_trim_checkouts_count", EmptyLabels.self)
+    static var analyzeVersionsAddedCount: PromGauge<Int>? {
+        gauge("spi_analyze_versions_added_count")
     }
 
-    static var analyzeVersionsAddedCount: PromGauge<Int, Labels.Version>? {
-        gauge("spi_analyze_versions_added_count", Labels.Version.self)
+    static var analyzeVersionsDeletedCount: PromGauge<Int>? {
+        gauge("spi_analyze_versions_deleted_count")
     }
 
-    static var analyzeVersionsDeletedCount: PromGauge<Int, Labels.Version>? {
-        gauge("spi_analyze_versions_deleted_count", Labels.Version.self)
+    static var apiBuildReportTotal: PromCounter<Int>? {
+        counter("spi_api_build_report_total")
     }
 
-    static var apiBuildReportTotal: PromCounter<Int, Labels.BuildReport>? {
-        counter("spi_api_build_report_total", Labels.BuildReport.self)
+    static var apiPackageCollectionGetTotal: PromCounter<Int>? {
+        counter("spi_api_package_collection_get_total")
     }
 
-    static var apiPackageCollectionGetTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_api_package_collection_get_total", EmptyLabels.self)
-    }
-
-    static var apiSearchGetTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_api_search_get_total", EmptyLabels.self)
+    static var apiSearchGetTotal: PromCounter<Int>? {
+        counter("spi_api_search_get_total")
     }
     
-    static var apiSearchGetWithFilterTotal: PromCounter<Int, Labels.SearchFilterKey>? {
-        counter("spi_api_search_get_with_filter_total", Labels.SearchFilterKey.self)
+    static var apiSearchGetWithFilterTotal: PromCounter<Int>? {
+        counter("spi_api_search_get_with_filter_total")
     }
 
-    static var searchTermsCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_search_terms_count", EmptyLabels.self)
+    static var searchTermsCount: PromGauge<Int>? {
+        gauge("spi_search_terms_count")
     }
     
-    static var searchFiltersCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_search_filters_count", EmptyLabels.self)
+    static var searchFiltersCount: PromGauge<Int>? {
+        gauge("spi_search_filters_count")
     }
 
-    static var buildCandidatesCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_build_candidates_count", EmptyLabels.self)
+    static var buildCandidatesCount: PromGauge<Int>? {
+        gauge("spi_build_candidates_count")
     }
 
-    static var buildPendingJobsCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_build_pending_jobs_count", EmptyLabels.self)
+    static var buildPendingJobsCount: PromGauge<Int>? {
+        gauge("spi_build_pending_jobs_count")
     }
 
-    static var buildRunningJobsCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_build_running_jobs_count", EmptyLabels.self)
+    static var buildRunningJobsCount: PromGauge<Int>? {
+        gauge("spi_build_running_jobs_count")
     }
 
-    static var buildThrottleCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_build_throttle_count", EmptyLabels.self)
+    static var buildThrottleCount: PromGauge<Int>? {
+        gauge("spi_build_throttle_count")
     }
 
-    static var buildTriggerCount: PromGauge<Int, Labels.BuildTrigger>? {
-        gauge("spi_build_trigger_count", Labels.BuildTrigger.self)
+    static var buildTriggerCount: PromGauge<Int>? {
+        gauge("spi_build_trigger_count")
     }
 
-    static var buildTriggerDurationSeconds: PromGauge<Double, EmptyLabels>? {
-        gauge("spi_build_trigger_duration_seconds", EmptyLabels.self)
+    static var buildTriggerDurationSeconds: PromGauge<Double>? {
+        gauge("spi_build_trigger_duration_seconds")
     }
 
-    static var buildTrimCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_build_trim_count", EmptyLabels.self)
+    static var buildTrimCount: PromGauge<Int>? {
+        gauge("spi_build_trim_count")
     }
 
-    static var githubRateLimitRemainingCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_github_rate_limit_remaining_count", EmptyLabels.self)
+    static var githubRateLimitRemainingCount: PromGauge<Int>? {
+        gauge("spi_github_rate_limit_remaining_count")
     }
 
-    static var ingestCandidatesCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_ingest_candidates_count", EmptyLabels.self)
+    static var ingestCandidatesCount: PromGauge<Int>? {
+        gauge("spi_ingest_candidates_count")
     }
 
-    static var ingestDurationSeconds: PromGauge<Double, EmptyLabels>? {
-        gauge("spi_ingest_duration_seconds", EmptyLabels.self)
+    static var ingestDurationSeconds: PromGauge<Double>? {
+        gauge("spi_ingest_duration_seconds")
     }
 
-    static var ingestMetadataSuccessCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_ingest_metadata_success_count", EmptyLabels.self)
+    static var ingestMetadataSuccessCount: PromGauge<Int>? {
+        gauge("spi_ingest_metadata_success_count")
     }
 
-    static var ingestMetadataFailureCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_ingest_metadata_failure_count", EmptyLabels.self)
+    static var ingestMetadataFailureCount: PromGauge<Int>? {
+        gauge("spi_ingest_metadata_failure_count")
     }
 
-    static var packageCollectionGetTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_package_collection_get_total", EmptyLabels.self)
+    static var packageCollectionGetTotal: PromCounter<Int>? {
+        counter("spi_package_collection_get_total")
     }
 
-    static var packageShowAvailableTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_package_show_available_total", EmptyLabels.self)
+    static var packageShowAvailableTotal: PromCounter<Int>? {
+        counter("spi_package_show_available_total")
     }
 
-    static var packageShowMissingTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_package_show_missing_total", EmptyLabels.self)
+    static var packageShowMissingTotal: PromCounter<Int>? {
+        counter("spi_package_show_missing_total")
     }
 
-    static var packageShowNonexistentTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_package_show_nonexistent_total", EmptyLabels.self)
+    static var packageShowNonexistentTotal: PromCounter<Int>? {
+        counter("spi_package_show_nonexistent_total")
     }
 
-    static var reconcileDurationSeconds: PromGauge<Double, EmptyLabels>? {
-        gauge("spi_reconcile_duration_seconds", EmptyLabels.self)
+    static var reconcileDurationSeconds: PromGauge<Double>? {
+        gauge("spi_reconcile_duration_seconds")
     }
 
 }
@@ -210,14 +154,14 @@ enum AppMetrics {
 
 extension AppMetrics {
 
-    static func counter<V: Numeric, L: MetricLabels>(_ name: String, _ labels: L.Type) -> PromCounter<V, L>? {
+    static func counter<V: Numeric>(_ name: String) -> PromCounter<V>? {
         try? MetricsSystem.prometheus()
-            .createCounter(forType: V.self, named: name, withLabelType: labels)
+            .createCounter(forType: V.self, named: name)
     }
 
-    static func gauge<V: DoubleRepresentable, L: MetricLabels>(_ name: String, _ labels: L.Type) -> PromGauge<V, L>? {
+    static func gauge<V: DoubleRepresentable>(_ name: String) -> PromGauge<V>? {
         try? MetricsSystem.prometheus()
-            .createGauge(forType: V.self, named: name, withLabelType: labels)
+            .createGauge(forType: V.self, named: name)
     }
 
 }
@@ -276,8 +220,43 @@ extension AppMetrics {
 
 extension PromGauge {
     @inlinable
-    public func time(_ labels: Labels? = nil, since start: UInt64) {
+    public func time(since start: UInt64, _ labels: DimensionLabels? = nil) {
         let delta = Double(DispatchTime.now().uptimeNanoseconds - start)
         self.set(.init(delta / 1_000_000_000), labels)
     }
+}
+
+
+extension DimensionLabels {
+
+    static func buildReportLabels(_ build: App.Build) -> Self {
+        .init([
+            ("platform", build.platform.rawValue),
+            ("runnerId", build.runnerId ?? ""),
+            ("swiftVersion", "\(build.swiftVersion)"),
+        ])
+    }
+
+    static func buildTriggerLabels(_ pair: BuildPair) -> Self {
+        .init([
+            ("platform", pair.platform.rawValue),
+            ("swiftVersion", "\(pair.swiftVersion)"),
+        ])
+    }
+
+    static func versionLabels(reference: Reference?) -> Self {
+        switch reference {
+            case .none:
+                return .init([])
+            case .some(.branch):
+                return .init([("kind", "branch")])
+            case .some(.tag):
+                return .init([("kind", "tag")])
+        }
+    }
+
+    static func searchFilterLabels(_ key: SearchFilter.Key) -> Self {
+        .init([("key", key.rawValue)])
+    }
+
 }

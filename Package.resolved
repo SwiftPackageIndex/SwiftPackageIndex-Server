@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/swift-server/async-http-client.git",
         "state": {
           "branch": null,
-          "revision": "0f21b44d1ad5227ccbaa073aa40cd37eb8bbc337",
-          "version": "1.11.0"
+          "revision": "794dc9d42720af97cedd395e8cd2add9173ffd9a",
+          "version": "1.11.1"
         }
       },
       {
@@ -366,8 +366,8 @@
         "repositoryURL": "https://github.com/MrLotU/SwiftPrometheus.git",
         "state": {
           "branch": null,
-          "revision": "ba329daafa03027d36cda605df6c0d9b065b088e",
-          "version": "1.0.0-alpha.15"
+          "revision": "688e1fd540aecc191a9e40ef5c378432cbf2f787",
+          "version": "1.0.0"
         }
       },
       {
