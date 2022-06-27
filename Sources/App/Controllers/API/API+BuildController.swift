@@ -60,8 +60,7 @@ extension API {
                     }
                 }
 
-                AppMetrics.apiBuildReportTotal?
-                    .inc(1, AppMetrics.Labels.BuildReport(build: build).labels)
+                AppMetrics.apiBuildReportTotal?.inc(1, .buildReportLabels(build))
                 if build.status == .infrastructureError {
                     req.logger.critical("build infrastructure error: \(build.jobUrl)")
                 }

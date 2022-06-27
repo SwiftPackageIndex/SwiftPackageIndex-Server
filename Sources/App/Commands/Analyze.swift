@@ -506,12 +506,12 @@ extension Analyze {
         try await delta.toDelete.delete(on: transaction)
         delta.toDelete.forEach {
             AppMetrics.analyzeVersionsDeletedCount?
-                .inc(1, AppMetrics.Labels.Version($0.reference).labels)
+                .inc(1, .versionLabels(reference: $0.reference))
         }
         try await delta.toAdd.create(on: transaction)
         delta.toAdd.forEach {
             AppMetrics.analyzeVersionsAddedCount?
-                .inc(1, AppMetrics.Labels.Version($0.reference).labels)
+                .inc(1, .versionLabels(reference: $0.reference))
         }
     }
 

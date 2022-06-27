@@ -14,6 +14,7 @@
 
 @testable import App
 
+import Prometheus
 import XCTest
 
 
@@ -52,20 +53,16 @@ class MetricsTests: AppTestCase {
     func test_versions_added() async throws {
         // setup
         let initialAddedBranch = try XCTUnwrap(
-            AppMetrics.analyzeVersionsAddedCount?
-                .get(AppMetrics.Labels.Version("branch").labels)
+            AppMetrics.analyzeVersionsAddedCount?.get(.versionLabels(kind: .branch))
         )
         let initialAddedTag = try XCTUnwrap(
-                AppMetrics.analyzeVersionsAddedCount?
-                .get(AppMetrics.Labels.Version("tag").labels)
+            AppMetrics.analyzeVersionsAddedCount?.get(.versionLabels(kind: .tag))
         )
         let initialDeletedBranch = try XCTUnwrap(
-            AppMetrics.analyzeVersionsDeletedCount?
-                .get(AppMetrics.Labels.Version("branch").labels)
+            AppMetrics.analyzeVersionsDeletedCount?.get(.versionLabels(kind: .branch))
         )
         let initialDeletedTag = try XCTUnwrap(
-            AppMetrics.analyzeVersionsDeletedCount?
-                .get(AppMetrics.Labels.Version("tag").labels)
+            AppMetrics.analyzeVersionsDeletedCount?.get(.versionLabels(kind: .tag))
         )
         let pkg = try savePackage(on: app.db, "1")
         let new = [
@@ -84,14 +81,22 @@ class MetricsTests: AppTestCase {
                                             delta: .init(toAdd: new, toDelete: del))
 
         // validation
-        XCTAssertEqual(AppMetrics.analyzeVersionsAddedCount?.get(AppMetrics.Labels.Version("branch").labels),
-                       initialAddedBranch + 1)
-        XCTAssertEqual(AppMetrics.analyzeVersionsAddedCount?.get(AppMetrics.Labels.Version("tag").labels),
-                       initialAddedTag + 2)
-        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedCount?.get(AppMetrics.Labels.Version("branch").labels),
-                       initialDeletedBranch + 1)
-        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedCount?.get(AppMetrics.Labels.Version("tag").labels),
-                       initialDeletedTag + 1)
+        XCTAssertEqual(
+            AppMetrics.analyzeVersionsAddedCount?.get(.versionLabels(kind: .branch)),
+            initialAddedBranch + 1
+        )
+        XCTAssertEqual(
+            AppMetrics.analyzeVersionsAddedCount?.get(.versionLabels(kind: .tag)),
+            initialAddedTag + 2
+        )
+        XCTAssertEqual(
+            AppMetrics.analyzeVersionsDeletedCount?.get(.versionLabels(kind: .branch)),
+            initialDeletedBranch + 1
+        )
+        XCTAssertEqual(
+            AppMetrics.analyzeVersionsDeletedCount?.get(.versionLabels(kind: .tag)),
+            initialDeletedTag + 1
+        )
     }
 
     func test_reconcileDurationSeconds() async throws {
@@ -139,4 +144,18 @@ class MetricsTests: AppTestCase {
         print(AppMetrics.buildTriggerDurationSeconds!.get())
     }
 
+}
+
+
+extension DimensionLabels {
+    enum VersionKind: String {
+        case branch
+        case tag
+    }
+
+    static func versionLabels(kind: VersionKind) -> Self {
+        .init([
+            ("kind", kind.rawValue),
+        ])
+    }
 }

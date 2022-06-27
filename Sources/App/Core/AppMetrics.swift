@@ -17,11 +17,6 @@ import Prometheus
 import Vapor
 
 
-protocol MetricLabels {
-    var labels: DimensionLabels { get }
-}
-
-
 enum AppMetrics {
 
     static var initialized = false
@@ -35,82 +30,6 @@ enum AppMetrics {
     }
 
     // metrics
-
-    enum Labels {
-        struct BuildReport: MetricLabels {
-            var platform: App.Build.Platform
-            var runnerId: String?
-            var swiftVersion: SwiftVersion
-
-            init(build: App.Build) {
-                self.platform = build.platform
-                self.runnerId = build.runnerId
-                self.swiftVersion = build.swiftVersion
-            }
-
-            var labels: DimensionLabels {
-                DimensionLabels([
-                    ("platform", platform.rawValue),
-                    ("runnerId", runnerId ?? ""),
-                    ("swiftVersion", "\(swiftVersion)"),
-                ])
-            }
-        }
-
-        struct BuildTrigger: MetricLabels {
-            var platform: App.Build.Platform
-            var swiftVersion: SwiftVersion
-
-            init(_ pair: BuildPair) {
-                self.platform = pair.platform
-                self.swiftVersion = pair.swiftVersion
-            }
-
-            var labels: DimensionLabels {
-                DimensionLabels([
-                    ("platform", platform.rawValue),
-                    ("swiftVersion", "\(swiftVersion)"),
-                ])
-            }
-        }
-
-        struct Version: MetricLabels {
-            var kind: String = ""
-
-            init(_ kind: String) {
-                self.kind = kind
-            }
-
-            init(_ reference: Reference?) {
-                switch reference {
-                    case .branch:
-                        kind = "branch"
-                    case .tag:
-                        kind = "tag"
-                    case .none:
-                        kind = ""
-                }
-            }
-
-            var labels: DimensionLabels {
-                DimensionLabels([
-                    ("kind", kind),
-                ])
-            }
-        }
-
-        struct SearchFilterKey: MetricLabels {
-            var key: String = ""
-
-            init(key: App.SearchFilter.Key) { self.key = key.rawValue }
-
-            var labels: DimensionLabels {
-                DimensionLabels([
-                    ("key", key),
-                ])
-            }
-        }
-    }
 
     static var analyzeCandidatesCount: PromGauge<Int>? {
         gauge("spi_analyze_candidates_count")
@@ -305,4 +224,39 @@ extension PromGauge {
         let delta = Double(DispatchTime.now().uptimeNanoseconds - start)
         self.set(.init(delta / 1_000_000_000), labels)
     }
+}
+
+
+extension DimensionLabels {
+
+    static func buildReportLabels(_ build: App.Build) -> Self {
+        .init([
+            ("platform", build.platform.rawValue),
+            ("runnerId", build.runnerId ?? ""),
+            ("swiftVersion", "\(build.swiftVersion)"),
+        ])
+    }
+
+    static func buildTriggerLabels(_ pair: BuildPair) -> Self {
+        .init([
+            ("platform", pair.platform.rawValue),
+            ("swiftVersion", "\(pair.swiftVersion)"),
+        ])
+    }
+
+    static func versionLabels(reference: Reference?) -> Self {
+        switch reference {
+            case .none:
+                return .init([])
+            case .some(.branch):
+                return .init([("kind", "branch")])
+            case .some(.tag):
+                return .init([("kind", "tag")])
+        }
+    }
+
+    static func searchFilterLabels(_ key: SearchFilter.Key) -> Self {
+        .init([("key", key.rawValue)])
+    }
+
 }
