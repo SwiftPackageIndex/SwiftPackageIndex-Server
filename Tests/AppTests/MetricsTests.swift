@@ -51,14 +51,22 @@ class MetricsTests: AppTestCase {
 
     func test_versions_added() async throws {
         // setup
-        let initialAddedBranch = try
-            XCTUnwrap(AppMetrics.analyzeVersionsAddedCount?.get(.init("branch")))
-        let initialAddedTag = try
-            XCTUnwrap(AppMetrics.analyzeVersionsAddedCount?.get(.init("tag")))
-        let initialDeletedBranch = try
-            XCTUnwrap(AppMetrics.analyzeVersionsDeletedCount?.get(.init("branch")))
-        let initialDeletedTag = try
-            XCTUnwrap(AppMetrics.analyzeVersionsDeletedCount?.get(.init("tag")))
+        let initialAddedBranch = try XCTUnwrap(
+            AppMetrics.analyzeVersionsAddedCount?
+                .get(AppMetrics.Labels.Version("branch").labels)
+        )
+        let initialAddedTag = try XCTUnwrap(
+                AppMetrics.analyzeVersionsAddedCount?
+                .get(AppMetrics.Labels.Version("tag").labels)
+        )
+        let initialDeletedBranch = try XCTUnwrap(
+            AppMetrics.analyzeVersionsDeletedCount?
+                .get(AppMetrics.Labels.Version("branch").labels)
+        )
+        let initialDeletedTag = try XCTUnwrap(
+            AppMetrics.analyzeVersionsDeletedCount?
+                .get(AppMetrics.Labels.Version("tag").labels)
+        )
         let pkg = try savePackage(on: app.db, "1")
         let new = [
             try Version(package: pkg, reference: .branch("main")),
@@ -76,13 +84,13 @@ class MetricsTests: AppTestCase {
                                             delta: .init(toAdd: new, toDelete: del))
 
         // validation
-        XCTAssertEqual(AppMetrics.analyzeVersionsAddedCount?.get(.init("branch")),
+        XCTAssertEqual(AppMetrics.analyzeVersionsAddedCount?.get(AppMetrics.Labels.Version("branch").labels),
                        initialAddedBranch + 1)
-        XCTAssertEqual(AppMetrics.analyzeVersionsAddedCount?.get(.init("tag")),
+        XCTAssertEqual(AppMetrics.analyzeVersionsAddedCount?.get(AppMetrics.Labels.Version("tag").labels),
                        initialAddedTag + 2)
-        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedCount?.get(.init("branch")),
+        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedCount?.get(AppMetrics.Labels.Version("branch").labels),
                        initialDeletedBranch + 1)
-        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedCount?.get(.init("tag")),
+        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedCount?.get(AppMetrics.Labels.Version("tag").labels),
                        initialDeletedTag + 1)
     }
 

@@ -60,9 +60,8 @@ extension API {
                     }
                 }
 
-                AppMetrics.apiBuildReportTotal?.inc(1, .init(build.platform,
-                                                             build.runnerId ?? "",
-                                                             build.swiftVersion))
+                AppMetrics.apiBuildReportTotal?
+                    .inc(1, AppMetrics.Labels.BuildReport(build: build).labels)
                 if build.status == .infrastructureError {
                     req.logger.critical("build infrastructure error: \(build.jobUrl)")
                 }

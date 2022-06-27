@@ -247,7 +247,8 @@ func triggerBuildsUnchecked(on database: Database,
     triggers.flatMap { trigger -> [EventLoopFuture<Void>] in
         logger.info("Triggering \(trigger.pairs.count) builds for package name: \(trigger.packageName), ref: \(trigger.reference)")
         return trigger.pairs.map { pair in
-            AppMetrics.buildTriggerCount?.inc(1, .init(pair.platform, pair.swiftVersion))
+            AppMetrics.buildTriggerCount?
+                .inc(1, AppMetrics.Labels.BuildTrigger(pair).labels)
             let buildId: Build.Id = .init()
             return Build.trigger(database: database,
                           client: client,
