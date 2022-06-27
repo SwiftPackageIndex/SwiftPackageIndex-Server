@@ -114,7 +114,16 @@ extension PackageShow {
                 let packageId = result.package.id
             else { return nil }
 
-            let defaulDocTarget = result.defaultBranchVersion.docArchives?.first?.title
+            #warning("temporary hotfix until #1770 is properly addressed")
+            let docTargetOverrides = [
+                "https://github.com/apple/swift-docc.git".lowercased() : "DocC",
+                "https://github.com/apple/swift-markdown.git".lowercased() : "Markdown",
+                "https://github.com/parse-community/Parse-Swift.git".lowercased() : "ParseSwift",
+            ]
+            let defaulDocTarget = docTargetOverrides[result.package.url.lowercased()]
+            ?? result.defaultBranchVersion.spiManifest?
+                .allDocumentationTargets()?
+                .first
 
             self.init(
                 packageId: packageId,
