@@ -19,7 +19,7 @@ extension SwiftVersion {
     static let v5_3: Self = .init(5, 3, 3)
     static let v5_4: Self = .init(5, 4, 0)
     static let v5_5: Self = .init(5, 5, 2)
-    static let v5_6: Self = .init(5, 6, 0)
+    static let v5_6: Self = .init(5, 6, 1)
 
     /// Currently supported swift versions for building
     static var allActive: [Self] {
@@ -27,7 +27,6 @@ extension SwiftVersion {
     }
 
     var xcodeVersion: String? {
-        // Match with https://gitlab.com/finestructure/swiftpackageindex-builder/-/blob/main/Sources/BuilderCore/SwiftVersion.swift#L41
         // NB: this is used for display purposes and not critical for compiler selection
         switch self {
             case .v5_3:
@@ -37,7 +36,7 @@ extension SwiftVersion {
             case .v5_5:
                 return "Xcode 13.2.1"
             case .v5_6:
-                return "Xcode 13.3.0"
+                return "Xcode 13.4.1"
             default:
                 return nil
         }
