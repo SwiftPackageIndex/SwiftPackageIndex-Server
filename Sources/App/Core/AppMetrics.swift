@@ -43,6 +43,10 @@ enum AppMetrics {
         gauge("spi_analyze_s3_fetch_count")
     }
 
+    static var analyzeS3FetchDuration: PromGauge<Double>? {
+        gauge("spi_analyze_s3_fetch_duration_seconds")
+    }
+
     static var analyzeTrimCheckoutsCount: PromGauge<Int>? {
         gauge("spi_analyze_trim_checkouts_count")
     }
