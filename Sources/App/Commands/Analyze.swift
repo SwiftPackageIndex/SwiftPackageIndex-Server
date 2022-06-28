@@ -553,6 +553,8 @@ extension Analyze {
               let awsSecretAccessKey = Current.awsSecretAccessKey() else {
             throw AppError.envVariableNotSet("AWS env variable")
         }
+        let start = DispatchTime.now().uptimeNanoseconds
+        defer { AppMetrics.analyzeS3FetchDuration?.time(since: start) }
 
         guard let owner = package.repository?.owner,
               let repository = package.repository?.name
