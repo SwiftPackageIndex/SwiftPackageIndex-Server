@@ -49,7 +49,14 @@ public extension DocArchive {
     static func fetchAll(prefix: String,
                          awsBucketName: String,
                          awsAccessKeyId: String,
-                         awsSecretAccessKey: String) async throws -> [DocArchive] {
+                         awsSecretAccessKey: String,
+                         verbose: Bool) async throws -> [DocArchive] {
+        var requestCount = 0
+        defer {
+            if verbose {
+                print("Total number of AWS requests: \(requestCount)")
+            }
+        }
         let key = S3.StoreKey(bucket: awsBucketName, path: prefix)
         let client = AWSClient(credentialProvider: .static(accessKeyId: awsAccessKeyId,
                                                            secretAccessKey: awsSecretAccessKey),
@@ -58,12 +65,35 @@ public extension DocArchive {
 
         let s3 = S3(client: client, region: .useast2)
 
-        // filter this down somewhat by eliminating `.json` files
-        let paths = try await s3.listFiles(key: key, delimiter: ".json")
-            .compactMap { try? path.parse($0.file.key) }
+        requestCount += 1
+        let references = try await s3.listFolders(key: key).get()
+        if verbose {
+            print("References found (\(references.count)):")
+            for p in references {
+                print(p)
+            }
+        }
+
+        var docPaths = [String]()
+        for ref in references {
+            let prefix = ref.appendingPathSegment("documentation")
+            let key = S3.StoreKey(bucket: awsBucketName, path: prefix)
+            requestCount += 1
+            let paths = try await s3.listFolders(key: key).get()
+            if verbose {
+                print("Documentation paths found (\(paths.count)):")
+                for p in paths {
+                    print(p)
+                }
+            }
+            docPaths.append(contentsOf: paths)
+        }
+
+        let parsedPaths =  docPaths.compactMap { try? path.parse($0) }
 
         var archives = [DocArchive]()
-        for path in paths {
+        for path in parsedPaths {
+            requestCount += 1  // DocArchive.init calls s3.getDocArchiveTitle
             archives.append(await DocArchive(s3: s3, in: awsBucketName, path: path))
         }
 
@@ -125,6 +155,14 @@ extension DocArchive {
         pathSegment
         "documentation/"
         pathSegment
-        "index.html"
+    }
+}
+
+
+extension String {
+    func appendingPathSegment(_ segment: String) -> String {
+        self.hasSuffix("/")
+        ? self + segment
+        : self + "/" + segment
     }
 }

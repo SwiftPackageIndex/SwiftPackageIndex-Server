@@ -43,25 +43,13 @@ extension S3 {
             .body?.asData()
     }
 
-    func listFiles(key: StoreKey, delimiter: String? = nil) async throws -> [FileDescriptor] {
-        try await listFiles(key: key, delimiter: delimiter).get()
-    }
-
-    func listFiles(key: StoreKey, delimiter: String? = nil) -> EventLoopFuture<[FileDescriptor]> {
+    func listFolders(key: StoreKey) -> EventLoopFuture<[String]> {
+        let prefix = key.path.hasSuffix("/") ? key.path : key.path + "/"
         let bucket = key.bucket
-        let request = S3.ListObjectsV2Request(bucket: bucket, delimiter: delimiter, prefix: key.path)
+        let request = S3.ListObjectsV2Request(bucket: bucket, delimiter: "/", prefix: prefix)
         return listObjectsV2Paginator(request, []) { accumulator, response, eventLoop in
-            let files: [FileDescriptor] = response.contents?.compactMap {
-                guard let key = $0.key,
-                      let lastModified = $0.lastModified,
-                      let fileSize = $0.size else { return nil }
-                return FileDescriptor(
-                    file: File(bucket: bucket, key: key),
-                    modificationDate: lastModified,
-                    size: Int(fileSize)
-                )
-            } ?? []
-            return eventLoop.makeSucceededFuture((true, accumulator + files))
+            let prefixes = response.commonPrefixes?.compactMap(\.prefix) ?? []
+            return eventLoop.makeSucceededFuture((true, accumulator + prefixes))
         }
     }
 
@@ -74,4 +62,18 @@ extension S3 {
             .metadata.title
     }
 
+}
+
+
+extension S3.File: CustomStringConvertible {
+    var description: String {
+        "s3://\(bucket)/\(key)"
+    }
+}
+
+
+extension S3.FileDescriptor: CustomStringConvertible {
+    var description: String {
+        "\(file)"
+    }
 }

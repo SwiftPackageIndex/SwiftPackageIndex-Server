@@ -20,10 +20,11 @@ import XCTest
 class S3DocArchivesTests: XCTestCase {
 
     func test_parse() throws {
-        let docs = keys.compactMap { try? DocArchive.path.parse($0) }
+        let docs = prefixes.compactMap { try? DocArchive.path.parse($0) }
         XCTAssertEqual(docs, [
             .init(owner: "apple", repository: "swift-docc", ref: "main", product: "docc"),
             .init(owner: "apple", repository: "swift-docc", ref: "main", product: "swiftdocc"),
+            .init(owner: "apple", repository: "swift-docc", ref: "1.2.3", product: "docc"),
         ])
     }
 
@@ -41,20 +42,11 @@ class S3DocArchivesTests: XCTestCase {
 }
 
 
-private let keys = [
-    "apple/swift-docc/main/css/documentation-topic.de084985.css",
-    "apple/swift-docc/main/css/documentation-topic~topic~tutorials-overview.67b822e0.css",
-    "apple/swift-docc/main/css/index.47bc740e.css",
-    "apple/swift-docc/main/css/topic.2eb01958.css",
-    "apple/swift-docc/main/css/tutorials-overview.8754eb09.css",
-    "apple/swift-docc/main/documentation/docc/adding-structure-to-your-documentation-pages/index.html",
-    "apple/swift-docc/main/documentation/docc/adding-supplemental-content-to-a-documentation-catalog/index.html",
-    "apple/swift-docc/main/documentation/docc/index.html",
-    "apple/swift-docc/main/documentation/docc/intro/index.html",
-    "apple/swift-docc/main/documentation/docc/justification/index.html",
-    "apple/swift-docc/main/documentation/swiftdocc/implementationsgroup/references/index.html",
-    "apple/swift-docc/main/documentation/swiftdocc/index.html",
-    "apple/swift-docc/main/documentation/swiftdocc/indexable/index.html",
-    "apple/swift-docc/main/documentation/swiftdocc/indexable/indexingrecords(onpage:)/index.html",
-    "apple/swift-docc/main/documentation/swiftdocc/indexingerror/describederror-implementations/index.html",
+private let prefixes = [
+    "apple/swift-docc/main/documentation/docc/",
+    "apple/swift-docc/main/documentation/swiftdocc/",
+    "apple/swift-docc/1.2.3/documentation/docc/",
+    "foo/bar",                         // too short
+    "foo/bar/documentation/bar/",      // no ref
+    "foo/bar/1.2.3/documentation/bar"  // no trailing slash
 ]
