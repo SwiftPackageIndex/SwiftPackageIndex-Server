@@ -47,6 +47,9 @@ footer.spi {
 }
 
 header.spi {
+  // The breadcrumb bar in the DocC Vue app is 9997.
+  z-index: 9998;
+
   .inner {
     &.branding_and_menu {
       display: grid;
@@ -107,7 +110,7 @@ header.spi {
     }
 
     &.breadcrumbs {
-      ul {
+      > nav > ul {
         display: flex;
         gap: 20px;
         padding: 0;
@@ -118,7 +121,7 @@ header.spi {
           gap: 0;
         }
 
-        li {
+        > li {
           position: relative;
 
           a {
@@ -141,6 +144,46 @@ header.spi {
 
             @media screen and (max-width: $mobile-breakpoint) {
               margin-left: 20px;
+            }
+          }
+
+          .choices {
+            position: relative;
+            padding: ul {
+              display: none;
+              padding: 15px;
+              position: absolute;
+              min-width: 200px;
+              background-color: var(--header-background);
+              box-shadow: var(--panel-shadow);
+              border-top: 3px rgba(255, 255, 255, 0.2) solid;
+
+              li {
+                padding: 0;
+                padding-left: 20px;
+                background-size: 14px;
+                background-repeat: no-repeat;
+                background-position: center left;
+
+                &.branch {
+                  background-image: var(--image-branch);
+                }
+
+                &.stable {
+                  background-image: var(--image-stable);
+                }
+
+                &.beta {
+                  background-image: var(--image-beta);
+                }
+              }
+            }
+
+            &:hover {
+              ul {
+                display: grid;
+                gap: 5px;
+              }
             }
           }
         }

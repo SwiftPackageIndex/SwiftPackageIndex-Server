@@ -386,7 +386,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  reference: "main",
                                                                  docArchives: [],
                                                                  isLatestStableVersion: false,
-                                                                 otherAvailableVersions: [],
+                                                                 allAvailableDocumentationVersions: [],
                                                                  rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
@@ -402,7 +402,11 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  reference: "main",
                                                                  docArchives: ["Archive1", "Archive2"],
                                                                  isLatestStableVersion: false,
-                                                                 otherAvailableVersions: [],
+                                                                 allAvailableDocumentationVersions: [
+                                                                    .init(kind: .defaultBranch, reference: "main"),
+                                                                    .init(kind: .preRelease, reference: "1.0.0-beta1"),
+                                                                    .init(kind: .defaultBranch, reference: "1.0.1")
+                                                                 ],
                                                                  rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)

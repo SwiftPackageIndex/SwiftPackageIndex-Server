@@ -25,9 +25,9 @@ struct DocumentationPageProcessor {
     let reference: String
     let docArchives: [String]
     let isLatestStableVersion: Bool
-    let otherAvailableVersions: [OtherDocumentationVersion]
+    let allAvailableDocumentationVersions: [AvailableDocumentationVersion]
 
-    struct OtherDocumentationVersion {
+    struct AvailableDocumentationVersion {
         let kind: Version.Kind
         let reference: String
     }
@@ -39,7 +39,7 @@ struct DocumentationPageProcessor {
           reference: String,
           docArchives: [String],
           isLatestStableVersion: Bool,
-          otherAvailableVersions: [OtherDocumentationVersion],
+          allAvailableDocumentationVersions: [AvailableDocumentationVersion],
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
@@ -48,7 +48,7 @@ struct DocumentationPageProcessor {
         self.reference = reference
         self.docArchives = docArchives
         self.isLatestStableVersion = isLatestStableVersion
-        self.otherAvailableVersions = otherAvailableVersions
+        self.allAvailableDocumentationVersions = allAvailableDocumentationVersions
 
         do {
             document = try SwiftSoup.parse(rawHtml)
@@ -78,11 +78,17 @@ struct DocumentationPageProcessor {
     var header: String {
         let navMenuItems: [NavMenuItem] = [.addPackage, .blog, .faq, .searchLink]
 
+        let documentationVersionChoices = allAvailableDocumentationVersions.map { version in
+            Breadcrumb.Choice(title: version.reference,
+                              url: relativeDocumentationURL(docArchive: version.reference),
+                              listItemClass: version.kind.cssClass)
+        }
+
         let breadcrumbs = [
             Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
             Breadcrumb(title: repositoryOwnerName, url: SiteURL.author(.value(repositoryOwner)).relativeURL()),
             Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL()),
-            Breadcrumb(title: "Documentation"),
+            Breadcrumb(title: "Documentation for \(reference)", choices: documentationVersionChoices)
         ]
 
         return Plot.Node.group(
