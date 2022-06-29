@@ -17,15 +17,44 @@ import Plot
 struct Breadcrumb {
     var title: String
     var url: String? = nil
+    var choices: [Choice]? = nil
+
+    struct Choice {
+        var title: String
+        var url: String
+        var listItemClass: String?
+    }
 
     func listNode() -> Node<HTML.ListContext> {
         .li(
-            .unwrap(url, {
+            .unwrap(choices, { choices in
+                    .group(
+                        .div(
+                            .class("choices"),
+                            .text(title),
+                            .ul(
+                                .group(
+                                    choices.map { choice in
+                                            .li(
+                                                .unwrap(choice.listItemClass, { liClass in
+                                                        .class(liClass)
+                                                }),
+                                                .a(
+                                                    .href(choice.url),
+                                                    .text(choice.title)
+                                                )
+                                            )
+                                    }
+                                )
+                            )
+                        )
+                    )
+            }, else: .unwrap(url, {
                 .a(
                     .href($0),
                     .text(title)
                 )
-            }, else: .text(title))
+            }, else: .text(title)))
         )
     }
 }
