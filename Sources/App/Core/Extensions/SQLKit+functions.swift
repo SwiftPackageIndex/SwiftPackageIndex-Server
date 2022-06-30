@@ -54,13 +54,19 @@ func unnest(_ array: SQLExpression) -> SQLFunction {
     SQLFunction("UNNEST", args: array)
 }
 
+func to_tsvector(_ array: SQLExpression) -> SQLFunction {
+    SQLFunction("to_tsvector", args: array)
+}
+
+func to_tsquery(_ array: SQLExpression) -> SQLFunction {
+    SQLFunction("to_tsquery", args: array)
+}
 
 // MARK: - SQL Binary Expressions
 
 func isNotNull(_ column: SQLIdentifier) -> SQLBinaryExpression {
     SQLBinaryExpression(left: column, op: SQLBinaryOperator.isNot, right: SQLRaw("NULL"))
 }
-
 
 func eq(_ lhs: SQLExpression, _ rhs: SQLExpression) -> SQLBinaryExpression {
     SQLBinaryExpression(left: lhs, op: SQLBinaryOperator.equal, right: rhs)
