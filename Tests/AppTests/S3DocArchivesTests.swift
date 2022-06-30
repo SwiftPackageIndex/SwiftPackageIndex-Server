@@ -56,9 +56,9 @@ class S3DocArchivesTests: XCTestCase {
 
         do {  // getFileContent fails
             Current.getFileContent = { _, key in
-                struct UnexpectedError: Error {}
+                struct SomeError: Error {}
                 // throw error when calling getFileContent
-                throw UnexpectedError()
+                throw SomeError()
             }
 
             // MUT
@@ -121,6 +121,60 @@ class S3DocArchivesTests: XCTestCase {
         )
     }
 
+    func test_fetchAll_errors() async throws {
+        // Test error handling
+
+        do {  // listFolders throws
+            struct SomeError: Error {}
+            Current.listFolders = { _, key in
+                throw SomeError()
+            }
+
+            // MUT & validation
+            do {
+                _ = try await DocArchive.fetchAll(prefix: "apple/swift-docc/main",
+                                                  awsBucketName: "bucket",
+                                                  awsAccessKeyId: "keyId",
+                                                  awsSecretAccessKey: "secret",
+                                                  verbose: false)
+                XCTFail("Expected SomeError to be thrown.")
+            } catch is SomeError {
+                // ok - this is expected
+            } catch {
+                XCTFail("Unexpected error: \(error).")
+            }
+        }
+
+        do {  // some bad paths returned
+            Current.listFolders = { _, key in
+                struct UnexpectedInput: Error {}
+                if key.bucket == "bucket",
+                   key.path == "apple/swift-docc/main/documentation" {
+                    return [
+                        "foo/",                                             // bad
+                        "apple/swift-docc/main/documentation/swiftdocc/",  // ok
+                        "apple/swift-docc/main/bar/swiftdoccutilities/",   // bad
+                    ]
+                } else {
+                    throw UnexpectedInput()
+                }
+            }
+
+            // MUT
+            let archives = try await DocArchive.fetchAll(prefix: "apple/swift-docc/main",
+                                                         awsBucketName: "bucket",
+                                                         awsAccessKeyId: "keyId",
+                                                         awsSecretAccessKey: "secret",
+                                                         verbose: false)
+
+            // validation
+            XCTAssertEqual(
+                archives, [
+                    .init(path: .init(owner: "apple", repository: "swift-docc", ref: "main", product: "swiftdocc"), title: "swiftdocc"),
+                ]
+            )
+
+        }
     }
 
     func test_parse() throws {
