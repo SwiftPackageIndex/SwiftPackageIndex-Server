@@ -28,7 +28,7 @@ public func configure(_ app: Application) throws -> String {
     // ---
     // app.http.server.configuration.responseCompression = .enabled
     // app.http.server.configuration.requestDecompression = .enabled
-    
+
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     app.middleware.use(ErrorMiddleware())
 
@@ -41,7 +41,7 @@ public func configure(_ app: Application) throws -> String {
     // the failure mode is exactly the same we have before increasing the limits.
     // This parameter could also be made configurable via an env variable.
     let maxConnectionsPerEventLoop = 3
-    
+
     guard
         let host = Environment.get("DATABASE_HOST"),
         let port = Environment.get("DATABASE_PORT").flatMap(Int.init),
@@ -69,7 +69,7 @@ public func configure(_ app: Application) throws -> String {
                                 // Set sqlLogLevel to .info to log SQL queries with the default log level.
                                 sqlLogLevel: .debug),
                       as: .psql)
-    
+
     do {  // Migration 001 - schema 1.0
         app.migrations.add(CreatePackage())
         app.migrations.add(CreateRepository())
@@ -269,7 +269,7 @@ public func configure(_ app: Application) throws -> String {
     app.commands.use(ReconcileCommand(), as: "reconcile")
     app.commands.use(TriggerBuildsCommand(), as: "trigger-builds")
     app.commands.use(ReAnalyzeVersions.Command(), as: "re-analyze-versions")
-    
+
     // register routes
     try routes(app)
 

@@ -19,7 +19,7 @@ import PackageDescription
 let package = Package(
     name: "SPI-Server",
     platforms: [
-        .macOS(.v12)
+        .macOS(.v12),
     ],
     products: [
         .library(name: "DependencyResolution", targets: ["DependencyResolution"]),
@@ -40,7 +40,7 @@ let package = Package(
         .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
         .package(name: "SwiftPM", url: "https://github.com/apple/swift-package-manager.git",
-                 .branch("release/5.6"))
+                 .branch("release/5.6")),
     ],
     targets: [
         .executableTarget(name: "Run", dependencies: ["App"]),

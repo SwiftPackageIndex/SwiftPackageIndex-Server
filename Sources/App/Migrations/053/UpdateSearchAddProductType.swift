@@ -24,7 +24,7 @@ struct UpdateSearchAddProductType: AsyncMigration {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        // Creat an index on products.version_id - this speeds up search view creation
+        // Create an index on products.version_id - this speeds up search view creation
         // dramatically.
         try await db.raw("CREATE INDEX idx_products_version_id ON products (version_id)")
             .run()
