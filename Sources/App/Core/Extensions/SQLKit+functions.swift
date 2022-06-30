@@ -49,11 +49,65 @@ func lower(_ arg: SQLExpression) -> SQLFunction {
     SQLFunction("LOWER", args: arg)
 }
 
-
 func unnest(_ array: SQLExpression) -> SQLFunction {
     SQLFunction("UNNEST", args: array)
 }
 
+func to_tsvector(_ array: SQLExpression) -> SQLFunction {
+    // The argument is meant to be a string, which this wraps and converts
+    // first into a tsvector internal type, and then applies weighting
+    // for query ranking purposes.
+    // The default weight class ('D') results in a  0.1 multiplier on the rank.
+    SQLFunction("to_tsvector", args: array)
+}
+
+func to_tsvectorA(_ array: SQLExpression) -> SQLFunction {
+    // The argument is meant to be a string, which this wraps and converts
+    // first into a tsvector internal type, and then applies weighting
+    // for query ranking purposes.
+    // Details of the setweight function (and to_tsvector) are available
+    // at https://www.postgresql.org/docs/current/textsearch-controls.html
+    // The weight class 'A' results in a 1.0 multiplier on the rank.
+    SQLFunction("setweight", args: [to_tsvector(array), SQLRaw("'A'")])
+}
+
+func to_tsvectorB(_ array: SQLExpression) -> SQLFunction {
+    // The argument is meant to be a string, which this wraps and converts
+    // first into a tsvector internal type, and then applies weighting
+    // for query ranking purposes.
+    // The weight class 'B' results in a 0.4 multiplier on the rank.
+    SQLFunction("setweight", args: [to_tsvector(array), SQLRaw("'B'")])
+}
+
+func to_tsvectorC(_ array: SQLExpression) -> SQLFunction {
+    // The argument is meant to be a string, which this wraps and converts
+    // first into a tsvector internal type, and then applies weighting
+    // for query ranking purposes.
+    // The weight class 'C' results in a 0.2 multiplier on the rank.
+    SQLFunction("setweight", args: [to_tsvector(array), SQLRaw("'C'")])
+}
+
+func plainto_tsquery(_ array: SQLExpression) -> SQLFunction {
+    // generates a simplistic tsquery concatenating all individual words as
+    // 'AND' tokens for the ts_query binary search structure. For example,
+    // an input of 'bezier curve' becomes 'bezier & curve'.
+    SQLFunction("plainto_tsquery", args: array)
+}
+
+func ts_rank(vector: SQLExpression, query: SQLExpression) -> SQLFunction {
+    // returns a ranking value when applying the query to the relevant
+    // tsvector data type. If the query wouldn't match at all, the ranking
+    // returns as `0`. The documentation for the return values is non-specific
+    // about the range, but hints that values can easily exceed 1.0. In
+    // my experimentation, and based on reading the code at
+    // https://github.com/postgres/postgres/blob/master/src/backend/utils/adt/tsrank.c
+    // the returned rank values range from 0 to 1.0, with a single query term
+    // perfectly matching the response returning a ranking of 0.6. Additional
+    // query terms adjust the ranking - OR queries maintain or reduce the value
+    // depending on matches with the vector, and AND queries increase the value
+    // pressing it slowly up towards 1.0.
+    SQLFunction("ts_rank", args: [vector, query])
+}
 
 // MARK: - SQL Binary Expressions
 
@@ -61,8 +115,6 @@ func isNotNull(_ column: SQLIdentifier) -> SQLBinaryExpression {
     SQLBinaryExpression(left: column, op: SQLBinaryOperator.isNot, right: SQLRaw("NULL"))
 }
 
-
 func eq(_ lhs: SQLExpression, _ rhs: SQLExpression) -> SQLBinaryExpression {
     SQLBinaryExpression(left: lhs, op: SQLBinaryOperator.equal, right: rhs)
 }
-
