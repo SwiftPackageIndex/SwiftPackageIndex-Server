@@ -83,6 +83,43 @@ class S3DocArchivesTests: XCTestCase {
     }
 
     func test_fetchAll() async throws {
+        // setup
+        Current.listFolders = { _, key in
+            struct UnexpectedInput: Error {}
+            if key.bucket == "bucket",
+               key.path == "apple/swift-docc/main/documentation" {
+                return [
+                    // Results obtained by running
+                    //   $ s3-check list-folders apple/swift-docc/main/documentation --verbose
+                    //   Checking spi-prod-docs
+                    //   apple/swift-docc/main/documentation/docc/
+                    //   apple/swift-docc/main/documentation/swiftdocc/
+                    //   apple/swift-docc/main/documentation/swiftdoccutilities/
+                    "apple/swift-docc/main/documentation/docc/",
+                    "apple/swift-docc/main/documentation/swiftdocc/",
+                    "apple/swift-docc/main/documentation/swiftdoccutilities/",
+                ]
+            } else {
+                throw UnexpectedInput()
+            }
+        }
+
+        // MUT
+        let archives = try await DocArchive.fetchAll(prefix: "apple/swift-docc/main",
+                                                     awsBucketName: "bucket",
+                                                     awsAccessKeyId: "keyId",
+                                                     awsSecretAccessKey: "secret",
+                                                     verbose: false)
+
+        // validation
+        XCTAssertEqual(
+            archives, [
+                .init(path: .init(owner: "apple", repository: "swift-docc", ref: "main", product: "docc"), title: "docc"),
+                .init(path: .init(owner: "apple", repository: "swift-docc", ref: "main", product: "swiftdocc"), title: "swiftdocc"),
+                .init(path: .init(owner: "apple", repository: "swift-docc", ref: "main", product: "swiftdoccutilities"), title: "swiftdoccutilities"),
+            ]
+        )
+    }
 
     }
 
