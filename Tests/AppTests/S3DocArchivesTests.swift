@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import SotoS3
 import XCTest
 
 @testable import S3DocArchives
@@ -19,42 +20,194 @@ import XCTest
 
 class S3DocArchivesTests: XCTestCase {
 
+    func test_getTitle() async throws {
+        // setup
+        let s3 = S3.mock
+        defer { s3.shutdown() }
+        Current.getFileContent = { _, key in
+            struct UnexpectedInput: Error {}
+            if key.bucket == "bucket",
+               key.path == "SwiftPackageIndex/SemanticVersion/main/data/documentation/semanticversion.json" {
+                return try? fixtureData(for: "s3-semanticversion.json")
+            }
+            throw UnexpectedInput()
+        }
+        let path = DocArchive.Path(owner: "SwiftPackageIndex",
+                                   repository: "SemanticVersion",
+                                   ref: "main",
+                                   product: "semanticversion")
+
+        // MUT
+        let title = await DocArchive.getTitle(s3: s3, bucket: "bucket", path: path)
+
+        // validation
+        XCTAssertEqual(title, "SemanticVersion")
+    }
+
+    func test_getTitle_error() async throws {
+        // Test error handling
+        // setup
+        let s3 = S3.mock
+        defer { s3.shutdown() }
+        let path = DocArchive.Path(owner: "SwiftPackageIndex",
+                                   repository: "SemanticVersion",
+                                   ref: "main",
+                                   product: "semanticversion")
+
+        do {  // getFileContent fails
+            Current.getFileContent = { _, key in
+                struct SomeError: Error {}
+                // throw error when calling getFileContent
+                throw SomeError()
+            }
+
+            // MUT
+            let title = await DocArchive.getTitle(s3: s3, bucket: "bucket", path: path)
+
+            // validation
+            XCTAssertEqual(title, path.product)
+        }
+
+        do {  // decoding fails
+            Current.getFileContent = { _, key in
+                // yield undecodable data
+                Data("".utf8)
+            }
+
+            // MUT
+            let title = await DocArchive.getTitle(s3: s3, bucket: "bucket", path: path)
+
+            // validation
+            XCTAssertEqual(title, path.product)
+        }
+    }
+
+    func test_fetchAll() async throws {
+        // setup
+        Current.listFolders = { _, key in
+            struct UnexpectedInput: Error {}
+            if key.bucket == "bucket",
+               key.path == "apple/swift-docc/main/documentation" {
+                return [
+                    // Results obtained by running
+                    //   $ s3-check list-folders apple/swift-docc/main/documentation --verbose
+                    //   Checking spi-prod-docs
+                    //   apple/swift-docc/main/documentation/docc/
+                    //   apple/swift-docc/main/documentation/swiftdocc/
+                    //   apple/swift-docc/main/documentation/swiftdoccutilities/
+                    "apple/swift-docc/main/documentation/docc/",
+                    "apple/swift-docc/main/documentation/swiftdocc/",
+                    "apple/swift-docc/main/documentation/swiftdoccutilities/",
+                ]
+            } else {
+                throw UnexpectedInput()
+            }
+        }
+
+        // MUT
+        let archives = try await DocArchive.fetchAll(prefix: "apple/swift-docc/main",
+                                                     awsBucketName: "bucket",
+                                                     awsAccessKeyId: "keyId",
+                                                     awsSecretAccessKey: "secret",
+                                                     verbose: false)
+
+        // validation
+        XCTAssertEqual(
+            archives, [
+                .init(path: .init(owner: "apple", repository: "swift-docc", ref: "main", product: "docc"), title: "docc"),
+                .init(path: .init(owner: "apple", repository: "swift-docc", ref: "main", product: "swiftdocc"), title: "swiftdocc"),
+                .init(path: .init(owner: "apple", repository: "swift-docc", ref: "main", product: "swiftdoccutilities"), title: "swiftdoccutilities"),
+            ]
+        )
+    }
+
+    func test_fetchAll_errors() async throws {
+        // Test error handling
+
+        do {  // listFolders throws
+            struct SomeError: Error {}
+            Current.listFolders = { _, key in
+                throw SomeError()
+            }
+
+            // MUT & validation
+            do {
+                _ = try await DocArchive.fetchAll(prefix: "apple/swift-docc/main",
+                                                  awsBucketName: "bucket",
+                                                  awsAccessKeyId: "keyId",
+                                                  awsSecretAccessKey: "secret",
+                                                  verbose: false)
+                XCTFail("Expected SomeError to be thrown.")
+            } catch is SomeError {
+                // ok - this is expected
+            } catch {
+                XCTFail("Unexpected error: \(error).")
+            }
+        }
+
+        do {  // some bad paths returned
+            Current.listFolders = { _, key in
+                struct UnexpectedInput: Error {}
+                if key.bucket == "bucket",
+                   key.path == "apple/swift-docc/main/documentation" {
+                    return [
+                        "foo/",                                             // bad
+                        "apple/swift-docc/main/documentation/swiftdocc/",  // ok
+                        "apple/swift-docc/main/bar/swiftdoccutilities/",   // bad
+                    ]
+                } else {
+                    throw UnexpectedInput()
+                }
+            }
+
+            // MUT
+            let archives = try await DocArchive.fetchAll(prefix: "apple/swift-docc/main",
+                                                         awsBucketName: "bucket",
+                                                         awsAccessKeyId: "keyId",
+                                                         awsSecretAccessKey: "secret",
+                                                         verbose: false)
+
+            // validation
+            XCTAssertEqual(
+                archives, [
+                    .init(path: .init(owner: "apple", repository: "swift-docc", ref: "main", product: "swiftdocc"), title: "swiftdocc"),
+                ]
+            )
+
+        }
+    }
+
     func test_parse() throws {
-        let docs = keys.compactMap { try? DocArchive.path.parse($0) }
+        let docs = prefixes.compactMap { try? DocArchive.path.parse($0) }
         XCTAssertEqual(docs, [
             .init(owner: "apple", repository: "swift-docc", ref: "main", product: "docc"),
             .init(owner: "apple", repository: "swift-docc", ref: "main", product: "swiftdocc"),
-        ])
-    }
-
-    func test_archivesGroupedByRef() {
-        let mainP1 = DocArchive.mock("foo", "bar", "main", "p1", "P1")
-        let v123P1 = DocArchive.mock("foo", "bar", "1.2.3", "p1", "P1")
-        let v123P2 = DocArchive.mock("foo", "bar", "1.2.3", "p2", "P2")
-        let archives: [DocArchive] = [mainP1, v123P1, v123P2]
-        XCTAssertEqual(archives.archivesGroupedByRef(), [
-            "main": [mainP1],
-            "1.2.3": [v123P1, v123P2]
+            .init(owner: "apple", repository: "swift-docc", ref: "1.2.3", product: "docc"),
         ])
     }
 
 }
 
 
-private let keys = [
-    "apple/swift-docc/main/css/documentation-topic.de084985.css",
-    "apple/swift-docc/main/css/documentation-topic~topic~tutorials-overview.67b822e0.css",
-    "apple/swift-docc/main/css/index.47bc740e.css",
-    "apple/swift-docc/main/css/topic.2eb01958.css",
-    "apple/swift-docc/main/css/tutorials-overview.8754eb09.css",
-    "apple/swift-docc/main/documentation/docc/adding-structure-to-your-documentation-pages/index.html",
-    "apple/swift-docc/main/documentation/docc/adding-supplemental-content-to-a-documentation-catalog/index.html",
-    "apple/swift-docc/main/documentation/docc/index.html",
-    "apple/swift-docc/main/documentation/docc/intro/index.html",
-    "apple/swift-docc/main/documentation/docc/justification/index.html",
-    "apple/swift-docc/main/documentation/swiftdocc/implementationsgroup/references/index.html",
-    "apple/swift-docc/main/documentation/swiftdocc/index.html",
-    "apple/swift-docc/main/documentation/swiftdocc/indexable/index.html",
-    "apple/swift-docc/main/documentation/swiftdocc/indexable/indexingrecords(onpage:)/index.html",
-    "apple/swift-docc/main/documentation/swiftdocc/indexingerror/describederror-implementations/index.html",
+private let prefixes = [
+    "apple/swift-docc/main/documentation/docc/",
+    "apple/swift-docc/main/documentation/swiftdocc/",
+    "apple/swift-docc/1.2.3/documentation/docc/",
+    "foo/bar",                         // too short
+    "foo/bar/documentation/bar/",      // no ref
+    "foo/bar/1.2.3/documentation/bar"  // no trailing slash
 ]
+
+
+private extension S3 {
+    static var mock: Self {
+        let client = AWSClient(credentialProvider: .static(accessKeyId: "",
+                                                           secretAccessKey: ""),
+                               httpClientProvider: .createNew)
+        return S3(client: client, region: .useast2)
+    }
+
+    func shutdown() {
+        try? client.syncShutdown()
+    }
+}

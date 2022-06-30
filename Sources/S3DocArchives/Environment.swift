@@ -12,9 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
 
-extension Array where Element == DocArchive {
-    public func archivesGroupedByRef() -> [String: [DocArchive]] {
-        Dictionary(grouping: self) { $0.path.ref }
-    }
+import SotoS3
+
+
+struct Environment {
+    var getFileContent: (_ s3: S3, _ key: S3.StoreKey) async throws -> Data?
+    var listFolders: (_ s3: S3, _ key: S3.StoreKey) async throws -> [String]
 }
+
+
+extension Environment {
+    static let live = Environment(
+        getFileContent: { s3, key in try await s3.getFileContent(key: key) },
+        listFolders: { s3, key in try await s3.listFolders(key: key) }
+    )
+}
+
+
+#if DEBUG
+var Current: Environment = .live
+#else
+let Current: Environment = .live
+#endif
+
+

@@ -43,8 +43,13 @@ class ReAnalyzeVersionsTests: AppTestCase {
                              owner: "foo").save(on: app.db)
 
         Current.fetchS3DocArchives = { prefix, _, _, _ in
-            if prefix == "foo/1" { return [.mock("foo", "1", "main")] }
-            return []
+            struct UnexpectedPrefix: Error {}
+            switch prefix {
+                case "foo/1/main":
+                    return [.mock("foo", "1", "main")]
+                default:
+                    throw UnexpectedPrefix()
+            }
         }
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }

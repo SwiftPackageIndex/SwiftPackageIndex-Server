@@ -271,6 +271,21 @@ struct Shell {
 }
 
 
+extension DocArchive {
+    // Convenience overload to avoid having to expose the `verbose` argument
+    static func fetchAll(prefix: String,
+                         awsBucketName: String,
+                         awsAccessKeyId: String,
+                         awsSecretAccessKey: String) async throws -> [DocArchive] {
+        try await fetchAll(prefix: prefix,
+                           awsBucketName: awsBucketName,
+                           awsAccessKeyId: awsAccessKeyId,
+                           awsSecretAccessKey: awsSecretAccessKey,
+                           verbose: false)
+    }
+}
+
+
 #if DEBUG
 var Current: AppEnvironment = .live
 #else

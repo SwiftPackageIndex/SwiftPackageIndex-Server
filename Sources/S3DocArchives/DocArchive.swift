@@ -21,18 +21,13 @@ public struct DocArchive: Codable, Equatable {
     public var path: Path
     public var title: String
 
-    init(s3: S3, in bucket: String, path: Path) async {
-        self.path = path
-        self.title = (try? await s3.getDocArchiveTitle(in: bucket, path: path)) ?? path.product
-    }
-
-#if DEBUG
-    // for unit testing purposes only
-    init(path: Path, title: String) {
+    public init(path: Path, title: String) {
         self.path = path
         self.title = title
     }
 
+#if DEBUG
+    // for unit testing purposes only
     static func mock(_ owner: String = "foo",
                      _ repository: String = "bar",
                      _ ref: String = "ref",
@@ -46,11 +41,18 @@ public struct DocArchive: Codable, Equatable {
 
 
 public extension DocArchive {
+
     static func fetchAll(prefix: String,
                          awsBucketName: String,
                          awsAccessKeyId: String,
-                         awsSecretAccessKey: String) async throws -> [DocArchive] {
-        let key = S3.StoreKey(bucket: awsBucketName, path: prefix)
+                         awsSecretAccessKey: String,
+                         verbose: Bool) async throws -> [DocArchive] {
+        var requestCount = 0
+        defer {
+            if verbose {
+                print("Total number of AWS requests: \(requestCount)")
+            }
+        }
         let client = AWSClient(credentialProvider: .static(accessKeyId: awsAccessKeyId,
                                                            secretAccessKey: awsSecretAccessKey),
                                httpClientProvider: .createNew)
@@ -58,17 +60,41 @@ public extension DocArchive {
 
         let s3 = S3(client: client, region: .useast2)
 
-        // filter this down somewhat by eliminating `.json` files
-        let paths = try await s3.listFiles(key: key, delimiter: ".json")
-            .compactMap { try? path.parse($0.file.key) }
+        let docFolder = prefix.appendingPathSegment("documentation")
+        let key = S3.StoreKey(bucket: awsBucketName, path: docFolder)
+        requestCount += 1
+        let paths = try await Current.listFolders(s3, key)
+        if verbose {
+            print("Documentation paths found (\(paths.count)):")
+            for p in paths {
+                print(p)
+            }
+        }
+
+        let docPaths =  paths.compactMap { try? path.parse($0) }
 
         var archives = [DocArchive]()
-        for path in paths {
-            archives.append(await DocArchive(s3: s3, in: awsBucketName, path: path))
+        for path in docPaths {
+            requestCount += 1
+            let title = await getTitle(s3: s3, bucket: awsBucketName, path: path)
+            archives.append(DocArchive(path: path, title: title))
         }
 
         return archives
     }
+
+    static func getTitle(s3: S3, bucket: String, path: DocArchive.Path) async -> String {
+        let key = S3.StoreKey(bucket: bucket,
+                              path: path.s3path + "/data/documentation/\(path.product).json")
+        do {
+            guard let data = try await Current.getFileContent(s3, key) else { return path.product }
+            return try JSONDecoder().decode(DocArchive.DocumentationData.self, from: data)
+                .metadata.title
+        } catch {
+            return path.product
+        }
+    }
+
 }
 
 
@@ -78,6 +104,13 @@ extension DocArchive {
         public var repository: String
         public var ref: String
         public var product: String
+
+        public init(owner: String, repository: String, ref: String, product: String) {
+            self.owner = owner
+            self.repository = repository
+            self.ref = ref
+            self.product = product
+        }
 
         var s3path: String { "\(owner)/\(repository)/\(ref)" }
     }
@@ -125,6 +158,14 @@ extension DocArchive {
         pathSegment
         "documentation/"
         pathSegment
-        "index.html"
+    }
+}
+
+
+extension String {
+    func appendingPathSegment(_ segment: String) -> String {
+        self.hasSuffix("/")
+        ? self + segment
+        : self + "/" + segment
     }
 }

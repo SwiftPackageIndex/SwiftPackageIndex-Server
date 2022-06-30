@@ -30,11 +30,16 @@ extension S3 {
         let size: Int
     }
 
-    struct StoreKey {
+    public struct StoreKey {
         let bucket: String
         var path: String
 
         var url: String { "s3://\(bucket)/\(path)" }
+
+        public init(bucket: String, path: String) {
+            self.bucket = bucket
+            self.path = path
+        }
     }
 
     func getFileContent(key: StoreKey) async throws -> Data? {
@@ -43,35 +48,32 @@ extension S3 {
             .body?.asData()
     }
 
-    func listFiles(key: StoreKey, delimiter: String? = nil) async throws -> [FileDescriptor] {
-        try await listFiles(key: key, delimiter: delimiter).get()
+    public func listFolders(key: StoreKey) async throws -> [String] {
+        try await listFolders(key: key).get()
     }
 
-    func listFiles(key: StoreKey, delimiter: String? = nil) -> EventLoopFuture<[FileDescriptor]> {
+    func listFolders(key: StoreKey) -> EventLoopFuture<[String]> {
+        let prefix = key.path.hasSuffix("/") ? key.path : key.path + "/"
         let bucket = key.bucket
-        let request = S3.ListObjectsV2Request(bucket: bucket, delimiter: delimiter, prefix: key.path)
+        let request = S3.ListObjectsV2Request(bucket: bucket, delimiter: "/", prefix: prefix)
         return listObjectsV2Paginator(request, []) { accumulator, response, eventLoop in
-            let files: [FileDescriptor] = response.contents?.compactMap {
-                guard let key = $0.key,
-                      let lastModified = $0.lastModified,
-                      let fileSize = $0.size else { return nil }
-                return FileDescriptor(
-                    file: File(bucket: bucket, key: key),
-                    modificationDate: lastModified,
-                    size: Int(fileSize)
-                )
-            } ?? []
-            return eventLoop.makeSucceededFuture((true, accumulator + files))
+            let prefixes = response.commonPrefixes?.compactMap(\.prefix) ?? []
+            return eventLoop.makeSucceededFuture((true, accumulator + prefixes))
         }
     }
 
-    func getDocArchiveTitle(in bucket: String,
-                            path: DocArchive.Path) async throws -> String? {
-        let key = S3.StoreKey(bucket: bucket,
-                              path: path.s3path + "/data/documentation/\(path.product).json")
-        guard let data = try await getFileContent(key: key) else { return nil }
-        return try JSONDecoder().decode(DocArchive.DocumentationData.self, from: data)
-            .metadata.title
-    }
+}
 
+
+extension S3.File: CustomStringConvertible {
+    var description: String {
+        "s3://\(bucket)/\(key)"
+    }
+}
+
+
+extension S3.FileDescriptor: CustomStringConvertible {
+    var description: String {
+        "\(file)"
+    }
 }

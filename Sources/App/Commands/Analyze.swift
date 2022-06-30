@@ -232,14 +232,18 @@ extension Analyze {
             throw AppError.noValidVersions(package.model.id, package.model.url)
         }
 
-        let docArchivesByRef = versionsPkgInfo.filter(\.1.hasDocumentationTargets).isEmpty
-        ? [:]
-        : try await getDocArchives(for: package)?.archivesGroupedByRef() ?? [:]
-
         for (version, pkgInfo) in versionsPkgInfo {
+            let docArchives = (
+                pkgInfo.hasDocumentationTargets
+                ? await getDocArchives(logger: logger,
+                                       package: package,
+                                       reference: "\(version.reference)")
+                : nil
+            )
+
             try await updateVersion(on: transaction,
                                     version: version,
-                                    docArchivesByRef: docArchivesByRef,
+                                    docArchives: docArchives,
                                     packageInfo: pkgInfo).get()
             try await recreateProducts(on: transaction,
                                        version: version,
@@ -547,11 +551,12 @@ extension Analyze {
     }
 
 
-    static func getDocArchives(for package: Joined<Package, Repository>) async throws -> [DocArchive]? {
+    static func getDocArchives(logger: Logger, package: Joined<Package, Repository>, reference: String) async -> [DocArchive]? {
         guard let awsAccessKeyId = Current.awsAccessKeyId(),
               let awsBucketName = Current.awsDocsBucket(),
               let awsSecretAccessKey = Current.awsSecretAccessKey() else {
-            throw AppError.envVariableNotSet("AWS env variable")
+            logger.error("One or more AWS environment variables not set.")
+            return nil
         }
         let start = DispatchTime.now().uptimeNanoseconds
         defer { AppMetrics.analyzeS3FetchDuration?.time(since: start) }
@@ -560,12 +565,17 @@ extension Analyze {
               let repository = package.repository?.name
         else { return nil }
 
-        let prefix = "\(owner)/\(repository)".lowercased()
+        let prefix = "\(owner)/\(repository)/\(reference)".lowercased()
         AppMetrics.analyzeS3FetchCount?.inc()
-        return try await Current.fetchS3DocArchives(prefix,
-                                                    awsBucketName,
-                                                    awsAccessKeyId,
-                                                    awsSecretAccessKey)
+        do {
+            return try await Current.fetchS3DocArchives(prefix,
+                                                        awsBucketName,
+                                                        awsAccessKeyId,
+                                                        awsSecretAccessKey)
+        } catch {
+            logger.error("getDocArchives failed: \(error)")
+            return nil
+        }
     }
 
 
@@ -607,7 +617,7 @@ extension Analyze {
     /// - Returns: future
     static func updateVersion(on database: Database,
                               version: Version,
-                              docArchivesByRef: [String: [DocArchive]],
+                              docArchives: [DocArchive]?,
                               packageInfo: PackageInfo) -> EventLoopFuture<Void> {
         let manifest = packageInfo.packageManifest
         version.packageName = manifest.name
@@ -618,7 +628,7 @@ extension Analyze {
         version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
         version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
         version.toolsVersion = manifest.toolsVersion?.version
-        version.docArchives = docArchivesByRef["\(version.reference)"]
+        version.docArchives = docArchives
         version.spiManifest = packageInfo.spiManifest
 
         return version.save(on: database)

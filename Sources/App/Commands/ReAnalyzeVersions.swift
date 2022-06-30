@@ -209,14 +209,18 @@ enum ReAnalyzeVersions {
                     return (version, pkgInfo)
                 }
 
-                let docArchivesByRef = versionsPkgInfo.filter(\.1.hasDocumentationTargets).isEmpty
-                ? [:]
-                : try await Analyze.getDocArchives(for: pkg)?.archivesGroupedByRef() ?? [:]
-
                 for (version, pkgInfo) in versionsPkgInfo {
+                    let docArchives = (
+                        pkgInfo.hasDocumentationTargets
+                        ? await Analyze.getDocArchives(logger: logger,
+                                                       package: pkg,
+                                                       reference: "\(version.reference)")
+                        : nil
+                    )
+
                     try await Analyze.updateVersion(on: tx,
                                                     version: version,
-                                                    docArchivesByRef: docArchivesByRef,
+                                                    docArchives: docArchives,
                                                     packageInfo: pkgInfo).get()
                     try await Analyze.recreateProducts(on: tx,
                                                        version: version,
