@@ -22,6 +22,8 @@ class S3DocArchivesTests: XCTestCase {
 
     func test_getTitle() async throws {
         // setup
+        let s3 = S3.mock
+        defer { s3.shutdown() }
         Current.getFileContent = { _, key in
             struct UnexpectedInput: Error {}
             if key.bucket == "bucket",
@@ -30,12 +32,6 @@ class S3DocArchivesTests: XCTestCase {
             }
             throw UnexpectedInput()
         }
-        let client = AWSClient(credentialProvider: .static(accessKeyId: "",
-                                                           secretAccessKey: ""),
-                               httpClientProvider: .createNew)
-        defer { try? client.syncShutdown() }
-        let s3 = S3(client: client, region: .useast2)
-
         let path = DocArchive.Path(owner: "SwiftPackageIndex",
                                    repository: "SemanticVersion",
                                    ref: "main",
@@ -46,6 +42,44 @@ class S3DocArchivesTests: XCTestCase {
 
         // validation
         XCTAssertEqual(title, "SemanticVersion")
+    }
+
+    func test_getTitle_error() async throws {
+        // Test error handling
+        // setup
+        let s3 = S3.mock
+        defer { s3.shutdown() }
+        let path = DocArchive.Path(owner: "SwiftPackageIndex",
+                                   repository: "SemanticVersion",
+                                   ref: "main",
+                                   product: "semanticversion")
+
+        do {  // getFileContent fails
+            Current.getFileContent = { _, key in
+                struct UnexpectedError: Error {}
+                // throw error when calling getFileContent
+                throw UnexpectedError()
+            }
+
+            // MUT
+            let title = await DocArchive.getTitle(s3: s3, bucket: "bucket", path: path)
+
+            // validation
+            XCTAssertEqual(title, path.product)
+        }
+
+        do {  // decoding fails
+            Current.getFileContent = { _, key in
+                // yield undecodable data
+                Data("".utf8)
+            }
+
+            // MUT
+            let title = await DocArchive.getTitle(s3: s3, bucket: "bucket", path: path)
+
+            // validation
+            XCTAssertEqual(title, path.product)
+        }
     }
 
     func test_fetchAll() async throws {
@@ -72,3 +106,17 @@ private let prefixes = [
     "foo/bar/documentation/bar/",      // no ref
     "foo/bar/1.2.3/documentation/bar"  // no trailing slash
 ]
+
+
+private extension S3 {
+    static var mock: Self {
+        let client = AWSClient(credentialProvider: .static(accessKeyId: "",
+                                                           secretAccessKey: ""),
+                               httpClientProvider: .createNew)
+        return S3(client: client, region: .useast2)
+    }
+
+    func shutdown() {
+        try? client.syncShutdown()
+    }
+}
