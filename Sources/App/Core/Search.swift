@@ -181,6 +181,22 @@ enum Search {
             .limit(limit)
     }
 
+    /*
+     --select to_tsvector('stopping watching ping') @@ to_tsquery('ping')
+     ^^ true
+     
+     --select * from search
+     
+     --select * from search where to_tsvector(coalesce(summary, '') || coalesce(package_name, '')) @@ to_tsquery('ping')
+     
+     select package_name, to_tsvector(ARRAY_TO_STRING(keywords, ' ')) from search
+     
+     --select to_tsvector('stopping watching ping') @@ to_tsquery('ping')
+     --select package_name, score, stars from search where stars > 5000 order by stars
+     --select * from search where to_tsvector(coalesce(summary, '') || coalesce(package_name, '')) @@ to_tsquery('ping')
+     select package_name, to_tsvector(ARRAY_TO_STRING(keywords, ' ')) from search
+     
+     */
     static func keywordMatchQueryBuilder(on database: Database,
                                          terms: [String]) -> SQLSelectBuilder {
         guard let db = database as? SQLDatabase else {
