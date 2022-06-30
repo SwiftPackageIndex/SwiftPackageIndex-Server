@@ -21,18 +21,13 @@ public struct DocArchive: Codable, Equatable {
     public var path: Path
     public var title: String
 
-    init(s3: S3, in bucket: String, path: Path) async {
-        self.path = path
-        self.title = (try? await s3.getDocArchiveTitle(in: bucket, path: path)) ?? path.product
-    }
-
-#if DEBUG
-    // for unit testing purposes only
-    init(path: Path, title: String) {
+    public init(path: Path, title: String) {
         self.path = path
         self.title = title
     }
 
+#if DEBUG
+    // for unit testing purposes only
     static func mock(_ owner: String = "foo",
                      _ repository: String = "bar",
                      _ ref: String = "ref",
@@ -79,8 +74,9 @@ public extension DocArchive {
 
         var archives = [DocArchive]()
         for path in docPaths {
-            requestCount += 1  // DocArchive.init calls s3.getDocArchiveTitle
-            archives.append(await DocArchive(s3: s3, in: awsBucketName, path: path))
+            requestCount += 1
+            let title = (try? await s3.getDocArchiveTitle(in: awsBucketName, path: path)) ?? path.product
+            archives.append(DocArchive(path: path, title: title))
         }
 
         return archives
