@@ -49,7 +49,6 @@ func lower(_ arg: SQLExpression) -> SQLFunction {
     SQLFunction("LOWER", args: arg)
 }
 
-
 func unnest(_ array: SQLExpression) -> SQLFunction {
     SQLFunction("UNNEST", args: array)
 }

@@ -37,6 +37,7 @@ enum Search {
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
 
+    static let inVector = SQLRaw("@@")
     static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
     static let nullInt = SQLRaw("NULL::INT")
@@ -203,7 +204,8 @@ enum Search {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
         let mergedTerms = terms.joined(separator: " ").lowercased()
-        let searchPattern = mergedTerms.isEmpty ? "" : "%" + mergedTerms + "%"
+//        let searchPattern = mergedTerms.isEmpty ? "" : "%" + mergedTerms + "%"
+        let searchPattern = mergedTerms.isEmpty ? "" : mergedTerms
 
         // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1602 on
         // why this select query is split up like this
@@ -244,7 +246,9 @@ enum Search {
         select = select
             .from(unnest(keywords), as: keyword)
         select = select
-            .where(keyword, ilike, SQLBind(searchPattern))
+//            .where(keyword, ilike, SQLBind(searchPattern))
+            .where(to_tsquery(SQLBind(searchPattern)), inVector, SQLRaw("to_tsvector(keyword)"))
+
         select = select
             .orderBy(levenshteinDist)
         select = select
