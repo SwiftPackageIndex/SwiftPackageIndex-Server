@@ -12,12 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import SotoS3
 import XCTest
 
 @testable import S3DocArchives
 
 
 class S3DocArchivesTests: XCTestCase {
+
+    func test_getTitle() async throws {
+        // setup
+        Current.getFileContent = { _, key in
+            struct UnexpectedInput: Error {}
+            if key.bucket == "bucket",
+               key.path == "SwiftPackageIndex/SemanticVersion/main/data/documentation/semanticversion.json" {
+                return try? fixtureData(for: "s3-semanticversion.json")
+            }
+            throw UnexpectedInput()
+        }
+        let client = AWSClient(credentialProvider: .static(accessKeyId: "",
+                                                           secretAccessKey: ""),
+                               httpClientProvider: .createNew)
+        defer { try? client.syncShutdown() }
+        let s3 = S3(client: client, region: .useast2)
+
+        let path = DocArchive.Path(owner: "SwiftPackageIndex",
+                                   repository: "SemanticVersion",
+                                   ref: "main",
+                                   product: "semanticversion")
+
+        // MUT
+        let title = await DocArchive.getTitle(s3: s3, bucket: "bucket", path: path)
+
+        // validation
+        XCTAssertEqual(title, "SemanticVersion")
+    }
+
+    func test_fetchAll() async throws {
+
+    }
 
     func test_parse() throws {
         let docs = prefixes.compactMap { try? DocArchive.path.parse($0) }

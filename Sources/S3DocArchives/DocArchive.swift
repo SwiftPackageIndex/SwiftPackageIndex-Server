@@ -41,6 +41,7 @@ public struct DocArchive: Codable, Equatable {
 
 
 public extension DocArchive {
+
     static func fetchAll(prefix: String,
                          awsBucketName: String,
                          awsAccessKeyId: String,
@@ -62,7 +63,7 @@ public extension DocArchive {
         let docFolder = prefix.appendingPathSegment("documentation")
         let key = S3.StoreKey(bucket: awsBucketName, path: docFolder)
         requestCount += 1
-        let paths = try await s3.listFolders(key: key).get()
+        let paths = try await Current.listFolders(s3, key)
         if verbose {
             print("Documentation paths found (\(paths.count)):")
             for p in paths {
@@ -75,12 +76,25 @@ public extension DocArchive {
         var archives = [DocArchive]()
         for path in docPaths {
             requestCount += 1
-            let title = (try? await s3.getDocArchiveTitle(in: awsBucketName, path: path)) ?? path.product
+            let title = await getTitle(s3: s3, bucket: awsBucketName, path: path)
             archives.append(DocArchive(path: path, title: title))
         }
 
         return archives
     }
+
+    static func getTitle(s3: S3, bucket: String, path: DocArchive.Path) async -> String {
+        let key = S3.StoreKey(bucket: bucket,
+                              path: path.s3path + "/data/documentation/\(path.product).json")
+        do {
+            guard let data = try await Current.getFileContent(s3, key) else { return path.product }
+            return try JSONDecoder().decode(DocArchive.DocumentationData.self, from: data)
+                .metadata.title
+        } catch {
+            return path.product
+        }
+    }
+
 }
 
 
@@ -90,6 +104,13 @@ extension DocArchive {
         public var repository: String
         public var ref: String
         public var product: String
+
+        public init(owner: String, repository: String, ref: String, product: String) {
+            self.owner = owner
+            self.repository = repository
+            self.ref = ref
+            self.product = product
+        }
 
         var s3path: String { "\(owner)/\(repository)/\(ref)" }
     }

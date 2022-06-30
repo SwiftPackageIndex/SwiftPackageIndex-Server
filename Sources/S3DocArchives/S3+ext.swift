@@ -48,7 +48,11 @@ extension S3 {
             .body?.asData()
     }
 
-    public func listFolders(key: StoreKey) -> EventLoopFuture<[String]> {
+    public func listFolders(key: StoreKey) async throws -> [String] {
+        try await listFolders(key: key).get()
+    }
+
+    func listFolders(key: StoreKey) -> EventLoopFuture<[String]> {
         let prefix = key.path.hasSuffix("/") ? key.path : key.path + "/"
         let bucket = key.bucket
         let request = S3.ListObjectsV2Request(bucket: bucket, delimiter: "/", prefix: prefix)
@@ -56,15 +60,6 @@ extension S3 {
             let prefixes = response.commonPrefixes?.compactMap(\.prefix) ?? []
             return eventLoop.makeSucceededFuture((true, accumulator + prefixes))
         }
-    }
-
-    func getDocArchiveTitle(in bucket: String,
-                            path: DocArchive.Path) async throws -> String? {
-        let key = S3.StoreKey(bucket: bucket,
-                              path: path.s3path + "/data/documentation/\(path.product).json")
-        guard let data = try await getFileContent(key: key) else { return nil }
-        return try JSONDecoder().decode(DocArchive.DocumentationData.self, from: data)
-            .metadata.title
     }
 
 }
