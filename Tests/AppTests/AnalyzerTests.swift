@@ -52,8 +52,18 @@ class AnalyzerTests: AppTestCase {
             static var commands = [Command]()
         }
         Current.fetchS3DocArchives = { prefix, _, _, _ in
-            if prefix == "foo/1" { return [.mock("foo", "1", "main")] }
-            return []
+            struct UnexpectedPrefix: Error {}
+            switch prefix {
+                case "foo/1/main":
+                    return [.mock("foo", "1", "main")]
+                case "foo/1/1.0.0":
+                    // let's say no docs
+                    return []
+                case "foo/1/1.1.1":
+                    return [.mock("foo", "1", "1.1.1")]
+                default:
+                    throw UnexpectedPrefix()
+            }
         }
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succeed to simulate pull
@@ -181,7 +191,7 @@ class AnalyzerTests: AppTestCase {
                        ["foo-1", "foo-1", "foo-1"])
         // default branch version (first one) has doc archives
         XCTAssertEqual(sortedVersions1.map(\.docArchives), [
-            [.mock("foo", "1", "main")], nil, nil
+            [.mock("foo", "1", "main")], [], [.mock("foo", "1", "1.1.1")]
         ])
 
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
@@ -663,7 +673,7 @@ class AnalyzerTests: AppTestCase {
         // MUT
         _ = try Analyze.updateVersion(on: app.db,
                                       version: version,
-                                      docArchivesByRef: ["main": [.mock()]],
+                                      docArchives: [.mock()],
                                       packageInfo: .init(packageManifest: manifest,
                                                          dependencies: [dep],
                                                          spiManifest: spiManifest)).wait()
@@ -701,7 +711,7 @@ class AnalyzerTests: AppTestCase {
         // MUT
         _ = try Analyze.updateVersion(on: app.db,
                                       version: version,
-                                      docArchivesByRef: [:],
+                                      docArchives: [],
                                       packageInfo: .init(packageManifest: manifest,
                                                          dependencies: nil)).wait()
 

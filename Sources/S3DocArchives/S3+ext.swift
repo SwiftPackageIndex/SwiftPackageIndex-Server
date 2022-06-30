@@ -30,11 +30,16 @@ extension S3 {
         let size: Int
     }
 
-    struct StoreKey {
+    public struct StoreKey {
         let bucket: String
         var path: String
 
         var url: String { "s3://\(bucket)/\(path)" }
+
+        public init(bucket: String, path: String) {
+            self.bucket = bucket
+            self.path = path
+        }
     }
 
     func getFileContent(key: StoreKey) async throws -> Data? {
@@ -43,7 +48,7 @@ extension S3 {
             .body?.asData()
     }
 
-    func listFolders(key: StoreKey) -> EventLoopFuture<[String]> {
+    public func listFolders(key: StoreKey) -> EventLoopFuture<[String]> {
         let prefix = key.path.hasSuffix("/") ? key.path : key.path + "/"
         let bucket = key.bucket
         let request = S3.ListObjectsV2Request(bucket: bucket, delimiter: "/", prefix: prefix)

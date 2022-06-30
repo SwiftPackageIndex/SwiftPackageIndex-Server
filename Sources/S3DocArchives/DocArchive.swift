@@ -57,7 +57,6 @@ public extension DocArchive {
                 print("Total number of AWS requests: \(requestCount)")
             }
         }
-        let key = S3.StoreKey(bucket: awsBucketName, path: prefix)
         let client = AWSClient(credentialProvider: .static(accessKeyId: awsAccessKeyId,
                                                            secretAccessKey: awsSecretAccessKey),
                                httpClientProvider: .createNew)
@@ -65,34 +64,21 @@ public extension DocArchive {
 
         let s3 = S3(client: client, region: .useast2)
 
+        let docFolder = prefix.appendingPathSegment("documentation")
+        let key = S3.StoreKey(bucket: awsBucketName, path: docFolder)
         requestCount += 1
-        let references = try await s3.listFolders(key: key).get()
+        let paths = try await s3.listFolders(key: key).get()
         if verbose {
-            print("References found (\(references.count)):")
-            for p in references {
+            print("Documentation paths found (\(paths.count)):")
+            for p in paths {
                 print(p)
             }
         }
 
-        var docPaths = [String]()
-        for ref in references {
-            let prefix = ref.appendingPathSegment("documentation")
-            let key = S3.StoreKey(bucket: awsBucketName, path: prefix)
-            requestCount += 1
-            let paths = try await s3.listFolders(key: key).get()
-            if verbose {
-                print("Documentation paths found (\(paths.count)):")
-                for p in paths {
-                    print(p)
-                }
-            }
-            docPaths.append(contentsOf: paths)
-        }
-
-        let parsedPaths =  docPaths.compactMap { try? path.parse($0) }
+        let docPaths =  paths.compactMap { try? path.parse($0) }
 
         var archives = [DocArchive]()
-        for path in parsedPaths {
+        for path in docPaths {
             requestCount += 1  // DocArchive.init calls s3.getDocArchiveTitle
             archives.append(await DocArchive(s3: s3, in: awsBucketName, path: path))
         }

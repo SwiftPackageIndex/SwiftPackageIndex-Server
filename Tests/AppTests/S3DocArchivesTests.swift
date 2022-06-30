@@ -28,17 +28,6 @@ class S3DocArchivesTests: XCTestCase {
         ])
     }
 
-    func test_archivesGroupedByRef() {
-        let mainP1 = DocArchive.mock("foo", "bar", "main", "p1", "P1")
-        let v123P1 = DocArchive.mock("foo", "bar", "1.2.3", "p1", "P1")
-        let v123P2 = DocArchive.mock("foo", "bar", "1.2.3", "p2", "P2")
-        let archives: [DocArchive] = [mainP1, v123P1, v123P2]
-        XCTAssertEqual(archives.archivesGroupedByRef(), [
-            "main": [mainP1],
-            "1.2.3": [v123P1, v123P2]
-        ])
-    }
-
 }
 
 
