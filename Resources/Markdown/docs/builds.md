@@ -18,7 +18,7 @@ description: Frequently Asked Questions about the Swift Package Index Build Syst
 
 <h3 id="build-system">What is the Swift Package Index Build System?</h3>
 
-The Swift Package Index bases its Swift version and platform compatibility data on real-world results from our build system. The build system supports all Apple platforms (iOS, macOS, tvOS, watchOS) and Linux, giving comprehensive, proven, real-world compatibility information.
+The Swift Package Index bases its Swift version and platform compatibility data on real-world results from our build system. The build system supports all Apple platforms (iOS, macOS, watchOS, tvOS ) and Linux, giving comprehensive, proven, real-world compatibility information.
 
 The Swift Package Index polls every package for changes and new releases constantly. Whenever it sees changes, it compiles the code across a comprehensive set of Swift versions and platforms. For example, check out the [package compatibility report](https://swiftpackageindex.com/SnapKit/SnapKit/builds) for [SnapKit](https://swiftpackageindex.com/SnapKit/SnapKit).
 

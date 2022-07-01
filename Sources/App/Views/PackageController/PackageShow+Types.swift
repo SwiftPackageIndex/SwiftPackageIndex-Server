@@ -192,7 +192,7 @@ extension PackageShow.Model {
             self.watchos = .init(parameter: .watchos, status: watchosStatus)
         }
 
-        var cells: [BuildResult<PlatformCompatibility>] { [ios, macos, linux, tvos, watchos] }
+        var cells: [BuildResult<PlatformCompatibility>] { [ios, macos, watchos, tvos, linux] }
     }
 
     enum BuildStatus: String, Equatable {
