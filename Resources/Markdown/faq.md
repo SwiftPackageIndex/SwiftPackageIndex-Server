@@ -157,7 +157,7 @@ The following package metadata fields are supported:
 - `last_commit` (Date): The date of the last commit to the package repository.
 - `license` (License): The package's license.
 - `keyword` (Keyword): Filter on matching package keywords.
-- `platform` (Platform(s)): Filter on one or more compatible platforms (iOS, macOS, Linux, tvOS, or watchOS).
+- `platform` (Platform(s)): Filter on one or more compatible platforms (iOS, macOS, watchOS, tvOS, or Linux).
 - `stars` (Number): The number of stars the package has.
 - `product` (Product): The type of product the package should contain (executable, library, plugin).
 
