@@ -28,7 +28,7 @@ struct DocumentationPageProcessor {
     let otherAvailableVersions: [OtherDocumentationVersion]
 
     struct OtherDocumentationVersion {
-        let kind: Release.Kind
+        let kind: Version.Kind
         let reference: String
     }
 

@@ -45,9 +45,9 @@ extension PackageShow {
         var isArchived: Bool
         var homepageUrl: String?
         var documentationMetadata: DocumentationMetadata?
-        var dependencyCodeSnippets: [Release.Kind: Link]
+        var dependencyCodeSnippets: [App.Version.Kind: Link]
         var weightedKeywords: [WeightedKeyword]
-        
+
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
                       repositoryOwnerName: String,
@@ -72,7 +72,7 @@ extension PackageShow {
                       isArchived: Bool,
                       homepageUrl: String? = nil,
                       documentationMetadata: DocumentationMetadata? = nil,
-                      dependencyCodeSnippets: [Release.Kind: Link],
+                      dependencyCodeSnippets: [App.Version.Kind: Link],
                       weightedKeywords: [WeightedKeyword] = []) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
@@ -520,8 +520,8 @@ extension PackageShow.Model {
     static func packageDependencyCodeSnippets(packageURL: String,
                                               defaultBranchReference: App.Reference?,
                                               releaseReference: App.Reference?,
-                                              preReleaseReference: App.Reference?) -> [Release.Kind: Link] {
-        var snippets = [Release.Kind: Link]()
+                                              preReleaseReference: App.Reference?) -> [App.Version.Kind: Link] {
+        var snippets = [App.Version.Kind: Link]()
         if let ref = defaultBranchReference {
             snippets[.defaultBranch] = Link(label: "\(ref)",
                                             url: packageDependencyCodeSnippet(ref: ref,
