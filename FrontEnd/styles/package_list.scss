@@ -76,6 +76,10 @@
       li.stars::before {
         background-image: var(--image-star);
       }
+
+      li.has_documentation::before {
+        background-image: var(--image-book);
+      }
     }
 
     @media screen and (max-width: $mobile-breakpoint) {
