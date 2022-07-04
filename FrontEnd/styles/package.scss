@@ -130,8 +130,8 @@
           span {
             padding: 1px 5px;
             border-radius: 20px;
-            background: var(--keyword-count-color);
-            color: var(--keyword-count-backgroundcolor);
+            color: var(--page-text);
+            background: var(--keyword-count-background);
             font-size: 10px;
           }
         }

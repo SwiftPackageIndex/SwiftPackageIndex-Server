@@ -165,8 +165,7 @@
   --big-button-blue-background: var(--mid-blue);
   --big-button-blue-border: var(--light-blue);
 
-  --keyword-count-color: #dfdfdf;
-  --keyword-count-backgroundcolor: #464646;
+  --keyword-count-background: rgba(0, 0, 0, 0.1);
 }
 
 /* Dark mode semantic color overrides */
@@ -241,7 +240,6 @@
     --big-button-blue-background: var(--mid-blue);
     --big-button-blue-border: var(--light-blue);
 
-    --keyword-count-color: #464646;
-    --keyword-count-backgroundcolor: #dfdfdf;
+    --keyword-count-background: rgba(255, 255, 255, 0.125);
   }
 }
