@@ -445,7 +445,7 @@ extension PackageShow.Model {
                                 .text("\(keyword)"),
                                 .span(
                                     .class("keyword-count"),
-                                    .text("\(kiloPostfixedQuantity: weightedKeywords[keyword: keyword])")
+                                    .text("\(kiloPostfixedQuantity: weightedKeywords.weight(for: keyword))")
                                 )
                             )
                         )
@@ -660,7 +660,7 @@ extension License.Kind {
 
 
 extension Array where Element == PackageShow.Model.WeightedKeyword {
-    subscript(keyword keyword: String) -> Int {
+    func weight(for keyword: String) -> Int {
         first { $0.keyword == keyword }?.weight ?? 0
     }
 }
