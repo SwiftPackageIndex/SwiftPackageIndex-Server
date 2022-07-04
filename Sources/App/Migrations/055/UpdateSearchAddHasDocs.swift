@@ -44,7 +44,7 @@ struct UpdateSearchAddHasDocs: AsyncMigration {
               r.last_activity_at,
               r.summary,
               v.package_name,
-              v.doc_archives IS NOT NULL AS has_docs,
+              array_length(doc_archives, 1) >= 1 AS has_docs,
               ARRAY(SELECT DISTINCT JSONB_OBJECT_KEYS(type) FROM products WHERE products.version_id = v.id) AS product_types
             FROM packages p
               JOIN repositories r ON r.package_id = p.id
