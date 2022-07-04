@@ -126,14 +126,6 @@
           display: flex;
           align-items: center;
           gap: 5px;
-
-          span {
-            padding: 1px 5px;
-            border-radius: 20px;
-            color: var(--page-text);
-            background: var(--keyword-count-background);
-            font-size: 10px;
-          }
         }
       }
     }
