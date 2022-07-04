@@ -14,6 +14,10 @@
  */
 
 [data-controller='overflowing-list'] {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
   ul {
     // This CSS is augmented with a `max-height` declaration defined via
     // the custom element in overflowing_list.js.
