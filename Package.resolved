@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/vapor/async-kit.git",
         "state": {
           "branch": null,
-          "revision": "017dc7da68c1ec9f0f46fcd1a8002d14a5662732",
-          "version": "1.12.0"
+          "revision": "c3329e444bafbb12d1d312af9191be95348a8175",
+          "version": "1.13.0"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "2b3ac0556740ea8d68f8616917daf64338d54c1b",
-          "version": "1.29.2"
+          "revision": "11960252cc212a8fc3079c4f4f91cd6adc0bf358",
+          "version": "1.32.0"
         }
       },
       {
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-postgres-driver.git",
         "state": {
           "branch": null,
-          "revision": "5230817eaab7184bcaf0b6ebb471f175df980035",
-          "version": "2.3.0"
+          "revision": "a8b2839ea86c44a35c17f66eb0885f9e5b51a531",
+          "version": "2.4.0"
         }
       },
       {
@@ -123,8 +123,8 @@
         "repositoryURL": "https://github.com/vapor/routing-kit.git",
         "state": {
           "branch": null,
-          "revision": "9e181d685a3dec1eef1fc6dacf606af364f86d68",
-          "version": "4.5.0"
+          "revision": "ffac7b3a127ce1e85fb232f1a6271164628809ad",
+          "version": "4.6.0"
         }
       },
       {
@@ -339,8 +339,8 @@
         "repositoryURL": "https://github.com/pointfreeco/swift-parsing.git",
         "state": {
           "branch": null,
-          "revision": "28d32e9ace1c4c43f5e5a177be837a202494c2d5",
-          "version": "0.9.2"
+          "revision": "bc92e84968990b41640214b636667f35b6e5d44c",
+          "version": "0.10.0"
         }
       },
       {
@@ -393,8 +393,8 @@
         "repositoryURL": "https://github.com/vapor/websocket-kit.git",
         "state": {
           "branch": null,
-          "revision": "09212f4c2b9ebdef00f04b913b57f5d77bc4ea62",
-          "version": "2.4.1"
+          "revision": "d8230eae70650652661f360f322db0cc22955b2f",
+          "version": "2.5.0"
         }
       },
       {
@@ -402,8 +402,8 @@
         "repositoryURL": "https://github.com/pointfreeco/xctest-dynamic-overlay",
         "state": {
           "branch": null,
-          "revision": "50a70a9d3583fe228ce672e8923010c8df2deddd",
-          "version": "0.2.1"
+          "revision": "8816142e27f1127d87c61cee4a0a5db93e9df7c4",
+          "version": "0.3.1"
         }
       },
       {
