@@ -46,11 +46,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                         ("tag2",10),
                         ("tag3",100),
                         ("tag4",1000),
-                        ("tag5",1234),
-                        ("tag6",1250),
-                        ("tag7",12345),
-                        ("tag8",123456),
-                        ("tag9",1234567)]
+                        ("tag5",1234)]
         
         model.keywords = keywordsWithCounts.map { $0.0 }
         model.weightedKeywords = keywordsWithCounts.map(PackageShow.Model.WeightedKeyword.init)
