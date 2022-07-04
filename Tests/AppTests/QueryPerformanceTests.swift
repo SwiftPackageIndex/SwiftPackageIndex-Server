@@ -123,7 +123,7 @@ class QueryPerformanceTests: XCTestCase {
             return
         }
         let query = db.raw("""
-            -- v6
+            -- v7
             --CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,
@@ -138,6 +138,7 @@ class QueryPerformanceTests: XCTestCase {
               r.last_activity_at,
               r.summary,
               v.package_name,
+              v.doc_archives IS NOT NULL AS has_docs,
               ARRAY(SELECT DISTINCT JSONB_OBJECT_KEYS(type) FROM products WHERE products.version_id = v.id) AS product_types
             FROM packages p
               JOIN repositories r ON r.package_id = p.id

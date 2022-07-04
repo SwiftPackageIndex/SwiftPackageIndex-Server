@@ -22,6 +22,7 @@ struct PackageInfo {
     var url: String
     var stars: Int
     var lastActivityAt: Date?
+    var hasDocs: Bool?
 }
 
 extension PackageInfo {

@@ -189,7 +189,8 @@ extension Node where Context == HTML.ListContext {
                                 repositoryOwner: String,
                                 repositoryName: String,
                                 stars: Int?,
-                                lastActivityAt: Date?) -> Self {
+                                lastActivityAt: Date?,
+                                hasDocs: Bool) -> Self {
         .li(
             .a(
                 .href(linkUrl),
@@ -234,7 +235,14 @@ extension Node where Context == HTML.ListContext {
                     },
                     .unwrap(stars) {
                         .starsListItem(numberOfStars: $0)
-                    }
+                    },
+                    .if (hasDocs,
+                        .li(.class("has_documentation"),
+                            .small(
+                                .text("Has documentation")
+                            )
+                        )
+                    )
                 )
             )
         )

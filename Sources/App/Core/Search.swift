@@ -36,10 +36,12 @@ enum Search {
     static let lastCommitDate = SQLIdentifier("last_commit_date")
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
+    static let hasDocs = SQLIdentifier("has_docs")
 
     static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
     static let nullInt = SQLRaw("NULL::INT")
+    static let nullBool = SQLRaw("NULL::BOOL")
     static let nullUUID = SQLRaw("NULL::UUID")
     static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
     static let nullTextArray = SQLRaw("NULL::TEXT[]")
@@ -82,6 +84,7 @@ enum Search {
         var lastActivityAt: Date?
         var summary: String?
         var keywords: [String]?
+        var hasDocs: Bool?
 
         enum CodingKeys: String, CodingKey {
             case matchType = "match_type"
@@ -94,6 +97,7 @@ enum Search {
             case lastActivityAt = "last_activity_at"
             case summary
             case keywords
+            case hasDocs = "has_docs"
         }
         
         var packageURL: String? {
@@ -169,6 +173,7 @@ enum Search {
             .column(lastCommitDate)
             .column(lastActivityAt)
             .column(keywords)
+            .column(hasDocs)
             .column(nullInt, as: levenshteinDist)
             .from(searchView)
 
@@ -220,6 +225,8 @@ enum Search {
             .column(nullTimestamp, as: lastActivityAt)
         select = select
             .column(nullTextArray, as: keywords)
+        select = select
+            .column(nullBool, as: hasDocs)
         select = select
             .column(SQLFunction("LEVENSHTEIN", args: keyword, SQLBind(mergedTerms)),
                     as: levenshteinDist)
@@ -274,6 +281,8 @@ enum Search {
             .column(nullTimestamp, as: lastActivityAt)
         select = select
             .column(nullTextArray, as: keywords)
+        select = select
+            .column(nullBool, as: hasDocs)
         select = select
             .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
                     as: levenshteinDist)

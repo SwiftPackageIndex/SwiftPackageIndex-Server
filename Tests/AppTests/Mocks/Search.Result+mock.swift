@@ -27,7 +27,8 @@ extension Array where Element == Search.Result {
                 stars: 1111,
                 lastActivityAt: .t0,
                 summary: "This is a package filled with ones.",
-                keywords: ["one", "1"]
+                keywords: ["one", "1"],
+                hasDocs: false
             )!
         ),
         .package(
@@ -40,7 +41,8 @@ extension Array where Element == Search.Result {
                 stars: 2222,
                 lastActivityAt: .t0,
                 summary: "This is a package filled with twos.",
-                keywords: ["two", "2"]
+                keywords: ["two", "2"],
+                hasDocs: false
             )!
         ),
         .package(
@@ -53,7 +55,8 @@ extension Array where Element == Search.Result {
                 stars: 3333,
                 lastActivityAt: .t0,
                 summary: "This is a package filled with threes.",
-                keywords: ["three", "3"]
+                keywords: ["three", "3"],
+                hasDocs: false
             )!
         )
     ]
