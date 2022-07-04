@@ -234,3 +234,11 @@ a.big_button {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.count_tag {
+  padding: 1px 5px;
+  border-radius: 20px;
+  color: var(--page-text);
+  background: var(--keyword-count-background);
+  font-size: 10px;
+}
