@@ -34,7 +34,7 @@ public final class ErrorMiddleware: AsyncMiddleware {
                 }
                 Current.logger()?.critical("ErrorPage.View \(statusCode): \(error.localizedDescription)")
             } else {
-                Current.logger()?.error("ErrorPage.View \(statusCode): \(error.localizedDescription)")
+                Current.logger()?.error("ErrorPage.View \(statusCode): \(error.localizedDescription) \(req.url)")
             }
 
             return ErrorPage.View(path: req.url.path, error: error)
