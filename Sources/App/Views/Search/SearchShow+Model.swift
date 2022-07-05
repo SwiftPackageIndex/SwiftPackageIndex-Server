@@ -49,7 +49,7 @@ enum SearchShow {
                 let lhsWeight = weightedKeywords.weight(for: lhs.keyword)
                 let rhsWeight = weightedKeywords.weight(for: rhs.keyword)
                 if lhsWeight == rhsWeight {
-                    return lhs.keyword.compare(rhs.keyword) == .orderedAscending
+                    return lhs.keyword < rhs.keyword
                 } else {
                     return lhsWeight > rhsWeight
                 }
