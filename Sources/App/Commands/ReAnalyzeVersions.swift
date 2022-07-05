@@ -204,12 +204,9 @@ enum ReAnalyzeVersions {
 
                 Analyze.mergeReleaseInfo(package: pkg, into: versions)
 
-                let versionsPkgInfo = versions.compactMap { version -> (Version, Analyze.PackageInfo)? in
-                    guard let pkgInfo = try? Analyze.getPackageInfo(package: pkg, version: version) else { return nil }
-                    return (version, pkgInfo)
-                }
+                for version in versions {
+                    guard let pkgInfo = try? Analyze.getPackageInfo(package: pkg, version: version) else { continue }
 
-                for (version, pkgInfo) in versionsPkgInfo {
                     let docArchives = (
                         pkgInfo.hasDocumentationTargets
                         ? await Analyze.getDocArchives(logger: logger,
