@@ -31,16 +31,11 @@ struct SearchController {
         
         let matchedKeywords = response.results.compactMap { $0.keywordResult?.keyword }
         
-        let weightedKeywords: [PackageShow.Model.WeightedKeyword]
-        if matchedKeywords.count > 0 {
-            weightedKeywords = try await WeightedKeyword.query(
-                on: req.db, keywords: matchedKeywords
-            )
-                .map { PackageShow.Model.WeightedKeyword(keyword: $0.keyword,
-                                                         weight: $0.count) }
-        } else {
-            weightedKeywords = []
-        }
+        let weightedKeywords = try await WeightedKeyword.query(
+            on: req.db, keywords: matchedKeywords
+        )
+            .map { PackageShow.Model.WeightedKeyword(keyword: $0.keyword,
+                                                     weight: $0.count) }
         
         let model = SearchShow.Model.init(page: page, query: query, response: response, weightedKeywords: weightedKeywords)
         return SearchShow.View.init(path: req.url.path, model: model).document()
