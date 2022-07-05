@@ -36,6 +36,12 @@ ul.keywords {
       padding: 2px 6px;
     }
 
+    & > a {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
     & > span {
       display: inline-block;
       color: var(--page-text);
