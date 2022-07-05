@@ -45,7 +45,15 @@ enum SearchShow {
         }
 
         var keywordResults: [Search.KeywordResult] {
-            response.results.compactMap(\.keywordResult)
+            response.results.compactMap(\.keywordResult).sorted { lhs, rhs in
+                let lhsWeight = weightedKeywords.weight(for: lhs.keyword)
+                let rhsWeight = weightedKeywords.weight(for: rhs.keyword)
+                if lhsWeight == rhsWeight {
+                    return lhs.keyword.compare(rhs.keyword) == .orderedAscending
+                } else {
+                    return lhsWeight > rhsWeight
+                }
+            }
         }
         
         var weightedKeywords: [PackageShow.Model.WeightedKeyword]
