@@ -20,11 +20,7 @@ extension SearchShow.Model {
     
     private static func mockedWeightedKeywords(results: [Search.Result]) -> [PackageShow.Model.WeightedKeyword] {
         let keywords = results.compactMap { $0.keywordResult?.keyword }
-        
-        let counts:[Int] = Array(1...keywords.count)
-        return zip(keywords, counts).map {
-            PackageShow.Model.WeightedKeyword(keyword: $0, weight: $1)
-        }
+        return zip(keywords, 1...).map(PackageShow.Model.WeightedKeyword.init)
     }
     static func mock(results: [Search.Result] = .mock()) -> Self {
         return .init(page: 3,
