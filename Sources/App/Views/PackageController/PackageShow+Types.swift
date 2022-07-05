@@ -49,11 +49,6 @@ extension PackageShow.Model {
         var platforms: [Platform]
     }
     
-    struct WeightedKeyword: Equatable {
-        var keyword: String
-        var weight: Int
-    }
-    
     struct LanguagePlatformInfo: Equatable {
         var stable: Version?
         var beta: Version?

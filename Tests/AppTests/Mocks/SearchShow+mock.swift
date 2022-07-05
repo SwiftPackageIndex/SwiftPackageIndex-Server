@@ -18,9 +18,9 @@ import Foundation
 
 extension SearchShow.Model {
     
-    private static func mockedWeightedKeywords(results: [Search.Result]) -> [PackageShow.Model.WeightedKeyword] {
+    private static func mockedWeightedKeywords(results: [Search.Result]) -> [WeightedKeywordModel] {
         let keywords = results.compactMap { $0.keywordResult?.keyword }
-        return zip(keywords, 1...).map(PackageShow.Model.WeightedKeyword.init)
+        return zip(keywords, 1...).map(WeightedKeywordModel.init)
     }
     static func mock(results: [Search.Result] = .mock()) -> Self {
         return .init(page: 3,

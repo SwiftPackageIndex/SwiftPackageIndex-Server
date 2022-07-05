@@ -34,7 +34,7 @@ extension PackageController {
             async let weightedKeywords = WeightedKeyword.query(
                 on: database, keywords: packageResult.repository.keywords
             )
-                .map { PackageShow.Model.WeightedKeyword(keyword: $0.keyword,
+                .map { WeightedKeywordModel(keyword: $0.keyword,
                                                          weight: $0.count) }
             async let historyRecord = History.query(on: database,
                                                     owner: owner,
