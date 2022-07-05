@@ -46,7 +46,7 @@ extension PackageShow {
         var homepageUrl: String?
         var documentationMetadata: DocumentationMetadata?
         var dependencyCodeSnippets: [Release.Kind: Link]
-        var weightedKeywords: [WeightedKeyword]
+        var weightedKeywords: [PackageShow.Model.WeightedKeyword]
         
         internal init(packageId: Package.Id,
                       repositoryOwner: String,

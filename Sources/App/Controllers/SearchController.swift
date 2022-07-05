@@ -19,15 +19,26 @@ import Vapor
 
 struct SearchController {
 
-    func show(req: Request) throws -> EventLoopFuture<HTML> {
+    func show(req: Request) async throws -> HTML {
+                
         let query = req.query[String.self, at: "query"] ?? ""
         let page = req.query[Int.self, at: "page"] ?? 1
-        return API.search(database: req.db,
+        
+        let response = try await API.search(database: req.db,
                           query: query,
                           page: page,
-                          pageSize: Constants.resultsPageSize)
-            .map { SearchShow.Model.init(page: page, query: query, response: $0) }
-            .map { SearchShow.View.init(path: req.url.path, model: $0).document() }
+                          pageSize: Constants.resultsPageSize).get()
+        
+        let matchedKeywords = response.results.compactMap { $0.keywordResult?.keyword }
+        
+        let weightedKeywords = try await WeightedKeyword.query(
+            on: req.db, keywords: matchedKeywords
+        )
+            .map { PackageShow.Model.WeightedKeyword(keyword: $0.keyword,
+                                                     weight: $0.count) }
+        
+        let model = SearchShow.Model.init(page: page, query: query, response: response, weightedKeywords: weightedKeywords)
+        return SearchShow.View.init(path: req.url.path, model: model).document()
     }
 
 }

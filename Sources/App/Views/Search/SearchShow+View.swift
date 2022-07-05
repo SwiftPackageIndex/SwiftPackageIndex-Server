@@ -172,7 +172,11 @@ extension SearchShow {
             .li(
                 .a(
                     .href(SiteURL.keywords(.value(keyword.keyword)).relativeURL()),
-                    .text(keyword.keyword)
+                    .text(keyword.keyword),
+                    .span(
+                        .class("keyword-count"),
+                        .text("\(kiloPostfixedQuantity: model.weightedKeywords.weight(for: keyword.keyword))")
+                    )
                 )
             )
         }
