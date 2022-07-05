@@ -351,9 +351,9 @@ class WebpageSnapshotTests: SnapshotTestCase {
         ]
 
         let keywordResults: [Search.Result] = [
-            .keyword(.init(keyword: "keyword1")),
-            .keyword(.init(keyword: "keyword2")),
-            .keyword(.init(keyword: "keyword3")),
+            .keyword(.init(keyword: "one")),
+            .keyword(.init(keyword: "two")),
+            .keyword(.init(keyword: "three")),
             .keyword(.init(keyword: "four"))
         ]
 
