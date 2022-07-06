@@ -20,8 +20,9 @@ enum SearchShow {
         var term: String
         var filters: [SearchFilter.ViewModel]
         var response: Response
-        
-        internal init(page: Int, query: String, response: Search.Response, weightedKeywords: [WeightedKeywordModel]) {
+        var weightedKeywords: [WeightedKeyword]
+
+        internal init(page: Int, query: String, response: Search.Response, weightedKeywords: [WeightedKeyword]) {
             self.page = page
             self.query = query
             self.term = response.searchTerm
@@ -55,8 +56,6 @@ enum SearchShow {
                 }
             }
         }
-        
-        var weightedKeywords: [WeightedKeywordModel]
 
         var packageResults: [Search.PackageResult] {
             response.results.compactMap(\.packageResult)

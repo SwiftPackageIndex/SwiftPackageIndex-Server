@@ -20,7 +20,7 @@ import Vapor
 struct SearchController {
 
     func show(req: Request) async throws -> HTML {
-                
+        
         let query = req.query[String.self, at: "query"] ?? ""
         let page = req.query[Int.self, at: "page"] ?? 1
         
@@ -30,17 +30,12 @@ struct SearchController {
                           pageSize: Constants.resultsPageSize).get()
         
         let matchedKeywords = response.results.compactMap { $0.keywordResult?.keyword }
-        
-        let weightedKeywords: [WeightedKeywordModel]
 
-        if page == 1 {
-            weightedKeywords = try await WeightedKeyword.query(on: req.db,keywords: matchedKeywords)
-                .map { WeightedKeywordModel(keyword: $0.keyword,
-                                             weight: $0.count) }
-        } else {
-            weightedKeywords = []
-        }
-        
+        // We're only displaying the keyword sidebar on the first search page.
+        let weightedKeywords = (page == 1)
+        ? try await WeightedKeyword.query(on: req.db, keywords: matchedKeywords)
+        : []
+
         let model = SearchShow.Model.init(page: page, query: query, response: response, weightedKeywords: weightedKeywords)
         return SearchShow.View.init(path: req.url.path, model: model).document()
     }
