@@ -46,7 +46,7 @@ extension PackageShow {
         var homepageUrl: String?
         var documentationMetadata: DocumentationMetadata?
         var dependencyCodeSnippets: [Release.Kind: Link]
-        var weightedKeywords: [WeightedKeywordModel]
+        var weightedKeywords: [WeightedKeyword]
         
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
@@ -73,7 +73,7 @@ extension PackageShow {
                       homepageUrl: String? = nil,
                       documentationMetadata: DocumentationMetadata? = nil,
                       dependencyCodeSnippets: [Release.Kind: Link],
-                      weightedKeywords: [WeightedKeywordModel] = []) {
+                      weightedKeywords: [WeightedKeyword] = []) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
             self.repositoryOwnerName = repositoryOwnerName
@@ -107,7 +107,7 @@ extension PackageShow {
               productCounts: ProductCounts,
               swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?,
               platformBuildInfo: BuildInfo<PlatformResults>?,
-              weightedKeywords: [WeightedKeywordModel] = []) {
+              weightedKeywords: [WeightedKeyword] = []) {
             // we consider certain attributes as essential and return nil (raising .notFound)
             let repository = result.repository
             guard

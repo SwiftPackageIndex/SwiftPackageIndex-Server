@@ -42,14 +42,14 @@ class WebpageSnapshotTests: SnapshotTestCase {
     
     func test_PackageShowView_few_keywords() throws {
         var model = PackageShow.Model.mock
-        let keywordsWithCounts = [("tag1",1),
-                        ("tag2",10),
-                        ("tag3",100),
-                        ("tag4",1000),
-                        ("tag5",1234)]
+        let keywordsWithCounts = [("tag1", 1),
+                                  ("tag2", 10),
+                                  ("tag3", 100),
+                                  ("tag4", 1000),
+                                  ("tag5", 1234)]
         
         model.keywords = keywordsWithCounts.map { $0.0 }
-        model.weightedKeywords = keywordsWithCounts.map(WeightedKeywordModel.init)
+        model.weightedKeywords = keywordsWithCounts.map(WeightedKeyword.init)
         
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
@@ -72,7 +72,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                         ("tag38", 8850), ("tag39", 9949), ("tag40", 9950)]
         
         model.keywords = keywordsWithCounts.map { $0.0 }
-        model.weightedKeywords = keywordsWithCounts.map(WeightedKeywordModel.init)
+        model.weightedKeywords = keywordsWithCounts.map(WeightedKeyword.init)
         
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 

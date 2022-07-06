@@ -17,7 +17,13 @@ import Fluent
 import SQLKit
 
 
-struct WeightedKeyword: Codable {
+struct WeightedKeyword: Codable, Equatable {
+    var keyword: String
+    var count: Int
+}
+
+
+extension WeightedKeyword {
     static let schema = "weighted_keywords"
 
     enum Field {
@@ -25,14 +31,11 @@ struct WeightedKeyword: Codable {
         static var keyword: SQLIdentifier { "keyword" }
     }
 
-    var keyword: String
-    var count: Int
-
     static func query(on database: Database, keywords: [String]) async throws -> [Self] {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        
+
         if keywords.isEmpty {
             return []
         }
@@ -50,5 +53,12 @@ struct WeightedKeyword: Codable {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
         return db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
+    }
+}
+
+
+extension Array where Element == WeightedKeyword {
+    func weight(for keyword: String) -> Int {
+        first { $0.keyword == keyword }?.count ?? 0
     }
 }
