@@ -15,7 +15,6 @@
 import XCTest
 
 @testable import App
-@testable import S3DocArchives
 
 import DependencyResolution
 import Fluent
@@ -50,20 +49,6 @@ class AnalyzerTests: AppTestCase {
         actor Validation {
             static var checkoutDir: String? = nil
             static var commands = [Command]()
-        }
-        Current.fetchS3DocArchives = { prefix, _, _, _ in
-            struct UnexpectedPrefix: Error {}
-            switch prefix {
-                case "foo/1/main":
-                    return [.mock("foo", "1", "main")]
-                case "foo/1/1.0.0":
-                    // let's say no docs
-                    return []
-                case "foo/1/1.1.1":
-                    return [.mock("foo", "1", "1.1.1")]
-                default:
-                    throw UnexpectedPrefix()
-            }
         }
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succeed to simulate pull
@@ -189,10 +174,6 @@ class AnalyzerTests: AppTestCase {
                         .flatMap { $0.resolvedDependencies ?? [] }
                         .map(\.packageName),
                        ["foo-1", "foo-1", "foo-1"])
-        // default branch version (first one) has doc archives
-        XCTAssertEqual(sortedVersions1.map(\.docArchives), [
-            [.mock("foo", "1", "main")], [], [.mock("foo", "1", "1.1.1")]
-        ])
 
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg2.status, .ok)
@@ -673,7 +654,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         _ = try Analyze.updateVersion(on: app.db,
                                       version: version,
-                                      docArchives: [.mock()],
                                       packageInfo: .init(packageManifest: manifest,
                                                          dependencies: [dep],
                                                          spiManifest: spiManifest)).wait()
@@ -687,7 +667,6 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
         XCTAssertEqual(v.toolsVersion, "5.0.0")
         XCTAssertEqual(v.spiManifest, spiManifest)
-        XCTAssertEqual(v.docArchives, [.mock()])
     }
 
     func test_updateVersion_preserveDependencies() throws {
@@ -711,7 +690,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         _ = try Analyze.updateVersion(on: app.db,
                                       version: version,
-                                      docArchives: [],
                                       packageInfo: .init(packageManifest: manifest,
                                                          dependencies: nil)).wait()
 

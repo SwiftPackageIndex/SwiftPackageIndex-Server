@@ -14,7 +14,6 @@
 
 import DependencyResolution
 import Fluent
-import S3DocArchives
 import SPIManifest
 import ShellOut
 import Vapor
@@ -81,7 +80,6 @@ enum Analyze {
 extension Analyze {
 
     static func resetMetrics() {
-        AppMetrics.analyzeS3FetchCount?.set(0)
         AppMetrics.analyzeTrimCheckoutsCount?.set(0)
         AppMetrics.buildThrottleCount?.set(0)
         AppMetrics.analyzeVersionsAddedCount?.set(0)
@@ -234,17 +232,8 @@ extension Analyze {
         }
 
         for (version, pkgInfo) in versionsPkgInfo {
-            let docArchives = (
-                pkgInfo.hasDocumentationTargets
-                ? await getDocArchives(logger: logger,
-                                       package: package,
-                                       reference: "\(version.reference)")
-                : nil
-            )
-
             try await updateVersion(on: transaction,
                                     version: version,
-                                    docArchives: docArchives,
                                     packageInfo: pkgInfo).get()
             try await recreateProducts(on: transaction,
                                        version: version,
@@ -552,34 +541,6 @@ extension Analyze {
     }
 
 
-    static func getDocArchives(logger: Logger, package: Joined<Package, Repository>, reference: String) async -> [DocArchive]? {
-        guard let awsAccessKeyId = Current.awsAccessKeyId(),
-              let awsBucketName = Current.awsDocsBucket(),
-              let awsSecretAccessKey = Current.awsSecretAccessKey() else {
-            logger.error("One or more AWS environment variables not set.")
-            return nil
-        }
-        let start = DispatchTime.now().uptimeNanoseconds
-        defer { AppMetrics.analyzeS3FetchDuration?.time(since: start) }
-
-        guard let owner = package.repository?.owner,
-              let repository = package.repository?.name
-        else { return nil }
-
-        let prefix = "\(owner)/\(repository)/\(reference)".lowercased()
-        AppMetrics.analyzeS3FetchCount?.inc()
-        do {
-            return try await Current.fetchS3DocArchives(prefix,
-                                                        awsBucketName,
-                                                        awsAccessKeyId,
-                                                        awsSecretAccessKey)
-        } catch {
-            logger.error("getDocArchives failed: \(error)")
-            return nil
-        }
-    }
-
-
     /// Get `Manifest` and `[ResolvedDepedency]` for a given `Package` at version `Version`.
     /// - Parameters:
     ///   - package: `Package` to analyse
@@ -618,7 +579,6 @@ extension Analyze {
     /// - Returns: future
     static func updateVersion(on database: Database,
                               version: Version,
-                              docArchives: [DocArchive]?,
                               packageInfo: PackageInfo) -> EventLoopFuture<Void> {
         let manifest = packageInfo.packageManifest
         version.packageName = manifest.name
@@ -629,7 +589,6 @@ extension Analyze {
         version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
         version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
         version.toolsVersion = manifest.toolsVersion?.version
-        version.docArchives = docArchives
         version.spiManifest = packageInfo.spiManifest
 
         return version.save(on: database)
