@@ -49,7 +49,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                         ("tag5",1234)]
         
         model.keywords = keywordsWithCounts.map { $0.0 }
-        model.weightedKeywords = keywordsWithCounts.map(PackageShow.Model.WeightedKeyword.init)
+        model.weightedKeywords = keywordsWithCounts.map(WeightedKeywordModel.init)
         
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
@@ -72,7 +72,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                         ("tag38", 8850), ("tag39", 9949), ("tag40", 9950)]
         
         model.keywords = keywordsWithCounts.map { $0.0 }
-        model.weightedKeywords = keywordsWithCounts.map(PackageShow.Model.WeightedKeyword.init)
+        model.weightedKeywords = keywordsWithCounts.map(WeightedKeywordModel.init)
         
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
@@ -351,9 +351,9 @@ class WebpageSnapshotTests: SnapshotTestCase {
         ]
 
         let keywordResults: [Search.Result] = [
-            .keyword(.init(keyword: "keyword1")),
-            .keyword(.init(keyword: "keyword2")),
-            .keyword(.init(keyword: "keyword3")),
+            .keyword(.init(keyword: "one")),
+            .keyword(.init(keyword: "two")),
+            .keyword(.init(keyword: "three")),
             .keyword(.init(keyword: "four"))
         ]
 

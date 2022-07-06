@@ -21,12 +21,13 @@ enum SearchShow {
         var filters: [SearchFilter.ViewModel]
         var response: Response
         
-        internal init(page: Int, query: String, response: Search.Response) {
+        internal init(page: Int, query: String, response: Search.Response, weightedKeywords: [WeightedKeywordModel]) {
             self.page = page
             self.query = query
             self.term = response.searchTerm
             self.filters = response.searchFilters
             self.response = Model.Response(response: response)
+            self.weightedKeywords = weightedKeywords
         }
 
         struct Response {
@@ -44,8 +45,18 @@ enum SearchShow {
         }
 
         var keywordResults: [Search.KeywordResult] {
-            response.results.compactMap(\.keywordResult)
+            response.results.compactMap(\.keywordResult).sorted { lhs, rhs in
+                let lhsWeight = weightedKeywords.weight(for: lhs.keyword)
+                let rhsWeight = weightedKeywords.weight(for: rhs.keyword)
+                if lhsWeight == rhsWeight {
+                    return lhs.keyword < rhs.keyword
+                } else {
+                    return lhsWeight > rhsWeight
+                }
+            }
         }
+        
+        var weightedKeywords: [WeightedKeywordModel]
 
         var packageResults: [Search.PackageResult] {
             response.results.compactMap(\.packageResult)

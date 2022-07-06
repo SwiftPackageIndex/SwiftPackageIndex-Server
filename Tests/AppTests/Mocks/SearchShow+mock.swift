@@ -17,10 +17,15 @@
 import Foundation
 
 extension SearchShow.Model {
+    
+    private static func mockedWeightedKeywords(results: [Search.Result]) -> [WeightedKeywordModel] {
+        let keywords = results.compactMap { $0.keywordResult?.keyword }
+        return zip(keywords, 1...).map(WeightedKeywordModel.init)
+    }
     static func mock(results: [Search.Result] = .mock()) -> Self {
         return .init(page: 3,
                      query: "query",
-                     response: .init(hasMoreResults: true, searchTerm: "query", searchFilters: [], results: results))
+                     response: .init(hasMoreResults: true, searchTerm: "query", searchFilters: [], results: results), weightedKeywords: mockedWeightedKeywords(results: results))
     }
     
     static func mockWithFilter(results: [Search.Result] = .mock()) -> Self {
@@ -31,6 +36,6 @@ extension SearchShow.Model {
                                      searchFilters: [
                                         .init(key: "license", operator: "is", value: "mit")
                                      ],
-                                     results: results))
+                                     results: results), weightedKeywords: mockedWeightedKeywords(results: results))
     }
 }
