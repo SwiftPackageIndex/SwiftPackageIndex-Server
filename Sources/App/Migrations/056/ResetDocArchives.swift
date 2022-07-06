@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright 2020-2022 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@ import Fluent
 import SQLKit
 
 
-struct DeleteArmBuilds: AsyncMigration {
+struct ResetDocArchives: AsyncMigration {
     func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        try await db.raw(#"DELETE FROM "builds" WHERE "platform" like '%-arm'"#).run()
+        try await db.raw(#"UPDATE versions SET doc_archives = NULL"#).run()
     }
 
     func revert(on database: Database) async throws {

@@ -256,6 +256,9 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 055 - adds boolean flag indicating existence of docs to search
         app.migrations.add(UpdateSearchAddHasDocs())
     }
+    do {  // Migration 056 - reset versions.doc_archives to NULL
+        app.migrations.add(ResetDocArchives())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
