@@ -15,12 +15,12 @@
 import Plot
 
 struct Breadcrumb {
-    var title: String
+    var title: Node<HTML.BodyContext>
     var url: String? = nil
     var choices: [Choice]? = nil
 
     struct Choice {
-        var title: String
+        var title: Node<HTML.BodyContext>
         var url: String
         var listItemClass: String?
     }
@@ -31,7 +31,7 @@ struct Breadcrumb {
                     .group(
                         .div(
                             .class("choices"),
-                            .text(title),
+                            title,
                             .ul(
                                 .group(
                                     choices.map { choice in
@@ -41,7 +41,7 @@ struct Breadcrumb {
                                                 }),
                                                 .a(
                                                     .href(choice.url),
-                                                    .text(choice.title)
+                                                    choice.title
                                                 )
                                             )
                                     }
