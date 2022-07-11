@@ -14,9 +14,21 @@
 
 import Plot
 
-enum Title {
-    case bodyContext(Node<HTML.BodyContext>)
+struct Title {
+    var content: [Node<HTML.BodyContext>]
 }
+
+extension Title {
+    func render() -> Node<HTML.AnchorContext> {
+        return .element(named: "span", nodes: content)
+    }
+
+    func render() -> Node<HTML.BodyContext> {
+        return .element(named: "span", nodes: content)
+    }
+}
+
+
 
 struct Breadcrumb {
     var title: String
@@ -37,22 +49,20 @@ struct Breadcrumb {
     }
 
     func listNode() -> Node<HTML.ListContext> {
-//        let x: Node<HTML.BodyContext> =
-
-        return .li(
-            .unwrap(choices, { choices in
-                    .group(
-                        .div(
-                            .class("choices"),
-                            .span(
-                                .class("hello"),
+        let x = Title(content: [.class("hello"),
                                 .text("hello"),
                                 .span(
                                     .class("hello"),
                                     .text("hello")
                                 ),
-                                .text("hello")
-                            ),
+                                .text("hello")])
+        
+        return .li(
+            .unwrap(choices, { choices in
+                    .group(
+                        .div(
+                            .class("choices"),
+                            x.render(),
                             .ul(
                                 .group(
                                     choices.map { choice in
@@ -73,25 +83,9 @@ struct Breadcrumb {
             }, else: .unwrap(url, {
                 .a(
                     .href($0),
-                    .span(
-                        .class("hello"),
-                        .text("hello"),
-                        .span(
-                            .class("hello"),
-                            .text("hello")
-                        ),
-                        .text("hello")
-                    )
+                    x.render()
                 )
-            }, else: .span(
-                .class("hello"),
-                .text("hello"),
-                .span(
-                    .class("hello"),
-                    .text("hello")
-                ),
-                .text("hello")
-            )))
+            }, else: x.render()))
         )
     }
 }
