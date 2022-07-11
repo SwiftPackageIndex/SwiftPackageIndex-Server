@@ -197,6 +197,21 @@ enum Search {
      --select * from search where to_tsvector(coalesce(summary, '') || coalesce(package_name, '')) @@ to_tsquery('ping')
      select package_name, to_tsvector(ARRAY_TO_STRING(keywords, ' ')) from search
      
+     
+      - example exposing 'rank'
+     SELECT title, ts_rank_cd(textsearch, query) AS rank
+     FROM apod, to_tsquery('neutrino|(dark & matter)') query
+     WHERE query @@ textsearch
+     ORDER BY rank DESC
+     LIMIT 10;
+     
+     SELECT title, ts_rank_cd(textsearch, query, 32 /* rank/(rank+1) */ ) AS rank
+     ^^ option 32 normalizes the rank value between 0 and 1
+     
+     argument for ts_rank_cd(//tsvector//, //tsquery//, //normalization//)
+     ts_rank returns a ranking based only on lexemes, and nothing positional
+     ts_rank_cd returns a ranking based on lexemes and their proximities to each other from the query string
+     
      */
     static func keywordMatchQueryBuilder(on database: Database,
                                          terms: [String]) -> SQLSelectBuilder {
