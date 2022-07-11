@@ -124,7 +124,7 @@ extension SearchShow {
                     // also include navigation into and out of the query field.
                     .data(named: "focus-query-field", value: String(true)),
                     .group(
-                        model.packageResults.map { .packageListItem(linkUrl: $0.packageURL, packageName: $0.packageName ?? $0.repositoryName, summary: $0.summary, matchingKeywords: model.matchingKeywords(packageKeywords: $0.keywords), repositoryOwner: $0.repositoryOwner, repositoryName: $0.repositoryName, stars: $0.stars, lastActivityAt: $0.lastActivityAt) }
+                        model.packageResults.map { .packageListItem(linkUrl: $0.packageURL, packageName: $0.packageName ?? $0.repositoryName, summary: $0.summary, matchingKeywords: model.matchingKeywords(packageKeywords: $0.keywords), repositoryOwner: $0.repositoryOwner, repositoryName: $0.repositoryName, stars: $0.stars, lastActivityAt: $0.lastActivityAt, hasDocs: $0.hasDocs) }
                     )
                 ),
                 .ul(
@@ -172,7 +172,11 @@ extension SearchShow {
             .li(
                 .a(
                     .href(SiteURL.keywords(.value(keyword.keyword)).relativeURL()),
-                    .text(keyword.keyword)
+                    .text(keyword.keyword),
+                    .span(
+                        .class("count_tag"),
+                        .text("\(kiloPostfixedQuantity: model.weightedKeywords.weight(for: keyword.keyword))")
+                    )
                 )
             )
         }

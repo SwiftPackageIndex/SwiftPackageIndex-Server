@@ -19,15 +19,25 @@ import Vapor
 
 struct SearchController {
 
-    func show(req: Request) throws -> EventLoopFuture<HTML> {
+    func show(req: Request) async throws -> HTML {
+        
         let query = req.query[String.self, at: "query"] ?? ""
         let page = req.query[Int.self, at: "page"] ?? 1
-        return API.search(database: req.db,
+        
+        let response = try await API.search(database: req.db,
                           query: query,
                           page: page,
-                          pageSize: Constants.resultsPageSize)
-            .map { SearchShow.Model.init(page: page, query: query, response: $0) }
-            .map { SearchShow.View.init(path: req.url.path, model: $0).document() }
+                          pageSize: Constants.resultsPageSize).get()
+        
+        let matchedKeywords = response.results.compactMap { $0.keywordResult?.keyword }
+
+        // We're only displaying the keyword sidebar on the first search page.
+        let weightedKeywords = (page == 1)
+        ? try await WeightedKeyword.query(on: req.db, keywords: matchedKeywords)
+        : []
+
+        let model = SearchShow.Model.init(page: page, query: query, response: response, weightedKeywords: weightedKeywords)
+        return SearchShow.View.init(path: req.url.path, model: model).document()
     }
 
 }

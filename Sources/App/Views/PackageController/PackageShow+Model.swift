@@ -18,7 +18,6 @@ import Vapor
 import DependencyResolution
 import SPIManifest
 
-
 extension PackageShow {
     
     struct Model: Equatable {
@@ -47,6 +46,7 @@ extension PackageShow {
         var homepageUrl: String?
         var documentationMetadata: DocumentationMetadata?
         var dependencyCodeSnippets: [Release.Kind: Link]
+        var weightedKeywords: [WeightedKeyword]
         
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
@@ -72,7 +72,8 @@ extension PackageShow {
                       isArchived: Bool,
                       homepageUrl: String? = nil,
                       documentationMetadata: DocumentationMetadata? = nil,
-                      dependencyCodeSnippets: [Release.Kind: Link]) {
+                      dependencyCodeSnippets: [Release.Kind: Link],
+                      weightedKeywords: [WeightedKeyword] = []) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
             self.repositoryOwnerName = repositoryOwnerName
@@ -98,13 +99,15 @@ extension PackageShow {
             self.homepageUrl = homepageUrl
             self.documentationMetadata = documentationMetadata
             self.dependencyCodeSnippets = dependencyCodeSnippets
+            self.weightedKeywords = weightedKeywords
         }
         
         init?(result: PackageController.PackageResult,
               history: History?,
               productCounts: ProductCounts,
               swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?,
-              platformBuildInfo: BuildInfo<PlatformResults>?) {
+              platformBuildInfo: BuildInfo<PlatformResults>?,
+              weightedKeywords: [WeightedKeyword] = []) {
             // we consider certain attributes as essential and return nil (raising .notFound)
             let repository = result.repository
             guard
@@ -114,7 +117,16 @@ extension PackageShow {
                 let packageId = result.package.id
             else { return nil }
 
-            let defaulDocTarget = result.defaultBranchVersion.docArchives?.first?.title
+            #warning("temporary hotfix until #1770 is properly addressed")
+            let docTargetOverrides = [
+                "https://github.com/apple/swift-docc.git".lowercased() : "DocC",
+                "https://github.com/apple/swift-markdown.git".lowercased() : "Markdown",
+                "https://github.com/parse-community/Parse-Swift.git".lowercased() : "ParseSwift",
+            ]
+            let defaulDocTarget = docTargetOverrides[result.package.url.lowercased()]
+            ?? result.defaultBranchVersion.spiManifest?
+                .allDocumentationTargets()?
+                .first
 
             self.init(
                 packageId: packageId,
@@ -155,7 +167,8 @@ extension PackageShow {
                     packageURL: result.package.url,
                     defaultBranchReference: result.defaultBranchVersion.model.reference,
                     releaseReference: result.releaseVersion?.model.reference,
-                    preReleaseReference: result.preReleaseVersion?.model.reference)
+                    preReleaseReference: result.preReleaseVersion?.model.reference),
+                weightedKeywords: weightedKeywords
             )
 
         }
@@ -438,7 +451,11 @@ extension PackageShow.Model {
                         .li(
                             .a(
                                 .href(SiteURL.keywords(.value(keyword)).relativeURL()),
-                                .text(keyword)
+                                .text("\(keyword)"),
+                                .span(
+                                    .class("count_tag"),
+                                    .text("\(kiloPostfixedQuantity: weightedKeywords.weight(for: keyword))")
+                                )
                             )
                         )
                     })

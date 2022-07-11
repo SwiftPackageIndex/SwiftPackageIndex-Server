@@ -40,7 +40,8 @@ extension Search {
                                                      stars: record.stars,
                                                      lastActivityAt: record.lastActivityAt,
                                                      summary: record.summary?.replaceShorthandEmojis(),
-                                                     keywords: record.keywords)
+                                                     keywords: record.keywords,
+                                                     hasDocs: record.hasDocs ?? false)
                     else { return nil }
                     self = .package(result)
             }
@@ -101,6 +102,7 @@ extension Search {
         var lastActivityAt: Date?
         var summary: String?
         var keywords: [String]?
+        var hasDocs: Bool
 
         init?(packageId: Package.Id?,
               packageName: String?,
@@ -110,7 +112,8 @@ extension Search {
               stars: Int?,
               lastActivityAt: Date?,
               summary: String?,
-              keywords: [String]?) {
+              keywords: [String]?,
+              hasDocs: Bool) {
             guard let packageId = packageId,
                   let packageURL = packageURL,
                   let repositoryName = repositoryName,
@@ -126,6 +129,7 @@ extension Search {
             self.lastActivityAt = lastActivityAt
             self.summary = summary
             self.keywords = keywords
+            self.hasDocs = hasDocs
         }
     }
 }

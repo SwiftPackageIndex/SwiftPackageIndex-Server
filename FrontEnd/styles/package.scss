@@ -121,6 +121,12 @@
       li.keywords {
         grid-column-start: span 2;
         background-image: var(--image-tag);
+
+        a {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
       }
     }
 

@@ -16,6 +16,7 @@ import Foundation
 
 
 extension DefaultStringInterpolation {
+
     mutating func appendInterpolation(date: Date, relativeTo referenceDate: Date) {
         appendInterpolation(Self.localizedString(for: date, relativeTo: referenceDate))
     }
@@ -76,5 +77,17 @@ extension DefaultStringInterpolation {
                 return pluralizedCount(years, singular: "year")
         }
     }
-    
+
+    mutating func appendInterpolation(kiloPostfixedQuantity value: Int) {
+        if abs(value) < 1000 {
+            appendInterpolation(NumberFormatter.spiDefault.string(from: value))
+        } else {
+            let thousands = (abs(value) + 50) / 1000
+            let remainder = (abs(value) + 50) % 1000
+            let fraction = remainder / 100
+            let sign = value < 0 ? "-" : ""
+            appendInterpolation("\(sign)\(thousands).\(fraction)k")
+        }
+    }
+
 }

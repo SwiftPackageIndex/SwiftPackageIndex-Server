@@ -39,9 +39,18 @@ class WebpageSnapshotTests: SnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
     }
 
+    
     func test_PackageShowView_few_keywords() throws {
         var model = PackageShow.Model.mock
-        model.keywords = ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9"]
+        let keywordsWithCounts = [("tag1", 1),
+                                  ("tag2", 10),
+                                  ("tag3", 100),
+                                  ("tag4", 1000),
+                                  ("tag5", 1234)]
+        
+        model.keywords = keywordsWithCounts.map { $0.0 }
+        model.weightedKeywords = keywordsWithCounts.map(WeightedKeyword.init)
+        
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
@@ -49,10 +58,22 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_PackageShowView_many_keywords() throws {
         var model = PackageShow.Model.mock
-        model.keywords = ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag10",
-                          "tag11", "tag12", "tag13", "tag14", "tag15", "tag16", "tag17", "tag18", "tag19", "tag20",
-                          "tag21", "tag22", "tag23", "tag24", "tag25", "tag26", "tag27", "tag28", "tag29", "tag30",
-                          "tag31", "tag32", "tag33", "tag34", "tag35", "tag36", "tag37", "tag38", "tag39", "tag40"]
+        let keywordsWithCounts = [("tag1", 1), ("tag2", 10), ("tag3", 100), ("tag4", 1000), ("tag5", 1234),
+                        ("tag6", 1250), ("tag7", 1249), ("tag8", 1251), ("tag9", 12345),
+                        
+                        ("tag10", 123456), ("tag11", 1234567), ("tag12", 7654321), ("tag13", 8765432),
+                        
+                        ("tag14", 1100), ("tag15", 2200), ("tag16", 3300), ("tag17", 4400), ("tag18", 5500),
+                        ("tag19", 6600), ("tag20", 7700), ("tag21", 8800), ("tag22", 9900),
+                        
+                        ("tag23", 1149), ("tag24", 1151), ("tag25", 2249), ("tag26", 2250), ("tag27", 3349),
+                        ("tag28", 3350), ("tag29", 4449), ("tag30", 4450), ("tag31", 5549), ("tag32", 5550),
+                        ("tag33", 6649), ("tag34", 6650), ("tag35", 7749), ("tag36", 7750), ("tag37", 8849),
+                        ("tag38", 8850), ("tag39", 9949), ("tag40", 9950)]
+        
+        model.keywords = keywordsWithCounts.map { $0.0 }
+        model.weightedKeywords = keywordsWithCounts.map(WeightedKeyword.init)
+        
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
@@ -278,7 +299,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
                     // 24 hours + 4 hours to take it firmly into "one day ago" for the snapshot.
                     lastActivityAt: Current.date().addingHours(-28),
                     summary: "This is a package filled with ones.",
-                    keywords: ["one", "1"]
+                    keywords: ["one", "1"],
+                    hasDocs: false
                 )!
             ),
             .package(
@@ -292,7 +314,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
                     // 48 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
                     lastActivityAt: Current.date().addingHours(-52),
                     summary: "This is a package filled with twos.",
-                    keywords: ["two", "2"]
+                    keywords: ["two", "2"],
+                    hasDocs: false
                 )!
             ),
             .package(
@@ -306,7 +329,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
                     // 72 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
                     lastActivityAt: Current.date().addingHours(-76),
                     summary: "This is a package filled with threes.",
-                    keywords: ["three", "3"]
+                    keywords: ["three", "3"],
+                    hasDocs: false
                 )!
             ),
             .package(
@@ -320,15 +344,16 @@ class WebpageSnapshotTests: SnapshotTestCase {
                     // 72 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
                     lastActivityAt: Current.date().addingHours(-76),
                     summary: "This is a package filled with fours.",
-                    keywords: ["four", "4"]
+                    keywords: ["four", "4"],
+                    hasDocs: false
                 )!
             )
         ]
 
         let keywordResults: [Search.Result] = [
-            .keyword(.init(keyword: "keyword1")),
-            .keyword(.init(keyword: "keyword2")),
-            .keyword(.init(keyword: "keyword3")),
+            .keyword(.init(keyword: "one")),
+            .keyword(.init(keyword: "two")),
+            .keyword(.init(keyword: "three")),
             .keyword(.init(keyword: "four"))
         ]
 

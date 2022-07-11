@@ -99,6 +99,14 @@
                   <a href="https://example.com/package/one">
                     <h4>Package One</h4>
                     <p>This is a package filled with ones.</p>
+                    <ul class="keywords matching">
+                      <li>
+                        <span>Matching keywords: </span>
+                      </li>
+                      <li>
+                        <span>one</span>
+                      </li>
+                    </ul>
                     <ul class="metadata">
                       <li class="identifier">
                         <small>package/one</small>
@@ -116,6 +124,14 @@
                   <a href="https://example.com/package/two">
                     <h4>Package Two</h4>
                     <p>This is a package filled with twos.</p>
+                    <ul class="keywords matching">
+                      <li>
+                        <span>Matching keywords: </span>
+                      </li>
+                      <li>
+                        <span>two</span>
+                      </li>
+                    </ul>
                     <ul class="metadata">
                       <li class="identifier">
                         <small>package/two</small>
@@ -133,6 +149,14 @@
                   <a href="https://example.com/package/three">
                     <h4>Package Three</h4>
                     <p>This is a package filled with threes.</p>
+                    <ul class="keywords matching">
+                      <li>
+                        <span>Matching keywords: </span>
+                      </li>
+                      <li>
+                        <span>three</span>
+                      </li>
+                    </ul>
                     <ul class="metadata">
                       <li class="identifier">
                         <small>package/three</small>
@@ -203,16 +227,24 @@
                 <div data-controller="overflowing-list" data-overflowing-list-overflow-message-value="Show more keywords…" data-overflowing-list-overflow-height-value="260" data-overflowing-list-collapsed-value="true" data-action="turbo:load@document->overflowing-list#addShowMoreLinkIfNeeded">
                   <ul data-overflowing-list-target="list" class="keywords">
                     <li>
-                      <a href="/keywords/keyword1">keyword1</a>
+                      <a href="/keywords/four">four
+                        <span class="count_tag">4</span>
+                      </a>
                     </li>
                     <li>
-                      <a href="/keywords/keyword2">keyword2</a>
+                      <a href="/keywords/three">three
+                        <span class="count_tag">3</span>
+                      </a>
                     </li>
                     <li>
-                      <a href="/keywords/keyword3">keyword3</a>
+                      <a href="/keywords/two">two
+                        <span class="count_tag">2</span>
+                      </a>
                     </li>
                     <li>
-                      <a href="/keywords/four">four</a>
+                      <a href="/keywords/one">one
+                        <span class="count_tag">1</span>
+                      </a>
                     </li>
                   </ul>
                 </div>

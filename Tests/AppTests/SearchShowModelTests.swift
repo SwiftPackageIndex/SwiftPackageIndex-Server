@@ -29,7 +29,7 @@ class SearchShowModelTests: XCTestCase {
                             searchFilters: [
                                 .init(key: "key", operator: "is", value: "value")
                             ],
-                            results: results))
+                            results: results), weightedKeywords: [])
 
         XCTAssertEqual(model.page, 1)
         XCTAssertEqual(model.query, "query key:value")
@@ -49,7 +49,7 @@ class SearchShowModelTests: XCTestCase {
         let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false,
                                                                               searchTerm: "query",
                                                                               searchFilters: [],
-                                                                              results: results))
+                                                                              results: results), weightedKeywords: [])
 
         // MUT
         let authorResult = model.authorResults.first!
@@ -62,7 +62,7 @@ class SearchShowModelTests: XCTestCase {
         let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false,
                                                                               searchTerm: "query",
                                                                               searchFilters: [],
-                                                                              results: results))
+                                                                              results: results), weightedKeywords: [])
 
         // MUT
         let keywordResult = model.keywordResults.first!
@@ -75,7 +75,7 @@ class SearchShowModelTests: XCTestCase {
         let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false,
                                                                               searchTerm: "query",
                                                                               searchFilters: [],
-                                                                              results: results))
+                                                                              results: results), weightedKeywords: [])
 
         // MUT
         let packageResult = model.packageResults.first!
@@ -93,7 +93,7 @@ class SearchShowModelTests: XCTestCase {
         let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false,
                                                                               searchTerm: "query",
                                                                               searchFilters: [],
-                                                                              results: results))
+                                                                              results: results), weightedKeywords: [])
 
         // MUT
         let matchingKeywords = model.matchingKeywords(packageKeywords: ["keyword2", "keyword4", "keyword5"])
