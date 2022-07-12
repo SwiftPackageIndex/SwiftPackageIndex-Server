@@ -530,14 +530,6 @@ extension Analyze {
         var packageManifest: Manifest
         var dependencies: [ResolvedDependency]?
         var spiManifest: SPIManifest.Manifest?
-
-        var hasDocumentationTargets: Bool {
-            if ["SwiftDocC", "swift-markdown"].contains(packageManifest.name) {
-                // This is not the strongest of guarantees but it has to do
-                return true
-            }
-            return spiManifest?.allDocumentationTargets()?.isEmpty == false
-        }
     }
 
 

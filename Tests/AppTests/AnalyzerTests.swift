@@ -528,58 +528,6 @@ class AnalyzerTests: AppTestCase {
                         nil, nil])
     }
 
-    func test_PackageInfo_hasDocumentationTargets() throws {
-        do {  // no spi manifest
-            let pkgInfo = Analyze.PackageInfo(
-                packageManifest: .init(name: "foo",
-                                       products: [],
-                                       targets: []),
-                spiManifest: nil
-            )
-            XCTAssertFalse(pkgInfo.hasDocumentationTargets)
-        }
-        do {  // spi manifest without targets
-            let pkgInfo = Analyze.PackageInfo(
-                packageManifest: .init(name: "foo",
-                                       products: [],
-                                       targets: []),
-                spiManifest: .init(
-                    builder: .init(configs: [.init(documentationTargets: [])])
-                )
-            )
-            XCTAssertFalse(pkgInfo.hasDocumentationTargets)
-        }
-        do {  // spi manifest with targets
-            let pkgInfo = Analyze.PackageInfo(
-                packageManifest: .init(name: "foo",
-                                       products: [],
-                                       targets: []),
-                spiManifest: .init(
-                    builder: .init(configs: [.init(documentationTargets: ["Target"])])
-                )
-            )
-            XCTAssertTrue(pkgInfo.hasDocumentationTargets)
-        }
-        do {  // special casing of swift-docc
-            let pkgInfo = Analyze.PackageInfo(
-                packageManifest: .init(name: "SwiftDocC",
-                                       products: [],
-                                       targets: []),
-                spiManifest: nil
-            )
-            XCTAssertTrue(pkgInfo.hasDocumentationTargets)
-        }
-        do {  // special casing of swift-markdown
-            let pkgInfo = Analyze.PackageInfo(
-                packageManifest: .init(name: "swift-markdown",
-                                       products: [],
-                                       targets: []),
-                spiManifest: nil
-            )
-            XCTAssertTrue(pkgInfo.hasDocumentationTargets)
-        }
-    }
-
     func test_getPackageInfo() async throws {
         // Tests getPackageInfo(package:version:)
         // setup
