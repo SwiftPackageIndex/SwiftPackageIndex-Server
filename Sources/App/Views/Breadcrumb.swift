@@ -14,78 +14,59 @@
 
 import Plot
 
-struct Title {
-    var content: [Node<HTML.BodyContext>]
-}
-
-extension Title {
-    func render() -> Node<HTML.AnchorContext> {
-        return .element(named: "span", nodes: content)
-    }
-
-    func render() -> Node<HTML.BodyContext> {
-        return .element(named: "span", nodes: content)
-    }
-}
-
-
-
 struct Breadcrumb {
-    var title: String
+    var title: Title
     var url: String? = nil
-    var choices: [Choice]? = nil
+    var choices: [Node<HTML.ListContext>]? = nil
 
+    struct Title {
+        var content: [Node<HTML.BodyContext>]
 
-    struct Choice {
-        var title: String
-        var url: String
-        var listItemClass: String?
+        init(_ content: Node<HTML.BodyContext>...) {
+            self.content = content
+        }
     }
 
-    init(title: String, url: String? = nil, choices: [Choice]? = nil) {
+    init(title: Title, url: String? = nil, choices: [Node<HTML.ListContext>]? = nil) {
         self.title = title
         self.url = url
         self.choices = choices
     }
 
+    init(title: String, url: String? = nil, choices: [Node<HTML.ListContext>]? = nil) {
+        self.title = Title(.text(title))
+        self.url = url
+        self.choices = choices
+    }
+
     func listNode() -> Node<HTML.ListContext> {
-        let x = Title(content: [.class("hello"),
-                                .text("hello"),
-                                .span(
-                                    .class("hello"),
-                                    .text("hello")
-                                ),
-                                .text("hello")])
-        
-        return .li(
+        .li(
             .unwrap(choices, { choices in
                     .group(
                         .div(
                             .class("choices"),
-                            x.render(),
+                            title.render(),
                             .ul(
-                                .group(
-                                    choices.map { choice in
-                                            .li(
-                                                .unwrap(choice.listItemClass, { liClass in
-                                                        .class(liClass)
-                                                }),
-                                                .a(
-                                                    .href(choice.url),
-                                                    .text(title)
-                                                )
-                                            )
-                                    }
-                                )
+                                .group(choices)
                             )
                         )
                     )
             }, else: .unwrap(url, {
                 .a(
                     .href($0),
-                    x.render()
+                    title.render()
                 )
-            }, else: x.render()))
+            }, else: title.render()))
         )
+    }
+}
+
+extension Breadcrumb.Title {
+    func render() -> Node<HTML.AnchorContext> {
+        return .element(named: "span", nodes: content)
+    }
+
+    func render() -> Node<HTML.BodyContext> {
+        return .element(named: "span", nodes: content)
     }
 }

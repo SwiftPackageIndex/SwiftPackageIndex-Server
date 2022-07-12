@@ -79,16 +79,26 @@ struct DocumentationPageProcessor {
         let navMenuItems: [NavMenuItem] = [.addPackage, .blog, .faq, .searchLink]
 
         let documentationVersionChoices = allAvailableDocumentationVersions.map { version in
-            Breadcrumb.Choice(title: version.reference,
-                              url: relativeDocumentationURL(docArchive: version.reference),
-                              listItemClass: version.kind.cssClass)
+            Node.li(
+                .class(version.kind.cssClass),
+                .a(
+                    .href(relativeDocumentationURL(docArchive: version.reference)),
+                    .text(version.reference)
+                )
+            )
         }
 
         let breadcrumbs = [
             Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
             Breadcrumb(title: repositoryOwnerName, url: SiteURL.author(.value(repositoryOwner)).relativeURL()),
             Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL()),
-            Breadcrumb(title: "Documentation for \(reference)", choices: documentationVersionChoices)
+            Breadcrumb(title: .init(
+                .text("Documentation for "),
+                .span(
+                    .class("stable"),
+                    .text(reference)
+                )
+            ), choices: documentationVersionChoices)
         ]
 
         return Plot.Node.group(
