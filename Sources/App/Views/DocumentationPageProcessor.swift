@@ -78,15 +78,21 @@ struct DocumentationPageProcessor {
     var header: String {
         let navMenuItems: [NavMenuItem] = [.addPackage, .blog, .faq, .searchLink]
 
-        let documentationVersionChoices = allAvailableDocumentationVersions.map { version in
+        var documentationVersionChoices = allAvailableDocumentationVersions.map { version in
             Node.li(
-                .class(version.kind.cssClass),
                 .a(
                     .href(relativeDocumentationURL(docArchive: version.reference)),
-                    .text(version.reference)
+                    .span(
+                        .class(version.kind.cssClass),
+                        .text(version.reference)
+                    )
                 )
             )
         }
+        documentationVersionChoices.insert(
+            .li(
+                .small("Switch to&hellip;")
+            ), at: 0)
 
         let breadcrumbs = [
             Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
