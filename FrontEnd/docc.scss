@@ -150,6 +150,10 @@ header.spi {
           .choices {
             position: relative;
 
+            > span {
+              cursor: pointer;
+            }
+
             ul {
               display: none;
               padding: 15px;
