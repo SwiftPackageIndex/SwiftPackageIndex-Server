@@ -23,6 +23,7 @@ struct DocumentationPageProcessor {
     let repositoryName: String
     let packageName: String
     let reference: String
+    let referenceKind: Version.Kind?
     let docArchives: [String]
     let isLatestStableVersion: Bool
     let allAvailableDocumentationVersions: [AvailableDocumentationVersion]
@@ -37,6 +38,7 @@ struct DocumentationPageProcessor {
           repositoryName: String,
           packageName: String,
           reference: String,
+          referenceKind: Version.Kind?,
           docArchives: [String],
           isLatestStableVersion: Bool,
           allAvailableDocumentationVersions: [AvailableDocumentationVersion],
@@ -46,6 +48,7 @@ struct DocumentationPageProcessor {
         self.repositoryName = repositoryName
         self.packageName = packageName
         self.reference = reference
+        self.referenceKind = referenceKind
         self.docArchives = docArchives
         self.isLatestStableVersion = isLatestStableVersion
         self.allAvailableDocumentationVersions = allAvailableDocumentationVersions
@@ -78,7 +81,11 @@ struct DocumentationPageProcessor {
     var header: String {
         let navMenuItems: [NavMenuItem] = [.addPackage, .blog, .faq, .searchLink]
 
-        var documentationVersionChoices = allAvailableDocumentationVersions.map { version in
+        let documentationVersionChoices = [
+            .li(
+                .small("Switch to&hellip;")
+            )
+        ] + allAvailableDocumentationVersions.map { version in
             Node.li(
                 .a(
                     .href(relativeDocumentationURL(docArchive: version.reference)),
@@ -89,10 +96,6 @@ struct DocumentationPageProcessor {
                 )
             )
         }
-        documentationVersionChoices.insert(
-            .li(
-                .small("Switch to&hellip;")
-            ), at: 0)
 
         let breadcrumbs = [
             Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
@@ -100,10 +103,12 @@ struct DocumentationPageProcessor {
             Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL()),
             Breadcrumb(title: .init(
                 .text("Documentation for "),
-                .span(
-                    .class("stable"),
-                    .text(reference)
-                )
+                .unwrap(referenceKind, { referenceKind in
+                    .span(
+                        .class(referenceKind.cssClass),
+                        .text(reference)
+                    )
+                }, else: .text(reference))
             ), choices: documentationVersionChoices)
         ]
 

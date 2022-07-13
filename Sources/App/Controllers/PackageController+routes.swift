@@ -169,6 +169,7 @@ struct PackageController {
                                                                  repositoryName: repository,
                                                                  packageName: documentation.packageName,
                                                                  reference: reference,
+                                                                 referenceKind: documentation.latest,
                                                                  docArchives: documentation.docArchives,
                                                                  isLatestStableVersion: documentation.latest == .release,
                                                                  allAvailableDocumentationVersions: availableDocumentationVersions,

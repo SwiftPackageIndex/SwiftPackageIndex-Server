@@ -384,6 +384,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
                                                                  reference: "main",
+                                                                 referenceKind: .release,
                                                                  docArchives: [],
                                                                  isLatestStableVersion: false,
                                                                  allAvailableDocumentationVersions: [],
@@ -400,6 +401,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
                                                                  reference: "main",
+                                                                 referenceKind: .defaultBranch,
                                                                  docArchives: ["Archive1", "Archive2"],
                                                                  isLatestStableVersion: false,
                                                                  allAvailableDocumentationVersions: [
