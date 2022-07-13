@@ -67,10 +67,16 @@ extension API {
             }
 
             do {  // update version and package
+                var needsSave = false
                 if let dependencies = dto.resolvedDependencies {
                     version.resolvedDependencies = dependencies
-                    try await version.save(on: req.db)
+                    needsSave = true
                 }
+                if let docArchives = dto.docArchives {
+                    version.docArchives = docArchives
+                    needsSave = true
+                }
+                if needsSave { try await version.save(on: req.db) }
 
                 // it's ok to reach through $package to get its id, because `$package.id`
                 // is actually `versions.package_id` and therefore loaded
