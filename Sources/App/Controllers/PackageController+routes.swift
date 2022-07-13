@@ -16,7 +16,6 @@ import Fluent
 import Plot
 import Vapor
 import SemanticVersion
-import S3DocArchives
 
 
 struct PackageController {
