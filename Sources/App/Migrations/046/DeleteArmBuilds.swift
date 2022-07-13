@@ -22,7 +22,6 @@ struct DeleteArmBuilds: AsyncMigration {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        // required for levenshtein distance in search
         try await db.raw(#"DELETE FROM "builds" WHERE "platform" like '%-arm'"#).run()
     }
 

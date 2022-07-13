@@ -13,7 +13,6 @@
 // limitations under the License.
 
 @testable import App
-@testable import S3DocArchives
 
 import Fluent
 import SQLKit
@@ -42,15 +41,6 @@ class ReAnalyzeVersionsTests: AppTestCase {
                              name: "1",
                              owner: "foo").save(on: app.db)
 
-        Current.fetchS3DocArchives = { prefix, _, _, _ in
-            struct UnexpectedPrefix: Error {}
-            switch prefix {
-                case "foo/1/main":
-                    return [.mock("foo", "1", "main")]
-                default:
-                    throw UnexpectedPrefix()
-            }
-        }
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
@@ -140,8 +130,6 @@ class ReAnalyzeVersionsTests: AppTestCase {
         XCTAssertEqual(versions.map(\.toolsVersion), ["5.3", "5.3"])
         XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [["t1"], ["t1"]])
         XCTAssertEqual(versions.compactMap(\.releaseNotes) , ["rel 1.2.3"])
-        XCTAssertEqual(versions.map(\.docArchives), [[.mock("foo", "1", "main")], nil]
-        )
     }
 
     func test_Package_fetchReAnalysisCandidates() async throws {

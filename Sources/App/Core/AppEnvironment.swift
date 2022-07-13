@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import AsyncHTTPClient
-import S3DocArchives
 import SPIManifest
 import ShellOut
 import Vapor
@@ -25,9 +24,7 @@ import FoundationNetworking
 struct AppEnvironment {
     var allowBuildTriggers: () -> Bool
     var allowTwitterPosts: () -> Bool
-    var awsAccessKeyId: () -> String?
     var awsDocsBucket: () -> String?
-    var awsSecretAccessKey: () -> String?
     var appVersion: () -> String?
     var builderToken: () -> String?
     var buildTriggerDownscaling: () -> Double
@@ -41,10 +38,6 @@ struct AppEnvironment {
     var fetchLicense: (_ client: Client, _ packageUrl: String) async -> Github.License?
     var fetchMetadata: (_ client: Client, _ packageUrl: String) async throws -> Github.Metadata
     var fetchReadme: (_ client: Client, _ packageUrl: String) async -> Github.Readme?
-    var fetchS3DocArchives: (_ prefix: String,
-                             _ awsBucketName: String,
-                             _ awsAccessKeyId: String,
-                             _ awsSecretAccessKey: String) async throws -> [DocArchive]
     var fileManager: FileManager
     var getStatusCount: (_ client: Client,
                          _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
@@ -89,9 +82,7 @@ extension AppEnvironment {
                 .flatMap(\.asBool)
                 ?? Constants.defaultAllowTwitterPosts
         },
-        awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },
         awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
-        awsSecretAccessKey: { Environment.get("AWS_SECRET_ACCESS_KEY") },
         appVersion: { App.appVersion },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerDownscaling: {
@@ -121,7 +112,6 @@ extension AppEnvironment {
         fetchLicense: Github.fetchLicense(client:packageUrl:),
         fetchMetadata: Github.fetchMetadata(client:packageUrl:),
         fetchReadme: Github.fetchReadme(client:packageUrl:),
-        fetchS3DocArchives: DocArchive.fetchAll(prefix:awsBucketName:awsAccessKeyId:awsSecretAccessKey:),
         fileManager: .live,
         getStatusCount: { client, status in
             Gitlab.Builder.getStatusCount(
@@ -268,21 +258,6 @@ struct Shell {
     static let live: Self = .init(run: { cmd, path in
         try ShellOut.shellOut(to: cmd, at: path)
     })
-}
-
-
-extension DocArchive {
-    // Convenience overload to avoid having to expose the `verbose` argument
-    static func fetchAll(prefix: String,
-                         awsBucketName: String,
-                         awsAccessKeyId: String,
-                         awsSecretAccessKey: String) async throws -> [DocArchive] {
-        try await fetchAll(prefix: prefix,
-                           awsBucketName: awsBucketName,
-                           awsAccessKeyId: awsAccessKeyId,
-                           awsSecretAccessKey: awsSecretAccessKey,
-                           verbose: false)
-    }
 }
 
 

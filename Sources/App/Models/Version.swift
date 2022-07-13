@@ -14,7 +14,6 @@
 
 import DependencyResolution
 import Fluent
-import S3DocArchives
 import SPIManifest
 import Vapor
 

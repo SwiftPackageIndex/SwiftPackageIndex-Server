@@ -12,29 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+import Fluent
+import SQLKit
 
-import SotoS3
 
+struct ResetDocArchives: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        guard let db = database as? SQLDatabase else {
+            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
 
-struct Environment {
-    var getFileContent: (_ s3: S3, _ key: S3.StoreKey) async throws -> Data?
-    var listFolders: (_ s3: S3, _ key: S3.StoreKey) async throws -> [String]
+        try await db.raw(#"UPDATE versions SET doc_archives = NULL"#).run()
+    }
+
+    func revert(on database: Database) async throws {
+        // There's nothing we can do to restore the previous state
+    }
 }
-
-
-extension Environment {
-    static let live = Environment(
-        getFileContent: { s3, key in try await s3.getFileContent(key: key) },
-        listFolders: { s3, key in try await s3.listFolders(key: key) }
-    )
-}
-
-
-#if DEBUG
-var Current: Environment = .live
-#else
-let Current: Environment = .live
-#endif
-
-

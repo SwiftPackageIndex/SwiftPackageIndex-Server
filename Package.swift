@@ -23,7 +23,6 @@ let package = Package(
     ],
     products: [
         .library(name: "DependencyResolution", targets: ["DependencyResolution"]),
-        .library(name: "S3DocArchives", targets: ["S3DocArchives"]),
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0-rc"),
@@ -36,7 +35,6 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.7.1"),
         .package(name: "SnapshotTesting",
                  url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
-        .package(url: "https://github.com/soto-project/soto.git", from: "5.0.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SPIManifest", from: "0.5.0"),
         .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0"),
@@ -58,22 +56,15 @@ let package = Package(
             .product(name: "Fluent", package: "fluent"),
             .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
             .product(name: "Parsing", package: "swift-parsing"),
-            .product(name: "SotoS3", package: "soto"),
             .product(name: "SwiftPMPackageCollections", package: "SwiftPM"),
             .product(name: "Vapor", package: "vapor"),
-            .target(name: "S3DocArchives"),
             .target(name: "DependencyResolution"),
         ]),
         .target(name: "DependencyResolution"),
-        .target(name: "S3DocArchives", dependencies: [
-            .product(name: "Parsing", package: "swift-parsing"),
-            .product(name: "SotoS3", package: "soto"),
-        ]),
         .testTarget(name: "AppTests",
             dependencies: [
                 .product(name: "XCTVapor", package: "vapor"),
                 .target(name: "App"),
-                .target(name: "S3DocArchives"),
                 "SnapshotTesting"
             ],
             exclude: ["__Snapshots__", "Fixtures"]
