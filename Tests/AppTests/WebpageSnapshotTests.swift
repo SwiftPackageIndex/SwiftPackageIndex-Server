@@ -405,9 +405,9 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  docArchives: ["Archive1", "Archive2"],
                                                                  isLatestStableVersion: false,
                                                                  allAvailableDocumentationVersions: [
-                                                                    .init(kind: .defaultBranch, reference: "main"),
-                                                                    .init(kind: .preRelease, reference: "1.0.0-beta1"),
-                                                                    .init(kind: .defaultBranch, reference: "1.0.1")
+                                                                    .init(kind: .defaultBranch, reference: "main", docArchives: ["Archive1", "Archive2"]),
+                                                                    .init(kind: .preRelease, reference: "1.0.0-beta1", docArchives: ["Archive1", "Archive2"]),
+                                                                    .init(kind: .defaultBranch, reference: "1.0.1", docArchives: ["Archive1", "Archive2"])
                                                                  ],
                                                                  rawHtml: doccHtml))
 

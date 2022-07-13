@@ -31,6 +31,7 @@ struct DocumentationPageProcessor {
     struct AvailableDocumentationVersion {
         let kind: Version.Kind
         let reference: String
+        let docArchives: [String]
     }
 
     init?(repositoryOwner: String,
@@ -82,13 +83,16 @@ struct DocumentationPageProcessor {
         let navMenuItems: [NavMenuItem] = [.addPackage, .blog, .faq, .searchLink]
 
         let documentationVersionChoices = [
-            .li(
+            Node.li(
                 .small("Switch to&hellip;")
             )
-        ] + allAvailableDocumentationVersions.map { version in
-            Node.li(
+        ] + allAvailableDocumentationVersions.compactMap { version in
+            // If a version has no docArchives, it has no documentation we can switch to.
+            guard let firstDocArchive = docArchives.first else { return nil }
+
+            return .li(
                 .a(
-                    .href(relativeDocumentationURL(docArchive: version.reference)),
+                    .href(relativeDocumentationURL(reference: version.reference, docArchive: firstDocArchive)),
                     .span(
                         .class(version.kind.cssClass),
                         .text(version.reference)
@@ -154,7 +158,7 @@ struct DocumentationPageProcessor {
                                 .forEach(docArchives, { archive in
                                         .li(
                                             .a(
-                                                .href(relativeDocumentationURL(docArchive: archive)),
+                                                .href(relativeDocumentationURL(reference:reference, docArchive: archive)),
                                                 .text(archive)
                                             )
                                         )
@@ -227,7 +231,7 @@ struct DocumentationPageProcessor {
     }
 
     // Note: When this gets merged back with the refactored SiteURL, note that it's duplicated in `PackageShow.Model`.
-    func relativeDocumentationURL(docArchive: String) -> String {
+    func relativeDocumentationURL(reference: String, docArchive: String) -> String {
         "/\(repositoryOwner)/\(repositoryName)/\(reference)/documentation/\(docArchive.lowercased())"
     }
 }
