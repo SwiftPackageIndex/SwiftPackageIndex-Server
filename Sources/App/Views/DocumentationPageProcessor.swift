@@ -109,7 +109,7 @@ struct DocumentationPageProcessor {
                         .text(reference)
                     )
                 }, else: .text(reference))
-            ), choices: documentationVersionChoices)
+            ), choices: documentationVersionChoices.count > 0 ? documentationVersionChoices : nil)
         ]
 
         return Plot.Node.group(
