@@ -37,7 +37,7 @@ struct SearchController {
         : []
 
         let model = SearchShow.Model.init(page: page, query: query, response: response, weightedKeywords: weightedKeywords)
-        return SearchShow.View.init(path: req.url.path, model: model).document()
+        return SearchShow.View.init(path: req.url.string, model: model).document()
     }
 
 }

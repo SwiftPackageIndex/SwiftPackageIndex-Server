@@ -358,7 +358,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
         ]
 
         let mockResults: [Search.Result] = .mock(packageResults: packageResults, keywordResults: keywordResults)
-        let page = { SearchShow.View(path: "", model: .mock(results: mockResults)).document() }
+        let page = { SearchShow.View(path: "/search?query=foo",
+                                     model: .mock(results: mockResults)).document() }
 
         assertSnapshot(matching: page, as: .html)
     }
