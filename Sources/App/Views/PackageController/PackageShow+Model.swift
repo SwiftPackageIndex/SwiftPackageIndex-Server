@@ -330,18 +330,12 @@ extension PackageShow.Model {
     }
     
     func binaryOnlyItem() -> Node<HTML.ListContext> {
-        struct PotentialLink {
+        struct FileLink {
             let name: String
             let url: String?
             
-            init(_ name: String, url: String?) {
-                self.name = name
-                self.url = url
-            }
-            
-            var node: Node<HTML.BodyContext>? {
+            var linkNode: Node<HTML.BodyContext>? {
                 guard let url = url else { return nil }
-                
                 return .a(
                     .href(url),
                     .title(name),
@@ -355,22 +349,19 @@ extension PackageShow.Model {
                 "This package only contains binary targets, meaning that source code may not be available.",
             ]
 
-            let potentialLinks: [PotentialLink] = [
-                .init("README", url: readmeURL),
-                .init("LICENSE", url: licenseUrl)
-            ]
+            let links = [
+                FileLink(name: "README", url: readmeURL),
+                FileLink(name: "LICENSE", url: licenseUrl)
+            ].compactMap { $0.linkNode }
             
-            let linkNodes = potentialLinks.compactMap { $0.node }
-            if let firstLink = linkNodes.first {
-                nodes.append("There may be more information available on why in the ")
-                nodes.append(firstLink)
+            if let firstLink = links.first {
+                nodes.append(contentsOf: [" There may be more information available on why in the ", firstLink])
+                if links.count > 1 {
+                    nodes.append(contentsOf: [" or ", links[1]])
+                }
+                nodes.append(".")
             }
             
-            if linkNodes.count > 1 {
-                nodes.append(" or ")
-                nodes.append(linkNodes[1])
-            }
-
             return .li(
                 .class("binary"),
                 .group(nodes)
