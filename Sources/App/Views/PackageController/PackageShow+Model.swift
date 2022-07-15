@@ -359,7 +359,7 @@ extension PackageShow.Model {
                 if links.count > 1 {
                     nodes.append(contentsOf: [" or ", links[1]])
                 }
-                nodes.append(".")
+                nodes.append(" file.")
             }
             
             return .li(
