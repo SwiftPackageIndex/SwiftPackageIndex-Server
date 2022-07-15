@@ -43,6 +43,8 @@ extension PackageShow {
         var url: String
         var score: Int?
         var isArchived: Bool
+        var isBinaryOnly: Bool
+        var readmeURL: String?
         var homepageUrl: String?
         var documentationMetadata: DocumentationMetadata?
         var dependencyCodeSnippets: [App.Version.Kind: Link]
@@ -70,6 +72,8 @@ extension PackageShow {
                       url: String,
                       score: Int? = nil,
                       isArchived: Bool,
+                      isBinaryOnly: Bool = false,
+                      readmeURL: String? = nil,
                       homepageUrl: String? = nil,
                       documentationMetadata: DocumentationMetadata? = nil,
                       dependencyCodeSnippets: [App.Version.Kind: Link],
@@ -96,6 +100,8 @@ extension PackageShow {
             self.url = url
             self.score = score
             self.isArchived = isArchived
+            self.isBinaryOnly = isBinaryOnly
+            self.readmeURL = readmeURL
             self.homepageUrl = homepageUrl
             self.documentationMetadata = documentationMetadata
             self.dependencyCodeSnippets = dependencyCodeSnippets
@@ -150,6 +156,8 @@ extension PackageShow {
                 url: result.package.url,
                 score: result.package.score,
                 isArchived: repository.isArchived,
+                isBinaryOnly: true, /* TODO: fill in from somewhere! */
+                readmeURL: repository.readmeHtmlUrl,
                 homepageUrl: repository.homepageUrl,
                 documentationMetadata: DocumentationMetadata(
                     reference: result.repository.defaultBranch,
