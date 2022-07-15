@@ -329,6 +329,57 @@ extension PackageShow.Model {
         }
     }
     
+    func binaryOnlyItem() -> Node<HTML.ListContext> {
+        struct PotentialLink {
+            let name: String
+            let url: String?
+            
+            init(_ name: String, url: String?) {
+                self.name = name
+                self.url = url
+            }
+            
+            var node: Node<HTML.BodyContext>? {
+                guard let url = url else { return nil }
+                
+                return .a(
+                    .href(url),
+                    .title(name),
+                    .text(name)
+                )
+            }
+        }
+        
+        if isBinaryOnly {
+            var nodes: [Node<HTML.BodyContext>] = [
+                "This package only contains binary targets, meaning that source code may not be available.",
+            ]
+
+            let potentialLinks: [PotentialLink] = [
+                .init("README", url: readmeURL),
+                .init("LICENSE", url: licenseUrl)
+            ]
+            
+            let linkNodes = potentialLinks.compactMap { $0.node }
+            if let firstLink = linkNodes.first {
+                nodes.append("There may be more information available on why in the ")
+                nodes.append(firstLink)
+            }
+            
+            if linkNodes.count > 1 {
+                nodes.append(" or ")
+                nodes.append(linkNodes[1])
+            }
+
+            return .li(
+                .class("binary"),
+                .group(nodes)
+            )
+        } else {
+            return .empty
+        }
+    }
+    
     func historyListItem() -> Node<HTML.ListContext> {
         guard let history = history else { return .empty }
 
