@@ -44,7 +44,6 @@ extension PackageShow {
         var score: Int?
         var isArchived: Bool
         var isBinaryOnly: Bool
-        var readmeURL: String?
         var homepageUrl: String?
         var documentationMetadata: DocumentationMetadata?
         var dependencyCodeSnippets: [App.Version.Kind: Link]
@@ -73,7 +72,6 @@ extension PackageShow {
                       score: Int? = nil,
                       isArchived: Bool,
                       isBinaryOnly: Bool = false,
-                      readmeURL: String? = nil,
                       homepageUrl: String? = nil,
                       documentationMetadata: DocumentationMetadata? = nil,
                       dependencyCodeSnippets: [App.Version.Kind: Link],
@@ -101,7 +99,6 @@ extension PackageShow {
             self.score = score
             self.isArchived = isArchived
             self.isBinaryOnly = isBinaryOnly
-            self.readmeURL = readmeURL
             self.homepageUrl = homepageUrl
             self.documentationMetadata = documentationMetadata
             self.dependencyCodeSnippets = dependencyCodeSnippets
@@ -157,7 +154,6 @@ extension PackageShow {
                 score: result.package.score,
                 isArchived: repository.isArchived,
                 isBinaryOnly: true, /* TODO: fill in from somewhere! */
-                readmeURL: repository.readmeHtmlUrl,
                 homepageUrl: repository.homepageUrl,
                 documentationMetadata: DocumentationMetadata(
                     reference: result.repository.defaultBranch,
@@ -330,45 +326,35 @@ extension PackageShow.Model {
     }
     
     func binaryOnlyItem() -> Node<HTML.ListContext> {
-        struct FileLink {
-            let name: String
-            let url: String?
-            
-            var linkNode: Node<HTML.BodyContext>? {
-                guard let url = url else { return nil }
-                return .a(
-                    .href(url),
-                    .title(name),
-                    .text(name)
-                )
-            }
-        }
+        guard isBinaryOnly else { return .empty }
         
-        if isBinaryOnly {
-            var nodes: [Node<HTML.BodyContext>] = [
-                "This package only contains binary targets, meaning that source code may not be available.",
-            ]
-
-            let links = [
-                FileLink(name: "README", url: readmeURL),
-                FileLink(name: "LICENSE", url: licenseUrl)
-            ].compactMap { $0.linkNode }
-            
-            if let firstLink = links.first {
-                nodes.append(contentsOf: [" There may be more information available on why in the ", firstLink])
-                if links.count > 1 {
-                    nodes.append(contentsOf: [" or ", links[1]])
-                }
-                nodes.append(" file.")
-            }
-            
-            return .li(
-                .class("binary"),
-                .group(nodes)
+        func linkNode(for name: String, url: String) -> Node<HTML.BodyContext> {
+            return .a(
+                .href(url),
+                .title(name),
+                .text(name)
             )
-        } else {
-            return .empty
         }
+
+        var nodes: [Node<HTML.BodyContext>] = [
+            "This package only contains binary targets, meaning that source code may not be available.",
+            " There may be more information available on why in the ",
+            linkNode(for: "README", url: "#readme")
+        ]
+
+        if let licenseUrl = licenseUrl {
+            nodes.append(contentsOf: [
+                " or ",
+                linkNode(for: "LICENSE", url: licenseUrl)
+            ])
+        }
+
+        nodes.append(" file.")
+        
+        return .li(
+            .class("binary"),
+            .group(nodes)
+        )
     }
     
     func historyListItem() -> Node<HTML.ListContext> {
