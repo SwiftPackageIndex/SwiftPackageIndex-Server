@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "c49398ff06fc293a6a6f897bba4adf43544c7d0a",
-          "version": "1.33.0"
+          "revision": "a5360d8e500bc73d8f6b007cc0dc39dabd05318c",
+          "version": "1.33.1"
         }
       },
       {
@@ -186,8 +186,8 @@
         "repositoryURL": "https://github.com/pointfreeco/swift-case-paths",
         "state": {
           "branch": null,
-          "revision": "b4a872984463070c71e2e97e5c02c73a07d0fe36",
-          "version": "0.9.0"
+          "revision": "a09839348486db8866f85a727b8550be1d671c50",
+          "version": "0.9.1"
         }
       },
       {
@@ -276,8 +276,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-ssl.git",
         "state": {
           "branch": null,
-          "revision": "fd5f38b0039148e76c2e863a2fc868cc39bb451b",
-          "version": "2.20.1"
+          "revision": "c30c680c78c99afdabf84805a83c8745387c4ac7",
+          "version": "2.20.2"
         }
       },
       {
