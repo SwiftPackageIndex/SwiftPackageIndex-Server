@@ -336,24 +336,18 @@ extension PackageShow.Model {
             )
         }
 
-        var nodes: [Node<HTML.BodyContext>] = [
+        return .li(
+            .class("has_binary_targets"),
             "This package only contains binary targets, meaning that source code may not be available.",
             " There may be more information available on why in the ",
-            linkNode(for: "README", url: "#readme")
-        ]
-
-        if let licenseUrl = licenseUrl {
-            nodes.append(contentsOf: [
-                " or ",
-                linkNode(for: "LICENSE", url: licenseUrl)
-            ])
-        }
-
-        nodes.append(" file.")
-        
-        return .li(
-            .class("binary"),
-            .group(nodes)
+            linkNode(for: "README", url: "#readme"),
+            .unwrap(licenseUrl) { url in
+                    .group([
+                        " or ",
+                        linkNode(for: "LICENSE", url: url)
+                    ])
+            },
+            " file."
         )
     }
     
