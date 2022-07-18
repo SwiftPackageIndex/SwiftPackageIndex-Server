@@ -1,3 +1,0 @@
-<li class="binary">This package only contains binary targets, meaning that source code may not be available. There may be more information available on why in the 
-  <a href="#readme" title="README">README</a> file.
-</li>
