@@ -234,7 +234,13 @@ class PackageController_routesTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
+        try Version(package: pkg,
+                    commit: "0123456789",
+                    commitDate: Date(timeIntervalSince1970: 0),
+                    docArchives: [.init(name: "docs", title: "Docs")],
+                    latest: .defaultBranch,
+                    packageName: "pkg",
+                    reference: .tag(.init(1, 2, 3)))
             .save(on: app.db).wait()
 
         // MUT
