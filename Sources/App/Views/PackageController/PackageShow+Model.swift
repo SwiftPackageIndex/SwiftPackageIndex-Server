@@ -338,7 +338,7 @@ extension PackageShow.Model {
 
         return .li(
             .class("has_binary_targets"),
-            "This package only contains binary targets, meaning that source code may not be available.",
+            "Some targets in this package do not include source code.",
             " There may be more information available on why in the ",
             linkNode(for: "README", url: "#readme"),
             .unwrap(licenseUrl) { url in
