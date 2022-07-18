@@ -387,7 +387,7 @@ extension Array where Element == PackageController.DocumentationVersion {
                     guard let semVer = result.reference.semVer else { return nil }
                     return (result: result, semVer: semVer)
                 }
-                .sorted(using: KeyPathComparator(\.semVer))
+                .sorted(using: KeyPathComparator(\.semVer, order: .reverse))
                 .first?
                 .result
 
