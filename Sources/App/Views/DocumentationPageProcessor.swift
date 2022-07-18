@@ -97,20 +97,25 @@ struct DocumentationPageProcessor {
             )
         }
 
-        let breadcrumbs = [
+        var breadcrumbs = [
             Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
             Breadcrumb(title: repositoryOwnerName, url: SiteURL.author(.value(repositoryOwner)).relativeURL()),
-            Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL()),
-            Breadcrumb(title: .init(
+            Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL())
+        ]
+        
+        if (Environment.current == .development) {
+            breadcrumbs.append(Breadcrumb(title: .init(
                 .text("Documentation for "),
                 .unwrap(referenceKind, { referenceKind in
-                    .span(
-                        .class(referenceKind.cssClass),
-                        .text(reference)
-                    )
+                        .span(
+                            .class(referenceKind.cssClass),
+                            .text(reference)
+                        )
                 }, else: .text(reference))
-            ), choices: documentationVersionChoices.count > 0 ? documentationVersionChoices : nil)
-        ]
+            ), choices: documentationVersionChoices.count > 0 ? documentationVersionChoices : nil))
+        } else {
+            breadcrumbs.append(Breadcrumb(title: "Documentation"))
+        }
 
         return Plot.Node.group(
             .header(
