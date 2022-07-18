@@ -393,6 +393,26 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
+
+    func test_documentationVersionArray_subscriptByReference() throws {
+        let versions: [PackageController.DocumentationVersion] = [
+            .init(reference: .branch("main"), ownerName: "owner", packageName: "package", docArchives: []),
+            .init(reference: .tag(.init(1, 0, 0), "1.0.0"), ownerName: "owner", packageName: "package", docArchives: []),
+            .init(reference: .tag(.init(2, 0, 0, "beta1"), "2.0.0-beta1"), ownerName: "owner", packageName: "package", docArchives: []),
+            .init(reference: .tag(.init(3, 0, 0), "3.0.0"), ownerName: "owner", packageName: "package", docArchives: []),
+        ]
+
+        // MUT
+        let versionTwoBeta = try XCTUnwrap(versions[reference: "2.0.0-beta1"])
+        let semVer = try XCTUnwrap(versionTwoBeta.reference.semVer)
+
+        XCTAssertEqual(semVer.major, 2)
+        XCTAssertEqual(semVer.minor, 0)
+        XCTAssertEqual(semVer.patch, 0)
+        XCTAssertEqual(semVer.preRelease, "beta1")
+        XCTAssertEqual(semVer.build, "")
+    }
+
     func test_documentationVersionArray_latestMajorVersions() throws {
         let versions: [PackageController.DocumentationVersion] = [
             .init(reference: .branch("main"), ownerName: "owner", packageName: "package", docArchives: [], latest: .defaultBranch),
