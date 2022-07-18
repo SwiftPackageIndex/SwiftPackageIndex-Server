@@ -43,7 +43,7 @@ extension PackageShow {
         var url: String
         var score: Int?
         var isArchived: Bool
-        var isBinaryOnly: Bool
+        var hasBinaryTargets: Bool
         var homepageUrl: String?
         var documentationMetadata: DocumentationMetadata?
         var dependencyCodeSnippets: [App.Version.Kind: Link]
@@ -71,7 +71,7 @@ extension PackageShow {
                       url: String,
                       score: Int? = nil,
                       isArchived: Bool,
-                      isBinaryOnly: Bool = false,
+                      hasBinaryTargets: Bool = false,
                       homepageUrl: String? = nil,
                       documentationMetadata: DocumentationMetadata? = nil,
                       dependencyCodeSnippets: [App.Version.Kind: Link],
@@ -98,7 +98,7 @@ extension PackageShow {
             self.url = url
             self.score = score
             self.isArchived = isArchived
-            self.isBinaryOnly = isBinaryOnly
+            self.hasBinaryTargets = hasBinaryTargets
             self.homepageUrl = homepageUrl
             self.documentationMetadata = documentationMetadata
             self.dependencyCodeSnippets = dependencyCodeSnippets
@@ -153,7 +153,7 @@ extension PackageShow {
                 url: result.package.url,
                 score: result.package.score,
                 isArchived: repository.isArchived,
-                isBinaryOnly: true, /* TODO: fill in from somewhere! */
+                hasBinaryTargets: true, /* TODO: fill in from somewhere! */
                 homepageUrl: repository.homepageUrl,
                 documentationMetadata: DocumentationMetadata(
                     reference: result.repository.defaultBranch,
@@ -325,8 +325,8 @@ extension PackageShow.Model {
         }
     }
     
-    func binaryOnlyItem() -> Node<HTML.ListContext> {
-        guard isBinaryOnly else { return .empty }
+    func binaryTargetsItem() -> Node<HTML.ListContext> {
+        guard hasBinaryTargets else { return .empty }
         
         func linkNode(for name: String, url: String) -> Node<HTML.BodyContext> {
             return .a(

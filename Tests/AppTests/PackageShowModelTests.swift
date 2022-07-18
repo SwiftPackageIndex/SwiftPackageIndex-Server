@@ -72,21 +72,21 @@ class PackageShowModelTests: SnapshotTestCase {
         assertSnapshot(matching: renderedHistory, as: .lines)
     }
 
-    func test_binary_only() throws {
+    func test_binary_targets() throws {
         var model = PackageShow.Model.mock
-        model.isBinaryOnly = true
+        model.hasBinaryTargets = true
         model.licenseUrl = "<license-url-here>"
         
-        let renderedBinaryOnly = model.binaryOnlyItem().render(indentedBy: .spaces(2))
+        let renderedBinaryOnly = model.binaryTargetsItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedBinaryOnly, as: .lines)
     }
 
-    func test_binary_only_no_license() throws {
+    func test_binary_targets_no_license() throws {
         var model = PackageShow.Model.mock
-        model.isBinaryOnly = true
+        model.hasBinaryTargets = true
         model.licenseUrl = nil
         
-        let renderedBinaryOnly = model.binaryOnlyItem().render(indentedBy: .spaces(2))
+        let renderedBinaryOnly = model.binaryTargetsItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedBinaryOnly, as: .lines)
     }
 
