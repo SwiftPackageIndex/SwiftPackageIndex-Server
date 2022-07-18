@@ -80,7 +80,7 @@ struct PackageController {
         }
     }
 
-    struct DocumentationVersion {
+    struct DocumentationVersion: Equatable {
         var reference: Reference
         var ownerName: String
         var packageName: String
@@ -369,27 +369,30 @@ extension Array where Element == PackageController.DocumentationVersion {
     }
 
     func latestMajorVersions() -> Self {
-        let stableVersions = self.filter { $0.latest == .release }
-        let grouped = Dictionary.init(grouping: stableVersions) { version in
+        let stableVersions = self.filter { version in
+            guard let semVer = version.reference.semVer else { return false }
+            return semVer.isStable
+        }
+        let groupedStableVersions = Dictionary.init(grouping: stableVersions) { version in
             version.reference.semVer?.major
         }
 
-        return grouped.compactMap { key, versions -> Element? in
+        return groupedStableVersions.compactMap { key, versions -> Element? in
+            // If any of the references had a nil semVer then there could be a nil key in the dictionary.
             guard let _ = key else { return nil }
+
+            // Filter down to only the largest semVer in each group.
             let latestMajorStableVersion = versions
                 .compactMap { result -> (result: Element, semVer: SemanticVersion)? in
-                    guard let semVer = result.reference.semVer
-                    else { return nil }
-
+                    guard let semVer = result.reference.semVer else { return nil }
                     return (result: result, semVer: semVer)
                 }
-                .sorted { a, b in
-                    a.semVer > b.semVer
-                }
+                .sorted(using: KeyPathComparator(\.semVer))
                 .first?
                 .result
 
             return latestMajorStableVersion
         }
+        .sorted(using: KeyPathComparator(\.reference.semVer))
     }
 }
