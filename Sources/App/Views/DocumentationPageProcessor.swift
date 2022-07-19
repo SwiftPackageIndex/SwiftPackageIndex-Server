@@ -119,25 +119,6 @@ struct DocumentationPageProcessor {
             .header(
                 .class("spi"),
                 .div(
-                    .class("inner branding_and_menu"),
-                    .a(
-                        .href("/"),
-                        .h1(
-                            .img(
-                                .src("/images/logo.svg"),
-                                .alt("Swift Package Index Logo")
-                            ),
-                            .text("Swift Package Index")
-                        )
-                    ),
-                    .nav(
-                        .class("menu"),
-                        .ul(
-                            .group(navMenuItems.map { $0.listNode() })
-                        )
-                    )
-                ),
-                .div(
                     .class("inner breadcrumbs"),
                     .nav(
                         .ul(
