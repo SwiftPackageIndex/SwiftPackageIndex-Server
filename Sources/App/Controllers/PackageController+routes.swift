@@ -374,7 +374,7 @@ extension Array where Element == PackageController.DocumentationVersion {
 
         return groupedStableVersions.compactMap { key, versions -> Element? in
             // If any of the references had a nil semVer then there could be a nil key in the dictionary.
-            guard let _ = key else { return nil }
+            guard key != nil else { return nil }
 
             // Filter down to only the largest semVer in each group.
             let latestMajorStableVersion = versions
