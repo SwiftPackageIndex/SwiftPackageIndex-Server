@@ -259,7 +259,7 @@ struct DocumentationPageProcessor {
 
     var latestStableLinkExplanatoryText: String {
         if referenceKind == .defaultBranch {
-            return "This documentation is from the \(packageName) default branch and may not reflect the latest stable release."
+            return "This documentation is from the \(packageName) \(reference) branch and may not reflect the latest stable release."
         } else {
             return "This is documentation from an old version of \(packageName)."
         }
