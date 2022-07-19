@@ -60,6 +60,7 @@ struct PackageController {
         case data
         case documentation
         case images
+        case index
         case js
         case themeSettings
 
@@ -67,7 +68,7 @@ struct PackageController {
             switch self {
                 case .css:
                     return "text/css"
-                case .images, .data, .themeSettings:
+                case  .data, .images, .index, .themeSettings:
                     return "application/octet-stream"
                 case .documentation:
                     return "text/html; charset=utf-8"
@@ -134,7 +135,7 @@ struct PackageController {
                     for: req
                 )
 
-            case .css, .data, .images, .js, .themeSettings:
+            case .css, .data, .images, .index, .js, .themeSettings:
                 return try await awsResponse.encodeResponse(
                     status: .ok,
                     headers: req.headers
@@ -288,7 +289,7 @@ extension PackageController {
         let baseURL = "http://\(baseURLHost)/\(baseURLPath)"
 
         switch fragment {
-            case .css, .data, .documentation, .images, .js:
+            case .css, .data, .documentation, .images, .index, .js:
                 return URI(string: "\(baseURL)/\(fragment)/\(path)")
             case .themeSettings:
                 return URI(string: "\(baseURL)/theme-settings.json")
