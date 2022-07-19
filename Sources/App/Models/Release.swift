@@ -25,14 +25,6 @@ struct Release: Codable, Equatable {
 }
 
 extension Release {
-    enum Kind: String {
-        case defaultBranch
-        case preRelease
-        case release
-    }
-}
-
-extension Release {
     init(from node: Github.Metadata.ReleaseNodes.ReleaseNode) {
         description = node.description
         descriptionHTML = node.descriptionHTML

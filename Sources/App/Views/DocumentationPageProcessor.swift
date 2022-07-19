@@ -23,21 +23,36 @@ struct DocumentationPageProcessor {
     let repositoryName: String
     let packageName: String
     let reference: String
+    let referenceKind: Version.Kind?
     let docArchives: [String]
+    let isLatestStableVersion: Bool
+    let allAvailableDocumentationVersions: [AvailableDocumentationVersion]
+
+    struct AvailableDocumentationVersion {
+        let kind: Version.Kind
+        let reference: String
+        let docArchives: [String]
+    }
 
     init?(repositoryOwner: String,
           repositoryOwnerName: String,
           repositoryName: String,
           packageName: String,
           reference: String,
+          referenceKind: Version.Kind?,
           docArchives: [String],
+          isLatestStableVersion: Bool,
+          allAvailableDocumentationVersions: [AvailableDocumentationVersion],
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
         self.repositoryName = repositoryName
         self.packageName = packageName
         self.reference = reference
+        self.referenceKind = referenceKind
         self.docArchives = docArchives
+        self.isLatestStableVersion = isLatestStableVersion
+        self.allAvailableDocumentationVersions = allAvailableDocumentationVersions
 
         do {
             document = try SwiftSoup.parse(rawHtml)
@@ -67,12 +82,40 @@ struct DocumentationPageProcessor {
     var header: String {
         let navMenuItems: [NavMenuItem] = [.addPackage, .blog, .faq, .searchLink]
 
-        let breadcrumbs = [
+        let documentationVersionChoices: [Plot.Node<HTML.ListContext>] = allAvailableDocumentationVersions.compactMap { version in
+            // If a version has no docArchives, it has no documentation we can switch to.
+            guard let firstDocArchive = docArchives.first else { return nil }
+
+            return .li(
+                .a(
+                    .href(relativeDocumentationURL(reference: version.reference, docArchive: firstDocArchive)),
+                    .span(
+                        .class(version.kind.cssClass),
+                        .text(version.reference)
+                    )
+                )
+            )
+        }
+
+        var breadcrumbs = [
             Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
             Breadcrumb(title: repositoryOwnerName, url: SiteURL.author(.value(repositoryOwner)).relativeURL()),
-            Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL()),
-            Breadcrumb(title: "Documentation"),
+            Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL())
         ]
+        
+        if (Environment.current == .development) {
+            breadcrumbs.append(Breadcrumb(title: .init(
+                .text("Documentation for "),
+                .unwrap(referenceKind, { referenceKind in
+                        .span(
+                            .class(referenceKind.cssClass),
+                            .text(reference)
+                        )
+                }, else: .text(reference))
+            ), choices: documentationVersionChoices.count > 0 ? documentationVersionChoices : nil))
+        } else {
+            breadcrumbs.append(Breadcrumb(title: "Documentation"))
+        }
 
         return Plot.Node.group(
             .header(
@@ -116,7 +159,7 @@ struct DocumentationPageProcessor {
                                 .forEach(docArchives, { archive in
                                         .li(
                                             .a(
-                                                .href(relativeDocumentationURL(docArchive: archive)),
+                                                .href(relativeDocumentationURL(reference:reference, docArchive: archive)),
                                                 .text(archive)
                                             )
                                         )
@@ -189,7 +232,7 @@ struct DocumentationPageProcessor {
     }
 
     // Note: When this gets merged back with the refactored SiteURL, note that it's duplicated in `PackageShow.Model`.
-    func relativeDocumentationURL(docArchive: String) -> String {
+    func relativeDocumentationURL(reference: String, docArchive: String) -> String {
         "/\(repositoryOwner)/\(repositoryName)/\(reference)/documentation/\(docArchive.lowercased())"
     }
 }

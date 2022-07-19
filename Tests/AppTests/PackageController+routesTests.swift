@@ -234,7 +234,13 @@ class PackageController_routesTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
+        try Version(package: pkg,
+                    commit: "0123456789",
+                    commitDate: Date(timeIntervalSince1970: 0),
+                    docArchives: [.init(name: "docs", title: "Docs")],
+                    latest: .defaultBranch,
+                    packageName: "pkg",
+                    reference: .tag(.init(1, 2, 3)))
             .save(on: app.db).wait()
 
         // MUT
@@ -393,6 +399,47 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
+
+    func test_documentationVersionArray_subscriptByReference() throws {
+        let versions: [PackageController.DocumentationVersion] = [
+            .init(reference: .branch("main"), ownerName: "owner", packageName: "package", docArchives: []),
+            .init(reference: .tag(.init(1, 0, 0), "1.0.0"), ownerName: "owner", packageName: "package", docArchives: []),
+            .init(reference: .tag(.init(2, 0, 0, "beta1"), "2.0.0-beta1"), ownerName: "owner", packageName: "package", docArchives: []),
+            .init(reference: .tag(.init(3, 0, 0), "3.0.0"), ownerName: "owner", packageName: "package", docArchives: []),
+        ]
+
+        // MUT
+        let versionTwoBeta = try XCTUnwrap(versions[reference: "2.0.0-beta1"])
+        let semVer = try XCTUnwrap(versionTwoBeta.reference.semVer)
+
+        XCTAssertEqual(semVer.major, 2)
+        XCTAssertEqual(semVer.minor, 0)
+        XCTAssertEqual(semVer.patch, 0)
+        XCTAssertEqual(semVer.preRelease, "beta1")
+        XCTAssertEqual(semVer.build, "")
+    }
+
+    func test_documentationVersionArray_latestMajorVersions() throws {
+        let versions: [PackageController.DocumentationVersion] = [
+            .init(reference: .branch("main"), ownerName: "owner", packageName: "package", docArchives: [], latest: .defaultBranch),
+            .init(reference: .tag(.init(1, 0, 0), "1.0.0"), ownerName: "owner", packageName: "package", docArchives: ["docs"], latest: nil),
+            .init(reference: .tag(.init(1, 0, 1), "1.0.1"), ownerName: "owner", packageName: "package", docArchives: ["docs"], latest: nil),
+            .init(reference: .tag(.init(1, 1, 0), "1.1.0"), ownerName: "owner", packageName: "package", docArchives: ["docs"], latest: nil),
+            .init(reference: .tag(.init(1, 1, 1), "1.1.1"), ownerName: "owner", packageName: "package", docArchives: ["docs"], latest: nil),
+            .init(reference: .tag(.init(1, 1, 2), "1.1.2"), ownerName: "owner", packageName: "package", docArchives: ["docs"], latest: nil),
+            .init(reference: .tag(.init(2, 0, 0), "2.0.0"), ownerName: "owner", packageName: "package", docArchives: ["docs"], latest: nil),
+            .init(reference: .tag(.init(2, 1, 1), "2.1.1"), ownerName: "owner", packageName: "package", docArchives: ["docs"], latest: nil),
+            .init(reference: .tag(.init(3, 0, 0), "3.0.0"), ownerName: "owner", packageName: "package", docArchives: ["docs"], latest: .release),
+            .init(reference: .tag(.init(4, 0, 0, "beta1"), "4.0.0-beta1"), ownerName: "owner", packageName: "package", docArchives: ["docs"], latest: .preRelease)
+        ]
+
+        // MUT
+        let latestMajorVersions = versions.latestMajorVersions()
+        let latestMajorRerefences = latestMajorVersions.map { "\($0.reference)" }
+        print(latestMajorRerefences)
+
+        XCTAssertEqual(latestMajorRerefences, ["1.1.2", "2.1.1", "3.0.0"])
+    }
 }
 
 

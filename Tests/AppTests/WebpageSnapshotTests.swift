@@ -384,7 +384,10 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
                                                                  reference: "main",
+                                                                 referenceKind: .release,
                                                                  docArchives: [],
+                                                                 isLatestStableVersion: false,
+                                                                 allAvailableDocumentationVersions: [],
                                                                  rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
@@ -398,7 +401,14 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
                                                                  reference: "main",
+                                                                 referenceKind: .defaultBranch,
                                                                  docArchives: ["Archive1", "Archive2"],
+                                                                 isLatestStableVersion: false,
+                                                                 allAvailableDocumentationVersions: [
+                                                                    .init(kind: .defaultBranch, reference: "main", docArchives: ["Archive1", "Archive2"]),
+                                                                    .init(kind: .preRelease, reference: "1.0.0-beta1", docArchives: ["Archive1", "Archive2"]),
+                                                                    .init(kind: .defaultBranch, reference: "1.0.1", docArchives: ["Archive1", "Archive2"])
+                                                                 ],
                                                                  rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)

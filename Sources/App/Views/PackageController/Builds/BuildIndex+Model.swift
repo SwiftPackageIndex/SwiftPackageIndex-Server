@@ -38,7 +38,7 @@ extension BuildIndex {
         }
 
         init?(packageInfo: PackageController.BuildsRoute.PackageInfo, buildInfo: [PackageController.BuildsRoute.BuildInfo]) {
-            let buildGroups = [App.Version.Kind.release, .preRelease, .defaultBranch]
+            let buildGroups = [Version.Kind.release, .preRelease, .defaultBranch]
                 .compactMap(buildInfo.grouped(by:))
 
             self.init(owner: packageInfo.repositoryOwner,

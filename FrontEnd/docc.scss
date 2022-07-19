@@ -47,6 +47,9 @@ footer.spi {
 }
 
 header.spi {
+  // The breadcrumb bar in the DocC Vue app is 9997.
+  z-index: 9998;
+
   .inner {
     &.branding_and_menu {
       display: grid;
@@ -107,7 +110,7 @@ header.spi {
     }
 
     &.breadcrumbs {
-      ul {
+      > nav > ul {
         display: flex;
         gap: 20px;
         padding: 0;
@@ -118,7 +121,7 @@ header.spi {
           gap: 0;
         }
 
-        li {
+        > li {
           position: relative;
 
           a {
@@ -141,6 +144,37 @@ header.spi {
 
             @media screen and (max-width: $mobile-breakpoint) {
               margin-left: 20px;
+            }
+          }
+
+          .choices {
+            position: relative;
+
+            > span {
+              cursor: pointer;
+            }
+
+            ul {
+              display: none;
+              padding: 15px;
+              position: absolute;
+              min-width: 200px;
+              background-color: var(--header-background);
+              box-shadow: var(--panel-shadow);
+              border-top: 3px rgba(255, 255, 255, 0.2) solid;
+
+              &::before {
+                content: 'Switch to…';
+                display: list-item;
+                font-size: 13px;
+              }
+            }
+
+            &:hover {
+              ul {
+                display: grid;
+                gap: 5px;
+              }
             }
           }
         }
@@ -172,6 +206,28 @@ header.spi {
     @media (prefers-color-scheme: dark) {
       background-color: rgba(0, 0, 0, 0.25);
     }
+  }
+
+  span.stable,
+  span.beta,
+  span.branch {
+    font-weight: 600;
+    padding-left: 18px;
+    background-size: 14px;
+    background-repeat: no-repeat;
+    background-position: top 2px left;
+  }
+
+  span.stable {
+    background-image: var(--image-stable);
+  }
+
+  span.beta {
+    background-image: var(--image-beta);
+  }
+
+  span.branch {
+    background-image: var(--image-branch);
   }
 }
 
