@@ -258,10 +258,11 @@ struct DocumentationPageProcessor {
     }
 
     var latestStableLinkExplanatoryText: String {
-        if referenceKind == .defaultBranch {
-            return "This documentation is from the \(packageName) \(reference) branch and may not reflect the latest stable release."
-        } else {
-            return "This is documentation from an old version of \(packageName)."
+        switch referenceKind {
+            case .release: return "This is documentation from an old version of \(packageName)."
+            case .preRelease: return "This documentation is from a pre-release of \(packageName) and may not reflect the latest stable release."
+            case .defaultBranch: return "This documentation is from the \(packageName) \(reference) branch and may not reflect the latest stable release."
+            default: return ""
         }
     }
 }
