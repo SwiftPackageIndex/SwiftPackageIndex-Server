@@ -128,15 +128,11 @@ struct PackageController {
                     .field(Repository.self, \.$ownerName)
                     .all()
 
-                let documentationVersions = queryResult.compactMap { result -> DocumentationVersion? in
-                    guard let reference = result.model.reference else { return nil }
-
-                    return DocumentationVersion(reference: reference,
-                                                ownerName: result.relation2?.ownerName ?? owner,
-                                                packageName: result.model.packageName ?? repository,
-                                                docArchives: (result.model.docArchives ?? []).map(\.title),
-                                                latest: result.model.latest)
-                }
+                    DocumentationVersion(reference: result.model.reference,
+                                         ownerName: result.relation2?.ownerName ?? owner,
+                                         packageName: result.model.packageName ?? repository,
+                                         docArchives: (result.model.docArchives ?? []).map(\.title),
+                                         latest: result.model.latest)
 
                 guard let documentation = documentationVersions[reference: reference]
                 else {
