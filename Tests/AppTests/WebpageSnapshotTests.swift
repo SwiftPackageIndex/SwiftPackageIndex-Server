@@ -403,9 +403,18 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  referenceKind: .defaultBranch,
                                                                  docArchives: ["Archive1", "Archive2"],
                                                                  allAvailableDocumentationVersions: [
-                                                                    .init(kind: .defaultBranch, reference: "main", docArchives: ["Archive1", "Archive2"]),
-                                                                    .init(kind: .preRelease, reference: "1.0.0-beta1", docArchives: ["Archive1", "Archive2"]),
-                                                                    .init(kind: .defaultBranch, reference: "1.0.1", docArchives: ["Archive1", "Archive2"])
+                                                                    .init(kind: .defaultBranch,
+                                                                          reference: "main",
+                                                                          docArchives: ["Archive1", "Archive2"],
+                                                                          isLatestStable: false),
+                                                                    .init(kind: .preRelease,
+                                                                          reference: "1.0.0-beta1",
+                                                                          docArchives: ["Archive1", "Archive2"],
+                                                                          isLatestStable: false),
+                                                                    .init(kind: .release,
+                                                                          reference: "1.0.1",
+                                                                          docArchives: ["Archive1", "Archive2"],
+                                                                          isLatestStable: true)
                                                                  ],
                                                                  rawHtml: doccHtml))
 

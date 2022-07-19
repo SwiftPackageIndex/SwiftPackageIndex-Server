@@ -31,6 +31,7 @@ struct DocumentationPageProcessor {
         let kind: Version.Kind
         let reference: String
         let docArchives: [String]
+        let isLatestStable: Bool
     }
 
     init?(repositoryOwner: String,

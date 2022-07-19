@@ -20,11 +20,11 @@ class DocumentationPageProcessorTests: AppTestCase {
 
     func test_availableDocumentationVersionArray_latestStableVersion() throws {
         let versions: [DocumentationPageProcessor.AvailableDocumentationVersion] = [
-            .init(kind: .defaultBranch, reference: "main", docArchives: ["docs"]),
-            .init(kind: .release, reference: "1.0.0", docArchives: ["docs"]),
-            .init(kind: .release, reference: "2.0.0", docArchives: ["docs"]),
-            .init(kind: .release, reference: "2.1.0", docArchives: ["docs"]),
-            .init(kind: .preRelease, reference: "3.0.0-beta1", docArchives: ["docs"])
+            .init(kind: .defaultBranch, reference: "main", docArchives: ["docs"], isLatestStable: false),
+            .init(kind: .release, reference: "1.0.0", docArchives: ["docs"], isLatestStable: false),
+            .init(kind: .release, reference: "2.0.0", docArchives: ["docs"], isLatestStable: false),
+            .init(kind: .release, reference: "2.1.0", docArchives: ["docs"], isLatestStable: true),
+            .init(kind: .preRelease, reference: "3.0.0-beta1", docArchives: ["docs"], isLatestStable: false)
         ]
 
         // MUT
