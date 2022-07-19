@@ -21,6 +21,7 @@ extension BuildShow {
         var repositoryOwnerName: String
         var buildInfo: BuildInfo
         var versionId: Version.Id
+        var reference : String
 
         init?(result: BuildResult, logs: String?) {
             guard
@@ -34,7 +35,8 @@ extension BuildShow {
                       repositoryOwner: repositoryOwner,
                       repositoryOwnerName: result.repository.ownerName ?? repositoryOwner,
                       repositoryName: repositoryName,
-                      versionId: versionId)
+                      versionId: versionId,
+                      reference: "\(result.version.reference)")
         }
 
         internal init(buildInfo: BuildInfo,
@@ -42,13 +44,15 @@ extension BuildShow {
                       repositoryOwner: String,
                       repositoryOwnerName: String,
                       repositoryName: String,
-                      versionId: Version.Id) {
+                      versionId: Version.Id,
+                      reference: String) {
             self.buildInfo = buildInfo
             self.packageName = packageName
             self.repositoryOwner = repositoryOwner
             self.repositoryOwnerName = repositoryOwnerName
             self.repositoryName = repositoryName
             self.versionId = versionId
+            self.reference = reference
         }
     }
 
