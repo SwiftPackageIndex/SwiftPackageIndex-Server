@@ -145,28 +145,30 @@ struct DocumentationPageProcessor {
                         )
                     )
                 ),
-                .if(referenceKind != .release,
-                    // Only try and show a link to the latest stable if there *is* a latest stable.
-                    .unwrap(allAvailableDocumentationVersions.latestStableVersion) { latestStable in
-                            .div(
-                                .class("latest_stable_wrap"),
+                .if(Environment.current != .production,
+                    .if(referenceKind != .release,
+                        // Only try and show a link to the latest stable if there *is* a latest stable.
+                        .unwrap(allAvailableDocumentationVersions.latestStableVersion) { latestStable in
                                 .div(
-                                    .class("inner latest_stable"),
-                                    .text(latestStableLinkExplanatoryText),
-                                    .text(" "),
-                                    .unwrap(latestStable.docArchives.first) { docArchive in
-                                            .group(
-                                                .a(
-                                                    .href(relativeDocumentationURL(reference: latestStable.reference,
-                                                                                   docArchive: docArchive)),
-                                                    .text("View latest stable docs")
-                                                ),
-                                                .text(".")
-                                            )
-                                    }
+                                    .class("latest_stable_wrap"),
+                                    .div(
+                                        .class("inner latest_stable"),
+                                        .text(latestStableLinkExplanatoryText),
+                                        .text(" "),
+                                        .unwrap(latestStable.docArchives.first) { docArchive in
+                                                .group(
+                                                    .a(
+                                                        .href(relativeDocumentationURL(reference: latestStable.reference,
+                                                                                       docArchive: docArchive)),
+                                                        .text("View latest stable docs")
+                                                    ),
+                                                    .text(".")
+                                                )
+                                        }
+                                    )
                                 )
-                            )
-                    }
+                        }
+                       )
                 ),
                 .if(docArchives.count > 1, .div(
                     .class("doc_archives_wrap"),
