@@ -386,7 +386,6 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  reference: "main",
                                                                  referenceKind: .release,
                                                                  docArchives: [],
-                                                                 isLatestStableVersion: false,
                                                                  allAvailableDocumentationVersions: [],
                                                                  rawHtml: doccHtml))
 
@@ -403,7 +402,6 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  reference: "main",
                                                                  referenceKind: .defaultBranch,
                                                                  docArchives: ["Archive1", "Archive2"],
-                                                                 isLatestStableVersion: false,
                                                                  allAvailableDocumentationVersions: [
                                                                     .init(kind: .defaultBranch, reference: "main", docArchives: ["Archive1", "Archive2"]),
                                                                     .init(kind: .preRelease, reference: "1.0.0-beta1", docArchives: ["Archive1", "Archive2"]),

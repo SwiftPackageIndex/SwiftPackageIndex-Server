@@ -168,7 +168,6 @@ struct PackageController {
                                                                  reference: reference,
                                                                  referenceKind: documentation.latest,
                                                                  docArchives: documentation.docArchives,
-                                                                 isLatestStableVersion: documentation.latest == .release,
                                                                  allAvailableDocumentationVersions: availableDocumentationVersions,
                                                                  rawHtml: body.asString())
                 else {

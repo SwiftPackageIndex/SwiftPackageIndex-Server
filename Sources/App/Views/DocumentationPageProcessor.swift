@@ -25,7 +25,6 @@ struct DocumentationPageProcessor {
     let reference: String
     let referenceKind: Version.Kind?
     let docArchives: [String]
-    let isLatestStableVersion: Bool
     let allAvailableDocumentationVersions: [AvailableDocumentationVersion]
 
     struct AvailableDocumentationVersion {
@@ -41,7 +40,6 @@ struct DocumentationPageProcessor {
           reference: String,
           referenceKind: Version.Kind?,
           docArchives: [String],
-          isLatestStableVersion: Bool,
           allAvailableDocumentationVersions: [AvailableDocumentationVersion],
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
@@ -51,7 +49,6 @@ struct DocumentationPageProcessor {
         self.reference = reference
         self.referenceKind = referenceKind
         self.docArchives = docArchives
-        self.isLatestStableVersion = isLatestStableVersion
         self.allAvailableDocumentationVersions = allAvailableDocumentationVersions
 
         do {
