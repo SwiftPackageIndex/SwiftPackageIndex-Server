@@ -232,4 +232,9 @@ struct DocumentationPageProcessor {
     func relativeDocumentationURL(reference: String, docArchive: String) -> String {
         "/\(repositoryOwner)/\(repositoryName)/\(reference)/documentation/\(docArchive.lowercased())"
     }
+
+extension Array where Element == DocumentationPageProcessor.AvailableDocumentationVersion {
+    var latestStableVersion: DocumentationPageProcessor.AvailableDocumentationVersion? {
+        self.filter { $0.kind == .release }.first
+    }
 }
