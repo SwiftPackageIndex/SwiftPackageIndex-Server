@@ -128,11 +128,13 @@ struct PackageController {
                     .field(Repository.self, \.$ownerName)
                     .all()
 
+                let documentationVersions = queryResult.map { result in
                     DocumentationVersion(reference: result.model.reference,
                                          ownerName: result.relation2?.ownerName ?? owner,
                                          packageName: result.model.packageName ?? repository,
                                          docArchives: (result.model.docArchives ?? []).map(\.title),
                                          latest: result.model.latest)
+                }
 
                 guard let documentation = documentationVersions[reference: reference]
                 else {
