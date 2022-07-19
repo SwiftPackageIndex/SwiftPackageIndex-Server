@@ -384,12 +384,18 @@ extension Array where Element == PackageController.DocumentationVersion {
                     guard let semVer = result.reference.semVer else { return nil }
                     return (result: result, semVer: semVer)
                 }
-                .sorted(using: KeyPathComparator(\.semVer, order: .reverse))
+                .sorted { $0.semVer > $1.semVer }
                 .first?
                 .result
 
             return latestMajorStableVersion
         }
-        .sorted(using: KeyPathComparator(\.reference.semVer))
+        .sorted { firstVersion, secondVersion in
+            guard let firstSemVer = firstVersion.reference.semVer,
+                  let secondSemVer = secondVersion.reference.semVer
+            else { return false }
+
+            return firstSemVer < secondSemVer
+        }
     }
 }
