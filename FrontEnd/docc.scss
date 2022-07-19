@@ -162,6 +162,12 @@ header.spi {
               background-color: var(--header-background);
               box-shadow: var(--panel-shadow);
               border-top: 3px rgba(255, 255, 255, 0.2) solid;
+
+              &::before {
+                content: 'Switch to…';
+                display: list-item;
+                font-size: 13px;
+              }
             }
 
             &:hover {
