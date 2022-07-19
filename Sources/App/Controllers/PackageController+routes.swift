@@ -151,11 +151,10 @@ struct PackageController {
                 ] + documentationVersions.latestMajorVersions())
                     .compactMap { version in
                         guard let version = version,
-                              let latest = version.latest,
-                              let docArchives = version.docArchives
+                              let latest = version.latest
                         else { return nil }
 
-                        return .init(kind: latest, reference: "\(version.reference)", docArchives: docArchives)
+                        return .init(kind: latest, reference: "\(version.reference)", docArchives: version.docArchives)
                     }
 
                 // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
