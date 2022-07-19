@@ -268,6 +268,6 @@ struct DocumentationPageProcessor {
 
 extension Array where Element == DocumentationPageProcessor.AvailableDocumentationVersion {
     var latestStableVersion: DocumentationPageProcessor.AvailableDocumentationVersion? {
-        self.filter { $0.kind == .release }.first
+        self.filter(\.isLatestStable).first
     }
 }
