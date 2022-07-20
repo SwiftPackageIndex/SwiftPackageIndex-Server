@@ -148,8 +148,8 @@ struct PackageController {
                 }
 
                 let availableDocumentationVersions: [DocumentationPageProcessor.AvailableDocumentationVersion] = ([
-                    documentationVersions.filter { $0.latest == .defaultBranch }.first,
-                    documentationVersions.filter { $0.latest == .preRelease }.first
+                    documentationVersions.first { $0.latest == .defaultBranch },
+                    documentationVersions.first { $0.latest == .preRelease }
                 ] + documentationVersions.latestMajorVersions())
                     .compactMap { version in
                         guard let version = version
