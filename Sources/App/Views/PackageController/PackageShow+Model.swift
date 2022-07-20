@@ -117,7 +117,15 @@ extension PackageShow {
                 let packageId = result.package.id
             else { return nil }
 
-            let defaultDocArchive = result.defaultBranchVersion.docArchives?.first?.title
+            let defaultDocumentationMetadata: DocumentationMetadata? = {
+                if let releaseVersion = result.releaseVersion {
+                    return .init(reference: "\(releaseVersion.reference)",
+                                 defaultArchive: releaseVersion.docArchives?.first?.title)
+                } else {
+                    return .init(reference: "\(result.defaultBranchVersion.reference)",
+                                 defaultArchive: result.defaultBranchVersion.docArchives?.first?.title)
+                }
+            }()
 
             self.init(
                 packageId: packageId,
@@ -151,9 +159,7 @@ extension PackageShow {
                 score: result.package.score,
                 isArchived: repository.isArchived,
                 homepageUrl: repository.homepageUrl,
-                documentationMetadata: DocumentationMetadata(
-                    reference: result.repository.defaultBranch,
-                    defaultArchive: defaultDocArchive),
+                documentationMetadata: defaultDocumentationMetadata,
                 dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
                     packageURL: result.package.url,
                     defaultBranchReference: result.defaultBranchVersion.model.reference,
