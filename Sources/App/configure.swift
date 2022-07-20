@@ -66,7 +66,7 @@ public func configure(_ app: Application) throws -> String {
                                 database: database,
                                 tlsConfiguration: tlsConfig,
                                 maxConnectionsPerEventLoop: maxConnectionsPerEventLoop,
-                                // Set this to .info to log SQL queries with the default log level.
+                                // Set sqlLogLevel to .info to log SQL queries with the default log level.
                                 sqlLogLevel: .debug),
                       as: .psql)
     
