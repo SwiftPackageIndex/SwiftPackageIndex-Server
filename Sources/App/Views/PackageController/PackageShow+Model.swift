@@ -117,7 +117,7 @@ extension PackageShow {
                 let packageId = result.package.id
             else { return nil }
 
-            let defaulDocTarget = result.defaultBranchVersion.docArchives?.first?.title
+            let defaultDocArchive = result.defaultBranchVersion.docArchives?.first?.title
 
             self.init(
                 packageId: packageId,
@@ -153,7 +153,7 @@ extension PackageShow {
                 homepageUrl: repository.homepageUrl,
                 documentationMetadata: DocumentationMetadata(
                     reference: result.repository.defaultBranch,
-                    defaultTarget: defaulDocTarget),
+                    defaultArchive: defaultDocArchive),
                 dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
                     packageURL: result.package.url,
                     defaultBranchReference: result.defaultBranchVersion.model.reference,
@@ -167,16 +167,16 @@ extension PackageShow {
 
     struct DocumentationMetadata: Equatable {
         let reference: String
-        let defaultTarget: String
+        let defaultArchive: String
 
-        init?(reference: String?, defaultTarget: String?) {
+        init?(reference: String?, defaultArchive: String?) {
             guard
                 let reference = reference,
-                let defaultTarget = defaultTarget
+                let defaultArchive = defaultArchive
             else { return nil }
 
             self.reference = reference
-            self.defaultTarget = defaultTarget
+            self.defaultArchive = defaultArchive
         }
     }
     

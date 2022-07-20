@@ -248,7 +248,7 @@ enum PackageShow {
                     .unwrap(model.documentationMetadata) { metadata in
                         .li(
                             .a(
-                                .href(model.relativeDocumentationURL(reference: metadata.reference, target: metadata.defaultTarget)),
+                                .href(model.relativeDocumentationURL(reference: metadata.reference, target: metadata.defaultArchive)),
                                 .data(named: "turbo", value: String(false)),
                                 "Documentation"
                             )
