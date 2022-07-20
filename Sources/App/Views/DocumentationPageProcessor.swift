@@ -25,13 +25,13 @@ struct DocumentationPageProcessor {
     let reference: String
     let referenceKind: Version.Kind?
     let docArchives: [String]
-    let isLatestStableVersion: Bool
     let allAvailableDocumentationVersions: [AvailableDocumentationVersion]
 
     struct AvailableDocumentationVersion {
         let kind: Version.Kind
         let reference: String
         let docArchives: [String]
+        let isLatestStable: Bool
     }
 
     init?(repositoryOwner: String,
@@ -41,7 +41,6 @@ struct DocumentationPageProcessor {
           reference: String,
           referenceKind: Version.Kind?,
           docArchives: [String],
-          isLatestStableVersion: Bool,
           allAvailableDocumentationVersions: [AvailableDocumentationVersion],
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
@@ -51,7 +50,6 @@ struct DocumentationPageProcessor {
         self.reference = reference
         self.referenceKind = referenceKind
         self.docArchives = docArchives
-        self.isLatestStableVersion = isLatestStableVersion
         self.allAvailableDocumentationVersions = allAvailableDocumentationVersions
 
         do {
@@ -147,6 +145,31 @@ struct DocumentationPageProcessor {
                         )
                     )
                 ),
+                .if(Environment.current != .production,
+                    .if(referenceKind != .release,
+                        // Only try and show a link to the latest stable if there *is* a latest stable.
+                        .unwrap(allAvailableDocumentationVersions.first(where: \.isLatestStable)) { latestStable in
+                                .div(
+                                    .class("latest_stable_wrap"),
+                                    .div(
+                                        .class("inner latest_stable"),
+                                        .text(latestStableLinkExplanatoryText),
+                                        .text(" "),
+                                        .unwrap(latestStable.docArchives.first) { docArchive in
+                                                .group(
+                                                    .a(
+                                                        .href(relativeDocumentationURL(reference: latestStable.reference,
+                                                                                       docArchive: docArchive)),
+                                                        .text("View latest stable docs")
+                                                    ),
+                                                    .text(".")
+                                                )
+                                        }
+                                    )
+                                )
+                        }
+                       )
+                ),
                 .if(docArchives.count > 1, .div(
                     .class("doc_archives_wrap"),
                     .div(
@@ -234,5 +257,14 @@ struct DocumentationPageProcessor {
     // Note: When this gets merged back with the refactored SiteURL, note that it's duplicated in `PackageShow.Model`.
     func relativeDocumentationURL(reference: String, docArchive: String) -> String {
         "/\(repositoryOwner)/\(repositoryName)/\(reference)/documentation/\(docArchive.lowercased())"
+    }
+
+    var latestStableLinkExplanatoryText: String {
+        switch referenceKind {
+            case .release: return "This documentation is from a previous release and may not reflect the latest stable release."
+            case .preRelease: return "This documentation is from a pre-release and may not reflect the latest stable release."
+            case .defaultBranch: return "This documentation is from the \(reference) branch and may not reflect the latest stable release."
+            default: return ""
+        }
     }
 }

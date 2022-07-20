@@ -148,15 +148,22 @@ struct PackageController {
                 }
 
                 let availableDocumentationVersions: [DocumentationPageProcessor.AvailableDocumentationVersion] = ([
-                    documentationVersions.filter { $0.latest == .defaultBranch }.first,
-                    documentationVersions.filter { $0.latest == .preRelease }.first
+                    documentationVersions.first { $0.latest == .defaultBranch },
+                    documentationVersions.first { $0.latest == .preRelease }
                 ] + documentationVersions.latestMajorVersions())
                     .compactMap { version in
-                        guard let version = version,
-                              let latest = version.latest
+                        guard let version = version
                         else { return nil }
 
-                        return .init(kind: latest, reference: "\(version.reference)", docArchives: version.docArchives)
+                        // There are versions in `documentationVersions` that have a nil `latest`, but given
+                        // the filtering above they can be assumed to be release versions for display.
+                        let versionKind = version.latest ?? .release
+                        let isLatesStable = version.latest == .release
+
+                        return .init(kind: versionKind,
+                                     reference: "\(version.reference)",
+                                     docArchives: version.docArchives,
+                                     isLatestStable: isLatesStable)
                     }
 
                 // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
@@ -168,7 +175,6 @@ struct PackageController {
                                                                  reference: reference,
                                                                  referenceKind: documentation.latest,
                                                                  docArchives: documentation.docArchives,
-                                                                 isLatestStableVersion: documentation.latest == .release,
                                                                  allAvailableDocumentationVersions: availableDocumentationVersions,
                                                                  rawHtml: body.asString())
                 else {
