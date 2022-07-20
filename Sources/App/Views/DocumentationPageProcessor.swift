@@ -148,7 +148,7 @@ struct DocumentationPageProcessor {
                 .if(Environment.current != .production,
                     .if(referenceKind != .release,
                         // Only try and show a link to the latest stable if there *is* a latest stable.
-                        .unwrap(allAvailableDocumentationVersions.latestStableVersion) { latestStable in
+                        .unwrap(allAvailableDocumentationVersions.first(where: \.isLatestStable)) { latestStable in
                                 .div(
                                     .class("latest_stable_wrap"),
                                     .div(
@@ -266,11 +266,5 @@ struct DocumentationPageProcessor {
             case .defaultBranch: return "This documentation is from the \(reference) branch and may not reflect the latest stable release."
             default: return ""
         }
-    }
-}
-
-extension Array where Element == DocumentationPageProcessor.AvailableDocumentationVersion {
-    var latestStableVersion: DocumentationPageProcessor.AvailableDocumentationVersion? {
-        self.filter(\.isLatestStable).first
     }
 }
