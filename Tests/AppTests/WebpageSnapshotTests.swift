@@ -137,7 +137,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_PackageShowView_with_single_documentation_link() throws {
         var model = PackageShow.Model.mock
-        model.documentationMetadata = .init(reference: "main", defaultTarget: "Target")
+        model.documentationMetadata = .init(reference: "main", defaultArchive: "Archive")
         let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
 
         assertSnapshot(matching: page, as: .html)
