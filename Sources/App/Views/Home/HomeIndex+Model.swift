@@ -31,8 +31,8 @@ extension HomeIndex {
         ]
 
         static var twitterSpaceLinks = TwitterSpaceLinks(
-            previousUrl: "https://blog.swiftpackageindex.com/posts/swift-package-indexing-episode-5/",
-            nextUrl: "https://twitter.com/i/spaces/1PlKQaNYkAVKE"
+            previousUrl: "https://blog.swiftpackageindex.com/posts/swift-package-indexing-episode-7/",
+            nextUrl: "https://twitter.com/i/spaces/1gqxvlyakkWGB"
         )
 
         struct Release: Equatable {
