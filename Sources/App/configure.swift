@@ -261,6 +261,9 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 056 - reset versions.doc_archives to NULL
         app.migrations.add(ResetDocArchives())
     }
+    do {  // Migration 057 - adds boolean flag indicating whether the package contains binary targets
+        app.migrations.add(UpdateVersionAddHasBinaryTargets())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

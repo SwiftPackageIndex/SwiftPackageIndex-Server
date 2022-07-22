@@ -14,7 +14,7 @@
 
 import Fluent
 
-struct UpdateTaskAddProperties: AsyncMigration {
+struct UpdateVersionAddHasBinaryTargets: AsyncMigration {
     func prepare(on database: Database) async throws {
         try await database.schema("versions")
             .field("has_binary_targets", .bool)
