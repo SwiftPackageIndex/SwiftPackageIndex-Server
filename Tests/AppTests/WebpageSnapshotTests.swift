@@ -39,7 +39,16 @@ class WebpageSnapshotTests: SnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
     }
 
-    
+    func test_PackageShowView_binary_targets() throws {
+        var model = PackageShow.Model.mock
+        model.homepageUrl = "https://swiftpackageindex.com/"
+        model.hasBinaryTargets = true
+
+        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
+        
+        assertSnapshot(matching: page, as: .html)
+    }
+
     func test_PackageShowView_few_keywords() throws {
         var model = PackageShow.Model.mock
         let keywordsWithCounts = [("tag1", 1),
