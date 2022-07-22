@@ -90,6 +90,9 @@ final class Version: Model, Content {
     @Field(key: "url")
     var url: String?
 
+    @Field(key: "has_binary_targets")
+    var hasBinaryTargets: Bool?
+    
     // relationships
 
     @Children(for: \.$version)
