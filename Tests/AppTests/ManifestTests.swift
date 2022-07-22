@@ -103,9 +103,9 @@ class ManifestTests: XCTestCase {
                                           targets: ["t1", "t2"],
                                           type: .library(.automatic))])
         XCTAssertEqual(m.swiftLanguageVersions, ["4", "4.2", "5"])
-        XCTAssertEqual(m.targets, [.init(name: "App", type: .executableTarget),
-                                   .init(name: "Run", type: .executableTarget),
-                                   .init(name: "AppTests", type: .testTarget)])
+        XCTAssertEqual(m.targets, [.init(name: "App", type: .executable),
+                                   .init(name: "Run", type: .executable),
+                                   .init(name: "AppTests", type: .test)])
         XCTAssertEqual(m.toolsVersion, .init(version: "5.2.0"))
     }
 
