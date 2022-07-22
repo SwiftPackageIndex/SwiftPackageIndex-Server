@@ -122,7 +122,8 @@ final class Version: Model, Content {
          supportedPlatforms: [Platform] = [],
          swiftVersions: [SwiftVersion] = [],
          toolsVersion: String? = nil,
-         url: String? = nil) throws {
+         url: String? = nil,
+         hasBinaryTargets: Bool = false) throws {
         self.id = id
         self.$package.id = try package.requireID()
         self.commit = commit
@@ -140,6 +141,7 @@ final class Version: Model, Content {
         self.swiftVersions = swiftVersions
         self.toolsVersion = toolsVersion
         self.url = url
+        self.hasBinaryTargets = hasBinaryTargets
     }
 
     enum Kind: String, Codable {
