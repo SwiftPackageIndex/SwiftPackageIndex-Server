@@ -582,6 +582,7 @@ extension Analyze {
         version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
         version.toolsVersion = manifest.toolsVersion?.version
         version.spiManifest = packageInfo.spiManifest
+        version.hasBinaryTargets = packageInfo.packageManifest.targets.contains { $0.type == .binaryTarget }
 
         return version.save(on: database)
     }
