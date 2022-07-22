@@ -153,7 +153,7 @@ extension PackageShow {
                 url: result.package.url,
                 score: result.package.score,
                 isArchived: repository.isArchived,
-                hasBinaryTargets: result.defaultBranchVersion.hasBinaryTargets ?? false,
+                hasBinaryTargets: result.defaultBranchVersion.hasBinaryTargets,
                 homepageUrl: repository.homepageUrl,
                 documentationMetadata: DocumentationMetadata(
                     reference: result.repository.defaultBranch,

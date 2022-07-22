@@ -91,7 +91,7 @@ final class Version: Model, Content {
     var url: String?
 
     @Field(key: "has_binary_targets")
-    var hasBinaryTargets: Bool?
+    var hasBinaryTargets: Bool
     
     // relationships
 
