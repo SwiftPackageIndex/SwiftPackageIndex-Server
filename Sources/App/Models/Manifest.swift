@@ -76,7 +76,7 @@ struct Manifest: Decodable, Equatable {
         var type: ProductType
     }
 
-    enum TargetType: Equatable, Codable {
+    enum TargetType: String, Equatable, Codable {
         case regular
         case executable
         case test
