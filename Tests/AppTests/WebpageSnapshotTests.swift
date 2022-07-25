@@ -32,6 +32,17 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
     
     func test_PackageShowView() throws {
+        
+        // Work-around to set the local time zone for time sensitive
+        // tests. Sets the explicit default time zone to UTC for the duration
+        // of this test.
+        let explicitGMTTimeZone = TimeZone(identifier: "Etc/UTC")!
+        let oldDefault = NSTimeZone.default
+        NSTimeZone.default = explicitGMTTimeZone
+        defer {
+            NSTimeZone.default = oldDefault
+        }
+
         var model = PackageShow.Model.mock
         model.homepageUrl = "https://swiftpackageindex.com/"
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
@@ -50,6 +61,17 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
 
     func test_PackageShowView_few_keywords() throws {
+        
+        // Work-around to set the local time zone for time sensitive
+        // tests. Sets the explicit default time zone to UTC for the duration
+        // of this test.
+        let explicitGMTTimeZone = TimeZone(identifier: "Etc/UTC")!
+        let oldDefault = NSTimeZone.default
+        NSTimeZone.default = explicitGMTTimeZone
+        defer {
+            NSTimeZone.default = oldDefault
+        }
+
         var model = PackageShow.Model.mock
         let keywordsWithCounts = [("tag1", 1),
                                   ("tag2", 10),
@@ -66,6 +88,17 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
 
     func test_PackageShowView_many_keywords() throws {
+        
+        // Work-around to set the local time zone for time sensitive
+        // tests. Sets the explicit default time zone to UTC for the duration
+        // of this test.
+        let explicitGMTTimeZone = TimeZone(identifier: "Etc/UTC")!
+        let oldDefault = NSTimeZone.default
+        NSTimeZone.default = explicitGMTTimeZone
+        defer {
+            NSTimeZone.default = oldDefault
+        }
+
         var model = PackageShow.Model.mock
         let keywordsWithCounts = [("tag1", 1), ("tag2", 10), ("tag3", 100), ("tag4", 1000), ("tag5", 1234),
                         ("tag6", 1250), ("tag7", 1249), ("tag8", 1251), ("tag9", 12345),
