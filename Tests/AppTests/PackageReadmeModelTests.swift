@@ -102,18 +102,18 @@ class PackageReadmeModelTests: SnapshotTestCase {
         assertSnapshot(matching: readme, as: .lines)
     }
 
-    func test_url_initWithPotentiallyPercentEncodedPath() throws {
+    func test_url_initWithPotentiallyUnencodedPath() throws {
         // Relative URLs
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "/root/relative/url")).absoluteString, "/root/relative/url")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "relative/url")).absoluteString, "relative/url")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "/encoded%20spaces")).absoluteString, "/encoded%20spaces")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "/unencoded spaces")).absoluteString, "/unencoded%20spaces")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "/multiple%20%7Bencoded%7D")).absoluteString, "/multiple%20%7Bencoded%7D")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "/multiple {unencoded}")).absoluteString, "/multiple%20%7Bunencoded%7D")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "/root/relative/url")).absoluteString, "/root/relative/url")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "relative/url")).absoluteString, "relative/url")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "/encoded%20spaces")).absoluteString, "/encoded%20spaces")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "/unencoded spaces")).absoluteString, "/unencoded%20spaces")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "/multiple%20%7Bencoded%7D")).absoluteString, "/multiple%20%7Bencoded%7D")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "/multiple {unencoded}")).absoluteString, "/multiple%20%7Bunencoded%7D")
 
         // Absolute URLs
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "https://full.host/and/path")).absoluteString, "https://full.host/and/path")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "https://full.host/encoded%20spaces")).absoluteString, "https://full.host/encoded%20spaces")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "https://full.host/unencoded spaces")).absoluteString, "https://full.host/unencoded%20spaces")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "https://full.host/and/path")).absoluteString, "https://full.host/and/path")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "https://full.host/encoded%20spaces")).absoluteString, "https://full.host/encoded%20spaces")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "https://full.host/unencoded spaces")).absoluteString, "https://full.host/unencoded%20spaces")
     }
 }
