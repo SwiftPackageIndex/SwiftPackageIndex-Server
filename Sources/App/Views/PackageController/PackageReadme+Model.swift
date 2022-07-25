@@ -61,7 +61,7 @@ extension PackageReadme {
             do {
                 let imageElements = try element.select("img")
                 for imageElement in imageElements {
-                    guard let imageUrl = URL(string: try imageElement.attr("src"))
+                    guard let imageUrl = URL(withPotentiallyUnencodedPath: try imageElement.attr("src"))
                     else { continue }
 
                     // Assume all images are relative to GitHub as that's the only current source for README data.
@@ -82,7 +82,7 @@ extension PackageReadme {
             do {
                 let linkElements = try element.select("a")
                 for linkElement in linkElements {
-                    guard let linkUrl = URL(string: try linkElement.attr("href"))
+                    guard let linkUrl = URL(withPotentiallyUnencodedPath: try linkElement.attr("href"))
                     else { continue }
 
                     // Assume all links are relative to GitHub as that's the only current source for README data.
@@ -97,6 +97,19 @@ extension PackageReadme {
                 // HTML selection/parsing fails is that relative links don't get corrected.
                 return
             }
+        }
+    }
+}
+
+extension URL {
+    init?(withPotentiallyUnencodedPath string: String) {
+        if let url = URL(string: string) {
+            self = url
+        } else if let encodedString = string.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                  let encodedUrl = URL(string: encodedString) {
+            self = encodedUrl
+        } else {
+            return nil
         }
     }
 }
