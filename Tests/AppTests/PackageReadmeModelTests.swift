@@ -101,4 +101,15 @@ class PackageReadmeModelTests: SnapshotTestCase {
         let readme = try XCTUnwrap(model.readme)
         assertSnapshot(matching: readme, as: .lines)
     }
+
+    func test_url_initWithPotentiallyPercentEncodedPath() throws {
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "/root/relative/url")).absoluteString, "/root/relative/url")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "relative/url")).absoluteString, "relative/url")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "/relative/encoded%20spaces")).absoluteString, "/relative/encoded%20spaces")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "/relative/unencoded spaces")).absoluteString, "/relative/unencoded%20spaces")
+
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "https://full.host/and/path")).absoluteString, "https://full.host/and/path")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "https://full.host/encoded%20spaces")).absoluteString, "https://full.host/encoded%20spaces")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "https://full.host/unencoded spaces")).absoluteString, "https://full.host/unencoded%20spaces")
+    }
 }
