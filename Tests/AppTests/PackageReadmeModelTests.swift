@@ -59,6 +59,8 @@ class PackageReadmeModelTests: SnapshotTestCase {
                             <img src="https://example.com/absolute/image/url.png">
                             <img src="/root/relative/image/url.png">
                             <img src="relative/image/url.png">
+                            <img src="/url/with/encoded%20spaces.png">
+                            <img src="/url/with/unencoded spaces.png">
                             <img>
                         </article>
                     </div>
@@ -86,6 +88,8 @@ class PackageReadmeModelTests: SnapshotTestCase {
                             <a href="https://example.com/absolute/url">Absolute link.</a>
                             <a href="/root/relative/url">Root relative link.</a>
                             <a href="relative/url">Relative link.</a>
+                            <a src="/url/with/encoded%20spaces.png">
+                            <a src="/url/with/unencoded spaces.png">
                             <a href="#anchor">Anchor link.</a>
                             <a>Invalid link.</a>
                         </article>
