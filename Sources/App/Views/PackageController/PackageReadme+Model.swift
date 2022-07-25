@@ -105,7 +105,7 @@ extension URL {
     init?(withPotentiallyPercentEncodedPath string: String) {
         if let url = URL(string: string) {
             self = url
-        } else if let encodedString = string.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+        } else if let encodedString = string.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
                   let encodedUrl = URL(string: encodedString) {
             self = encodedUrl
         } else {
