@@ -61,7 +61,7 @@ extension PackageReadme {
             do {
                 let imageElements = try element.select("img")
                 for imageElement in imageElements {
-                    guard let imageUrl = URL(string: try imageElement.attr("src"))
+                    guard let imageUrl = URL(withPotentiallyPercentEncodedPath: try imageElement.attr("src"))
                     else { continue }
 
                     // Assume all images are relative to GitHub as that's the only current source for README data.
