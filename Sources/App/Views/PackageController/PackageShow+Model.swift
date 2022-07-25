@@ -338,8 +338,8 @@ extension PackageShow.Model {
 
         return .li(
             .class("has_binary_targets"),
-            "Some targets in this package do not include source code.",
-            " There may be more information available on why in the ",
+            .strong("This package includes binary-only targets "),
+            .text("where source code may not be available. There may be more info available in the "),
             linkNode(for: "README", url: "#readme"),
             .unwrap(licenseUrl) { url in
                     .group([
@@ -347,7 +347,7 @@ extension PackageShow.Model {
                         linkNode(for: "LICENSE", url: url)
                     ])
             },
-            " file."
+            "."
         )
     }
     
