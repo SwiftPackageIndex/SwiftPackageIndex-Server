@@ -21,6 +21,17 @@ class PackageReleasesModelTests: AppTestCase {
 
     func test_initialise() throws {
         // Setup
+        
+        // Work-around to set the local time zone for time sensitive
+        // tests. Sets the explicit default time zone to UTC for the duration
+        // of this test.
+        let explicitGMTTimeZone = TimeZone(identifier: "Etc/UTC")!
+        let oldDefault = NSTimeZone.default
+        NSTimeZone.default = explicitGMTTimeZone
+        defer {
+            NSTimeZone.default = oldDefault
+        }
+        
         Current.date = { .spiBirthday }
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
@@ -51,6 +62,17 @@ class PackageReleasesModelTests: AppTestCase {
     }
     
     func test_dateFormatting() throws {
+        
+        // Work-around to set the local time zone for time sensitive
+        // tests. Sets the explicit default time zone to UTC for the duration
+        // of this test.
+        let explicitGMTTimeZone = TimeZone(identifier: "Etc/UTC")!
+        let oldDefault = NSTimeZone.default
+        NSTimeZone.default = explicitGMTTimeZone
+        defer {
+            NSTimeZone.default = oldDefault
+        }
+
         let currentDate = Date(timeIntervalSince1970: 500)
         let targetDate = Date(timeIntervalSince1970: 0)
         
