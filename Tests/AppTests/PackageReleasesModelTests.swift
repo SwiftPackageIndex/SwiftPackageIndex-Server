@@ -46,6 +46,8 @@ class PackageReleasesModelTests: AppTestCase {
             .init(title: "0.0.1", date: "Released 50 years ago on 1 January 1970",
                   html: nil, link: "some url"),
         ])
+        // NOTE(heckj): test is sensitive to local time zones, breaks when run at GMT-7
+        // resolves as `31 December 1969`
     }
     
     func test_dateFormatting() throws {
@@ -54,6 +56,8 @@ class PackageReleasesModelTests: AppTestCase {
         
         XCTAssertEqual(PackageReleases.Model.formatDate(targetDate, currentDate: currentDate),
                        "Released 8 minutes ago on 1 January 1970")
+        // NOTE(heckj): test is sensitive to local time zones, breaks when run at GMT-7
+        // resolves as `31 December 1969`
         
         XCTAssertNil(PackageReleases.Model.formatDate(nil, currentDate: currentDate))
     }
