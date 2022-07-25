@@ -82,7 +82,7 @@ extension PackageReadme {
             do {
                 let linkElements = try element.select("a")
                 for linkElement in linkElements {
-                    guard let linkUrl = URL(string: try linkElement.attr("href"))
+                    guard let linkUrl = URL(withPotentiallyPercentEncodedPath: try linkElement.attr("href"))
                     else { continue }
 
                     // Assume all links are relative to GitHub as that's the only current source for README data.

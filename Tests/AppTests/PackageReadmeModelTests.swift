@@ -88,8 +88,8 @@ class PackageReadmeModelTests: SnapshotTestCase {
                             <a href="https://example.com/absolute/url">Absolute link.</a>
                             <a href="/root/relative/url">Root relative link.</a>
                             <a href="relative/url">Relative link.</a>
-                            <a src="/url/with/encoded%20spaces.png">
-                            <a src="/url/with/unencoded spaces.png">
+                            <a href="/url/with/encoded%20spaces">Encoded spaces.</a>
+                            <a href="/url/with/unencoded spaces">Unencoded spaces.</a>
                             <a href="#anchor">Anchor link.</a>
                             <a>Invalid link.</a>
                         </article>
