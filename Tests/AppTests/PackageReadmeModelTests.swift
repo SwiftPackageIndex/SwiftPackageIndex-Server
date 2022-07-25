@@ -109,6 +109,7 @@ class PackageReadmeModelTests: SnapshotTestCase {
         XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "/encoded%20spaces")).absoluteString, "/encoded%20spaces")
         XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "/unencoded spaces")).absoluteString, "/unencoded%20spaces")
         XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "/multiple {unencoded}")).absoluteString, "/multiple%20%7Bunencoded%7D")
+        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "/partially%20{encoded}")).absoluteString, "/partially%20%7Bencoded%7D")
 
         // Absolute URLs
         XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyPercentEncodedPath: "https://full.host/and/path")).absoluteString, "https://full.host/and/path")
