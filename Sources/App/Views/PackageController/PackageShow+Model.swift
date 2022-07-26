@@ -117,16 +117,24 @@ extension PackageShow {
                 let packageId = result.package.id
             else { return nil }
 
+
             let defaultDocumentationMetadata: DocumentationMetadata? = {
-                if let releaseVersion = result.releaseVersion,
-                   let releaseVersionDocArchive = releaseVersion.docArchives?.first {
-                    return .init(reference: "\(releaseVersion.reference)",
-                                 defaultArchive: releaseVersionDocArchive.title)
-                } else if let defaultBranchDocArchive = result.defaultBranchVersion.docArchives?.first {
-                    return .init(reference: "\(result.defaultBranchVersion.reference)",
-                                 defaultArchive: defaultBranchDocArchive.title)
+                if Environment.current == .development {
+                    if let releaseVersion = result.releaseVersion,
+                       let releaseVersionDocArchive = releaseVersion.docArchives?.first {
+                        return .init(reference: "\(releaseVersion.reference)",
+                                     defaultArchive: releaseVersionDocArchive.title)
+                    } else if let defaultBranchDocArchive = result.defaultBranchVersion.docArchives?.first {
+                        return .init(reference: "\(result.defaultBranchVersion.reference)",
+                                     defaultArchive: defaultBranchDocArchive.title)
+                    } else {
+                        return nil
+                    }
                 } else {
-                    return nil
+                    // Previous logic, until we're ready to roll out versioned documentation.
+                    return DocumentationMetadata(
+                        reference: result.repository.defaultBranch,
+                        defaultArchive: result.defaultBranchVersion.docArchives?.first?.title)
                 }
             }()
 
