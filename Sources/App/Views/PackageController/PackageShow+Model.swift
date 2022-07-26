@@ -118,12 +118,15 @@ extension PackageShow {
             else { return nil }
 
             let defaultDocumentationMetadata: DocumentationMetadata? = {
-                if let releaseVersion = result.releaseVersion {
+                if let releaseVersion = result.releaseVersion,
+                   let releaseVersionDocArchive = releaseVersion.docArchives?.first {
                     return .init(reference: "\(releaseVersion.reference)",
-                                 defaultArchive: releaseVersion.docArchives?.first?.title)
-                } else {
+                                 defaultArchive: releaseVersionDocArchive.title)
+                } else if let defaultBranchDocArchive = result.defaultBranchVersion.docArchives?.first {
                     return .init(reference: "\(result.defaultBranchVersion.reference)",
-                                 defaultArchive: result.defaultBranchVersion.docArchives?.first?.title)
+                                 defaultArchive: defaultBranchDocArchive.title)
+                } else {
+                    return nil
                 }
             }()
 
