@@ -99,7 +99,7 @@ class AnalyzerTests: AppTestCase {
                           }
                         }
                       ],
-                      "targets": [{"name": "t1"}]
+                      "targets": [{"name": "t1", "type": "executable"}]
                     }
                     """#
             }
@@ -116,7 +116,7 @@ class AnalyzerTests: AppTestCase {
                           }
                         }
                       ],
-                      "targets": [{"name": "t2"}]
+                      "targets": [{"name": "t2", "type": "regular"}]
                     }
                     """#
             }
