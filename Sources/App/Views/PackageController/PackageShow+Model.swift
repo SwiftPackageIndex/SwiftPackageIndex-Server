@@ -117,7 +117,26 @@ extension PackageShow {
                 let packageId = result.package.id
             else { return nil }
 
-            let defaultDocArchive = result.defaultBranchVersion.docArchives?.first?.title
+
+            let defaultDocumentationMetadata: DocumentationMetadata? = {
+                if Environment.current == .development {
+                    if let releaseVersion = result.releaseVersion,
+                       let releaseVersionDocArchive = releaseVersion.docArchives?.first {
+                        return .init(reference: "\(releaseVersion.reference)",
+                                     defaultArchive: releaseVersionDocArchive.title)
+                    } else if let defaultBranchDocArchive = result.defaultBranchVersion.docArchives?.first {
+                        return .init(reference: "\(result.defaultBranchVersion.reference)",
+                                     defaultArchive: defaultBranchDocArchive.title)
+                    } else {
+                        return nil
+                    }
+                } else {
+                    // Previous logic, until we're ready to roll out versioned documentation.
+                    return DocumentationMetadata(
+                        reference: result.repository.defaultBranch,
+                        defaultArchive: result.defaultBranchVersion.docArchives?.first?.title)
+                }
+            }()
 
             self.init(
                 packageId: packageId,
@@ -151,9 +170,7 @@ extension PackageShow {
                 score: result.package.score,
                 isArchived: repository.isArchived,
                 homepageUrl: repository.homepageUrl,
-                documentationMetadata: DocumentationMetadata(
-                    reference: result.repository.defaultBranch,
-                    defaultArchive: defaultDocArchive),
+                documentationMetadata: defaultDocumentationMetadata,
                 dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
                     packageURL: result.package.url,
                     defaultBranchReference: result.defaultBranchVersion.model.reference,
