@@ -113,6 +113,19 @@ struct DocumentationPageProcessor {
             breadcrumbs.append(Breadcrumb(title: "Documentation"))
         }
 
+        if docArchives.count > 1 {
+            breadcrumbs.append(Breadcrumb(title: "Archive", choices: [
+                .forEach(docArchives, { archive in
+                        .li(
+                            .a(
+                                .href(relativeDocumentationURL(reference: reference, docArchive: archive)),
+                                .text(archive)
+                            )
+                        )
+                })
+            ]))
+        }
+
         return Plot.Node.group(
             .header(
                 .class("spi"),
