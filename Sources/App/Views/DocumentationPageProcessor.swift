@@ -96,7 +96,7 @@ struct DocumentationPageProcessor {
         }
 
         var breadcrumbs = [
-            Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+            Breadcrumb(title: "Swift Package Index", url: SiteURL.home.relativeURL()),
             Breadcrumb(title: repositoryOwnerName, url: SiteURL.author(.value(repositoryOwner)).relativeURL()),
             Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL())
         ]
