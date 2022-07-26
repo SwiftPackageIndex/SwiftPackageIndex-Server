@@ -78,8 +78,6 @@ struct DocumentationPageProcessor {
     }
 
     var header: String {
-        let navMenuItems: [NavMenuItem] = [.addPackage, .blog, .faq, .searchLink]
-
         let documentationVersionChoices: [Plot.Node<HTML.ListContext>] = allAvailableDocumentationVersions.compactMap { version in
             // If a version has no docArchives, it has no documentation we can switch to.
             guard let firstDocArchive = docArchives.first else { return nil }
