@@ -385,8 +385,10 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  packageName: "Package Name",
                                                                  reference: "main",
                                                                  referenceKind: .release,
-                                                                 archive: "Archive1",
-                                                                 availableArchives: ["Archive1"],
+                                                                 availableArchives: [
+                                                                    .init(name: "Archive1",
+                                                                          isCurrent: true)
+                                                                 ],
                                                                  availableVersions: [
                                                                     .init(kind: .defaultBranch,
                                                                           reference: "main",
@@ -407,8 +409,12 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  packageName: "Package Name",
                                                                  reference: "main",
                                                                  referenceKind: .defaultBranch,
-                                                                 archive: "Archive1",
-                                                                 availableArchives: ["Archive1", "Archive2"],
+                                                                 availableArchives: [
+                                                                    .init(name: "Archive1",
+                                                                          isCurrent: true),
+                                                                    .init(name: "Archive2",
+                                                                          isCurrent: false)
+                                                                 ],
                                                                  availableVersions: [
                                                                     .init(kind: .defaultBranch,
                                                                           reference: "main",

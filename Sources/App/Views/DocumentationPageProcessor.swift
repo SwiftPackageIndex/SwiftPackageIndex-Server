@@ -24,9 +24,13 @@ struct DocumentationPageProcessor {
     let packageName: String
     let reference: String
     let referenceKind: Version.Kind?
-    let archive: String
-    let availableArchives: [String]
+    let availableArchives: [AvailableArchive]
     let availableVersions: [AvailableDocumentationVersion]
+
+    struct AvailableArchive {
+        let name: String
+        let isCurrent: Bool
+    }
 
     struct AvailableDocumentationVersion {
         let kind: Version.Kind
@@ -41,8 +45,7 @@ struct DocumentationPageProcessor {
           packageName: String,
           reference: String,
           referenceKind: Version.Kind?,
-          archive: String,
-          availableArchives: [String],
+          availableArchives: [AvailableArchive],
           availableVersions: [AvailableDocumentationVersion],
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
@@ -51,7 +54,6 @@ struct DocumentationPageProcessor {
         self.packageName = packageName
         self.reference = reference
         self.referenceKind = referenceKind
-        self.archive = archive
         self.availableArchives = availableArchives
         self.availableVersions = availableVersions
 
@@ -83,11 +85,13 @@ struct DocumentationPageProcessor {
     var header: String {
         let documentationVersionChoices: [Plot.Node<HTML.ListContext>] = availableVersions.compactMap { version in
             // If a version has no docArchives, it has no documentation we can switch to.
-            guard let firstDocArchive = availableArchives.first else { return nil }
+            guard let currentArchive = availableArchives.first(where: { $0.isCurrent })
+            else { return nil }
 
             return .li(
                 .a(
-                    .href(relativeDocumentationURL(reference: version.reference, docArchive: firstDocArchive)),
+                    .href(relativeDocumentationURL(reference: version.reference,
+                                                   docArchive: currentArchive.name)),
                     .span(
                         .class(version.kind.cssClass),
                         .text(version.reference)
@@ -116,13 +120,14 @@ struct DocumentationPageProcessor {
             breadcrumbs.append(Breadcrumb(title: "Documentation"))
         }
 
-        if availableArchives.count > 1 {
-            breadcrumbs.append(Breadcrumb(title: "Archive", choices: [
+        if availableArchives.count > 1,
+           let currentArchive = availableArchives.first(where: { $0.isCurrent }) {
+            breadcrumbs.append(Breadcrumb(title: currentArchive.name, choices: [
                 .forEach(availableArchives, { archive in
                         .li(
                             .a(
-                                .href(relativeDocumentationURL(reference: reference, docArchive: archive)),
-                                .text(archive)
+                                .href(relativeDocumentationURL(reference: reference, docArchive: archive.name)),
+                                .text(archive.name)
                             )
                         )
                 })

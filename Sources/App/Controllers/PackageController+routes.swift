@@ -168,17 +168,19 @@ struct PackageController {
                                      isLatestStable: isLatesStable)
                     }
 
+                let availableArchives: [DocumentationPageProcessor.AvailableArchive] = documentation.docArchives.map { archiveName in
+                        .init(name: archiveName, isCurrent: archiveName.lowercased() == archive)
+                }
+
                 // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
                 guard let body = awsResponse.body,
-                      let archive = archive,
                       let processor = DocumentationPageProcessor(repositoryOwner: owner,
                                                                  repositoryOwnerName: documentation.ownerName,
                                                                  repositoryName: repository,
                                                                  packageName: documentation.packageName,
                                                                  reference: reference,
                                                                  referenceKind: documentation.latest,
-                                                                 archive: archive,
-                                                                 availableArchives: documentation.docArchives,
+                                                                 availableArchives: availableArchives,
                                                                  availableVersions: availableDocumentationVersions,
                                                                  rawHtml: body.asString())
                 else {
