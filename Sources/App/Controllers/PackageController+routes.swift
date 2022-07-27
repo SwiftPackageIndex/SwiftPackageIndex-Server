@@ -97,7 +97,9 @@ struct PackageController {
             throw Abort(.notFound)
         }
 
-        let path = req.parameters.getCatchall().joined(separator: "/")
+        let archive = req.parameters.get("archive")
+        let catchAll = [archive].compactMap { $0 } + req.parameters.getCatchall()
+        let path = catchAll.joined(separator: "/")
 
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
         let awsResponse = try await Current.fetchDocumentation(req.client, url)
