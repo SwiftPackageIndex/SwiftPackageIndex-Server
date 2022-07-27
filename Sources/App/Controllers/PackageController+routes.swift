@@ -178,8 +178,8 @@ struct PackageController {
                                                                  reference: reference,
                                                                  referenceKind: documentation.latest,
                                                                  archive: archive,
-                                                                 docArchives: documentation.docArchives,
-                                                                 allAvailableDocumentationVersions: availableDocumentationVersions,
+                                                                 availableArchives: documentation.docArchives,
+                                                                 availableVersions: availableDocumentationVersions,
                                                                  rawHtml: body.asString())
                 else {
                     return try await awsResponse.encodeResponse(

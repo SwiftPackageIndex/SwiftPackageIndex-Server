@@ -386,8 +386,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  reference: "main",
                                                                  referenceKind: .release,
                                                                  archive: "Archive1",
-                                                                 docArchives: ["Archive1"],
-                                                                 allAvailableDocumentationVersions: [
+                                                                 availableArchives: ["Archive1"],
+                                                                 availableVersions: [
                                                                     .init(kind: .defaultBranch,
                                                                           reference: "main",
                                                                           docArchives: ["Archive1"],
@@ -408,8 +408,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  reference: "main",
                                                                  referenceKind: .defaultBranch,
                                                                  archive: "Archive1",
-                                                                 docArchives: ["Archive1", "Archive2"],
-                                                                 allAvailableDocumentationVersions: [
+                                                                 availableArchives: ["Archive1", "Archive2"],
+                                                                 availableVersions: [
                                                                     .init(kind: .defaultBranch,
                                                                           reference: "main",
                                                                           docArchives: ["Archive1", "Archive2"],

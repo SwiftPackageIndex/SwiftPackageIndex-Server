@@ -25,8 +25,8 @@ struct DocumentationPageProcessor {
     let reference: String
     let referenceKind: Version.Kind?
     let archive: String
-    let docArchives: [String]
-    let allAvailableDocumentationVersions: [AvailableDocumentationVersion]
+    let availableArchives: [String]
+    let availableVersions: [AvailableDocumentationVersion]
 
     struct AvailableDocumentationVersion {
         let kind: Version.Kind
@@ -42,8 +42,8 @@ struct DocumentationPageProcessor {
           reference: String,
           referenceKind: Version.Kind?,
           archive: String,
-          docArchives: [String],
-          allAvailableDocumentationVersions: [AvailableDocumentationVersion],
+          availableArchives: [String],
+          availableVersions: [AvailableDocumentationVersion],
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
@@ -52,8 +52,8 @@ struct DocumentationPageProcessor {
         self.reference = reference
         self.referenceKind = referenceKind
         self.archive = archive
-        self.docArchives = docArchives
-        self.allAvailableDocumentationVersions = allAvailableDocumentationVersions
+        self.availableArchives = availableArchives
+        self.availableVersions = availableVersions
 
         do {
             document = try SwiftSoup.parse(rawHtml)
@@ -81,9 +81,9 @@ struct DocumentationPageProcessor {
     }
 
     var header: String {
-        let documentationVersionChoices: [Plot.Node<HTML.ListContext>] = allAvailableDocumentationVersions.compactMap { version in
+        let documentationVersionChoices: [Plot.Node<HTML.ListContext>] = availableVersions.compactMap { version in
             // If a version has no docArchives, it has no documentation we can switch to.
-            guard let firstDocArchive = docArchives.first else { return nil }
+            guard let firstDocArchive = availableArchives.first else { return nil }
 
             return .li(
                 .a(
@@ -116,9 +116,9 @@ struct DocumentationPageProcessor {
             breadcrumbs.append(Breadcrumb(title: "Documentation"))
         }
 
-        if docArchives.count > 1 {
+        if availableArchives.count > 1 {
             breadcrumbs.append(Breadcrumb(title: "Archive", choices: [
-                .forEach(docArchives, { archive in
+                .forEach(availableArchives, { archive in
                         .li(
                             .a(
                                 .href(relativeDocumentationURL(reference: reference, docArchive: archive)),
@@ -143,7 +143,7 @@ struct DocumentationPageProcessor {
                 .if(Environment.current != .production,
                     .if(referenceKind != .release,
                         // Only try and show a link to the latest stable if there *is* a latest stable.
-                        .unwrap(allAvailableDocumentationVersions.first(where: \.isLatestStable)) { latestStable in
+                        .unwrap(availableVersions.first(where: \.isLatestStable)) { latestStable in
                                 .div(
                                     .class("latest_stable_wrap"),
                                     .div(
@@ -165,7 +165,7 @@ struct DocumentationPageProcessor {
                         }
                        )
                 ),
-                .if(docArchives.count > 1, .div(
+                .if(availableArchives.count > 1, .div(
                     .class("doc_archives_wrap"),
                     .div(
                         .class("inner doc_archives"),
@@ -174,7 +174,7 @@ struct DocumentationPageProcessor {
                                 .li(
                                     .text("Documentation for:")
                                 ),
-                                .forEach(docArchives, { archive in
+                                .forEach(availableArchives, { archive in
                                         .li(
                                             .a(
                                                 .href(relativeDocumentationURL(reference:reference, docArchive: archive)),
