@@ -89,6 +89,7 @@ struct DocumentationPageProcessor {
             else { return nil }
 
             return .li(
+                .if(version.reference == reference, .class("current")),
                 .a(
                     .href(relativeDocumentationURL(reference: version.reference,
                                                    docArchive: currentArchive.name)),
@@ -125,6 +126,7 @@ struct DocumentationPageProcessor {
             breadcrumbs.append(Breadcrumb(title: currentArchive.name, choices: [
                 .forEach(availableArchives, { archive in
                         .li(
+                            .if(archive.isCurrent, .class("current")),
                             .a(
                                 .href(relativeDocumentationURL(reference: reference, docArchive: archive.name)),
                                 .text(archive.name)
