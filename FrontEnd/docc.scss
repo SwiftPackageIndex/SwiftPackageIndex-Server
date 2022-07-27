@@ -65,6 +65,7 @@ header.spi {
 
           @media screen and (max-width: $mobile-breakpoint) {
             flex-direction: column;
+            align-items: flex-start;
             gap: 0;
           }
 
@@ -79,6 +80,10 @@ header.spi {
                 background-size: 30px;
                 background-repeat: no-repeat;
                 background-clip: padding-box;
+              }
+
+              @media screen and (max-width: $mobile-breakpoint) {
+                margin-bottom: 5px;
               }
             }
 
@@ -102,7 +107,7 @@ header.spi {
               }
 
               @media screen and (max-width: $mobile-breakpoint) {
-                margin-left: 20px;
+                margin-left: 25px;
               }
             }
 
