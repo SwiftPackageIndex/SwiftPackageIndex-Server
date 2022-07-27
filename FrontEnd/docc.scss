@@ -38,6 +38,7 @@ footer.spi {
   a {
     text-decoration: none;
     color: var(--header-text);
+    outline: none;
 
     &:hover {
       color: var(--header-link-highlight);
@@ -114,8 +115,8 @@ header.spi {
 
               ul {
                 display: none;
-                padding: 15px;
                 position: absolute;
+                padding: 15px 0;
                 min-width: 200px;
                 background-color: var(--header-background);
                 box-shadow: var(--panel-shadow);
@@ -124,17 +125,15 @@ header.spi {
                 &::before {
                   content: 'Switch to…';
                   display: list-item;
+                  padding: 0 15px;
                   font-size: 13px;
                 }
 
                 li {
-                  padding-left: 15px;
+                  padding: 2px 15px 2px 20px;
 
                   &.current {
-                    background-image: var(--image-current-indicator);
-                    background-position: left center;
-                    background-size: 9px;
-                    background-repeat: no-repeat;
+                    background-color: rgba(255, 255, 255, 0.15);
                   }
                 }
               }
@@ -142,7 +141,8 @@ header.spi {
               &:hover {
                 ul {
                   display: grid;
-                  gap: 5px;
+                  gap: 2px;
+                  z-index: 9999; // One more than the header.spi.
                 }
               }
             }
