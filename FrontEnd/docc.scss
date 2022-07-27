@@ -126,6 +126,17 @@ header.spi {
                   display: list-item;
                   font-size: 13px;
                 }
+
+                li {
+                  padding-left: 15px;
+
+                  &.current {
+                    background-image: var(--image-current-indicator);
+                    background-position: left center;
+                    background-size: 9px;
+                    background-repeat: no-repeat;
+                  }
+                }
               }
 
               &:hover {
