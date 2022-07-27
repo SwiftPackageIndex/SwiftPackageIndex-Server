@@ -385,14 +385,19 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  packageName: "Package Name",
                                                                  reference: "main",
                                                                  referenceKind: .release,
-                                                                 docArchives: [],
-                                                                 allAvailableDocumentationVersions: [],
+                                                                 docArchives: ["Archive1"],
+                                                                 allAvailableDocumentationVersions: [
+                                                                    .init(kind: .defaultBranch,
+                                                                          reference: "main",
+                                                                          docArchives: ["Archive1"],
+                                                                          isLatestStable: false),
+                                                                 ],
                                                                  rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
     }
 
-    func test_DocCTemplate_multipleTargets() throws {
+    func test_DocCTemplate_multipleVersions() throws {
         let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
         let doccHtml = try String(contentsOfFile: doccTemplatePath)
         let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
