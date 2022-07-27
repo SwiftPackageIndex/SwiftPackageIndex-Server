@@ -385,6 +385,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  packageName: "Package Name",
                                                                  reference: "main",
                                                                  referenceKind: .release,
+                                                                 archive: "Archive1",
                                                                  docArchives: ["Archive1"],
                                                                  allAvailableDocumentationVersions: [
                                                                     .init(kind: .defaultBranch,
@@ -406,6 +407,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  packageName: "Package Name",
                                                                  reference: "main",
                                                                  referenceKind: .defaultBranch,
+                                                                 archive: "Archive1",
                                                                  docArchives: ["Archive1", "Archive2"],
                                                                  allAvailableDocumentationVersions: [
                                                                     .init(kind: .defaultBranch,

@@ -24,6 +24,7 @@ struct DocumentationPageProcessor {
     let packageName: String
     let reference: String
     let referenceKind: Version.Kind?
+    let archive: String
     let docArchives: [String]
     let allAvailableDocumentationVersions: [AvailableDocumentationVersion]
 
@@ -40,6 +41,7 @@ struct DocumentationPageProcessor {
           packageName: String,
           reference: String,
           referenceKind: Version.Kind?,
+          archive: String,
           docArchives: [String],
           allAvailableDocumentationVersions: [AvailableDocumentationVersion],
           rawHtml: String) {
@@ -49,6 +51,7 @@ struct DocumentationPageProcessor {
         self.packageName = packageName
         self.reference = reference
         self.referenceKind = referenceKind
+        self.archive = archive
         self.docArchives = docArchives
         self.allAvailableDocumentationVersions = allAvailableDocumentationVersions
 

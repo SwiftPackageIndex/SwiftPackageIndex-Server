@@ -170,12 +170,14 @@ struct PackageController {
 
                 // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
                 guard let body = awsResponse.body,
+                      let archive = archive,
                       let processor = DocumentationPageProcessor(repositoryOwner: owner,
                                                                  repositoryOwnerName: documentation.ownerName,
                                                                  repositoryName: repository,
                                                                  packageName: documentation.packageName,
                                                                  reference: reference,
                                                                  referenceKind: documentation.latest,
+                                                                 archive: archive,
                                                                  docArchives: documentation.docArchives,
                                                                  allAvailableDocumentationVersions: availableDocumentationVersions,
                                                                  rawHtml: body.asString())
