@@ -164,27 +164,6 @@ struct DocumentationPageProcessor {
                                 )
                         }
                        )
-                ),
-                .if(availableArchives.count > 1, .div(
-                    .class("doc_archives_wrap"),
-                    .div(
-                        .class("inner doc_archives"),
-                        .nav(
-                            .ul(
-                                .li(
-                                    .text("Documentation for:")
-                                ),
-                                .forEach(availableArchives, { archive in
-                                        .li(
-                                            .a(
-                                                .href(relativeDocumentationURL(reference:reference, docArchive: archive)),
-                                                .text(archive)
-                                            )
-                                        )
-                                })
-                            )
-                        )
-                    ))
                 )
             )
         ).render()
