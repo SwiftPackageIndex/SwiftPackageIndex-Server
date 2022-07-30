@@ -176,7 +176,7 @@ enum PackageShow {
 
         func mainColumnCompatibility() -> Node<HTML.BodyContext> {
             .section(
-                .class("main_compatibility"),
+                .class("main-compatibility"),
                 .div(
                     .class("two-column v_end"),
                     .h3("Compatibility"),
