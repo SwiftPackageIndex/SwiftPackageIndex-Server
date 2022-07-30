@@ -88,7 +88,7 @@ extension SearchShow {
 
         func packageResultsSection() -> Node<HTML.BodyContext> {
             return .section(
-                .class("package_results"),
+                .class("package-results"),
                 .h4("Matching packages\(model.filters.isEmpty ? "" : " where&hellip;")"),
                 .if(model.filters.isEmpty == false,
                     .ul(

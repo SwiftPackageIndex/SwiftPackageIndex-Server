@@ -25,7 +25,7 @@ section.search_results {
   // with the package results (containing a flex child). This rule ensures consistent
   // vertical alignment, regardless of content.
   // More info: https://css-tricks.com/the-rules-of-margin-collapse/
-  .package_results,
+  .package-results,
   .author-results,
   .keyword-results {
     display: flex;
