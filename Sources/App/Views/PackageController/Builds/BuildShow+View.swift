@@ -83,7 +83,7 @@ enum BuildShow {
                 ),
                 .h3("Build Log"),
                 .pre(
-                    .id("build_log"),
+                    .id("build-log"),
                     .code(
                         .text(model.buildInfo.logs)
                     )

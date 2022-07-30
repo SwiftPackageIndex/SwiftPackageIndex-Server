@@ -15,7 +15,7 @@
 export class SPIBuildLogNavigation {
   constructor() {
     document.addEventListener('turbo:load', () => {
-      const buildLogElement = document.getElementById('build_log')
+      const buildLogElement = document.getElementById('build-log')
       if (!buildLogElement) return
 
       // Scroll to the bottom of the log.
