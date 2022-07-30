@@ -42,9 +42,9 @@
     padding: 20px;
     padding-top: 0;
     background-color: var(--panel-background);
+    border-top: 3px var(--panel-border) solid;
     box-shadow: var(--panel-shadow);
     transform: translate(-50%, -70%); // Slightly above centre looks best
-    border-top: 3px var(--panel-border) solid;
 
     &:not(.visible) {
       display: none;

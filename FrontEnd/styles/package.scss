@@ -220,8 +220,8 @@
       font-size: 14px;
       color: var(--page-text);
       background-color: var(--panel-background);
-      box-shadow: var(--panel-shadow);
       border-top: 3px var(--panel-border) solid;
+      box-shadow: var(--panel-shadow);
 
       &::before {
         content: '';
@@ -231,9 +231,9 @@
         width: 0;
         height: 0;
         margin-left: -10px;
-        border-color: transparent transparent var(--panel-border) transparent;
         border-style: solid;
         border-width: 0 10px 10px;
+        border-color: transparent transparent var(--panel-border) transparent;
       }
     }
 

@@ -54,8 +54,8 @@ section.search_results {
 
       li {
         background-color: var(--bordered-button-background);
-        list-style: none;
         border-left: 2px var(--bordered-button-border) solid;
+        list-style: none;
 
         &:hover {
           background-color: var(--bordered-button-hover);
