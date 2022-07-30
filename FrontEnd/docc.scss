@@ -67,8 +67,8 @@ header.spi {
 
         > ul {
           display: flex;
-          align-items: center;
           gap: 20px;
+          align-items: center;
           padding: 0;
           list-style: none;
 
@@ -151,8 +151,8 @@ header.spi {
 
           @media screen and (max-width: $mobile-breakpoint) {
             flex-direction: column;
-            align-items: flex-start;
             gap: 0;
+            align-items: flex-start;
           }
         }
       }
