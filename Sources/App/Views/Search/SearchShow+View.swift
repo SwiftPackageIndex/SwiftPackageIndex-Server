@@ -47,7 +47,7 @@ extension SearchShow {
                     .class("search"),
                     .searchForm(query: model.query),
                     .div(
-                        .class("filter_suggestions"),
+                        .class("filter-suggestions"),
                         .text("Add filters to narrow search results. "),
                         .span(
                             .class("learn_more"),
