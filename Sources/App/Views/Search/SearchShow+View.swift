@@ -92,7 +92,7 @@ extension SearchShow {
                 .h4("Matching packages\(model.filters.isEmpty ? "" : " where&hellip;")"),
                 .if(model.filters.isEmpty == false,
                     .ul(
-                        .class("filter_list"),
+                        .class("filter-list"),
                         .group(
                             model.filters.map {
                                 .li(
