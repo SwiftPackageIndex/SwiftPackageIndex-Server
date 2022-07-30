@@ -69,7 +69,7 @@ extension SearchShow {
 
         func resultsSection() -> Node<HTML.BodyContext> {
             .section(
-                .class("search_results"),
+                .class("search-results"),
                 .if(model.term.isEmpty == false, .p(
                     .text("Results for &ldquo;"),
                     .strong(.text(model.term)),
