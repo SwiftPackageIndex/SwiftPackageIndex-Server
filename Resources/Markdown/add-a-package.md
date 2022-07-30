@@ -18,7 +18,7 @@ There are a few requirements for inclusion in the index, but they aren't onerous
 - The package URLs must include the protocol (usually `https`) and the `.git` extension.
 - The packages must all compile without errors.
 
-<a href="https://github.com/SwiftPackageIndex/PackageList/issues/new/choose" class="big_button green">Add Package(s)</a>
+<a href="https://github.com/SwiftPackageIndex/PackageList/issues/new/choose" class="big-button green">Add Package(s)</a>
 
 <div class="note">
 <p><strong>Note:</strong> Our build system can now generate and host DocC documentation and make it available from your package’s page in the index. All we need is a little configuration data so that we know how best to build your docs.</p>
