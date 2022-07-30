@@ -211,7 +211,7 @@
   .try_in_playground {
     position: relative;
 
-    #app_download_explainer {
+    #app-download-explainer {
       position: absolute;
       left: -25%;
       width: 150%;
@@ -238,7 +238,7 @@
     }
 
     @media screen and (max-width: $mobile-breakpoint) {
-      #app_download_explainer {
+      #app-download-explainer {
         left: 10%;
         width: 80%;
       }

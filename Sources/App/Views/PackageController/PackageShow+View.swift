@@ -224,7 +224,7 @@ enum PackageShow {
                             "Try in a Playground"
                         ),
                         .div(
-                            .id("app_download_explainer"),
+                            .id("app-download-explainer"),
                             .class("hidden"),
                             .strong("Launching the SPI Playgrounds app&hellip;"),
                             .p(
