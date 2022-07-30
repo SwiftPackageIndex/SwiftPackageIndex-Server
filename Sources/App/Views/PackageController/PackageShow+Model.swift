@@ -661,7 +661,7 @@ extension Platform {
 extension License.Kind {
     var cssClass: String {
         switch self {
-            case .none: return "no_license"
+            case .none: return "no-license"
             case .incompatibleWithAppStore, .other: return "incompatible_license"
             case .compatibleWithAppStore: return "compatible_license"
         }
