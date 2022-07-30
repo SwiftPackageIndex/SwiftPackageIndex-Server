@@ -39,11 +39,11 @@ main > .inner {
     grid-template-columns: 1fr 1fr;
   }
 
-  &.v_center {
+  &.v-center {
     align-items: center;
   }
 
-  &.v_end {
+  &.v-end {
     align-items: end;
   }
 }

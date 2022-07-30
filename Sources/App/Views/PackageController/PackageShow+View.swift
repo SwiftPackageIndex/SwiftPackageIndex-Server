@@ -77,7 +77,7 @@ enum PackageShow {
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .div(
-                    .class("two-column v_end"),
+                    .class("two-column v-end"),
                     .div(
                         .class("package-title"),
                         .h2(.text(model.title)),
@@ -178,7 +178,7 @@ enum PackageShow {
             .section(
                 .class("main-compatibility"),
                 .div(
-                    .class("two-column v_end"),
+                    .class("two-column v-end"),
                     .h3("Compatibility"),
                     .a(
                         .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
