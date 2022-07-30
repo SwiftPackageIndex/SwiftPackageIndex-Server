@@ -74,19 +74,6 @@
     color: var(--page-text);
   }
 
-  .no_results {
-    padding: 40px;
-    text-align: center;
-  }
-
-  .more_results {
-    padding: 20px;
-    font-weight: 600;
-    text-align: center;
-    color: var(--page-text);
-    background-color: var(--results-separator);
-  }
-
   &.error {
     display: flex;
     flex-direction: column;
