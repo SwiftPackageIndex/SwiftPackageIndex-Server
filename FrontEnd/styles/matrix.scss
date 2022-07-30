@@ -54,7 +54,7 @@
       }
     }
 
-    .column_labels {
+    .column-labels {
       display: flex;
       grid-column: 2;
       flex-direction: row;
@@ -74,7 +74,7 @@
           grid-row: unset;
         }
 
-        .column_labels {
+        .column-labels {
           display: none;
         }
       }
@@ -84,7 +84,7 @@
       grid-template-columns: 1fr;
 
       .row_labels,
-      .column_labels,
+      .column-labels,
       .results {
         grid-column: unset;
         grid-row: unset;
@@ -92,7 +92,7 @@
     }
   }
 
-  .column_labels > div {
+  .column-labels > div {
     display: flex;
     flex-direction: column;
     flex-basis: 0;
@@ -146,7 +146,7 @@
   }
 
   &.builds {
-    .column_labels > div > span {
+    .column-labels > div > span {
       font-size: 16px;
       background-position: top 4px right;
     }

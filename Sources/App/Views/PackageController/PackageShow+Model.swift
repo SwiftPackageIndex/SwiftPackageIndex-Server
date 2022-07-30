@@ -623,7 +623,7 @@ extension PackageShow.Model {
             ),
             // Matrix CSS should include *both* the column labels, and the column values status boxes in *every* row.
             .div(
-                .class("column_labels"),
+                .class("column-labels"),
                 .forEach(cells) { $0.headerNode }
             ),
             .div(

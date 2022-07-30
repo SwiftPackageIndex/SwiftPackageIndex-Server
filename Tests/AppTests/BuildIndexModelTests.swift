@@ -198,7 +198,7 @@ class BuildIndexModelTests: AppTestCase {
                 .strong("iOS")
             ),
             .div(
-                .class("column_labels"),
+                .class("column-labels"),
                 .div(.span(.class("stable"), .text("1.2.3"))),
                 .div(.span(.class("beta"), .text("2.0.0-b1"))),
                 .div(.span(.class("branch"), .text("develop")))

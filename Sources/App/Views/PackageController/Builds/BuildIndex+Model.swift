@@ -160,7 +160,7 @@ extension BuildIndex.Model {
                 // No value indicates a missing/pending build
                 return cell(text: "Build Pending")
             }
-            
+
             let buildURL = SiteURL.builds(.value(value.id)).relativeURL()
 
             switch value.status {
@@ -247,7 +247,7 @@ extension BuildIndex.Model {
                     .strong(.text(index.platform.displayName))
                 ),
                 .div(
-                    .class("column_labels"),
+                    .class("column-labels"),
                     .group(values.map(\.column.node))
                 ),
                 .div(
