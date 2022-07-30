@@ -40,7 +40,8 @@ module.exports = {
     'scss/at-if-closing-brace-space-after': 'always-intermediate',
     'scss/at-if-closing-brace-newline-after': 'always-last-in-chain',
     'scss/comment-no-empty': null,
-    'selector-class-pattern': null,
+    'selector-class-pattern': '^([a-z][a-z0-9]*)(-[a-z0-9]+)*$',
+    'selector-id-pattern': '^([a-z][a-z0-9]*)(-[a-z0-9]+)*$',
     'string-quotes': 'single',
     'value-keyword-case': null,
     'order/properties-order': [
