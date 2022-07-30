@@ -32,7 +32,7 @@ enum NavMenuItem {
                         .href(ExternalURL.projectSponsorship)
                     ),
                     .div(
-                        .id("menu_scta_help"),
+                        .id("menu-scta-help"),
                         .p("The Swift Package Index is an open-source project entirely funded by community donations."),
                         .p(
                             .text("Please consider sponsoring this project. "),

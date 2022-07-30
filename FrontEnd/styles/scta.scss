@@ -38,7 +38,7 @@
   border: none;
 }
 
-#menu_scta_help {
+#menu-scta-help {
   display: none;
 
   p {
@@ -55,12 +55,12 @@
   #menu_scta:hover {
     animation: scta 0.6s ease-in-out alternate infinite;
 
-    & + #menu_scta_help {
+    & + #menu-scta-help {
       display: block;
     }
   }
 
-  #menu_scta_help {
+  #menu-scta-help {
     position: absolute;
     left: calc(-150px + 15px); // Half the div's width - half the heart's width.
     width: 300px;
