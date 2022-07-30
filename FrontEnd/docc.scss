@@ -72,12 +72,6 @@ header.spi {
           list-style: none;
           gap: 20px;
 
-          @media screen and (max-width: $mobile-breakpoint) {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0;
-          }
-
           > li {
             position: relative;
 
@@ -153,6 +147,12 @@ header.spi {
                 }
               }
             }
+          }
+
+          @media screen and (max-width: $mobile-breakpoint) {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0;
           }
         }
       }

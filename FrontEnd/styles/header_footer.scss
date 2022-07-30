@@ -63,12 +63,6 @@ header {
     padding: 20px 10px;
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
-    .inner {
-      flex-direction: column;
-    }
-  }
-
   h1 {
     display: flex;
     flex-direction: row;
@@ -80,17 +74,23 @@ header {
     }
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
-    h1 {
-      margin-bottom: 20px;
-    }
-  }
-
   nav a {
     border-bottom: 1px var(--header-link-text) solid;
 
     &:hover {
       border-color: var(--header-link-highlight);
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    .inner {
+      flex-direction: column;
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    h1 {
+      margin-bottom: 20px;
     }
   }
 }
@@ -119,12 +119,12 @@ footer {
   small {
     text-align: center;
 
-    @media screen and (max-width: $mobile-breakpoint) {
-      margin-top: 10px;
-    }
-
     a {
       font-size: 12px;
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      margin-top: 10px;
     }
   }
 

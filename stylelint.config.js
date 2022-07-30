@@ -44,6 +44,7 @@ module.exports = {
     'selector-id-pattern': '^([a-z][a-z0-9]*)(-[a-z0-9]+)*$',
     'string-quotes': 'single',
     'value-keyword-case': null,
+    'order/order': ['dollar-variables', 'custom-properties', 'declarations', 'rules', 'at-rules'],
     'order/properties-order': [
       'content',
       'src',

@@ -208,38 +208,6 @@
     }
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
-    article.details {
-      section.main_metadata {
-        order: 2;
-
-        ul {
-          grid-template-columns: 1fr;
-
-          li.history {
-            grid-column-start: 1; // Only needed as this was explicitly specified.
-          }
-
-          li.activity {
-            grid-column-start: 1; // Only needed as this was explicitly specified.
-          }
-        }
-      }
-
-      section.sidebar_links {
-        order: 1;
-      }
-
-      section.main_compatibility {
-        order: 2;
-      }
-
-      section.sidebar_versions {
-        order: 1;
-      }
-    }
-  }
-
   .try_in_playground {
     position: relative;
 
@@ -273,6 +241,38 @@
       #app_download_explainer {
         left: 10%;
         width: 80%;
+      }
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    article.details {
+      section.main_metadata {
+        order: 2;
+
+        ul {
+          grid-template-columns: 1fr;
+
+          li.history {
+            grid-column-start: 1; // Only needed as this was explicitly specified.
+          }
+
+          li.activity {
+            grid-column-start: 1; // Only needed as this was explicitly specified.
+          }
+        }
+      }
+
+      section.sidebar_links {
+        order: 1;
+      }
+
+      section.main_compatibility {
+        order: 2;
+      }
+
+      section.sidebar_versions {
+        order: 1;
       }
     }
   }

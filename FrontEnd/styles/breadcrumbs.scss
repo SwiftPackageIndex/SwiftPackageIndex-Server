@@ -24,11 +24,6 @@
     padding: 0;
     list-style: none;
 
-    @media screen and (max-width: $mobile-breakpoint) {
-      flex-direction: column;
-      gap: 0;
-    }
-
     li {
       position: relative;
 
@@ -54,6 +49,11 @@
           margin-left: 20px;
         }
       }
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      flex-direction: column;
+      gap: 0;
     }
   }
 }
