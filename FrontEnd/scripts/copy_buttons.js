@@ -55,7 +55,7 @@ export class SPICopyableInput extends SPICopyButton {
 
     document.addEventListener('turbo:load', () => {
       // Create a copy button inside every relevant form element.
-      const elements = document.querySelectorAll('form.copyable_input')
+      const elements = document.querySelectorAll('form.copyable-input')
       elements.forEach((formElement) => {
         // Get the first/only input element inside the form.
         const inputElement = formElement.querySelector('input')

@@ -139,7 +139,7 @@ extension Node where Context: HTML.BodyContext {
 
     static func copyableInputForm(buttonName: String, eventName: String, valueToCopy: String) -> Self {
         .form(
-            .class("copyable_input"),
+            .class("copyable-input"),
             .input(
                 .type(.text),
                 .data(named: "button-name", value: buttonName),
