@@ -106,7 +106,7 @@ struct DocumentationPageProcessor {
             Breadcrumb(title: repositoryOwnerName, url: SiteURL.author(.value(repositoryOwner)).relativeURL()),
             Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL())
         ]
-        
+
         if (Environment.current == .development) {
             breadcrumbs.append(Breadcrumb(title: .init(
                 .text("Documentation for "),
@@ -152,9 +152,9 @@ struct DocumentationPageProcessor {
                         // Only try and show a link to the latest stable if there *is* a latest stable.
                         .unwrap(availableVersions.first(where: \.isLatestStable)) { latestStable in
                                 .div(
-                                    .class("latest_stable_wrap"),
+                                    .class("latest-stable-wrap"),
                                     .div(
-                                        .class("inner latest_stable"),
+                                        .class("inner latest-stable"),
                                         .text(latestStableLinkExplanatoryText),
                                         .text(" "),
                                         .unwrap(latestStable.docArchives.first) { docArchive in

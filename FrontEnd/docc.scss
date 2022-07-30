@@ -158,12 +158,12 @@ header.spi {
       }
     }
 
-    &.latest_stable a {
+    &.latest-stable a {
       color: var(--header-link-highlight);
     }
   }
 
-  .latest_stable_wrap {
+  .latest-stable-wrap {
     background-color: rgba(255, 255, 255, 7.5%);
 
     @media (prefers-color-scheme: dark) {
