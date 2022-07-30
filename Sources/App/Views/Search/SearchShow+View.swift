@@ -119,7 +119,7 @@ extension SearchShow {
                     .text("No packages found.")
                 )),
                 .ul(
-                    .id("package_list"),
+                    .id("package-list"),
                     // Let the JavaScript know that keyboard navigation on this package list should
                     // also include navigation into and out of the query field.
                     .data(named: "focus-query-field", value: String(true)),
