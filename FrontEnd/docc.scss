@@ -15,24 +15,33 @@
 
 $mobile-breakpoint: 740px;
 
-@import 'styles/colors.scss';
-@import 'styles/images.scss';
+@import 'styles/colors';
+@import 'styles/images';
 
 header.spi,
 footer.spi {
-  width: 100%;
   position: sticky;
-  color: var(--header-text);
-  background-color: var(--header-background);
-  font-family: -apple-system, 'BlinkMacSystemFont', 'SF Hello', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial',
-    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji' !important;
+  width: 100%;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    'SF Hello',
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji' !important;
   font-size: 16px;
   line-height: 1.4;
+  color: var(--header-text);
+  background-color: var(--header-background);
 
   .inner {
-    margin: 0 auto;
     max-width: 980px;
-    padding: 10px 10px;
+    margin: 0 auto;
+    padding: 10px;
   }
 
   a {
@@ -41,8 +50,8 @@ footer.spi {
     outline: none;
 
     &:hover {
-      color: var(--header-link-highlight);
       text-decoration: underline;
+      color: var(--header-link-highlight);
     }
   }
 }
@@ -58,10 +67,10 @@ header.spi {
 
         > ul {
           display: flex;
-          gap: 20px;
+          align-items: center;
           padding: 0;
           list-style: none;
-          align-items: center;
+          gap: 20px;
 
           @media screen and (max-width: $mobile-breakpoint) {
             flex-direction: column;
@@ -75,10 +84,10 @@ header.spi {
             &:first-child {
               a {
                 padding-left: 40px;
-                background-image: url('/images/logo-medium.svg');
                 background-position: left center;
-                background-size: 30px;
                 background-repeat: no-repeat;
+                background-size: 30px;
+                background-image: url('/images/logo-medium.svg');
                 background-clip: padding-box;
               }
 
@@ -88,22 +97,22 @@ header.spi {
             }
 
             a {
-              padding: 5px 0;
               width: 100%;
               height: 100%;
+              padding: 5px 0;
             }
 
             &:not(:first-child) {
               &::before {
                 content: '';
                 position: absolute;
-                background-color: var(--breadcrumb-header);
                 top: calc(50% - 6px);
                 left: -16px;
+                opacity: 0.75;
                 width: 12px;
                 height: 12px;
+                background-color: var(--breadcrumb-header);
                 clip-path: polygon(50% 0, 75% 50%, 50% 100%, 25% 100%, 50% 50%, 25% 0);
-                opacity: 0.75;
               }
 
               @media screen and (max-width: $mobile-breakpoint) {
@@ -119,28 +128,28 @@ header.spi {
               }
 
               ul {
-                display: none;
                 position: absolute;
-                padding: 15px 0;
+                display: none;
                 min-width: 200px;
+                padding: 15px 0;
                 background-color: var(--header-background);
                 box-shadow: var(--panel-shadow);
-                border-top: 3px rgba(255, 255, 255, 0.2) solid;
+                border-top: 3px rgba(255, 255, 255, 20%) solid;
 
                 li {
                   padding: 2px 15px 2px 20px;
 
                   &.current {
-                    background-color: rgba(255, 255, 255, 0.15);
+                    background-color: rgba(255, 255, 255, 15%);
                   }
                 }
               }
 
               &:hover {
                 ul {
+                  z-index: 9999; // One more than the header.spi.
                   display: grid;
                   gap: 2px;
-                  z-index: 9999; // One more than the header.spi.
                 }
               }
             }
@@ -155,21 +164,21 @@ header.spi {
   }
 
   .latest_stable_wrap {
-    background-color: rgba(255, 255, 255, 0.075);
+    background-color: rgba(255, 255, 255, 7.5%);
 
     @media (prefers-color-scheme: dark) {
-      background-color: rgba(0, 0, 0, 0.125);
+      background-color: rgba(0, 0, 0, 12.5%);
     }
   }
 
   span.stable,
   span.beta,
   span.branch {
-    font-weight: 600;
     padding-left: 18px;
-    background-size: 14px;
-    background-repeat: no-repeat;
+    font-weight: 600;
     background-position: top 2px left;
+    background-repeat: no-repeat;
+    background-size: 14px;
   }
 
   span.stable {
@@ -195,12 +204,12 @@ footer.spi nav {
   }
 
   ul {
-    margin: 0;
-    padding: 0;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
+    margin: 0;
+    padding: 0;
 
     li {
       margin: 0 5px;

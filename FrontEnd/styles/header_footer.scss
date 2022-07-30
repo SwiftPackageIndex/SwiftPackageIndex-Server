@@ -37,12 +37,12 @@ footer {
 
   nav {
     ul {
-      margin: 0;
-      padding: 0;
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
       justify-content: center;
+      margin: 0;
+      padding: 0;
 
       li {
         margin: 0 5px;
@@ -75,8 +75,8 @@ header {
     align-items: center;
 
     img {
-      margin-right: 10px;
       max-width: 64px;
+      margin-right: 10px;
     }
   }
 

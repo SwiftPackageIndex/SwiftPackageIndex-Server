@@ -14,19 +14,19 @@
  */
 
 .spinner {
-  margin: 100px auto;
   width: 50px;
   height: 40px;
-  text-align: center;
+  margin: 100px auto;
   font-size: 10px;
+  text-align: center;
 }
 
 .spinner > div {
+  display: inline-block;
+  width: 6px;
+  height: 100%;
   margin: 0 1px;
   background-color: var(--grey);
-  height: 100%;
-  width: 6px;
-  display: inline-block;
   animation: sk-stretchdelay 1.2s infinite ease-in-out;
 }
 
@@ -52,6 +52,7 @@
   100% {
     transform: scaleY(0.5);
   }
+
   20% {
     transform: scaleY(1);
   }

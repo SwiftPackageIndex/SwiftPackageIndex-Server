@@ -21,6 +21,7 @@
   from {
     transform: scale(1, 1);
   }
+
   to {
     transform: scale(1.25, 1.25);
   }
@@ -28,13 +29,13 @@
 
 #menu_scta {
   display: block;
-  border: none;
   width: 30px;
   height: 30px;
-  background-image: var(--image-heart);
-  background-size: 25px;
   background-position: center center;
   background-repeat: no-repeat;
+  background-size: 25px;
+  background-image: var(--image-heart);
+  border: none;
 }
 
 #menu_scta_help {
@@ -61,27 +62,27 @@
 
   #menu_scta_help {
     position: absolute;
+    left: calc(-150px + 15px); // Half the div's width - half the heart's width.
+    width: 300px;
     margin-top: 10px;
     padding: 10px;
-    width: 300px;
-    left: calc(-150px + 15px); // Half the div's width - half the heart's width.
+    font-size: 14px;
     color: var(--page-text);
     background-color: var(--panel-background);
-    border-top: 3px var(--pink) solid;
     box-shadow: var(--panel-shadow);
-    font-size: 14px;
+    border-top: 3px var(--pink) solid;
 
-    &:before {
+    &::before {
       content: '';
       position: absolute;
-      left: 50%;
       top: -13px;
-      margin-left: -10px;
+      left: 50%;
       width: 0;
       height: 0;
-      border-style: solid;
-      border-width: 0 10px 10px 10px;
+      margin-left: -10px;
       border-color: transparent transparent var(--pink) transparent;
+      border-style: solid;
+      border-width: 0 10px 10px;
     }
   }
 }
@@ -93,12 +94,12 @@ body.home {
 
   .scta,
   .ccta {
-    padding: 15px;
     margin: 20px 0;
+    padding: 15px;
     background-color: var(--panel-background);
 
     p {
-      margin: 0 0 10px 0;
+      margin: 0 0 10px;
 
       &:last-of-type {
         margin: 0;
@@ -114,14 +115,14 @@ body.home {
     &::before {
       content: '';
       position: absolute;
+      top: -20px;
+      left: -10px;
       display: block;
       width: 40px;
       height: 35px;
-      left: -10px;
-      top: -20px;
-      background-image: var(--image-heart);
-      background-size: 100%;
       background-repeat: no-repeat;
+      background-size: 100%;
+      background-image: var(--image-heart);
     }
   }
 
@@ -132,9 +133,9 @@ body.home {
 
     img {
       display: block;
+      max-width: 180px;
       margin: 0 auto;
       padding: 15px;
-      max-width: 180px;
     }
 
     span {

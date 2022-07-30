@@ -25,18 +25,18 @@
   }
 
   h2 {
-    font-size: 22px;
     margin-top: 20px;
+    font-size: 22px;
   }
 
   h3 {
-    font-size: 17px;
     margin-top: 18px;
+    font-size: 17px;
   }
 
   h4 {
-    font-size: 15px;
     margin-top: 16px;
+    font-size: 15px;
   }
 
   img {
@@ -44,10 +44,10 @@
   }
 
   table {
+    overflow: auto;
     width: 100%;
     width: max-content;
     max-width: 100%;
-    overflow: auto;
     border-collapse: collapse;
 
     th {
@@ -71,8 +71,8 @@
   }
 
   .anchor {
-    visibility: hidden;
     position: absolute;
+    visibility: hidden;
   }
 
   .contains-task-list {
@@ -94,12 +94,12 @@
 }
 
 g-emoji {
-  font-family: Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+  vertical-align: -0.075em;
+  margin-right: -10px;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   font-style: normal !important;
   font-weight: 400;
   line-height: 1;
-  vertical-align: -0.075em;
-  margin-right: -10px;
 }
 
 @media (prefers-color-scheme: light) {

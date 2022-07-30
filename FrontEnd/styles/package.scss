@@ -44,9 +44,9 @@
     }
 
     ul.main_metadata {
-      padding: 0;
-      margin: 10px 0;
       display: grid;
+      margin: 10px 0;
+      padding: 0;
       grid-template-columns: 0.5fr 0.5fr;
       grid-auto-flow: row;
       gap: 15px;
@@ -54,10 +54,10 @@
       // Only the direct list inside the metadata section, not the keywords list.
       & > li {
         padding: 0 0 0 30px;
-        list-style: outside none none;
-        background-size: 18px;
-        background-repeat: no-repeat;
         background-position: top 2px left;
+        background-repeat: no-repeat;
+        background-size: 18px;
+        list-style: outside none none;
       }
 
       li.archived {
@@ -90,6 +90,7 @@
         &.error {
           background-image: var(--image-error);
         }
+
         .no_license {
           color: var(--red-text);
         }
@@ -113,8 +114,8 @@
       }
 
       li.plugins {
-        background-size: 14px;
         background-position: 3px center;
+        background-size: 14px;
         background-image: var(--image-plug);
       }
 
@@ -132,10 +133,10 @@
 
     section.sidebar_links {
       ul {
+        display: grid;
         margin: 0;
         padding: 0;
         list-style: none;
-        display: grid;
         gap: 5px;
 
         li > a {
@@ -149,12 +150,11 @@
             background-color: var(--bordered-button-hover);
           }
 
-          &[href^='https://github.com/' i]
-          {
+          &[href^='https://github.com/' i] {
             padding-left: 33px;
-            background-size: 18px;
-            background-repeat: no-repeat;
             background-position: center left 8px;
+            background-repeat: no-repeat;
+            background-size: 18px;
             background-image: var(--image-github);
           }
         }
@@ -165,15 +165,15 @@
       width: 100%;
 
       ul {
+        display: grid;
         padding: 0;
         list-style: none;
-        display: grid;
         gap: 15px;
 
         li {
           display: flex;
           flex-direction: column;
-          padding: 5px 10px 6px 10px;
+          padding: 5px 10px 6px;
           background-color: var(--sidebar-section-background);
           border-left: 3px var(--sidebar-section-border) solid;
 
@@ -200,9 +200,9 @@
       small {
         display: block;
         padding-left: 22px;
-        background-size: 16px;
-        background-repeat: no-repeat;
         background-position: top 3px left;
+        background-repeat: no-repeat;
+        background-size: 16px;
         background-image: var(--image-question);
       }
     }
@@ -245,34 +245,34 @@
 
     #app_download_explainer {
       position: absolute;
+      left: -25%;
+      width: 150%;
       margin-top: 10px;
       padding: 10px;
-      width: 150%;
-      left: -25%;
+      font-size: 14px;
       color: var(--page-text);
       background-color: var(--panel-background);
-      border-top: 3px var(--panel-border) solid;
       box-shadow: var(--panel-shadow);
-      font-size: 14px;
+      border-top: 3px var(--panel-border) solid;
 
-      &:before {
+      &::before {
         content: '';
         position: absolute;
-        left: 50%;
         top: -13px;
-        margin-left: -10px;
+        left: 50%;
         width: 0;
         height: 0;
-        border-style: solid;
-        border-width: 0 10px 10px 10px;
+        margin-left: -10px;
         border-color: transparent transparent var(--panel-border) transparent;
+        border-style: solid;
+        border-width: 0 10px 10px;
       }
     }
 
     @media screen and (max-width: $mobile-breakpoint) {
       #app_download_explainer {
-        width: 80%;
         left: 10%;
+        width: 80%;
       }
     }
   }
@@ -283,11 +283,11 @@
 span.stable,
 span.beta,
 span.branch {
-  font-weight: 600;
   padding-right: 18px;
-  background-size: 14px;
-  background-repeat: no-repeat;
+  font-weight: 600;
   background-position: top 2px right;
+  background-repeat: no-repeat;
+  background-size: 14px;
 }
 
 span.stable {

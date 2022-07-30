@@ -146,18 +146,18 @@
     color: #959da5;
   }
 
-  .pl-c1 /* constant, entity.name.constant, variable.other.constant, variable.language, support, meta.property-name, support.constant, support.variable, meta.module-reference, markup.quote, markup.raw, meta.diff.header */,
-.pl-s .pl-v /* string variable */ {
+  .pl-c1,
+  .pl-s .pl-v /* string variable */ {
     color: #c8e1ff;
   }
 
-  .pl-e /* entity */,
-.pl-en /* entity.name */ {
+  .pl-e,
+  .pl-en /* entity.name */ {
     color: #b392f0;
   }
 
-  .pl-smi /* variable.parameter.function, storage.modifier.package, storage.modifier.import, storage.type.java, variable.other */,
-.pl-s .pl-s1 /* string source */ {
+  .pl-smi,
+  .pl-s .pl-s1 /* string source */ {
     color: #f6f8fa;
   }
 
@@ -169,18 +169,18 @@
     color: #ea4a5a;
   }
 
-  .pl-s /* string */,
-.pl-pds /* punctuation.definition.string, source.regexp, string.regexp.character-class */,
-.pl-s .pl-pse .pl-s1 /* string punctuation.section.embedded source */,
-.pl-sr /* string.regexp */,
-.pl-sr .pl-cce /* string.regexp constant.character.escape */,
-.pl-sr .pl-sre /* string.regexp source.ruby.embedded */,
-.pl-sr .pl-sra /* string.regexp string.regexp.arbitrary-repitition */ {
+  .pl-s,
+  .pl-pds,
+  .pl-s .pl-pse .pl-s1,
+  .pl-sr,
+  .pl-sr .pl-cce,
+  .pl-sr .pl-sre,
+  .pl-sr .pl-sra /* string.regexp string.regexp.arbitrary-repitition */ {
     color: #79b8ff;
   }
 
-  .pl-v /* variable */,
-.pl-ml /* markup.list, sublimelinter.mark.warning */ {
+  .pl-v,
+  .pl-ml /* markup.list, sublimelinter.mark.warning */ {
     color: #fb8532;
   }
 
@@ -207,9 +207,9 @@
     color: #7bcc72;
   }
 
-  .pl-mh /* markup.heading */,
-.pl-mh .pl-en /* markup.heading entity.name */,
-.pl-ms /* meta.separator */ {
+  .pl-mh,
+  .pl-mh .pl-en,
+  .pl-ms /* meta.separator */ {
     font-weight: bold;
     color: #0366d6;
   }

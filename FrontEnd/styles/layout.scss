@@ -18,8 +18,8 @@
 ---------------------------------------------------------------------------- */
 
 .inner {
-  margin: 0 auto;
   max-width: 850px;
+  margin: 0 auto;
 }
 
 main > .inner {
@@ -69,9 +69,9 @@ main > .inner {
 
 .staging {
   padding: 10px;
+  font-weight: bold;
   text-align: center;
   text-transform: uppercase;
-  font-weight: bold;
-  background-color: var(--mid-red);
   color: var(--white);
+  background-color: var(--mid-red);
 }

@@ -53,13 +53,14 @@ section.search_results {
       gap: 5px;
 
       li {
+        background-color: var(--bordered-button-background);
         list-style: none;
         border-left: 2px var(--bordered-button-border) solid;
-        background-color: var(--bordered-button-background);
 
         &:hover {
           background-color: var(--bordered-button-hover);
         }
+
         & > a {
           padding: 3px 7px;
         }
@@ -69,10 +70,10 @@ section.search_results {
 }
 
 ul.pagination {
-  padding: 0;
   display: grid;
-  grid-template-columns: 0.5fr 0.5fr;
+  padding: 0;
   list-style: none;
+  grid-template-columns: 0.5fr 0.5fr;
 
   .previous {
     grid-column-start: 1;
@@ -88,22 +89,22 @@ ul.pagination {
 ul.filter_list {
   display: flex;
   flex-direction: column;
+  padding: 0;
   list-style: none;
   gap: 5px;
-  padding: 0;
 
   .filter-key,
   .filter-value {
-    background-color: var(--search-filter-background);
     padding: 3px 6px;
     font-weight: 500;
+    background-color: var(--search-filter-background);
   }
 
-  li:not(:first-child):before {
+  li:not(:first-child)::before {
     content: 'and';
+    margin-right: 5px;
     font-weight: 500;
     color: var(--search-filter-ampersand-color);
-    margin-right: 5px;
   }
 
   li:first-child {

@@ -14,10 +14,10 @@
  */
 
 #package_list {
-  padding: 0;
   display: grid;
-  gap: 5px;
+  padding: 0;
   list-style: none;
+  gap: 5px;
 
   > li {
     background-color: var(--package-list-background);
@@ -25,8 +25,8 @@
 
     a {
       display: block;
-      padding: 10px;
       align-items: center;
+      padding: 10px;
 
       h4 {
         margin: 0;
@@ -61,9 +61,9 @@
         &:not(:first-child)::before {
           content: '';
           display: inline-block;
-          margin-right: 2px;
           width: 9px;
           height: 9px;
+          margin-right: 2px;
           background-position: center;
           background-size: cover;
         }
@@ -78,8 +78,8 @@
       }
 
       li.has_documentation::before {
-        background-image: var(--image-book);
         background-size: 84%;
+        background-image: var(--image-book);
       }
     }
 

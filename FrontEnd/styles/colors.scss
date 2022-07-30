@@ -83,7 +83,7 @@
 
   --panel-background: var(--very-light-grey);
   --panel-border: var(--light-grey);
-  --panel-shadow: 0 6px 10px 5px rgba(0, 0, 0, 0.1);
+  --panel-shadow: 0 6px 10px 5px rgba(0, 0, 0, 10%);
   --panel-underlay-background: var(--black);
   --panel-underlay-opacity: 0.5;
 
@@ -103,8 +103,8 @@
   --header-text: var(--white);
   --header-link-text: var(--white);
   --header-link-highlight: var(--yellow);
-  --header-gradient-start: rgba(255, 255, 255, 0.2);
-  --header-gradient-end: rgba(255, 255, 255, 0.05);
+  --header-gradient-start: rgba(255, 255, 255, 20%);
+  --header-gradient-end: rgba(255, 255, 255, 5%);
 
   --breadcrumb: var(--light-grey);
   --breadcrumb-header: var(--grey);
@@ -164,7 +164,7 @@
   --big-button-blue-background: var(--mid-blue);
   --big-button-blue-border: var(--light-blue);
 
-  --keyword-count-background: rgba(0, 0, 0, 0.1);
+  --keyword-count-background: rgba(0, 0, 0, 10%);
 }
 
 /* Dark mode semantic color overrides */
@@ -189,8 +189,8 @@
     --table-row-alt-background: var(--very-very-dark-grey);
 
     --header-background: var(--very-dark-blue);
-    --header-gradient-start: rgba(255, 255, 255, 0.08);
-    --header-gradient-end: rgba(255, 255, 255, 0.03);
+    --header-gradient-start: rgba(255, 255, 255, 8%);
+    --header-gradient-end: rgba(255, 255, 255, 3%);
 
     --breadcrumb: var(--dark-grey);
 
@@ -239,6 +239,6 @@
     --big-button-blue-background: var(--mid-blue);
     --big-button-blue-border: var(--light-blue);
 
-    --keyword-count-background: rgba(255, 255, 255, 0.125);
+    --keyword-count-background: rgba(255, 255, 255, 12.5%);
   }
 }

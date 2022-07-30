@@ -24,11 +24,13 @@ section.search,
 nav > ul > li.search {
   form {
     display: grid;
-    grid-template-columns: auto 50px;
-    border: 1px var(--input-border) solid;
     background-color: var(--input-background);
+    border: 1px var(--input-border) solid;
+    grid-template-columns: auto 50px;
 
     input[type='search'] {
+      -webkit-appearance: none;
+      width: 100%;
       padding: 12px;
       font-size: 25px;
       font-weight: 600;
@@ -36,8 +38,6 @@ nav > ul > li.search {
       color: var(--input-text);
       background-color: var(--input-background);
       border: none;
-      width: 100%;
-      -webkit-appearance: none;
 
       &:focus {
         outline: none;
@@ -45,25 +45,24 @@ nav > ul > li.search {
 
       &::-webkit-search-cancel-button {
         -webkit-appearance: none; // remove the default "clear" button style.
-
-        height: 15px;
         width: 15px;
-        background-image: var(--image-clear-search);
-        background-size: 15px;
-        background-repeat: no-repeat;
+        height: 15px;
         background-position: center center;
+        background-repeat: no-repeat;
+        background-size: 15px;
+        background-image: var(--image-clear-search);
       }
     }
 
     button {
       margin: 0;
       padding: 0;
-      border: none;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: 23px;
       background-color: var(--input-background);
       background-image: var(--image-magnifying-glass);
-      background-size: 23px;
-      background-repeat: no-repeat;
-      background-position: center center;
+      border: none;
     }
   }
 }
@@ -83,28 +82,28 @@ section.search {
   }
 
   &.home {
-    background-image: radial-gradient(var(--header-gradient-start) 0%, var(--header-gradient-end) 75%);
-    background-color: var(--header-background);
     color: var(--white);
+    background-color: var(--header-background);
+    background-image: radial-gradient(var(--header-gradient-start) 0%, var(--header-gradient-end) 75%);
 
     .inner {
-      padding: 40px 0;
       display: flex;
       flex-direction: column;
       align-items: center;
+      padding: 40px 0;
     }
 
     h3 {
       margin: 0;
-      text-align: center;
       font-size: 18px;
       font-weight: 600;
+      text-align: center;
     }
 
     form {
-      margin: 30px 0;
       width: 90%;
       max-width: 600px;
+      margin: 30px 0;
       border: none;
     }
   }
@@ -142,10 +141,10 @@ nav > ul > li.search {
       display: block;
       width: 25px;
       height: 25px;
-      background-image: var(--image-magnifying-glass);
-      background-size: 20px;
-      background-repeat: no-repeat;
       background-position: center center;
+      background-repeat: no-repeat;
+      background-size: 20px;
+      background-image: var(--image-magnifying-glass);
       border: none;
     }
 

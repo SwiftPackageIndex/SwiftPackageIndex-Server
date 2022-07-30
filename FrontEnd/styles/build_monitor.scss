@@ -59,9 +59,9 @@
       gap: 3px;
 
       > span {
-        background-size: 18px;
         background-position: left center;
         background-repeat: no-repeat;
+        background-size: 18px;
       }
 
       &.ok {
@@ -85,9 +85,9 @@
 
     .runner > span {
       padding-left: 22px;
-      background-size: 15px;
       background-position: left center;
       background-repeat: no-repeat;
+      background-size: 15px;
       background-image: var(--image-server);
     }
 

@@ -22,20 +22,29 @@
 }
 
 body {
-  color: var(--page-text);
-  background-color: var(--page-background);
-  font-family: -apple-system, 'BlinkMacSystemFont', 'SF Hello', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial',
-    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    'SF Hello',
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji';
   font-size: 16px;
   line-height: 1.4;
+  color: var(--page-text);
+  background-color: var(--page-background);
 }
 
 h1 {
   margin: 0;
   padding: 0;
   font-size: 23px;
-  line-height: 1.2;
   font-weight: 600;
+  line-height: 1.2;
 }
 
 h2 {
@@ -54,8 +63,8 @@ h4 {
 }
 
 a {
-  color: var(--link-text);
   text-decoration: none;
+  color: var(--link-text);
 }
 
 a:hover {
@@ -72,13 +81,13 @@ small {
 }
 
 pre {
-  border: 1px var(--code-snippet-border) solid;
-  background-color: var(--code-snippet-background);
-  color: var(--code-snippet-text);
-  font-size: 14px;
-  border-radius: 4px;
-  padding: 15px;
   overflow: auto;
+  padding: 15px;
+  font-size: 14px;
+  color: var(--code-snippet-text);
+  background-color: var(--code-snippet-background);
+  border: 1px var(--code-snippet-border) solid;
+  border-radius: 4px;
 }
 
 code {
@@ -92,24 +101,24 @@ blockquote {
 }
 
 .note {
-  padding: 0 20px;
   margin: 0 10px 20px;
-  border: 1px solid;
+  padding: 0 20px;
   color: var(--note-text);
   background-color: var(--note-background);
+  border: 1px solid;
   border-color: var(--note-border);
 
   img {
-    margin: 0 !important;
     display: inline-block !important;
+    margin: 0 !important;
   }
 }
 
 hr {
-  margin: 25px auto;
-  border: 0;
   height: 2px;
+  margin: 25px auto;
   background-color: var(--rule-background);
+  border: 0;
 
   &.tight {
     margin: 10px auto;
@@ -124,9 +133,9 @@ hr {
 noscript {
   display: block;
   padding: 20px 0;
-  background-color: var(--error-background);
-  color: var(--error-text);
   text-align: center;
+  color: var(--error-text);
+  background-color: var(--error-background);
 }
 
 ::placeholder {
@@ -136,11 +145,11 @@ noscript {
 button {
   margin: 0;
   padding: 8px 16px;
+  font-size: 15px;
   color: var(--button-text);
   background-color: var(--button-background);
-  border-radius: 4px;
   border: none;
-  font-size: 15px;
+  border-radius: 4px;
 
   &:active {
     filter: brightness(140%);
@@ -164,8 +173,8 @@ button {
 }
 
 .right {
-  text-align: right;
   justify-items: flex-end;
+  text-align: right;
 }
 
 .turbo-progress-bar {
@@ -175,19 +184,19 @@ button {
 
 a.download {
   display: block;
+  max-width: 300px;
+  margin: 30px auto;
   padding: 20px;
   padding-right: 50px;
-  margin: 30px auto;
-  max-width: 300px;
-  background-color: var(--mid-green);
-  color: var(--white);
-  font-weight: bold;
   font-size: 20px;
-  border-left: 3px var(--light-green) solid;
-  background-image: var(--image-download);
+  font-weight: bold;
+  color: var(--white);
   background-position: right 20px center;
   background-repeat: no-repeat;
   background-size: 30px;
+  background-color: var(--mid-green);
+  background-image: var(--image-download);
+  border-left: 3px var(--light-green) solid;
 
   p {
     margin: 0;
@@ -201,11 +210,11 @@ a.download {
 
 a.big_button {
   display: inline-block;
-  padding: 10px 20px;
   margin: 10px;
+  padding: 10px 20px;
+  font-size: 18px;
   text-align: center;
   color: var(--white);
-  font-size: 18px;
   border-left: 3px solid;
 
   &.green {
@@ -222,8 +231,8 @@ a.big_button {
 .announcement {
   margin: 0;
   padding: 8px 0;
-  background-color: var(--announcement-background);
   text-align: center;
+  background-color: var(--announcement-background);
 }
 
 .hidden {
@@ -237,8 +246,8 @@ a.big_button {
 
 .count_tag {
   padding: 1px 5px;
-  border-radius: 20px;
+  font-size: 10px;
   color: var(--page-text);
   background: var(--keyword-count-background);
-  font-size: 10px;
+  border-radius: 20px;
 }
