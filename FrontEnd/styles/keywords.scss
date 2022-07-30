@@ -20,8 +20,8 @@ ul.keywords {
   li {
     display: inline-block;
     margin: 2px 5px 2px 0;
-    border-left: 2px var(--bordered-button-border) solid;
     background-color: var(--bordered-button-background);
+    border-left: 2px var(--bordered-button-border) solid;
 
     &:hover {
       background-color: var(--bordered-button-hover);

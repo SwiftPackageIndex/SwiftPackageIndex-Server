@@ -49,8 +49,8 @@ section.search_results {
     ul {
       display: flex;
       flex-direction: column;
-      padding: 0;
       gap: 5px;
+      padding: 0;
 
       li {
         background-color: var(--bordered-button-background);
@@ -71,9 +71,9 @@ section.search_results {
 
 ul.pagination {
   display: grid;
+  grid-template-columns: 0.5fr 0.5fr;
   padding: 0;
   list-style: none;
-  grid-template-columns: 0.5fr 0.5fr;
 
   .previous {
     grid-column-start: 1;
@@ -89,9 +89,9 @@ ul.pagination {
 ul.filter_list {
   display: flex;
   flex-direction: column;
+  gap: 5px;
   padding: 0;
   list-style: none;
-  gap: 5px;
 
   .filter-key,
   .filter-value {

@@ -109,8 +109,8 @@ body.home {
 
   .scta {
     position: relative;
-    border-bottom: 3px var(--pink) solid;
     margin-bottom: 40px;
+    border-bottom: 3px var(--pink) solid;
 
     &::before {
       content: '';
@@ -128,8 +128,8 @@ body.home {
 
   .ccta {
     padding-top: 0;
-    border-bottom: 3px var(--mid-blue) solid;
     color: var(--page-text);
+    border-bottom: 3px var(--mid-blue) solid;
 
     img {
       display: block;

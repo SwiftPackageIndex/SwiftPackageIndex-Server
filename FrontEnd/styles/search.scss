@@ -24,9 +24,9 @@ section.search,
 nav > ul > li.search {
   form {
     display: grid;
+    grid-template-columns: auto 50px;
     background-color: var(--input-background);
     border: 1px var(--input-border) solid;
-    grid-template-columns: auto 50px;
 
     input[type='search'] {
       -webkit-appearance: none;

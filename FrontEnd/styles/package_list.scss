@@ -15,9 +15,9 @@
 
 #package_list {
   display: grid;
+  gap: 5px;
   padding: 0;
   list-style: none;
-  gap: 5px;
 
   > li {
     background-color: var(--package-list-background);
@@ -50,8 +50,8 @@
 
     ul.metadata {
       display: inline-flex;
-      padding: 0;
       gap: 10px;
+      padding: 0;
 
       li {
         display: inline-flex;

@@ -20,12 +20,12 @@
 section[data-controller='tab-bar'] {
   ul.tab-list {
     display: flex;
+    gap: 10px;
     margin: 20px 0;
     padding: 0 0 0 10px;
     background-color: var(--tab-bar-background);
     box-shadow: inset 0 -3px var(--tab-bar-border);
     list-style-type: none;
-    gap: 10px;
 
     li {
       display: block;

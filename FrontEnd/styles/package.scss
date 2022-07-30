@@ -45,11 +45,11 @@
 
     ul.main_metadata {
       display: grid;
-      margin: 10px 0;
-      padding: 0;
       grid-template-columns: 0.5fr 0.5fr;
       grid-auto-flow: row;
       gap: 15px;
+      margin: 10px 0;
+      padding: 0;
 
       // Only the direct list inside the metadata section, not the keywords list.
       & > li {
@@ -134,17 +134,17 @@
     section.sidebar_links {
       ul {
         display: grid;
+        gap: 5px;
         margin: 0;
         padding: 0;
         list-style: none;
-        gap: 5px;
 
         li > a {
           display: block;
           padding: 5px;
           padding-left: 10px;
-          border-left: 3px var(--bordered-button-border) solid;
           background-color: var(--bordered-button-background);
+          border-left: 3px var(--bordered-button-border) solid;
 
           &:hover {
             background-color: var(--bordered-button-hover);
@@ -166,9 +166,9 @@
 
       ul {
         display: grid;
+        gap: 15px;
         padding: 0;
         list-style: none;
-        gap: 15px;
 
         li {
           display: flex;

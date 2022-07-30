@@ -44,8 +44,8 @@
     grid-template-columns: 3fr 7fr;
 
     .row_labels {
-      grid-row: 2;
       display: flex;
+      grid-row: 2;
       flex-direction: column;
       justify-content: center;
 
@@ -55,14 +55,14 @@
     }
 
     .column_labels {
-      grid-column: 2;
       display: flex;
+      grid-column: 2;
       flex-direction: row;
     }
 
     .results {
-      grid-column: 2;
       display: flex;
+      grid-column: 2;
       flex-direction: row;
     }
 
@@ -86,8 +86,8 @@
       .row_labels,
       .column_labels,
       .results {
-        grid-row: unset;
         grid-column: unset;
+        grid-row: unset;
       }
     }
   }
