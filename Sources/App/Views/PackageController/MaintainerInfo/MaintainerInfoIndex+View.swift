@@ -64,7 +64,7 @@ enum MaintainerInfoIndex {
                 ),
                 .strong("Swift Version Compatibility Badge"),
                 .div(
-                    .class("markdown_badges"),
+                    .class("markdown-badges"),
                     model.badgeMarkdowDisplay(for: .swiftVersions),
                     .img(
                         .alt("Swift Version Compatibility for \(model.packageName)"),
@@ -73,7 +73,7 @@ enum MaintainerInfoIndex {
                 ),
                 .strong("Platform Compatibility Badge"),
                 .div(
-                    .class("markdown_badges"),
+                    .class("markdown-badges"),
                     model.badgeMarkdowDisplay(for: .platforms),
                     .img(
                         .alt("Platform Compatibility for \(model.packageName)"),
