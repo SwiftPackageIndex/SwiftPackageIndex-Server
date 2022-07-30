@@ -218,7 +218,7 @@ enum PackageShow {
                         )
                     ),
                     .li(
-                        .class("try_in_playground"),
+                        .class("try-in-playground"),
                         .a(
                             .href("spi-playgrounds://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
                             "Try in a Playground"
