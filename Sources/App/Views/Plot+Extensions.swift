@@ -237,7 +237,7 @@ extension Node where Context == HTML.ListContext {
                         .starsListItem(numberOfStars: $0)
                     },
                     .if (hasDocs,
-                        .li(.class("has_documentation"),
+                        .li(.class("has-documentation"),
                             .small(
                                 .text("Has documentation")
                             )
