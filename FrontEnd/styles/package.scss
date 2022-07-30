@@ -43,7 +43,7 @@
       padding: 0;
     }
 
-    ul.main_metadata {
+    ul.main-metadata {
       display: grid;
       grid-template-columns: 0.5fr 0.5fr;
       grid-auto-flow: row;
@@ -247,7 +247,7 @@
 
   @media screen and (max-width: $mobile-breakpoint) {
     article.details {
-      section.main_metadata {
+      section.main-metadata {
         order: 2;
 
         ul {
