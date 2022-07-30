@@ -79,7 +79,7 @@ enum PackageShow {
                 .div(
                     .class("two-column v_end"),
                     .div(
-                        .class("package_title"),
+                        .class("package-title"),
                         .h2(.text(model.title)),
                         .small(
                             .a(
