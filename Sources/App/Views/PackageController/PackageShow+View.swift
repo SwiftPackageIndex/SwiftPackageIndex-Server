@@ -272,7 +272,7 @@ enum PackageShow {
 
         func sidebarInfoForPackageAuthors() -> Node<HTML.BodyContext> {
             .section(
-                .class("sidebar_package_authors"),
+                .class("sidebar-package-authors"),
                 .small(
                     .strong("Do you maintain this package?"),
                     .text(" Get shields.io compatibility badges and learn how to control our build system. "),
