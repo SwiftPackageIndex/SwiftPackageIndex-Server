@@ -618,7 +618,7 @@ extension PackageShow.Model {
         return .li(
             .class("row"),
             .div(
-                .class("row_labels"),
+                .class("row-labels"),
                 labelParagraphNode
             ),
             // Matrix CSS should include *both* the column labels, and the column values status boxes in *every* row.

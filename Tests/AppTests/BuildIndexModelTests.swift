@@ -194,7 +194,7 @@ class BuildIndexModelTests: AppTestCase {
         let expectation: Node<HTML.ListContext> = .li(
             .class("row"),
             .div(
-                .class("row_labels"),
+                .class("row-labels"),
                 .strong("iOS")
             ),
             .div(

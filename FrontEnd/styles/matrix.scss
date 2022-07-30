@@ -43,7 +43,7 @@
     display: grid;
     grid-template-columns: 3fr 7fr;
 
-    .row_labels {
+    .row-labels {
       display: flex;
       grid-row: 2;
       flex-direction: column;
@@ -70,7 +70,7 @@
     // Note: This is a *desktop only* media query.
     @media not all and (max-width: $mobile-breakpoint) {
       &:not(:first-child) {
-        .row_labels {
+        .row-labels {
           grid-row: unset;
         }
 
@@ -83,7 +83,7 @@
     @media (max-width: $mobile-breakpoint) {
       grid-template-columns: 1fr;
 
-      .row_labels,
+      .row-labels,
       .column-labels,
       .results {
         grid-column: unset;

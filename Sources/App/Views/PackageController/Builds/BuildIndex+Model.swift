@@ -243,7 +243,7 @@ extension BuildIndex.Model {
             .li(
                 .class("row"),
                 .div(
-                    .class("row_labels"),
+                    .class("row-labels"),
                     .strong(.text(index.platform.displayName))
                 ),
                 .div(
