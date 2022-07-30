@@ -17,9 +17,13 @@
   Color variables for both light and dark mode.
 ---------------------------------------------------------------------------- */
 
-/* Light mode base colors */
+/* Light mode */
 
 :root {
+  /* ----------------------------------------
+    Raw colours
+  ------------------------------------------- */
+
   --very-dark-blue: #111930;
   --dark-blue: #232339;
   --mid-blue: #356fce;
@@ -49,32 +53,11 @@
   --white: #ffffff;
 
   --twitter-blue: #1d9bf0;
-}
 
-/* Dark mode base color overrides */
+  /* ----------------------------------------
+    Semantic colours
+  ------------------------------------------- */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --black: #070710;
-    --very-very-dark-grey: #0e0e19;
-    --very-dark-grey: #191923;
-
-    --mid-blue: #1694f1;
-    --orange: #ec8329;
-    --mid-red: #ff4343;
-    --dark-red: #250201;
-    --yellow: #ffb834;
-    --pink: #f44eb2;
-
-    --dark-green: #0c946e;
-    --mid-green: #0ebf4c;
-    --light-green: #96ff4c;
-  }
-}
-
-/* Light mode semantic colors */
-
-:root {
   --page-text: var(--black);
   --page-dimmed-text: var(--grey);
   --page-background: var(--white);
@@ -167,10 +150,33 @@
   --keyword-count-background: rgba(0, 0, 0, 10%);
 }
 
-/* Dark mode semantic color overrides */
+/* Dark mode */
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* ----------------------------------------
+      Raw colours
+    ------------------------------------------- */
+
+    --black: #070710;
+    --very-very-dark-grey: #0e0e19;
+    --very-dark-grey: #191923;
+
+    --mid-blue: #1694f1;
+    --orange: #ec8329;
+    --mid-red: #ff4343;
+    --dark-red: #250201;
+    --yellow: #ffb834;
+    --pink: #f44eb2;
+
+    --dark-green: #0c946e;
+    --mid-green: #0ebf4c;
+    --light-green: #96ff4c;
+
+    /* ----------------------------------------
+      Semantic colours
+    ------------------------------------------- */
+
     --page-text: var(--white);
     --page-background: var(--black);
 

@@ -96,6 +96,7 @@
 g-emoji {
   vertical-align: -0.075em;
   margin-right: -10px;
+  /* stylelint-disable-next-line font-family-no-missing-generic-family-keyword */
   font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   font-style: normal !important;
   font-weight: 400;
