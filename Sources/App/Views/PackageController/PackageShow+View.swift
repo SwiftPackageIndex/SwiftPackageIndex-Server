@@ -209,7 +209,7 @@ enum PackageShow {
 
         func sidebarLinks() -> Node<HTML.BodyContext> {
             .section(
-                .class("sidebar_links"),
+                .class("sidebar-links"),
                 .ul(
                     .li(
                         .a(
