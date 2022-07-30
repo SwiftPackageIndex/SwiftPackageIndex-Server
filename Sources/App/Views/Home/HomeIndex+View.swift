@@ -75,7 +75,7 @@ enum HomeIndex {
                             .text(".")
                         ),
                         .p(
-                            .class("twitter_profile"),
+                            .class("twitter-profile"),
                             .small(
                                 .text("Follow along at "),
                                 .a(
