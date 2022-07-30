@@ -461,7 +461,7 @@ extension PackageShow.Model {
                                 .href(SiteURL.keywords(.value(keyword)).relativeURL()),
                                 .text("\(keyword)"),
                                 .span(
-                                    .class("count_tag"),
+                                    .class("count-tag"),
                                     .text("\(kiloPostfixedQuantity: weightedKeywords.weight(for: keyword))")
                                 )
                             )
