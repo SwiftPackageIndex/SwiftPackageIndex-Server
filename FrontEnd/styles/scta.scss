@@ -27,7 +27,7 @@
   }
 }
 
-#menu_scta {
+#menu-scta {
   display: block;
   width: 30px;
   height: 30px;
@@ -48,11 +48,11 @@
 
 // Note: This is min-width, not max-width as usual. This *only* for larger devices.
 @media screen and (min-width: $mobile-breakpoint) {
-  li.menu_scta {
+  li.menu-scta {
     position: relative;
   }
 
-  #menu_scta:hover {
+  #menu-scta:hover {
     animation: scta 0.6s ease-in-out alternate infinite;
 
     & + #menu-scta-help {

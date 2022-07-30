@@ -26,9 +26,9 @@ enum NavMenuItem {
         switch self {
             case .sponsorCTA:
                 return .li(
-                    .class("menu_scta"),
+                    .class("menu-scta"),
                     .a(
-                        .id("menu_scta"),
+                        .id("menu-scta"),
                         .href(ExternalURL.projectSponsorship)
                     ),
                     .div(
