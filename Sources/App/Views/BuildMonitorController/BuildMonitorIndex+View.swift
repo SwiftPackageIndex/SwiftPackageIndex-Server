@@ -45,7 +45,7 @@ enum BuildMonitorIndex {
                 .h2("Recent Builds"),
                 .p("The Swift Package Index determines Swift version and platform compatibility by running multiple builds against each version of every package. If you're curious which packages are currently processing through the build system, this list shows all recent build activity."),
                 .div(
-                    .class("build_monitor"),
+                    .class("build-monitor"),
                     .group(
                         builds.map { $0.buildMonitorItem() }
                     )
