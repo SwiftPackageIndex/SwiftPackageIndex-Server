@@ -60,7 +60,7 @@ enum HomeIndex {
                 .class("two-column"),
                 .section(
                     .section(
-                        .class("twitter_spaces"),
+                        .class("twitter-spaces"),
                         .p(
                             .text("Join us for our "),
                             .a(
