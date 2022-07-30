@@ -26,13 +26,13 @@ section.search_results {
   // vertical alignment, regardless of content.
   // More info: https://css-tricks.com/the-rules-of-margin-collapse/
   .package_results,
-  .author_results,
+  .author-results,
   .keyword_results {
     display: flex;
     flex-direction: column;
   }
 
-  .author_results,
+  .author-results,
   .keyword_results {
     margin-bottom: 20px;
 
@@ -45,7 +45,7 @@ section.search_results {
     margin: 0;
   }
 
-  .author_results {
+  .author-results {
     ul {
       display: flex;
       flex-direction: column;
