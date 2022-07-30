@@ -76,7 +76,7 @@ extension SearchShow {
                     .text("&rdquo;&hellip;")
                 )),
                 .if(model.authorResults.count > 0 || model.keywordResults.count > 0, .div(
-                    .class("two_column mobile_reversed"),
+                    .class("two-column mobile_reversed"),
                     packageResultsSection(),
                     .div(
                         authorResultsSection(),

@@ -26,7 +26,7 @@ main > .inner {
   padding: 20px 10px;
 }
 
-.two_column {
+.two-column {
   display: grid;
   grid-template-columns: 3fr 1fr;
   gap: 60px;
@@ -49,7 +49,7 @@ main > .inner {
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  .two_column {
+  .two-column {
     display: flex;
     flex-direction: column;
     gap: 10px;

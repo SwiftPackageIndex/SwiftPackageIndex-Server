@@ -16,16 +16,16 @@ import Plot
 
 
 enum HomeIndex {
-    
+
     class View: PublicPage {
-        
+
         let model: Model
-        
+
         init(path: String, model: Model) {
             self.model = model
             super.init(path: path)
         }
-        
+
         override func pageDescription() -> String? {
             let description = "The Swift Package Index is the place to find the best Swift packages."
 
@@ -38,11 +38,11 @@ enum HomeIndex {
         override func bodyClass() -> String? {
             "home"
         }
-        
+
         override func postBody() -> Node<HTML.BodyContext> {
             .structuredData(IndexSchema())
         }
-        
+
         override func preMain() -> Node<HTML.BodyContext> {
             .section(
                 .class("search home"),
@@ -54,10 +54,10 @@ enum HomeIndex {
                 )
             )
         }
-        
+
         override func content() -> Node<HTML.BodyContext> {
             .section(
-                .class("two_column"),
+                .class("two-column"),
                 .section(
                     .section(
                         .class("twitter_spaces"),
@@ -165,4 +165,3 @@ enum HomeIndex {
         }
     }
 }
-
