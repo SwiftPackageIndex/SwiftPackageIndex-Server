@@ -161,7 +161,7 @@ extension SearchShow {
             else { return .empty }
 
             return .section(
-                .class("keyword_results"),
+                .class("keyword-results"),
                 .h4("Matching keywords"),
                 .spiOverflowingList(overflowMessage: "Show more keywords…", overflowHeight: 260, listClass: "keywords",
                                     .forEach(model.keywordResults) { keywordResultListItem($0) })

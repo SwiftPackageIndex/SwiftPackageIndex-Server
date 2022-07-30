@@ -27,13 +27,13 @@ section.search_results {
   // More info: https://css-tricks.com/the-rules-of-margin-collapse/
   .package_results,
   .author-results,
-  .keyword_results {
+  .keyword-results {
     display: flex;
     flex-direction: column;
   }
 
   .author-results,
-  .keyword_results {
+  .keyword-results {
     margin-bottom: 20px;
 
     ul {
