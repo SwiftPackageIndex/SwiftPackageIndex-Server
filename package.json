@@ -1,5 +1,5 @@
 {
-  "name": "swiftpackageindex",
+  "name": "swift-package-index",
   "license": "Apache-2.0",
   "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
   "scripts": {
