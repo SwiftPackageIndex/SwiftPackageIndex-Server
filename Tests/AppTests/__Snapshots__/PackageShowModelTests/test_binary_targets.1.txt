@@ -1,4 +1,4 @@
-<li class="has_binary_targets">
+<li class="has-binary-targets">
   <strong>This package includes binary-only targets </strong>where source code may not be available. There may be more info available in the 
   <a href="#readme" title="README">README</a> or 
   <a href="<license-url-here>" title="LICENSE">LICENSE</a>.
