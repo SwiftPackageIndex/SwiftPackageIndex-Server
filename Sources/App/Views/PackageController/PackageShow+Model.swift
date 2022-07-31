@@ -344,7 +344,7 @@ extension PackageShow.Model {
 
     func binaryTargetsItem() -> Node<HTML.ListContext> {
         guard hasBinaryTargets else { return .empty }
-        
+
         func linkNode(for name: String, url: String) -> Node<HTML.BodyContext> {
             return .a(
                 .href(url),
@@ -354,7 +354,7 @@ extension PackageShow.Model {
         }
 
         return .li(
-            .class("has_binary_targets"),
+            .class("has-binary-targets"),
             .strong("This package includes binary-only targets "),
             .text("where source code may not be available. There may be more info available in the "),
             linkNode(for: "README", url: "#readme"),
