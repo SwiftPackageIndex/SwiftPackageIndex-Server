@@ -127,13 +127,6 @@ header.spi {
                 box-shadow: var(--panel-shadow);
                 border-top: 3px rgba(255, 255, 255, 0.2) solid;
 
-                &::before {
-                  content: 'Switch to…';
-                  display: list-item;
-                  padding: 0 15px;
-                  font-size: 13px;
-                }
-
                 li {
                   padding: 2px 15px 2px 20px;
 
