@@ -1,244 +1,249 @@
-/* Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-/* -------------------------------------------------------------------------
-  Color variables for both light and dark mode.
----------------------------------------------------------------------------- */
+// -------------------------------------------------------------------------
+// Color variables for both light and dark mode.
+// -------------------------------------------------------------------------
 
-/* Light mode base colors */
-
-:root {
-  --very-dark-blue: #111930;
-  --dark-blue: #232339;
-  --mid-blue: #356fce;
-  --light-blue: #bedeff;
-  --very-light-blue: #e6f2ff;
-
-  --very-dark-green: #102100;
-  --dark-green: #027353;
-  --mid-green: #038c33;
-  --light-green: #68bb13;
-  --very-light-green: #ebf9de;
-
-  --yellow: #f2b94f;
-  --orange: #f58e36;
-  --mid-red: #cc4444;
-  --light-red: #ffeeee;
-  --pink: #ea4aaa;
-
-  --black: #1d1d1d;
-  --very-very-dark-grey: #232323;
-  --very-dark-grey: #2f2f2f;
-  --dark-grey: #3e3e3e;
-  --grey: #9a9a9a;
-  --light-grey: #dadada;
-  --very-light-grey: #f1f1f1;
-  --very-very-light-grey: #f8f8f8;
-  --white: #ffffff;
-
-  --twitter-blue: #1d9bf0;
-}
-
-/* Dark mode base color overrides */
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --black: #070710;
-    --very-very-dark-grey: #0e0e19;
-    --very-dark-grey: #191923;
-
-    --mid-blue: #1694f1;
-    --orange: #ec8329;
-    --mid-red: #ff4343;
-    --dark-red: #250201;
-    --yellow: #ffb834;
-    --pink: #f44eb2;
-
-    --dark-green: #0c946e;
-    --mid-green: #0ebf4c;
-    --light-green: #96ff4c;
-  }
-}
-
-/* Light mode semantic colors */
+// Light mode.
 
 :root {
-  --page-text: var(--black);
-  --page-dimmed-text: var(--grey);
-  --page-background: var(--white);
-  --link-text: var(--mid-blue);
-  --link-highlight: var(--mid-red);
+    // -------------------------------------------------------------------------
+    // Raw colours.
+    // -------------------------------------------------------------------------
 
-  --panel-background: var(--very-light-grey);
-  --panel-border: var(--light-grey);
-  --panel-shadow: 0 6px 10px 5px rgba(0, 0, 0, 0.1);
-  --panel-underlay-background: var(--black);
-  --panel-underlay-opacity: 0.5;
+    --very-dark-blue: #111930;
+    --dark-blue: #232339;
+    --mid-blue: #356fce;
+    --light-blue: #bedeff;
+    --very-light-blue: #e6f2ff;
 
-  --green-text: var(--light-green);
-  --orange-text: var(--orange);
-  --red-text: var(--mid-red);
+    --very-dark-green: #102100;
+    --dark-green: #027353;
+    --mid-green: #038c33;
+    --light-green: #68bb13;
+    --very-light-green: #ebf9de;
 
-  --note-text: var(--dark-green);
-  --note-background: var(--very-light-green);
-  --note-border: var(--light-green);
-  --blockquote-text: var(--dark-grey);
-  --blockquote-border: var(--light-grey);
-  --table-header-background: var(--very-light-grey);
-  --table-row-alt-background: var(--very-very-light-grey);
+    --yellow: #f2b94f;
+    --orange: #f58e36;
+    --mid-red: #cc4444;
+    --light-red: #ffeeee;
+    --pink: #ea4aaa;
 
-  --header-background: var(--very-dark-blue);
-  --header-text: var(--white);
-  --header-link-text: var(--white);
-  --header-link-highlight: var(--yellow);
-  --header-gradient-start: rgba(255, 255, 255, 0.2);
-  --header-gradient-end: rgba(255, 255, 255, 0.05);
+    --black: #1d1d1d;
+    --very-very-dark-grey: #232323;
+    --very-dark-grey: #2f2f2f;
+    --dark-grey: #3e3e3e;
+    --grey: #9a9a9a;
+    --light-grey: #dadada;
+    --very-light-grey: #f1f1f1;
+    --very-very-light-grey: #f8f8f8;
+    --white: #ffffff;
 
-  --breadcrumb: var(--light-grey);
-  --breadcrumb-header: var(--grey);
+    --twitter-blue: #1d9bf0;
 
-  --announcement-background: var(--very-light-grey);
+    // -------------------------------------------------------------------------
+    // Semantic colours.
+    // -------------------------------------------------------------------------
 
-  --bordered-button-background: var(--very-very-light-grey);
-  --bordered-button-hover: var(--very-light-grey);
-  --bordered-button-border: var(--light-grey);
+    --page-text: var(--black);
+    --page-dimmed-text: var(--grey);
+    --page-background: var(--white);
+    --link-text: var(--mid-blue);
+    --link-highlight: var(--mid-red);
 
-  --input-background: var(--white);
-  --input-text: var(--black);
-  --input-border: var(--light-grey);
-  --input-placeholder: var(--light-grey);
+    --panel-background: var(--very-light-grey);
+    --panel-border: var(--light-grey);
+    --panel-shadow: 0 6px 10px 5px rgba(0, 0, 0, 10%);
+    --panel-underlay-background: var(--black);
+    --panel-underlay-opacity: 0.5;
 
-  --copyable-input-background: var(--very-very-light-grey);
-  --copyable-input-border: var(--light-grey);
+    --green-text: var(--light-green);
+    --orange-text: var(--orange);
+    --red-text: var(--mid-red);
 
-  --button-background: var(--mid-blue);
-  --button-text: var(--very-light-blue);
-
-  --rule-background: var(--light-blue);
-  --rule-thin-background: var(--light-grey);
-
-  --stable-text: var(--light-green);
-  --beta-text: var(--mid-green);
-  --branch-text: var(--dark-green);
-
-  --grid-default-background: var(--very-very-light-grey);
-  --grid-default-border: var(--very-light-grey);
-  --grid-compatible-background: var(--light-green);
-  --grid-incompatible-background: var(--light-grey);
-  --grid-succeeded-background: var(--very-light-grey);
-  --grid-failed-background: var(--very-light-grey);
-
-  --package-list-border: var(--very-light-grey);
-  --package-list-background: var(--very-very-light-grey);
-  --package-list-selectedbackground: var(--very-light-blue);
-
-  --error-background: var(--light-red);
-  --error-text: var(--mid-red);
-
-  --code-snippet-background: var(--very-light-grey);
-  --code-snippet-text: var(--black);
-  --code-snippet-border: var(--grey);
-
-  --tab-bar-background: var(--very-very-light-grey);
-  --tab-bar-hover: var(--very-light-grey);
-  --tab-bar-border: var(--light-grey);
-  --tab-bar-border-active: var(--light-green);
-
-  --search-filter-background: var(--very-light-grey);
-  --search-filter-ampersand-color: var(--dark-grey);
-
-  --big-button-green-background: var(--mid-green);
-  --big-button-green-border: var(--light-green);
-  --big-button-blue-background: var(--mid-blue);
-  --big-button-blue-border: var(--light-blue);
-
-  --keyword-count-background: rgba(0, 0, 0, 0.1);
-}
-
-/* Dark mode semantic color overrides */
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --page-text: var(--white);
-    --page-background: var(--black);
-
-    --panel-background: var(--very-dark-grey);
-    --panel-border: var(--dark-grey);
-    --panel-underlay-opacity: 0.8;
-
-    --green-text: var(--mid-green);
-
-    --note-text: var(--mid-green);
-    --note-background: var(--very-dark-green);
-    --note-border: var(--dark-green);
-    --blockquote-text: var(--light-grey);
-    --blockquote-border: var(--dark-grey);
-    --table-header-background: var(--very-dark-grey);
-    --table-row-alt-background: var(--very-very-dark-grey);
+    --note-text: var(--dark-green);
+    --note-background: var(--very-light-green);
+    --note-border: var(--light-green);
+    --blockquote-text: var(--dark-grey);
+    --blockquote-border: var(--light-grey);
+    --table-header-background: var(--very-light-grey);
+    --table-row-alt-background: var(--very-very-light-grey);
 
     --header-background: var(--very-dark-blue);
-    --header-gradient-start: rgba(255, 255, 255, 0.08);
-    --header-gradient-end: rgba(255, 255, 255, 0.03);
+    --header-text: var(--white);
+    --header-link-text: var(--white);
+    --header-link-highlight: var(--yellow);
+    --header-gradient-start: rgba(255, 255, 255, 20%);
+    --header-gradient-end: rgba(255, 255, 255, 5%);
 
-    --breadcrumb: var(--dark-grey);
+    --breadcrumb: var(--light-grey);
+    --breadcrumb-header: var(--grey);
 
-    --announcement-background: var(--very-dark-grey);
+    --announcement-background: var(--very-light-grey);
 
-    --bordered-button-background: var(--very-very-dark-grey);
-    --bordered-button-hover: var(--very-dark-grey);
-    --bordered-button-border: var(--dark-grey);
+    --bordered-button-background: var(--very-very-light-grey);
+    --bordered-button-hover: var(--very-light-grey);
+    --bordered-button-border: var(--light-grey);
 
-    --input-background: var(--very-dark-grey);
-    --input-text: var(--white);
-    --input-border: var(--dark-grey);
-    --input-placeholder: var(--grey);
+    --input-background: var(--white);
+    --input-text: var(--black);
+    --input-border: var(--light-grey);
+    --input-placeholder: var(--light-grey);
 
-    --copyable-input-background: var(--very-very-dark-grey);
-    --copyable-input-border: var(--dark-grey);
+    --copyable-input-background: var(--very-very-light-grey);
+    --copyable-input-border: var(--light-grey);
 
-    --rule-background: var(--dark-blue);
-    --rule-thin-background: var(--dark-grey);
+    --button-background: var(--mid-blue);
+    --button-text: var(--very-light-blue);
 
-    --grid-default-background: var(--very-very-dark-grey);
-    --grid-default-border: var(--very-dark-grey);
-    --grid-compatible-background: var(--mid-green);
-    --grid-incompatible-background: var(--very-dark-grey);
-    --grid-succeeded-background: var(--very-dark-grey);
-    --grid-failed-background: var(--very-dark-grey);
+    --rule-background: var(--light-blue);
+    --rule-thin-background: var(--light-grey);
 
-    --package-list-border: var(--very-dark-grey);
-    --package-list-background: var(--very-very-dark-grey);
-    --package-list-selectedbackground: var(--dark-blue);
+    --stable-text: var(--light-green);
+    --beta-text: var(--mid-green);
+    --branch-text: var(--dark-green);
 
-    --error-background: var(--dark-red);
+    --grid-default-background: var(--very-very-light-grey);
+    --grid-default-border: var(--very-light-grey);
+    --grid-compatible-background: var(--light-green);
+    --grid-incompatible-background: var(--light-grey);
+    --grid-succeeded-background: var(--very-light-grey);
+    --grid-failed-background: var(--very-light-grey);
+
+    --package-list-border: var(--very-light-grey);
+    --package-list-background: var(--very-very-light-grey);
+    --package-list-selectedbackground: var(--very-light-blue);
+
+    --error-background: var(--light-red);
     --error-text: var(--mid-red);
 
-    --code-snippet-background: var(--very-dark-grey);
-    --code-snippet-text: var(--white);
+    --code-snippet-background: var(--very-light-grey);
+    --code-snippet-text: var(--black);
     --code-snippet-border: var(--grey);
 
-    --tab-bar-background: var(--very-very-dark-grey);
-    --tab-bar-hover: var(--very-dark-grey);
-    --tab-bar-border: var(--dark-grey);
+    --tab-bar-background: var(--very-very-light-grey);
+    --tab-bar-hover: var(--very-light-grey);
+    --tab-bar-border: var(--light-grey);
+    --tab-bar-border-active: var(--light-green);
 
-    --search-filter-background: var(--dark-grey);
-    --search-filter-ampersand-color: var(--light-grey);
+    --search-filter-background: var(--very-light-grey);
+    --search-filter-ampersand-color: var(--dark-grey);
 
+    --big-button-green-background: var(--mid-green);
+    --big-button-green-border: var(--light-green);
     --big-button-blue-background: var(--mid-blue);
     --big-button-blue-border: var(--light-blue);
 
-    --keyword-count-background: rgba(255, 255, 255, 0.125);
-  }
+    --keyword-count-background: rgba(0, 0, 0, 10%);
+}
+
+// Dark mode.
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        // -------------------------------------------------------------------------
+        // Raw colours.
+        // -------------------------------------------------------------------------
+
+        --black: #070710;
+        --very-very-dark-grey: #0e0e19;
+        --very-dark-grey: #191923;
+
+        --mid-blue: #1694f1;
+        --orange: #ec8329;
+        --mid-red: #ff4343;
+        --dark-red: #250201;
+        --yellow: #ffb834;
+        --pink: #f44eb2;
+
+        --dark-green: #0c946e;
+        --mid-green: #0ebf4c;
+        --light-green: #96ff4c;
+
+        // -------------------------------------------------------------------------
+        // Semantic colours.
+        // -------------------------------------------------------------------------
+
+        --page-text: var(--white);
+        --page-background: var(--black);
+
+        --panel-background: var(--very-dark-grey);
+        --panel-border: var(--dark-grey);
+        --panel-underlay-opacity: 0.8;
+
+        --green-text: var(--mid-green);
+
+        --note-text: var(--mid-green);
+        --note-background: var(--very-dark-green);
+        --note-border: var(--dark-green);
+        --blockquote-text: var(--light-grey);
+        --blockquote-border: var(--dark-grey);
+        --table-header-background: var(--very-dark-grey);
+        --table-row-alt-background: var(--very-very-dark-grey);
+
+        --header-background: var(--very-dark-blue);
+        --header-gradient-start: rgba(255, 255, 255, 8%);
+        --header-gradient-end: rgba(255, 255, 255, 3%);
+
+        --breadcrumb: var(--dark-grey);
+
+        --announcement-background: var(--very-dark-grey);
+
+        --bordered-button-background: var(--very-very-dark-grey);
+        --bordered-button-hover: var(--very-dark-grey);
+        --bordered-button-border: var(--dark-grey);
+
+        --input-background: var(--very-dark-grey);
+        --input-text: var(--white);
+        --input-border: var(--dark-grey);
+        --input-placeholder: var(--grey);
+
+        --copyable-input-background: var(--very-very-dark-grey);
+        --copyable-input-border: var(--dark-grey);
+
+        --rule-background: var(--dark-blue);
+        --rule-thin-background: var(--dark-grey);
+
+        --grid-default-background: var(--very-very-dark-grey);
+        --grid-default-border: var(--very-dark-grey);
+        --grid-compatible-background: var(--mid-green);
+        --grid-incompatible-background: var(--very-dark-grey);
+        --grid-succeeded-background: var(--very-dark-grey);
+        --grid-failed-background: var(--very-dark-grey);
+
+        --package-list-border: var(--very-dark-grey);
+        --package-list-background: var(--very-very-dark-grey);
+        --package-list-selectedbackground: var(--dark-blue);
+
+        --error-background: var(--dark-red);
+        --error-text: var(--mid-red);
+
+        --code-snippet-background: var(--very-dark-grey);
+        --code-snippet-text: var(--white);
+        --code-snippet-border: var(--grey);
+
+        --tab-bar-background: var(--very-very-dark-grey);
+        --tab-bar-hover: var(--very-dark-grey);
+        --tab-bar-border: var(--dark-grey);
+
+        --search-filter-background: var(--dark-grey);
+        --search-filter-ampersand-color: var(--light-grey);
+
+        --big-button-blue-background: var(--mid-blue);
+        --big-button-blue-border: var(--light-blue);
+
+        --keyword-count-background: rgba(255, 255, 255, 12.5%);
+    }
 }

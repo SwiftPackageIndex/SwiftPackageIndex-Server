@@ -1,182 +1,181 @@
-/* Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-/* -------------------------------------------------------------------------
-  Compatibility matrix styles - This is used for both the compatibility
-  matrices on the package page, and for the full build compatibility report.
----------------------------------------------------------------------------- */
+// -------------------------------------------------------------------------
+// Compatibility matrix styles. Used for both the compatibility matrices on
+// the package page, and for the full build compatibility report.
+// -------------------------------------------------------------------------
 
 .matrices {
-  display: grid;
-  gap: 20px;
+    display: grid;
+    gap: 20px;
 
-  a {
-    color: var(--page-text);
-  }
+    a {
+        color: var(--page-text);
+    }
 }
 
 .matrix {
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
 
-  li {
-    margin: 5px 0;
+    li {
+        margin: 5px 0;
 
-    @media screen and (max-width: $mobile-breakpoint) {
-      margin: 20px 0;
-    }
-  }
-
-  .row {
-    display: grid;
-    grid-template-columns: 3fr 7fr;
-
-    .row_labels {
-      grid-row: 2;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-
-      p {
-        margin: 0;
-      }
+        @media screen and (max-width: $mobile-breakpoint) {
+            margin: 20px 0;
+        }
     }
 
-    .column_labels {
-      grid-column: 2;
-      display: flex;
-      flex-direction: row;
-    }
+    .row {
+        display: grid;
+        grid-template-columns: 3fr 7fr;
 
-    .results {
-      grid-column: 2;
-      display: flex;
-      flex-direction: row;
-    }
+        .row-labels {
+            display: flex;
+            grid-row: 2;
+            flex-direction: column;
+            justify-content: center;
 
-    // Show the column labels only for the first row on desktop.
-    // Note: This is a *desktop only* media query.
-    @media not all and (max-width: $mobile-breakpoint) {
-      &:not(:first-child) {
-        .row_labels {
-          grid-row: unset;
+            p {
+                margin: 0;
+            }
         }
 
-        .column_labels {
-          display: none;
+        .column-labels {
+            display: flex;
+            grid-column: 2;
+            flex-direction: row;
         }
-      }
+
+        .results {
+            display: flex;
+            grid-column: 2;
+            flex-direction: row;
+        }
+
+        // Show the column labels only for the first row on desktop.
+        // Note: This is a *desktop only* media query.
+        @media not all and (max-width: $mobile-breakpoint) {
+            &:not(:first-child) {
+                .row-labels {
+                    grid-row: unset;
+                }
+
+                .column-labels {
+                    display: none;
+                }
+            }
+        }
+
+        @media (max-width: $mobile-breakpoint) {
+            grid-template-columns: 1fr;
+
+            .row-labels,
+            .column-labels,
+            .results {
+                grid-column: unset;
+                grid-row: unset;
+            }
+        }
     }
 
-    @media (max-width: $mobile-breakpoint) {
-      grid-template-columns: 1fr;
+    .column-labels > div {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 0;
+        flex-grow: 1;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 5px 0;
+        font-size: 14px;
+        font-weight: 600;
 
-      .row_labels,
-      .column_labels,
-      .results {
-        grid-row: unset;
-        grid-column: unset;
-      }
-    }
-  }
-
-  .column_labels > div {
-    padding: 5px 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    flex-basis: 0;
-    flex-grow: 1;
-    font-size: 14px;
-    font-weight: 600;
-
-    small {
-      font-weight: normal;
-    }
-  }
-
-  .results > div {
-    margin: 0 3px;
-    height: 35px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-basis: 0;
-    flex-grow: 1;
-  }
-
-  &.compatibility {
-    .results {
-      & > div {
-        background-size: 20px;
-        background-repeat: no-repeat;
-        background-position: center center;
-      }
-
-      & > .pending,
-      & > .unknown {
-        background-size: 12px;
-        background-image: var(--image-unknown);
-        background-color: var(--grid-default-background);
-      }
-
-      & > .compatible {
-        background-image: var(--image-compatible);
-        background-color: var(--grid-compatible-background);
-      }
-
-      & > .incompatible {
-        background-image: var(--image-incompatible);
-        background-color: var(--grid-incompatible-background);
-      }
-    }
-  }
-
-  &.builds {
-    .column_labels > div > span {
-      font-size: 16px;
-      background-position: top 4px right;
+        small {
+            font-weight: normal;
+        }
     }
 
     .results > div {
-      background-color: var(--grid-default-background);
-
-      &.succeeded > a,
-      &.failed > a {
-        padding-left: 25px;
-        background-size: 18px;
-        background-position: left center;
-        background-repeat: no-repeat;
-      }
-
-      &.succeeded {
-        background-color: var(--grid-succeeded-background);
-
-        a {
-          background-image: var(--image-succeeded);
-        }
-      }
-
-      &.failed {
-        background-color: var(--grid-failed-background);
-
-        a {
-          background-image: var(--image-failed);
-        }
-      }
+        display: flex;
+        flex-basis: 0;
+        flex-grow: 1;
+        align-items: center;
+        justify-content: center;
+        height: 35px;
+        margin: 0 3px;
     }
-  }
+
+    &.compatibility {
+        .results {
+            & > div {
+                background-position: center center;
+                background-repeat: no-repeat;
+                background-size: 20px;
+            }
+
+            & > .pending,
+            & > .unknown {
+                background-size: 12px;
+                background-color: var(--grid-default-background);
+                background-image: var(--image-unknown);
+            }
+
+            & > .compatible {
+                background-color: var(--grid-compatible-background);
+                background-image: var(--image-compatible);
+            }
+
+            & > .incompatible {
+                background-color: var(--grid-incompatible-background);
+                background-image: var(--image-incompatible);
+            }
+        }
+    }
+
+    &.builds {
+        .column-labels > div > span {
+            font-size: 16px;
+            background-position: top 4px right;
+        }
+
+        .results > div {
+            background-color: var(--grid-default-background);
+
+            &.succeeded > a,
+            &.failed > a {
+                padding-left: 25px;
+                background-position: left center;
+                background-repeat: no-repeat;
+                background-size: 18px;
+            }
+
+            &.succeeded {
+                background-color: var(--grid-succeeded-background);
+
+                a {
+                    background-image: var(--image-succeeded);
+                }
+            }
+
+            &.failed {
+                background-color: var(--grid-failed-background);
+
+                a {
+                    background-image: var(--image-failed);
+                }
+            }
+        }
+    }
 }

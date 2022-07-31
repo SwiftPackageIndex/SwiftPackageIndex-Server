@@ -40,7 +40,7 @@ export class SPIPlaygroundsAppLinkFallback {
 
         // Also, because we can never know whether the app opened, display the
         // popover div that links to the download page. Hide it again 5 seconds later.
-        const explainerElement = document.getElementById('app_download_explainer')
+        const explainerElement = document.getElementById('app-download-explainer')
         explainerElement.classList.remove('hidden')
         setTimeout(() => {
           explainerElement.classList.add('hidden')

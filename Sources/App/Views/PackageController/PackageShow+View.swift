@@ -17,17 +17,17 @@ import Vapor
 import Plot
 
 enum PackageShow {
-    
+
     class View: PublicPage {
-        
+
         private static let dateFormatter: DateFormatter = {
             let formatter = DateFormatter()
             formatter.dateStyle = .medium
             formatter.locale = .init(identifier: "en_GB")
-            
+
             return formatter
         }()
-        
+
         let model: Model
         let packageSchema: PackageSchema?
 
@@ -36,11 +36,11 @@ enum PackageShow {
             self.packageSchema = packageSchema
             super.init(path: path)
         }
-        
+
         override func pageTitle() -> String? {
             model.title
         }
-        
+
         override func pageDescription() -> String? {
             var description = "\(model.title) by \(model.repositoryOwnerName) on the Swift Package Index"
             if let summary = model.summary {
@@ -48,7 +48,7 @@ enum PackageShow {
             }
             return description
         }
-        
+
         override func bodyClass() -> String? {
             "package"
         }
@@ -59,7 +59,7 @@ enum PackageShow {
                 .comment(model.score.map(String.init) ?? "unknown")
             )
         }
-        
+
         override func breadcrumbs() -> [Breadcrumb] {
             [
                 Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
@@ -73,13 +73,13 @@ enum PackageShow {
                 .structuredData($0)
             }
         }
-        
+
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .div(
-                    .class("two_column v_end"),
+                    .class("two-column v-end"),
                     .div(
-                        .class("package_title"),
+                        .class("package-title"),
                         .h2(.text(model.title)),
                         .small(
                             .a(
@@ -133,7 +133,7 @@ enum PackageShow {
 
         func detailsSection() -> Node<HTML.BodyContext> {
             .article(
-                .class("details two_column"),
+                .class("details two-column"),
                 .section(
                     mainColumnMetadata(),
                     .hr(
@@ -158,7 +158,7 @@ enum PackageShow {
         func mainColumnMetadata() -> Node<HTML.BodyContext> {
             .section(
                 .ul(
-                    .class("main_metadata"),
+                    .class("main-metadata"),
                     model.authorsListItem(),
                     model.archivedListItem(),
                     model.historyListItem(),
@@ -176,9 +176,9 @@ enum PackageShow {
 
         func mainColumnCompatibility() -> Node<HTML.BodyContext> {
             .section(
-                .class("main_compatibility"),
+                .class("main-compatibility"),
                 .div(
-                    .class("two_column v_end"),
+                    .class("two-column v-end"),
                     .h3("Compatibility"),
                     .a(
                         .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
@@ -209,7 +209,7 @@ enum PackageShow {
 
         func sidebarLinks() -> Node<HTML.BodyContext> {
             .section(
-                .class("sidebar_links"),
+                .class("sidebar-links"),
                 .ul(
                     .li(
                         .a(
@@ -218,13 +218,13 @@ enum PackageShow {
                         )
                     ),
                     .li(
-                        .class("try_in_playground"),
+                        .class("try-in-playground"),
                         .a(
                             .href("spi-playgrounds://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
                             "Try in a Playground"
                         ),
                         .div(
-                            .id("app_download_explainer"),
+                            .id("app-download-explainer"),
                             .class("hidden"),
                             .strong("Launching the SPI Playgrounds app&hellip;"),
                             .p(
@@ -260,7 +260,7 @@ enum PackageShow {
 
         func sidebarVersions() -> Node<HTML.BodyContext> {
             .section(
-                .class("sidebar_versions"),
+                .class("sidebar-versions"),
                 .ariaLabel("Versions"),
                 .ul(
                     model.stableReleaseMetadata(),
@@ -272,7 +272,7 @@ enum PackageShow {
 
         func sidebarInfoForPackageAuthors() -> Node<HTML.BodyContext> {
             .section(
-                .class("sidebar_package_authors"),
+                .class("sidebar-package-authors"),
                 .small(
                     .strong("Do you maintain this package?"),
                     .text(" Get shields.io compatibility badges and learn how to control our build system. "),
@@ -292,7 +292,7 @@ enum PackageShow {
                     .p(.small(.text("Last updated on \(Self.dateFormatter.string(from: $0.dateModified))")))
                 )
             }
-            
+
         }
 
         func readmeTabContent() -> Node<HTML.BodyContext> {
@@ -309,7 +309,7 @@ enum PackageShow {
                 .div(.spinner())
             )
         }
-        
+
         func releasesTabContent() -> Node<HTML.BodyContext> {
             .turboFrame(
                 id: "releases_content",

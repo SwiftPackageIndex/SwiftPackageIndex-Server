@@ -28,7 +28,7 @@ export class SPIPackageListNavigation {
 
     document.addEventListener('keydown', (event) => {
       // Only add package list navigation if there is a package list to navigate!
-      const packageListElement = document.getElementById('package_list')
+      const packageListElement = document.getElementById('package-list')
       if (!packageListElement) return
 
       // If anything inside a form has focus and this is an enter keypress, continue submitting the form.
@@ -74,7 +74,7 @@ export class SPIPackageListNavigation {
   }
 
   selectNextPackage() {
-    const packageListElement = document.getElementById('package_list')
+    const packageListElement = document.getElementById('package-list')
     if (!packageListElement) return
 
     if (typeof this.selectedPackageIndex !== 'number') {
@@ -91,7 +91,7 @@ export class SPIPackageListNavigation {
   }
 
   selectPreviousPackage() {
-    const packageListElement = document.getElementById('package_list')
+    const packageListElement = document.getElementById('package-list')
     if (!packageListElement) return
 
     if (typeof this.selectedPackageIndex !== 'number') {
@@ -116,7 +116,7 @@ export class SPIPackageListNavigation {
   }
 
   navigateToSelectedPackage() {
-    const packageListElement = document.getElementById('package_list')
+    const packageListElement = document.getElementById('package-list')
     if (!packageListElement) return
 
     // Grab the selected list item, find the link inside it, and navigate to it.
@@ -128,7 +128,7 @@ export class SPIPackageListNavigation {
   }
 
   updatePackageListSelection() {
-    const packageListElement = document.getElementById('package_list')
+    const packageListElement = document.getElementById('package-list')
     if (!packageListElement) return
 
     Array.from(packageListElement.children).forEach((listItem, index) => {

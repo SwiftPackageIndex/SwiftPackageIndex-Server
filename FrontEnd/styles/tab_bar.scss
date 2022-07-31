@@ -1,49 +1,48 @@
-/* Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-/* -------------------------------------------------------------------------
-  Tab Bar Element
----------------------------------------------------------------------------- */
+// -------------------------------------------------------------------------
+// Tab bar element.
+// -------------------------------------------------------------------------
 
 section[data-controller='tab-bar'] {
-  ul.tab-list {
-    margin: 20px 0;
-    padding: 0 0 0 10px;
-    background-color: var(--tab-bar-background);
-    box-shadow: inset 0 -3px var(--tab-bar-border);
-    list-style-type: none;
-    display: flex;
-    gap: 10px;
+    ul.tab-list {
+        display: flex;
+        gap: 10px;
+        margin: 20px 0;
+        padding: 0 0 0 10px;
+        background-color: var(--tab-bar-background);
+        box-shadow: inset 0 -3px var(--tab-bar-border);
+        list-style-type: none;
 
-    li {
-      display: block;
-      padding: 15px;
-      cursor: pointer;
-      border-bottom: 3px var(--tab-bar-border) solid;
+        li {
+            display: block;
+            cursor: pointer;
+            padding: 15px;
+            border-bottom: 3px var(--tab-bar-border) solid;
 
-      &:hover {
-        background-color: var(--tab-bar-hover);
-      }
+            &:hover {
+                background-color: var(--tab-bar-hover);
+            }
 
-      &.active {
-        border-bottom: 3px var(--tab-bar-border-active) solid;
-      }
+            &.active {
+                border-bottom: 3px var(--tab-bar-border-active) solid;
+            }
+        }
     }
-  }
 
-  [data-tab-bar-target='content']:not(.active) {
-    display: none;
-  }
+    [data-tab-bar-target='content']:not(.active) {
+        display: none;
+    }
 }

@@ -139,7 +139,7 @@ extension Node where Context: HTML.BodyContext {
 
     static func copyableInputForm(buttonName: String, eventName: String, valueToCopy: String) -> Self {
         .form(
-            .class("copyable_input"),
+            .class("copyable-input"),
             .input(
                 .type(.text),
                 .data(named: "button-name", value: buttonName),
@@ -237,7 +237,7 @@ extension Node where Context == HTML.ListContext {
                         .starsListItem(numberOfStars: $0)
                     },
                     .if (hasDocs,
-                        .li(.class("has_documentation"),
+                        .li(.class("has-documentation"),
                             .small(
                                 .text("Has documentation")
                             )

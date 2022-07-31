@@ -1,5 +1,5 @@
 {
-  "name": "SwiftPackageIndex",
+  "name": "swift-package-index",
   "license": "Apache-2.0",
   "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
   "scripts": {
@@ -13,6 +13,11 @@
   },
   "devDependencies": {
     "esbuild": "^0.14.21",
-    "esbuild-sass-plugin": "^2.2.3"
+    "esbuild-sass-plugin": "^2.2.3",
+    "prettier": "^2.7.1",
+    "stylelint": "^14.9.1",
+    "stylelint-config-standard-scss": "^5.0.0",
+    "stylelint-order": "^5.0.0",
+    "stylelint-scss": "^4.3.0"
   }
 }

@@ -76,7 +76,7 @@ extension BuildMonitorIndex {
                 .div(
                     .class("row"),
                     .div(
-                        .class("package_name"),
+                        .class("package-name"),
                         .h3(
                             .text(packageName),
                             .unwrap(repositoryOwnerName, { .span(" by \($0)") })

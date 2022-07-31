@@ -1,45 +1,44 @@
-/* Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 @use 'normalize.css/normalize.css';
 
 $mobile-breakpoint: 740px;
 
-@import 'styles/base.scss';
-@import 'styles/breadcrumbs.scss';
-@import 'styles/build_logs.scss';
-@import 'styles/build_monitor.scss';
-@import 'styles/colors.scss';
-@import 'styles/copyable_input.scss';
-@import 'styles/error.scss';
-@import 'styles/github_highlighting.scss';
-@import 'styles/header_footer.scss';
-@import 'styles/home.scss';
-@import 'styles/images.scss';
-@import 'styles/keywords.scss';
-@import 'styles/layout.scss';
-@import 'styles/maintainer_info.scss';
-@import 'styles/markdown.scss';
-@import 'styles/matrix.scss';
-@import 'styles/modal_panel.scss';
-@import 'styles/overflowing_list.scss';
-@import 'styles/package_list.scss';
-@import 'styles/package.scss';
-@import 'styles/readme.scss';
-@import 'styles/scta.scss';
-@import 'styles/search_results.scss';
-@import 'styles/search.scss';
-@import 'styles/spinner.scss';
-@import 'styles/tab_bar.scss';
+@import 'styles/base';
+@import 'styles/breadcrumbs';
+@import 'styles/build_logs';
+@import 'styles/build_monitor';
+@import 'styles/colors';
+@import 'styles/copyable_input';
+@import 'styles/error';
+@import 'styles/github_highlighting';
+@import 'styles/header_footer';
+@import 'styles/home';
+@import 'styles/images';
+@import 'styles/keywords';
+@import 'styles/layout';
+@import 'styles/maintainer_info';
+@import 'styles/markdown';
+@import 'styles/matrix';
+@import 'styles/modal_panel';
+@import 'styles/overflowing_list';
+@import 'styles/package_list';
+@import 'styles/package';
+@import 'styles/readme';
+@import 'styles/scta';
+@import 'styles/search_results';
+@import 'styles/search';
+@import 'styles/spinner';
+@import 'styles/tab_bar';

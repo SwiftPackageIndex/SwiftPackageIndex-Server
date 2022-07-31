@@ -19,7 +19,7 @@ import DependencyResolution
 import SPIManifest
 
 extension PackageShow {
-    
+
     struct Model: Equatable {
         var packageId: Package.Id
         var repositoryOwner: String
@@ -101,7 +101,7 @@ extension PackageShow {
             self.dependencyCodeSnippets = dependencyCodeSnippets
             self.weightedKeywords = weightedKeywords
         }
-        
+
         init?(result: PackageController.PackageResult,
               history: History?,
               productCounts: ProductCounts,
@@ -196,7 +196,7 @@ extension PackageShow {
             self.defaultArchive = defaultArchive
         }
     }
-    
+
 }
 
 extension PackageShow.Model {
@@ -281,19 +281,19 @@ extension PackageShow.Model {
                     return .empty
                 case .incompatibleWithAppStore:
                     return .a(
-                        .id("license_more_info"),
+                        .id("license-more-info"),
                         .href(SiteURL.faq.relativeURL(anchor: "licenses")),
                         "Why might the \(license.shortName) be problematic?"
                     )
                 case .other:
                     return .a(
-                        .id("license_more_info"),
+                        .id("license-more-info"),
                         .href(SiteURL.faq.relativeURL(anchor: "licenses")),
                         "Why is this package's license unknown?"
                     )
                 case .none:
                     return .a(
-                        .id("license_more_info"),
+                        .id("license-more-info"),
                         .href(SiteURL.faq.relativeURL(anchor: "licenses")),
                         "Why should you not use unlicensed code?"
                     )
@@ -325,7 +325,7 @@ extension PackageShow.Model {
             .group(listPhrase(opening: "By ", nodes: nodes, ifEmpty: "-", closing: "."))
         )
     }
-    
+
     func archivedListItem() -> Node<HTML.ListContext> {
         if isArchived {
             return .li(
@@ -337,7 +337,7 @@ extension PackageShow.Model {
             return .empty
         }
     }
-    
+
     func historyListItem() -> Node<HTML.ListContext> {
         guard let history = history else { return .empty }
 
@@ -371,7 +371,7 @@ extension PackageShow.Model {
             .group(releasesSentenceFragments)
         )
     }
-    
+
     func activityListItem() -> Node<HTML.ListContext> {
         // Bail out if not at least one field is non-nil
         guard let activity = activity,
@@ -380,17 +380,17 @@ extension PackageShow.Model {
                 || activity.lastIssueClosedAt != nil
                 || activity.lastPullRequestClosedAt != nil
         else { return .empty }
-        
+
         let openItems = [activity.openIssues, activity.openPullRequests]
             .compactMap { $0 }
             .map { Node.a(.href($0.url), .text($0.label)) }
-        
+
         let lastClosed: [Node<HTML.BodyContext>] = [
             activity.lastIssueClosedAt.map { .text("last issue was closed \($0)") },
             activity.lastPullRequestClosedAt.map { .text("last pull request was merged/closed \($0)") }
         ]
         .compactMap { $0 }
-        
+
         return .li(
             .class("activity"),
             .group(listPhrase(opening: .text("There is ".pluralized(for: activity.openIssuesCount, plural: "There are ")), nodes: openItems, closing: ". ") + listPhrase(opening: "The ", nodes: lastClosed, conjunction: " and the ", closing: "."))
@@ -461,7 +461,7 @@ extension PackageShow.Model {
                                 .href(SiteURL.keywords(.value(keyword)).relativeURL()),
                                 .text("\(keyword)"),
                                 .span(
-                                    .class("count_tag"),
+                                    .class("count-tag"),
                                     .text("\(kiloPostfixedQuantity: weightedKeywords.weight(for: keyword))")
                                 )
                             )
@@ -483,12 +483,12 @@ extension PackageShow.Model {
         guard let datedLink = releases.beta else { return .empty }
         return releaseMetadata(datedLink, title: "Latest Beta Release", cssClass: "beta")
     }
-    
+
     func defaultBranchMetadata() -> Node<HTML.ListContext> {
         guard let datedLink = releases.latest else { return .empty }
         return releaseMetadata(datedLink, title: "Default Branch", datePrefix: "Modified", cssClass: "branch")
     }
-    
+
     func releaseMetadata(_ datedLink: DatedLink, title: String, datePrefix: String = "Released", cssClass: String) -> Node<HTML.ListContext> {
         .li(
             .class(cssClass),
@@ -618,12 +618,12 @@ extension PackageShow.Model {
         return .li(
             .class("row"),
             .div(
-                .class("row_labels"),
+                .class("row-labels"),
                 labelParagraphNode
             ),
             // Matrix CSS should include *both* the column labels, and the column values status boxes in *every* row.
             .div(
-                .class("column_labels"),
+                .class("column-labels"),
                 .forEach(cells) { $0.headerNode }
             ),
             .div(
@@ -661,7 +661,7 @@ extension Platform {
 extension License.Kind {
     var cssClass: String {
         switch self {
-            case .none: return "no_license"
+            case .none: return "no-license"
             case .incompatibleWithAppStore, .other: return "incompatible_license"
             case .compatibleWithAppStore: return "compatible_license"
         }
