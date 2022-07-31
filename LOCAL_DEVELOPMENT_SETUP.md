@@ -44,17 +44,25 @@ Once the back end is set up and the server is running, the next step is to set u
 
 We use [yarn](https://yarnpkg.com) and [esbuild](https://esbuild.github.io) to build our front end files. However, you do not need to install `node` or `yarn` locally as the front end build scripts run through Docker. If you want to run a one-time build of the front end, so the site has valid CSS and JavaScript, run:
 
-```
+```shell
 make build-front-end
 ```
 
 If you want to set up the front end for active development, run a local front end server with:
 
-```
+```shell
 make serve-front-end
 ```
 
-**Note:** If you are doing extensive work with the front end, you may want to install `node` and `yarn` locally rather than running them via Docker.
+If you make changes to front-end files, you'll need to lint them before committing them. Run a full CSS and JavaScript lint with:
+
+```shell
+make lint-front-end
+```
+
+Or, if you want to run either the CSS or JavaScript linting steps separately, run `run-stylelint` or `run-prettier` individually.
+
+**Note:** If you are doing extensive work with the front end, you may want to install `node` and `yarn` locally rather than running them via Docker. You may also want to set up `stylelint` and `prettier` to run from within your code editor, rather than waiting for CI to find errors.
 
 ### Check Everything Works!
 
