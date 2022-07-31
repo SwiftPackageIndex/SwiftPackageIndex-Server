@@ -1,169 +1,83 @@
-/* Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-/* -------------------------------------------------------------------------
-  Site home page, including the display of search results.
----------------------------------------------------------------------------- */
+// -------------------------------------------------------------------------
+// Site home page, including the display of search results.
+// -------------------------------------------------------------------------
 
-/* Search results drop down */
-
-#results {
-  margin-top: -5px;
-  position: absolute;
-  width: 100%;
-  max-height: 500px;
-  overflow: scroll;
-  background-color: var(--results-background);
-  border-top: 1px var(--results-separator) solid;
-  box-shadow: 0px 3px 8px 2px var(--results-shadow);
-  z-index: 9999;
-
-  ul {
-    margin: 0;
-    padding: 0;
-  }
-
-  li {
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    border-bottom: 1px var(--results-separator) solid;
-
-    &:last-child {
-      border: none;
-    }
-
-    &.selected {
-      background-color: var(--results-selected-background);
-    }
-  }
-
-  div {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: baseline;
-  }
-
-  h4 {
-    display: inline;
-    margin: 0;
-    padding: 0;
-  }
-
-  small {
-    font-size: 10px;
-  }
-
-  p {
-    margin: 5px 0 0 0;
-    font-size: 14px;
-    color: var(--page-text);
-  }
-
-  .no_results {
-    padding: 40px;
-    text-align: center;
-  }
-
-  .more_results {
-    padding: 20px;
-    text-align: center;
-    font-weight: 600;
-    background-color: var(--results-separator);
-    color: var(--page-text);
-  }
-
-  &.error {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: var(--error-text);
-    background-color: var(--error-background);
-
-    .icon {
-      margin: 20px;
-      font-size: 40px;
-    }
-  }
-}
-
-/* Recent packages */
+// Recent packages.
 
 .recent {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
 
-  h3 {
-    margin: 5px 0;
-  }
+    h3 {
+        margin: 5px 0;
+    }
 
-  ul {
-    margin: 0;
-    padding: 0;
-    max-width: 250px;
-    overflow: hidden;
-  }
+    ul {
+        overflow: hidden;
+        max-width: 250px;
+        margin: 0;
+        padding: 0;
+    }
 
-  li {
-    margin: 15px;
-    display: flex;
-    flex-direction: column;
-  }
+    li {
+        display: flex;
+        flex-direction: column;
+        margin: 15px;
+    }
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  .recent {
-    grid-template-columns: 1fr;
-  }
+    .recent {
+        grid-template-columns: 1fr;
+    }
 }
 
-/* Twitter Spaces CTA */
+// Twitter Spaces CTA.
 
-.twitter_spaces {
-  position: relative;
-  padding: 15px;
-  margin: 20px 0 60px 0;
-  background-color: var(--panel-background);
-  border-bottom: 3px var(--twitter-blue) solid;
+.twitter-spaces {
+    position: relative;
+    margin: 20px 0 60px;
+    padding: 15px;
+    background-color: var(--panel-background);
+    border-bottom: 3px var(--twitter-blue) solid;
 
-  &::before {
-    content: '';
-    position: absolute;
-    display: block;
-    width: 40px;
-    height: 40px;
-    left: -20px;
-    top: -20px;
-    background-image: url('/images/twitter-spaces.svg');
-    background-size: 100%;
-    background-repeat: no-repeat;
-  }
+    &::before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        left: -20px;
+        display: block;
+        width: 40px;
+        height: 40px;
+        background-repeat: no-repeat;
+        background-size: 100%;
+        background-image: url('/images/twitter-spaces.svg');
+    }
 
-  p {
-    margin: 0;
-  }
+    p {
+        margin: 0;
+    }
 
-  .twitter_profile {
-    text-align: right;
-  }
+    .twitter-profile {
+        text-align: right;
+    }
 
-  @media screen and (max-width: $mobile-breakpoint) {
-    margin-left: 20px;
-  }
+    @media screen and (max-width: $mobile-breakpoint) {
+        margin-left: 20px;
+    }
 }

@@ -1,62 +1,65 @@
-/* Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// -------------------------------------------------------------------------
+// Keyword lists.
+// -------------------------------------------------------------------------
 
 ul.keywords {
-  padding: 0;
-  font-size: 13px;
+    padding: 0;
+    font-size: 13px;
 
-  li {
-    display: inline-block;
-    margin: 2px 5px 2px 0;
-    border-left: 2px var(--bordered-button-border) solid;
-    background-color: var(--bordered-button-background);
+    li {
+        display: inline-block;
+        margin: 2px 5px 2px 0;
+        background-color: var(--bordered-button-background);
+        border-left: 2px var(--bordered-button-border) solid;
 
-    &:hover {
-      background-color: var(--bordered-button-hover);
+        &:hover {
+            background-color: var(--bordered-button-hover);
+        }
+
+        &:first-child {
+            margin-left: 0;
+        }
+
+        & > a,
+        & > span {
+            padding: 2px 6px;
+        }
+
+        & > a {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        & > span {
+            display: inline-block;
+            color: var(--page-text);
+            background-color: var(--bordered-button-hover);
+        }
     }
 
-    &:first-child {
-      margin-left: 0;
-    }
+    &.matching li:first-child {
+        background-color: inherit;
+        border: none;
 
-    & > a,
-    & > span {
-      padding: 2px 6px;
+        & > span {
+            padding: 0;
+            color: var(--page-dimmed-text);
+            background-color: inherit;
+        }
     }
-
-    & > a {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    & > span {
-      display: inline-block;
-      color: var(--page-text);
-      background-color: var(--bordered-button-hover);
-    }
-  }
-
-  &.matching li:first-child {
-    border: none;
-    background-color: inherit;
-
-    & > span {
-      padding: 0;
-      color: var(--page-dimmed-text);
-      background-color: inherit;
-    }
-  }
 }

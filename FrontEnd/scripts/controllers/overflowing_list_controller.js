@@ -15,50 +15,50 @@
 import { Controller } from '@hotwired/stimulus'
 
 export class OverflowingListController extends Controller {
-  static targets = ['list', 'showMore']
-  static values = {
-    overflowMessage: String,
-    overflowHeight: Number,
-    collapsed: Boolean,
-  }
-
-  connect() {
-    if (this.collapsedValue) {
-      // Immediately adjust the height of the potentially overflowing keyword list.
-      this.listTarget.style.setProperty('max-height', `${this.overflowHeightValue}px`)
+    static targets = ['list', 'showMore']
+    static values = {
+        overflowMessage: String,
+        overflowHeight: Number,
+        collapsed: Boolean,
     }
-  }
 
-  disconnect() {
-    if (this.hasShowMoreTarget) this.showMoreTarget.remove()
-  }
-
-  addShowMoreLinkIfNeeded() {
-    // If the collapsing hid any content, add a "show more" that expands it.
-    if (this.isOverflowing(this.listTarget) && this.hasShowMoreTarget === false) {
-      const showMoreElement = document.createElement('a')
-      showMoreElement.dataset.overflowingListTarget = 'showMore'
-      showMoreElement.dataset.action = 'click->overflowing-list#expand'
-      showMoreElement.innerText = this.overflowMessageValue
-      showMoreElement.href = '#' // Needed to turn the cursor into a hand.
-      this.element.appendChild(showMoreElement)
+    connect() {
+        if (this.collapsedValue) {
+            // Immediately adjust the height of the potentially overflowing keyword list.
+            this.listTarget.style.setProperty('max-height', `${this.overflowHeightValue}px`)
+        }
     }
-  }
 
-  expand(event) {
-    // Remove the link and expand the list to show all elements.
-    this.showMoreTarget.remove()
-    this.listTarget.style.removeProperty('max-height')
-    this.collapsedValue = false
-    event.preventDefault()
-  }
+    disconnect() {
+        if (this.hasShowMoreTarget) this.showMoreTarget.remove()
+    }
 
-  // Adapted from https://stackoverflow.com/a/143889
-  isOverflowing(element) {
-    var currentOverflow = element.style.overflow
-    if (!currentOverflow || currentOverflow === 'visible') element.style.overflow = 'hidden'
-    var isOverflowing = element.clientWidth < element.scrollWidth || element.clientHeight < element.scrollHeight
-    element.style.overflow = currentOverflow
-    return isOverflowing
-  }
+    addShowMoreLinkIfNeeded() {
+        // If the collapsing hid any content, add a "show more" that expands it.
+        if (this.isOverflowing(this.listTarget) && this.hasShowMoreTarget === false) {
+            const showMoreElement = document.createElement('a')
+            showMoreElement.dataset.overflowingListTarget = 'showMore'
+            showMoreElement.dataset.action = 'click->overflowing-list#expand'
+            showMoreElement.innerText = this.overflowMessageValue
+            showMoreElement.href = '#' // Needed to turn the cursor into a hand.
+            this.element.appendChild(showMoreElement)
+        }
+    }
+
+    expand(event) {
+        // Remove the link and expand the list to show all elements.
+        this.showMoreTarget.remove()
+        this.listTarget.style.removeProperty('max-height')
+        this.collapsedValue = false
+        event.preventDefault()
+    }
+
+    // Adapted from https://stackoverflow.com/a/143889
+    isOverflowing(element) {
+        var currentOverflow = element.style.overflow
+        if (!currentOverflow || currentOverflow === 'visible') element.style.overflow = 'hidden'
+        var isOverflowing = element.clientWidth < element.scrollWidth || element.clientHeight < element.scrollHeight
+        element.style.overflow = currentOverflow
+        return isOverflowing
+    }
 }

@@ -31,7 +31,7 @@ enum DocumentationErrorPage {
 
         override func content() -> Node<HTML.BodyContext> {
             .section(
-                .class("error_message"),
+                .class("error-message"),
                 .h4(.text("Documentation for this package is not yet available")),
                 .p("For newly added packages or packages which have only just started to adopt DocC documentation, it can take a short while for documentation to be generated and available."),
                 .p(

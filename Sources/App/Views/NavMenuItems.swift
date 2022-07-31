@@ -26,13 +26,13 @@ enum NavMenuItem {
         switch self {
             case .sponsorCTA:
                 return .li(
-                    .class("menu_scta"),
+                    .class("menu-scta"),
                     .a(
-                        .id("menu_scta"),
+                        .id("menu-scta"),
                         .href(ExternalURL.projectSponsorship)
                     ),
                     .div(
-                        .id("menu_scta_help"),
+                        .id("menu-scta-help"),
                         .p("The Swift Package Index is an open-source project entirely funded by community donations."),
                         .p(
                             .text("Please consider sponsoring this project. "),

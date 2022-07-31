@@ -15,32 +15,32 @@
 import { Controller } from '@hotwired/stimulus'
 
 export class ModalPanelController extends Controller {
-  static targets = ['button', 'underlay', 'panel']
+    static targets = ['button', 'underlay', 'panel']
 
-  connect() {
-    // The button that toggles the panel is hidden by default as it only
-    // has functionality when JavaScript is enabled, so make it visible.
-    this.buttonTarget.classList.add('visible')
-  }
+    connect() {
+        // The button that toggles the panel is hidden by default as it only
+        // has functionality when JavaScript is enabled, so make it visible.
+        this.buttonTarget.classList.add('visible')
+    }
 
-  show(event) {
-    // Show the panel.
-    this.panelTarget.classList.add('visible')
+    show(event) {
+        // Show the panel.
+        this.panelTarget.classList.add('visible')
 
-    // Dim the background with an underlay.
-    const underlayElement = document.createElement('div')
-    this.element.insertBefore(underlayElement, this.panelTarget)
-    underlayElement.dataset.modalPanelTarget = 'underlay'
-    underlayElement.dataset.action = 'click->modal-panel#hide'
+        // Dim the background with an underlay.
+        const underlayElement = document.createElement('div')
+        this.element.insertBefore(underlayElement, this.panelTarget)
+        underlayElement.dataset.modalPanelTarget = 'underlay'
+        underlayElement.dataset.action = 'click->modal-panel#hide'
 
-    event.preventDefault()
-  }
+        event.preventDefault()
+    }
 
-  hide(event) {
-    // Hide the panel and remove the underlay.
-    this.panelTarget.classList.remove('visible')
-    this.underlayTarget.remove()
+    hide(event) {
+        // Hide the panel and remove the underlay.
+        this.panelTarget.classList.remove('visible')
+        this.underlayTarget.remove()
 
-    event.preventDefault()
-  }
+        event.preventDefault()
+    }
 }

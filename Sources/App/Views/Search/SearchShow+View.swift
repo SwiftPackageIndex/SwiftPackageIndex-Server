@@ -47,7 +47,7 @@ extension SearchShow {
                     .class("search"),
                     .searchForm(query: model.query),
                     .div(
-                        .class("filter_suggestions"),
+                        .class("filter-suggestions"),
                         .text("Add filters to narrow search results. "),
                         .span(
                             .class("learn_more"),
@@ -69,14 +69,14 @@ extension SearchShow {
 
         func resultsSection() -> Node<HTML.BodyContext> {
             .section(
-                .class("search_results"),
+                .class("search-results"),
                 .if(model.term.isEmpty == false, .p(
                     .text("Results for &ldquo;"),
                     .strong(.text(model.term)),
                     .text("&rdquo;&hellip;")
                 )),
                 .if(model.authorResults.count > 0 || model.keywordResults.count > 0, .div(
-                    .class("two_column mobile_reversed"),
+                    .class("two-column mobile-reversed"),
                     packageResultsSection(),
                     .div(
                         authorResultsSection(),
@@ -88,11 +88,11 @@ extension SearchShow {
 
         func packageResultsSection() -> Node<HTML.BodyContext> {
             return .section(
-                .class("package_results"),
+                .class("package-results"),
                 .h4("Matching packages\(model.filters.isEmpty ? "" : " where&hellip;")"),
                 .if(model.filters.isEmpty == false,
                     .ul(
-                        .class("filter_list"),
+                        .class("filter-list"),
                         .group(
                             model.filters.map {
                                 .li(
@@ -119,7 +119,7 @@ extension SearchShow {
                     .text("No packages found.")
                 )),
                 .ul(
-                    .id("package_list"),
+                    .id("package-list"),
                     // Let the JavaScript know that keyboard navigation on this package list should
                     // also include navigation into and out of the query field.
                     .data(named: "focus-query-field", value: String(true)),
@@ -140,7 +140,7 @@ extension SearchShow {
             else { return .empty }
 
             return .section(
-                .class("author_results"),
+                .class("author-results"),
                 .h4("Matching authors"),
                 .spiOverflowingList(overflowMessage: "Show more authors…", overflowHeight: 129,
                                     .forEach(model.authorResults) { authorResultListItem($0) })
@@ -161,7 +161,7 @@ extension SearchShow {
             else { return .empty }
 
             return .section(
-                .class("keyword_results"),
+                .class("keyword-results"),
                 .h4("Matching keywords"),
                 .spiOverflowingList(overflowMessage: "Show more keywords…", overflowHeight: 260, listClass: "keywords",
                                     .forEach(model.keywordResults) { keywordResultListItem($0) })
@@ -174,7 +174,7 @@ extension SearchShow {
                     .href(SiteURL.keywords(.value(keyword.keyword)).relativeURL()),
                     .text(keyword.keyword),
                     .span(
-                        .class("count_tag"),
+                        .class("count-tag"),
                         .text("\(kiloPostfixedQuantity: model.weightedKeywords.weight(for: keyword.keyword))")
                     )
                 )

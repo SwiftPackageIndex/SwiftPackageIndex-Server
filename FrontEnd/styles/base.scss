@@ -1,244 +1,252 @@
-/* Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-/* -------------------------------------------------------------------------
-  Basic element styles, generic across the whole page.
----------------------------------------------------------------------------- */
+// -------------------------------------------------------------------------
+// Basic element styles, generic across the whole page.
+// -------------------------------------------------------------------------
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
-  color: var(--page-text);
-  background-color: var(--page-background);
-  font-family: -apple-system, 'BlinkMacSystemFont', 'SF Hello', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial',
-    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
-  font-size: 16px;
-  line-height: 1.4;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        'SF Hello',
+        'Segoe UI',
+        Roboto,
+        'Helvetica Neue',
+        Arial,
+        sans-serif,
+        'Apple Color Emoji',
+        'Segoe UI Emoji';
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--page-text);
+    background-color: var(--page-background);
 }
 
 h1 {
-  margin: 0;
-  padding: 0;
-  font-size: 23px;
-  line-height: 1.2;
-  font-weight: 600;
+    margin: 0;
+    padding: 0;
+    font-size: 23px;
+    font-weight: 600;
+    line-height: 1.2;
 }
 
 h2 {
-  font-size: 35px;
-  line-height: 1.2;
+    font-size: 35px;
+    line-height: 1.2;
 }
 
 h3 {
-  font-size: 22px;
-  line-height: 1.2;
+    font-size: 22px;
+    line-height: 1.2;
 }
 
 h4 {
-  font-size: 17px;
-  line-height: 1.2;
+    font-size: 17px;
+    line-height: 1.2;
 }
 
 a {
-  color: var(--link-text);
-  text-decoration: none;
+    text-decoration: none;
+    color: var(--link-text);
 }
 
 a:hover {
-  color: var(--link-highlight);
+    color: var(--link-highlight);
 }
 
 strong {
-  font-weight: 600;
+    font-weight: 600;
 }
 
 small {
-  display: inline-block;
-  font-size: 11px;
+    display: inline-block;
+    font-size: 11px;
 }
 
 pre {
-  border: 1px var(--code-snippet-border) solid;
-  background-color: var(--code-snippet-background);
-  color: var(--code-snippet-text);
-  font-size: 14px;
-  border-radius: 4px;
-  padding: 15px;
-  overflow: auto;
+    overflow: auto;
+    padding: 15px;
+    font-size: 14px;
+    color: var(--code-snippet-text);
+    background-color: var(--code-snippet-background);
+    border: 1px var(--code-snippet-border) solid;
+    border-radius: 4px;
 }
 
 code {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 blockquote {
-  padding: 0 15px;
-  color: var(--blockquote-text);
-  border-left: 4px solid var(--blockquote-border);
+    padding: 0 15px;
+    color: var(--blockquote-text);
+    border-left: 4px solid var(--blockquote-border);
 }
 
 .note {
-  padding: 0 20px;
-  margin: 0 10px 20px;
-  border: 1px solid;
-  color: var(--note-text);
-  background-color: var(--note-background);
-  border-color: var(--note-border);
+    margin: 0 10px 20px;
+    padding: 0 20px;
+    color: var(--note-text);
+    background-color: var(--note-background);
+    border: 1px solid;
+    border-color: var(--note-border);
 
-  img {
-    margin: 0 !important;
-    display: inline-block !important;
-  }
+    img {
+        display: inline-block !important;
+        margin: 0 !important;
+    }
 }
 
 hr {
-  margin: 25px auto;
-  border: 0;
-  height: 2px;
-  background-color: var(--rule-background);
+    height: 2px;
+    margin: 25px auto;
+    background-color: var(--rule-background);
+    border: 0;
 
-  &.tight {
-    margin: 10px auto;
-  }
+    &.tight {
+        margin: 10px auto;
+    }
 
-  &.minor {
-    height: 1px;
-    background-color: var(--rule-thin-background);
-  }
+    &.minor {
+        height: 1px;
+        background-color: var(--rule-thin-background);
+    }
 }
 
 noscript {
-  display: block;
-  padding: 20px 0;
-  background-color: var(--error-background);
-  color: var(--error-text);
-  text-align: center;
+    display: block;
+    padding: 20px 0;
+    text-align: center;
+    color: var(--error-text);
+    background-color: var(--error-background);
 }
 
 ::placeholder {
-  color: var(--input-placeholder);
+    color: var(--input-placeholder);
 }
 
 button {
-  margin: 0;
-  padding: 8px 16px;
-  color: var(--button-text);
-  background-color: var(--button-background);
-  border-radius: 4px;
-  border: none;
-  font-size: 15px;
+    margin: 0;
+    padding: 8px 16px;
+    font-size: 15px;
+    color: var(--button-text);
+    background-color: var(--button-background);
+    border: none;
+    border-radius: 4px;
 
-  &:active {
-    filter: brightness(140%);
-  }
+    &:active {
+        filter: brightness(140%);
+    }
 
-  &:focus {
-    outline: none;
-  }
+    &:focus {
+        outline: none;
+    }
 }
 
 .green {
-  color: var(--green-text);
+    color: var(--green-text);
 }
 
 .orange {
-  color: var(--orange-text);
+    color: var(--orange-text);
 }
 
 .red {
-  color: var(--red-text);
+    color: var(--red-text);
 }
 
 .right {
-  text-align: right;
-  justify-items: flex-end;
+    justify-items: flex-end;
+    text-align: right;
 }
 
 .turbo-progress-bar {
-  height: 3px;
-  background-color: var(--mid-red);
+    height: 3px;
+    background-color: var(--mid-red);
 }
 
 a.download {
-  display: block;
-  padding: 20px;
-  padding-right: 50px;
-  margin: 30px auto;
-  max-width: 300px;
-  background-color: var(--mid-green);
-  color: var(--white);
-  font-weight: bold;
-  font-size: 20px;
-  border-left: 3px var(--light-green) solid;
-  background-image: var(--image-download);
-  background-position: right 20px center;
-  background-repeat: no-repeat;
-  background-size: 30px;
-
-  p {
-    margin: 0;
-  }
-
-  small {
     display: block;
-    font-weight: normal;
-  }
+    max-width: 300px;
+    margin: 30px auto;
+    padding: 20px;
+    padding-right: 50px;
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--white);
+    background-position: right 20px center;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    background-color: var(--mid-green);
+    background-image: var(--image-download);
+    border-left: 3px var(--light-green) solid;
+
+    p {
+        margin: 0;
+    }
+
+    small {
+        display: block;
+        font-weight: normal;
+    }
 }
 
-a.big_button {
-  display: inline-block;
-  padding: 10px 20px;
-  margin: 10px;
-  text-align: center;
-  color: var(--white);
-  font-size: 18px;
-  border-left: 3px solid;
+a.big-button {
+    display: inline-block;
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 18px;
+    text-align: center;
+    color: var(--white);
+    border-left: 3px solid;
 
-  &.green {
-    background-color: var(--big-button-green-background);
-    border-color: var(--big-button-green-border);
-  }
+    &.green {
+        background-color: var(--big-button-green-background);
+        border-color: var(--big-button-green-border);
+    }
 
-  &.blue {
-    background-color: var(--big-button-blue-background);
-    border-color: var(--big-button-blue-border);
-  }
+    &.blue {
+        background-color: var(--big-button-blue-background);
+        border-color: var(--big-button-blue-border);
+    }
 }
 
 .announcement {
-  margin: 0;
-  padding: 8px 0;
-  background-color: var(--announcement-background);
-  text-align: center;
+    margin: 0;
+    padding: 8px 0;
+    text-align: center;
+    background-color: var(--announcement-background);
 }
 
 .hidden {
-  display: none;
+    display: none;
 }
 
 .trimmed {
-  overflow: hidden;
-  text-overflow: ellipsis;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.count_tag {
-  padding: 1px 5px;
-  border-radius: 20px;
-  color: var(--page-text);
-  background: var(--keyword-count-background);
-  font-size: 10px;
+.count-tag {
+    padding: 1px 5px;
+    font-size: 10px;
+    color: var(--page-text);
+    background: var(--keyword-count-background);
+    border-radius: 20px;
 }

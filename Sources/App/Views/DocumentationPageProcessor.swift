@@ -24,8 +24,13 @@ struct DocumentationPageProcessor {
     let packageName: String
     let reference: String
     let referenceKind: Version.Kind?
-    let docArchives: [String]
-    let allAvailableDocumentationVersions: [AvailableDocumentationVersion]
+    let availableArchives: [AvailableArchive]
+    let availableVersions: [AvailableDocumentationVersion]
+
+    struct AvailableArchive {
+        let name: String
+        let isCurrent: Bool
+    }
 
     struct AvailableDocumentationVersion {
         let kind: Version.Kind
@@ -40,8 +45,8 @@ struct DocumentationPageProcessor {
           packageName: String,
           reference: String,
           referenceKind: Version.Kind?,
-          docArchives: [String],
-          allAvailableDocumentationVersions: [AvailableDocumentationVersion],
+          availableArchives: [AvailableArchive],
+          availableVersions: [AvailableDocumentationVersion],
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
@@ -49,8 +54,8 @@ struct DocumentationPageProcessor {
         self.packageName = packageName
         self.reference = reference
         self.referenceKind = referenceKind
-        self.docArchives = docArchives
-        self.allAvailableDocumentationVersions = allAvailableDocumentationVersions
+        self.availableArchives = availableArchives
+        self.availableVersions = availableVersions
 
         do {
             document = try SwiftSoup.parse(rawHtml)
@@ -78,15 +83,16 @@ struct DocumentationPageProcessor {
     }
 
     var header: String {
-        let navMenuItems: [NavMenuItem] = [.addPackage, .blog, .faq, .searchLink]
-
-        let documentationVersionChoices: [Plot.Node<HTML.ListContext>] = allAvailableDocumentationVersions.compactMap { version in
+        let documentationVersionChoices: [Plot.Node<HTML.ListContext>] = availableVersions.compactMap { version in
             // If a version has no docArchives, it has no documentation we can switch to.
-            guard let firstDocArchive = docArchives.first else { return nil }
+            guard let currentArchive = availableArchives.first(where: { $0.isCurrent })
+            else { return nil }
 
             return .li(
+                .if(version.reference == reference, .class("current")),
                 .a(
-                    .href(relativeDocumentationURL(reference: version.reference, docArchive: firstDocArchive)),
+                    .href(relativeDocumentationURL(reference: version.reference,
+                                                   docArchive: currentArchive.name)),
                     .span(
                         .class(version.kind.cssClass),
                         .text(version.reference)
@@ -96,11 +102,11 @@ struct DocumentationPageProcessor {
         }
 
         var breadcrumbs = [
-            Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+            Breadcrumb(title: "Swift Package Index", url: SiteURL.home.relativeURL()),
             Breadcrumb(title: repositoryOwnerName, url: SiteURL.author(.value(repositoryOwner)).relativeURL()),
             Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL())
         ]
-        
+
         if (Environment.current == .development) {
             breadcrumbs.append(Breadcrumb(title: .init(
                 .text("Documentation for "),
@@ -115,28 +121,24 @@ struct DocumentationPageProcessor {
             breadcrumbs.append(Breadcrumb(title: "Documentation"))
         }
 
+        if availableArchives.count > 1,
+           let currentArchive = availableArchives.first(where: { $0.isCurrent }) {
+            breadcrumbs.append(Breadcrumb(title: currentArchive.name, choices: [
+                .forEach(availableArchives, { archive in
+                        .li(
+                            .if(archive.isCurrent, .class("current")),
+                            .a(
+                                .href(relativeDocumentationURL(reference: reference, docArchive: archive.name)),
+                                .text(archive.name)
+                            )
+                        )
+                })
+            ]))
+        }
+
         return Plot.Node.group(
             .header(
                 .class("spi"),
-                .div(
-                    .class("inner branding_and_menu"),
-                    .a(
-                        .href("/"),
-                        .h1(
-                            .img(
-                                .src("/images/logo.svg"),
-                                .alt("Swift Package Index Logo")
-                            ),
-                            .text("Swift Package Index")
-                        )
-                    ),
-                    .nav(
-                        .class("menu"),
-                        .ul(
-                            .group(navMenuItems.map { $0.listNode() })
-                        )
-                    )
-                ),
                 .div(
                     .class("inner breadcrumbs"),
                     .nav(
@@ -148,11 +150,11 @@ struct DocumentationPageProcessor {
                 .if(Environment.current != .production,
                     .if(referenceKind != .release,
                         // Only try and show a link to the latest stable if there *is* a latest stable.
-                        .unwrap(allAvailableDocumentationVersions.first(where: \.isLatestStable)) { latestStable in
+                        .unwrap(availableVersions.first(where: \.isLatestStable)) { latestStable in
                                 .div(
-                                    .class("latest_stable_wrap"),
+                                    .class("latest-stable-wrap"),
                                     .div(
-                                        .class("inner latest_stable"),
+                                        .class("inner latest-stable"),
                                         .text(latestStableLinkExplanatoryText),
                                         .text(" "),
                                         .unwrap(latestStable.docArchives.first) { docArchive in
@@ -169,27 +171,6 @@ struct DocumentationPageProcessor {
                                 )
                         }
                        )
-                ),
-                .if(docArchives.count > 1, .div(
-                    .class("doc_archives_wrap"),
-                    .div(
-                        .class("inner doc_archives"),
-                        .nav(
-                            .ul(
-                                .li(
-                                    .text("Documentation for:")
-                                ),
-                                .forEach(docArchives, { archive in
-                                        .li(
-                                            .a(
-                                                .href(relativeDocumentationURL(reference:reference, docArchive: archive)),
-                                                .text(archive)
-                                            )
-                                        )
-                                })
-                            )
-                        )
-                    ))
                 )
             )
         ).render()

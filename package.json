@@ -1,18 +1,24 @@
 {
-  "name": "SwiftPackageIndex",
-  "license": "Apache-2.0",
-  "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
-  "scripts": {
-    "build": "./FrontEnd/esbuild.mjs",
-    "serve": "./FrontEnd/esbuild.mjs --watch"
-  },
-  "dependencies": {
-    "@hotwired/stimulus": "^3.0.1",
-    "@hotwired/turbo": "^7.1.0",
-    "normalize.css": "^8.0.1"
-  },
-  "devDependencies": {
-    "esbuild": "^0.14.21",
-    "esbuild-sass-plugin": "^2.2.3"
-  }
+    "name": "swift-package-index",
+    "license": "Apache-2.0",
+    "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
+    "scripts": {
+        "build": "./FrontEnd/esbuild.mjs",
+        "serve": "./FrontEnd/esbuild.mjs --watch"
+    },
+    "dependencies": {
+        "@hotwired/stimulus": "^3.0.1",
+        "@hotwired/turbo": "^7.1.0",
+        "normalize.css": "^8.0.1"
+    },
+    "devDependencies": {
+        "esbuild": "^0.14.21",
+        "esbuild-sass-plugin": "^2.2.3",
+        "postcss": "^8.3.3",
+        "prettier": "^2.7.1",
+        "stylelint": "^14.9.1",
+        "stylelint-config-standard-scss": "^5.0.0",
+        "stylelint-order": "^5.0.0",
+        "stylelint-scss": "^4.3.0"
+    }
 }

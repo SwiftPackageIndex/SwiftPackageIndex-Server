@@ -15,71 +15,71 @@
 import { measurePlausibleEvent } from './plausible_analytics.js'
 
 class SPICopyButton {
-  installCopyEvent(button, contentElement, analyticsEvent) {
-    // Nothing to do unless *both* of these are valid.
-    if (!button || !contentElement) return
+    installCopyEvent(button, contentElement, analyticsEvent) {
+        // Nothing to do unless *both* of these are valid.
+        if (!button || !contentElement) return
 
-    button.addEventListener('click', (event) => {
-      // Stop any form that this button may be contained within from submitting.
-      event.preventDefault()
+        button.addEventListener('click', (event) => {
+            // Stop any form that this button may be contained within from submitting.
+            event.preventDefault()
 
-      // The contentElement can be different types of element so grab the content depending on element type.
-      var contentToCopy = ''
-      if (contentElement.matches('input')) {
-        contentToCopy = contentElement.value
-      } else {
-        contentToCopy = contentElement.textContent
-      }
+            // The contentElement can be different types of element so grab the content depending on element type.
+            var contentToCopy = ''
+            if (contentElement.matches('input')) {
+                contentToCopy = contentElement.value
+            } else {
+                contentToCopy = contentElement.textContent
+            }
 
-      // Copy the content and let the user know.
-      navigator.clipboard.writeText(contentToCopy).then(() => {
-        // Keep a copy of the button's text label, then change it.
-        const oldButtonText = button.textContent
-        button.textContent = 'Copied!'
+            // Copy the content and let the user know.
+            navigator.clipboard.writeText(contentToCopy).then(() => {
+                // Keep a copy of the button's text label, then change it.
+                const oldButtonText = button.textContent
+                button.textContent = 'Copied!'
 
-        // Then change it back after a short delay.
-        setTimeout(() => {
-          button.textContent = oldButtonText
-        }, 1000)
+                // Then change it back after a short delay.
+                setTimeout(() => {
+                    button.textContent = oldButtonText
+                }, 1000)
 
-        // Log the analytics event.
-        measurePlausibleEvent(analyticsEvent)
-      })
-    })
-  }
+                // Log the analytics event.
+                measurePlausibleEvent(analyticsEvent)
+            })
+        })
+    }
 }
 
 export class SPICopyableInput extends SPICopyButton {
-  constructor() {
-    super()
+    constructor() {
+        super()
 
-    document.addEventListener('turbo:load', () => {
-      // Create a copy button inside every relevant form element.
-      const elements = document.querySelectorAll('form.copyable_input')
-      elements.forEach((formElement) => {
-        // Get the first/only input element inside the form.
-        const inputElement = formElement.querySelector('input')
-        if (!inputElement) return
+        document.addEventListener('turbo:load', () => {
+            // Create a copy button inside every relevant form element.
+            const elements = document.querySelectorAll('form.copyable-input')
+            elements.forEach((formElement) => {
+                // Get the first/only input element inside the form.
+                const inputElement = formElement.querySelector('input')
+                if (!inputElement) return
 
-        // Whenever the input is clicked, select all text. Don't attach to the `focus` event
-        // here, as `mouseup` happens after and placing the event on `focus` means it's too
-        // easy to accidentally select all the text.
-        inputElement.addEventListener('mouseup', (event) => {
-          event.target.select()
+                // Whenever the input is clicked, select all text. Don't attach to the `focus` event
+                // here, as `mouseup` happens after and placing the event on `focus` means it's too
+                // easy to accidentally select all the text.
+                inputElement.addEventListener('mouseup', (event) => {
+                    event.target.select()
+                })
+
+                // Remove the old button, if it exists, from the Turbo restored page.
+                const oldButtonElement = formElement.querySelector('button')
+                if (oldButtonElement) oldButtonElement.remove()
+
+                // Given that the button will only work with JavaScript available, we should use JavaScript to create it!
+                const buttonElement = document.createElement('button')
+                buttonElement.textContent = inputElement.dataset.buttonName
+                formElement.appendChild(buttonElement)
+
+                // Add the copy event to the newly created button.
+                this.installCopyEvent(buttonElement, inputElement, inputElement.dataset.eventName)
+            })
         })
-
-        // Remove the old button, if it exists, from the Turbo restored page.
-        const oldButtonElement = formElement.querySelector('button')
-        if (oldButtonElement) oldButtonElement.remove()
-
-        // Given that the button will only work with JavaScript available, we should use JavaScript to create it!
-        const buttonElement = document.createElement('button')
-        buttonElement.textContent = inputElement.dataset.buttonName
-        formElement.appendChild(buttonElement)
-
-        // Add the copy event to the newly created button.
-        this.installCopyEvent(buttonElement, inputElement, inputElement.dataset.eventName)
-      })
-    })
-  }
+    }
 }

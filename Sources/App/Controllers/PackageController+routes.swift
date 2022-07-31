@@ -97,7 +97,9 @@ struct PackageController {
             throw Abort(.notFound)
         }
 
-        let path = req.parameters.getCatchall().joined(separator: "/")
+        let archive = req.parameters.get("archive")
+        let catchAll = [archive].compactMap { $0 } + req.parameters.getCatchall()
+        let path = catchAll.joined(separator: "/")
 
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
         let awsResponse = try await Current.fetchDocumentation(req.client, url)
@@ -166,6 +168,10 @@ struct PackageController {
                                      isLatestStable: isLatesStable)
                     }
 
+                let availableArchives: [DocumentationPageProcessor.AvailableArchive] = documentation.docArchives.map { archiveName in
+                        .init(name: archiveName, isCurrent: archiveName.lowercased() == archive)
+                }
+
                 // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
                 guard let body = awsResponse.body,
                       let processor = DocumentationPageProcessor(repositoryOwner: owner,
@@ -174,8 +180,8 @@ struct PackageController {
                                                                  packageName: documentation.packageName,
                                                                  reference: reference,
                                                                  referenceKind: documentation.latest,
-                                                                 docArchives: documentation.docArchives,
-                                                                 allAvailableDocumentationVersions: availableDocumentationVersions,
+                                                                 availableArchives: availableArchives,
+                                                                 availableVersions: availableDocumentationVersions,
                                                                  rawHtml: body.asString())
                 else {
                     return try await awsResponse.encodeResponse(

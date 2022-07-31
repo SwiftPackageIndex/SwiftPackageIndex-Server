@@ -1,134 +1,131 @@
-/* Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-/* -------------------------------------------------------------------------
-  Site header and footer.
----------------------------------------------------------------------------- */
-
-/* Common */
+// -------------------------------------------------------------------------
+// Site header and footer.
+// -------------------------------------------------------------------------
 
 header,
 footer {
-  color: var(--header-text);
-  background-color: var(--header-background);
-
-  a {
-    padding: 3px;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--header-link-text);
-
-    &:hover {
-      color: var(--header-link-highlight);
-    }
-  }
-
-  nav {
-    ul {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
-
-      li {
-        margin: 0 5px;
-        list-style: none;
-      }
-    }
-  }
-}
-
-/* Header specific */
-
-header {
-  .inner {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 10px;
-  }
-
-  @media screen and (max-width: $mobile-breakpoint) {
-    .inner {
-      flex-direction: column;
-    }
-  }
-
-  h1 {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    img {
-      margin-right: 10px;
-      max-width: 64px;
-    }
-  }
-
-  @media screen and (max-width: $mobile-breakpoint) {
-    h1 {
-      margin-bottom: 20px;
-    }
-  }
-
-  nav a {
-    border-bottom: 1px var(--header-link-text) solid;
-
-    &:hover {
-      border-color: var(--header-link-highlight);
-    }
-  }
-}
-
-/* Footer specific */
-
-footer {
-  .inner {
-    padding: 20px 10px;
-  }
-
-  nav {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    p {
-      margin: 3px 0;
-
-      a {
-        font-size: 13px;
-      }
-    }
-  }
-
-  small {
-    text-align: center;
-
-    @media screen and (max-width: $mobile-breakpoint) {
-      margin-top: 10px;
-    }
+    color: var(--header-text);
+    background-color: var(--header-background);
 
     a {
-      font-size: 12px;
-    }
-  }
+        padding: 3px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--header-link-text);
 
-  ul {
-    margin: 10px;
-  }
+        &:hover {
+            color: var(--header-link-highlight);
+        }
+    }
+
+    nav {
+        ul {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+
+            li {
+                margin: 0 5px;
+                list-style: none;
+            }
+        }
+    }
+}
+
+// Header specific.
+
+header {
+    .inner {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 10px;
+    }
+
+    h1 {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        img {
+            max-width: 64px;
+            margin-right: 10px;
+        }
+    }
+
+    nav a {
+        border-bottom: 1px var(--header-link-text) solid;
+
+        &:hover {
+            border-color: var(--header-link-highlight);
+        }
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+        .inner {
+            flex-direction: column;
+        }
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+        h1 {
+            margin-bottom: 20px;
+        }
+    }
+}
+
+// Footer specific.
+
+footer {
+    .inner {
+        padding: 20px 10px;
+    }
+
+    nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        p {
+            margin: 3px 0;
+
+            a {
+                font-size: 13px;
+            }
+        }
+    }
+
+    small {
+        text-align: center;
+
+        a {
+            font-size: 12px;
+        }
+
+        @media screen and (max-width: $mobile-breakpoint) {
+            margin-top: 10px;
+        }
+    }
+
+    ul {
+        margin: 10px;
+    }
 }

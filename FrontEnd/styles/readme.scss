@@ -1,115 +1,115 @@
-/* Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-/* -------------------------------------------------------------------------
-  Styles specific to the readme section of the page.
----------------------------------------------------------------------------- */
+// -------------------------------------------------------------------------
+// Styles specific to imported README files.
+// -------------------------------------------------------------------------
 
 [data-controller='readme'] {
-  overflow: hidden;
+    overflow: hidden;
 
-  h1 {
-    font-size: 35px;
-  }
-
-  h2 {
-    font-size: 22px;
-    margin-top: 20px;
-  }
-
-  h3 {
-    font-size: 17px;
-    margin-top: 18px;
-  }
-
-  h4 {
-    font-size: 15px;
-    margin-top: 16px;
-  }
-
-  img {
-    max-width: 100%;
-  }
-
-  table {
-    width: 100%;
-    width: max-content;
-    max-width: 100%;
-    overflow: auto;
-    border-collapse: collapse;
-
-    th {
-      background-color: var(--table-header-background);
+    h1 {
+        font-size: 35px;
     }
 
-    th,
-    td {
-      padding: 5px 10px;
-      border: 1px solid var(--grey);
+    h2 {
+        margin-top: 20px;
+        font-size: 22px;
     }
 
-    tr:nth-child(2n) {
-      background-color: var(--table-row-alt-background);
+    h3 {
+        margin-top: 18px;
+        font-size: 17px;
     }
-  }
 
-  // GitHub Specific style overrides.
-  .zeroclipboard-container {
-    display: none;
-  }
-
-  .anchor {
-    visibility: hidden;
-    position: absolute;
-  }
-
-  .contains-task-list {
-    padding-left: 10px;
-    list-style: none;
-
-    li {
-      margin: 5px;
-
-      input {
-        margin-right: 5px;
-      }
+    h4 {
+        margin-top: 16px;
+        font-size: 15px;
     }
-  }
 
-  details {
-    margin: 20px 0;
-  }
+    img {
+        max-width: 100%;
+    }
+
+    table {
+        overflow: auto;
+        width: 100%;
+        width: max-content;
+        max-width: 100%;
+        border-collapse: collapse;
+
+        th {
+            background-color: var(--table-header-background);
+        }
+
+        th,
+        td {
+            padding: 5px 10px;
+            border: 1px solid var(--grey);
+        }
+
+        tr:nth-child(2n) {
+            background-color: var(--table-row-alt-background);
+        }
+    }
+
+    // GitHub Specific style overrides.
+    .zeroclipboard-container {
+        display: none;
+    }
+
+    .anchor {
+        position: absolute;
+        visibility: hidden;
+    }
+
+    .contains-task-list {
+        padding-left: 10px;
+        list-style: none;
+
+        li {
+            margin: 5px;
+
+            input {
+                margin-right: 5px;
+            }
+        }
+    }
+
+    details {
+        margin: 20px 0;
+    }
 }
 
 g-emoji {
-  font-family: Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
-  font-style: normal !important;
-  font-weight: 400;
-  line-height: 1;
-  vertical-align: -0.075em;
-  margin-right: -10px;
+    vertical-align: -0.075em;
+    margin-right: -10px;
+    // stylelint-disable-next-line font-family-no-missing-generic-family-keyword
+    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    font-style: normal !important;
+    font-weight: 400;
+    line-height: 1;
 }
 
 @media (prefers-color-scheme: light) {
-  [href$='#gh-dark-mode-only'] {
-    display: none;
-  }
+    [href$='#gh-dark-mode-only'] {
+        display: none;
+    }
 }
 
 @media (prefers-color-scheme: dark) {
-  [href$='#gh-light-mode-only'] {
-    display: none;
-  }
+    [href$='#gh-light-mode-only'] {
+        display: none;
+    }
 }

@@ -1,93 +1,96 @@
-/* Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#package_list {
-  padding: 0;
-  display: grid;
-  gap: 5px;
-  list-style: none;
+// -------------------------------------------------------------------------
+// Package lists. For example search results, keyword pages, and author pages.
+// -------------------------------------------------------------------------
 
-  > li {
-    background-color: var(--package-list-background);
-    border-left: 3px var(--package-list-border) solid;
+#package-list {
+    display: grid;
+    gap: 5px;
+    padding: 0;
+    list-style: none;
 
-    a {
-      display: block;
-      padding: 10px;
-      align-items: center;
+    > li {
+        background-color: var(--package-list-background);
+        border-left: 3px var(--package-list-border) solid;
 
-      h4 {
-        margin: 0;
-      }
+        a {
+            display: block;
+            align-items: center;
+            padding: 10px;
 
-      p {
-        margin: 5px 0;
-        color: var(--page-text);
-      }
+            h4 {
+                margin: 0;
+            }
 
-      :not(.identifier) {
-        > small {
-          color: var(--page-text);
+            p {
+                margin: 5px 0;
+                color: var(--page-text);
+            }
+
+            :not(.identifier) {
+                > small {
+                    color: var(--page-text);
+                }
+            }
         }
-      }
-    }
 
-    &.selected {
-      background-color: var(--package-list-selectedbackground);
-    }
-
-    ul.metadata {
-      display: inline-flex;
-      padding: 0;
-      gap: 10px;
-
-      li {
-        display: inline-flex;
-        align-items: center;
-        list-style: none;
-
-        &:not(:first-child)::before {
-          content: '';
-          display: inline-block;
-          margin-right: 2px;
-          width: 9px;
-          height: 9px;
-          background-position: center;
-          background-size: cover;
+        &.selected {
+            background-color: var(--package-list-selectedbackground);
         }
-      }
 
-      li.activity::before {
-        background-image: var(--image-clock);
-      }
+        ul.metadata {
+            display: inline-flex;
+            gap: 10px;
+            padding: 0;
 
-      li.stars::before {
-        background-image: var(--image-star);
-      }
+            li {
+                display: inline-flex;
+                align-items: center;
+                list-style: none;
 
-      li.has_documentation::before {
-        background-image: var(--image-book);
-        background-size: 84%;
-      }
+                &:not(:first-child)::before {
+                    content: '';
+                    display: inline-block;
+                    width: 9px;
+                    height: 9px;
+                    margin-right: 2px;
+                    background-position: center;
+                    background-size: cover;
+                }
+            }
+
+            li.activity::before {
+                background-image: var(--image-clock);
+            }
+
+            li.stars::before {
+                background-image: var(--image-star);
+            }
+
+            li.has-documentation::before {
+                background-size: 84%;
+                background-image: var(--image-book);
+            }
+        }
+
+        @media screen and (max-width: $mobile-breakpoint) {
+            ul.metadata {
+                flex-direction: column;
+                gap: 3px;
+            }
+        }
     }
-
-    @media screen and (max-width: $mobile-breakpoint) {
-      ul.metadata {
-        flex-direction: column;
-        gap: 3px;
-      }
-    }
-  }
 }

@@ -394,14 +394,22 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  packageName: "Package Name",
                                                                  reference: "main",
                                                                  referenceKind: .release,
-                                                                 docArchives: [],
-                                                                 allAvailableDocumentationVersions: [],
+                                                                 availableArchives: [
+                                                                    .init(name: "Archive1",
+                                                                          isCurrent: true)
+                                                                 ],
+                                                                 availableVersions: [
+                                                                    .init(kind: .defaultBranch,
+                                                                          reference: "main",
+                                                                          docArchives: ["Archive1"],
+                                                                          isLatestStable: false),
+                                                                 ],
                                                                  rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
     }
 
-    func test_DocCTemplate_multipleTargets() throws {
+    func test_DocCTemplate_multipleVersions() throws {
         let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
         let doccHtml = try String(contentsOfFile: doccTemplatePath)
         let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
@@ -410,8 +418,13 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  packageName: "Package Name",
                                                                  reference: "main",
                                                                  referenceKind: .defaultBranch,
-                                                                 docArchives: ["Archive1", "Archive2"],
-                                                                 allAvailableDocumentationVersions: [
+                                                                 availableArchives: [
+                                                                    .init(name: "Archive1",
+                                                                          isCurrent: true),
+                                                                    .init(name: "Archive2",
+                                                                          isCurrent: false)
+                                                                 ],
+                                                                 availableVersions: [
                                                                     .init(kind: .defaultBranch,
                                                                           reference: "main",
                                                                           docArchives: ["Archive1", "Archive2"],
