@@ -42,7 +42,7 @@ enum Search {
     static let tsvector = SQLIdentifier("tsvector")
     static let tsrankvalue = SQLIdentifier("tsrankvalue")
     
-    static let emptyString = SQLRaw("''")
+    static let emptyString = SQLRaw("")
     static let inVector = SQLRaw("@@")
     static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
