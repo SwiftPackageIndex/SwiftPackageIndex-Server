@@ -1,23 +1,22 @@
-/* Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-/* -------------------------------------------------------------------------
-  Image variables for both light and dark mode.
----------------------------------------------------------------------------- */
+// -------------------------------------------------------------------------
+// Image variables for both light and dark mode.
+// -------------------------------------------------------------------------
 
-/* Light mode images */
+// Light mode images.
 
 :root {
     --image-person: url('data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjE5OS44NzUiIHZpZXdCb3g9IjAgMCAyMDAgMTk5Ljg3NSIgd2lkdGg9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtMTY4LjU2MiA2Ny41MzRhNTEuNTYyIDUxLjU2MiAwIDEgMSAtNTEuNTYyLTUxLjUzNCA1MS41NDggNTEuNTQ4IDAgMCAxIDUxLjU2MiA1MS41MzR6bTQ4LjQzOCAxNDguMzU2YzAtMzYuMTEtMTUuNDctOTUuOTczLTQzLjYtMTE0LjM4YTY0Ljg3IDY0Ljg3IDAgMCAxIC0xMTIuODA4IDBjLTI4LjEyMiAxOC40MDctNDMuNTkyIDc4LjI3LTQzLjU5MiAxMTQuMzgiIGZpbGw9IiMyZjJmMmYiIGZpbGwtcnVsZT0iZXZlbm9kZCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTE3IC0xNikiLz48L3N2Zz4=');
@@ -50,7 +49,7 @@
     --image-book: url('data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjE3MSIgdmlld0JveD0iMCAwIDEzNCAxNzEiIHdpZHRoPSIxMzQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0ibTg0NS42MzYgOTczaC04NS42NDN2MTcxaDEzNC4wMDd2LTEyMi40NnptLTY0LjgyIDQyLjM3aDU4LjYzNnYxNi42OWgtNTguNjM2em0wIDM4Ljk2aDkyLjI5NHYxNi42OWgtOTIuMjk0em05Mi4zNTkgNTUuNjVoLTkyLjI5NHYtMTYuNjloOTIuMjk0eiIgZmlsbD0iIzJmMmYyZiIgZmlsbC1ydWxlPSJldmVub2RkIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtNzYwIC05NzMpIi8+PC9zdmc+');
 }
 
-/* Dark mode images */
+// Dark mode images.
 
 @media (prefers-color-scheme: dark) {
     :root {

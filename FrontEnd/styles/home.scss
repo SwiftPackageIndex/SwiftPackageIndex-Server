@@ -1,95 +1,22 @@
-/* Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-/* -------------------------------------------------------------------------
-  Site home page, including the display of search results.
----------------------------------------------------------------------------- */
+// -------------------------------------------------------------------------
+// Site home page, including the display of search results.
+// -------------------------------------------------------------------------
 
-/* Search results drop down */
-
-#results {
-    position: absolute;
-    z-index: 9999;
-    overflow: scroll;
-    width: 100%;
-    max-height: 500px;
-    margin-top: -5px;
-    background-color: var(--results-background);
-    border-top: 1px var(--results-separator) solid;
-    box-shadow: 0 3px 8px 2px var(--results-shadow);
-
-    ul {
-        margin: 0;
-        padding: 0;
-    }
-
-    li {
-        display: flex;
-        flex-direction: column;
-        margin: 0;
-        padding: 20px;
-        border-bottom: 1px var(--results-separator) solid;
-
-        &:last-child {
-            border: none;
-        }
-
-        &.selected {
-            background-color: var(--results-selected-background);
-        }
-    }
-
-    div {
-        display: flex;
-        flex-direction: row;
-        align-items: baseline;
-        justify-content: space-between;
-    }
-
-    h4 {
-        display: inline;
-        margin: 0;
-        padding: 0;
-    }
-
-    small {
-        font-size: 10px;
-    }
-
-    p {
-        margin: 5px 0 0;
-        font-size: 14px;
-        color: var(--page-text);
-    }
-
-    &.error {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-        color: var(--error-text);
-        background-color: var(--error-background);
-
-        .icon {
-            margin: 20px;
-            font-size: 40px;
-        }
-    }
-}
-
-/* Recent packages */
+// Recent packages.
 
 .recent {
     display: grid;
@@ -120,7 +47,7 @@
     }
 }
 
-/* Twitter Spaces CTA */
+// Twitter Spaces CTA.
 
 .twitter-spaces {
     position: relative;
