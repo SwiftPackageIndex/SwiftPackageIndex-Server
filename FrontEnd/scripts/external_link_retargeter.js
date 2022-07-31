@@ -13,9 +13,9 @@
 // limitations under the License.
 
 document.addEventListener('click', (event) => {
-  const externalLinkElement = event.target.findParentMatching((element) => {
-    return element.nodeName.toLowerCase() == 'a' && element.hostname != window.location.hostname
-  })
+    const externalLinkElement = event.target.findParentMatching((element) => {
+        return element.nodeName.toLowerCase() == 'a' && element.hostname != window.location.hostname
+    })
 
-  if (externalLinkElement) externalLinkElement.setAttribute('target', '_blank')
+    if (externalLinkElement) externalLinkElement.setAttribute('target', '_blank')
 })
