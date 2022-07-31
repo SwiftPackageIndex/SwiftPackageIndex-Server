@@ -14,80 +14,80 @@
  */
 
 #package-list {
-  display: grid;
-  gap: 5px;
-  padding: 0;
-  list-style: none;
+    display: grid;
+    gap: 5px;
+    padding: 0;
+    list-style: none;
 
-  > li {
-    background-color: var(--package-list-background);
-    border-left: 3px var(--package-list-border) solid;
+    > li {
+        background-color: var(--package-list-background);
+        border-left: 3px var(--package-list-border) solid;
 
-    a {
-      display: block;
-      align-items: center;
-      padding: 10px;
+        a {
+            display: block;
+            align-items: center;
+            padding: 10px;
 
-      h4 {
-        margin: 0;
-      }
+            h4 {
+                margin: 0;
+            }
 
-      p {
-        margin: 5px 0;
-        color: var(--page-text);
-      }
+            p {
+                margin: 5px 0;
+                color: var(--page-text);
+            }
 
-      :not(.identifier) {
-        > small {
-          color: var(--page-text);
+            :not(.identifier) {
+                > small {
+                    color: var(--page-text);
+                }
+            }
         }
-      }
-    }
 
-    &.selected {
-      background-color: var(--package-list-selectedbackground);
-    }
-
-    ul.metadata {
-      display: inline-flex;
-      gap: 10px;
-      padding: 0;
-
-      li {
-        display: inline-flex;
-        align-items: center;
-        list-style: none;
-
-        &:not(:first-child)::before {
-          content: '';
-          display: inline-block;
-          width: 9px;
-          height: 9px;
-          margin-right: 2px;
-          background-position: center;
-          background-size: cover;
+        &.selected {
+            background-color: var(--package-list-selectedbackground);
         }
-      }
 
-      li.activity::before {
-        background-image: var(--image-clock);
-      }
+        ul.metadata {
+            display: inline-flex;
+            gap: 10px;
+            padding: 0;
 
-      li.stars::before {
-        background-image: var(--image-star);
-      }
+            li {
+                display: inline-flex;
+                align-items: center;
+                list-style: none;
 
-      li.has-documentation::before {
-        background-size: 84%;
-        background-image: var(--image-book);
-      }
+                &:not(:first-child)::before {
+                    content: '';
+                    display: inline-block;
+                    width: 9px;
+                    height: 9px;
+                    margin-right: 2px;
+                    background-position: center;
+                    background-size: cover;
+                }
+            }
+
+            li.activity::before {
+                background-image: var(--image-clock);
+            }
+
+            li.stars::before {
+                background-image: var(--image-star);
+            }
+
+            li.has-documentation::before {
+                background-size: 84%;
+                background-image: var(--image-book);
+            }
+        }
+
+        @media screen and (max-width: $mobile-breakpoint) {
+            ul.metadata {
+                flex-direction: column;
+                gap: 3px;
+            }
+        }
     }
-
-    @media screen and (max-width: $mobile-breakpoint) {
-      ul.metadata {
-        flex-direction: column;
-        gap: 3px;
-      }
-    }
-  }
 }

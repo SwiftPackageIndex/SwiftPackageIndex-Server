@@ -18,129 +18,129 @@
 ---------------------------------------------------------------------------- */
 
 .build-monitor {
-  display: grid;
-  gap: 10px;
-
-  .row {
     display: grid;
-    grid-template-columns: repeat(2, 2fr) 3fr repeat(2, 2fr);
-    gap: 5px;
-    padding: 10px;
-    background-color: var(--grid-default-background);
-    border-left: 3px var(--grid-default-border) solid;
+    gap: 10px;
 
-    > div {
-      color: var(--page-text);
-    }
-
-    .package-name {
-      grid-column: 1 / span 4;
-
-      h3 {
-        margin: 0;
-
-        span {
-          margin-left: 5px;
-          font-size: 16px;
-          font-weight: normal;
-          color: var(--page-dimmed-text);
-        }
-      }
-    }
-
-    .status {
-      display: flex;
-      grid-column: 5;
-      grid-row: 1 / span 2;
-      flex-direction: column;
-      gap: 3px;
-      align-items: center;
-      justify-content: center;
-      margin: -10px;
-
-      > span {
-        background-position: left center;
-        background-repeat: no-repeat;
-        background-size: 18px;
-      }
-
-      &.ok {
-        background-color: var(--grid-succeeded-background);
-
-        > span {
-          padding-left: 25px;
-          background-image: var(--image-succeeded);
-        }
-      }
-
-      &.failed {
-        background-color: var(--grid-failed-background);
-
-        > span {
-          padding-left: 25px;
-          background-image: var(--image-failed);
-        }
-      }
-    }
-
-    .runner > span {
-      padding-left: 22px;
-      background-position: left center;
-      background-repeat: no-repeat;
-      background-size: 15px;
-      background-image: var(--image-server);
-    }
-
-    &:hover {
-      .status {
-        background-color: var(--grid-failed-background);
-
-        &.ok {
-          background-color: var(--mid-green);
-
-          > span,
-          > small {
-            filter: brightness(100);
-          }
-        }
-
-        &.failed {
-          background-color: var(--mid-red);
-
-          > span,
-          > small {
-            filter: brightness(100);
-          }
-        }
-      }
-    }
-
-    @media screen and (max-width: $mobile-breakpoint) {
-      grid-template-columns: repeat(4, 1fr);
-
-      > div {
-        grid-column: span 2;
-      }
-
-      .package-name {
-        grid-column: 1 / span 4;
-      }
-
-      .reference {
-        grid-column: 1 / span 2;
-      }
-
-      .status {
-        grid-column: 1 / span 4;
-        grid-row: 5;
-        margin: 0;
+    .row {
+        display: grid;
+        grid-template-columns: repeat(2, 2fr) 3fr repeat(2, 2fr);
+        gap: 5px;
         padding: 10px;
-      }
+        background-color: var(--grid-default-background);
+        border-left: 3px var(--grid-default-border) solid;
 
-      .runner {
-        grid-column: 3;
-        grid-row: 2;
-      }
+        > div {
+            color: var(--page-text);
+        }
+
+        .package-name {
+            grid-column: 1 / span 4;
+
+            h3 {
+                margin: 0;
+
+                span {
+                    margin-left: 5px;
+                    font-size: 16px;
+                    font-weight: normal;
+                    color: var(--page-dimmed-text);
+                }
+            }
+        }
+
+        .status {
+            display: flex;
+            grid-column: 5;
+            grid-row: 1 / span 2;
+            flex-direction: column;
+            gap: 3px;
+            align-items: center;
+            justify-content: center;
+            margin: -10px;
+
+            > span {
+                background-position: left center;
+                background-repeat: no-repeat;
+                background-size: 18px;
+            }
+
+            &.ok {
+                background-color: var(--grid-succeeded-background);
+
+                > span {
+                    padding-left: 25px;
+                    background-image: var(--image-succeeded);
+                }
+            }
+
+            &.failed {
+                background-color: var(--grid-failed-background);
+
+                > span {
+                    padding-left: 25px;
+                    background-image: var(--image-failed);
+                }
+            }
+        }
+
+        .runner > span {
+            padding-left: 22px;
+            background-position: left center;
+            background-repeat: no-repeat;
+            background-size: 15px;
+            background-image: var(--image-server);
+        }
+
+        &:hover {
+            .status {
+                background-color: var(--grid-failed-background);
+
+                &.ok {
+                    background-color: var(--mid-green);
+
+                    > span,
+                    > small {
+                        filter: brightness(100);
+                    }
+                }
+
+                &.failed {
+                    background-color: var(--mid-red);
+
+                    > span,
+                    > small {
+                        filter: brightness(100);
+                    }
+                }
+            }
+        }
+
+        @media screen and (max-width: $mobile-breakpoint) {
+            grid-template-columns: repeat(4, 1fr);
+
+            > div {
+                grid-column: span 2;
+            }
+
+            .package-name {
+                grid-column: 1 / span 4;
+            }
+
+            .reference {
+                grid-column: 1 / span 2;
+            }
+
+            .status {
+                grid-column: 1 / span 4;
+                grid-row: 5;
+                margin: 0;
+                padding: 10px;
+            }
+
+            .runner {
+                grid-column: 3;
+                grid-row: 2;
+            }
+        }
     }
-  }
 }

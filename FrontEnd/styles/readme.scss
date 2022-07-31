@@ -18,99 +18,99 @@
 ---------------------------------------------------------------------------- */
 
 [data-controller='readme'] {
-  overflow: hidden;
+    overflow: hidden;
 
-  h1 {
-    font-size: 35px;
-  }
-
-  h2 {
-    margin-top: 20px;
-    font-size: 22px;
-  }
-
-  h3 {
-    margin-top: 18px;
-    font-size: 17px;
-  }
-
-  h4 {
-    margin-top: 16px;
-    font-size: 15px;
-  }
-
-  img {
-    max-width: 100%;
-  }
-
-  table {
-    overflow: auto;
-    width: 100%;
-    width: max-content;
-    max-width: 100%;
-    border-collapse: collapse;
-
-    th {
-      background-color: var(--table-header-background);
+    h1 {
+        font-size: 35px;
     }
 
-    th,
-    td {
-      padding: 5px 10px;
-      border: 1px solid var(--grey);
+    h2 {
+        margin-top: 20px;
+        font-size: 22px;
     }
 
-    tr:nth-child(2n) {
-      background-color: var(--table-row-alt-background);
+    h3 {
+        margin-top: 18px;
+        font-size: 17px;
     }
-  }
 
-  // GitHub Specific style overrides.
-  .zeroclipboard-container {
-    display: none;
-  }
-
-  .anchor {
-    position: absolute;
-    visibility: hidden;
-  }
-
-  .contains-task-list {
-    padding-left: 10px;
-    list-style: none;
-
-    li {
-      margin: 5px;
-
-      input {
-        margin-right: 5px;
-      }
+    h4 {
+        margin-top: 16px;
+        font-size: 15px;
     }
-  }
 
-  details {
-    margin: 20px 0;
-  }
+    img {
+        max-width: 100%;
+    }
+
+    table {
+        overflow: auto;
+        width: 100%;
+        width: max-content;
+        max-width: 100%;
+        border-collapse: collapse;
+
+        th {
+            background-color: var(--table-header-background);
+        }
+
+        th,
+        td {
+            padding: 5px 10px;
+            border: 1px solid var(--grey);
+        }
+
+        tr:nth-child(2n) {
+            background-color: var(--table-row-alt-background);
+        }
+    }
+
+    // GitHub Specific style overrides.
+    .zeroclipboard-container {
+        display: none;
+    }
+
+    .anchor {
+        position: absolute;
+        visibility: hidden;
+    }
+
+    .contains-task-list {
+        padding-left: 10px;
+        list-style: none;
+
+        li {
+            margin: 5px;
+
+            input {
+                margin-right: 5px;
+            }
+        }
+    }
+
+    details {
+        margin: 20px 0;
+    }
 }
 
 g-emoji {
-  vertical-align: -0.075em;
-  margin-right: -10px;
-  /* stylelint-disable-next-line font-family-no-missing-generic-family-keyword */
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-  font-style: normal !important;
-  font-weight: 400;
-  line-height: 1;
+    vertical-align: -0.075em;
+    margin-right: -10px;
+    /* stylelint-disable-next-line font-family-no-missing-generic-family-keyword */
+    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    font-style: normal !important;
+    font-weight: 400;
+    line-height: 1;
 }
 
 @media (prefers-color-scheme: light) {
-  [href$='#gh-dark-mode-only'] {
-    display: none;
-  }
+    [href$='#gh-dark-mode-only'] {
+        display: none;
+    }
 }
 
 @media (prefers-color-scheme: dark) {
-  [href$='#gh-light-mode-only'] {
-    display: none;
-  }
+    [href$='#gh-light-mode-only'] {
+        display: none;
+    }
 }

@@ -14,23 +14,23 @@
  */
 
 [data-controller='overflowing-list'] {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
 
-  ul {
-    // This CSS is augmented with a `max-height` declaration defined via
-    // the custom element in overflowing_list.js.
-    overflow: hidden;
+    ul {
+        // This CSS is augmented with a `max-height` declaration defined via
+        // the custom element in overflowing_list.js.
+        overflow: hidden;
 
-    a {
-      // Measuring the height of these elements was inconsistent with inline
-      // display. Forcing a block display gets measured correctly.
-      display: inline-block;
+        a {
+            // Measuring the height of these elements was inconsistent with inline
+            // display. Forcing a block display gets measured correctly.
+            display: inline-block;
+        }
     }
-  }
 
-  [data-overflowing-list-target='showMore'] {
-    font-size: 13px;
-  }
+    [data-overflowing-list-target='showMore'] {
+        font-size: 13px;
+    }
 }

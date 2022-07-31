@@ -18,49 +18,49 @@
 ---------------------------------------------------------------------------- */
 
 [data-controller='modal-panel'] {
-  > button:not(.visible) {
-    display: none;
-  }
-
-  > [data-modal-panel-target='underlay'] {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 999;
-    opacity: var(--panel-underlay-opacity);
-    width: 100%;
-    height: 100%;
-    background-color: var(--panel-underlay-background);
-  }
-
-  > section {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    z-index: 1000;
-    margin-right: -50%;
-    padding: 20px;
-    padding-top: 0;
-    background-color: var(--panel-background);
-    border-top: 3px var(--panel-border) solid;
-    box-shadow: var(--panel-shadow);
-    transform: translate(-50%, -70%); // Slightly above centre looks best
-
-    &:not(.visible) {
-      display: none;
+    > button:not(.visible) {
+        display: none;
     }
 
-    button.close {
-      // Using float is unusual these days but it's the easiest way to make the close
-      // button stay as part of the layout flow so the intro text wraps around it.
-      float: right;
-      cursor: pointer;
-      margin: 0 -20px 0 0;
-      padding: 10px 15px;
-      font-size: 20px;
-      color: var(--page-text);
-      background: none;
-      border: none;
+    > [data-modal-panel-target='underlay'] {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 999;
+        opacity: var(--panel-underlay-opacity);
+        width: 100%;
+        height: 100%;
+        background-color: var(--panel-underlay-background);
     }
-  }
+
+    > section {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        z-index: 1000;
+        margin-right: -50%;
+        padding: 20px;
+        padding-top: 0;
+        background-color: var(--panel-background);
+        border-top: 3px var(--panel-border) solid;
+        box-shadow: var(--panel-shadow);
+        transform: translate(-50%, -70%); // Slightly above centre looks best
+
+        &:not(.visible) {
+            display: none;
+        }
+
+        button.close {
+            // Using float is unusual these days but it's the easiest way to make the close
+            // button stay as part of the layout flow so the intro text wraps around it.
+            float: right;
+            cursor: pointer;
+            margin: 0 -20px 0 0;
+            padding: 10px 15px;
+            font-size: 20px;
+            color: var(--page-text);
+            background: none;
+            border: none;
+        }
+    }
 }

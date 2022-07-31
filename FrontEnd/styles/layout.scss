@@ -18,60 +18,60 @@
 ---------------------------------------------------------------------------- */
 
 .inner {
-  max-width: 850px;
-  margin: 0 auto;
+    max-width: 850px;
+    margin: 0 auto;
 }
 
 main > .inner {
-  padding: 20px 10px;
+    padding: 20px 10px;
 }
 
 .two-column {
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 60px;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 60px;
 
-  > :last-child {
-    justify-self: end;
-  }
+    > :last-child {
+        justify-self: end;
+    }
 
-  &.even {
-    grid-template-columns: 1fr 1fr;
-  }
+    &.even {
+        grid-template-columns: 1fr 1fr;
+    }
 
-  &.v-center {
-    align-items: center;
-  }
+    &.v-center {
+        align-items: center;
+    }
 
-  &.v-end {
-    align-items: end;
-  }
+    &.v-end {
+        align-items: end;
+    }
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  .two-column {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
+    .two-column {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
 
-    > * {
-      width: 100%;
-    }
+        > * {
+            width: 100%;
+        }
 
-    &.mobile-reversed {
-      flex-direction: column-reverse;
+        &.mobile-reversed {
+            flex-direction: column-reverse;
+        }
     }
-  }
 }
 
 /* Staging banner */
 
 .staging {
-  padding: 10px;
-  font-weight: bold;
-  text-align: center;
-  text-transform: uppercase;
-  color: var(--white);
-  background-color: var(--mid-red);
+    padding: 10px;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--white);
+    background-color: var(--mid-red);
 }

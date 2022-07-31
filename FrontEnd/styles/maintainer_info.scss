@@ -18,19 +18,19 @@
 ---------------------------------------------------------------------------- */
 
 .markdown-badges {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin: 5px 0 15px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 5px 0 15px;
 
-  form {
-    flex-grow: 1;
-  }
+    form {
+        flex-grow: 1;
+    }
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  .markdown-badges {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+    .markdown-badges {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }

@@ -18,96 +18,96 @@
 ---------------------------------------------------------------------------- */
 
 section.search-results {
-  margin-top: 50px;
+    margin-top: 50px;
 
-  // This rule may seem useless but displaying these sections as flex stops browsers
-  // from collapsing margins. The author and keywords sections must align vertically
-  // with the package results (containing a flex child). This rule ensures consistent
-  // vertical alignment, regardless of content.
-  // More info: https://css-tricks.com/the-rules-of-margin-collapse/
-  .package-results,
-  .author-results,
-  .keyword-results {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .author-results,
-  .keyword-results {
-    margin-bottom: 20px;
-
-    ul {
-      margin-bottom: 5px;
+    // This rule may seem useless but displaying these sections as flex stops browsers
+    // from collapsing margins. The author and keywords sections must align vertically
+    // with the package results (containing a flex child). This rule ensures consistent
+    // vertical alignment, regardless of content.
+    // More info: https://css-tricks.com/the-rules-of-margin-collapse/
+    .package-results,
+    .author-results,
+    .keyword-results {
+        display: flex;
+        flex-direction: column;
     }
-  }
 
-  h4 {
-    margin: 0;
-  }
+    .author-results,
+    .keyword-results {
+        margin-bottom: 20px;
 
-  .author-results {
-    ul {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      padding: 0;
-
-      li {
-        background-color: var(--bordered-button-background);
-        border-left: 2px var(--bordered-button-border) solid;
-        list-style: none;
-
-        &:hover {
-          background-color: var(--bordered-button-hover);
+        ul {
+            margin-bottom: 5px;
         }
-
-        & > a {
-          padding: 3px 7px;
-        }
-      }
     }
-  }
+
+    h4 {
+        margin: 0;
+    }
+
+    .author-results {
+        ul {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 0;
+
+            li {
+                background-color: var(--bordered-button-background);
+                border-left: 2px var(--bordered-button-border) solid;
+                list-style: none;
+
+                &:hover {
+                    background-color: var(--bordered-button-hover);
+                }
+
+                & > a {
+                    padding: 3px 7px;
+                }
+            }
+        }
+    }
 }
 
 ul.pagination {
-  display: grid;
-  grid-template-columns: 0.5fr 0.5fr;
-  padding: 0;
-  list-style: none;
+    display: grid;
+    grid-template-columns: 0.5fr 0.5fr;
+    padding: 0;
+    list-style: none;
 
-  .previous {
-    grid-column-start: 1;
-    justify-self: start;
-  }
+    .previous {
+        grid-column-start: 1;
+        justify-self: start;
+    }
 
-  .next {
-    grid-column-start: 2;
-    justify-self: end;
-  }
+    .next {
+        grid-column-start: 2;
+        justify-self: end;
+    }
 }
 
 ul.filter-list {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 0;
-  list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0;
+    list-style: none;
 
-  .filter-key,
-  .filter-value {
-    padding: 3px 6px;
-    font-weight: 500;
-    background-color: var(--search-filter-background);
-  }
+    .filter-key,
+    .filter-value {
+        padding: 3px 6px;
+        font-weight: 500;
+        background-color: var(--search-filter-background);
+    }
 
-  li:not(:first-child)::before {
-    content: 'and';
-    margin-right: 5px;
-    font-weight: 500;
-    color: var(--search-filter-ampersand-color);
-  }
+    li:not(:first-child)::before {
+        content: 'and';
+        margin-right: 5px;
+        font-weight: 500;
+        color: var(--search-filter-ampersand-color);
+    }
 
-  li:first-child {
-    margin-left: 33px;
-  }
+    li:first-child {
+        margin-left: 33px;
+    }
 }

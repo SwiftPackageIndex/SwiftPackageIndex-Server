@@ -18,134 +18,134 @@
 ---------------------------------------------------------------------------- */
 
 @keyframes scta {
-  from {
-    transform: scale(1, 1);
-  }
+    from {
+        transform: scale(1, 1);
+    }
 
-  to {
-    transform: scale(1.25, 1.25);
-  }
+    to {
+        transform: scale(1.25, 1.25);
+    }
 }
 
 #menu-scta {
-  display: block;
-  width: 30px;
-  height: 30px;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: 25px;
-  background-image: var(--image-heart);
-  border: none;
+    display: block;
+    width: 30px;
+    height: 30px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 25px;
+    background-image: var(--image-heart);
+    border: none;
 }
 
 #menu-scta-help {
-  display: none;
+    display: none;
 
-  p {
-    margin: 5px 0;
-  }
+    p {
+        margin: 5px 0;
+    }
 }
 
 // Note: This is min-width, not max-width as usual. This *only* for larger devices.
 @media screen and (min-width: $mobile-breakpoint) {
-  li.menu-scta {
-    position: relative;
-  }
-
-  #menu-scta:hover {
-    animation: scta 0.6s ease-in-out alternate infinite;
-
-    & + #menu-scta-help {
-      display: block;
+    li.menu-scta {
+        position: relative;
     }
-  }
 
-  #menu-scta-help {
-    position: absolute;
-    left: calc(-150px + 15px); // Half the div's width - half the heart's width.
-    width: 300px;
-    margin-top: 10px;
-    padding: 10px;
-    font-size: 14px;
-    color: var(--page-text);
-    background-color: var(--panel-background);
-    border-top: 3px var(--pink) solid;
-    box-shadow: var(--panel-shadow);
+    #menu-scta:hover {
+        animation: scta 0.6s ease-in-out alternate infinite;
 
-    &::before {
-      content: '';
-      position: absolute;
-      top: -13px;
-      left: 50%;
-      width: 0;
-      height: 0;
-      margin-left: -10px;
-      border-style: solid;
-      border-width: 0 10px 10px;
-      border-color: transparent transparent var(--pink) transparent;
+        & + #menu-scta-help {
+            display: block;
+        }
     }
-  }
+
+    #menu-scta-help {
+        position: absolute;
+        left: calc(-150px + 15px); // Half the div's width - half the heart's width.
+        width: 300px;
+        margin-top: 10px;
+        padding: 10px;
+        font-size: 14px;
+        color: var(--page-text);
+        background-color: var(--panel-background);
+        border-top: 3px var(--pink) solid;
+        box-shadow: var(--panel-shadow);
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: -13px;
+            left: 50%;
+            width: 0;
+            height: 0;
+            margin-left: -10px;
+            border-style: solid;
+            border-width: 0 10px 10px;
+            border-color: transparent transparent var(--pink) transparent;
+        }
+    }
 }
 
 body.home {
-  .two-column {
-    grid-template-columns: 4fr 2fr;
-  }
-
-  .scta,
-  .ccta {
-    margin: 20px 0;
-    padding: 15px;
-    background-color: var(--panel-background);
-
-    p {
-      margin: 0 0 10px;
-
-      &:last-of-type {
-        margin: 0;
-      }
-    }
-  }
-
-  .scta {
-    position: relative;
-    margin-bottom: 40px;
-    border-bottom: 3px var(--pink) solid;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: -20px;
-      left: -10px;
-      display: block;
-      width: 40px;
-      height: 35px;
-      background-repeat: no-repeat;
-      background-size: 100%;
-      background-image: var(--image-heart);
-    }
-  }
-
-  .ccta {
-    padding-top: 0;
-    color: var(--page-text);
-    border-bottom: 3px var(--mid-blue) solid;
-
-    img {
-      display: block;
-      max-width: 180px;
-      margin: 0 auto;
-      padding: 15px;
+    .two-column {
+        grid-template-columns: 4fr 2fr;
     }
 
-    span {
-      color: var(--link-text);
+    .scta,
+    .ccta {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: var(--panel-background);
+
+        p {
+            margin: 0 0 10px;
+
+            &:last-of-type {
+                margin: 0;
+            }
+        }
     }
 
-    &:hover {
-      span {
-        color: var(--link-highlight);
-      }
+    .scta {
+        position: relative;
+        margin-bottom: 40px;
+        border-bottom: 3px var(--pink) solid;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            display: block;
+            width: 40px;
+            height: 35px;
+            background-repeat: no-repeat;
+            background-size: 100%;
+            background-image: var(--image-heart);
+        }
     }
-  }
+
+    .ccta {
+        padding-top: 0;
+        color: var(--page-text);
+        border-bottom: 3px var(--mid-blue) solid;
+
+        img {
+            display: block;
+            max-width: 180px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        span {
+            color: var(--link-text);
+        }
+
+        &:hover {
+            span {
+                color: var(--link-highlight);
+            }
+        }
+    }
 }

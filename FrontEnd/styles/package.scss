@@ -18,264 +18,264 @@
 ---------------------------------------------------------------------------- */
 
 .package {
-  h2 {
-    margin: 0;
-    padding: 0;
-  }
-
-  .package-title {
-    display: flex;
-    flex-direction: column;
-
-    span {
-      margin: 0 2px;
-    }
-  }
-
-  p.summary {
-    margin-top: 0;
-    font-size: 19px;
-  }
-
-  article.details {
-    h3 {
-      margin: 0;
-      padding: 0;
-    }
-
-    ul.main-metadata {
-      display: grid;
-      grid-template-columns: 0.5fr 0.5fr;
-      grid-auto-flow: row;
-      gap: 15px;
-      margin: 10px 0;
-      padding: 0;
-
-      // Only the direct list inside the metadata section, not the keywords list.
-      & > li {
-        padding: 0 0 0 30px;
-        background-position: top 2px left;
-        background-repeat: no-repeat;
-        background-size: 18px;
-        list-style: outside none none;
-      }
-
-      li.archived {
-        grid-column-start: span 2;
-        background-image: var(--image-warning);
-      }
-
-      li.history {
-        grid-column-start: span 2;
-        background-image: var(--image-clock);
-      }
-
-      li.activity {
-        grid-column-start: span 2;
-        background-image: var(--image-speech-bubble);
-      }
-
-      li.dependencies {
-        grid-column-start: span 2;
-        background-image: var(--image-dependency-tree);
-      }
-
-      li.license {
-        background-image: var(--image-osi);
-
-        &.warning {
-          background-image: var(--image-warning);
-        }
-
-        &.error {
-          background-image: var(--image-error);
-        }
-
-        .no-license {
-          color: var(--red-text);
-        }
-
-        #license-more-info {
-          display: block;
-          font-size: 11px;
-        }
-      }
-
-      li.stars {
-        background-image: var(--image-star);
-      }
-
-      li.libraries {
-        background-image: var(--image-box);
-      }
-
-      li.executables {
-        background-image: var(--image-prompt);
-      }
-
-      li.plugins {
-        background-position: 3px center;
-        background-size: 14px;
-        background-image: var(--image-plug);
-      }
-
-      li.keywords {
-        grid-column-start: span 2;
-        background-image: var(--image-tag);
-
-        a {
-          display: flex;
-          gap: 5px;
-          align-items: center;
-        }
-      }
-    }
-
-    section.sidebar-links {
-      ul {
-        display: grid;
-        gap: 5px;
+    h2 {
         margin: 0;
         padding: 0;
-        list-style: none;
-
-        li > a {
-          display: block;
-          padding: 5px;
-          padding-left: 10px;
-          background-color: var(--bordered-button-background);
-          border-left: 3px var(--bordered-button-border) solid;
-
-          &:hover {
-            background-color: var(--bordered-button-hover);
-          }
-
-          &[href^='https://github.com/' i] {
-            padding-left: 33px;
-            background-position: center left 8px;
-            background-repeat: no-repeat;
-            background-size: 18px;
-            background-image: var(--image-github);
-          }
-        }
-      }
     }
 
-    section.sidebar-versions {
-      width: 100%;
+    .package-title {
+        display: flex;
+        flex-direction: column;
 
-      ul {
-        display: grid;
-        gap: 15px;
-        padding: 0;
-        list-style: none;
+        span {
+            margin: 0 2px;
+        }
+    }
 
-        li {
-          display: flex;
-          flex-direction: column;
-          padding: 5px 10px 6px;
-          background-color: var(--sidebar-section-background);
-          border-left: 3px var(--sidebar-section-border) solid;
+    p.summary {
+        margin-top: 0;
+        font-size: 19px;
+    }
 
-          strong {
+    article.details {
+        h3 {
+            margin: 0;
+            padding: 0;
+        }
+
+        ul.main-metadata {
+            display: grid;
+            grid-template-columns: 0.5fr 0.5fr;
+            grid-auto-flow: row;
+            gap: 15px;
+            margin: 10px 0;
+            padding: 0;
+
+            // Only the direct list inside the metadata section, not the keywords list.
+            & > li {
+                padding: 0 0 0 30px;
+                background-position: top 2px left;
+                background-repeat: no-repeat;
+                background-size: 18px;
+                list-style: outside none none;
+            }
+
+            li.archived {
+                grid-column-start: span 2;
+                background-image: var(--image-warning);
+            }
+
+            li.history {
+                grid-column-start: span 2;
+                background-image: var(--image-clock);
+            }
+
+            li.activity {
+                grid-column-start: span 2;
+                background-image: var(--image-speech-bubble);
+            }
+
+            li.dependencies {
+                grid-column-start: span 2;
+                background-image: var(--image-dependency-tree);
+            }
+
+            li.license {
+                background-image: var(--image-osi);
+
+                &.warning {
+                    background-image: var(--image-warning);
+                }
+
+                &.error {
+                    background-image: var(--image-error);
+                }
+
+                .no-license {
+                    color: var(--red-text);
+                }
+
+                #license-more-info {
+                    display: block;
+                    font-size: 11px;
+                }
+            }
+
+            li.stars {
+                background-image: var(--image-star);
+            }
+
+            li.libraries {
+                background-image: var(--image-box);
+            }
+
+            li.executables {
+                background-image: var(--image-prompt);
+            }
+
+            li.plugins {
+                background-position: 3px center;
+                background-size: 14px;
+                background-image: var(--image-plug);
+            }
+
+            li.keywords {
+                grid-column-start: span 2;
+                background-image: var(--image-tag);
+
+                a {
+                    display: flex;
+                    gap: 5px;
+                    align-items: center;
+                }
+            }
+        }
+
+        section.sidebar-links {
+            ul {
+                display: grid;
+                gap: 5px;
+                margin: 0;
+                padding: 0;
+                list-style: none;
+
+                li > a {
+                    display: block;
+                    padding: 5px;
+                    padding-left: 10px;
+                    background-color: var(--bordered-button-background);
+                    border-left: 3px var(--bordered-button-border) solid;
+
+                    &:hover {
+                        background-color: var(--bordered-button-hover);
+                    }
+
+                    &[href^='https://github.com/' i] {
+                        padding-left: 33px;
+                        background-position: center left 8px;
+                        background-repeat: no-repeat;
+                        background-size: 18px;
+                        background-image: var(--image-github);
+                    }
+                }
+            }
+        }
+
+        section.sidebar-versions {
+            width: 100%;
+
+            ul {
+                display: grid;
+                gap: 15px;
+                padding: 0;
+                list-style: none;
+
+                li {
+                    display: flex;
+                    flex-direction: column;
+                    padding: 5px 10px 6px;
+                    background-color: var(--sidebar-section-background);
+                    border-left: 3px var(--sidebar-section-border) solid;
+
+                    strong {
+                        font-size: 14px;
+                    }
+
+                    &.stable {
+                        border-left-color: var(--stable-text);
+                    }
+
+                    &.beta {
+                        border-left-color: var(--beta-text);
+                    }
+
+                    &.branch {
+                        border-left-color: var(--branch-text);
+                    }
+                }
+            }
+        }
+
+        section.sidebar-package-authors {
+            small {
+                display: block;
+                padding-left: 22px;
+                background-position: top 3px left;
+                background-repeat: no-repeat;
+                background-size: 16px;
+                background-image: var(--image-question);
+            }
+        }
+    }
+
+    .try-in-playground {
+        position: relative;
+
+        #app-download-explainer {
+            position: absolute;
+            left: -25%;
+            width: 150%;
+            margin-top: 10px;
+            padding: 10px;
             font-size: 14px;
-          }
+            color: var(--page-text);
+            background-color: var(--panel-background);
+            border-top: 3px var(--panel-border) solid;
+            box-shadow: var(--panel-shadow);
 
-          &.stable {
-            border-left-color: var(--stable-text);
-          }
-
-          &.beta {
-            border-left-color: var(--beta-text);
-          }
-
-          &.branch {
-            border-left-color: var(--branch-text);
-          }
+            &::before {
+                content: '';
+                position: absolute;
+                top: -13px;
+                left: 50%;
+                width: 0;
+                height: 0;
+                margin-left: -10px;
+                border-style: solid;
+                border-width: 0 10px 10px;
+                border-color: transparent transparent var(--panel-border) transparent;
+            }
         }
-      }
-    }
 
-    section.sidebar-package-authors {
-      small {
-        display: block;
-        padding-left: 22px;
-        background-position: top 3px left;
-        background-repeat: no-repeat;
-        background-size: 16px;
-        background-image: var(--image-question);
-      }
-    }
-  }
-
-  .try-in-playground {
-    position: relative;
-
-    #app-download-explainer {
-      position: absolute;
-      left: -25%;
-      width: 150%;
-      margin-top: 10px;
-      padding: 10px;
-      font-size: 14px;
-      color: var(--page-text);
-      background-color: var(--panel-background);
-      border-top: 3px var(--panel-border) solid;
-      box-shadow: var(--panel-shadow);
-
-      &::before {
-        content: '';
-        position: absolute;
-        top: -13px;
-        left: 50%;
-        width: 0;
-        height: 0;
-        margin-left: -10px;
-        border-style: solid;
-        border-width: 0 10px 10px;
-        border-color: transparent transparent var(--panel-border) transparent;
-      }
+        @media screen and (max-width: $mobile-breakpoint) {
+            #app-download-explainer {
+                left: 10%;
+                width: 80%;
+            }
+        }
     }
 
     @media screen and (max-width: $mobile-breakpoint) {
-      #app-download-explainer {
-        left: 10%;
-        width: 80%;
-      }
-    }
-  }
+        article.details {
+            section.main-metadata {
+                order: 2;
 
-  @media screen and (max-width: $mobile-breakpoint) {
-    article.details {
-      section.main-metadata {
-        order: 2;
+                ul {
+                    grid-template-columns: 1fr;
 
-        ul {
-          grid-template-columns: 1fr;
+                    li.history {
+                        grid-column-start: 1; // Only needed as this was explicitly specified.
+                    }
 
-          li.history {
-            grid-column-start: 1; // Only needed as this was explicitly specified.
-          }
+                    li.activity {
+                        grid-column-start: 1; // Only needed as this was explicitly specified.
+                    }
+                }
+            }
 
-          li.activity {
-            grid-column-start: 1; // Only needed as this was explicitly specified.
-          }
+            section.sidebar-links {
+                order: 1;
+            }
+
+            section.main-compatibility {
+                order: 2;
+            }
+
+            section.sidebar-versions {
+                order: 1;
+            }
         }
-      }
-
-      section.sidebar-links {
-        order: 1;
-      }
-
-      section.main-compatibility {
-        order: 2;
-      }
-
-      section.sidebar-versions {
-        order: 1;
-      }
     }
-  }
 }
 
 /* Branches */
@@ -283,24 +283,24 @@
 span.stable,
 span.beta,
 span.branch {
-  padding-right: 18px;
-  font-weight: 600;
-  background-position: top 2px right;
-  background-repeat: no-repeat;
-  background-size: 14px;
+    padding-right: 18px;
+    font-weight: 600;
+    background-position: top 2px right;
+    background-repeat: no-repeat;
+    background-size: 14px;
 }
 
 span.stable {
-  color: var(--stable-text);
-  background-image: var(--image-stable);
+    color: var(--stable-text);
+    background-image: var(--image-stable);
 }
 
 span.beta {
-  color: var(--beta-text);
-  background-image: var(--image-beta);
+    color: var(--beta-text);
+    background-image: var(--image-beta);
 }
 
 span.branch {
-  color: var(--branch-text);
-  background-image: var(--image-branch);
+    color: var(--branch-text);
+    background-image: var(--image-branch);
 }

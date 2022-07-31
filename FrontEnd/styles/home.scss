@@ -20,137 +20,137 @@
 /* Search results drop down */
 
 #results {
-  position: absolute;
-  z-index: 9999;
-  overflow: scroll;
-  width: 100%;
-  max-height: 500px;
-  margin-top: -5px;
-  background-color: var(--results-background);
-  border-top: 1px var(--results-separator) solid;
-  box-shadow: 0 3px 8px 2px var(--results-shadow);
+    position: absolute;
+    z-index: 9999;
+    overflow: scroll;
+    width: 100%;
+    max-height: 500px;
+    margin-top: -5px;
+    background-color: var(--results-background);
+    border-top: 1px var(--results-separator) solid;
+    box-shadow: 0 3px 8px 2px var(--results-shadow);
 
-  ul {
-    margin: 0;
-    padding: 0;
-  }
-
-  li {
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    padding: 20px;
-    border-bottom: 1px var(--results-separator) solid;
-
-    &:last-child {
-      border: none;
+    ul {
+        margin: 0;
+        padding: 0;
     }
 
-    &.selected {
-      background-color: var(--results-selected-background);
+    li {
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        padding: 20px;
+        border-bottom: 1px var(--results-separator) solid;
+
+        &:last-child {
+            border: none;
+        }
+
+        &.selected {
+            background-color: var(--results-selected-background);
+        }
     }
-  }
 
-  div {
-    display: flex;
-    flex-direction: row;
-    align-items: baseline;
-    justify-content: space-between;
-  }
-
-  h4 {
-    display: inline;
-    margin: 0;
-    padding: 0;
-  }
-
-  small {
-    font-size: 10px;
-  }
-
-  p {
-    margin: 5px 0 0;
-    font-size: 14px;
-    color: var(--page-text);
-  }
-
-  &.error {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    color: var(--error-text);
-    background-color: var(--error-background);
-
-    .icon {
-      margin: 20px;
-      font-size: 40px;
+    div {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: space-between;
     }
-  }
+
+    h4 {
+        display: inline;
+        margin: 0;
+        padding: 0;
+    }
+
+    small {
+        font-size: 10px;
+    }
+
+    p {
+        margin: 5px 0 0;
+        font-size: 14px;
+        color: var(--page-text);
+    }
+
+    &.error {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        color: var(--error-text);
+        background-color: var(--error-background);
+
+        .icon {
+            margin: 20px;
+            font-size: 40px;
+        }
+    }
 }
 
 /* Recent packages */
 
 .recent {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
 
-  h3 {
-    margin: 5px 0;
-  }
+    h3 {
+        margin: 5px 0;
+    }
 
-  ul {
-    overflow: hidden;
-    max-width: 250px;
-    margin: 0;
-    padding: 0;
-  }
+    ul {
+        overflow: hidden;
+        max-width: 250px;
+        margin: 0;
+        padding: 0;
+    }
 
-  li {
-    display: flex;
-    flex-direction: column;
-    margin: 15px;
-  }
+    li {
+        display: flex;
+        flex-direction: column;
+        margin: 15px;
+    }
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  .recent {
-    grid-template-columns: 1fr;
-  }
+    .recent {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Twitter Spaces CTA */
 
 .twitter-spaces {
-  position: relative;
-  margin: 20px 0 60px;
-  padding: 15px;
-  background-color: var(--panel-background);
-  border-bottom: 3px var(--twitter-blue) solid;
+    position: relative;
+    margin: 20px 0 60px;
+    padding: 15px;
+    background-color: var(--panel-background);
+    border-bottom: 3px var(--twitter-blue) solid;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: -20px;
-    display: block;
-    width: 40px;
-    height: 40px;
-    background-repeat: no-repeat;
-    background-size: 100%;
-    background-image: url('/images/twitter-spaces.svg');
-  }
+    &::before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        left: -20px;
+        display: block;
+        width: 40px;
+        height: 40px;
+        background-repeat: no-repeat;
+        background-size: 100%;
+        background-image: url('/images/twitter-spaces.svg');
+    }
 
-  p {
-    margin: 0;
-  }
+    p {
+        margin: 0;
+    }
 
-  .twitter-profile {
-    text-align: right;
-  }
+    .twitter-profile {
+        text-align: right;
+    }
 
-  @media screen and (max-width: $mobile-breakpoint) {
-    margin-left: 20px;
-  }
+    @media screen and (max-width: $mobile-breakpoint) {
+        margin-left: 20px;
+    }
 }
