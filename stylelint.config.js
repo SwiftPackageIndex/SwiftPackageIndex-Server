@@ -4,6 +4,7 @@ module.exports = {
   extends: ['stylelint-config-standard-scss'],
   plugins: ['stylelint-order', 'stylelint-scss'],
   rules: {
+    indentation: 4,
     'at-rule-no-unknown': null,
     'at-rule-empty-line-before': [
       'always',
