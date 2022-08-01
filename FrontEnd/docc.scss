@@ -230,3 +230,12 @@ footer.spi nav {
         text-align: center;
     }
 }
+
+div.spi-staging {
+    padding: 10px;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--white);
+    background-color: var(--mid-red);
+}

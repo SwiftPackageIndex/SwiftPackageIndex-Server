@@ -60,8 +60,10 @@ struct DocumentationPageProcessor {
         do {
             document = try SwiftSoup.parse(rawHtml)
             try document.head()?.append(self.stylesheetLink)
+            try document.body()?.prepend(self.stagingBanner)
             try document.body()?.prepend(self.header)
             try document.body()?.append(self.footer)
+            try document.body()?.append(self.stagingBanner)
             if let analyticsScript = self.analyticsScript {
                 try document.head()?.append(analyticsScript)
             }
@@ -247,5 +249,12 @@ struct DocumentationPageProcessor {
             case .defaultBranch: return "This documentation is from the \(reference) branch and may not reflect the latest stable release."
             default: return ""
         }
+    }
+
+    var stagingBanner: String {
+        Plot.Node.div(
+            .class("spi-staging"),
+            .text("Staging / Development")
+        ).render()
     }
 }
