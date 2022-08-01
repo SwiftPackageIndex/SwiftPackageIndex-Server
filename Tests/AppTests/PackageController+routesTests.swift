@@ -271,6 +271,11 @@ class PackageController_routesTests: AppTestCase {
                     .contains(#"<link rel="stylesheet" href="/docc.css?test">"#),
                           "was: \($0.body.asString())")
         }
+
+        // Test case insensitive path.
+        try app.test(.GET, "/Owner/Package/1.2.3/documentation") {
+            XCTAssertEqual($0.status, .ok)
+        }
     }
 
     func test_documentation_404() throws {
