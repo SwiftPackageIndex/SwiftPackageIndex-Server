@@ -120,8 +120,8 @@ struct PackageController {
                     .query(on: req.db,
                            join: \Version.$package.$id == \Package.$id, method: .inner,
                            join: \Package.$id == \Repository.$package.$id, method: .inner)
-                    .filter(Repository.self, \.$owner == owner) //TODO: Lowercase
-                    .filter(Repository.self, \.$name == repository)
+                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+                    .filter(Repository.self, \.$name, .custom("ilike"), repository)
                     .filter(\Version.$docArchives != nil)
                     .field(Version.self, \.$reference)
                     .field(Version.self, \.$latest)

@@ -139,6 +139,7 @@ struct DocumentationPageProcessor {
         return Plot.Node.group(
             .header(
                 .class("spi"),
+                .if(Environment.current == .development, stagingBanner()),
                 .div(
                     .class("inner breadcrumbs"),
                     .nav(
@@ -223,7 +224,8 @@ struct DocumentationPageProcessor {
                         .text(".")
                     )
                 )
-            )
+            ),
+            .if(Environment.current == .development, stagingBanner())
         ).render()
     }
 
@@ -247,5 +249,12 @@ struct DocumentationPageProcessor {
             case .defaultBranch: return "This documentation is from the \(reference) branch and may not reflect the latest stable release."
             default: return ""
         }
+    }
+
+    func stagingBanner() -> Plot.Node<HTML.BodyContext> {
+        .div(
+            .class("staging"),
+            .text("Staging / Development")
+        )
     }
 }
