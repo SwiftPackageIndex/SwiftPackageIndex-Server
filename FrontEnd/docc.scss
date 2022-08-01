@@ -57,6 +57,15 @@ footer.spi {
             color: var(--header-link-highlight);
         }
     }
+
+    .staging {
+        padding: 10px;
+        font-weight: bold;
+        text-align: center;
+        text-transform: uppercase;
+        color: var(--white);
+        background-color: var(--mid-red);
+    }
 }
 
 header.spi {
@@ -229,13 +238,4 @@ footer.spi nav {
         font-size: 13px;
         text-align: center;
     }
-}
-
-div.spi-staging {
-    padding: 10px;
-    font-weight: bold;
-    text-align: center;
-    text-transform: uppercase;
-    color: var(--white);
-    background-color: var(--mid-red);
 }

@@ -61,13 +61,7 @@ struct DocumentationPageProcessor {
             document = try SwiftSoup.parse(rawHtml)
             try document.head()?.append(self.stylesheetLink)
             try document.body()?.prepend(self.header)
-            if Environment.current == .development {
-                try document.body()?.prepend(self.stagingBanner)
-            }
             try document.body()?.append(self.footer)
-            if Environment.current == .development {
-                try document.body()?.append(self.stagingBanner)
-            }
             if let analyticsScript = self.analyticsScript {
                 try document.head()?.append(analyticsScript)
             }
@@ -145,6 +139,7 @@ struct DocumentationPageProcessor {
         return Plot.Node.group(
             .header(
                 .class("spi"),
+                .if(Environment.current == .development, stagingBanner()),
                 .div(
                     .class("inner breadcrumbs"),
                     .nav(
@@ -229,7 +224,8 @@ struct DocumentationPageProcessor {
                         .text(".")
                     )
                 )
-            )
+            ),
+            .if(Environment.current == .development, stagingBanner())
         ).render()
     }
 
@@ -255,10 +251,10 @@ struct DocumentationPageProcessor {
         }
     }
 
-    var stagingBanner: String {
-        Plot.Node.div(
-            .class("spi-staging"),
+    func stagingBanner() -> Plot.Node<HTML.BodyContext> {
+        .div(
+            .class("staging"),
             .text("Staging / Development")
-        ).render()
+        )
     }
 }
