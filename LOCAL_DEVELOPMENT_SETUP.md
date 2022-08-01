@@ -60,7 +60,7 @@ If you make changes to front-end files, you'll need to lint them before committi
 make lint-front-end
 ```
 
-Or, if you want to run either the CSS or JavaScript linting steps separately, run `run-stylelint` or `run-prettier` individually.
+Or, if you want to run either the CSS or JavaScript linting steps separately, run the `run-stylelint` or `run-prettier` commands individually. Versions of these commands also exist that can automatically fix common problems that cause the lint to fail. Run `make lint-front-end-auto-fix` to run both `run-stylelint-auto-fix` and `run-prettier-auto-fix` and fix all automatically fixable problems.
 
 **Note:** If you are doing extensive work with the front end, you may want to install `node` and `yarn` locally rather than running them via Docker. You may also want to set up `stylelint` and `prettier` to run from within your code editor, rather than waiting for CI to find errors.
 
