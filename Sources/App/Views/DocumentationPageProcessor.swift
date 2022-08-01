@@ -60,10 +60,14 @@ struct DocumentationPageProcessor {
         do {
             document = try SwiftSoup.parse(rawHtml)
             try document.head()?.append(self.stylesheetLink)
-            try document.body()?.prepend(self.stagingBanner)
             try document.body()?.prepend(self.header)
+            if Environment.current == .development {
+                try document.body()?.prepend(self.stagingBanner)
+            }
             try document.body()?.append(self.footer)
-            try document.body()?.append(self.stagingBanner)
+            if Environment.current == .development {
+                try document.body()?.append(self.stagingBanner)
+            }
             if let analyticsScript = self.analyticsScript {
                 try document.head()?.append(analyticsScript)
             }
