@@ -144,3 +144,19 @@ serve-front-end:
 copy-front-end-resources:
 	@# copy front-end resources from existing image (rather than build them)
 	docker run --rm -it -v $$PWD:/host -w /host --entrypoint sh registry.gitlab.com/finestructure/swiftpackageindex:$(VERSION) -c "cp -r /run/Public ."
+
+run-prettier:
+	docker run --rm -v $$PWD:/host -w /host --entrypoint sh node:16-alpine -c "/usr/local/bin/yarn && /usr/local/bin/yarn run prettier --check --config .prettierrc 'FrontEnd/**/*.js'"
+
+run-stylelint:
+	docker run --rm -v $$PWD:/host -w /host --entrypoint sh node:16-alpine -c "/usr/local/bin/yarn && /usr/local/bin/yarn run stylelint --config .stylelintrc.js 'FrontEnd/**/*.scss'"
+
+lint-front-end: run-prettier run-stylelint
+
+run-prettier-auto-fix:
+	docker run --rm -v $$PWD:/host -w /host --entrypoint sh node:16-alpine -c "/usr/local/bin/yarn && /usr/local/bin/yarn run prettier --write --config .prettierrc 'FrontEnd/**/*.js'"
+
+run-stylelint-auto-fix:
+	docker run --rm -v $$PWD:/host -w /host --entrypoint sh node:16-alpine -c "/usr/local/bin/yarn && /usr/local/bin/yarn run stylelint --fix --config .stylelintrc.js 'FrontEnd/**/*.scss'"
+
+lint-front-end-auto-fix: run-prettier-auto-fix run-stylelint-auto-fix
