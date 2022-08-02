@@ -185,6 +185,9 @@ struct DocumentationPageProcessor {
             .class("spi"),
             .div(
                 .class("inner"),
+                .small(
+                    .text("Last updated on \(updatedAt.formatted(date: .abbreviated, time: .omitted))")
+                ),
                 .nav(
                     .ul(
                         .li(
@@ -217,15 +220,15 @@ struct DocumentationPageProcessor {
                                 "Twitter"
                             )
                         )
-                    ),
-                    .small(
-                        .text("The Swift Package Index is entirely funded by sponsorship. Thank you to "),
-                        .a(
-                            .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship"),
-                            "all our sponsors for their generosity"
-                        ),
-                        .text(".")
                     )
+                ),
+                .small(
+                    .text("The Swift Package Index is entirely funded by sponsorship. Thank you to "),
+                    .a(
+                        .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship"),
+                        "all our sponsors for their generosity"
+                    ),
+                    .text(".")
                 )
             ),
             .if(Environment.current == .development, stagingBanner())
