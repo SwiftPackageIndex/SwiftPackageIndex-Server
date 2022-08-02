@@ -225,7 +225,7 @@ class PackageController_routesTests: AppTestCase {
         )
     }
 
-    func test_documentationRedirect() throws {
+    func test_documentationRoot_redirect() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
                 .init(status: .notFound)
