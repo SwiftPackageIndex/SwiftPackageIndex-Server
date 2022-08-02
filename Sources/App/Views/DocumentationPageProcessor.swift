@@ -26,6 +26,7 @@ struct DocumentationPageProcessor {
     let referenceKind: Version.Kind?
     let availableArchives: [AvailableArchive]
     let availableVersions: [AvailableDocumentationVersion]
+    let updatedAt: Date
 
     struct AvailableArchive {
         let name: String
@@ -47,6 +48,7 @@ struct DocumentationPageProcessor {
           referenceKind: Version.Kind?,
           availableArchives: [AvailableArchive],
           availableVersions: [AvailableDocumentationVersion],
+          updatedAt: Date,
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
@@ -56,6 +58,7 @@ struct DocumentationPageProcessor {
         self.referenceKind = referenceKind
         self.availableArchives = availableArchives
         self.availableVersions = availableVersions
+        self.updatedAt = updatedAt
 
         do {
             document = try SwiftSoup.parse(rawHtml)
