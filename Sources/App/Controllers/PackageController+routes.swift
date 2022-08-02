@@ -60,6 +60,7 @@ struct PackageController {
         case css
         case data
         case documentation
+        case documentationRedirect
         case images
         case index
         case js
@@ -72,7 +73,7 @@ struct PackageController {
                     return "text/css"
                 case  .data, .images, .index, .root, .themeSettings:
                     return "application/octet-stream"
-                case .documentation:
+                case .documentation, .documentationRedirect:
                     return "text/html; charset=utf-8"
                 case .js:
                     return "application/javascript"
@@ -110,6 +111,51 @@ struct PackageController {
         }
 
         switch fragment {
+            case .documentationRedirect:
+                let possibleReferences: [Reference] = {
+                    if let semanticVersion = SemanticVersion(reference) {
+                        return [ .branch(reference), .tag(semanticVersion, reference) ]
+                    } else {
+                        return [ .branch(reference) ]
+                    }
+                }()
+
+                guard let queryResult = try await Joined3<Version, Package, Repository>
+                    .query(on: req.db,
+                           join: \Version.$package.$id == \Package.$id, method: .inner,
+                           join: \Package.$id == \Repository.$package.$id, method: .inner)
+                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+                    .filter(Repository.self, \.$name, .custom("ilike"), repository)
+                    .filter(\Version.$reference ~~ possibleReferences)
+                    .filter(\Version.$docArchives != nil)
+                    .field(Version.self, \.$docArchives)
+                    .first()
+                else { throw Abort(.notFound) }
+
+                // This package has at least one docArchive, so redirect to it.
+                guard let docArchive = queryResult.model.docArchives?.first
+                else { throw Abort(.notFound) }
+                throw Abort.redirect(to: DocumentationPageProcessor.relativeDocumentationURL(owner: owner,
+                                                                                             repository: repository,
+                                                                                             reference: reference,
+                                                                                             docArchive: docArchive.name))
+
+// Possible solution if the `first`-based one doesn't work
+//            case .documentationRedirect:
+//                let queryResult = try await Joined3<Version, Package, Repository>
+//                    .query(on: req.db,
+//                           join: \Version.$package.$id == \Package.$id, method: .inner,
+//                           join: \Package.$id == \Repository.$package.$id, method: .inner)
+//                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+//                    .filter(Repository.self, \.$name, .custom("ilike"), repository)
+//                    .filter(\Version.$docArchives != nil)
+//                    .field(Version.self, \.$reference)
+//                    .field(Version.self, \.$docArchives)
+//                    .all()
+//                guard let version = queryResult.first(where: { result in
+//                    "\(result.model.reference)" == reference
+//                }) else { throw Abort(.notFound) }
+
             case .documentation:
                 let queryResult = try await Joined3<Version, Package, Repository>
                     .query(on: req.db,
@@ -347,7 +393,7 @@ extension PackageController {
         let baseURL = "http://\(baseURLHost)/\(baseURLPath)"
 
         switch fragment {
-            case .css, .data, .documentation, .images, .index, .js:
+            case .css, .data, .documentationRedirect, .documentation, .images, .index, .js:
                 return URI(string: "\(baseURL)/\(fragment)/\(path)")
             case .root:
                 return URI(string: "\(baseURL)/\(path)")
