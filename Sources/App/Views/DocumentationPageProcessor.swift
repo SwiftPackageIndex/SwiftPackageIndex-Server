@@ -186,7 +186,8 @@ struct DocumentationPageProcessor {
             .div(
                 .class("inner"),
                 .small(
-                    .text("Last updated on \(updatedAt.formatted(date: .abbreviated, time: .omitted))")
+                    .text("Last updated on "),
+                    .text(DateFormatter.lastUpdatedOnFormatter.string(from:updatedAt))
                 ),
                 .nav(
                     .ul(

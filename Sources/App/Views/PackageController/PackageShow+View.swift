@@ -282,7 +282,12 @@ enum PackageShow {
             .unwrap(packageSchema?.publicationDates) { dates in
                 .section(
                     .hr(),
-                    .p(.small(.text("Last updated on \(dates.dateModified.formatted(date: .abbreviated, time: .omitted))")))
+                    .p(
+                        .small(
+                            .text("Last updated on "),
+                            .text(DateFormatter.lastUpdatedOnFormatter.string(from:dates.dateModified))
+                        )
+                    )
                 )
             }
 
