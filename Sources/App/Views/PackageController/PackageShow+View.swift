@@ -20,14 +20,6 @@ enum PackageShow {
 
     class View: PublicPage {
 
-        private static let dateFormatter: DateFormatter = {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            formatter.locale = .init(identifier: "en_GB")
-
-            return formatter
-        }()
-
         let model: Model
         let packageSchema: PackageSchema?
 
@@ -287,10 +279,10 @@ enum PackageShow {
         }
 
         func visibleMetadataSection() -> Node<HTML.BodyContext> {
-            .unwrap(packageSchema?.publicationDates) {
+            .unwrap(packageSchema?.publicationDates) { dates in
                 .section(
                     .hr(),
-                    .p(.small(.text("Last updated on \(Self.dateFormatter.string(from: $0.dateModified))")))
+                    .p(.small(.text("Last updated on \(dates.dateModified.formatted(date: .abbreviated, time: .omitted))")))
                 )
             }
 
