@@ -1,0 +1,11 @@
+{
+    "name": "spi-base",
+    "build": { "dockerfile": "Dockerfile" },
+    "extensions": [
+      "sswg.swift-lang",
+    ],
+    "settings": {
+      "lldb.library": "/usr/lib/liblldb.so"
+    },
+    "forwardPorts": [8080]
+}
