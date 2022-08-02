@@ -404,6 +404,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                           docArchives: ["Archive1"],
                                                                           isLatestStable: false),
                                                                  ],
+                                                                 updatedAt: Date(timeIntervalSince1970: 0),
                                                                  rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
@@ -438,6 +439,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                           docArchives: ["Archive1", "Archive2"],
                                                                           isLatestStable: true)
                                                                  ],
+                                                                 updatedAt: Date(timeIntervalSince1970: 0),
                                                                  rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)

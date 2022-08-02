@@ -86,6 +86,7 @@ struct PackageController {
         var packageName: String
         var docArchives: [String]
         var latest: Version.Kind?
+        var updatedAt: Date
     }
 
     func documentation(req: Request, fragment: Fragment) async throws -> Response {
@@ -127,6 +128,8 @@ struct PackageController {
                     .field(Version.self, \.$latest)
                     .field(Version.self, \.$packageName)
                     .field(Version.self, \.$docArchives)
+                    .field(Version.self, \.$commitDate)
+                    .field(Version.self, \.$publishedAt)
                     .field(Repository.self, \.$ownerName)
                     .all()
 
@@ -135,7 +138,8 @@ struct PackageController {
                                          ownerName: result.relation2?.ownerName ?? owner,
                                          packageName: result.model.packageName ?? repository,
                                          docArchives: (result.model.docArchives ?? []).map(\.title),
-                                         latest: result.model.latest)
+                                         latest: result.model.latest,
+                                         updatedAt: result.model.publishedAt ?? result.model.commitDate)
                 }
 
                 guard let documentation = documentationVersions[reference: reference]
@@ -182,6 +186,7 @@ struct PackageController {
                                                                  referenceKind: documentation.latest,
                                                                  availableArchives: availableArchives,
                                                                  availableVersions: availableDocumentationVersions,
+                                                                 updatedAt: documentation.updatedAt,
                                                                  rawHtml: body.asString())
                 else {
                     return try await awsResponse.encodeResponse(

@@ -26,6 +26,7 @@ struct DocumentationPageProcessor {
     let referenceKind: Version.Kind?
     let availableArchives: [AvailableArchive]
     let availableVersions: [AvailableDocumentationVersion]
+    let updatedAt: Date
 
     struct AvailableArchive {
         let name: String
@@ -47,6 +48,7 @@ struct DocumentationPageProcessor {
           referenceKind: Version.Kind?,
           availableArchives: [AvailableArchive],
           availableVersions: [AvailableDocumentationVersion],
+          updatedAt: Date,
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
@@ -56,6 +58,7 @@ struct DocumentationPageProcessor {
         self.referenceKind = referenceKind
         self.availableArchives = availableArchives
         self.availableVersions = availableVersions
+        self.updatedAt = updatedAt
 
         do {
             document = try SwiftSoup.parse(rawHtml)
@@ -182,6 +185,10 @@ struct DocumentationPageProcessor {
             .class("spi"),
             .div(
                 .class("inner"),
+                .small(
+                    .text("Last updated on "),
+                    .text(DateFormatter.lastUpdatedOnFormatter.string(from:updatedAt))
+                ),
                 .nav(
                     .ul(
                         .li(
@@ -214,15 +221,15 @@ struct DocumentationPageProcessor {
                                 "Twitter"
                             )
                         )
-                    ),
-                    .small(
-                        .text("The Swift Package Index is entirely funded by sponsorship. Thank you to "),
-                        .a(
-                            .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship"),
-                            "all our sponsors for their generosity"
-                        ),
-                        .text(".")
                     )
+                ),
+                .small(
+                    .text("The Swift Package Index is entirely funded by sponsorship. Thank you to "),
+                    .a(
+                        .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship"),
+                        "all our sponsors for their generosity"
+                    ),
+                    .text(".")
                 )
             ),
             .if(Environment.current == .development, stagingBanner())
