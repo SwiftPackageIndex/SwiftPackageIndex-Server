@@ -273,7 +273,7 @@ let packageSwift1 = #"""
                           }
                         }
                       ],
-                      "targets": [{"name": "t1"}]
+                      "targets": [{"name": "t1", "type": "executable"}]
                     }
                     """#
 
@@ -289,6 +289,6 @@ let packageSwift2 = #"""
                           }
                         }
                       ],
-                      "targets": [{"name": "t2"}]
+                      "targets": [{"name": "t2", "type": "regular"}]
                     }
                     """#

@@ -53,6 +53,9 @@ final class Version: Model, Content {
     @Field(key: "doc_archives")
     var docArchives: [DocArchive]?
 
+    @Field(key: "has_binary_targets")
+    var hasBinaryTargets: Bool
+
     @Field(key: "latest")
     var latest: Kind?
 
@@ -89,7 +92,7 @@ final class Version: Model, Content {
 
     @Field(key: "url")
     var url: String?
-
+    
     // relationships
 
     @Children(for: \.$version)
@@ -108,6 +111,7 @@ final class Version: Model, Content {
          commit: CommitHash,
          commitDate: Date,
          docArchives: [DocArchive]? = nil,
+         hasBinaryTargets: Bool = false,
          latest: Kind? = nil,
          packageName: String? = nil,
          publishedAt: Date? = nil,
@@ -125,6 +129,7 @@ final class Version: Model, Content {
         self.commit = commit
         self.commitDate = commitDate
         self.docArchives = docArchives
+        self.hasBinaryTargets = hasBinaryTargets
         self.latest = latest
         self.packageName = packageName
         self.publishedAt = publishedAt

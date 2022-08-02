@@ -79,7 +79,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
             {
               "name": "SPI-Server",
               "products": [],
-              "targets": [{"name": "t1"}],
+              "targets": [{"name": "t1", "type": "regular"}],
               "toolsVersion": {
                 "_version": "5.3"
               }

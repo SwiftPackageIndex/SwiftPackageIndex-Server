@@ -43,6 +43,7 @@ extension PackageShow {
         var url: String
         var score: Int?
         var isArchived: Bool
+        var hasBinaryTargets: Bool
         var homepageUrl: String?
         var documentationMetadata: DocumentationMetadata?
         var dependencyCodeSnippets: [App.Version.Kind: Link]
@@ -70,6 +71,7 @@ extension PackageShow {
                       url: String,
                       score: Int? = nil,
                       isArchived: Bool,
+                      hasBinaryTargets: Bool = false,
                       homepageUrl: String? = nil,
                       documentationMetadata: DocumentationMetadata? = nil,
                       dependencyCodeSnippets: [App.Version.Kind: Link],
@@ -96,6 +98,7 @@ extension PackageShow {
             self.url = url
             self.score = score
             self.isArchived = isArchived
+            self.hasBinaryTargets = hasBinaryTargets
             self.homepageUrl = homepageUrl
             self.documentationMetadata = documentationMetadata
             self.dependencyCodeSnippets = dependencyCodeSnippets
@@ -169,6 +172,7 @@ extension PackageShow {
                 url: result.package.url,
                 score: result.package.score,
                 isArchived: repository.isArchived,
+                hasBinaryTargets: result.defaultBranchVersion.hasBinaryTargets,
                 homepageUrl: repository.homepageUrl,
                 documentationMetadata: defaultDocumentationMetadata,
                 dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
@@ -336,6 +340,32 @@ extension PackageShow.Model {
         } else {
             return .empty
         }
+    }
+
+    func binaryTargetsItem() -> Node<HTML.ListContext> {
+        guard hasBinaryTargets else { return .empty }
+
+        func linkNode(for name: String, url: String) -> Node<HTML.BodyContext> {
+            return .a(
+                .href(url),
+                .title(name),
+                .text(name)
+            )
+        }
+
+        return .li(
+            .class("has-binary-targets"),
+            .strong("This package includes binary-only targets "),
+            .text("where source code may not be available. There may be more info available in the "),
+            linkNode(for: "README", url: "#readme"),
+            .unwrap(licenseUrl) { url in
+                    .group([
+                        " or ",
+                        linkNode(for: "LICENSE", url: url)
+                    ])
+            },
+            "."
+        )
     }
 
     func historyListItem() -> Node<HTML.ListContext> {

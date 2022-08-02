@@ -161,6 +161,7 @@ enum PackageShow {
                     .class("main-metadata"),
                     model.authorsListItem(),
                     model.archivedListItem(),
+                    model.binaryTargetsItem(),
                     model.historyListItem(),
                     model.activityListItem(),
                     model.dependenciesListItem(),

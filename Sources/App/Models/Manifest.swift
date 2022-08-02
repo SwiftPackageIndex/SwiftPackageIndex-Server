@@ -76,8 +76,18 @@ struct Manifest: Decodable, Equatable {
         var type: ProductType
     }
 
+    enum TargetType: String, Equatable, Codable {
+        case regular
+        case executable
+        case test
+        case system
+        case binary
+        case plugin
+    }
+    
     struct Target: Decodable, Equatable {
         var name: String
+        var type: TargetType
     }
 
     struct ToolsVersion: Decodable, Equatable {

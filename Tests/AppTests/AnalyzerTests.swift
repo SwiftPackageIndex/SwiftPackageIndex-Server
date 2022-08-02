@@ -99,7 +99,7 @@ class AnalyzerTests: AppTestCase {
                           }
                         }
                       ],
-                      "targets": [{"name": "t1"}]
+                      "targets": [{"name": "t1", "type": "executable"}]
                     }
                     """#
             }
@@ -116,7 +116,7 @@ class AnalyzerTests: AppTestCase {
                           }
                         }
                       ],
-                      "targets": [{"name": "t2"}]
+                      "targets": [{"name": "t2", "type": "regular"}]
                     }
                     """#
             }
@@ -694,7 +694,7 @@ class AnalyzerTests: AppTestCase {
         let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
         let m = Manifest(name: "1",
                          products: [],
-                         targets: [.init(name: "t1"), .init(name: "t2")],
+                         targets: [.init(name: "t1", type: .regular), .init(name: "t2", type: .regular)],
                          toolsVersion: .init(version: "5.0.0"))
         try p.save(on: app.db).wait()
         try v.save(on: app.db).wait()
