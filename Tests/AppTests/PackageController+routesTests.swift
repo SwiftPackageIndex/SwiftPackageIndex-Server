@@ -225,6 +225,52 @@ class PackageController_routesTests: AppTestCase {
         )
     }
 
+    func test_documentationRedirect() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+                .init(status: .notFound)
+        }
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "0123456789",
+                    commitDate: Date(timeIntervalSince1970: 0),
+                    docArchives: [.init(name: "docs", title: "Docs")],
+                    latest: .defaultBranch,
+                    packageName: "pkg",
+                    reference: .branch("main"))
+        .save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/main/documentation") {
+            XCTAssertEqual($0.status, .temporaryRedirect)
+        }
+    }
+
+    func test_documentationRoot_noRedirect() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+                .init(status: .notFound)
+        }
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "0123456789",
+                    commitDate: Date(timeIntervalSince1970: 0),
+                    docArchives: [], // No docArchives!
+                    latest: .defaultBranch,
+                    packageName: "pkg",
+                    reference: .branch("main"))
+        .save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/main/documentation") {
+            XCTAssertEqual($0.status, .notFound)
+        }
+    }
+
     func test_documentation() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
