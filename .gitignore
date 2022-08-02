@@ -29,6 +29,5 @@ Tests/AppTests/__Snapshots__/WebpageSnapshotTests/*
 .nova/
 /.vscode/
 .env.staging
-.devcontainer/
 xcbeautify
 test.log
