@@ -105,7 +105,9 @@ struct PackageController {
 
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
         let awsResponse = try await Current.fetchDocumentation(req.client, url)
-        guard (200..<399).contains(awsResponse.status.code) else {
+
+        // Never let a request continue if the AWS request fails, except to a potential `/owner/repo/ref/documentation/` redirect.
+        guard (200..<399).contains(awsResponse.status.code) || fragment == .documentationRedirect else {
             // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
             throw Abort(.notFound)
         }
