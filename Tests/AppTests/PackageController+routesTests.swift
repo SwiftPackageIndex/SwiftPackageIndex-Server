@@ -327,7 +327,7 @@ class PackageController_routesTests: AppTestCase {
         }
 
         // Test case insensitive path.
-        try app.test(.GET, "/Owner/Package/1.2.3/documentation") {
+        try app.test(.GET, "/Owner/Package/1.2.3/documentation/a/b") {
             XCTAssertEqual($0.status, .ok)
         }
     }
