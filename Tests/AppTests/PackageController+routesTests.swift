@@ -246,6 +246,8 @@ class PackageController_routesTests: AppTestCase {
         try app.test(.GET, "/owner/package/main/documentation") {
             XCTAssertEqual($0.status, .temporaryRedirect)
         }
+
+        // TODO: Add another test here for a semantic version reference
     }
 
     func test_documentationRoot_noRedirect() throws {
@@ -269,6 +271,8 @@ class PackageController_routesTests: AppTestCase {
         try app.test(.GET, "/owner/package/main/documentation") {
             XCTAssertEqual($0.status, .notFound)
         }
+
+        // TODO: Add another test here for a semantic version reference
     }
 
     func test_documentation() throws {
