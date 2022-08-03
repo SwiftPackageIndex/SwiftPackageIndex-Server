@@ -109,11 +109,8 @@ struct DocumentationPageProcessor {
         var breadcrumbs = [
             Breadcrumb(title: "Swift Package Index", url: SiteURL.home.relativeURL()),
             Breadcrumb(title: repositoryOwnerName, url: SiteURL.author(.value(repositoryOwner)).relativeURL()),
-            Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL())
-        ]
-
-        if (Environment.current == .development) {
-            breadcrumbs.append(Breadcrumb(title: .init(
+            Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL()),
+            Breadcrumb(title: .init(
                 .text("Documentation for "),
                 .unwrap(referenceKind, { referenceKind in
                         .span(
@@ -121,10 +118,8 @@ struct DocumentationPageProcessor {
                             .text(reference)
                         )
                 }, else: .text(reference))
-            ), choices: documentationVersionChoices.count > 0 ? documentationVersionChoices : nil))
-        } else {
-            breadcrumbs.append(Breadcrumb(title: "Documentation"))
-        }
+            ), choices: documentationVersionChoices.count > 0 ? documentationVersionChoices : nil)
+        ]
 
         if availableArchives.count > 1,
            let currentArchive = availableArchives.first(where: { $0.isCurrent }) {
@@ -156,33 +151,30 @@ struct DocumentationPageProcessor {
                         )
                     )
                 ),
-                .if(Environment.current != .production,
-                    .if(referenceKind != .release,
-                        // Only try and show a link to the latest stable if there *is* a latest stable.
-                        .unwrap(availableVersions.first(where: \.isLatestStable)) { latestStable in
+                .if(referenceKind != .release,
+                    // Only try and show a link to the latest stable if there *is* a latest stable.
+                    .unwrap(availableVersions.first(where: \.isLatestStable)) { latestStable in
+                            .div(
+                                .class("latest-stable-wrap"),
                                 .div(
-                                    .class("latest-stable-wrap"),
-                                    .div(
-                                        .class("inner latest-stable"),
-                                        .text(latestStableLinkExplanatoryText),
-                                        .text(" "),
-                                        .unwrap(latestStable.docArchives.first) { docArchive in
-                                                .group(
-                                                    .a(
-                                                        .href(Self.relativeDocumentationURL(owner:repositoryOwner,
-                                                                                            repository: repositoryName,
-                                                                                            reference: latestStable.reference,
-                                                                                            docArchive: docArchive)),
-                                                        .text("View latest stable docs")
-                                                    ),
-                                                    .text(".")
-                                                )
-                                        }
-                                    )
+                                    .class("inner latest-stable"),
+                                    .text(latestStableLinkExplanatoryText),
+                                    .text(" "),
+                                    .unwrap(latestStable.docArchives.first) { docArchive in
+                                            .group(
+                                                .a(
+                                                    .href(Self.relativeDocumentationURL(owner:repositoryOwner,
+                                                                                        repository: repositoryName,
+                                                                                        reference: latestStable.reference,
+                                                                                        docArchive: docArchive)),
+                                                    .text("View latest stable docs")
+                                                ),
+                                                .text(".")
+                                            )
+                                    }
                                 )
-                        }
-                       )
-                )
+                            )
+                    })
             )
         ).render()
     }
