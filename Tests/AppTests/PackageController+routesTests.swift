@@ -241,13 +241,22 @@ class PackageController_routesTests: AppTestCase {
                     packageName: "pkg",
                     reference: .branch("main"))
         .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "9876543210",
+                    commitDate: Date(timeIntervalSince1970: 0),
+                    docArchives: [.init(name: "docs", title: "Docs")],
+                    latest: .release,
+                    packageName: "pkg",
+                    reference: .tag(.init(1, 0, 0), "1.0.0"))
+        .save(on: app.db).wait()
 
         // MUT
         try app.test(.GET, "/owner/package/main/documentation") {
-            XCTAssertEqual($0.status, .temporaryRedirect)
+            XCTAssertEqual($0.status, .seeOther)
         }
-
-        // TODO: Add another test here for a semantic version reference
+        try app.test(.GET, "/owner/package/1.0.0/documentation") {
+            XCTAssertEqual($0.status, .seeOther)
+        }
     }
 
     func test_documentationRoot_noRedirect() throws {
@@ -266,13 +275,22 @@ class PackageController_routesTests: AppTestCase {
                     packageName: "pkg",
                     reference: .branch("main"))
         .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "9876543210",
+                    commitDate: Date(timeIntervalSince1970: 0),
+                    docArchives: [], // No docArchives!
+                    latest: .release,
+                    packageName: "pkg",
+                    reference: .tag(.init(1, 0, 0), "1.0.0"))
+        .save(on: app.db).wait()
 
         // MUT
         try app.test(.GET, "/owner/package/main/documentation") {
             XCTAssertEqual($0.status, .notFound)
         }
-
-        // TODO: Add another test here for a semantic version reference
+        try app.test(.GET, "/owner/package/1.0.0/documentation") {
+            XCTAssertEqual($0.status, .notFound)
+        }
     }
 
     func test_documentation() throws {
