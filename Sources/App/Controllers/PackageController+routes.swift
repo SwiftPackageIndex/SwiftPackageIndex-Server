@@ -114,11 +114,11 @@ struct PackageController {
 
         switch fragment {
             case .documentationRedirect:
-                let possibleReferences: [Reference] = {
+                let referenceToMatch: Reference = {
                     if let semanticVersion = SemanticVersion(reference) {
-                        return [ .branch(reference), .tag(semanticVersion, reference) ]
+                        return .tag(semanticVersion, reference)
                     } else {
-                        return [ .branch(reference) ]
+                        return .branch(reference)
                     }
                 }()
 
@@ -128,7 +128,7 @@ struct PackageController {
                            join: \Package.$id == \Repository.$package.$id, method: .inner)
                     .filter(Repository.self, \.$owner, .custom("ilike"), owner)
                     .filter(Repository.self, \.$name, .custom("ilike"), repository)
-                    .filter(\Version.$reference ~~ possibleReferences)
+                    .filter(\Version.$reference == referenceToMatch)
                     .filter(\Version.$docArchives != nil)
                     .field(Version.self, \.$docArchives)
                     .first()
