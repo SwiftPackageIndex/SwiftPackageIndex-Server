@@ -225,6 +225,74 @@ class PackageController_routesTests: AppTestCase {
         )
     }
 
+    func test_documentationRoot_redirect() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+                .init(status: .notFound)
+        }
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "0123456789",
+                    commitDate: Date(timeIntervalSince1970: 0),
+                    docArchives: [.init(name: "docs", title: "Docs")],
+                    latest: .defaultBranch,
+                    packageName: "pkg",
+                    reference: .branch("main"))
+        .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "9876543210",
+                    commitDate: Date(timeIntervalSince1970: 0),
+                    docArchives: [.init(name: "docs", title: "Docs")],
+                    latest: .release,
+                    packageName: "pkg",
+                    reference: .tag(.init(1, 0, 0), "1.0.0"))
+        .save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/main/documentation") {
+            XCTAssertEqual($0.status, .seeOther)
+        }
+        try app.test(.GET, "/owner/package/1.0.0/documentation") {
+            XCTAssertEqual($0.status, .seeOther)
+        }
+    }
+
+    func test_documentationRoot_noRedirect() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+                .init(status: .notFound)
+        }
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "0123456789",
+                    commitDate: Date(timeIntervalSince1970: 0),
+                    docArchives: [], // No docArchives!
+                    latest: .defaultBranch,
+                    packageName: "pkg",
+                    reference: .branch("main"))
+        .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "9876543210",
+                    commitDate: Date(timeIntervalSince1970: 0),
+                    docArchives: [], // No docArchives!
+                    latest: .release,
+                    packageName: "pkg",
+                    reference: .tag(.init(1, 0, 0), "1.0.0"))
+        .save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/main/documentation") {
+            XCTAssertEqual($0.status, .notFound)
+        }
+        try app.test(.GET, "/owner/package/1.0.0/documentation") {
+            XCTAssertEqual($0.status, .notFound)
+        }
+    }
+
     func test_documentation() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
@@ -244,20 +312,6 @@ class PackageController_routesTests: AppTestCase {
             .save(on: app.db).wait()
 
         // MUT
-        // test base url
-        try app.test(.GET, "/owner/package/1.2.3/documentation") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
-            XCTAssertTrue(
-                $0.body.asString().contains("<p>/owner/package/1.2.3/documentation/</p>"),
-                "was: \($0.body.asString())"
-            )
-            // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
-            XCTAssertTrue($0.body.asString()
-                    .contains(#"<link rel="stylesheet" href="/docc.css?test">"#),
-                          "was: \($0.body.asString())")
-        }
-
         // test path a/b
         try app.test(.GET, "/owner/package/1.2.3/documentation/a/b") {
             XCTAssertEqual($0.status, .ok)
@@ -273,7 +327,7 @@ class PackageController_routesTests: AppTestCase {
         }
 
         // Test case insensitive path.
-        try app.test(.GET, "/Owner/Package/1.2.3/documentation") {
+        try app.test(.GET, "/Owner/Package/1.2.3/documentation/a/b") {
             XCTAssertEqual($0.status, .ok)
         }
     }
