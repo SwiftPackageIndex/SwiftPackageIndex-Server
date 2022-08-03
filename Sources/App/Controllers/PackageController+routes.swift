@@ -105,14 +105,8 @@ struct PackageController {
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
         let awsResponse = try await Current.fetchDocumentation(req.client, url)
         guard (200..<399).contains(awsResponse.status.code) else {
-            // Convert anything that isn't a 2xx or 3xx into a 404
-            return try await DocumentationErrorPage.View(path: req.url.path,
-                                                         error: Abort(awsResponse.status))
-            .document()
-            .encodeResponse(status: .notFound,
-                            headers: req.headers.replacingOrAdding(name: .cacheControl,
-                                                                   value: "no-cache"),
-                            for: req)
+            // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
+            throw Abort(.notFound)
         }
 
         switch fragment {
@@ -145,12 +139,7 @@ struct PackageController {
                 guard let documentation = documentationVersions[reference: reference]
                 else {
                     // If there's no match for this reference with a docArchive, we're done!
-                    let error = Abort(.notFound, reason: "No docArchives for this reference")
-                    return try await DocumentationErrorPage.View(path: req.url.path, error: error)
-                        .document()
-                        .encodeResponse(status: .notFound,
-                                        headers: req.headers.replacingOrAdding(name: .cacheControl, value: "no-cache"),
-                                        for: req)
+                    throw Abort(.notFound, reason: "No docArchives for this reference")
                 }
 
                 let availableDocumentationVersions: [DocumentationPageProcessor.AvailableDocumentationVersion] = ([
