@@ -312,20 +312,6 @@ class PackageController_routesTests: AppTestCase {
             .save(on: app.db).wait()
 
         // MUT
-        // test base url
-        try app.test(.GET, "/owner/package/1.2.3/documentation") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
-            XCTAssertTrue(
-                $0.body.asString().contains("<p>/owner/package/1.2.3/documentation/</p>"),
-                "was: \($0.body.asString())"
-            )
-            // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
-            XCTAssertTrue($0.body.asString()
-                    .contains(#"<link rel="stylesheet" href="/docc.css?test">"#),
-                          "was: \($0.body.asString())")
-        }
-
         // test path a/b
         try app.test(.GET, "/owner/package/1.2.3/documentation/a/b") {
             XCTAssertEqual($0.status, .ok)
