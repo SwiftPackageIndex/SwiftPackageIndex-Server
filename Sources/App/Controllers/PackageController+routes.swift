@@ -142,22 +142,6 @@ struct PackageController {
                                                                                              reference: reference,
                                                                                              docArchive: docArchive.name))
 
-// Possible solution if the `first`-based one doesn't work
-//            case .documentationRedirect:
-//                let queryResult = try await Joined3<Version, Package, Repository>
-//                    .query(on: req.db,
-//                           join: \Version.$package.$id == \Package.$id, method: .inner,
-//                           join: \Package.$id == \Repository.$package.$id, method: .inner)
-//                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-//                    .filter(Repository.self, \.$name, .custom("ilike"), repository)
-//                    .filter(\Version.$docArchives != nil)
-//                    .field(Version.self, \.$reference)
-//                    .field(Version.self, \.$docArchives)
-//                    .all()
-//                guard let version = queryResult.first(where: { result in
-//                    "\(result.model.reference)" == reference
-//                }) else { throw Abort(.notFound) }
-
             case .documentation:
                 let queryResult = try await Joined3<Version, Package, Repository>
                     .query(on: req.db,
