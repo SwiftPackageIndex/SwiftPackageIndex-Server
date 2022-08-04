@@ -149,9 +149,6 @@ protocol AuthorSelector {
 }
 
 
-// Plot ID
-//23D8C93B-25B6-48C8-9AEB-31537DBF292B
-
 public struct SelectorManager : AuthorSelector {
     
     let contributorThreshold : Float
@@ -188,5 +185,26 @@ public struct SelectorManager : AuthorSelector {
 
 
 
+
+final class GitHubAuthorPicker {
+    private let historyLoader   : GitHubHistoryLoader
+    private let authorSelector  : SelectorManager
+
+    public init(authorThreshold: Float, contributorThreshold: Float = 0.02) {
+        self.historyLoader      = GitHubHistoryLoader()
+        self.authorSelector     = SelectorManager(contributorThreshold: contributorThreshold,
+                                                  authorThreshold: authorThreshold)
+    }
+
+    public func pickAuthors(repositoryURL: String, authorThreshold: Float = 0.6) -> [Contributor] {
+        guard let logHistory = historyLoader.queryVCHistory(repositoryURL: repositoryURL)
+        else {
+            fatalError("history could not be loaded")
+        }
+        let committers = historyLoader.parseVCHistory(log: logHistory)
+        let authors = authorSelector.selectAuthors(candidates: committers)
+        return authors
+    }
+}
 
 
