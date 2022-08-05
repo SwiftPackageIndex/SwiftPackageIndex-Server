@@ -22,7 +22,6 @@ footer {
     background-color: var(--header-background);
 
     a {
-        padding: 3px;
         font-size: 15px;
         font-weight: 600;
         color: var(--header-link-text);
@@ -44,6 +43,10 @@ footer {
             li {
                 margin: 0 5px;
                 list-style: none;
+                
+                a {
+                    padding: 3px;
+                }
             }
         }
     }
