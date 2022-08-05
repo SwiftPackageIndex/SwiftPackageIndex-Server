@@ -54,40 +54,12 @@ func unnest(_ array: SQLExpression) -> SQLFunction {
     SQLFunction("UNNEST", args: array)
 }
 
-
 func to_tsvector(_ array: SQLExpression) -> SQLFunction {
     // The argument is meant to be a string, which this wraps and converts
     // first into a tsvector internal type, and then applies weighting
     // for query ranking purposes.
     SQLFunction("to_tsvector", args: array)
 }
-
-
-enum TextSearchWeight: String {
-    case a  // 1.0 multiplier
-    case b  // 0.4 multiplier
-    case c  // 0.2 multiplier
-    case d  // 0.1 multiplier
-}
-
-extension TextSearchWeight: SQLExpression {
-    func serialize(to serializer: inout SQLKit.SQLSerializer) {
-        SQLRaw("'\(rawValue.uppercased())'").serialize(to: &serializer)
-    }
-}
-
-
-func to_tsvector(_ array: SQLExpression, weight: TextSearchWeight = .d) -> SQLFunction {
-    // The argument is meant to be a string, which this wraps and converts
-    // first into a tsvector internal type, and then applies weighting
-    // for query ranking purposes.
-    // Details of the setweight function (and to_tsvector) are available
-    // at https://www.postgresql.org/docs/current/textsearch-controls.html
-    // The weight class 'A' results in a 1.0 multiplier on the rank.
-    // The default weight class ('D') results in a  0.1 multiplier on the rank.
-    SQLFunction("setweight", args: [to_tsvector(array), weight])
-}
-
 
 func plainto_tsquery(_ array: SQLExpression) -> SQLFunction {
     // generates a simplistic tsquery concatenating all individual words as
