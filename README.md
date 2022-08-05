@@ -20,10 +20,6 @@ We also want to express our heartfelt thanks to all our sponsors. Your contribut
 
 Build real-time chat messaging in less time. Rapidly ship highly reliable chat in-app messaging with Stream's SDK. [Get started](https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat).
 
-<div><a href="https://www.runway.team/?utm_source=sponsorship&utm_medium=website&utm_campaign=swiftpackageindex&utm_content=may_2022" target="_blank"><picture><source srcset=".readme-images/runway-logo~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/runway-logo.png" /></picture></a></div>
-
-Release faster and more reliably with Runway. Runway integrates with all of your tools, enabling end-to-end automation and seamless coordination across your team. [Try Runway for free](https://www.runway.team/?utm_source=sponsorship&utm_medium=website&utm_campaign=swiftpackageindex&utm_content=may_2022).
-
 <div><a href="https://www.emergetools.com/?utm_source=spi&utm_medium=sponsor&utm_campaign=emerge" target="_blank"><picture><source srcset=".readme-images/emerge-logo~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/emerge-logo.png" /></picture></a></div>
 
 Your mobile developer's favorite dev tool. Join many of the best mobile teams on the ultimate native mobile performance monitoring and optimization platform. [Get started](https://www.emergetools.com/?utm_source=spi&utm_medium=sponsor&utm_campaign=emerge).

@@ -26,7 +26,6 @@ extension HomeIndex {
 
         static var currentSponsors = [
             SponsoredLink(sponsorName: "Stream", logoSource: "/images/sponsors/stream.svg", darkLogoSource: "/images/sponsors/stream~dark.svg", body: "Build real-time chat messaging in less time. Rapidly ship highly reliable chat in-app messaging with Stream's SDK.", cta: "Get Started", url: "https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat"),
-            SponsoredLink(sponsorName: "Runway", logoSource: "/images/sponsors/runway.svg", darkLogoSource: "/images/sponsors/runway~dark.svg", body: "Release faster and more reliably with Runway. Runway integrates with all of your tools, enabling end-to-end automation and seamless coordination across your team.", cta: "Try Runway for free", url: "https://www.runway.team/?utm_source=sponsorship&utm_medium=website&utm_campaign=swiftpackageindex&utm_content=may_2022"),
             SponsoredLink(sponsorName: "Emerge Tools", logoSource: "/images/sponsors/emerge.png", darkLogoSource: "/images/sponsors/emerge~dark.png", body: "Your mobile developer's favorite dev tool. Join many of the best mobile teams on the ultimate native mobile performance monitoring and optimization platform.", cta: "Get started", url: "https://www.emergetools.com/?utm_source=spi&utm_medium=sponsor&utm_campaign=emerge")
         ]
 
