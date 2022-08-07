@@ -24,7 +24,7 @@ enum TextSearch {
         case d  // 0.1 multiplier
     }
 
-    static func vector(_ array: SQLExpression, weight: Weight = .d) -> SQLFunction {
+    static func toVector(_ array: SQLExpression, weight: Weight = .d) -> SQLFunction {
         // The argument is meant to be a string, which this wraps and converts
         // first into a tsvector internal type, and then applies weighting
         // for query ranking purposes.

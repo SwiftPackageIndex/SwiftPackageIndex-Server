@@ -187,7 +187,7 @@ enum Search {
             .from(searchView)
             .from(plainto_tsquery(mergedTerms), as: tsquery)
             .from(
-                TextSearch.vector(
+                TextSearch.toVector(
                     concat(with: " ",
                         coalesce(packageName, emptyString),
                         coalesce(summary, emptyString),
@@ -258,7 +258,7 @@ enum Search {
         select = select
             .from(plainto_tsquery(SQLBind(mergedTerms)), as: tsquery)
         select = select
-            .from(TextSearch.vector(keyword, weight: .b), as: tsvector)
+            .from(TextSearch.toVector(keyword, weight: .b), as: tsvector)
         select = select
             .where(keyword, ilike, SQLBind(searchPattern))
             // If we want to change the "does the search find it at all" mechanism to use
@@ -327,7 +327,7 @@ enum Search {
         select = select
             .from(plainto_tsquery(SQLBind(mergedTerms)), as: tsquery)
         select = select
-            .from(TextSearch.vector(repoOwner, weight: .a), as: tsvector)
+            .from(TextSearch.toVector(repoOwner, weight: .a), as: tsvector)
         select = select
             .where(repoOwner, ilike, SQLBind(searchPattern))
         select = select
