@@ -187,13 +187,13 @@ enum Search {
             .from(searchView)
             .from(plainto_tsquery(mergedTerms), as: tsquery)
             .from(
-                TextSearch.toVector(
-                    concat(with: " ",
+                to_tsvector(
+                    concat(
+                        with: " ",
                         coalesce(packageName, emptyString),
                         coalesce(summary, emptyString),
                         arrayToString(keywords, delimiter: " ")
-                    ),
-                    weight: .a
+                    )
                 ), as: tsvector)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
@@ -258,7 +258,7 @@ enum Search {
         select = select
             .from(plainto_tsquery(SQLBind(mergedTerms)), as: tsquery)
         select = select
-            .from(TextSearch.toVector(keyword, weight: .b), as: tsvector)
+            .from(to_tsvector(keyword), as: tsvector)
         select = select
             .where(keyword, ilike, SQLBind(searchPattern))
             // If we want to change the "does the search find it at all" mechanism to use
@@ -327,7 +327,7 @@ enum Search {
         select = select
             .from(plainto_tsquery(SQLBind(mergedTerms)), as: tsquery)
         select = select
-            .from(TextSearch.toVector(repoOwner, weight: .a), as: tsvector)
+            .from(to_tsvector(repoOwner), as: tsvector)
         select = select
             .where(repoOwner, ilike, SQLBind(searchPattern))
         select = select
