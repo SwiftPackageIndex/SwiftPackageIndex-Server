@@ -46,11 +46,12 @@ enum Search {
     static let inVector = SQLRaw("@@")
     static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
-    static let nullInt = SQLRaw("NULL::INT")
     static let nullBool = SQLRaw("NULL::BOOL")
-    static let nullUUID = SQLRaw("NULL::UUID")
-    static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
+    static let nullInt = SQLRaw("NULL::INT")
+    static let nullNumeric = SQLRaw("NULL::NUMERIC")
     static let nullTextArray = SQLRaw("NULL::TEXT[]")
+    static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
+    static let nullUUID = SQLRaw("NULL::UUID")
 
     enum MatchType: String, Codable, Equatable {
         case author
@@ -247,10 +248,9 @@ enum Search {
         select = select
             .column(nullBool, as: hasDocs)
         select = select
-            .column(SQLFunction("LEVENSHTEIN", args: keyword, SQLBind(mergedTerms)),
-                    as: levenshteinDist)
+            .column(nullInt, as: levenshteinDist)
         select = select
-            .column(ts_rank(vector: tsvector, query: tsquery), as: tsrankvalue)
+            .column(nullNumeric, as: tsrankvalue)
         select = select
             .from(searchView)
         select = select
@@ -261,17 +261,6 @@ enum Search {
             .from(to_tsvector(keyword), as: tsvector)
         select = select
             .where(keyword, ilike, SQLBind(searchPattern))
-            // If we want to change the "does the search find it at all" mechanism to use
-            // the ts_vector (normalized english lexemes) representations, we can do so like:
-            //
-            //.where(to_tsquery(SQLBind(mergedTerms)), inVector, to_tsvector(keyword))
-            //
-            // Negative side effect is that terms prefixed with UI and NS (such as NSBezierCurve)
-            // won't be identified for the search term `bezier`, and non-english search terms
-            // (such as mandarin characters) completely fail to find anything.
-        select = select
-            //.orderBy(levenshteinDist)
-            .orderBy(tsrankvalue)
         select = select
             .limit(50)
         return select
@@ -321,13 +310,9 @@ enum Search {
             .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
                     as: levenshteinDist)
         select = select
-            .column(ts_rank(vector: tsvector, query: tsquery), as: tsrankvalue)
+            .column(nullNumeric, as: tsrankvalue)
         select = select
             .from(searchView)
-        select = select
-            .from(plainto_tsquery(SQLBind(mergedTerms)), as: tsquery)
-        select = select
-            .from(to_tsvector(repoOwner), as: tsvector)
         select = select
             .where(repoOwner, ilike, SQLBind(searchPattern))
         select = select
