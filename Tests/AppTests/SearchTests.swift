@@ -152,14 +152,14 @@ class SearchTests: AppTestCase {
 
     func test_keywordMatchQuery_single_term() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", LEVENSHTEIN("keyword", $1) AS "levenshtein_dist", ts_rank(to_tsvector("keyword"), plainto_tsquery($2)) AS "tsrank" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $3 ORDER BY "tsrank" LIMIT 50"#)
-        XCTAssertEqual(binds(b), ["a", "a", "%a%"])
+        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", NULL::INT AS "levenshtein_dist", NULL::NUMERIC AS "tsrank" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $1 LIMIT 50"#)
+        XCTAssertEqual(binds(b), ["%a%"])
     }
 
     func test_keywordMatchQuery_multiple_terms() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", LEVENSHTEIN("keyword", $1) AS "levenshtein_dist", ts_rank(to_tsvector("keyword"), plainto_tsquery($2)) AS "tsrank" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $3 ORDER BY "tsrank" LIMIT 50"#)
-        XCTAssertEqual(binds(b), ["a b", "a b", "%a b%"])
+        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", NULL::INT AS "levenshtein_dist", NULL::NUMERIC AS "tsrank" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $1 LIMIT 50"#)
+        XCTAssertEqual(binds(b), ["%a b%"])
     }
 
     func test_authorMatchQuery_single_term() throws {
@@ -180,9 +180,9 @@ class SearchTests: AppTestCase {
         let query = try XCTUnwrap(Search.query(app.db, ["test"], page: 1, pageSize: 20))
         // validate
         XCTAssertEqual(renderSQL(query), """
-            SELECT * FROM ((SELECT DISTINCT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", LEVENSHTEIN("repo_owner", $1) AS "levenshtein_dist", ts_rank(to_tsvector("repo_owner"), plainto_tsquery($2)) AS "tsrank" FROM "search" WHERE "repo_owner" ILIKE $3 ORDER BY "levenshtein_dist" LIMIT 50) UNION ALL (SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", LEVENSHTEIN("keyword", $4) AS "levenshtein_dist", ts_rank(to_tsvector("keyword"), plainto_tsquery($5)) AS "tsrank" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $6 ORDER BY "tsrank" LIMIT 50) UNION ALL (SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank(to_tsvector(CONCAT_WS(' ', COALESCE("package_name", ''), COALESCE("summary", ''), ARRAY_TO_STRING("keywords", ' '))), plainto_tsquery($7)) AS "tsrank" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $8 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $9 DESC, "tsrank" DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0)) AS "t"
+            SELECT * FROM ((SELECT DISTINCT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", LEVENSHTEIN("repo_owner", $1) AS "levenshtein_dist", ts_rank(to_tsvector("repo_owner"), plainto_tsquery($2)) AS "tsrank" FROM "search" WHERE "repo_owner" ILIKE $3 ORDER BY "levenshtein_dist" LIMIT 50) UNION ALL (SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", NULL::INT AS "levenshtein_dist", NULL::NUMERIC AS "tsrank" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $4 LIMIT 50) UNION ALL (SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank(to_tsvector(CONCAT_WS(' ', COALESCE("package_name", ''), COALESCE("summary", ''), ARRAY_TO_STRING("keywords", ' '))), plainto_tsquery($5)) AS "tsrank" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $6 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $7 DESC, "tsrank" DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0)) AS "t"
             """)
-        XCTAssertEqual(binds(query), ["test", "test", "%test%", "test", "test", "%test%", "test", "test", "test"])
+        XCTAssertEqual(binds(query), ["test", "test", "%test%", "%test%", "test", "test", "test"])
     }
 
     func test_fetch_single() throws {
@@ -741,10 +741,12 @@ class SearchTests: AppTestCase {
         // MUT
         let res = try await Search.fetch(app.db, ["topic"], page: 1, pageSize: 20).get()
 
-        // validate that keyword results are ordered by levenshtein distance
+        // validate
+        // The keyword results are unordered in SQL because they're ordered by frequency
+        // after fetching. We sort them here for stable test results.
         // (packages are also matched via their keywords)
-        XCTAssertEqual(res.results.map(\.testDescription),
-                       ["k:topicb", "k:atopicb", "k:topic", "p:p1", "p:p3", "p:p2"])
+        XCTAssertEqual(res.results.map(\.testDescription).sorted(),
+                       ["k:atopicb", "k:topic", "k:topicb", "p:p1", "p:p2", "p:p3"])
     }
 
     func test_search_author_multiple_results() async throws {
