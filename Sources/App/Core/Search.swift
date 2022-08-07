@@ -182,14 +182,13 @@ enum Search {
             .column(nullInt, as: levenshteinDist)
             .column(
                 ts_rank(
-                    vector: TextSearch.toVector(
+                    vector: to_tsvector(
                         concat(
                             with: " ",
                             coalesce(packageName, emptyString),
                             coalesce(summary, emptyString),
                             arrayToString(keywords, delimiter: " ")
-                        ),
-                        weight: .a
+                        )
                     ),
                     query: plainto_tsquery(mergedTerms)
                 ),
@@ -251,7 +250,7 @@ enum Search {
             .column(SQLFunction("LEVENSHTEIN", args: keyword, SQLBind(mergedTerms)),
                     as: levenshteinDist)
         select = select
-            .column(ts_rank(vector: TextSearch.toVector(keyword, weight: .b),
+            .column(ts_rank(vector: to_tsvector(keyword),
                             query: plainto_tsquery(SQLBind(mergedTerms))),
                     as: tsrank)
         select = select
@@ -320,7 +319,7 @@ enum Search {
             .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
                     as: levenshteinDist)
         select = select
-            .column(ts_rank(vector: TextSearch.toVector(repoOwner, weight: .a),
+            .column(ts_rank(vector: to_tsvector(repoOwner),
                             query: plainto_tsquery(SQLBind(mergedTerms))),
                     as: tsrank)
         select = select
