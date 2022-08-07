@@ -22,25 +22,22 @@ enum Search {
 
     // identifiers
     static let author = SQLIdentifier("author")
+    static let hasDocs = SQLIdentifier("has_docs")
     static let keyword = SQLIdentifier("keyword")
     static let keywords = SQLIdentifier("keywords")
+    static let lastActivityAt = SQLIdentifier("last_activity_at")
+    static let lastCommitDate = SQLIdentifier("last_commit_date")
+    static let levenshteinDist = SQLIdentifier("levenshtein_dist")
+    static let license = SQLIdentifier("license")
     static let packageId = SQLIdentifier("package_id")
     static let packageName = SQLIdentifier("package_name")
     static let repoName = SQLIdentifier("repo_name")
     static let repoOwner = SQLIdentifier("repo_owner")
     static let score = SQLIdentifier("score")
     static let stars = SQLIdentifier("stars")
-    static let lastActivityAt = SQLIdentifier("last_activity_at")
-    static let levenshteinDist = SQLIdentifier("levenshtein_dist")
-    static let license = SQLIdentifier("license")
-    static let lastCommitDate = SQLIdentifier("last_commit_date")
-    static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
-    static let hasDocs = SQLIdentifier("has_docs")
-
-    static let tsquery = SQLIdentifier("tsquery")
-    static let tsvector = SQLIdentifier("tsvector")
-    static let tsrankvalue = SQLIdentifier("tsrankvalue")
+    static let searchView = SQLIdentifier("search")
+    static let tsrank = SQLIdentifier("tsrank")
     
     static let emptyString = SQLRaw("")
     static let inVector = SQLRaw("@@")
@@ -162,7 +159,7 @@ enum Search {
 
         let exactPackageNameMatch = eq(lower(packageName), mergedTerms)
         let sortOrder = SQLOrderBy(exactPackageNameMatch, .descending)
-            .then(tsrankvalue, .descending)
+            .then(tsrank, .descending)
             .then(score, .descending)
             .then(packageName, .ascending)
 
@@ -183,18 +180,22 @@ enum Search {
             .column(keywords)
             .column(hasDocs)
             .column(nullInt, as: levenshteinDist)
-            .column(ts_rank(vector: tsvector, query: tsquery), as: tsrankvalue)
-            .from(searchView)
-            .from(plainto_tsquery(mergedTerms), as: tsquery)
-            .from(
-                TextSearch.toVector(
-                    concat(with: " ",
-                        coalesce(packageName, emptyString),
-                        coalesce(summary, emptyString),
-                        arrayToString(keywords, delimiter: " ")
+            .column(
+                ts_rank(
+                    vector: TextSearch.toVector(
+                        concat(
+                            with: " ",
+                            coalesce(packageName, emptyString),
+                            coalesce(summary, emptyString),
+                            arrayToString(keywords, delimiter: " ")
+                        ),
+                        weight: .a
                     ),
-                    weight: .a
-                ), as: tsvector)
+                    query: plainto_tsquery(mergedTerms)
+                ),
+                as: tsrank
+            )
+            .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(repoOwner))
@@ -250,15 +251,13 @@ enum Search {
             .column(SQLFunction("LEVENSHTEIN", args: keyword, SQLBind(mergedTerms)),
                     as: levenshteinDist)
         select = select
-            .column(ts_rank(vector: tsvector, query: tsquery), as: tsrankvalue)
+            .column(ts_rank(vector: TextSearch.toVector(keyword, weight: .b),
+                            query: plainto_tsquery(SQLBind(mergedTerms))),
+                    as: tsrank)
         select = select
             .from(searchView)
         select = select
             .from(unnest(keywords), as: keyword)
-        select = select
-            .from(plainto_tsquery(SQLBind(mergedTerms)), as: tsquery)
-        select = select
-            .from(TextSearch.toVector(keyword, weight: .b), as: tsvector)
         select = select
             .where(keyword, ilike, SQLBind(searchPattern))
             // If we want to change the "does the search find it at all" mechanism to use
@@ -271,7 +270,7 @@ enum Search {
             // (such as mandarin characters) completely fail to find anything.
         select = select
             //.orderBy(levenshteinDist)
-            .orderBy(tsrankvalue)
+            .orderBy(tsrank)
         select = select
             .limit(50)
         return select
@@ -321,13 +320,11 @@ enum Search {
             .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
                     as: levenshteinDist)
         select = select
-            .column(ts_rank(vector: tsvector, query: tsquery), as: tsrankvalue)
+            .column(ts_rank(vector: TextSearch.toVector(repoOwner, weight: .a),
+                            query: plainto_tsquery(SQLBind(mergedTerms))),
+                    as: tsrank)
         select = select
             .from(searchView)
-        select = select
-            .from(plainto_tsquery(SQLBind(mergedTerms)), as: tsquery)
-        select = select
-            .from(TextSearch.toVector(repoOwner, weight: .a), as: tsvector)
         select = select
             .where(repoOwner, ilike, SQLBind(searchPattern))
         select = select
