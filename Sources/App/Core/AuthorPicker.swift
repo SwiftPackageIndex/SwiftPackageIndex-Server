@@ -17,22 +17,11 @@ import ShellOut
 
 
 
-/// This protocols gathers the mandatory information needed to select authors and to identify endorsed contributors
+/// This protocols gathers the mandatory information needed to select authors and to acknowledge contributors
 protocol ContributionContext {
     /// Total number of commits
     var commits: String { get }
     var identifier : String { get }
-}
-
-/// Version Control history loader
-protocol VCHistoryLoader {
-    associatedtype Contributor : ContributionContext
-    
-    /// Gets the version control history in a string log
-    func queryVCHistory(repositoryURL: String) -> String?
-    
-    /// Parses the result of queryVCHistory
-    func parseVCHistory(log: String) -> [Contributor]
 }
 
 public struct Contributor : ContributionContext {
@@ -45,15 +34,31 @@ public struct Contributor : ContributionContext {
     
 }
 
-
-public struct GitHubHistoryLoader : VCHistoryLoader {
+/// Version control history loader
+protocol VCHistoryLoader {
     
-    public init() {}
+    func loadContributorsHistory(repositoryURL: String, defaultBranch: String) -> [Contributor]
+
+}
+
+/// Loads the contributors history from a GitHub repository
+struct GitHubHistoryLoader : VCHistoryLoader {
+    
+    init() {}
+    
+    func loadContributorsHistory(repositoryURL: String, defaultBranch: String) -> [Contributor] {
+        guard let commitHistory = queryVCHistory(repositoryURL: repositoryURL, defaultBranch: defaultBranch)
+        else{
+            return []
+        }
+        return parseVCHistory(log: commitHistory)
+    }
     
     // TODO: Make better error handling
-    public func queryVCHistory(repositoryURL : String) -> String? {
+    /// Gets the version control history in a string log
+    private func queryVCHistory(repositoryURL : String, defaultBranch: String) -> String? {
         do {
-            try makeMinimalClone(repositoryURL : repositoryURL)
+            try makeMinimalClone(repositoryURL : repositoryURL, defaultBranch: defaultBranch)
         } catch {
             let error = error as! ShellOutError
             print(error.message) // Prints STDERR
@@ -66,25 +71,19 @@ public struct GitHubHistoryLoader : VCHistoryLoader {
     
     
     /// Makes a minimal clone of the repository without the binary large objetcs that contain the snapshots of the files data
-    private func makeMinimalClone(repositoryURL : String) throws {
+    private func makeMinimalClone(repositoryURL : String, defaultBranch: String) throws {
         
         let repositoryName = extractPackageName(repositoryURL: repositoryURL)
         
         let folderName = repositoryName + "Clone"
         try self.makeFolder(named: folderName)
         
-        // TODO: branch could have different names: master or main. Update: we have that info!
-        try shellOut(to: "git clone --filter=blob:none --no-checkout --single-branch --branch master",
-                     arguments: [repositoryURL, "."],
+        try shellOut(to: "git clone --filter=blob:none --no-checkout --single-branch --branch",
+                     arguments: [defaultBranch, repositoryURL, "."],
                      at: folderName)
-        
-//        try shellOut(to: "git clone --filter=blob:none --no-checkout --single-branch --branch main",
-//                     arguments: [repositoryURL, "."],
-//                     at: folderName)
-
     }
     
-    
+    /// Parses the result of queryVCHistory
     private func gitShortlog(repositoryName: String) throws -> String {
         let folderName = repositoryName + "Clone"
         let shortlog = try shellOut(to: "git shortlog -sne", at: folderName)
@@ -115,13 +114,15 @@ public struct GitHubHistoryLoader : VCHistoryLoader {
                                              email: String(log[3]),
                                              identifier: String(log[1]) + " " + String(log[2]))
                 committers.append(committer)
-            } else {
+            } else if log.count == 3 {
                 let committer = Contributor(commits: String(log[0]),
                                              firstName: String(log[1]),
                                              lastName: "",
                                              email: String(log[2]),
                                              identifier: String(log[1]))
                 committers.append(committer)
+            } else {
+                // TODO: Handle error
             }
 
         }
@@ -139,27 +140,28 @@ public struct GitHubHistoryLoader : VCHistoryLoader {
     }
 }
 
-
+/// Protocol for all author selection strategies
 protocol AuthorSelector {
-    associatedtype Contributor : ContributionContext
     
     func selectAuthors(candidates : [Contributor] ) -> [Contributor]
     
     func selectContributors(candidates : [Contributor] ) -> [Contributor]
+    
 }
 
-
-public struct SelectorManager : AuthorSelector {
+/// Strategy for selecting authors based entirely on the number of commits
+struct CommitSelector : AuthorSelector {
     
-    let contributorThreshold : Float
-    let authorThreshold      : Float
+    let contributorThreshold    : Float
+    let authorThreshold         : Float
     
-    public init(contributorThreshold: Float, authorThreshold : Float) {
+    
+    init(contributorThreshold: Float = 0.02, authorThreshold : Float = 0.6) {
         self.contributorThreshold   = contributorThreshold
         self.authorThreshold        = authorThreshold
     }
     
-    public func selectContributors(candidates: [Contributor]) -> [Contributor] {
+    func selectContributors(candidates: [Contributor]) -> [Contributor] {
         let maxNumberOfCommits = candidates.max(by: { (a,b) -> Bool in
             return Int(a.commits)! < Int(b.commits)!
         })!.commits
@@ -169,7 +171,7 @@ public struct SelectorManager : AuthorSelector {
         }
     }
     
-    public func selectAuthors(candidates: [Contributor]) -> [Contributor] {
+    func selectAuthors(candidates: [Contributor]) -> [Contributor] {
         let contributors = selectContributors(candidates: candidates)
         
         let maxNumberOfCommits = contributors.max(by: { (a,b) -> Bool in
@@ -186,25 +188,29 @@ public struct SelectorManager : AuthorSelector {
 
 
 
-final class GitHubAuthorPicker {
-    private let historyLoader   : GitHubHistoryLoader
-    private let authorSelector  : SelectorManager
-
-    public init(authorThreshold: Float, contributorThreshold: Float = 0.02) {
-        self.historyLoader      = GitHubHistoryLoader()
-        self.authorSelector     = SelectorManager(contributorThreshold: contributorThreshold,
-                                                  authorThreshold: authorThreshold)
+final class AuthorPickerService {
+    /// loads the list of contributors with its history
+    private let historyLoader       : VCHistoryLoader
+    /// strategy for picking the author and acknowledged contributors
+    private let selectionStrategy   : AuthorSelector
+    private let repositoryURL       : String
+    private let defaultBranch       : String
+    
+    public init(historyLoader   : VCHistoryLoader, authorSelector  : AuthorSelector, repositoryURL: String, defaultBranch: String) {
+        self.historyLoader      = historyLoader
+        self.selectionStrategy  = authorSelector
+        self.repositoryURL      = repositoryURL
+        self.defaultBranch      = defaultBranch
     }
-
-    public func pickAuthors(repositoryURL: String, authorThreshold: Float = 0.6) -> [Contributor] {
-        guard let logHistory = historyLoader.queryVCHistory(repositoryURL: repositoryURL)
-        else {
-            fatalError("history could not be loaded")
-        }
-        let committers = historyLoader.parseVCHistory(log: logHistory)
-        let authors = authorSelector.selectAuthors(candidates: committers)
-        return authors
+    
+    func selectAuthors() -> [Contributor] {
+        let contributorsHistory = historyLoader.loadContributorsHistory(repositoryURL: repositoryURL, defaultBranch: defaultBranch)
+        return selectionStrategy.selectAuthors(candidates: contributorsHistory)
     }
+    
+    func selectContributors() -> [Contributor] {
+        let contributorsHistory = historyLoader.loadContributorsHistory(repositoryURL: repositoryURL, defaultBranch: defaultBranch)
+        return selectionStrategy.selectContributors(candidates: contributorsHistory)
+    }
+    
 }
-
-
