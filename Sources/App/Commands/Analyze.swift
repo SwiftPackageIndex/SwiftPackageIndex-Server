@@ -131,6 +131,13 @@ extension Analyze {
             case .id(let id):
                 logger.info("Analyzing (id: \(id)) ...")
                 let pkg = try await Package.fetchCandidate(database, id: id).get()
+                let url = pkg.model.url
+            
+                let defaultBranch = pkg.repository?.defaultBranch ?? ""
+                print(defaultBranch)
+                logger.info("Analyzing (url: \(url)) ...")
+            let authors = pickAuthors(logger: logger, url: url, defaultBranch: defaultBranch)
+                logger.info("first author is \(authors.first?.identifier)")
                 try await analyze(client: client,
                                   database: database,
                                   logger: logger,
@@ -720,6 +727,27 @@ extension Analyze {
         } catch {
             logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
         }
+    }
+    
+    
+    /// Selects the possible authors of the package according to the number of commits.
+    /// A contributor is considered an author when the number of commits is at least a 60 percent
+    /// of the maximum commits done by a contributor. A contritutor is acknowledge if the number of
+    /// commits is at leat 2 percent of the maximum of commits.
+    /// - Parameters:
+    ///   - logger: `Logger` object
+    ///   - url: url of the repository. The package will be clone from this url
+    ///   - defaultBranch: the name of the defaul branch, e.g. master or main
+    /// - Returns: Array of Contributors which were selected as authors
+    static func pickAuthors(logger: Logger, url: String, defaultBranch: String) -> [Contributor] {
+        logger.info("Picking authors for \(url)")
+        let githubHistoryLoader = GitHubHistoryLoader()
+        let strategy = CommitSelector()
+        let selector = AuthorPickerService(historyLoader: githubHistoryLoader,
+                                           authorSelector: strategy,
+                                           repositoryURL: url,
+                                           defaultBranch: defaultBranch)
+        return selector.selectAuthors()
     }
 
 }
