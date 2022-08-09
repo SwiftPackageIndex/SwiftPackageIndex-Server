@@ -26,7 +26,7 @@ jobs:
       image: registry.gitlab.com/finestructure/spi-base:0.7.1
     services:
       postgres:
-        image: postgres:13.5-alpine
+        image: postgres:13.7-alpine
         env:
           POSTGRES_DB: spi_test
           POSTGRES_USER: spi_test
