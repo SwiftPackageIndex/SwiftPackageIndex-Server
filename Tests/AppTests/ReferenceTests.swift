@@ -49,4 +49,12 @@ class ReferenceTests: XCTestCase {
         XCTAssertEqual(Reference.branch("").tagName, nil)
     }
 
+    func test_versionKind() throws {
+        XCTAssertEqual(Reference.tag(.init(1, 2, 3)).versionKind, .release)
+        XCTAssertEqual(Reference.tag(.init(1, 2, 3, "b1")).versionKind, .preRelease)
+        XCTAssertEqual(Reference.tag(.init(1, 2, 3, "b1", "test")).versionKind, .preRelease)
+        XCTAssertEqual(Reference.branch("main").versionKind, .defaultBranch)
+        XCTAssertEqual(Reference.branch("").versionKind, .defaultBranch)
+    }
+
 }
