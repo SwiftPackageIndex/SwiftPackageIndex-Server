@@ -387,6 +387,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
                                                                  reference: "main",
+                                                                 referenceLatest: .release,
                                                                  referenceKind: .release,
                                                                  availableArchives: [
                                                                     .init(name: "Archive1",
@@ -412,6 +413,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
                                                                  reference: "main",
+                                                                 referenceLatest: .defaultBranch,
                                                                  referenceKind: .defaultBranch,
                                                                  availableArchives: [
                                                                     .init(name: "Archive1",

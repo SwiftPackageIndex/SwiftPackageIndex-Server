@@ -23,7 +23,8 @@ struct DocumentationPageProcessor {
     let repositoryName: String
     let packageName: String
     let reference: String
-    let referenceKind: Version.Kind?
+    let referenceLatest: Version.Kind?
+    let referenceKind: Version.Kind
     let availableArchives: [AvailableArchive]
     let availableVersions: [AvailableDocumentationVersion]
     let updatedAt: Date
@@ -45,7 +46,8 @@ struct DocumentationPageProcessor {
           repositoryName: String,
           packageName: String,
           reference: String,
-          referenceKind: Version.Kind?,
+          referenceLatest: Version.Kind?,
+          referenceKind: Version.Kind,
           availableArchives: [AvailableArchive],
           availableVersions: [AvailableDocumentationVersion],
           updatedAt: Date,
@@ -55,6 +57,7 @@ struct DocumentationPageProcessor {
         self.repositoryName = repositoryName
         self.packageName = packageName
         self.reference = reference
+        self.referenceLatest = referenceLatest
         self.referenceKind = referenceKind
         self.availableArchives = availableArchives
         self.availableVersions = availableVersions
@@ -253,7 +256,6 @@ struct DocumentationPageProcessor {
             case .release: return "This documentation is from a previous release and may not reflect the latest stable release."
             case .preRelease: return "This documentation is from a pre-release and may not reflect the latest stable release."
             case .defaultBranch: return "This documentation is from the \(reference) branch and may not reflect the latest stable release."
-            default: return ""
         }
     }
 
