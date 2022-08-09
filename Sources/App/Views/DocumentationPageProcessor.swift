@@ -154,7 +154,7 @@ struct DocumentationPageProcessor {
                         )
                     )
                 ),
-                .if(referenceKind != .release,
+                .if(referenceLatest != .release,
                     // Only try and show a link to the latest stable if there *is* a latest stable.
                     .unwrap(availableVersions.first(where: \.isLatestStable)) { latestStable in
                             .div(
