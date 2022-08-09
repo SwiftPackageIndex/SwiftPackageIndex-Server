@@ -405,6 +405,36 @@ class WebpageSnapshotTests: SnapshotTestCase {
         assertSnapshot(matching: processor.processedPage, as: .html)
     }
 
+    func test_DocCTemplate_outdatedStableVersion() throws {
+        let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
+        let doccHtml = try String(contentsOfFile: doccTemplatePath)
+        let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
+                                                                 repositoryOwnerName: "Owner Name",
+                                                                 repositoryName: "package",
+                                                                 packageName: "Package Name",
+                                                                 reference: "1.1.0",
+                                                                 referenceLatest: nil,
+                                                                 referenceKind: .release,
+                                                                 availableArchives: [
+                                                                    .init(name: "Archive1",
+                                                                          isCurrent: true)
+                                                                 ],
+                                                                 availableVersions: [
+                                                                    .init(kind: .defaultBranch,
+                                                                          reference: "main",
+                                                                          docArchives: ["Archive1"],
+                                                                          isLatestStable: false),
+                                                                    .init(kind: .preRelease,
+                                                                          reference: "2.0.0",
+                                                                          docArchives: ["Archive1"],
+                                                                          isLatestStable: true)
+                                                                 ],
+                                                                 updatedAt: Date(timeIntervalSince1970: 0),
+                                                                 rawHtml: doccHtml))
+
+        assertSnapshot(matching: processor.processedPage, as: .html)
+    }
+
     func test_DocCTemplate_multipleVersions() throws {
         let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
         let doccHtml = try String(contentsOfFile: doccTemplatePath)
