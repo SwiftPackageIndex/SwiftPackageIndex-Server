@@ -253,10 +253,6 @@ enum Search {
         select = select
             .from(unnest(keywords), as: keyword)
         select = select
-            .from(plainto_tsquery(SQLBind(mergedTerms)), as: tsquery)
-        select = select
-            .from(to_tsvector(keyword), as: tsvector)
-        select = select
             .where(keyword, ilike, SQLBind(searchPattern))
         select = select
             .limit(50)
