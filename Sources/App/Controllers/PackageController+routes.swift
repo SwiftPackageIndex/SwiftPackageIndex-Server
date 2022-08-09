@@ -166,7 +166,7 @@ struct PackageController {
                                          packageName: result.model.packageName ?? repository,
                                          docArchives: (result.model.docArchives ?? []).map(\.title),
                                          latest: result.model.latest,
-                                         kind: .release,
+                                         kind: result.model.reference.versionKind,
                                          updatedAt: result.model.publishedAt ?? result.model.commitDate)
                 }
 
