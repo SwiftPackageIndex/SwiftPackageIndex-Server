@@ -87,6 +87,7 @@ struct PackageController {
         var packageName: String
         var docArchives: [String]
         var latest: Version.Kind?
+        var kind: Version.Kind
         var updatedAt: Date
     }
 
@@ -165,6 +166,7 @@ struct PackageController {
                                          packageName: result.model.packageName ?? repository,
                                          docArchives: (result.model.docArchives ?? []).map(\.title),
                                          latest: result.model.latest,
+                                         kind: .release,
                                          updatedAt: result.model.publishedAt ?? result.model.commitDate)
                 }
 
