@@ -115,12 +115,10 @@ struct DocumentationPageProcessor {
             Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL()),
             Breadcrumb(title: .init(
                 .text("Documentation for "),
-                .unwrap(referenceKind, { referenceKind in
-                        .span(
-                            .class(referenceKind.cssClass),
-                            .text(reference)
-                        )
-                }, else: .text(reference))
+                .span(
+                    .class(referenceKind.cssClass),
+                    .text(reference)
+                )
             ), choices: documentationVersionChoices.count > 0 ? documentationVersionChoices : nil)
         ]
 
