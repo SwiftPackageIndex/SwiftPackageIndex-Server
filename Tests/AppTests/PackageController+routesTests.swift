@@ -460,13 +460,13 @@ class PackageController_routesTests: AppTestCase {
         let updatedAt = Date(timeIntervalSince1970: 0)
         let versions: [PackageController.DocumentationVersion] = [
             .init(reference: .branch("main"), ownerName: "owner",
-                  packageName: "package", docArchives: [], kind: .defaultBranch, updatedAt: updatedAt),
+                  packageName: "package", docArchives: [], updatedAt: updatedAt),
             .init(reference: .tag(.init(1, 0, 0), "1.0.0"), ownerName: "owner",
-                  packageName: "package", docArchives: [], kind: .release, updatedAt: updatedAt),
+                  packageName: "package", docArchives: [], updatedAt: updatedAt),
             .init(reference: .tag(.init(2, 0, 0, "beta1"), "2.0.0-beta1"), ownerName: "owner",
-                  packageName: "package", docArchives: [], kind: .preRelease, updatedAt: updatedAt),
+                  packageName: "package", docArchives: [], updatedAt: updatedAt),
             .init(reference: .tag(.init(3, 0, 0), "3.0.0"), ownerName: "owner",
-                  packageName: "package", docArchives: [], kind: .release, updatedAt: updatedAt),
+                  packageName: "package", docArchives: [], updatedAt: updatedAt),
         ]
 
         // MUT
@@ -484,25 +484,25 @@ class PackageController_routesTests: AppTestCase {
         let updatedAt = Date(timeIntervalSince1970: 0)
         let versions: [PackageController.DocumentationVersion] = [
             .init(reference: .branch("main"), ownerName: "owner",
-                  packageName: "package", docArchives: [], latest: .defaultBranch, kind: .defaultBranch, updatedAt: updatedAt),
+                  packageName: "package", docArchives: [], latest: .defaultBranch, updatedAt: updatedAt),
             .init(reference: .tag(.init(1, 0, 0), "1.0.0"), ownerName: "owner",
-                  packageName: "package", docArchives: ["docs"], latest: nil, kind: .release, updatedAt: updatedAt),
+                  packageName: "package", docArchives: ["docs"], latest: nil, updatedAt: updatedAt),
             .init(reference: .tag(.init(1, 0, 1), "1.0.1"), ownerName: "owner",
-                  packageName: "package", docArchives: ["docs"], latest: nil, kind: .release, updatedAt: updatedAt),
+                  packageName: "package", docArchives: ["docs"], latest: nil, updatedAt: updatedAt),
             .init(reference: .tag(.init(1, 1, 0), "1.1.0"), ownerName: "owner",
-                  packageName: "package", docArchives: ["docs"], latest: nil, kind: .release, updatedAt: updatedAt),
+                  packageName: "package", docArchives: ["docs"], latest: nil, updatedAt: updatedAt),
             .init(reference: .tag(.init(1, 1, 1), "1.1.1"), ownerName: "owner",
-                  packageName: "package", docArchives: ["docs"], latest: nil, kind: .release, updatedAt: updatedAt),
+                  packageName: "package", docArchives: ["docs"], latest: nil, updatedAt: updatedAt),
             .init(reference: .tag(.init(1, 1, 2), "1.1.2"), ownerName: "owner",
-                  packageName: "package", docArchives: ["docs"], latest: nil, kind: .release, updatedAt: updatedAt),
+                  packageName: "package", docArchives: ["docs"], latest: nil, updatedAt: updatedAt),
             .init(reference: .tag(.init(2, 0, 0), "2.0.0"), ownerName: "owner",
-                  packageName: "package", docArchives: ["docs"], latest: nil, kind: .release, updatedAt: updatedAt),
+                  packageName: "package", docArchives: ["docs"], latest: nil, updatedAt: updatedAt),
             .init(reference: .tag(.init(2, 1, 1), "2.1.1"), ownerName: "owner",
-                  packageName: "package", docArchives: ["docs"], latest: nil, kind: .release, updatedAt: updatedAt),
+                  packageName: "package", docArchives: ["docs"], latest: nil, updatedAt: updatedAt),
             .init(reference: .tag(.init(3, 0, 0), "3.0.0"), ownerName: "owner",
-                  packageName: "package", docArchives: ["docs"], latest: .release, kind: .release, updatedAt: updatedAt),
+                  packageName: "package", docArchives: ["docs"], latest: .release, updatedAt: updatedAt),
             .init(reference: .tag(.init(4, 0, 0, "beta1"), "4.0.0-beta1"), ownerName: "owner",
-                  packageName: "package", docArchives: ["docs"], latest: .preRelease, kind: .preRelease, updatedAt: updatedAt)
+                  packageName: "package", docArchives: ["docs"], latest: .preRelease, updatedAt: updatedAt)
         ]
 
         // MUT
