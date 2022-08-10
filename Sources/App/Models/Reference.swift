@@ -56,6 +56,15 @@ enum Reference: Equatable, Hashable {
                 return tagName
         }
     }
+
+    var versionKind: Version.Kind {
+        switch self {
+            case .branch:
+                return .defaultBranch
+            case .tag(let semVer, _):
+                return semVer.isPreRelease ? .preRelease : .release
+        }
+    }
 }
 
 

@@ -23,7 +23,8 @@ struct DocumentationPageProcessor {
     let repositoryName: String
     let packageName: String
     let reference: String
-    let referenceKind: Version.Kind?
+    let referenceLatest: Version.Kind?
+    let referenceKind: Version.Kind
     let availableArchives: [AvailableArchive]
     let availableVersions: [AvailableDocumentationVersion]
     let updatedAt: Date
@@ -45,7 +46,8 @@ struct DocumentationPageProcessor {
           repositoryName: String,
           packageName: String,
           reference: String,
-          referenceKind: Version.Kind?,
+          referenceLatest: Version.Kind?,
+          referenceKind: Version.Kind,
           availableArchives: [AvailableArchive],
           availableVersions: [AvailableDocumentationVersion],
           updatedAt: Date,
@@ -55,6 +57,7 @@ struct DocumentationPageProcessor {
         self.repositoryName = repositoryName
         self.packageName = packageName
         self.reference = reference
+        self.referenceLatest = referenceLatest
         self.referenceKind = referenceKind
         self.availableArchives = availableArchives
         self.availableVersions = availableVersions
@@ -112,12 +115,10 @@ struct DocumentationPageProcessor {
             Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL()),
             Breadcrumb(title: .init(
                 .text("Documentation for "),
-                .unwrap(referenceKind, { referenceKind in
-                        .span(
-                            .class(referenceKind.cssClass),
-                            .text(reference)
-                        )
-                }, else: .text(reference))
+                .span(
+                    .class(referenceKind.cssClass),
+                    .text(reference)
+                )
             ), choices: documentationVersionChoices.count > 0 ? documentationVersionChoices : nil)
         ]
 
@@ -151,7 +152,7 @@ struct DocumentationPageProcessor {
                         )
                     )
                 ),
-                .if(referenceKind != .release,
+                .if(referenceLatest != .release,
                     // Only try and show a link to the latest stable if there *is* a latest stable.
                     .unwrap(availableVersions.first(where: \.isLatestStable)) { latestStable in
                             .div(
@@ -253,7 +254,6 @@ struct DocumentationPageProcessor {
             case .release: return "This documentation is from a previous release and may not reflect the latest stable release."
             case .preRelease: return "This documentation is from a pre-release and may not reflect the latest stable release."
             case .defaultBranch: return "This documentation is from the \(reference) branch and may not reflect the latest stable release."
-            default: return ""
         }
     }
 
