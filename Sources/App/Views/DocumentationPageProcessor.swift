@@ -168,7 +168,7 @@ struct DocumentationPageProcessor {
                                                                                         repository: repositoryName,
                                                                                         reference: latestStable.reference,
                                                                                         docArchive: docArchive)),
-                                                    .text("View latest stable docs")
+                                                    .text("View latest documentation")
                                                 ),
                                                 .text(".")
                                             )
@@ -251,9 +251,9 @@ struct DocumentationPageProcessor {
 
     var latestStableLinkExplanatoryText: String {
         switch referenceKind {
-            case .release: return "This documentation is from a previous release and may not reflect the latest stable release."
-            case .preRelease: return "This documentation is from a pre-release and may not reflect the latest stable release."
-            case .defaultBranch: return "This documentation is from the \(reference) branch and may not reflect the latest stable release."
+            case .release: return "This documentation is from a previous release and may not reflect the latest version."
+            case .preRelease: return "This documentation is from a pre-release and may not reflect the latest version."
+            case .defaultBranch: return "This documentation is from the \(reference) branch and may not reflect the latest version."
         }
     }
 
