@@ -58,10 +58,11 @@ enum Reference: Equatable, Hashable {
     }
 
     var versionKind: Version.Kind {
-        if let semVer = semVer {
-            return semVer.isPreRelease ? .preRelease : .release
-        } else {
-            return .defaultBranch
+        switch self {
+            case .branch:
+                return .defaultBranch
+            case .tag(let semVer, _):
+                return semVer.isPreRelease ? .preRelease : .release
         }
     }
 }
