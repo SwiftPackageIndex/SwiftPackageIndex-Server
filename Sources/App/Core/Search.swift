@@ -184,15 +184,6 @@ enum Search {
             .column(ts_rank(vector: tsvector, query: tsquery), as: tsrankvalue)
             .from(searchView)
             .from(plainto_tsquery(mergedTerms), as: tsquery)
-            .from(
-                to_tsvector(
-                    concat(
-                        with: " ",
-                        coalesce(packageName, emptyString),
-                        coalesce(summary, emptyString),
-                        arrayToString(keywords, delimiter: " ")
-                    )
-                ), as: tsvector)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(repoOwner))
