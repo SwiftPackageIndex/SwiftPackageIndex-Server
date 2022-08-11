@@ -123,7 +123,7 @@ class QueryPerformanceTests: XCTestCase {
             return
         }
         let query = db.raw("""
-            -- v7
+            -- v8
             --CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,
@@ -139,7 +139,8 @@ class QueryPerformanceTests: XCTestCase {
               r.summary,
               v.package_name,
               array_length(doc_archives, 1) >= 1 AS has_docs,
-              ARRAY(SELECT DISTINCT JSONB_OBJECT_KEYS(type) FROM products WHERE products.version_id = v.id) AS product_types
+              ARRAY(SELECT DISTINCT JSONB_OBJECT_KEYS(type) FROM products WHERE products.version_id = v.id) AS product_types,
+              TO_TSVECTOR(CONCAT_WS(' ', COALESCE(v.package_name, ''), COALESCE(r.summary, ''), ARRAY_TO_STRING(r.keywords, ' '))) AS tsvector
             FROM packages p
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id
