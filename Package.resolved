@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/swift-server/async-http-client.git",
         "state": {
           "branch": null,
-          "revision": "0527bbb466b8f48b36fe48933c425c42dac09358",
-          "version": "1.11.3"
+          "revision": "df87a860fdc41a595d5ca67f74cde9adbccc099a",
+          "version": "1.11.4"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "a0cae5b53521e7f003a044f3a38aa125be074130",
-          "version": "1.34.0"
+          "revision": "7fc64d3ebb1141047828d92a52af85f7446ce37f",
+          "version": "1.35.0"
         }
       },
       {
@@ -141,8 +141,8 @@
         "repositoryURL": "https://github.com/SwiftPackageIndex/SPIManifest",
         "state": {
           "branch": null,
-          "revision": "f5972547be0acca6b37ee5ea5a11763758771f73",
-          "version": "0.5.0"
+          "revision": "ad6d1fb021022788af310e9048dbecfaa14e0aa1",
+          "version": "0.7.1"
         }
       },
       {
@@ -240,8 +240,8 @@
         "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {
           "branch": null,
-          "revision": "5d66f7ba25daf4f94100e7022febf3c75e37a6c7",
-          "version": "1.4.2"
+          "revision": "8fc79cae9d03a5e623c52cc2dbd2df165a7832b0",
+          "version": "1.4.3"
         }
       },
       {
@@ -375,8 +375,8 @@
         "repositoryURL": "https://github.com/vapor/websocket-kit.git",
         "state": {
           "branch": null,
-          "revision": "efb1bd5adab0381e521a50b11d3107081cdb5615",
-          "version": "2.6.0"
+          "revision": "2d9d2188a08eef4a869d368daab21b3c08510991",
+          "version": "2.6.1"
         }
       },
       {
@@ -384,8 +384,8 @@
         "repositoryURL": "https://github.com/pointfreeco/xctest-dynamic-overlay",
         "state": {
           "branch": null,
-          "revision": "ef8e14e7ce1c0c304c644c6ba365d06c468ded6b",
-          "version": "0.3.3"
+          "revision": "38bc9242e4388b80bd23ddfdf3071428859e3260",
+          "version": "0.4.0"
         }
       },
       {
