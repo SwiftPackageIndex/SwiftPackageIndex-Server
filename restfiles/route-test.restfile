@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Usage instructions:
+# - Launch the server with AWS_DOCS_BUCKET set to spi-dev-docs
+# - Run route-test via
+# env base_url=http://localhost:8080 rester restfiles/route-test.restfile
+
 requests:
 
     /:
