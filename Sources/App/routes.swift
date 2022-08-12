@@ -70,32 +70,17 @@ func routes(_ app: Application) throws {
             app.get(":owner", ":repository", ":reference", "**") {
                 try await packageController.documentation(req: $0, fragment: .root)
             }
-            app.get(":owner", ":repository", ":reference", "css") {
-                try await packageController.documentation(req: $0, fragment: .css)
-            }
             app.get(":owner", ":repository", ":reference", "css", "**") {
                 try await packageController.documentation(req: $0, fragment: .css)
-            }
-            app.get(":owner", ":repository", ":reference", "data") {
-                try await packageController.documentation(req: $0, fragment: .data)
             }
             app.get(":owner", ":repository", ":reference", "data", "**") {
                 try await packageController.documentation(req: $0, fragment: .data)
             }
-            app.get(":owner", ":repository", ":reference", "img") {
-                try await packageController.documentation(req: $0, fragment: .img)
-            }
             app.get(":owner", ":repository", ":reference", "img", "**") {
                 try await packageController.documentation(req: $0, fragment: .img)
             }
-            app.get(":owner", ":repository", ":reference", "index") {
-                try await packageController.documentation(req: $0, fragment: .index)
-            }
             app.get(":owner", ":repository", ":reference", "index", "**") {
                 try await packageController.documentation(req: $0, fragment: .index)
-            }
-            app.get(":owner", ":repository", ":reference", "js") {
-                try await packageController.documentation(req: $0, fragment: .js)
             }
             app.get(":owner", ":repository", ":reference", "js", "**") {
                 try await packageController.documentation(req: $0, fragment: .js)

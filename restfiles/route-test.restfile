@@ -60,49 +60,24 @@ requests:
         url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/index.html
         validation:
             status: 200
-# FIXME: invalid route
-# /:owner/:repository/:reference/css:
-#     url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/css
-#     validation:
-#         status: 200
     /:owner/:repository/:reference/css/**:
         # NB: this will likely need updating (or leaving a known file in S3)
         url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/css/index.ef288297.css
         validation:
             status: 200
-# FIXME: invalid route
-# /:owner/:repository/:reference/data:
-#     url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/data
-#     validation:
-#         status: 200
     /:owner/:repository/:reference/data/**:
         url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/data/documentation/semanticversion.json
         validation:
             status: 200
-# FIXME: invalid route
-# /:owner/:repository/:reference/img:
-#     url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/img
-#     validation:
-#         status: 200
     /:owner/:repository/:reference/img/**:
         # NB: this will likely need updating (or leaving a known file in S3)
         url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/img/added-icon.d6f7e47d.svg
         validation:
             status: 200
-# FIXME: invalid route
-# /:owner/:repository/:reference/index:
-#     url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/index
-#     validation:
-#         status: 200
     /:owner/:repository/:reference/index/**:
         url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/index/index.json
         validation:
             status: 200
-# FIXME: invalid route
-# /:owner/:repository/:reference/js:
-#     url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/js
-#     validation:
-#         status: 200
     /:owner/:repository/:reference/js/**:
         # NB: this will likely need updating (or leaving a known file in S3)
         url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/js/index.78cbd158.js
