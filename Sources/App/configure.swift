@@ -264,6 +264,9 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 057 - adds boolean flag indicating whether the package contains binary targets
         app.migrations.add(UpdateVersionAddHasBinaryTargets())
     }
+    do {  // Migration 058 - adds tsvector to materialised search view
+        app.migrations.add(UpdateSearchAddTSVector())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
