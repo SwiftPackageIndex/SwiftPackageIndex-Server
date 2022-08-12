@@ -61,8 +61,8 @@ requests:
         url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/documentation/semanticversion/index.html
         validation:
             status: 200
-    /:owner/:repository/:reference/**:
-        url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/index.html
+    /:owner/:repository/:reference/favicon.*:
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/favicon.svg
         validation:
             status: 200
     /:owner/:repository/:reference/css/**:

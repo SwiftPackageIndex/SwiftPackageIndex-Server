@@ -67,7 +67,7 @@ func routes(_ app: Application) throws {
             app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") {
                 try await packageController.documentation(req: $0, fragment: .documentation)
             }
-            app.get(":owner", ":repository", ":reference", "**") {
+            app.get(":owner", ":repository", ":reference", "favicon.*") {
                 try await packageController.documentation(req: $0, fragment: .root)
             }
             app.get(":owner", ":repository", ":reference", "css", "**") {
