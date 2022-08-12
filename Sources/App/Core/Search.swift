@@ -22,29 +22,33 @@ enum Search {
 
     // identifiers
     static let author = SQLIdentifier("author")
+    static let hasDocs = SQLIdentifier("has_docs")
     static let keyword = SQLIdentifier("keyword")
     static let keywords = SQLIdentifier("keywords")
+    static let lastActivityAt = SQLIdentifier("last_activity_at")
+    static let lastCommitDate = SQLIdentifier("last_commit_date")
+    static let levenshteinDist = SQLIdentifier("levenshtein_dist")
+    static let license = SQLIdentifier("license")
     static let packageId = SQLIdentifier("package_id")
     static let packageName = SQLIdentifier("package_name")
     static let repoName = SQLIdentifier("repo_name")
     static let repoOwner = SQLIdentifier("repo_owner")
     static let score = SQLIdentifier("score")
     static let stars = SQLIdentifier("stars")
-    static let lastActivityAt = SQLIdentifier("last_activity_at")
-    static let levenshteinDist = SQLIdentifier("levenshtein_dist")
-    static let license = SQLIdentifier("license")
-    static let lastCommitDate = SQLIdentifier("last_commit_date")
-    static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
-    static let hasDocs = SQLIdentifier("has_docs")
-
+    static let searchView = SQLIdentifier("search")
+    static let tsquery = SQLIdentifier("tsquery")
+    static let tsrankvalue = SQLIdentifier("tsrankvalue")
+    static let tsvector = SQLIdentifier("tsvector")
+    
     static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
-    static let nullInt = SQLRaw("NULL::INT")
     static let nullBool = SQLRaw("NULL::BOOL")
-    static let nullUUID = SQLRaw("NULL::UUID")
-    static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
+    static let nullInt = SQLRaw("NULL::INT")
+    static let nullNumeric = SQLRaw("NULL::NUMERIC")
     static let nullTextArray = SQLRaw("NULL::TEXT[]")
+    static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
+    static let nullUUID = SQLRaw("NULL::UUID")
 
     enum MatchType: String, Codable, Equatable {
         case author
@@ -153,8 +157,10 @@ enum Search {
             with: " ",
             packageName, coalesce(summary, emptyString), repoName, repoOwner, arrayToString(keywords, delimiter: " ")
         )
+
         let exactPackageNameMatch = eq(lower(packageName), mergedTerms)
         let sortOrder = SQLOrderBy(exactPackageNameMatch, .descending)
+            .then(tsrankvalue, .descending)
             .then(score, .descending)
             .then(packageName, .ascending)
 
@@ -175,7 +181,9 @@ enum Search {
             .column(keywords)
             .column(hasDocs)
             .column(nullInt, as: levenshteinDist)
+            .column(ts_rank(vector: tsvector, query: tsquery), as: tsrankvalue)
             .from(searchView)
+            .from(plainto_tsquery(mergedTerms), as: tsquery)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(repoOwner))
@@ -228,16 +236,15 @@ enum Search {
         select = select
             .column(nullBool, as: hasDocs)
         select = select
-            .column(SQLFunction("LEVENSHTEIN", args: keyword, SQLBind(mergedTerms)),
-                    as: levenshteinDist)
+            .column(nullInt, as: levenshteinDist)
+        select = select
+            .column(nullNumeric, as: tsrankvalue)
         select = select
             .from(searchView)
         select = select
             .from(unnest(keywords), as: keyword)
         select = select
             .where(keyword, ilike, SQLBind(searchPattern))
-        select = select
-            .orderBy(levenshteinDist)
         select = select
             .limit(50)
         return select
@@ -286,6 +293,8 @@ enum Search {
         select = select
             .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
                     as: levenshteinDist)
+        select = select
+            .column(nullNumeric, as: tsrankvalue)
         select = select
             .from(searchView)
         select = select

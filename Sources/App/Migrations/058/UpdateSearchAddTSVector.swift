@@ -16,7 +16,7 @@ import Fluent
 import SQLKit
 
 
-struct UpdateSearchAddProductType: AsyncMigration {
+struct UpdateSearchAddTSVector: AsyncMigration {
     let dropSQL: SQLQueryString = "DROP MATERIALIZED VIEW search"
 
     func prepare(on database: Database) async throws {
@@ -24,17 +24,12 @@ struct UpdateSearchAddProductType: AsyncMigration {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        // Create an index on products.version_id - this speeds up search view creation
-        // dramatically.
-        try await db.raw("CREATE INDEX idx_products_version_id ON products (version_id)")
-            .run()
-
         // ** IMPORTANT **
         // When updating the query underlying the materialized view, make sure to also
         // update the matching performance test in QueryPerformanceTests.test_Search_refresh!
         try await db.raw(dropSQL).run()
         try await db.raw("""
-            -- v6
+            -- v8
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,
@@ -49,7 +44,9 @@ struct UpdateSearchAddProductType: AsyncMigration {
               r.last_activity_at,
               r.summary,
               v.package_name,
-              ARRAY(SELECT DISTINCT JSONB_OBJECT_KEYS(type) FROM products WHERE products.version_id = v.id) AS product_types
+              array_length(doc_archives, 1) >= 1 AS has_docs,
+              ARRAY(SELECT DISTINCT JSONB_OBJECT_KEYS(type) FROM products WHERE products.version_id = v.id) AS product_types,
+              TO_TSVECTOR(CONCAT_WS(' ', COALESCE(v.package_name, ''), COALESCE(r.summary, ''), ARRAY_TO_STRING(r.keywords, ' '))) AS tsvector
             FROM packages p
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id
@@ -64,7 +61,7 @@ struct UpdateSearchAddProductType: AsyncMigration {
 
         try await db.raw(dropSQL).run()
         try await db.raw("""
-            -- v5
+            -- v7
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,
@@ -78,13 +75,13 @@ struct UpdateSearchAddProductType: AsyncMigration {
               r.stars,
               r.last_activity_at,
               r.summary,
-              v.package_name
+              v.package_name,
+              array_length(doc_archives, 1) >= 1 AS has_docs,
+              ARRAY(SELECT DISTINCT JSONB_OBJECT_KEYS(type) FROM products WHERE products.version_id = v.id) AS product_types
             FROM packages p
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """).run()
-
-        try await db.raw("DROP INDEX idx_products_version_id").run()
     }
 }

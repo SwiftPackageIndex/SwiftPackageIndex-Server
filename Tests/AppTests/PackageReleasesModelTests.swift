@@ -21,6 +21,17 @@ class PackageReleasesModelTests: AppTestCase {
 
     func test_initialise() throws {
         // Setup
+        
+        // Work-around to set the local time zone for time sensitive
+        // tests. Sets the explicit default time zone to UTC for the duration
+        // of this test.
+        let explicitGMTTimeZone = TimeZone(identifier: "Etc/UTC")!
+        let oldDefault = NSTimeZone.default
+        NSTimeZone.default = explicitGMTTimeZone
+        defer {
+            NSTimeZone.default = oldDefault
+        }
+        
         Current.date = { .spiBirthday }
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
@@ -46,14 +57,29 @@ class PackageReleasesModelTests: AppTestCase {
             .init(title: "0.0.1", date: "Released 50 years ago on 1 January 1970",
                   html: nil, link: "some url"),
         ])
+        // NOTE(heckj): test is sensitive to local time zones, breaks when run at GMT-7
+        // resolves as `31 December 1969`
     }
     
     func test_dateFormatting() throws {
+        
+        // Work-around to set the local time zone for time sensitive
+        // tests. Sets the explicit default time zone to UTC for the duration
+        // of this test.
+        let explicitGMTTimeZone = TimeZone(identifier: "Etc/UTC")!
+        let oldDefault = NSTimeZone.default
+        NSTimeZone.default = explicitGMTTimeZone
+        defer {
+            NSTimeZone.default = oldDefault
+        }
+
         let currentDate = Date(timeIntervalSince1970: 500)
         let targetDate = Date(timeIntervalSince1970: 0)
         
         XCTAssertEqual(PackageReleases.Model.formatDate(targetDate, currentDate: currentDate),
                        "Released 8 minutes ago on 1 January 1970")
+        // NOTE(heckj): test is sensitive to local time zones, breaks when run at GMT-7
+        // resolves as `31 December 1969`
         
         XCTAssertNil(PackageReleases.Model.formatDate(nil, currentDate: currentDate))
     }
