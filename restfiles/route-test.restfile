@@ -1,0 +1,202 @@
+# Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+requests:
+
+    /:
+        url: ${base_url}/
+        validation:
+            status: 200
+    /add-a-package:
+        url: ${base_url}/add-a-package
+        validation:
+            status: 200
+    /docs/builds:
+        url: ${base_url}/docs/builds
+        validation:
+            status: 200
+    /faq:
+        url: ${base_url}/faq
+        validation:
+            status: 200
+    /package-collections:
+        url: ${base_url}/package-collections
+        validation:
+            status: 200
+    /privacy:
+        url: ${base_url}/privacy
+        validation:
+            status: 200
+    /try-in-a-playground:
+        url: ${base_url}/try-in-a-playground
+        validation:
+            status: 200
+
+    # doccy-proxy
+    /:owner/:repository/:reference/documentation:
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/documentation
+        validation:
+            status: 200
+    /:owner/:repository/:reference/documentation/:archive:
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/documentation/semanticversion
+        validation:
+            status: 200
+    /:owner/:repository/:reference/documentation/:archive/**:
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/documentation/semanticversion/index.html
+        validation:
+            status: 200
+    /:owner/:repository/:reference/**:
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/index.html
+        validation:
+            status: 200
+# FIXME: invalid route
+# /:owner/:repository/:reference/css:
+#     url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/css
+#     validation:
+#         status: 200
+    /:owner/:repository/:reference/css/**:
+        # NB: this will likely need updating (or leaving a known file in S3)
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/css/index.ef288297.css
+        validation:
+            status: 200
+# FIXME: invalid route
+# /:owner/:repository/:reference/data:
+#     url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/data
+#     validation:
+#         status: 200
+    /:owner/:repository/:reference/data/**:
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/data/documentation/semanticversion.json
+        validation:
+            status: 200
+# FIXME: invalid route
+# /:owner/:repository/:reference/img:
+#     url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/img
+#     validation:
+#         status: 200
+    /:owner/:repository/:reference/img/**:
+        # NB: this will likely need updating (or leaving a known file in S3)
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/img/added-icon.d6f7e47d.svg
+        validation:
+            status: 200
+# FIXME: invalid route
+# /:owner/:repository/:reference/index:
+#     url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/index
+#     validation:
+#         status: 200
+    /:owner/:repository/:reference/index/**:
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/index/index.json
+        validation:
+            status: 200
+# FIXME: invalid route
+# /:owner/:repository/:reference/js:
+#     url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/js
+#     validation:
+#         status: 200
+    /:owner/:repository/:reference/js/**:
+        # NB: this will likely need updating (or leaving a known file in S3)
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/js/index.78cbd158.js
+        validation:
+            status: 200
+    /:owner/:repository/:reference/theme-settings.json:
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/theme-settings.json
+        validation:
+            status: 200
+
+    # package routes
+    /:owner/:repository:
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion
+        validation:
+            status: 200
+    /:owner/:repository/readme:
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/readme
+        validation:
+            status: 200
+    /:owner/:repository/releases:
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/releases
+        validation:
+            status: 200
+    /:owner/:repository/builds:
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/builds
+        validation:
+            status: 200
+    /:owner/:repository/information-for-package-maintainers:
+        url: ${base_url}/SwiftPackageIndex/SemanticVersion/information-for-package-maintainers
+        validation:
+            status: 200
+
+    # author routes
+    /:owner/collection.json:
+        url: ${base_url}/SwiftPackageIndex/collection.json
+        validation:
+            status: 200
+    /:owner:
+        url: ${base_url}/SwiftPackageIndex
+        validation:
+            status: 200
+
+    /keywords/:keyword:
+        url: ${base_url}/keywords/swift
+        validation:
+            status: 200
+    /build-monitor:
+        url: ${base_url}/build-monitor
+        validation:
+            status: 200
+    /builds/:id:
+        # NB: this will need updating if/when the build is superseded
+        url: ${base_url}/builds/CC649445-5CC3-4EFB-AE1C-E8D352BB2747
+        validation:
+            status: 200
+    /search:
+        url: ${base_url}/search
+        validation:
+            status: 200
+
+    # api
+    /api/version:
+        url: ${base_url}/api/version
+        validation:
+            status: 200
+    /api/search:
+        url: ${base_url}/api/search
+        validation:
+            status: 200
+    /api/packages/:owner/:repository/badge:
+        url: ${base_url}/api/packages/SwiftPackageIndex/SemanticVersion/badge
+        query:
+            type: platforms
+        validation:
+            status: 200
+    # SKIP testing POST requests
+    # | POST | /api/package-collections                                 |
+    # | POST | /api/versions/:id/builds                                 |
+    # | POST | /api/versions/:id/trigger-build                          |
+    # | POST | /api/packages/:owner/:repository/trigger-builds          |
+
+    /packages.rss:
+        url: ${base_url}/packages.rss
+        validation:
+            status: 200
+    /releases.rss:
+        url: ${base_url}/releases.rss
+        validation:
+            status: 200
+    /sitemap.xml:
+        url: ${base_url}/sitemap.xml
+        validation:
+            status: 200
+    /metrics:
+        url: ${base_url}/metrics
+        validation:
+            status: 200
