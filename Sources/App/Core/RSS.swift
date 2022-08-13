@@ -70,9 +70,7 @@ extension RecentPackage {
     }
 
     var rssItem: Node<RSS.ChannelContext> {
-        let link = SiteURL.package(.value(repositoryOwner),
-                                   .value(repositoryName),
-                                   .none).absoluteURL()
+        let link = SiteRoute.absoluteURL(for: .package(owner: repositoryOwner, repository: repositoryName))
         return .item(
             .guid(.text(rssGuid), .isPermaLink(false)),
             .title(packageName),
@@ -97,8 +95,8 @@ extension RecentRelease {
     }
 
     var rssItem: Node<RSS.ChannelContext> {
-        let packageUrl = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL()
-        let releasesUrl = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL(anchor: "releases")
+        let packageUrl = SiteRoute.absoluteURL(for: .package(owner: repositoryOwner, repository: repositoryName))
+        let releasesUrl = SiteRoute.absoluteURL(for: .package(owner: repositoryOwner, repository: repositoryName), anchor: "releases")
 
         func layout(_ body: Node<HTML.BodyContext>) -> Node<HTML.BodyContext> {
             .div(

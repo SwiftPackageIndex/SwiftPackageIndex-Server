@@ -113,7 +113,7 @@ extension BuildIndex.Model {
 
 extension BuildIndex.Model {
     var packageURL: String {
-        SiteURL.package(.value(owner), .value(repositoryName), .none).relativeURL()
+        SiteRoute.relativeURL(for: .package(owner: owner, repository: repositoryName))
     }
 
     struct BuildMatrix {

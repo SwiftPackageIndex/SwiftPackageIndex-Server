@@ -128,6 +128,6 @@ extension BuildShow.Model {
     }
 
     var packageURL: String {
-        SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL()
+        SiteRoute.relativeURL(for: .package(owner: repositoryOwner, repository: repositoryName))
     }
 }

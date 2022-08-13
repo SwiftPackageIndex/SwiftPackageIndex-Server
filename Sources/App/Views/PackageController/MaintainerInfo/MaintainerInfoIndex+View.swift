@@ -37,7 +37,7 @@ enum MaintainerInfoIndex {
             [
                 Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
                 Breadcrumb(title: model.repositoryOwnerName, url: SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
-                Breadcrumb(title: model.packageName, url: SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .none).relativeURL()),
+                Breadcrumb(title: model.packageName, url: SiteRoute.relativeURL(for: .package(owner: model.repositoryOwner, repository: model.repositoryName))),
                 Breadcrumb(title: "Information for Maintainers"),
             ]
         }
@@ -48,7 +48,7 @@ enum MaintainerInfoIndex {
                 .p(
                     .text("Are you the author, or a maintainer of "),
                     .a(
-                        .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .none).absoluteURL()),
+                        .href(SiteRoute.absoluteURL(for: .package(owner: model.repositoryOwner, repository: model.repositoryName))),
                         .text(model.packageName)
                     ),
                     .text("? "),

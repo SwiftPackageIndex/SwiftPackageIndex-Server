@@ -109,7 +109,7 @@ enum Search {
                 let owner = repositoryOwner,
                 let name = repositoryName
             else { return nil }
-            return SiteURL.package(.value(owner), .value(name), .none).relativeURL()
+            return SiteRoute.relativeURL(for: .package(owner: owner, repository: name))
         }
 
         var isPackage: Bool {

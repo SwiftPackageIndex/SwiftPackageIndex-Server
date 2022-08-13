@@ -38,7 +38,7 @@ enum BuildIndex {
             [
                 Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
                 Breadcrumb(title: model.ownerName, url: SiteURL.author(.value(model.owner)).relativeURL()),
-                Breadcrumb(title: model.packageName, url: SiteURL.package(.value(model.owner), .value(model.repositoryName), .none).relativeURL()),
+                Breadcrumb(title: model.packageName, url: SiteRoute.relativeURL(for: .package(owner: model.owner, repository: model.repositoryName))),
                 Breadcrumb(title: "Build Results")
             ]
         }

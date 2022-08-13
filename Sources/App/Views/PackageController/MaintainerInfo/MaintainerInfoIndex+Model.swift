@@ -31,7 +31,7 @@ extension MaintainerInfoIndex {
         }
 
         func badgeMarkdown(for type: BadgeType) -> String {
-            let spiPackageURL = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL()
+            let spiPackageURL = SiteRoute.absoluteURL(for: .package(owner: repositoryOwner, repository: repositoryName))
             return "[![](\(badgeURL(for: type)))](\(spiPackageURL))"
         }
 

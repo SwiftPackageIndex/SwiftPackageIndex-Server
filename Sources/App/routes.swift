@@ -17,9 +17,12 @@ import Metrics
 import Plot
 import Prometheus
 import Vapor
+import VaporRouting
 
 
 func routes(_ app: Application) throws {
+    app.mount(SiteRoute.router, use: SiteRoute.handler)
+
     do {  // home page
         app.get { req in
             HomeIndex.Model.query(database: req.db).map {
@@ -88,8 +91,6 @@ func routes(_ app: Application) throws {
             }
         }
 
-        app.get(SiteURL.package(.key, .key, .none).pathComponents,
-                use: PackageController.show)
         app.get(SiteURL.package(.key, .key, .readme).pathComponents,
                 use: PackageController.readme)
         app.get(SiteURL.package(.key, .key, .releases).pathComponents,

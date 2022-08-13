@@ -25,12 +25,7 @@ class SiteURLTests: XCTestCase {
         let p = SiteURL.privacy.pathComponents
         XCTAssertEqual(p.map(\.description), ["privacy"])
     }
-    
-    func test_pathComponents_with_parameter() throws {
-        let p = SiteURL.package(.key, .key, .none).pathComponents
-        XCTAssertEqual(p.map(\.description), [":owner", ":repository"])
-    }
-    
+
     func test_pathComponents_nested() throws {
         let p = SiteURL.api(.version).pathComponents
         XCTAssertEqual(p.map(\.description), ["api", "version"])
@@ -44,7 +39,7 @@ class SiteURLTests: XCTestCase {
     
     func test_relativeURL_for_Package() throws {
         XCTAssertEqual(
-            SiteURL.package(.value("foo"), .value("bar"), .none).relativeURL(),
+            SiteRoute.relativeURL(for: .package(owner: "foo", repository: "bar")),
             "/foo/bar")
     }
     
@@ -83,8 +78,10 @@ class SiteURLTests: XCTestCase {
     
     func test_url_escaping() throws {
         Current.siteURL = { "https://indexsite.com" }
-        XCTAssertEqual(SiteURL.package(.value("foo bar"), .value("some repo"), .none).absoluteURL(),
-                       "https://indexsite.com/foo%20bar/some%20repo")
+        XCTAssertEqual(
+            SiteRoute.absoluteURL(for: .package(owner: "foo bar", repository: "some repo")),
+            "https://indexsite.com/foo%20bar/some%20repo"
+        )
     }
     
     func test_static_relativeURL() throws {
@@ -135,7 +132,7 @@ class SiteURLTests: XCTestCase {
     func test_packageBuildsURL() throws {
         // owner/repo/builds
         XCTAssertEqual(SiteURL.package(.value("foo"), .value("bar"), .builds).path,
-                       "foo/bar/builds")
+                       "/foo/bar/builds")
         XCTAssertEqual(SiteURL.package(.key, .key, .builds).pathComponents.map(\.description),
                        [":owner", ":repository", "builds"])
         // /builds/{id}

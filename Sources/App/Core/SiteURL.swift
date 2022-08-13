@@ -102,7 +102,7 @@ enum SiteURL: Resourceable {
     case images(String)
     case javascripts(String)
     case keywords(_ keyword: Parameter<String>)
-    case package(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagePathComponents?)
+    case package(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagePathComponents)
     case packageCollection(_ owner: Parameter<String>)
     case packageCollections
     case privacy
@@ -157,13 +157,8 @@ enum SiteURL: Resourceable {
             case .keywords:
                 fatalError("invalid path: \(self)")
 
-            case let .package(.value(owner), .value(repo), .none):
-                let owner = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? owner
-                let repo = repo.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? repo
-                return "\(owner)/\(repo)"
-
-            case let .package(owner, repo, .some(next)):
-                return "\(Self.package(owner, repo, .none).path)/\(next.path)"
+            case let .package(.value(owner), .value(repo), next):
+                return "\(SiteRoute.router.path(for: .package(owner: owner, repository: repo)))/\(next.path)"
 
             case .package:
                 fatalError("invalid path: \(self)")
@@ -224,11 +219,8 @@ enum SiteURL: Resourceable {
             case .keywords:
                 return ["keywords", ":keyword"]
 
-            case .package(.key, .key, .none):
-                return [":owner", ":repository"]
-                
-            case let .package(k1, k2, .some(next)):
-                return Self.package(k1, k2, .none).pathComponents + next.pathComponents
+            case let .package(.key, .key, next):
+                return [":owner", ":repository"] + next.pathComponents
 
             case .package:
                 fatalError("pathComponents must not be called with a value parameter")

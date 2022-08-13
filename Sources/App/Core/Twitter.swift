@@ -114,7 +114,7 @@ extension Twitter {
               let ownerName = package.repository?.ownerDisplayName,
               let semVer = version.reference.semVer
         else { return nil }
-        let url = SiteURL.package(.value(owner), .value(repoName), .none).absoluteURL()
+        let url = SiteRoute.absoluteURL(for: .package(owner: owner, repository: repoName))
         return package.model.isNew
         ? newPackageMessage(packageName: packageName,
                             repositoryOwnerName: ownerName,

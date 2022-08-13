@@ -34,14 +34,17 @@ extension SiteURL {
             .forEach(packages) { p in
                 .url(
                     .loc(
-                        SiteURL.package(.value(p.owner), .value(p.repository), .none).absoluteURL()),
+                        SiteRoute.absoluteURL(for: .package(owner: p.owner, repository: p.repository))
+                    ),
                     .changefreq(
-                        SiteURL.package(.value(p.owner), .value(p.repository), .none).changefreq)
+                        SiteRoute.package(owner: p.owner, repository: p.repository).changefreq
+                    )
                 )
             }
         )
     }
     
+    @available(*, deprecated)
     var changefreq: SiteMapChangeFrequency {
         switch self {
             case .addAPackage:
@@ -89,6 +92,18 @@ extension SiteURL {
         }
     }
     
+}
+
+
+private extension SiteRoute {
+    var changefreq: SiteMapChangeFrequency {
+        switch self {
+            case .home:
+                return .hourly
+            case .package:
+                return .daily
+        }
+    }
 }
 
 

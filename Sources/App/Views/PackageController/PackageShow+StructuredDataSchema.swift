@@ -58,7 +58,7 @@ extension PackageShow {
             self.license = licenseUrl
             self.version = version
             self.codeRepository = repositoryUrl
-            self.url = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL()
+            self.url = SiteRoute.absoluteURL(for: .package(owner: repositoryOwner, repository: repositoryName))
             self.datePublished = datePublished
             self.dateModified = dateModified
             self.sourceOrganization = OrganisationSchema(legalName: organisationName ?? repositoryOwner)

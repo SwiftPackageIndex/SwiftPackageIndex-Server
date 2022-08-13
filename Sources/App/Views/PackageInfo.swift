@@ -37,7 +37,7 @@ extension PackageInfo {
                   description: package.repository.summary ?? "",
                   repositoryOwner: repoOwner,
                   repositoryName: repoName,
-                  url: SiteURL.package(.value(repoOwner), .value(repoName), .none).relativeURL(),
+                  url: SiteRoute.relativeURL(for: .package(owner: repoOwner, repository: repoName)),
                   stars: package.repository.stars,
                   lastActivityAt: package.repository.lastActivityAt
         )
