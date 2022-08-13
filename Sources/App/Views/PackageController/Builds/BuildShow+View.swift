@@ -40,7 +40,7 @@ enum BuildShow {
 
         override func breadcrumbs() -> [Breadcrumb] {
             [
-                Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+                Breadcrumb(title: "Home", url: SiteRoute.relativeURL(for: .home)),
                 Breadcrumb(title: model.repositoryOwnerName, url: SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
                 Breadcrumb(title: model.packageName, url:
                             SiteRoute.relativeURL(for: .package(owner: model.repositoryOwner, repository: model.repositoryName))),

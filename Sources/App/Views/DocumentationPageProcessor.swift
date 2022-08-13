@@ -110,7 +110,7 @@ struct DocumentationPageProcessor {
         }
 
         var breadcrumbs = [
-            Breadcrumb(title: "Swift Package Index", url: SiteURL.home.relativeURL()),
+            Breadcrumb(title: "Swift Package Index", url: SiteRoute.relativeURL(for: .home)),
             Breadcrumb(title: repositoryOwnerName, url: SiteURL.author(.value(repositoryOwner)).relativeURL()),
             Breadcrumb(title: packageName, url: SiteRoute.relativeURL(for: .package(owner: repositoryOwner, repository: repositoryName))),
             Breadcrumb(title: .init(
@@ -205,7 +205,7 @@ struct DocumentationPageProcessor {
                         ),
                         .li(
                             .a(
-                                .href(SiteURL.privacy.relativeURL()),
+                                .href(SiteRoute.relativeURL(for: .staticPath(.privacy))),
                                 "Privacy and Cookies"
                             )
                         ),

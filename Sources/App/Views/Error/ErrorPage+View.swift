@@ -38,7 +38,7 @@ enum ErrorPage {
                 .p(
                     .text("From here, you'll want to "),
                     .a(
-                        .href(SiteURL.home.relativeURL()),
+                        .href(SiteRoute.relativeURL(for: .home)),
                         "go to the home page"
                     ),
                     .text(" or "),

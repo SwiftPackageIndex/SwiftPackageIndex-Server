@@ -207,7 +207,7 @@ class PublicPage {
             .div(
                 .class("inner"),
                 .a(
-                    .href(SiteURL.home.relativeURL()),
+                    .href(SiteRoute.relativeURL(for: .home)),
                     .h1(
                         .img(
                             .alt("The Swift Package Index logo."),
@@ -331,7 +331,7 @@ class PublicPage {
                         ),
                         .li(
                             .a(
-                                .href(SiteURL.privacy.relativeURL()),
+                                .href(SiteRoute.relativeURL(for: .staticPath(.privacy))),
                                 "Privacy and Cookies"
                             )
                         ),

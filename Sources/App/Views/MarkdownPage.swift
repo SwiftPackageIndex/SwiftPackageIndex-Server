@@ -62,7 +62,7 @@ class MarkdownPage: PublicPage {
         guard let pageTitle = metadata[Metadata.pageTitle] else { return [] }
 
         return [
-            Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+            Breadcrumb(title: "Home", url: SiteRoute.relativeURL(for: .home)),
             Breadcrumb(title: pageTitle),
         ]
     }

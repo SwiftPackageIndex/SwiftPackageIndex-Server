@@ -36,7 +36,7 @@ enum BuildIndex {
 
         override func breadcrumbs() -> [Breadcrumb] {
             [
-                Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+                Breadcrumb(title: "Home", url: SiteRoute.relativeURL(for: .home)),
                 Breadcrumb(title: model.ownerName, url: SiteURL.author(.value(model.owner)).relativeURL()),
                 Breadcrumb(title: model.packageName, url: SiteRoute.relativeURL(for: .package(owner: model.owner, repository: model.repositoryName))),
                 Breadcrumb(title: "Build Results")
@@ -58,7 +58,7 @@ enum BuildIndex {
                 .p(
                     "If you are the author of this package and see unexpected build failures, please check the ",
                     .a(
-                        .href(SiteURL.docs(.builds).relativeURL()),
+                        .href(SiteRoute.relativeURL(for: .docs(.builds))),
                         "build system documentation"
                     ),
                     " to see how we derive build parameters. If you still see surprising results, please ",

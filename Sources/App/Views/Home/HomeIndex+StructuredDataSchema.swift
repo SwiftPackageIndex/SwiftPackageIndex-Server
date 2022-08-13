@@ -29,7 +29,7 @@ extension HomeIndex {
         let potentialAction: SearchActionSchema
         
         init() {
-            self.url = SiteURL.home.absoluteURL()
+            self.url = SiteRoute.absoluteURL(for: .home)
             self.potentialAction = .init(
                 target: .init(
                     urlTemplate: SiteURL.search.absoluteURL(parameters: [

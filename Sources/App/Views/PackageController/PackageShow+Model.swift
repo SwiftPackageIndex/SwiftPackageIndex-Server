@@ -279,19 +279,19 @@ extension PackageShow.Model {
                 case .incompatibleWithAppStore:
                     return .a(
                         .id("license-more-info"),
-                        .href(SiteURL.faq.relativeURL(anchor: "licenses")),
+                        .href(SiteRoute.relativeURL(for: .staticPath(.faq), anchor: "licenses")),
                         "Why might the \(license.shortName) be problematic?"
                     )
                 case .other:
                     return .a(
                         .id("license-more-info"),
-                        .href(SiteURL.faq.relativeURL(anchor: "licenses")),
+                        .href(SiteRoute.relativeURL(for: .staticPath(.faq), anchor: "licenses")),
                         "Why is this package's license unknown?"
                     )
                 case .none:
                     return .a(
                         .id("license-more-info"),
-                        .href(SiteURL.faq.relativeURL(anchor: "licenses")),
+                        .href(SiteRoute.relativeURL(for: .staticPath(.faq), anchor: "licenses")),
                         "Why should you not use unlicensed code?"
                     )
             }

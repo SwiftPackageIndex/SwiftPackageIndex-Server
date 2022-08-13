@@ -43,7 +43,7 @@ enum NavMenuItem {
             case .addPackage:
                 return .li(
                     .a(
-                        .href(SiteURL.addAPackage.relativeURL()),
+                        .href(SiteRoute.relativeURL(for: .staticPath(.addAPackage))),
                         "Add a Package"
                     )
                 )
@@ -57,7 +57,7 @@ enum NavMenuItem {
             case .faq:
                 return .li(
                     .a(
-                        .href(SiteURL.faq.relativeURL()),
+                        .href(SiteRoute.relativeURL(for: .staticPath(.faq))),
                         "FAQ"
                     )
                 )

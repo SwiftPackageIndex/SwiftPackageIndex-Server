@@ -35,7 +35,7 @@ enum MaintainerInfoIndex {
 
         override func breadcrumbs() -> [Breadcrumb] {
             [
-                Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+                Breadcrumb(title: "Home", url: SiteRoute.relativeURL(for: .home)),
                 Breadcrumb(title: model.repositoryOwnerName, url: SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
                 Breadcrumb(title: model.packageName, url: SiteRoute.relativeURL(for: .package(owner: model.repositoryOwner, repository: model.repositoryName))),
                 Breadcrumb(title: "Information for Maintainers"),
@@ -92,7 +92,7 @@ enum MaintainerInfoIndex {
                     .code(".spi.yml"),
                     .text(" which controls the Swift Package Index build system, see the "),
                     .a(
-                        .href(SiteURL.docs(.builds).relativeURL()),
+                        .href(SiteRoute.relativeURL(for: .docs(.builds))),
                         "build system documentation"
                     ),
                     .text(".")

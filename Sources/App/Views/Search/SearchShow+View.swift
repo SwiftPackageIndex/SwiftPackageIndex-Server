@@ -36,7 +36,7 @@ extension SearchShow {
 
         override func breadcrumbs() -> [Breadcrumb] {
             [
-                Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+                Breadcrumb(title: "Home", url: SiteRoute.relativeURL(for: .home)),
                 Breadcrumb(title: "Search Results for &ldquo;\(model.term)&rdquo;")
             ]
         }
@@ -52,7 +52,7 @@ extension SearchShow {
                         .span(
                             .class("learn_more"),
                             .a(
-                                .href(SiteURL.faq.relativeURL(anchor: "search-filters")),
+                                .href(SiteRoute.relativeURL(for: .staticPath(.faq), anchor: "search-filters")),
                                 .text("Learn more")
                             ),
                             .text(".")

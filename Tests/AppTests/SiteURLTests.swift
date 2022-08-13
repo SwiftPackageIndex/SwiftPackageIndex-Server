@@ -21,20 +21,15 @@ import XCTest
 
 class SiteURLTests: XCTestCase {
     
-    func test_pathComponents_simple() throws {
-        let p = SiteURL.privacy.pathComponents
-        XCTAssertEqual(p.map(\.description), ["privacy"])
-    }
-
     func test_pathComponents_nested() throws {
         let p = SiteURL.api(.version).pathComponents
         XCTAssertEqual(p.map(\.description), ["api", "version"])
     }
     
     func test_relativeURL() throws {
-        XCTAssertEqual(SiteURL.home.relativeURL(), "/")
+        XCTAssertEqual(SiteRoute.relativeURL(for: .home), "/")
         XCTAssertEqual(SiteURL.images("foo.png").relativeURL(), "/images/foo.png")
-        XCTAssertEqual(SiteURL.privacy.relativeURL(), "/privacy")
+        XCTAssertEqual(SiteRoute.relativeURL(for: .staticPath(.privacy)), "/privacy")
     }
     
     func test_relativeURL_for_Package() throws {
@@ -44,7 +39,7 @@ class SiteURLTests: XCTestCase {
     }
     
     func test_relativeURL_with_anchor() throws {
-        XCTAssertEqual(SiteURL.faq.relativeURL(anchor: "hello"), "/faq#hello")
+        XCTAssertEqual(SiteRoute.relativeURL(for: .staticPath(.faq), anchor: "hello"), "/faq#hello")
     }
     
     func test_relativeURL_with_parameters() throws {
@@ -57,14 +52,14 @@ class SiteURLTests: XCTestCase {
 
     func test_absoluteURL() throws {
         Current.siteURL = { "https://indexsite.com" }
-        XCTAssertEqual(SiteURL.home.absoluteURL(), "https://indexsite.com/")
+        XCTAssertEqual(SiteRoute.absoluteURL(for: .home), "https://indexsite.com/")
         XCTAssertEqual(SiteURL.images("foo.png").absoluteURL(), "https://indexsite.com/images/foo.png")
-        XCTAssertEqual(SiteURL.privacy.absoluteURL(), "https://indexsite.com/privacy")
+        XCTAssertEqual(SiteRoute.absoluteURL(for: .staticPath(.privacy)), "https://indexsite.com/privacy")
     }
     
     func test_absoluteURL_with_anchor() throws {
         Current.siteURL = { "https://indexsite.com" }
-        XCTAssertEqual(SiteURL.faq.absoluteURL(anchor: "hello"), "https://indexsite.com/faq#hello")
+        XCTAssertEqual(SiteRoute.absoluteURL(for: .staticPath(.faq), anchor: "hello"), "https://indexsite.com/faq#hello")
     }
 
     func test_absoluteURL_with_parameters() throws {
@@ -150,8 +145,7 @@ class SiteURLTests: XCTestCase {
     }
 
     func test_docs() throws {
-        XCTAssertEqual(SiteURL.docs(.builds).path, "docs/builds")
-        XCTAssertEqual(SiteURL.docs(.builds).pathComponents.map(\.description), ["docs", "builds"])
+        XCTAssertEqual(SiteRoute.relativeURL(for: .docs(.builds)), "/docs/builds")
     }
 
     func test_QueryParameter_encodedForQueryString() {

@@ -96,4 +96,12 @@ extension SiteRoute {
     static func relativeURL(for route: Self) -> String {
         router.path(for: route)
     }
+
+    static func relativeURL(for route: Self, anchor: String) -> String {
+        relativeURL(for: route) + "#\(anchor)"
+    }
+
+    static func relativeURL(for route: Self, parameters: [QueryParameter]) -> String {
+        relativeURL(for: route) + parameters.queryString()
+    }
 }

@@ -38,7 +38,7 @@ enum AuthorShow {
 
         override func breadcrumbs() -> [Breadcrumb] {
             [
-                Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+                Breadcrumb(title: "Home", url: SiteRoute.relativeURL(for: .home)),
                 Breadcrumb(title: model.ownerName)
             ]
         }
@@ -52,7 +52,7 @@ enum AuthorShow {
                 .p(
                     .text("These packages are available as a package collection, "),
                     .a(
-                        .href(SiteURL.packageCollections.relativeURL()),
+                        .href(SiteRoute.relativeURL(for: .staticPath(.packageCollections))),
                         "usable in Xcode 13 or the Swift Package Manager 5.5"
                     ),
                     .text(".")

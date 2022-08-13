@@ -54,7 +54,7 @@ enum PackageShow {
 
         override func breadcrumbs() -> [Breadcrumb] {
             [
-                Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+                Breadcrumb(title: "Home", url: SiteRoute.relativeURL(for: .home)),
                 Breadcrumb(title: model.repositoryOwnerName, url: SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
                 Breadcrumb(title: model.title)
             ]
@@ -223,7 +223,10 @@ enum PackageShow {
                             .p(
                                 .text("If nothing happens, you may not have the app installed. "),
                                 .a(
-                                    .href(SiteURL.tryInPlayground.relativeURL(parameters: [QueryParameter(key: "dependencies", value: "\(model.repositoryOwner)/\(model.repositoryName)")])),
+                                    .href(
+                                        SiteRoute.relativeURL(for: .staticPath(.tryInPlayground),
+                                                              parameters: [.init(key: "dependencies", value: "\(model.repositoryOwner)/\(model.repositoryName)")])
+                                    ),
                                     "Download the Swift Package Index Playgrounds app"
                                 ),
                                 .text(" and try again.")

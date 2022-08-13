@@ -84,40 +84,25 @@ enum Api: Resourceable {
 }
 
 
-enum Docs: String, Resourceable {
-    case builds
-}
-
-
 enum SiteURL: Resourceable {
 
-    case addAPackage
     case api(Api)
     case author(_ owner: Parameter<String>)
     case buildMonitor
     case builds(_ id: Parameter<UUID>)
-    case docs(Docs)
-    case faq
-    case home
     case images(String)
     case javascripts(String)
     case keywords(_ keyword: Parameter<String>)
     case package(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagePathComponents)
     case packageCollection(_ owner: Parameter<String>)
-    case packageCollections
-    case privacy
     case rssPackages
     case rssReleases
     case search
     case siteMap
     case stylesheets(String)
-    case tryInPlayground
 
     var path: String {
         switch self {
-            case .addAPackage:
-                return "add-a-package"
-
             case let .api(next):
                 return "api/\(next.path)"
 
@@ -136,15 +121,6 @@ enum SiteURL: Resourceable {
             case .builds(.key):
                 fatalError("invalid path: \(self)")
 
-            case let .docs(next):
-                return "docs/\(next.path)"
-
-            case .faq:
-                return "faq"
-
-            case .home:
-                return ""
-                
             case let .images(name):
                 return "images/\(name)"
                 
@@ -169,12 +145,6 @@ enum SiteURL: Resourceable {
             case .packageCollection(.key):
                 fatalError("invalid path: \(self)")
 
-            case .packageCollections:
-                return "package-collections"
-
-            case .privacy:
-                return "privacy"
-
             case .rssPackages:
                 return "packages.rss"
 
@@ -189,16 +159,12 @@ enum SiteURL: Resourceable {
 
             case let .stylesheets(name):
                 return "/\(name).css"
-
-            case .tryInPlayground:
-                return "try-in-a-playground"
         }
     }
     
     var pathComponents: [PathComponent] {
         switch self {
-            case .addAPackage, .faq, .home, .packageCollections, .privacy, .rssPackages, .rssReleases,
-                    .search, .siteMap, .tryInPlayground, .buildMonitor:
+            case .rssPackages, .rssReleases, .search, .siteMap, .buildMonitor:
                 return [.init(stringLiteral: path)]
                 
             case let .api(next):
@@ -212,9 +178,6 @@ enum SiteURL: Resourceable {
 
             case .builds(.value):
                 fatalError("pathComponents must not be called with a value parameter")
-
-            case let .docs(next):
-                return ["docs"] + next.pathComponents
 
             case .keywords:
                 return ["keywords", ":keyword"]

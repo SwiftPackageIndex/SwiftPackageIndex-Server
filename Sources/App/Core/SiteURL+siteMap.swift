@@ -19,15 +19,15 @@ import SQLKit
 
 extension SiteURL {
     
-    static var staticRoutes: [SiteURL] = [
-        .faq, .home, .privacy
+    static var staticRoutes: [SiteRoute] = [
+        .staticPath(.faq), .home, .staticPath(.privacy)
     ]
     
     static func siteMap(with packages: [SiteMap.Package]) -> SiteMap {
         .init(
             .forEach(staticRoutes) {
                 .url(
-                    .loc($0.absoluteURL()),
+                    .loc(SiteRoute.absoluteURL(for: $0)),
                     .changefreq($0.changefreq)
                 )
             },
@@ -47,8 +47,6 @@ extension SiteURL {
     @available(*, deprecated)
     var changefreq: SiteMapChangeFrequency {
         switch self {
-            case .addAPackage:
-                return .weekly
             case .api:
                 return .weekly
             case .author:
@@ -57,12 +55,6 @@ extension SiteURL {
                 return .hourly
             case .builds:
                 return .daily
-            case .docs:
-                return .weekly
-            case .faq:
-                return .weekly
-            case .home:
-                return .hourly
             case .images:
                 return .weekly
             case .javascripts:
@@ -71,12 +63,8 @@ extension SiteURL {
                 return .daily
             case .package:
                 return .daily
-            case .packageCollections:
-                return .daily
             case .packageCollection:
                 return .daily
-            case .privacy:
-                return .monthly
             case .rssPackages:
                 return .hourly
             case .rssReleases:
@@ -87,8 +75,6 @@ extension SiteURL {
                 return .weekly
             case .stylesheets:
                 return .weekly
-            case .tryInPlayground:
-                return .monthly
         }
     }
     
@@ -104,6 +90,8 @@ private extension SiteRoute {
                 return .hourly
             case .package:
                 return .daily
+            case .staticPath(.privacy):
+                return .monthly
             case .staticPath:
                 return .weekly
         }
