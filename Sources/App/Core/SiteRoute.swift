@@ -27,7 +27,7 @@ enum SiteRoute {
         case faq
         case packageCollections = "package-collections"
         case privacy
-        case tryInPlayground = "try-package"
+        case tryInPlayground = "try-in-a-playground"
     }
 
     static let router = OneOf {
