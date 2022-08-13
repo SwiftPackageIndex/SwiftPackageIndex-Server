@@ -55,80 +55,74 @@ func routes(_ app: Application) throws {
     }
 
     do {  // package pages
-        let packageController = PackageController()
-
         do {  // temporary, hacky docc-proxy
             app.get(":owner", ":repository", ":reference", "documentation") {
-                try await packageController.documentation(req: $0, fragment: .documentationRedirect)
+                try await PackageController.documentation(req: $0, fragment: .documentationRedirect)
             }
             app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
-                try await packageController.documentation(req: $0, fragment: .documentation)
+                try await PackageController.documentation(req: $0, fragment: .documentation)
             }
             app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") {
-                try await packageController.documentation(req: $0, fragment: .documentation)
+                try await PackageController.documentation(req: $0, fragment: .documentation)
             }
             app.get(":owner", ":repository", ":reference", "favicon.*") {
-                try await packageController.documentation(req: $0, fragment: .root)
+                try await PackageController.documentation(req: $0, fragment: .root)
             }
             app.get(":owner", ":repository", ":reference", "css", "**") {
-                try await packageController.documentation(req: $0, fragment: .css)
+                try await PackageController.documentation(req: $0, fragment: .css)
             }
             app.get(":owner", ":repository", ":reference", "data", "**") {
-                try await packageController.documentation(req: $0, fragment: .data)
+                try await PackageController.documentation(req: $0, fragment: .data)
             }
             app.get(":owner", ":repository", ":reference", "img", "**") {
-                try await packageController.documentation(req: $0, fragment: .img)
+                try await PackageController.documentation(req: $0, fragment: .img)
             }
             app.get(":owner", ":repository", ":reference", "index", "**") {
-                try await packageController.documentation(req: $0, fragment: .index)
+                try await PackageController.documentation(req: $0, fragment: .index)
             }
             app.get(":owner", ":repository", ":reference", "js", "**") {
-                try await packageController.documentation(req: $0, fragment: .js)
+                try await PackageController.documentation(req: $0, fragment: .js)
             }
             app.get(":owner", ":repository", ":reference", "theme-settings.json") {
-                try await packageController.documentation(req: $0, fragment: .themeSettings)
+                try await PackageController.documentation(req: $0, fragment: .themeSettings)
             }
         }
 
         app.get(SiteURL.package(.key, .key, .none).pathComponents,
-                use: packageController.show)
+                use: PackageController.show)
         app.get(SiteURL.package(.key, .key, .readme).pathComponents,
-                use: packageController.readme)
+                use: PackageController.readme)
         app.get(SiteURL.package(.key, .key, .releases).pathComponents,
-                use: packageController.releases)
+                use: PackageController.releases)
         app.get(SiteURL.package(.key, .key, .builds).pathComponents,
-                use: packageController.builds)
+                use: PackageController.builds)
         app.get(SiteURL.package(.key, .key, .maintainerInfo).pathComponents,
-                use: packageController.maintainerInfo)
+                use: PackageController.maintainerInfo)
     }
 
     do {  // package collection page
         app.get(SiteURL.packageCollection(.key).pathComponents,
-                use: PackageCollectionController().generate)
+                use: PackageCollectionController.generate)
     }
 
     do {  // author page
-        let authorController = AuthorController()
-        app.get(SiteURL.author(.key).pathComponents, use: authorController.show)
+        app.get(SiteURL.author(.key).pathComponents, use: AuthorController.show)
     }
 
     do {  // keyword page
-        let controller = KeywordController()
-        app.get(SiteURL.keywords(.key).pathComponents, use: controller.show)
+        app.get(SiteURL.keywords(.key).pathComponents, use: KeywordController.show)
     }
 
     do { // Build monitor page
-        let buildMonitorController = BuildMonitorController()
-        app.get(SiteURL.buildMonitor.pathComponents, use: buildMonitorController.index)
+        app.get(SiteURL.buildMonitor.pathComponents, use: BuildMonitorController.index)
     }
 
     do {  // build details page
-        let buildController = BuildController()
-        app.get(SiteURL.builds(.key).pathComponents, use: buildController.show)
+        app.get(SiteURL.builds(.key).pathComponents, use: BuildController.show)
     }
 
     do {  // search page
-        app.get(SiteURL.search.pathComponents, use: SearchController().show)
+        app.get(SiteURL.search.pathComponents, use: SearchController.show)
     }
 
     do {  // api
@@ -140,34 +134,31 @@ func routes(_ app: Application) throws {
 
         app.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
         app.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
-                use: API.PackageController().badge)
+                use: API.PackageController.badge)
 
         if Environment.current == .development {
             app.post(SiteURL.api(.packageCollections).pathComponents,
-                     use: API.PackageCollectionController().generate)
+                     use: API.PackageCollectionController.generate)
         }
 
         // protected routes
         app.group(User.TokenAuthenticator(), User.guardMiddleware()) { protected in
-            let buildController = API.BuildController()
             protected.on(.POST, SiteURL.api(.versions(.key, .builds)).pathComponents,
-                         use: buildController.create)
+                         use: API.BuildController.create)
             protected.post(SiteURL.api(.versions(.key, .triggerBuild)).pathComponents,
-                           use: buildController.trigger)
-            let packageController = API.PackageController()
+                           use: API.BuildController.trigger)
             protected.post(SiteURL.api(.packages(.key, .key, .triggerBuilds)).pathComponents,
-                           use: packageController.triggerBuilds)
+                           use: API.PackageController.triggerBuilds)
         }
         
         // sas: 2020-05-19: shut down public API until we have an auth mechanism
-        //  let apiPackageController = API.PackageController()
-        //  api.get("packages", use: apiPackageController.index)
-        //  api.get("packages", ":id", use: apiPackageController.get)
-        //  api.post("packages", use: apiPackageController.create)
-        //  api.put("packages", ":id", use: apiPackageController.replace)
-        //  api.delete("packages", ":id", use: apiPackageController.delete)
+        //  api.get("packages", use: API.PackageController.index)
+        //  api.get("packages", ":id", use: API.PackageController.get)
+        //  api.post("packages", use: API.PackageController.create)
+        //  api.put("packages", ":id", use: API.PackageController.replace)
+        //  api.delete("packages", ":id", use: API.PackageController.delete)
         //
-        //  api.get("packages", "run", ":command", use: apiPackageController.run)
+        //  api.get("packages", "run", ":command", use: API.PackageController.run)
     }
     
     do {  // RSS + Sitemap

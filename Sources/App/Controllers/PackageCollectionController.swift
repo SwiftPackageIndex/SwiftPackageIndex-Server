@@ -15,8 +15,8 @@
 import Vapor
 
 
-struct PackageCollectionController {
-    func generate(req: Request) throws -> EventLoopFuture<SignedCollection> {
+enum PackageCollectionController {
+    static func generate(req: Request) throws -> EventLoopFuture<SignedCollection> {
         AppMetrics.packageCollectionGetTotal?.inc()
 
         guard let owner = req.parameters.get("owner") else {

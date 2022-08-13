@@ -18,23 +18,23 @@ import Vapor
 
 extension API {
     
-    struct PackageController {
+    enum PackageController {
 
-        func index(req: Request) throws -> EventLoopFuture<[Package]> {
+        static func index(req: Request) throws -> EventLoopFuture<[Package]> {
             return Package.query(on: req.db).all()
         }
         
-        func create(req: Request) throws -> EventLoopFuture<Package> {
+        static func create(req: Request) throws -> EventLoopFuture<Package> {
             let pkg = try req.content.decode(Package.self)
             return pkg.save(on: req.db).map { pkg }
         }
         
-        func get(req: Request) throws -> EventLoopFuture<Package> {
+        static func get(req: Request) throws -> EventLoopFuture<Package> {
             return Package.find(req.parameters.get("id"), on: req.db)
                 .unwrap(or: Abort(.notFound))
         }
         
-        func replace(req: Request) throws -> EventLoopFuture<HTTPStatus> {
+        static func replace(req: Request) throws -> EventLoopFuture<HTTPStatus> {
             let pkg = try req.content.decode(Package.self)
             return Package.find(req.parameters.get("id"), on: req.db)
                 .unwrap(or: Abort(.notFound))
@@ -42,14 +42,14 @@ extension API {
                 .transform(to: .ok)
         }
         
-        func delete(req: Request) throws -> EventLoopFuture<HTTPStatus> {
+        static func delete(req: Request) throws -> EventLoopFuture<HTTPStatus> {
             return Package.find(req.parameters.get("id"), on: req.db)
                 .unwrap(or: Abort(.notFound))
                 .flatMap { $0.delete(on: req.db) }
                 .transform(to: .ok)
         }
         
-        func triggerBuilds(req: Request) throws -> EventLoopFuture<HTTPStatus> {
+        static func triggerBuilds(req: Request) throws -> EventLoopFuture<HTTPStatus> {
             guard
                 let owner = req.parameters.get("owner"),
                 let repository = req.parameters.get("repository")
@@ -74,7 +74,7 @@ extension API {
                 }
         }
         
-        func run(req: Request) async throws -> Command.Response {
+        static func run(req: Request) async throws -> Command.Response {
             let cmd = req.parameters.get("command")
                 .flatMap(Command.init(rawValue:))
             let limit = req.query[Int.self, at: "limit"] ?? 10
@@ -100,7 +100,7 @@ extension API {
             }
         }
 
-        func badge(req: Request) throws -> EventLoopFuture<Badge> {
+        static func badge(req: Request) throws -> EventLoopFuture<Badge> {
             guard
                 let owner = req.parameters.get("owner"),
                 let repository = req.parameters.get("repository")

@@ -16,8 +16,8 @@ import Fluent
 import Plot
 import Vapor
 
-struct BuildMonitorController {
-    func index(req: Request) async throws -> HTML {
+enum BuildMonitorController {
+    static func index(req: Request) async throws -> HTML {
         let builds = try await BuildResult.query(on: req.db)
             .field(Build.self, \.$id)
             .field(Build.self, \.$createdAt)

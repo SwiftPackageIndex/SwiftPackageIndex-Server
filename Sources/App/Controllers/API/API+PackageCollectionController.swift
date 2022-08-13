@@ -18,9 +18,9 @@ import Vapor
 
 extension API {
 
-    struct PackageCollectionController {
+    enum PackageCollectionController {
 
-        func generate(req: Request) throws -> EventLoopFuture<SignedCollection> {
+        static func generate(req: Request) throws -> EventLoopFuture<SignedCollection> {
             AppMetrics.apiPackageCollectionGetTotal?.inc()
 
             // First try decoding "owner" type DTO
