@@ -101,6 +101,7 @@ extension SiteRoute {
         relativeURL(for: route) + "#\(anchor)"
     }
 
+    // FIXME: handle via actual Query { Field("foo"); Field("bar", default: 42) } when needed
     static func relativeURL(for route: Self, parameters: [QueryParameter]) -> String {
         relativeURL(for: route) + parameters.queryString()
     }
