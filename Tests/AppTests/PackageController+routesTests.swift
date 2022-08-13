@@ -378,10 +378,10 @@ class PackageController_routesTests: AppTestCase {
 
         // MUT
         // test base url
-        try app.test(.GET, "/owner/package/1.2.3/js") {
+        try app.test(.GET, "/owner/package/1.2.3/js/a") {
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "application/javascript")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/js/")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/js/a")
         }
 
         // test path a/b
@@ -401,10 +401,10 @@ class PackageController_routesTests: AppTestCase {
 
         // MUT
         // test base url
-        try app.test(.GET, "/owner/package/1.2.3/css") {
+        try app.test(.GET, "/owner/package/1.2.3/css/a") {
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "text/css")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/css/")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/css/a")
         }
 
         // test path a/b
@@ -424,10 +424,10 @@ class PackageController_routesTests: AppTestCase {
 
         // MUT
         // test base url
-        try app.test(.GET, "/owner/package/1.2.3/data") {
+        try app.test(.GET, "/owner/package/1.2.3/data/a") {
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/data/")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/data/a")
         }
 
         // test path a/b

@@ -61,7 +61,7 @@ struct PackageController {
         case data
         case documentation
         case documentationRedirect
-        case images
+        case img
         case index
         case js
         case root
@@ -71,7 +71,7 @@ struct PackageController {
             switch self {
                 case .css:
                     return "text/css"
-                case  .data, .images, .index, .root, .themeSettings:
+                case  .data, .img, .index, .root, .themeSettings:
                     return "application/octet-stream"
                 case .documentation, .documentationRedirect:
                     return "text/html; charset=utf-8"
@@ -226,7 +226,7 @@ struct PackageController {
                     for: req
                 )
 
-            case .css, .data, .images, .index, .js, .root, .themeSettings:
+            case .css, .data, .img, .index, .js, .root, .themeSettings:
                 return try await awsResponse.encodeResponse(
                     status: .ok,
                     headers: req.headers
@@ -380,7 +380,7 @@ extension PackageController {
         let baseURL = "http://\(baseURLHost)/\(baseURLPath)"
 
         switch fragment {
-            case .css, .data, .documentationRedirect, .documentation, .images, .index, .js:
+            case .css, .data, .documentationRedirect, .documentation, .img, .index, .js:
                 return URI(string: "\(baseURL)/\(fragment)/\(path)")
             case .root:
                 return URI(string: "\(baseURL)/\(path)")
