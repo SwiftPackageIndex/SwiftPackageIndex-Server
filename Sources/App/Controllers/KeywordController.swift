@@ -17,7 +17,7 @@ import Plot
 import Vapor
 
 
-struct KeywordController {
+enum KeywordController {
 
     static func query(on database: Database, keyword: String, page: Int, pageSize: Int) -> EventLoopFuture<Page<Joined3<Package, Repository, Version>>> {
         Joined3<Package, Repository, Version>
@@ -28,7 +28,7 @@ struct KeywordController {
             .page(page, size: pageSize)
     }
 
-    func show(req: Request) throws -> EventLoopFuture<HTML> {
+    static func show(req: Request) throws -> EventLoopFuture<HTML> {
         guard let keyword = req.parameters.get("keyword") else {
             return req.eventLoop.future(error: Abort(.notFound))
         }

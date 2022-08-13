@@ -17,7 +17,7 @@ import Plot
 import Vapor
 
 
-struct AuthorController {
+enum AuthorController {
 
     static func query(on database: Database, owner: String) -> EventLoopFuture<[Joined3<Package, Repository, Version>]> {
         Joined3<Package, Repository, Version>
@@ -33,7 +33,7 @@ struct AuthorController {
             }
     }
 
-    func show(req: Request) throws -> EventLoopFuture<HTML> {
+    static func show(req: Request) throws -> EventLoopFuture<HTML> {
         guard let owner = req.parameters.get("owner") else {
             return req.eventLoop.future(error: Abort(.notFound))
         }

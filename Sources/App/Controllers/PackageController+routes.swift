@@ -18,9 +18,9 @@ import Vapor
 import SemanticVersion
 
 
-struct PackageController {
+enum PackageController {
 
-    func show(req: Request) async throws -> Response {
+    static func show(req: Request) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -90,7 +90,7 @@ struct PackageController {
         var updatedAt: Date
     }
 
-    func documentation(req: Request, fragment: Fragment) async throws -> Response {
+    static func documentation(req: Request, fragment: Fragment) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository"),
@@ -239,7 +239,7 @@ struct PackageController {
         }
     }
 
-    func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
+    static func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -260,7 +260,7 @@ struct PackageController {
             .map { $0.document() }
     }
     
-    func releases(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
+    static func releases(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -274,7 +274,7 @@ struct PackageController {
             .map { PackageReleases.View(model: $0).document() }
     }
 
-    func builds(req: Request) async throws -> HTML {
+    static func builds(req: Request) async throws -> HTML {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -292,7 +292,7 @@ struct PackageController {
         return BuildIndex.View(path: req.url.path, model: model).document()
     }
 
-    func maintainerInfo(req: Request) throws -> EventLoopFuture<HTML> {
+    static func maintainerInfo(req: Request) throws -> EventLoopFuture<HTML> {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")

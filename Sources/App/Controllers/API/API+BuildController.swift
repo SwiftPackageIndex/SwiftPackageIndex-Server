@@ -19,8 +19,8 @@ import Vapor
 
 extension API {
     
-    struct BuildController {
-        func create(req: Request) async throws -> HTTPStatus {
+    enum BuildController {
+        static func create(req: Request) async throws -> HTTPStatus {
             let dto = try req.content.decode(PostCreateBuildDTO.self)
             let version = try await App.Version
                 .find(req.parameters.get("id"), on: req.db)
@@ -87,7 +87,7 @@ extension API {
             return .noContent
         }
 
-        func trigger(req: Request) throws -> EventLoopFuture<Build.TriggerResponse> {
+        static func trigger(req: Request) throws -> EventLoopFuture<Build.TriggerResponse> {
             guard let id = req.parameters.get("id"),
                   let versionId = UUID(uuidString: id)
             else {

@@ -17,8 +17,8 @@ import Plot
 import Vapor
 
 
-struct BuildController {
-    func show(req: Request) throws -> EventLoopFuture<HTML> {
+enum BuildController {
+    static func show(req: Request) throws -> EventLoopFuture<HTML> {
         guard let id = req.parameters.get("id"),
               let buildId = UUID.init(uuidString: id)
         else { return req.eventLoop.future(error: Abort(.notFound)) }

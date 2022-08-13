@@ -17,10 +17,9 @@ import Plot
 import Vapor
 
 
-struct SearchController {
+enum SearchController {
 
-    func show(req: Request) async throws -> HTML {
-        
+    static func show(req: Request) async throws -> HTML {
         let query = req.query[String.self, at: "query"] ?? ""
         let page = req.query[Int.self, at: "page"] ?? 1
         
