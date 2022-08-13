@@ -23,40 +23,6 @@ import VaporRouting
 func routes(_ app: Application) throws {
     app.mount(SiteRoute.router, use: SiteRoute.handler)
 
-    do {  // home page
-        app.get { req in
-            HomeIndex.Model.query(database: req.db).map {
-                HomeIndex.View(path: req.url.path, model: $0).document()
-            }
-        }
-    }
-
-    do {  // static pages
-        app.get(SiteURL.addAPackage.pathComponents) { req in
-            MarkdownPage(path: req.url.path, "add-a-package.md").document()
-        }
-
-        app.get(SiteURL.docs(.builds).pathComponents) { req in
-            MarkdownPage(path: req.url.path, "docs/builds.md").document()
-        }
-
-        app.get(SiteURL.faq.pathComponents) { req in
-            MarkdownPage(path: req.url.path, "faq.md").document()
-        }
-
-        app.get(SiteURL.packageCollections.pathComponents) { req in
-            MarkdownPage(path: req.url.path, "package-collections.md").document()
-        }
-
-        app.get(SiteURL.privacy.pathComponents) { req in
-            MarkdownPage(path: req.url.path, "privacy.md").document()
-        }
-
-        app.get(SiteURL.tryInPlayground.pathComponents) { req in
-            MarkdownPage(path: req.url.path, "try-package.md").document()
-        }
-    }
-
     do {  // package pages
         do {  // temporary, hacky docc-proxy
             app.get(":owner", ":repository", ":reference", "documentation") {

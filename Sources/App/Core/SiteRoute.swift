@@ -17,8 +17,10 @@ import Vapor
 
 
 enum SiteRoute {
+    case docs(DocsRoute)
     case home
     case package(owner: String, repository: String, route: PackageRoute = .show)
+    case staticPath(StaticPathRoute)
 
     enum StaticPathRoute: String, CaseIterable {
         case addAPackage = "add-a-package"
@@ -31,15 +33,23 @@ enum SiteRoute {
     static let router = OneOf {
         Route(.case(Self.home))
 
+        Route(.case(Self.docs)) { Path { "docs"; DocsRoute.parser() } }
+
         Route(.case(Self.package(owner:repository:route:))) {
             Path { Parse(.string) }
             Path { Parse(.string) }
             PackageRoute.router
         }
+
+        Route(.case(Self.staticPath)) { Path { StaticPathRoute.parser() } }
     }
 
     static func handler(req: Request, route: SiteRoute) async throws -> AsyncResponseEncodable {
         switch route {
+            case .docs(.builds), .staticPath:
+                let filename = try router.print(route).path.joined(separator: "/") + ".md"
+                return MarkdownPage(path: req.url.path, filename).document()
+
             case .home:
                 return try await HomeIndex.Model.query(database: req.db).map {
                     HomeIndex.View(path: req.url.path, model: $0).document()
@@ -49,6 +59,11 @@ enum SiteRoute {
                 return try await PackageRoute.handler(req: req, owner: owner, repository: repository, route: packageRoute)
         }
     }
+}
+
+
+enum DocsRoute: String, CaseIterable {
+    case builds
 }
 
 

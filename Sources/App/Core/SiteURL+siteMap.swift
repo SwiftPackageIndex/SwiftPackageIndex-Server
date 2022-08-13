@@ -98,10 +98,14 @@ extension SiteURL {
 private extension SiteRoute {
     var changefreq: SiteMapChangeFrequency {
         switch self {
+            case .docs:
+                return .weekly
             case .home:
                 return .hourly
             case .package:
                 return .daily
+            case .staticPath:
+                return .weekly
         }
     }
 }
