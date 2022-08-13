@@ -344,6 +344,15 @@
         }
       },
       {
+        "package": "swift-url-routing",
+        "repositoryURL": "https://github.com/pointfreeco/swift-url-routing",
+        "state": {
+          "branch": null,
+          "revision": "5bf79bb370015e43842a61d558a9ee053171124e",
+          "version": "0.3.0"
+        }
+      },
+      {
         "package": "SwiftPrometheus",
         "repositoryURL": "https://github.com/MrLotU/SwiftPrometheus.git",
         "state": {
@@ -368,6 +377,15 @@
           "branch": null,
           "revision": "c814b6f6900bd479fd93fa28aea3b45afb6ea342",
           "version": "4.65.0"
+        }
+      },
+      {
+        "package": "vapor-routing",
+        "repositoryURL": "https://github.com/pointfreeco/vapor-routing",
+        "state": {
+          "branch": null,
+          "revision": "f07b4d7618bf48b450ed11c9f85b74ba8b9bae6c",
+          "version": "0.1.1"
         }
       },
       {
