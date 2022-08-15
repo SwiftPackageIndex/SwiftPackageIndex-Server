@@ -215,6 +215,23 @@ extension Version {
     }
 }
 
+extension Version {
+    var docArchivesInManifestOrder: [DocArchive]? {
+        guard let docArchives = docArchives else { return nil }
+
+        // Return the archives in any order if the targets can't be fetched.
+        guard let spiManifest = spiManifest,
+              let targets = spiManifest.allDocumentationTargets()
+        else { return docArchives }
+
+        // Match the order of archives to the targets where possible.
+        return docArchives.sorted { (lhs, rhs) in
+            let lhsIndex = targets.firstIndex(of: lhs.name) ?? 0
+            let rhsIndex = targets.firstIndex(of: rhs.name) ?? 0
+            return lhsIndex < rhsIndex
+        }
+    }
+}
 
 extension Array where Element == Version {
     // Helper to determine latest branch version in a batch

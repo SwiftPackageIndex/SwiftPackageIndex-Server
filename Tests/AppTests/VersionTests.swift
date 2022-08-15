@@ -172,4 +172,31 @@ class VersionTests: AppTestCase {
         XCTAssertEqual(latest?.id, vid)
     }
 
+    func test_docArchivesInManifestOrder() throws {
+        // Setup
+        let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
+        let version = try Version(id: UUID(),
+                                  package: pkg,
+                                  commit: "0123456789",
+                                  commitDate: .t0,
+                                  docArchives: [
+                                    .init(name: "additional", title: "Additional"),
+                                    .init(name: "helper", title: "Helper"),
+                                    .init(name: "primary", title: "Primary"),
+                                  ],
+                                  reference: .branch("main"),
+                                  spiManifest: .init(yml: """
+                                      version: 1
+                                      builder:
+                                        configs:
+                                        - documentation_targets: [primary, additional, helper]
+                                      """))
+
+        // MUT
+        let sortedArchives = try XCTUnwrap(version.docArchivesInManifestOrder)
+
+        // Validate
+        XCTAssertEqual(sortedArchives.map(\.name), ["primary", "additional", "helper"])
+    }
+
 }
