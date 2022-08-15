@@ -57,7 +57,7 @@ enum SiteRoute {
 
     static func handler(req: Request, route: SiteRoute) async throws -> AsyncResponseEncodable {
         switch route {
-            case .addAPackage, .docs(.builds), .faq, .packageCollections, .privacy, .tryInPlayground:
+            case .addAPackage, .docs, .faq, .packageCollections, .privacy, .tryInPlayground:
                 let filename = try router.print(route).path.joined(separator: "/") + ".md"
                 return MarkdownPage(path: req.url.path, filename).document()
 
