@@ -55,6 +55,9 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteRoute.absoluteURL(for: .home), "https://indexsite.com/")
         XCTAssertEqual(SiteURL.images("foo.png").absoluteURL(), "https://indexsite.com/images/foo.png")
         XCTAssertEqual(SiteRoute.absoluteURL(for: .privacy), "https://indexsite.com/privacy")
+
+        Current.siteURL = { "https://foo.com" }
+        XCTAssertEqual(SiteRoute.absoluteURL(for: .home), "https://foo.com/")
     }
     
     func test_absoluteURL_with_anchor() throws {

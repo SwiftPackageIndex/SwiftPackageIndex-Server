@@ -99,7 +99,9 @@ enum PackageRoute {
 
 extension SiteRoute {
     static func absoluteURL(for route: Self) -> String {
-        Current.siteURL() + router.path(for: route)
+        router
+            .baseURL(Current.siteURL())
+            .url(for: route).absoluteString
     }
 
     static func absoluteURL(for route: Self, anchor: String) -> String {
