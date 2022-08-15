@@ -47,6 +47,12 @@ requests:
         url: ${base_url}/try-in-a-playground
         validation:
             status: 200
+    /try-in-a-playground?dependencies=:dependencies:
+        url: ${base_url}/try-in-a-playground
+        query:
+          dependencies: SwiftPackageIndex/SemanticVersion
+        validation:
+            status: 200
 
     # doccy-proxy
     /:owner/:repository/:reference/documentation:

@@ -94,6 +94,8 @@ private extension SiteRoute {
                 return .monthly
             case .staticPath:
                 return .weekly
+            case .tryInPlayground:
+                return .monthly
         }
     }
 }

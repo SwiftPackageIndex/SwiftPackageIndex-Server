@@ -224,8 +224,7 @@ enum PackageShow {
                                 .text("If nothing happens, you may not have the app installed. "),
                                 .a(
                                     .href(
-                                        SiteRoute.relativeURL(for: .staticPath(.tryInPlayground),
-                                                              parameters: [.init(key: "dependencies", value: "\(model.repositoryOwner)/\(model.repositoryName)")])
+                                        SiteRoute.router.path(for: .tryInPlayground(dependencies: "\(model.repositoryOwner)/\(model.repositoryName)"))
                                     ),
                                     "Download the Swift Package Index Playgrounds app"
                                 ),

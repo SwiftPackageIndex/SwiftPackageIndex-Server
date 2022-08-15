@@ -21,13 +21,13 @@ enum SiteRoute {
     case home
     case package(owner: String, repository: String, route: PackageRoute = .show)
     case staticPath(StaticPathRoute)
+    case tryInPlayground(dependencies: String? = nil)
 
     enum StaticPathRoute: String, CaseIterable {
         case addAPackage = "add-a-package"
         case faq
         case packageCollections = "package-collections"
         case privacy
-        case tryInPlayground = "try-in-a-playground"
     }
 
     static let router = OneOf {
@@ -42,11 +42,20 @@ enum SiteRoute {
         }
 
         Route(.case(Self.staticPath)) { Path { StaticPathRoute.parser() } }
+
+        Route(.case(Self.tryInPlayground(dependencies:))) {
+            Path { "try-in-a-playground"}
+            Optionally {
+                Query {
+                    Field("dependencies")
+                }
+            }
+        }
     }
 
     static func handler(req: Request, route: SiteRoute) async throws -> AsyncResponseEncodable {
         switch route {
-            case .docs(.builds), .staticPath:
+            case .docs(.builds), .staticPath, .tryInPlayground:
                 let filename = try router.print(route).path.joined(separator: "/") + ".md"
                 return MarkdownPage(path: req.url.path, filename).document()
 
@@ -99,10 +108,5 @@ extension SiteRoute {
 
     static func relativeURL(for route: Self, anchor: String) -> String {
         relativeURL(for: route) + "#\(anchor)"
-    }
-
-    // FIXME: handle via actual Query { Field("foo"); Field("bar", default: 42) } when needed
-    static func relativeURL(for route: Self, parameters: [QueryParameter]) -> String {
-        relativeURL(for: route) + parameters.queryString()
     }
 }
