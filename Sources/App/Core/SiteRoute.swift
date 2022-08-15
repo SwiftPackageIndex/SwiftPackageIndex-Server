@@ -20,10 +20,10 @@ enum SiteRoute {
     case docs(DocsRoute)
     case home
     case package(owner: String, repository: String, route: PackageRoute = .show)
-    case staticPath(StaticPathRoute)
+    case `static`(StaticRoute)
     case tryInPlayground(dependencies: String? = nil)
 
-    enum StaticPathRoute: String, CaseIterable {
+    enum StaticRoute: String, CaseIterable {
         case addAPackage = "add-a-package"
         case faq
         case packageCollections = "package-collections"
@@ -41,7 +41,7 @@ enum SiteRoute {
             PackageRoute.router
         }
 
-        Route(.case(Self.staticPath)) { Path { StaticPathRoute.parser() } }
+        Route(.case(Self.static)) { Path { StaticRoute.parser() } }
 
         Route(.case(Self.tryInPlayground(dependencies:))) {
             Path { "try-in-a-playground"}
@@ -55,7 +55,7 @@ enum SiteRoute {
 
     static func handler(req: Request, route: SiteRoute) async throws -> AsyncResponseEncodable {
         switch route {
-            case .docs(.builds), .staticPath, .tryInPlayground:
+            case .docs(.builds), .static, .tryInPlayground:
                 let filename = try router.print(route).path.joined(separator: "/") + ".md"
                 return MarkdownPage(path: req.url.path, filename).document()
 
@@ -92,6 +92,8 @@ enum PackageRoute {
     }
 }
 
+
+// MARK: - URL printer helpers
 
 extension SiteRoute {
     static func absoluteURL(for route: Self) -> String {

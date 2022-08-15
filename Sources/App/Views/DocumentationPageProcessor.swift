@@ -205,7 +205,7 @@ struct DocumentationPageProcessor {
                         ),
                         .li(
                             .a(
-                                .href(SiteRoute.relativeURL(for: .staticPath(.privacy))),
+                                .href(SiteRoute.relativeURL(for: .static(.privacy))),
                                 "Privacy and Cookies"
                             )
                         ),

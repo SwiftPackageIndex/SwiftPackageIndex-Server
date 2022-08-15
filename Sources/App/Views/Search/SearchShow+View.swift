@@ -52,7 +52,7 @@ extension SearchShow {
                         .span(
                             .class("learn_more"),
                             .a(
-                                .href(SiteRoute.relativeURL(for: .staticPath(.faq), anchor: "search-filters")),
+                                .href(SiteRoute.relativeURL(for: .static(.faq), anchor: "search-filters")),
                                 .text("Learn more")
                             ),
                             .text(".")
