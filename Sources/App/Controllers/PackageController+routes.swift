@@ -89,6 +89,44 @@ enum PackageController {
         var updatedAt: Date
     }
 
+    static func documentation(req: Request) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository"),
+            let reference = req.parameters.get("reference")
+        else {
+            throw Abort(.notFound)
+        }
+
+        let referenceToMatch: Reference = {
+            if let semanticVersion = SemanticVersion(reference) {
+                return .tag(semanticVersion, reference)
+            } else {
+                return .branch(reference)
+            }
+        }()
+
+        guard let queryResult = try await Joined3<Version, Package, Repository>
+            .query(on: req.db,
+                   join: \Version.$package.$id == \Package.$id, method: .inner,
+                   join: \Package.$id == \Repository.$package.$id, method: .inner)
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            .filter(Repository.self, \.$name, .custom("ilike"), repository)
+            .filter(\Version.$reference == referenceToMatch)
+            .filter(\Version.$docArchives != nil)
+            .field(Version.self, \.$docArchives)
+            .first()
+        else { throw Abort(.notFound) }
+
+        // This package has at least one docArchive, so redirect to it.
+        guard let docArchive = queryResult.model.docArchives?.first
+        else { throw Abort(.notFound) }
+        throw Abort.redirect(to: DocumentationPageProcessor.relativeDocumentationURL(owner: owner,
+                                                                                     repository: repository,
+                                                                                     reference: reference,
+                                                                                     docArchive: docArchive.name))
+    }
+
     static func documentation(req: Request, fragment: Fragment) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
@@ -105,44 +143,12 @@ enum PackageController {
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
         let awsResponse = try await Current.fetchDocumentation(req.client, url)
 
-        let isDocumentationRedirect = (fragment == .documentation && archive == nil)
-
-        // Never let a request continue if the AWS request fails, except to a potential `/owner/repo/ref/documentation/` redirect.
-        guard (200..<399).contains(awsResponse.status.code) || isDocumentationRedirect else {
+        guard (200..<399).contains(awsResponse.status.code) else {
             // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
             throw Abort(.notFound)
         }
 
         switch fragment {
-            case .documentation where isDocumentationRedirect:
-                let referenceToMatch: Reference = {
-                    if let semanticVersion = SemanticVersion(reference) {
-                        return .tag(semanticVersion, reference)
-                    } else {
-                        return .branch(reference)
-                    }
-                }()
-
-                guard let queryResult = try await Joined3<Version, Package, Repository>
-                    .query(on: req.db,
-                           join: \Version.$package.$id == \Package.$id, method: .inner,
-                           join: \Package.$id == \Repository.$package.$id, method: .inner)
-                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-                    .filter(Repository.self, \.$name, .custom("ilike"), repository)
-                    .filter(\Version.$reference == referenceToMatch)
-                    .filter(\Version.$docArchives != nil)
-                    .field(Version.self, \.$docArchives)
-                    .first()
-                else { throw Abort(.notFound) }
-
-                // This package has at least one docArchive, so redirect to it.
-                guard let docArchive = queryResult.model.docArchives?.first
-                else { throw Abort(.notFound) }
-                throw Abort.redirect(to: DocumentationPageProcessor.relativeDocumentationURL(owner: owner,
-                                                                                             repository: repository,
-                                                                                             reference: reference,
-                                                                                             docArchive: docArchive.name))
-
             case .documentation:
                 let queryResult = try await Joined3<Version, Package, Repository>
                     .query(on: req.db,

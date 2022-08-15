@@ -365,6 +365,9 @@ class PackageController_routesTests: AppTestCase {
 
         // MUT
         try app.test(.GET, "/owner/package/1.2.3/documentation") {
+            XCTAssertEqual($0.status, .notFound)
+        }
+        try app.test(.GET, "/owner/package/1.2.3/documentation/main") {
             XCTAssertEqual($0.status, .internalServerError)
         }
     }

@@ -57,7 +57,7 @@ func routes(_ app: Application) throws {
     do {  // package pages
         do {  // temporary, hacky docc-proxy
             app.get(":owner", ":repository", ":reference", "documentation") {
-                try await PackageController.documentation(req: $0, fragment: .documentation)
+                try await PackageController.documentation(req: $0)
             }
             app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
                 try await PackageController.documentation(req: $0, fragment: .documentation)
