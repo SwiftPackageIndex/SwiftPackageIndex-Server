@@ -17,23 +17,23 @@ import Vapor
 
 
 enum SiteRoute {
+    case addAPackage
     case docs(DocsRoute)
+    case faq
     case home
     case package(owner: String, repository: String, route: PackageRoute = .show)
-    case `static`(StaticRoute)
+    case packageCollections
+    case privacy
     case tryInPlayground(dependencies: String? = nil)
 
-    enum StaticRoute: String, CaseIterable {
-        case addAPackage = "add-a-package"
-        case faq
-        case packageCollections = "package-collections"
-        case privacy
-    }
-
     static let router = OneOf {
-        Route(.case(Self.home))
+        Route(.case(Self.addAPackage)) { Path { "add-a-package" } }
 
         Route(.case(Self.docs)) { Path { "docs"; DocsRoute.parser() } }
+
+        Route(.case(Self.faq)) { Path { "faq" } }
+
+        Route(.case(Self.home))
 
         Route(.case(Self.package(owner:repository:route:))) {
             Path { Parse(.string) }
@@ -41,7 +41,9 @@ enum SiteRoute {
             PackageRoute.router
         }
 
-        Route(.case(Self.static)) { Path { StaticRoute.parser() } }
+        Route(.case(Self.packageCollections)) { Path { "package-collections" } }
+
+        Route(.case(Self.privacy)) { Path { "privacy" } }
 
         Route(.case(Self.tryInPlayground(dependencies:))) {
             Path { "try-in-a-playground"}
@@ -55,7 +57,7 @@ enum SiteRoute {
 
     static func handler(req: Request, route: SiteRoute) async throws -> AsyncResponseEncodable {
         switch route {
-            case .docs(.builds), .static, .tryInPlayground:
+            case .addAPackage, .docs(.builds), .faq, .packageCollections, .privacy, .tryInPlayground:
                 let filename = try router.print(route).path.joined(separator: "/") + ".md"
                 return MarkdownPage(path: req.url.path, filename).document()
 
