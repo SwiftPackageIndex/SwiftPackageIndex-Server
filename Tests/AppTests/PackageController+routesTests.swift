@@ -365,9 +365,12 @@ class PackageController_routesTests: AppTestCase {
 
         // MUT
         try app.test(.GET, "/owner/package/1.2.3/documentation") {
+            // triggers a redirect which then finds no archive (doesn't actually
+            // hit Current.fetchDocumentation)
             XCTAssertEqual($0.status, .notFound)
         }
-        try app.test(.GET, "/owner/package/1.2.3/documentation/main") {
+        try app.test(.GET, "/owner/package/1.2.3/documentation/foo") {
+            // hits Current.fetchDocumentation which throws the internalServerError, as expected
             XCTAssertEqual($0.status, .internalServerError)
         }
     }
