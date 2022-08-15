@@ -131,13 +131,15 @@ extension Analyze {
             case .id(let id):
                 logger.info("Analyzing (id: \(id)) ...")
                 let pkg = try await Package.fetchCandidate(database, id: id).get()
-                let url = pkg.model.url
             
-                let defaultBranch = pkg.repository?.defaultBranch ?? ""
-                print(defaultBranch)
-                logger.info("Analyzing (url: \(url)) ...")
-            let authors = pickAuthors(logger: logger, url: url, defaultBranch: defaultBranch)
-                logger.info("first author is \(authors.first?.identifier)")
+//                let url = pkg.model.url
+//                let defaultBranch = pkg.repository?.defaultBranch ?? "master" 
+//                print(defaultBranch)
+//                logger.info("Analyzing (url: \(url)) ...")
+//                let authors = pickAuthors(logger: logger, url: url, defaultBranch: defaultBranch)
+//                logger.info("first author is \(authors.first?.identifier)")
+            
+            
                 try await analyze(client: client,
                                   database: database,
                                   logger: logger,
@@ -218,6 +220,11 @@ extension Analyze {
                         package: Joined<Package, Repository>) async throws {
         try refreshCheckout(logger: logger, package: package)
         try await updateRepository(on: transaction, package: package)
+        
+        let authors = try pickAuthors(logger: logger, package: package)
+        
+        let contributors = try pickAcknowledgedContributors(logger: logger, package: package)
+
 
         let versionDelta = try await diffVersions(client: client,
                                                   logger: logger,
@@ -736,18 +743,37 @@ extension Analyze {
     /// commits is at leat 2 percent of the maximum of commits.
     /// - Parameters:
     ///   - logger: `Logger` object
-    ///   - url: url of the repository. The package will be clone from this url
-    ///   - defaultBranch: the name of the defaul branch, e.g. master or main
+    ///   - package: The package in which we select the authors
     /// - Returns: Array of Contributors which were selected as authors
-    static func pickAuthors(logger: Logger, url: String, defaultBranch: String) -> [Contributor] {
-        logger.info("Picking authors for \(url)")
-        let githubHistoryLoader = GitHubHistoryLoader()
+    static func pickAuthors(logger: Logger, package: Joined<Package, Repository>) throws -> [Contributor] {
+        logger.info("Picking authors for \(package.model.url)")
+
+        let gitHistoryLoader = GitHistoryLoader()
         let strategy = CommitSelector()
-        let selector = AuthorPickerService(historyLoader: githubHistoryLoader,
-                                           authorSelector: strategy,
-                                           repositoryURL: url,
-                                           defaultBranch: defaultBranch)
-        return selector.selectAuthors()
+        let selector = AuthorPickerService(historyLoader: gitHistoryLoader,
+                                           authorSelector: strategy)
+        
+        return try selector.selectAuthors(package: package)
+        
+    }
+    
+    /// Selects the contributors for acknowledgement according to the number of commits.
+    /// A contritutor is acknowledged if the number of
+    /// commits is at leat 2 percent of the maximum of commits.
+    /// - Parameters:
+    ///   - logger: `Logger` object
+    ///   - package: The package in which we select the authors
+    /// - Returns: Array of Contributors which were acknowledged by the number of commits
+    static func pickAcknowledgedContributors(logger: Logger, package: Joined<Package, Repository>) throws -> [Contributor] {
+        logger.info("Picking acknowledged contributors for \(package.model.url)")
+
+        let gitHistoryLoader = GitHistoryLoader()
+        let strategy = CommitSelector()
+        let selector = AuthorPickerService(historyLoader: gitHistoryLoader,
+                                           authorSelector: strategy)
+        
+        return try selector.selectContributors(package: package)
+        
     }
 
 }
