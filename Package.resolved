@@ -141,8 +141,8 @@
         "repositoryURL": "https://github.com/SwiftPackageIndex/SPIManifest",
         "state": {
           "branch": null,
-          "revision": "ad6d1fb021022788af310e9048dbecfaa14e0aa1",
-          "version": "0.7.1"
+          "revision": "36eac3222fd744fe3b5621c351751d83ed518d64",
+          "version": "0.7.2"
         }
       },
       {
@@ -240,8 +240,8 @@
         "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {
           "branch": null,
-          "revision": "8fc79cae9d03a5e623c52cc2dbd2df165a7832b0",
-          "version": "1.4.3"
+          "revision": "6fe203dc33195667ce1759bf0182975e4653ba1c",
+          "version": "1.4.4"
         }
       },
       {
