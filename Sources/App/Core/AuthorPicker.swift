@@ -14,7 +14,7 @@
 
 import Foundation
 import ShellOut
-
+import Vapor
 
 
 /// This protocols gathers the mandatory information needed to select authors and to acknowledge contributors
@@ -27,8 +27,6 @@ protocol ContributionContext {
 public struct Contributor : ContributionContext {
     /// Total number of commits
     public let commits     : String
-    public let firstName   : String
-    public let lastName    : String
     public let email       : String
     public let identifier  : String
     
@@ -37,107 +35,91 @@ public struct Contributor : ContributionContext {
 /// Version control history loader
 protocol VCHistoryLoader {
     
-    func loadContributorsHistory(repositoryURL: String, defaultBranch: String) -> [Contributor]
+    func loadContributorsHistory(package: Joined<Package, Repository>) throws -> [Contributor]
 
 }
 
 /// Loads the contributors history from a GitHub repository
-struct GitHubHistoryLoader : VCHistoryLoader {
+struct GitHistoryLoader : VCHistoryLoader {
     
     init() {}
     
-    func loadContributorsHistory(repositoryURL: String, defaultBranch: String) -> [Contributor] {
-        guard let commitHistory = queryVCHistory(repositoryURL: repositoryURL, defaultBranch: defaultBranch)
-        else{
-            return []
-        }
-        return parseVCHistory(log: commitHistory)
-    }
-    
-    // TODO: Make better error handling
-    /// Gets the version control history in a string log
-    private func queryVCHistory(repositoryURL : String, defaultBranch: String) -> String? {
+    func loadContributorsHistory(package: Joined<Package, Repository>) throws -> [Contributor] {
         do {
-            try makeMinimalClone(repositoryURL : repositoryURL, defaultBranch: defaultBranch)
+            let commitHistory = try queryVCHistory(package: package)
+            return try parseVCHistory(log: commitHistory)
         } catch {
-            let error = error as! ShellOutError
-            print(error.message) // Prints STDERR
-            print(error.output) // Prints STDOUT
-        }
-        let repositoryName = extractPackageName(repositoryURL: repositoryURL)
-        let shortlog = try? gitShortlog(repositoryName: repositoryName)
-        return shortlog
-    }
-    
-    
-    /// Makes a minimal clone of the repository without the binary large objetcs that contain the snapshots of the files data
-    private func makeMinimalClone(repositoryURL : String, defaultBranch: String) throws {
-        
-        let repositoryName = extractPackageName(repositoryURL: repositoryURL)
-        
-        let folderName = repositoryName + "Clone"
-        try self.makeFolder(named: folderName)
-        
-        try shellOut(to: "git clone --filter=blob:none --no-checkout --single-branch --branch",
-                     arguments: [defaultBranch, repositoryURL, "."],
-                     at: folderName)
-    }
-    
-    /// Parses the result of queryVCHistory
-    private func gitShortlog(repositoryName: String) throws -> String {
-        let folderName = repositoryName + "Clone"
-        let shortlog = try shellOut(to: "git shortlog -sne", at: folderName)
-        return shortlog
-    }
-    
-    /// Makes a new folder with the given name.
-    /// If the folder already exists it will override it
-    private func makeFolder(named: String) throws {
-        guard let _ = try? shellOut(to: .createFolder(named: named))
-        else {
-            try shellOut(to: "rm -rf", arguments: [named])
-            try shellOut(to: .createFolder(named: named))
-            return
+            throw AppError.analysisError(package.model.id, "loadContributorsHistory failed: \(error.localizedDescription)")
         }
     }
     
-    public func parseVCHistory(log: String) -> [Contributor] {
+    /// Gets the version control history in a string log
+    private func queryVCHistory(package: Joined<Package, Repository>) throws -> String {
+    
+        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+            print("cache directory is not specified in the package model")
+            throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
+        }
+        
+        if !Current.fileManager.fileExists(atPath: cacheDir) {
+            do {
+                try GitHistoryLoader.minClone(cacheDir: cacheDir,
+                                              url: package.model.url,
+                                              branch: package.repository?.defaultBranch ?? "master")
+            } catch {
+                throw AppError.shellCommandFailed("GitHistoryLoader.minClone",
+                                                  cacheDir,
+                                                  "queryVCHistory failed: \(error.localizedDescription)")
+            }
+        }
+
+        // attempt to shortlog
+        do {
+            return try Current.shell.run(command: .gitShortlog(),
+                                         at: cacheDir)
+        } catch {
+            throw AppError.shellCommandFailed("gitShortlog",
+                                              cacheDir,
+                                              "queryVCHistory failed: \(error.localizedDescription)")
+        }
+        
+    }
+    
+    /// Run `git clone` without the git blobs for a given url at a given branch in a given directory.
+    /// - Parameters:
+    ///   - cacheDir: checkout directory
+    ///   - url: url to clone from
+    ///   - branch: branch name to clone from, e.g. master or main
+    /// - Throws: Shell errors
+    static func minClone(cacheDir: String, url: String, branch: String) throws {
+        try Current.shell.run(command: .gitMinClone(url: URL(string: url)!, branch: branch, to: cacheDir),
+                              at: Current.fileManager.checkoutsDirectory())
+    }
+    
+    /// Parses the result of queryVCHistory into a collection of contributors
+    public func parseVCHistory(log: String) throws -> [Contributor] {
         var committers = [Contributor]()
         
         for line in log.components(separatedBy: .newlines) {
             let log = line.split(whereSeparator: { $0 == " " || $0 == "\t"})
-            // TODO: find which information is mandatory in the log commits. Apparently last name is not mandatory
-            if log.count == 4 {
-                let committer = Contributor(commits: String(log[0]),
-                                             firstName: String(log[1]),
-                                             lastName: String(log[2]),
-                                             email: String(log[3]),
-                                             identifier: String(log[1]) + " " + String(log[2]))
+            
+            if (log.count != 2) {
+                var identifier = [String]()
+                for i in 1..<(log.count - 1) {
+                    identifier.append(String(log[i]))
+                }
+                
+                let committer = Contributor(commits: String(log.first!),
+                                            email: String(log.last!),
+                                            identifier: identifier.joined(separator: " "))
                 committers.append(committer)
-            } else if log.count == 3 {
-                let committer = Contributor(commits: String(log[0]),
-                                             firstName: String(log[1]),
-                                             lastName: "",
-                                             email: String(log[2]),
-                                             identifier: String(log[1]))
-                committers.append(committer)
-            } else {
-                // TODO: Handle error
             }
-
+            
         }
         return committers
     }
     
-    private func extractPackageName(repositoryURL: String) -> String {
-        guard var start = repositoryURL.lastIndex(of: "/"),
-              let end = repositoryURL.lastIndex(of: ".")
-        else {
-            fatalError("not a valid repository URL: \(repositoryURL)")
-        }
-        start = repositoryURL.index(after: start)
-        return String(repositoryURL[start..<end])
-    }
+
 }
 
 /// Protocol for all author selection strategies
@@ -146,7 +128,6 @@ protocol AuthorSelector {
     func selectAuthors(candidates : [Contributor] ) -> [Contributor]
     
     func selectContributors(candidates : [Contributor] ) -> [Contributor]
-    
 }
 
 /// Strategy for selecting authors based entirely on the number of commits
@@ -162,6 +143,10 @@ struct CommitSelector : AuthorSelector {
     }
     
     func selectContributors(candidates: [Contributor]) -> [Contributor] {
+        if candidates.isEmpty {
+            return []
+        }
+        
         let maxNumberOfCommits = candidates.max(by: { (a,b) -> Bool in
             return Int(a.commits)! < Int(b.commits)!
         })!.commits
@@ -173,6 +158,10 @@ struct CommitSelector : AuthorSelector {
     
     func selectAuthors(candidates: [Contributor]) -> [Contributor] {
         let contributors = selectContributors(candidates: candidates)
+        
+        if contributors.isEmpty {
+            return []
+        }
         
         let maxNumberOfCommits = contributors.max(by: { (a,b) -> Bool in
             return Int(a.commits)! < Int(b.commits)!
@@ -193,24 +182,66 @@ final class AuthorPickerService {
     private let historyLoader       : VCHistoryLoader
     /// strategy for picking the author and acknowledged contributors
     private let selectionStrategy   : AuthorSelector
-    private let repositoryURL       : String
-    private let defaultBranch       : String
     
-    public init(historyLoader   : VCHistoryLoader, authorSelector  : AuthorSelector, repositoryURL: String, defaultBranch: String) {
+    public init(historyLoader   : VCHistoryLoader, authorSelector  : AuthorSelector) {
         self.historyLoader      = historyLoader
         self.selectionStrategy  = authorSelector
-        self.repositoryURL      = repositoryURL
-        self.defaultBranch      = defaultBranch
     }
     
-    func selectAuthors() -> [Contributor] {
-        let contributorsHistory = historyLoader.loadContributorsHistory(repositoryURL: repositoryURL, defaultBranch: defaultBranch)
+    
+    func selectAuthors(package: Joined<Package, Repository>) throws -> [Contributor] {
+        let contributorsHistory = try historyLoader.loadContributorsHistory(package: package)
         return selectionStrategy.selectAuthors(candidates: contributorsHistory)
     }
     
-    func selectContributors() -> [Contributor] {
-        let contributorsHistory = historyLoader.loadContributorsHistory(repositoryURL: repositoryURL, defaultBranch: defaultBranch)
+    func selectContributors(package: Joined<Package, Repository>) throws -> [Contributor] {
+        let contributorsHistory = try historyLoader.loadContributorsHistory(package: package)
         return selectionStrategy.selectContributors(candidates: contributorsHistory)
     }
     
+}
+
+
+private extension ShellOutCommand {
+    /// Makes a minimal clone of the repository without the binary large objetcs that contain the snapshots of the files data
+    static func gitMinClone(url: URL, branch: String? = "master", to path: String? = nil) -> ShellOutCommand {
+        var command = "git clone \(url.absoluteString)"
+        command.append(" --filter=blob:none --no-checkout --single-branch --branch")
+        branch.map { command.append(argument: $0) }
+        path.map { command.append(argument: $0) }
+
+        return ShellOutCommand(string: command)
+    }
+    
+    
+    /// Gets the git commit history in a short log
+    static func gitShortlog(at path: String? = nil) -> ShellOutCommand {
+        var command = "git shortlog -sne"
+        path.map { command.append(argument: $0) }
+        return ShellOutCommand(string: command)
+    }
+}
+
+
+// From Shellout string extension, only used here to be able to write our own ShellOutCommands
+fileprivate extension String {
+    var escapingSpaces: String {
+        return replacingOccurrences(of: " ", with: "\\ ")
+    }
+
+    func appending(argument: String) -> String {
+        return "\(self) \"\(argument)\""
+    }
+
+    func appending(arguments: [String]) -> String {
+        return appending(argument: arguments.joined(separator: "\" \""))
+    }
+
+    mutating func append(argument: String) {
+        self = appending(argument: argument)
+    }
+
+    mutating func append(arguments: [String]) {
+        self = appending(arguments: arguments)
+    }
 }
