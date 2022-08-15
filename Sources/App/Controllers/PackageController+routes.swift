@@ -61,17 +61,17 @@ enum PackageController {
         case data
         case documentation
         case documentationRedirect
+        case favicon
         case img
         case index
         case js
-        case root
         case themeSettings
 
         var contentType: String {
             switch self {
                 case .css:
                     return "text/css"
-                case  .data, .img, .index, .root, .themeSettings:
+                case  .data, .favicon, .img, .index, .themeSettings:
                     return "application/octet-stream"
                 case .documentation, .documentationRedirect:
                     return "text/html; charset=utf-8"
@@ -226,7 +226,7 @@ enum PackageController {
                     for: req
                 )
 
-            case .css, .data, .img, .index, .js, .root, .themeSettings:
+            case .css, .data, .favicon, .img, .index, .js, .themeSettings:
                 return try await awsResponse.encodeResponse(
                     status: .ok,
                     headers: req.headers
@@ -382,7 +382,7 @@ extension PackageController {
         switch fragment {
             case .css, .data, .documentationRedirect, .documentation, .img, .index, .js:
                 return URI(string: "\(baseURL)/\(fragment)/\(path)")
-            case .root:
+            case .favicon:
                 return URI(string: "\(baseURL)/\(path)")
             case .themeSettings:
                 return URI(string: "\(baseURL)/theme-settings.json")
