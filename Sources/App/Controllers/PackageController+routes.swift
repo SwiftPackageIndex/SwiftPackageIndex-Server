@@ -130,12 +130,13 @@ enum PackageController {
                     .filter(Repository.self, \.$name, .custom("ilike"), repository)
                     .filter(\Version.$reference == referenceToMatch)
                     .filter(\Version.$docArchives != nil)
+                    .field(Version.self, \.$spiManifest)
                     .field(Version.self, \.$docArchives)
                     .first()
                 else { throw Abort(.notFound) }
 
                 // This package has at least one docArchive, so redirect to it.
-                guard let docArchive = queryResult.model.docArchives?.first
+                guard let docArchive = queryResult.model.docArchivesInManifestOrder?.first
                 else { throw Abort(.notFound) }
                 throw Abort.redirect(to: DocumentationPageProcessor.relativeDocumentationURL(owner: owner,
                                                                                              repository: repository,
@@ -154,6 +155,7 @@ enum PackageController {
                     .field(Version.self, \.$latest)
                     .field(Version.self, \.$packageName)
                     .field(Version.self, \.$docArchives)
+                    .field(Version.self, \.$spiManifest)
                     .field(Version.self, \.$commitDate)
                     .field(Version.self, \.$publishedAt)
                     .field(Repository.self, \.$ownerName)
@@ -163,7 +165,7 @@ enum PackageController {
                     DocumentationVersion(reference: result.model.reference,
                                          ownerName: result.relation2?.ownerName ?? owner,
                                          packageName: result.model.packageName ?? repository,
-                                         docArchives: (result.model.docArchives ?? []).map(\.title),
+                                         docArchives: (result.model.docArchivesInManifestOrder ?? []).map(\.title),
                                          latest: result.model.latest,
                                          updatedAt: result.model.publishedAt ?? result.model.commitDate)
                 }

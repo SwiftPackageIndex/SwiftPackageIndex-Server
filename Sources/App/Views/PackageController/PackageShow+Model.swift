@@ -123,10 +123,10 @@ extension PackageShow {
 
             let defaultDocumentationMetadata: DocumentationMetadata? = {
                 if let releaseVersion = result.releaseVersion,
-                   let releaseVersionDocArchive = releaseVersion.docArchives?.first {
+                   let releaseVersionDocArchive = releaseVersion.docArchivesInManifestOrder?.first {
                     return .init(reference: "\(releaseVersion.reference)",
                                  defaultArchive: releaseVersionDocArchive.title)
-                } else if let defaultBranchDocArchive = result.defaultBranchVersion.docArchives?.first {
+                } else if let defaultBranchDocArchive = result.defaultBranchVersion.docArchivesInManifestOrder?.first {
                     return .init(reference: "\(result.defaultBranchVersion.reference)",
                                  defaultArchive: defaultBranchDocArchive.title)
                 } else {
