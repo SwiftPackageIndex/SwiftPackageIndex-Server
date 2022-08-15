@@ -60,7 +60,6 @@ enum PackageController {
         case css
         case data
         case documentation
-        case documentationRedirect
         case favicon
         case img
         case index
@@ -73,7 +72,7 @@ enum PackageController {
                     return "text/css"
                 case  .data, .favicon, .img, .index, .themeSettings:
                     return "application/octet-stream"
-                case .documentation, .documentationRedirect:
+                case .documentation:
                     return "text/html; charset=utf-8"
                 case .js:
                     return "application/javascript"
@@ -106,14 +105,16 @@ enum PackageController {
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
         let awsResponse = try await Current.fetchDocumentation(req.client, url)
 
+        let isDocumentationRedirect = (fragment == .documentation && archive == nil)
+
         // Never let a request continue if the AWS request fails, except to a potential `/owner/repo/ref/documentation/` redirect.
-        guard (200..<399).contains(awsResponse.status.code) || fragment == .documentationRedirect else {
+        guard (200..<399).contains(awsResponse.status.code) || isDocumentationRedirect else {
             // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
             throw Abort(.notFound)
         }
 
         switch fragment {
-            case .documentationRedirect:
+            case .documentation where isDocumentationRedirect:
                 let referenceToMatch: Reference = {
                     if let semanticVersion = SemanticVersion(reference) {
                         return .tag(semanticVersion, reference)
@@ -380,7 +381,7 @@ extension PackageController {
         let baseURL = "http://\(baseURLHost)/\(baseURLPath)"
 
         switch fragment {
-            case .css, .data, .documentationRedirect, .documentation, .img, .index, .js:
+            case .css, .data, .documentation, .img, .index, .js:
                 return URI(string: "\(baseURL)/\(fragment)/\(path)")
             case .favicon:
                 return URI(string: "\(baseURL)/\(path)")
