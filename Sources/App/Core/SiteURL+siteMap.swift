@@ -92,6 +92,8 @@ private extension SiteRoute {
                 return .weekly
             case .home:
                 return .hourly
+            case .keywords:
+                return .daily
             case .package:
                 return .daily
             case .packageCollections:

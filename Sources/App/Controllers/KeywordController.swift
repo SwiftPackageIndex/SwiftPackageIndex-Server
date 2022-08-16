@@ -28,11 +28,35 @@ enum KeywordController {
             .page(page, size: pageSize)
     }
 
+    @available(*, deprecated)
     static func show(req: Request) throws -> EventLoopFuture<HTML> {
         guard let keyword = req.parameters.get("keyword") else {
             return req.eventLoop.future(error: Abort(.notFound))
         }
         let pageIndex = req.query[Int.self, at: "page"] ?? 1
+        let pageSize = Constants.resultsPageSize
+
+        return Self.query(on: req.db, keyword: keyword, page: pageIndex, pageSize: pageSize)
+            .flatMapThrowing { page in
+                guard !page.results.isEmpty else {
+                    throw Abort(.notFound)
+                }
+                let packageInfo = page.results
+                    .compactMap(PackageInfo.init(package:))
+                return KeywordShow.Model(
+                    keyword: keyword,
+                    packages: packageInfo,
+                    page: pageIndex,
+                    hasMoreResults: page.hasMoreResults
+                )
+            }
+            .map {
+                KeywordShow.View(path: req.url.path, model: $0).document()
+            }
+    }
+
+    static func show(req: Request, keyword: String, page: Int) throws -> EventLoopFuture<HTML> {
+        let pageIndex = page
         let pageSize = Constants.resultsPageSize
 
         return Self.query(on: req.db, keyword: keyword, page: pageIndex, pageSize: pageSize)
