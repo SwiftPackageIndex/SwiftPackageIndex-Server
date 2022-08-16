@@ -68,8 +68,8 @@ func routes(_ app: Application) throws {
     }
 
     do {  // package collection page
-        app.get(SiteURL.packageCollection(.key).pathComponents,
-                use: PackageCollectionController.generate)
+//        app.get(SiteURL.packageCollection(.key).pathComponents,
+//                use: PackageCollectionController.generate)
     }
 
     do {  // author page

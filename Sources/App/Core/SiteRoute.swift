@@ -18,28 +18,27 @@ import Vapor
 
 enum SiteRoute {
     case api(ApiRoute)
-    case addAPackage
     case docs(DocsRoute)
-    case faq
     case home
     case keywords(keyword: String, page: Int)
     case package(owner: String, repository: String, route: PackageRoute = .show)
-    case packageCollections
-    case privacy
+    case packageCollection(owner: String)
+    case `static`(StaticRoute)
     case tryInPlayground(dependencies: String? = nil)
+
+    enum StaticRoute: String, CaseIterable {
+        case addAPackage = "add-a-package"
+        case faq
+        case packageCollections = "package-collections"
+        case privacy
+    }
 
     static let router = OneOf {
         // /api/...
         Route(.case(Self.api)) { Path { "api" }; ApiRoute.router }
 
-        // GET /add-a-package
-        Route(.case(Self.addAPackage)) { Path { "add-a-package" } }
-
         // /docs/...
         Route(.case(Self.docs)) { Path { "docs"; DocsRoute.parser() } }
-
-        // GET /faq
-        Route(.case(Self.faq)) { Path { "faq" } }
 
         // GET /
         Route(.case(Self.home))
@@ -49,6 +48,12 @@ enum SiteRoute {
             Path { "keywords" }; Path { Parse(.string) }
             Query { Field("page", default: 1) { Int.parser() } }
         }
+        
+        // GET /:owner/collection.json
+        Route(.case(Self.packageCollection(owner:))) {
+            Path { Parse(.string) }
+            Path { "collection.json" }
+        }
 
         // /:owner/:repository/...
         Route(.case(Self.package(owner:repository:route:))) {
@@ -57,11 +62,11 @@ enum SiteRoute {
             PackageRoute.router
         }
 
+        // GET /add-a-package
+        // GET /faq
         // GET /package-collections
-        Route(.case(Self.packageCollections)) { Path { "package-collections" } }
-
         // GET /privacy
-        Route(.case(Self.privacy)) { Path { "privacy" } }
+        Route(.case(Self.static)) { Path { StaticRoute.parser() } }
 
         // GET /try-in-a-playground?dependencies=foo/bar
         Route(.case(Self.tryInPlayground(dependencies:))) {
@@ -82,7 +87,7 @@ enum SiteRoute {
             case .api(.version):
                 return API.Version(version: appVersion ?? "Unknown")
 
-            case .addAPackage, .docs, .faq, .packageCollections, .privacy, .tryInPlayground:
+            case .docs, .static, .tryInPlayground:
                 let filename = try router.print(route).path.joined(separator: "/") + ".md"
                 return MarkdownPage(path: req.url.path, filename).document()
 
@@ -96,6 +101,9 @@ enum SiteRoute {
 
             case let .package(owner: owner, repository: repository, route: packageRoute):
                 return try await PackageRoute.handler(req: req, owner: owner, repository: repository, route: packageRoute)
+
+            case let .packageCollection(owner: owner):
+                return try await PackageCollectionController.generate(req: req, owner: owner).get()
         }
     }
 }

@@ -29,7 +29,7 @@ class SiteURLTests: XCTestCase {
     func test_relativeURL() throws {
         XCTAssertEqual(SiteRoute.relativeURL(for: .home), "/")
         XCTAssertEqual(SiteURL.images("foo.png").relativeURL(), "/images/foo.png")
-        XCTAssertEqual(SiteRoute.relativeURL(for: .privacy), "/privacy")
+        XCTAssertEqual(SiteRoute.relativeURL(for: .static(.privacy)), "/privacy")
     }
     
     func test_relativeURL_for_Package() throws {
@@ -39,7 +39,7 @@ class SiteURLTests: XCTestCase {
     }
     
     func test_relativeURL_with_anchor() throws {
-        XCTAssertEqual(SiteRoute.relativeURL(for: .faq, anchor: "hello"), "/faq#hello")
+        XCTAssertEqual(SiteRoute.relativeURL(for: .static(.faq), anchor: "hello"), "/faq#hello")
     }
     
     func test_relativeURL_with_parameters() throws {
@@ -54,7 +54,7 @@ class SiteURLTests: XCTestCase {
         Current.siteURL = { "https://indexsite.com" }
         XCTAssertEqual(SiteRoute.absoluteURL(for: .home), "https://indexsite.com/")
         XCTAssertEqual(SiteURL.images("foo.png").absoluteURL(), "https://indexsite.com/images/foo.png")
-        XCTAssertEqual(SiteRoute.absoluteURL(for: .privacy), "https://indexsite.com/privacy")
+        XCTAssertEqual(SiteRoute.absoluteURL(for: .static(.privacy)), "https://indexsite.com/privacy")
 
         Current.siteURL = { "https://foo.com" }
         XCTAssertEqual(SiteRoute.absoluteURL(for: .home), "https://foo.com/")
@@ -62,7 +62,7 @@ class SiteURLTests: XCTestCase {
     
     func test_absoluteURL_with_anchor() throws {
         Current.siteURL = { "https://indexsite.com" }
-        XCTAssertEqual(SiteRoute.absoluteURL(for: .faq, anchor: "hello"), "https://indexsite.com/faq#hello")
+        XCTAssertEqual(SiteRoute.absoluteURL(for: .static(.faq), anchor: "hello"), "https://indexsite.com/faq#hello")
     }
 
     func test_absoluteURL_with_parameters() throws {

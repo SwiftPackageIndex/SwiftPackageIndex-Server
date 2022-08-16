@@ -331,7 +331,7 @@ class PublicPage {
                         ),
                         .li(
                             .a(
-                                .href(SiteRoute.relativeURL(for: .privacy)),
+                                .href(SiteRoute.relativeURL(for: .static(.privacy))),
                                 "Privacy and Cookies"
                             )
                         ),

@@ -19,7 +19,7 @@ import SQLKit
 
 extension SiteURL {
     
-    static var staticRoutes: [SiteRoute] = [.faq, .home, .privacy]
+    static var staticRoutes: [SiteRoute] = [.static(.faq), .home, .static(.privacy)]
 
     static func siteMap(with packages: [SiteMap.Package]) -> SiteMap {
         .init(
@@ -84,11 +84,11 @@ private extension SiteRoute {
         switch self {
             case .api:
                 return .weekly
-            case .addAPackage:
+            case .static(.addAPackage):
                 return .weekly
             case .docs:
                 return .weekly
-            case .faq:
+            case .static(.faq):
                 return .weekly
             case .home:
                 return .hourly
@@ -96,9 +96,11 @@ private extension SiteRoute {
                 return .daily
             case .package:
                 return .daily
-            case .packageCollections:
+            case .packageCollection:
                 return .daily
-            case .privacy:
+            case .static(.packageCollections):
+                return .daily
+            case .static(.privacy):
                 return .monthly
             case .tryInPlayground:
                 return .monthly
