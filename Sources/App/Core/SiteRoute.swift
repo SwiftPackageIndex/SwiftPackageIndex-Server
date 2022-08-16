@@ -17,6 +17,7 @@ import Vapor
 
 
 enum SiteRoute {
+    case api(ApiRoute)
     case addAPackage
     case docs(DocsRoute)
     case faq
@@ -27,6 +28,8 @@ enum SiteRoute {
     case tryInPlayground(dependencies: String? = nil)
 
     static let router = OneOf {
+        Route(.case(Self.api)) { Path { "api" }; ApiRoute.router }
+
         Route(.case(Self.addAPackage)) { Path { "add-a-package" } }
 
         Route(.case(Self.docs)) { Path { "docs"; DocsRoute.parser() } }
@@ -57,6 +60,12 @@ enum SiteRoute {
 
     static func handler(req: Request, route: SiteRoute) async throws -> AsyncResponseEncodable {
         switch route {
+            case let .api(.search(query: query, page: page)):
+                return try await API.SearchController.get(req: req, query: query, page: page).get()
+
+            case .api(.version):
+                return API.Version(version: appVersion ?? "Unknown")
+
             case .addAPackage, .docs, .faq, .packageCollections, .privacy, .tryInPlayground:
                 let filename = try router.print(route).path.joined(separator: "/") + ".md"
                 return MarkdownPage(path: req.url.path, filename).document()
@@ -69,6 +78,24 @@ enum SiteRoute {
             case let .package(owner: owner, repository: repository, route: packageRoute):
                 return try await PackageRoute.handler(req: req, owner: owner, repository: repository, route: packageRoute)
         }
+    }
+}
+
+
+enum ApiRoute {
+    case search(query: String, page: Int)
+    case version
+
+    static let router = OneOf {
+        Route(.case(Self.search)) {
+            Path { "search" }
+            Query {
+                Field("query", default: "")
+                Field("page", default: 1) { Int.parser() }
+            }
+        }
+
+        Route(.case(Self.version)) { Path { "version" } }
     }
 }
 

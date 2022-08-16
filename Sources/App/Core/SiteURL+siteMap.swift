@@ -82,6 +82,8 @@ extension SiteURL {
 private extension SiteRoute {
     var changefreq: SiteMapChangeFrequency {
         switch self {
+            case .api:
+                return .weekly
             case .addAPackage:
                 return .weekly
             case .docs:

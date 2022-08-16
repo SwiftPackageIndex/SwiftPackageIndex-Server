@@ -18,6 +18,15 @@ import Vapor
 
 extension API {
     struct SearchController {
+        static func get(req: Request, query: String, page: Int) throws -> EventLoopFuture<Search.Response> {
+            AppMetrics.apiSearchGetTotal?.inc()
+            return search(database: req.db,
+                          query: query,
+                          page: page,
+                          pageSize: Constants.resultsPageSize)
+        }
+
+        @available(*, deprecated)
         static func get(req: Request) throws -> EventLoopFuture<Search.Response> {
             let query = req.query[String.self, at: "query"] ?? ""
             let page = req.query[Int.self, at: "page"] ?? 1
