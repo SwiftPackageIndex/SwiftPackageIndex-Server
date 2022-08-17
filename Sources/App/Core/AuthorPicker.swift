@@ -20,15 +20,15 @@ import Vapor
 /// This protocols gathers the mandatory information needed to select authors and to acknowledge contributors
 protocol ContributionContext {
     /// Total number of commits
-    var commits: String { get }
-    var identifier : String { get }
+    var numberOfCommits: Int { get }
+    var name : String { get }
 }
 
 public struct Contributor : ContributionContext {
     /// Total number of commits
-    public let commits     : String
-    public let email       : String
-    public let identifier  : String
+    public let numberOfCommits: Int
+    public let email: String
+    public let name: String
     
 }
 
@@ -57,20 +57,11 @@ struct GitHistoryLoader : VCHistoryLoader {
     private func queryVCHistory(package: Joined<Package, Repository>) throws -> String {
     
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
-            print("cache directory is not specified in the package model")
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
         
         if !Current.fileManager.fileExists(atPath: cacheDir) {
-            do {
-                try GitHistoryLoader.minClone(cacheDir: cacheDir,
-                                              url: package.model.url,
-                                              branch: package.repository?.defaultBranch ?? "master")
-            } catch {
-                throw AppError.shellCommandFailed("GitHistoryLoader.minClone",
-                                                  cacheDir,
-                                                  "queryVCHistory failed: \(error.localizedDescription)")
-            }
+            throw AppError.unexistentPackageCacheDir(package.model.id, cacheDir)
         }
 
         // attempt to shortlog
@@ -85,16 +76,6 @@ struct GitHistoryLoader : VCHistoryLoader {
         
     }
     
-    /// Run `git clone` without the git blobs for a given url at a given branch in a given directory.
-    /// - Parameters:
-    ///   - cacheDir: checkout directory
-    ///   - url: url to clone from
-    ///   - branch: branch name to clone from, e.g. master or main
-    /// - Throws: Shell errors
-    static func minClone(cacheDir: String, url: String, branch: String) throws {
-        try Current.shell.run(command: .gitMinClone(url: URL(string: url)!, branch: branch, to: cacheDir),
-                              at: Current.fileManager.checkoutsDirectory())
-    }
     
     /// Parses the result of queryVCHistory into a collection of contributors
     public func parseVCHistory(log: String) throws -> [Contributor] {
@@ -109,9 +90,9 @@ struct GitHistoryLoader : VCHistoryLoader {
                     identifier.append(String(log[i]))
                 }
                 
-                let committer = Contributor(commits: String(log.first!),
+                let committer = Contributor(numberOfCommits: Int(log.first!) ?? 0,
                                             email: String(log.last!),
-                                            identifier: identifier.joined(separator: " "))
+                                            name: identifier.joined(separator: " "))
                 committers.append(committer)
             }
             
@@ -125,50 +106,43 @@ struct GitHistoryLoader : VCHistoryLoader {
 /// Protocol for all author selection strategies
 protocol AuthorSelector {
     
-    func selectAuthors(candidates : [Contributor] ) -> [Contributor]
+    func selectAuthors(candidates : [Contributor]) -> [Contributor]
     
-    func selectContributors(candidates : [Contributor] ) -> [Contributor]
+    func selectContributors(candidates : [Contributor]) -> [Contributor]
 }
 
-/// Strategy for selecting authors based entirely on the number of commits
+/// Strategy for selecting contributors based entirely on the number of commits
 struct CommitSelector : AuthorSelector {
     
-    let contributorThreshold    : Float
-    let authorThreshold         : Float
+    let contributorThreshold: Float
+    let authorThreshold: Float
     
     
-    init(contributorThreshold: Float = 0.02, authorThreshold : Float = 0.6) {
-        self.contributorThreshold   = contributorThreshold
-        self.authorThreshold        = authorThreshold
+    init(contributorThreshold: Float = 0.02, authorThreshold: Float = 0.6) {
+        self.contributorThreshold = contributorThreshold
+        self.authorThreshold = authorThreshold
+    }
+    
+    func selectAuthors(candidates: [Contributor]) -> [Contributor] {
+        return pickContributors(candidates: candidates, threshold: authorThreshold)
     }
     
     func selectContributors(candidates: [Contributor]) -> [Contributor] {
+        return pickContributors(candidates: candidates, threshold: contributorThreshold)
+    }
+    
+    
+    func pickContributors(candidates: [Contributor], threshold: Float) -> [Contributor] {
         if candidates.isEmpty {
             return []
         }
         
         let maxNumberOfCommits = candidates.max(by: { (a,b) -> Bool in
-            return Int(a.commits)! < Int(b.commits)!
-        })!.commits
+            return a.numberOfCommits < b.numberOfCommits
+        })!.numberOfCommits
         
         return candidates.filter { canditate in
-            return Float(canditate.commits)! > contributorThreshold * Float(maxNumberOfCommits)!
-        }
-    }
-    
-    func selectAuthors(candidates: [Contributor]) -> [Contributor] {
-        let contributors = selectContributors(candidates: candidates)
-        
-        if contributors.isEmpty {
-            return []
-        }
-        
-        let maxNumberOfCommits = contributors.max(by: { (a,b) -> Bool in
-            return Int(a.commits)! < Int(b.commits)!
-        })!.commits
-        
-        return candidates.filter { canditate in
-            return Float(canditate.commits)! > authorThreshold * Float(maxNumberOfCommits)!
+            return Float(canditate.numberOfCommits) > threshold * Float(maxNumberOfCommits)
         }
     }
     
@@ -184,8 +158,8 @@ final class AuthorPickerService {
     private let selectionStrategy   : AuthorSelector
     
     public init(historyLoader   : VCHistoryLoader, authorSelector  : AuthorSelector) {
-        self.historyLoader      = historyLoader
-        self.selectionStrategy  = authorSelector
+        self.historyLoader = historyLoader
+        self.selectionStrategy = authorSelector
     }
     
     
@@ -203,16 +177,6 @@ final class AuthorPickerService {
 
 
 private extension ShellOutCommand {
-    /// Makes a minimal clone of the repository without the binary large objetcs that contain the snapshots of the files data
-    static func gitMinClone(url: URL, branch: String? = "master", to path: String? = nil) -> ShellOutCommand {
-        var command = "git clone \(url.absoluteString)"
-        command.append(" --filter=blob:none --no-checkout --single-branch --branch")
-        branch.map { command.append(argument: $0) }
-        path.map { command.append(argument: $0) }
-
-        return ShellOutCommand(string: command)
-    }
-    
     
     /// Gets the git commit history in a short log
     static func gitShortlog(at path: String? = nil) -> ShellOutCommand {

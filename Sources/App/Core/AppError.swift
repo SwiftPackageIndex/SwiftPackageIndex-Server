@@ -20,6 +20,7 @@ enum AppError: LocalizedError {
     case envVariableNotSet(_ variable: String)
     case invalidPackageUrl(Package.Id?, _ url: String)
     case invalidPackageCachePath(Package.Id?, _ path: String)
+    case unexistentPackageCacheDir(Package.Id?, _ path: String)
     case invalidRevision(Version.Id?, _ revision: String?)
     case metadataRequestFailed(Package.Id?, HTTPStatus, URI)
     case noValidVersions(Package.Id?, _ url: String)
@@ -37,6 +38,8 @@ enum AppError: LocalizedError {
                 return "Invalid packge URL: \(value) (id: \(id))"
             case let .invalidPackageCachePath(id, value):
                 return "Invalid packge cache path: \(value) (id: \(id))"
+            case let .unexistentPackageCacheDir(id, value):
+            return "Package cache directory, \(value), does not exist: (id: \(id)"
             case let .invalidRevision(id, value):
                 return "Invalid revision: \(value ?? "nil") (id: \(id))"
             case let .metadataRequestFailed(id, status, uri):
