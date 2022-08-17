@@ -111,6 +111,7 @@ extension Package {
         case analysisFailed = "analysis_failed"
         case ingestionFailed = "ingestion_failed"
         case invalidCachePath = "invalid_cache_path"
+        case unexistentCacheDir = "unexistent_cache_dir"
         case invalidUrl = "invalid_url"
         case metadataRequestFailed = "metadata_request_failed"
         case notFound = "not_found"
