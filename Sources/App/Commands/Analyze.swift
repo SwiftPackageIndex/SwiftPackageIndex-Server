@@ -131,15 +131,6 @@ extension Analyze {
             case .id(let id):
                 logger.info("Analyzing (id: \(id)) ...")
                 let pkg = try await Package.fetchCandidate(database, id: id).get()
-            
-//                let url = pkg.model.url
-//                let defaultBranch = pkg.repository?.defaultBranch ?? "master" 
-//                print(defaultBranch)
-//                logger.info("Analyzing (url: \(url)) ...")
-//                let authors = pickAuthors(logger: logger, url: url, defaultBranch: defaultBranch)
-//                logger.info("first author is \(authors.first?.identifier)")
-            
-            
                 try await analyze(client: client,
                                   database: database,
                                   logger: logger,
@@ -222,8 +213,7 @@ extension Analyze {
         try await updateRepository(on: transaction, package: package)
         
         let authors = try pickAuthors(logger: logger, package: package)
-        
-        let contributors = try pickAcknowledgedContributors(logger: logger, package: package)
+        let numberOfContributors = try countContributors(logger: logger, package: package)
 
 
         let versionDelta = try await diffVersions(client: client,
@@ -739,7 +729,7 @@ extension Analyze {
     
     /// Selects the possible authors of the package according to the number of commits.
     /// A contributor is considered an author when the number of commits is at least a 60 percent
-    /// of the maximum commits done by a contributor. A contritutor is acknowledge if the number of
+    /// of the maximum commits done by a contributor. A contritutor is acknowledged if the number of
     /// commits is at leat 2 percent of the maximum of commits.
     /// - Parameters:
     ///   - logger: `Logger` object
@@ -749,7 +739,7 @@ extension Analyze {
         logger.info("Picking authors for \(package.model.url)")
 
         let gitHistoryLoader = GitHistoryLoader()
-        let strategy = CommitSelector()
+        let strategy = CommitSelector(contributorThreshold: 0.02, authorThreshold: 0.6)
         let selector = AuthorPickerService(historyLoader: gitHistoryLoader,
                                            authorSelector: strategy)
         
@@ -757,25 +747,27 @@ extension Analyze {
         
     }
     
-    /// Selects the contributors for acknowledgement according to the number of commits.
-    /// A contritutor is acknowledged if the number of
-    /// commits is at leat 2 percent of the maximum of commits.
+    /// Counts the number of contributors that could be acknowledged;
+    /// A contritutor could be acknowledged if the number of
+    /// commits is at least 2 percent of the maximum of commits, while a
+    /// contributor is considered an Author is the number of commits is at
+    /// least 60 percent of the maximum of commits.
     /// - Parameters:
     ///   - logger: `Logger` object
     ///   - package: The package in which we select the authors
-    /// - Returns: Array of Contributors which were acknowledged by the number of commits
-    static func pickAcknowledgedContributors(logger: Logger, package: Joined<Package, Repository>) throws -> [Contributor] {
-        logger.info("Picking acknowledged contributors for \(package.model.url)")
+    /// - Returns: number of contributors
+    static func countContributors(logger: Logger, package: Joined<Package, Repository>) throws -> Int {
+        logger.info("Counting possible acknowledged contributors for \(package.model.url)")
 
         let gitHistoryLoader = GitHistoryLoader()
-        let strategy = CommitSelector()
+        let strategy = CommitSelector(contributorThreshold: 0.02, authorThreshold: 0.6)
         let selector = AuthorPickerService(historyLoader: gitHistoryLoader,
                                            authorSelector: strategy)
         
-        return try selector.selectContributors(package: package)
-        
+        return try selector.selectContributors(package: package).count - selector.selectAuthors(package: package).count
     }
-
+    
+    
 }
 
 
