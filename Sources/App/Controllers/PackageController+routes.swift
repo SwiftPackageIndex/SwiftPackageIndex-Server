@@ -60,20 +60,19 @@ enum PackageController {
         case css
         case data
         case documentation
-        case documentationRedirect
+        case favicon
         case img
         case index
         case js
-        case root
         case themeSettings
 
         var contentType: String {
             switch self {
                 case .css:
                     return "text/css"
-                case  .data, .img, .index, .root, .themeSettings:
+                case  .data, .favicon, .img, .index, .themeSettings:
                     return "application/octet-stream"
-                case .documentation, .documentationRedirect:
+                case .documentation:
                     return "text/html; charset=utf-8"
                 case .js:
                     return "application/javascript"
@@ -88,6 +87,44 @@ enum PackageController {
         var docArchives: [String]
         var latest: Version.Kind?
         var updatedAt: Date
+    }
+
+    static func documentation(req: Request) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository"),
+            let reference = req.parameters.get("reference")
+        else {
+            throw Abort(.notFound)
+        }
+
+        let referenceToMatch: Reference = {
+            if let semanticVersion = SemanticVersion(reference) {
+                return .tag(semanticVersion, reference)
+            } else {
+                return .branch(reference)
+            }
+        }()
+
+        guard let queryResult = try await Joined3<Version, Package, Repository>
+            .query(on: req.db,
+                   join: \Version.$package.$id == \Package.$id, method: .inner,
+                   join: \Package.$id == \Repository.$package.$id, method: .inner)
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            .filter(Repository.self, \.$name, .custom("ilike"), repository)
+            .filter(\Version.$reference == referenceToMatch)
+            .filter(\Version.$docArchives != nil)
+            .field(Version.self, \.$docArchives)
+            .first()
+        else { throw Abort(.notFound) }
+
+        // This package has at least one docArchive, so redirect to it.
+        guard let docArchive = queryResult.model.docArchives?.first
+        else { throw Abort(.notFound) }
+        throw Abort.redirect(to: DocumentationPageProcessor.relativeDocumentationURL(owner: owner,
+                                                                                     repository: repository,
+                                                                                     reference: reference,
+                                                                                     docArchive: docArchive.name))
     }
 
     static func documentation(req: Request, fragment: Fragment) async throws -> Response {
@@ -106,42 +143,12 @@ enum PackageController {
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
         let awsResponse = try await Current.fetchDocumentation(req.client, url)
 
-        // Never let a request continue if the AWS request fails, except to a potential `/owner/repo/ref/documentation/` redirect.
-        guard (200..<399).contains(awsResponse.status.code) || fragment == .documentationRedirect else {
+        guard (200..<399).contains(awsResponse.status.code) else {
             // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
             throw Abort(.notFound)
         }
 
         switch fragment {
-            case .documentationRedirect:
-                let referenceToMatch: Reference = {
-                    if let semanticVersion = SemanticVersion(reference) {
-                        return .tag(semanticVersion, reference)
-                    } else {
-                        return .branch(reference)
-                    }
-                }()
-
-                guard let queryResult = try await Joined3<Version, Package, Repository>
-                    .query(on: req.db,
-                           join: \Version.$package.$id == \Package.$id, method: .inner,
-                           join: \Package.$id == \Repository.$package.$id, method: .inner)
-                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-                    .filter(Repository.self, \.$name, .custom("ilike"), repository)
-                    .filter(\Version.$reference == referenceToMatch)
-                    .filter(\Version.$docArchives != nil)
-                    .field(Version.self, \.$docArchives)
-                    .first()
-                else { throw Abort(.notFound) }
-
-                // This package has at least one docArchive, so redirect to it.
-                guard let docArchive = queryResult.model.docArchives?.first
-                else { throw Abort(.notFound) }
-                throw Abort.redirect(to: DocumentationPageProcessor.relativeDocumentationURL(owner: owner,
-                                                                                             repository: repository,
-                                                                                             reference: reference,
-                                                                                             docArchive: docArchive.name))
-
             case .documentation:
                 let queryResult = try await Joined3<Version, Package, Repository>
                     .query(on: req.db,
@@ -226,7 +233,7 @@ enum PackageController {
                     for: req
                 )
 
-            case .css, .data, .img, .index, .js, .root, .themeSettings:
+            case .css, .data, .favicon, .img, .index, .js, .themeSettings:
                 return try await awsResponse.encodeResponse(
                     status: .ok,
                     headers: req.headers
@@ -380,9 +387,9 @@ extension PackageController {
         let baseURL = "http://\(baseURLHost)/\(baseURLPath)"
 
         switch fragment {
-            case .css, .data, .documentationRedirect, .documentation, .img, .index, .js:
+            case .css, .data, .documentation, .img, .index, .js:
                 return URI(string: "\(baseURL)/\(fragment)/\(path)")
-            case .root:
+            case .favicon:
                 return URI(string: "\(baseURL)/\(path)")
             case .themeSettings:
                 return URI(string: "\(baseURL)/theme-settings.json")

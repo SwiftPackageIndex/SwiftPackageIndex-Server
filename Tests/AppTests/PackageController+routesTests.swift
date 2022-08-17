@@ -360,11 +360,22 @@ class PackageController_routesTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
+        try Version(package: pkg,
+                    commit: "123",
+                    commitDate: .t0,
+                    docArchives: [.init(name: "foo", title: "Foo")],
+                    latest: .defaultBranch,
+                    packageName: "pkg",
+                    reference: .tag(1, 2, 3))
             .save(on: app.db).wait()
 
         // MUT
         try app.test(.GET, "/owner/package/1.2.3/documentation") {
+            // root path doesn't call Current.fetchDocumentation, redirects only
+            XCTAssertEqual($0.status, .seeOther)
+        }
+        try app.test(.GET, "/owner/package/1.2.3/documentation/foo") {
+            // hits Current.fetchDocumentation which throws the internalServerError, as expected
             XCTAssertEqual($0.status, .internalServerError)
         }
     }
