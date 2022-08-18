@@ -30,8 +30,8 @@ extension HomeIndex {
         ]
 
         static var twitterSpaceLinks = TwitterSpaceLinks(
-            previousUrl: "https://blog.swiftpackageindex.com/posts/swift-package-indexing-episode-8/",
-            nextUrl: "https://twitter.com/i/spaces/1jMJgeBrkrMKL"
+            previousUrl: "https://blog.swiftpackageindex.com/posts/swift-package-indexing-episode-9/",
+            nextUrl: "https://twitter.com/i/spaces/1YqxopooVyXKv"
         )
 
         struct Release: Equatable {
@@ -70,7 +70,7 @@ extension HomeIndex.Model {
         else { return nil }
         return "\(packageCount) packages"
     }
-    
+
     func statsClause() -> Node<HTML.BodyContext>? {
         guard let description = statsDescription() else { return nil }
         return .small(
@@ -78,7 +78,7 @@ extension HomeIndex.Model {
             .text(description)
         )
     }
-    
+
     func recentPackagesSection() -> Node<HTML.ListContext> {
         .group(
             recentPackages.map { datedLink -> Node<HTML.ListContext> in
@@ -92,7 +92,7 @@ extension HomeIndex.Model {
             }
         )
     }
-    
+
     func recentReleasesSection() -> Node<HTML.ListContext> {
         .group(
             recentReleases.map { release -> Node<HTML.ListContext> in
