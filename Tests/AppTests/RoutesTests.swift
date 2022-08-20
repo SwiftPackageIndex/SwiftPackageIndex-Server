@@ -30,4 +30,15 @@ final class RoutesTests: AppTestCase {
         }
     }
 
+    func test_documentation_img() async throws {
+        // setup
+        Current.fetchDocumentation = { _, _ in .init(status: .ok) }
+
+        // MUT
+        try app.test(.GET, "foo/bar/1.2.3/img/baz.png") { res in
+            // validation
+            XCTAssertEqual(res.status, .ok)
+        }
+    }
+
 }
