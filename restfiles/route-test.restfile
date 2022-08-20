@@ -79,6 +79,11 @@ requests:
         url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/img/added-icon.d6f7e47d.svg
         validation:
             status: 200
+    # This route test can't work unless we add an image to the docs
+    # /:owner/:repository/:reference/images/**:
+    #     url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/images/added-icon.d6f7e47d.svg
+    #     validation:
+    #         status: 200
     /:owner/:repository/:reference/index/**:
         url: ${base_url}/SwiftPackageIndex/SemanticVersion/main/index/index.json
         validation:

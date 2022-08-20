@@ -61,6 +61,7 @@ enum PackageController {
         case data
         case documentation
         case favicon
+        case images
         case img
         case index
         case js
@@ -70,7 +71,7 @@ enum PackageController {
             switch self {
                 case .css:
                     return "text/css"
-                case  .data, .favicon, .img, .index, .themeSettings:
+                case  .data, .favicon, .images, .img, .index, .themeSettings:
                     return "application/octet-stream"
                 case .documentation:
                     return "text/html; charset=utf-8"
@@ -233,7 +234,7 @@ enum PackageController {
                     for: req
                 )
 
-            case .css, .data, .favicon, .img, .index, .js, .themeSettings:
+            case .css, .data, .favicon, .images, .img, .index, .js, .themeSettings:
                 return try await awsResponse.encodeResponse(
                     status: .ok,
                     headers: req.headers
@@ -387,7 +388,7 @@ extension PackageController {
         let baseURL = "http://\(baseURLHost)/\(baseURLPath)"
 
         switch fragment {
-            case .css, .data, .documentation, .img, .index, .js:
+            case .css, .data, .documentation, .images, .img, .index, .js:
                 return URI(string: "\(baseURL)/\(fragment)/\(path)")
             case .favicon:
                 return URI(string: "\(baseURL)/\(path)")
