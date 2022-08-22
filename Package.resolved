@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/swift-server/async-http-client.git",
         "state": {
           "branch": null,
-          "revision": "df87a860fdc41a595d5ca67f74cde9adbccc099a",
-          "version": "1.11.4"
+          "revision": "fc510a39cff61b849bf5cdff17eb2bd6d0777b49",
+          "version": "1.11.5"
         }
       },
       {
@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/vapor/fluent.git",
         "state": {
           "branch": null,
-          "revision": "ea707ee318066a073c95b2b2df1aa640fcb67f9e",
-          "version": "4.4.0"
+          "revision": "26c446002f03c5ab34b20d86873014ef3d92d0da",
+          "version": "4.5.0"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "7fc64d3ebb1141047828d92a52af85f7446ce37f",
-          "version": "1.35.0"
+          "revision": "38670d2eefcba27530272946d627ac8d4e45f017",
+          "version": "1.35.1"
         }
       },
       {
@@ -96,8 +96,8 @@
         "repositoryURL": "https://github.com/vapor/postgres-kit.git",
         "state": {
           "branch": null,
-          "revision": "e436a94a95285dc10a02ec772796465e923471d6",
-          "version": "2.8.1"
+          "revision": "e97975309073e05d408749ccc1356076e4fdc22a",
+          "version": "2.8.2"
         }
       },
       {
@@ -123,8 +123,8 @@
         "repositoryURL": "https://github.com/SwiftPackageIndex/SemanticVersion",
         "state": {
           "branch": null,
-          "revision": "333efa81c1d1d2c0181aff18788b7d83d2cd5e82",
-          "version": "0.3.4"
+          "revision": "fc670910dc0903cc269b3d0b776cda5703979c4e",
+          "version": "0.3.5"
         }
       },
       {
@@ -141,8 +141,8 @@
         "repositoryURL": "https://github.com/SwiftPackageIndex/SPIManifest",
         "state": {
           "branch": null,
-          "revision": "ad6d1fb021022788af310e9048dbecfaa14e0aa1",
-          "version": "0.7.1"
+          "revision": "36eac3222fd744fe3b5621c351751d83ed518d64",
+          "version": "0.7.2"
         }
       },
       {
@@ -240,8 +240,8 @@
         "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {
           "branch": null,
-          "revision": "8fc79cae9d03a5e623c52cc2dbd2df165a7832b0",
-          "version": "1.4.3"
+          "revision": "6fe203dc33195667ce1759bf0182975e4653ba1c",
+          "version": "1.4.4"
         }
       },
       {
@@ -366,8 +366,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "c814b6f6900bd479fd93fa28aea3b45afb6ea342",
-          "version": "4.65.0"
+          "revision": "971becba16d6faf5c4cb869d2e3026e822d09059",
+          "version": "4.65.1"
         }
       },
       {
