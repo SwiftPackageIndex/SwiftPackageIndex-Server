@@ -212,10 +212,27 @@ extension Analyze {
         try refreshCheckout(logger: logger, package: package)
         try await updateRepository(on: transaction, package: package)
         
-        let authors = try pickAuthors(logger: logger, package: package)
-        let numberOfContributors = try countContributors(logger: logger, package: package)
-
-
+        // -----------
+        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+            throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
+        }
+        
+        let authors = try extractAuthors(logger: logger,
+                                         cacheDirPath: cacheDir,
+                                         packageID: package.model.id!)
+        let numberOfContributors = try countContributors(logger: logger,
+                                                         cacheDirPath: cacheDir,
+                                                         packageID: package.model.id!)
+        
+        logger.info("Written by ")
+        for author in authors {
+            logger.info("Author : \(author.name)")
+        }
+        if numberOfContributors != 0 {
+            logger.info("and \(numberOfContributors) contributors")
+        }
+        // -----------
+        
         let versionDelta = try await diffVersions(client: client,
                                                   logger: logger,
                                                   transaction: transaction,
@@ -360,7 +377,7 @@ extension Analyze {
         guard let gitDirectory = Current.fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
-
+        
         repo.commitCount = (try? Current.git.commitCount(gitDirectory)) ?? 0
         repo.firstCommitDate = try? Current.git.firstCommitDate(gitDirectory)
         repo.lastCommitDate = try? Current.git.lastCommitDate(gitDirectory)
@@ -727,23 +744,18 @@ extension Analyze {
     }
     
     
-    /// Selects the possible authors of the package according to the number of commits.
+    /// Extracts the possible authors of the package according to the number of commits.
     /// A contributor is considered an author when the number of commits is at least a 60 percent
-    /// of the maximum commits done by a contributor. A contritutor is acknowledged if the number of
-    /// commits is at leat 2 percent of the maximum of commits.
+    /// of the maximum commits done by a contributor
     /// - Parameters:
     ///   - logger: `Logger` object
-    ///   - package: The package in which we select the authors
+    ///   - cacheDirPath: path to the cache directory where the clone of the package is stored
+    ///   - packageID: the UUID of the package
     /// - Returns: Array of Contributors which were selected as authors
-    static func pickAuthors(logger: Logger, package: Joined<Package, Repository>) throws -> [Contributor] {
-        logger.info("Picking authors for \(package.model.url)")
+    static func extractAuthors(logger: Logger, cacheDirPath: String, packageID: UUID) throws -> [Contributor] {
+        logger.info("Extracting authors for package id: \(packageID)")
 
-        let gitHistoryLoader = GitHistoryLoader()
-        let strategy = CommitSelector(contributorThreshold: 0.02, authorThreshold: 0.6)
-        let selector = AuthorPickerService(historyLoader: gitHistoryLoader,
-                                           authorSelector: strategy)
-        
-        return try selector.selectAuthors(package: package)
+        return try AuthorExtractor.selectAuthors(cacheDirPath: cacheDirPath, packageID: packageID)
         
     }
     
@@ -756,15 +768,10 @@ extension Analyze {
     ///   - logger: `Logger` object
     ///   - package: The package in which we select the authors
     /// - Returns: number of contributors
-    static func countContributors(logger: Logger, package: Joined<Package, Repository>) throws -> Int {
-        logger.info("Counting possible acknowledged contributors for \(package.model.url)")
-
-        let gitHistoryLoader = GitHistoryLoader()
-        let strategy = CommitSelector(contributorThreshold: 0.02, authorThreshold: 0.6)
-        let selector = AuthorPickerService(historyLoader: gitHistoryLoader,
-                                           authorSelector: strategy)
+    static func countContributors(logger: Logger, cacheDirPath: String, packageID: UUID) throws -> Int {
+        logger.info("Counting possible contributors for package id: \(packageID)")
         
-        return try selector.selectContributors(package: package).count - selector.selectAuthors(package: package).count
+        return try AuthorExtractor.countContributors(cacheDirPath: cacheDirPath, packageID: packageID)
     }
     
     
