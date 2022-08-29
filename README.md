@@ -2,7 +2,7 @@
 
 **The Swift Package Index helps you make better decisions about the dependencies you use in your apps**.
 
-The [Swift Package Index](https://swiftpackageindex.com) is a search engine for packages that are compatible with the [Swift Package Manager](https://swift.org/package-manager/). The project is open-source and written in Swift using [Vapor](https://swiftpackageindex.com/vapor/vapor).
+The [Swift Package Index](https://swiftpackageindex.com) is tha place to find packages that are compatible with the [Swift Package Manager](https://swift.org/package-manager/). The project is [open-source](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/LICENSE) and written in Swift using [Vapor](https://swiftpackageindex.com/vapor/vapor).
 
 ## Code of Conduct
 
@@ -10,29 +10,25 @@ All participation in this project, whether contributing code, communicating in d
 
 ## Funding and Sponsorship
 
-The Swift Package Index is a community project, and we rely on external support and funding to keep it going. If you'd like to help, you can [sponsor the project today](https://github.com/sponsors/SwiftPackageIndex) to support ongoing feature development and essential maintenance. If your company would like to become a corporate sponsor, please [get in touch](mailto:swiftpackageindex@gmail.com).
+The Swift Package Index is a community project that would not be possible without the support of its sponsors. Thank you to everyone who supports this project!
 
-We also want to express our heartfelt thanks to all our sponsors. Your contributions make this project possible. ❤️
+### Corporate and Infrastructure Sponsors
 
-### Corporate sponsors
+<div>
+<a href="https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat" target="_blank"><picture><source srcset=".readme-images/stream-logo~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/stream-logo.png" /></picture></a> &nbsp;&nbsp;
+<a href="https://www.emergetools.com/?utm_source=spi&utm_medium=sponsor&utm_campaign=emerge" target="_blank"><picture><source srcset=".readme-images/emerge-logo~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/emerge-logo.png" /></picture></a> &nbsp;&nbsp;
+<a href="https://www.macstadium.com/" target="_blank"><img src=".readme-images/macstadium-logo.png" /></a> &nbsp;&nbsp;
+<a href="https://azure.microsoft.com/en-us/" target="_blank"><img src=".readme-images/azure-logo.png" /></a>
+</div>
 
-<div><a href="https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat" target="_blank"><picture><source srcset=".readme-images/stream-logo~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/stream-logo.png" /></picture></a></div>
-
-Build real-time chat messaging in less time. Rapidly ship highly reliable chat in-app messaging with Stream's SDK. [Get started](https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat).
-
-<div><a href="https://www.emergetools.com/?utm_source=spi&utm_medium=sponsor&utm_campaign=emerge" target="_blank"><picture><source srcset=".readme-images/emerge-logo~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/emerge-logo.png" /></picture></a></div>
-
-Your mobile developer's favorite dev tool. Join many of the best mobile teams on the ultimate native mobile performance monitoring and optimization platform. [Get started](https://www.emergetools.com/?utm_source=spi&utm_medium=sponsor&utm_campaign=emerge).
-
-### Hosting sponsors
-
-[![MacStadium logo](.readme-images/macstadium-logo.png)](https://www.macstadium.com/)<br>
-Create, build, test, or manage your iOS and macOS projects with simple, secure, and scalable Mac solutions. [Find out more](https://getstream.io/chat/sdk/).
-
-[![Microsoft Azure logo](.readme-images/azure-logo.png)](https://azure.microsoft.com/en-us/)<br>
-Accelerate your move to the cloud and unify management of all your resources with Azure tools and guidance. [Sign up now](https://azure.microsoft.com/en-us/).
+* [**Stream**](https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat): Build reliable, real-time, in-app chat and messaging in less time.
+* [**Emerge Tools**](https://www.emergetools.com/?utm_source=spi&utm_medium=sponsor&utm_campaign=emerge): Monitor app size, improve startup time, and prevent performance regressions.
+* [**MacStadium**](https://getstream.io/chat/sdk/): Virtualized and bare-metal Macs in the cloud.
+* [**Microsoft Azure**](https://azure.microsoft.com/en-us/): Unify management of all your resources with Azure tools and guidance.
 
 ### Community sponsors
+
+Thank you to everyone who [sponsors the project through GitHub Sponsors](https://github.com/sponsors/SwiftPackageIndex) your support makes this project possible.
 
 [![Community sponsors](.readme-images/community-sponsors.png)](https://github.com/sponsors/SwiftPackageIndex)<br>
 The support of this community means everything to us. Thank you to _everyone_ who sponsors this project via [GitHub sponsors](https://github.com/sponsors/SwiftPackageIndex).
