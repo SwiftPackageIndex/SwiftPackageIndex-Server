@@ -267,8 +267,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-extras.git",
         "state": {
           "branch": null,
-          "revision": "a75e92bde3683241c15df3dd905b7a6dcac4d551",
-          "version": "1.12.1"
+          "revision": "5334d949febb396a4e2e5235e9fbcd9c3c014bb3",
+          "version": "1.13.0"
         }
       },
       {
@@ -285,8 +285,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-ssl.git",
         "state": {
           "branch": null,
-          "revision": "0265283d3539ced108b9b8287eb3328c9d85acdc",
-          "version": "2.21.0"
+          "revision": "a6f9a034e5903024c6bac4ce2c56b157688d844f",
+          "version": "2.22.0"
         }
       },
       {
@@ -312,7 +312,7 @@
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "release/5.7",
-          "revision": "61372ba420220b359069e858753a0dfb4f69ac0f",
+          "revision": "c5da46610e82d22508532fdaa6858cc74b3bb870",
           "version": null
         }
       },
