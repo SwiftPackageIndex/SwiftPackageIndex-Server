@@ -15,10 +15,10 @@ The Swift Package Index is a community project that would not be possible withou
 ### Corporate and Infrastructure Sponsors
 
 <div>
-<a href="https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat" target="_blank"><picture><source srcset=".readme-images/stream-logo~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/stream-logo.png" /></picture></a> &nbsp;&nbsp;
-<a href="https://www.emergetools.com/?utm_source=spi&utm_medium=sponsor&utm_campaign=emerge" target="_blank"><picture><source srcset=".readme-images/emerge-logo~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/emerge-logo.png" /></picture></a> &nbsp;&nbsp;
-<a href="https://www.macstadium.com/" target="_blank"><img src=".readme-images/macstadium-logo.png" /></a> &nbsp;&nbsp;
-<a href="https://azure.microsoft.com/en-us/" target="_blank"><img src=".readme-images/azure-logo.png" /></a>
+<a href="https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat" target="_blank"><picture><source srcset=".readme-images/stream-logo~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/stream-logo.png" width="175" alt="Stream Logo" /></picture></a> &nbsp;&nbsp;
+<a href="https://www.emergetools.com/?utm_source=spi&utm_medium=sponsor&utm_campaign=emerge" target="_blank"><picture><source srcset=".readme-images/emerge-logo~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/emerge-logo.png" width="175" alt="Emerge Tools Logo" /></picture></a> &nbsp;&nbsp;
+<a href="https://www.macstadium.com/" target="_blank"><img src=".readme-images/macstadium-logo.png"  width="175" alt="MacStadium Logo"/></a> &nbsp;&nbsp;
+<a href="https://azure.microsoft.com/en-us/" target="_blank"><img src=".readme-images/azure-logo.png"  width="175" alt="Microsoft Azure Logo"/></a>
 </div>
 
 * [**Stream**](https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat): Build reliable, real-time, in-app chat and messaging in less time.
