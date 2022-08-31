@@ -139,7 +139,7 @@ enum HomeIndex {
                             )
                         )
                     ),
-                    .unwrap(model.sponsoredLink(), { sponsoredLink in
+                    .forEach(Model.currentSponsors.shuffled(), { sponsoredLink in
                             .group(
                                 .a(
                                     .href(sponsoredLink.url),
@@ -156,25 +156,20 @@ enum HomeIndex {
                                             )
                                         ),
                                         .p(
-                                            .text(sponsoredLink.body),
-                                            .text(" "),
-                                            .span(
-                                                .text(sponsoredLink.cta)
-                                            ),
-                                            .text(".")
+                                            .text(sponsoredLink.body)
                                         )
                                     )
-                                ),
-                                .small(
-                                    .text("Thanks so much to all of our generous sponsors for "),
-                                    .a(
-                                        .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/README.md#funding-and-sponsorship"),
-                                        .text("supporting this project")
-                                    ),
-                                    .text(".")
                                 )
                             )
-                    })
+                    }),
+                    .small(
+                        .text("Thanks so much to all of our generous sponsors for "),
+                        .a(
+                            .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/README.md#funding-and-sponsorship"),
+                            .text("supporting this project")
+                        ),
+                        .text(".")
+                    )
                 )
             )
         }
