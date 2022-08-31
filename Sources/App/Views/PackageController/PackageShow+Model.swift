@@ -336,9 +336,6 @@ extension PackageShow.Model {
     }
 
     func binaryTargetsItem() -> Node<HTML.ListContext> {
-        guard Environment.current == .development
-        else { return .empty }
-
         guard hasBinaryTargets else { return .empty }
 
         func linkNode(for name: String, url: String) -> Node<HTML.BodyContext> {
