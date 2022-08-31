@@ -2,7 +2,7 @@
 
 **The Swift Package Index helps you make better decisions about the dependencies you use in your apps**.
 
-The [Swift Package Index](https://swiftpackageindex.com) is tha place to find packages that are compatible with the [Swift Package Manager](https://swift.org/package-manager/). The project is [open-source](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/LICENSE) and written in Swift using [Vapor](https://swiftpackageindex.com/vapor/vapor).
+The [Swift Package Index](https://swiftpackageindex.com) is the place to find packages that are compatible with the [Swift Package Manager](https://swift.org/package-manager/). The project is [open-source](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/LICENSE) and written in Swift using [Vapor](https://swiftpackageindex.com/vapor/vapor).
 
 ## Code of Conduct
 
