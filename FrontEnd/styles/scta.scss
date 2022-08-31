@@ -123,6 +123,24 @@ body.home {
             background-size: 100%;
             background-image: var(--image-heart);
         }
+
+        div.avatars {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+
+            img {
+                justify-self: center;
+                width: 30px;
+                border-radius: 100%;
+                box-shadow: var(--avatar-shadow);
+            }
+        }
+
+        small {
+            display: block;
+            text-align: right;
+        }
     }
 
     .ccta {
