@@ -28,10 +28,9 @@ The Swift Package Index is a community project that would not be possible withou
 
 ### Community sponsors
 
-Thank you to everyone who [sponsors the project through GitHub Sponsors](https://github.com/sponsors/SwiftPackageIndex) your support makes this project possible.
-
-[![Community sponsors](.readme-images/community-sponsors.png)](https://github.com/sponsors/SwiftPackageIndex)<br>
 The support of this community means everything to us. Thank you to _everyone_ who sponsors this project via [GitHub sponsors](https://github.com/sponsors/SwiftPackageIndex).
+
+<a href="https://github.com/sponsors/SwiftPackageIndex" target="_blank"><picture><source srcset=".readme-images/community-sponsors~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/community-sponsors.png" width="600" alt="Community sponsor profile pictures" /></picture></a>
 
 ## Contributing
 
