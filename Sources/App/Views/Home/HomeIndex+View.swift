@@ -21,6 +21,8 @@ enum HomeIndex {
 
         let model: Model
 
+        let numberOfCommunitySponsors = 14
+
         init(path: String, model: Model) {
             self.model = model
             super.init(path: path)
@@ -103,24 +105,41 @@ enum HomeIndex {
                     .div(
                         .class("scta"),
                         .p(
-                            .text("The Swift Package Index is an "),
-                            .a(
-                                .href(ExternalURL.projectGitHub),
-                                "open-source"
-                            ),
-                            .text(" project funded by community donations.")
-                        ),
-                        .p(
-                            .text("Please consider "),
+                            .text("This project wouldn't be possible without "),
                             .a(
                                 .href(ExternalURL.projectSponsorship),
-                                "sponsoring the project"
+                                .text("community support")
                             ),
-                            .text(" to support the time we dedicate to it. "),
-                            .strong("Thank you!")
+                            .text(". Please consider "),
+                            .a(
+                                .href(ExternalURL.projectSponsorship),
+                                "joining \(CommunitySponsors.sponsors.count) other sponsors"
+                            ),
+                            .text(".")
+                        ),
+                        .p(
+                            .div(
+                                .class("avatars"),
+                                .forEach(CommunitySponsors.sponsors.randomSample(count: numberOfCommunitySponsors), { sponsor in
+                                        .a(
+                                            .href(ExternalURL.projectSponsorship),
+                                            .img(
+                                                .src(sponsor.avatarUrl),
+                                                .unwrap(sponsor.name, { .title($0) }),
+                                                .alt(sponsor.name ?? "Profile picture")
+                                            )
+                                        )
+                                })
+                            ),
+                            .small(
+                                .a(
+                                    .href(ExternalURL.projectSponsorship),
+                                    .text("&hellip; and \(CommunitySponsors.sponsors.count - numberOfCommunitySponsors) more.")
+                                )
+                            )
                         )
                     ),
-                    .unwrap(model.sponsoredLink(), { sponsoredLink in
+                    .forEach(Model.currentSponsors.shuffled(), { sponsoredLink in
                             .group(
                                 .a(
                                     .href(sponsoredLink.url),
@@ -137,25 +156,20 @@ enum HomeIndex {
                                             )
                                         ),
                                         .p(
-                                            .text(sponsoredLink.body),
-                                            .text(" "),
-                                            .span(
-                                                .text(sponsoredLink.cta)
-                                            ),
-                                            .text(".")
+                                            .text(sponsoredLink.body)
                                         )
                                     )
-                                ),
-                                .small(
-                                    .text("Thanks so much to all of our generous sponsors for "),
-                                    .a(
-                                        .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/README.md#funding-and-sponsorship"),
-                                        .text("supporting this project")
-                                    ),
-                                    .text(".")
                                 )
                             )
-                    })
+                    }),
+                    .small(
+                        .text("Thanks so much to all of our generous sponsors for "),
+                        .a(
+                            .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/README.md#funding-and-sponsorship"),
+                            .text("supporting this project")
+                        ),
+                        .text(".")
+                    )
                 )
             )
         }
