@@ -148,6 +148,8 @@
 
     --keyword-count-background: rgba(0, 0, 0, 10%);
 
+    --ccta-background: var(--very-light-grey);
+    --ccta-background-hover: var(--light-grey);
     --avatar-shadow: 0 2px 3px 5px rgba(0, 0, 0, 5%);
 }
 
@@ -247,5 +249,8 @@
         --big-button-blue-border: var(--light-blue);
 
         --keyword-count-background: rgba(255, 255, 255, 12.5%);
+
+        --ccta-background: var(--very-dark-grey);
+        --ccta-background-hover: var(--dark-grey);
     }
 }

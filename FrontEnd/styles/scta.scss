@@ -67,7 +67,7 @@
         padding: 10px;
         font-size: 14px;
         color: var(--page-text);
-        background-color: var(--panel-background);
+        background-color: var(--ccta-background);
         border-top: 3px var(--pink) solid;
         box-shadow: var(--panel-shadow);
 
@@ -95,7 +95,7 @@ body.home {
     .ccta {
         margin: 20px 0;
         padding: 15px;
-        background-color: var(--panel-background);
+        background-color: var(--ccta-background);
 
         p {
             margin: 0 0 10px;
@@ -155,14 +155,8 @@ body.home {
             padding: 15px;
         }
 
-        span {
-            color: var(--link-text);
-        }
-
         &:hover {
-            span {
-                color: var(--link-highlight);
-            }
+            background-color: var(--ccta-background-hover);
         }
     }
 }
