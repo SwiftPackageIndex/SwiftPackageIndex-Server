@@ -47,6 +47,7 @@ The build system aims to reproduce a real-world environment for building package
 - Swift 5.3 builds with Xcode 12.4.
 - Swift 5.4 builds with Xcode 12.5.
 - Swift 5.5 builds with Xcode 13.1.
+- Swift 5.6 builds with Xcode 13.4.
 
 The build system uses the `DEVELOPER_DIR` environment variable to switch versions of Xcode. This applies to both `xcodebuild` and `swift build` commands.
 
