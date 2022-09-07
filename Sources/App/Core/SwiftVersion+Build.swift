@@ -16,10 +16,12 @@ extension SwiftVersion {
     // NB: Remember to remove any old builds from the database when *removing* a Swift
     // version here!
     // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1267#issuecomment-975379966
-    static let v5_3: Self = .init(5, 3, 3)
+    // Patch versions are irrelevant here but the underlying type requires one, so use 0
+    // in general.
+    static let v5_3: Self = .init(5, 3, 0)
     static let v5_4: Self = .init(5, 4, 0)
-    static let v5_5: Self = .init(5, 5, 2)
-    static let v5_6: Self = .init(5, 6, 1)
+    static let v5_5: Self = .init(5, 5, 0)
+    static let v5_6: Self = .init(5, 6, 0)
     static let v5_7: Self = .init(5, 7, 0)
 
     /// Currently supported swift versions for building
