@@ -142,9 +142,8 @@ enum PackageController {
         let path = catchAll.joined(separator: "/")
 
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
-        let awsResponse = try await Current.fetchDocumentation(req.client, url)
-
-        guard (200..<399).contains(awsResponse.status.code) else {
+        guard let awsResponse = try? await Current.fetchDocumentation(req.client, url),
+              (200..<399).contains(awsResponse.status.code) else {
             // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
             throw Abort(.notFound)
         }
