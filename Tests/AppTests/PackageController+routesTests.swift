@@ -375,7 +375,8 @@ class PackageController_routesTests: AppTestCase {
             XCTAssertEqual($0.status, .seeOther)
         }
         try app.test(.GET, "/owner/package/1.2.3/documentation/foo") {
-            // hits Current.fetchDocumentation which throws the internalServerError, as expected
+            // hits Current.fetchDocumentation which throws the internalServerError, converted to notFound
+            // Regression test for https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2015
             XCTAssertEqual($0.status, .notFound)
         }
     }
@@ -522,26 +523,6 @@ class PackageController_routesTests: AppTestCase {
         print(latestMajorRerefences)
 
         XCTAssertEqual(latestMajorRerefences, ["1.1.2", "2.1.1", "3.0.0"])
-    }
-
-    func test_issue_2015() throws {
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2015
-        // Error thrown from bad URL http://spi-prod-docs.s3-website.us-east-2.amazonaws.com/mecid/swiftuicharts/main/css/index.47bc740e.css" rel="stylesheet triggers 500
-        // setup
-        // Simply simulate the error, this happens essentially when calling `try await client.get`
-        // with a bad URL.
-        struct InvalidURL: Error { }
-        Current.fetchDocumentation = { _, uri in throw InvalidURL()  }
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
-            .save(on: app.db).wait()
-
-        // MUT
-        try app.test(.GET, #"/mecid/swiftuicharts/main/documentation/css/index.47bc740e.css" rel="stylesheet"#) {
-            XCTAssertEqual($0.status, .notFound)
-        }
     }
 
 }
