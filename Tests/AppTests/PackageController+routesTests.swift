@@ -356,7 +356,8 @@ class PackageController_routesTests: AppTestCase {
 
     func test_documentation_error() throws {
         // Test behaviour when fetchDocumentation throws
-        Current.fetchDocumentation = { _, _ in throw Abort(.internalServerError) }
+        struct SomeError: Error { }
+        Current.fetchDocumentation = { _, _ in throw SomeError() }
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db).wait()
@@ -375,8 +376,9 @@ class PackageController_routesTests: AppTestCase {
             XCTAssertEqual($0.status, .seeOther)
         }
         try app.test(.GET, "/owner/package/1.2.3/documentation/foo") {
-            // hits Current.fetchDocumentation which throws the internalServerError, as expected
-            XCTAssertEqual($0.status, .internalServerError)
+            // hits Current.fetchDocumentation which throws, converted to notFound
+            // Regression test for https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2015
+            XCTAssertEqual($0.status, .notFound)
         }
     }
 
@@ -523,6 +525,7 @@ class PackageController_routesTests: AppTestCase {
 
         XCTAssertEqual(latestMajorRerefences, ["1.1.2", "2.1.1", "3.0.0"])
     }
+
 }
 
 
