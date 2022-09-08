@@ -376,7 +376,7 @@ class PackageController_routesTests: AppTestCase {
         }
         try app.test(.GET, "/owner/package/1.2.3/documentation/foo") {
             // hits Current.fetchDocumentation which throws the internalServerError, as expected
-            XCTAssertEqual($0.status, .internalServerError)
+            XCTAssertEqual($0.status, .notFound)
         }
     }
 
