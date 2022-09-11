@@ -213,26 +213,21 @@ extension Analyze {
         try await updateRepository(on: transaction, package: package)
         
         // -----------
+        // TODO: Put this in the right place
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
         
-        let authors = try extractAuthors(logger: logger,
-                                         cacheDirPath: cacheDir,
-                                         packageID: package.model.id!)
-        let numberOfContributors = try countContributors(logger: logger,
-                                                         cacheDirPath: cacheDir,
-                                                         packageID: package.model.id!)
+        let pkgAuthors = try PackageContributorService.authorExtractor(cacheDirPath: cacheDir, packageID: package.model.id)
         
         logger.info("Written by ")
-        for author in authors {
-            logger.info("Author : \(author.name)")
+        for authorName in pkgAuthors.authorsName {
+            logger.info("Author : \(authorName)")
         }
-        if numberOfContributors != 0 {
-            logger.info("and \(numberOfContributors) contributors")
+        if pkgAuthors.numberOfContributors != 0 {
+            logger.info("and \(pkgAuthors.numberOfContributors) contributors")
         }
         // -----------
-        
         let versionDelta = try await diffVersions(client: client,
                                                   logger: logger,
                                                   transaction: transaction,
@@ -743,7 +738,7 @@ extension Analyze {
         }
     }
     
-    
+    // TODO: Check the right place to call this
     /// Extracts the possible authors of the package according to the number of commits.
     /// A contributor is considered an author when the number of commits is at least a 60 percent
     /// of the maximum commits done by a contributor
@@ -751,28 +746,14 @@ extension Analyze {
     ///   - logger: `Logger` object
     ///   - cacheDirPath: path to the cache directory where the clone of the package is stored
     ///   - packageID: the UUID of the package
-    /// - Returns: Array of Contributors which were selected as authors
-    static func extractAuthors(logger: Logger, cacheDirPath: String, packageID: UUID) throws -> [Contributor] {
+    /// - Returns: Array of authors names
+    static func extractAuthors(logger: Logger, cacheDirPath: String, packageID: UUID?) throws -> [String] {
         logger.info("Extracting authors for package id: \(packageID)")
 
-        return try AuthorExtractor.selectAuthors(cacheDirPath: cacheDirPath, packageID: packageID)
-        
+        return try PackageContributorService.authorExtractor(cacheDirPath: cacheDirPath, packageID: packageID).authorsName
     }
     
-    /// Counts the number of contributors that could be acknowledged;
-    /// A contritutor could be acknowledged if the number of
-    /// commits is at least 2 percent of the maximum of commits, while a
-    /// contributor is considered an Author is the number of commits is at
-    /// least 60 percent of the maximum of commits.
-    /// - Parameters:
-    ///   - logger: `Logger` object
-    ///   - package: The package in which we select the authors
-    /// - Returns: number of contributors
-    static func countContributors(logger: Logger, cacheDirPath: String, packageID: UUID) throws -> Int {
-        logger.info("Counting possible contributors for package id: \(packageID)")
-        
-        return try AuthorExtractor.countContributors(cacheDirPath: cacheDirPath, packageID: packageID)
-    }
+
     
     
 }
