@@ -63,6 +63,10 @@ extension ShellOutCommand {
     static var gitListTags: Self {
         .init(string: "git tag")
     }
+    
+    static var gitShortlog: Self {
+        .init(string: "git shortlog -sne")
+    }
 
 }
 
