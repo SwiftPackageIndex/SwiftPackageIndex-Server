@@ -29,7 +29,7 @@ public struct Contributor {
 /// Loads the contributors history from a Git repository
 struct GitHistoryLoader {
     
-    static func loadContributorsHistory(cacheDirPath: String, packageID: UUID) throws -> [Contributor] {
+    static func loadContributorsHistory(cacheDirPath: String, packageID: UUID?) throws -> [Contributor] {
         do {
             let commitHistory = try queryVCHistory(cacheDirPath: cacheDirPath, packageID: packageID)
             return try parseVCHistory(log: commitHistory)
@@ -39,7 +39,7 @@ struct GitHistoryLoader {
     }
     
     /// Gets the version control history in a string log
-    private static func queryVCHistory(cacheDirPath: String, packageID: UUID) throws -> String {
+    private static func queryVCHistory(cacheDirPath: String, packageID: UUID?) throws -> String {
         
         if !Current.fileManager.fileExists(atPath: cacheDirPath) {
             throw AppError.unexistentPackageCacheDir(packageID, cacheDirPath)
@@ -47,13 +47,12 @@ struct GitHistoryLoader {
 
         // attempt to shortlog
         do {
-            return try Current.shell.run(command: .gitShortlog, at: cacheDirPath)
+            return try Current.git.shortlog(cacheDirPath)
         } catch {
             throw AppError.shellCommandFailed("gitShortlog",
                                               cacheDirPath,
                                               "queryVCHistory failed: \(error.localizedDescription)")
         }
-        
     }
     
     /// Parses the result of queryVCHistory into a collection of contributors
@@ -84,7 +83,7 @@ struct GitHistoryLoader {
 
 
 /// Strategy for selecting contributors based entirely on the number of commits 
-struct CommitSelector  {
+struct CommitSelector {
     
     static func filter(candidates: [Contributor], threshold: Float) -> [Contributor] {
         if candidates.isEmpty {
@@ -99,32 +98,28 @@ struct CommitSelector  {
             return Float(canditate.numberOfCommits) > threshold * Float(maxNumberOfCommits)
         }
     }
-    
+}
+
+
+struct PackageAuthors {
+    let authorsName : [String]
+    let numberOfContributors : Int
 }
 
 
 
-final class AuthorExtractor {
-
-    static func selectAuthors(cacheDirPath: String, packageID: UUID) throws -> [Contributor] {
+final class PackageContributorService {
+    
+    static func authorExtractor(cacheDirPath: String, packageID: UUID?) throws -> PackageAuthors {
         let contributorsHistory = try GitHistoryLoader.loadContributorsHistory(cacheDirPath: cacheDirPath, packageID: packageID)
-        return CommitSelector.filter(candidates: contributorsHistory, threshold: 0.6)
-    }
-    
-    static func countContributors(cacheDirPath: String, packageID: UUID) throws -> Int {
-        let authors = try AuthorExtractor.selectAuthors(cacheDirPath: cacheDirPath, packageID: packageID)
-        let contributorsHistory = try GitHistoryLoader.loadContributorsHistory(cacheDirPath: cacheDirPath, packageID: packageID)
-        return contributorsHistory.count - authors.count
+        let authors = CommitSelector.filter(candidates: contributorsHistory, threshold: 0.6)
+        
+        return PackageAuthors(authorsName: authors.map(\.name),
+                                   numberOfContributors: contributorsHistory.count - authors.count)
     }
     
 }
 
 
 
-
-extension ShellOutCommand {
-    static var gitShortlog: Self {
-        .init(string: "git shortlog -sne")
-    }
-}
 
