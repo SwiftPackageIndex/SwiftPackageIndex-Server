@@ -19,6 +19,7 @@ import ShellOut
 
 enum GitError: LocalizedError {
     case invalidInteger
+    case invalidString
     case invalidTimestamp
     case invalidRevisionInfo
 }
@@ -75,6 +76,13 @@ extension Git {
         guard let timestamp = TimeInterval(parts[1]) else { throw GitError.invalidTimestamp }
         let date = Date(timeIntervalSince1970: timestamp)
         return .init(commit: hash, date: date)
+    }
+    
+    static func shortlog(at path: String) throws -> String {
+        guard let shortlog = try? Current.shell.run(command: .gitShortlog, at: path) else {
+            throw GitError.invalidString
+        }
+        return shortlog
     }
 
     struct RevisionInfo: Equatable {
