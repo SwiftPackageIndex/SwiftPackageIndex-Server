@@ -52,7 +52,7 @@ class SwiftVersionTests: XCTestCase {
     }
 
     func test_latestMajor() throws {
-        XCTAssertEqual(SwiftVersion.latestMajor, 5)
+        XCTAssertEqual(SwiftVersion.latest.major, 5)
     }
     
 }

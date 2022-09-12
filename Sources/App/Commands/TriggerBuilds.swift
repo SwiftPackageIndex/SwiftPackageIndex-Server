@@ -212,12 +212,20 @@ func triggerBuilds(on database: Database,
                 }
                 logger.info("Finding missing builds for package id: \(pkgId)")
                 return findMissingBuilds(database, packageId: pkgId)
-                    .flatMap { triggers in
+                    .flatMap { missingBuilds in
                         guard pendingJobs + newJobs < Current.gitlabPipelineLimit() else {
                             logger.info("too many pending pipelines (\(pendingJobs))")
                             return database.eventLoop.future()
                         }
-                        newJobs += triggers.count
+                        // If latest Swift version downscaling is in effect, only queue up 5.7 builds if we're below 50% of the pipeline limit
+                        var triggers = missingBuilds
+                        if let factor = Current.buildTriggerLatestSwiftVersionDownscaling(),
+                           pendingJobs + newJobs >= Current.gitlabPipelineLimit() / 2 {
+                            triggers = missingBuilds.map { $0.latestSwiftVersionDownscaled(to: factor) }
+                        }
+                        for trigger in triggers {
+                            newJobs += trigger.pairs.count
+                        }
                         return triggerBuildsUnchecked(on: database,
                                                       client: client,
                                                       logger: logger,
@@ -339,6 +347,19 @@ extension BuildPair: Equatable, Hashable {
 }
 
 
+extension Set where Element == BuildPair {
+    func latestSwiftVersionDownscaled(to factor: Double) -> Self {
+        filter {
+            if $0.swiftVersion == .latest, Current.random(0...1) > factor {
+                return false
+            } else {
+                return true
+            }
+        }
+    }
+}
+
+
 struct BuildTriggerInfo: Equatable {
     var versionId: Version.Id
     var pairs: Set<BuildPair>
@@ -355,6 +376,15 @@ struct BuildTriggerInfo: Equatable {
         self.pairs = pairs
         self.packageName = packageName
         self.reference = reference
+    }
+}
+
+
+extension BuildTriggerInfo {
+    func latestSwiftVersionDownscaled(to factor: Double) -> Self {
+        var result = self
+        result.pairs = pairs.latestSwiftVersionDownscaled(to: factor)
+        return result
     }
 }
 

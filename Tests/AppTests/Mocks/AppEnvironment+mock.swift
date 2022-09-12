@@ -28,6 +28,7 @@ extension AppEnvironment {
             appVersion: { "test" },
             builderToken: { nil },
             buildTriggerDownscaling: { 1.0 },
+            buildTriggerLatestSwiftVersionDownscaling: { nil },
             collectionSigningCertificateChain: {
                 [
                     SignedCollection.certsDir

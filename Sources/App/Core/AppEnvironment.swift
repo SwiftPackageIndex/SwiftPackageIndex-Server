@@ -28,6 +28,7 @@ struct AppEnvironment {
     var appVersion: () -> String?
     var builderToken: () -> String?
     var buildTriggerDownscaling: () -> Double
+    var buildTriggerLatestSwiftVersionDownscaling: () -> Double?
     var collectionSigningCertificateChain: () -> [URL]
     var collectionSigningPrivateKey: () -> Data?
     var date: () -> Date
@@ -89,6 +90,10 @@ extension AppEnvironment {
             Environment.get("BUILD_TRIGGER_DOWNSCALING")
                 .flatMap(Double.init)
                 ?? 1.0
+        },
+        buildTriggerLatestSwiftVersionDownscaling: {
+            Environment.get("BUILD_TRIGGER_LATEST_SWIFT_VERSION_DOWNSCALING")
+                .flatMap(Double.init)
         },
         collectionSigningCertificateChain: {
             [

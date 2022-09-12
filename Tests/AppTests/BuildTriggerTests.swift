@@ -771,4 +771,156 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(triggerInfo.pairs.count, 29)
         XCTAssertTrue(!triggerInfo.pairs.contains(.init(.ios, .v5_3)))
     }
+
+    func test_BuildPair_latestSwiftVersionDownscaled() throws {
+        let pairs = Set([
+            BuildPair(.ios, .v5_6),
+            BuildPair(.ios, .v5_7),
+        ])
+        let factor = 0.1
+
+        // rolls of <= factor should keep 5.7
+        for roll in [0, 0.05, 0.1] {
+            Current.random = { _ in roll }
+            XCTAssertEqual(pairs.latestSwiftVersionDownscaled(to: factor),
+                           pairs,
+                           "failed for \(factor)")
+        }
+
+        // rolls of > factor should filter out 5.7
+        for roll in [0.11, 0.5, 1.0] {
+            Current.random = { _ in roll }
+            XCTAssertEqual(pairs.latestSwiftVersionDownscaled(to: factor),
+                           Set([.init(.ios, .v5_6)]),
+                           "failed for \(factor)")
+        }
+
+        // ensure factor 1.0 (the default) keeps all 5.7 versions
+        for roll in [0, 0.5, 1.0] {
+            Current.random = { _ in roll }
+            XCTAssertEqual(pairs.latestSwiftVersionDownscaled(to: 1.0),
+                           pairs,
+                           "failed for \(factor)")
+        }
+    }
+
+    func test_BuildTriggerInfo_latestSwiftVersionDownscaled() throws {
+        let pairs = Set([
+            BuildPair(.ios, .v5_6),
+            BuildPair(.ios, .v5_7),
+        ])
+        let trigger = BuildTriggerInfo(versionId: .id0, pairs: pairs)
+        let factor = 0.1
+
+        // rolls of <= factor should keep 5.7
+        for roll in [0, 0.05, 0.1] {
+            Current.random = { _ in roll }
+            XCTAssertEqual(trigger?.latestSwiftVersionDownscaled(to: factor).pairs,
+                           pairs,
+                           "failed for \(factor)")
+        }
+
+        // rolls of > factor should filter out 5.7
+        for roll in [0.11, 0.5, 1.0] {
+            Current.random = { _ in roll }
+            XCTAssertEqual(trigger?.latestSwiftVersionDownscaled(to: factor).pairs,
+                           Set([.init(.ios, .v5_6)]),
+                           "failed for \(factor)")
+        }
+    }
+
+    func test_triggerBuilds_latest_Swift_version_downscaling() throws {
+        // Test build trigger downscaling behaviour of latest Swift version builds
+        // setup
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
+        Current.buildTriggerLatestSwiftVersionDownscaling = { 0.05 }  // 5% downscaling rate
+        // Use live dependency but replace actual client with a mock so we can
+        // assert on the details being sent without actually making a request
+        Current.triggerBuild = Gitlab.Builder.triggerBuild
+        var triggerCount = 0
+        let client = MockClient { _, res in
+            triggerCount += 1
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+        }
+
+        do {  // confirm that bad luck prevents 5.7 triggers
+            Current.random = { _ in 0.051 }  // rolling a 0.051
+
+            let pkgId = UUID()
+            let versionId = UUID()
+            let p = Package(id: pkgId, url: "1")
+            try p.save(on: app.db).wait()
+            try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                .save(on: app.db).wait()
+
+            // MUT
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              mode: .packageId(pkgId, force: false)).wait()
+
+            // validate
+            XCTAssertEqual(triggerCount, 24) // 6 builds with 5.7 have been skipped
+        }
+
+        triggerCount = 0
+
+        do {  // if we roll on or below the threshold, the builds get in
+            Current.random = { _ in 0.05 }  // rolling a 0.05 gets you in
+
+            let pkgId = UUID()
+            let versionId = UUID()
+            let p = Package(id: pkgId, url: "2")
+            try p.save(on: app.db).wait()
+            try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                .save(on: app.db).wait()
+
+            // MUT
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              mode: .packageId(pkgId, force: false)).wait()
+
+            // validate
+            XCTAssertEqual(triggerCount, 30) // all builds are triggered
+        }
+
+        triggerCount = 0
+
+        do {  // if the queue is < 20% full, we also get in
+            Current.gitlabPipelineLimit = { 100 }
+            Current.getStatusCount = { _, status in
+                switch status {
+                    case .pending:
+                        return self.future(19)
+
+                    default:
+                        return self.future(0)
+                }
+            }
+            Current.random = { _ in 0.051 } // this roll would normally filter out 5.7 builds
+
+            let pkgId = UUID()
+            let versionId = UUID()
+            let p = Package(id: pkgId, url: "3")
+            try p.save(on: app.db).wait()
+            try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                .save(on: app.db).wait()
+
+            // MUT
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              mode: .packageId(pkgId, force: false)).wait()
+
+            // validate
+            XCTAssertEqual(triggerCount, 30) // all builds are triggered
+        }
+
+    }
+
 }
