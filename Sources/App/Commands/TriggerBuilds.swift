@@ -212,12 +212,22 @@ func triggerBuilds(on database: Database,
                 }
                 logger.info("Finding missing builds for package id: \(pkgId)")
                 return findMissingBuilds(database, packageId: pkgId)
-                    .flatMap { triggers in
+                    .flatMap { missingBuilds in
                         guard pendingJobs + newJobs < Current.gitlabPipelineLimit() else {
                             logger.info("too many pending pipelines (\(pendingJobs))")
                             return database.eventLoop.future()
                         }
-                        newJobs += triggers.count
+
+                        // Drop latest Swift version builds if that particular downscaling
+                        // is enabled *and* our queue is more than half full.
+                        let triggers = Current.buildTriggerLatestSwiftVersionDownscaling()
+                        && (pendingJobs + newJobs >= Current.gitlabPipelineLimit() / 2)
+                        ? missingBuilds.map { $0.droppingLatestSwiftVersion() }
+                        : missingBuilds
+
+                        for trigger in triggers {
+                            newJobs += trigger.pairs.count
+                        }
                         return triggerBuildsUnchecked(on: database,
                                                       client: client,
                                                       logger: logger,
@@ -339,6 +349,13 @@ extension BuildPair: Equatable, Hashable {
 }
 
 
+extension Set where Element == BuildPair {
+    func droppingLatestSwiftVersion() -> Self {
+        filter { !$0.swiftVersion.isLatest }
+    }
+}
+
+
 struct BuildTriggerInfo: Equatable {
     var versionId: Version.Id
     var pairs: Set<BuildPair>
@@ -355,6 +372,15 @@ struct BuildTriggerInfo: Equatable {
         self.pairs = pairs
         self.packageName = packageName
         self.reference = reference
+    }
+}
+
+
+extension BuildTriggerInfo {
+    func droppingLatestSwiftVersion() -> Self {
+        var result = self
+        result.pairs = pairs.droppingLatestSwiftVersion()
+        return result
     }
 }
 

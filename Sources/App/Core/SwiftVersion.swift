@@ -68,12 +68,9 @@ extension SwiftVersion {
 
 
 extension SwiftVersion {
-    static var latestMajor: Int {
-        guard let latest = allActive.sorted().last else {
-            fatalError("SwiftVersion.allActive must not be empty")
-        }
-        return latest.major
-    }
+    static var latest: Self { allActive.sorted().last! }
+
+    var isLatest: Bool { self == Self.latest }
 }
 
 
