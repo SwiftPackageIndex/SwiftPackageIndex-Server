@@ -118,8 +118,7 @@ enum PackageShow {
                 ], tabContent: [
                     readmeTabContent(),
                     releasesTabContent(),
-                ]),
-                visibleMetadataSection()
+                ])
             )
         }
 
@@ -142,7 +141,11 @@ enum PackageShow {
                     .hr(
                         .class("minor")
                     ),
-                    sidebarInfoForPackageAuthors()
+                    sidebarInfoForPackageAuthors(),
+                    .hr(
+                        .class("minor")
+                    ),
+                    visibleMetadataSection()
                 )
             )
         }
@@ -280,17 +283,13 @@ enum PackageShow {
 
         func visibleMetadataSection() -> Node<HTML.BodyContext> {
             .unwrap(packageSchema?.publicationDates) { dates in
-                .section(
-                    .hr(),
-                    .p(
+                    .section(
                         .small(
                             .text("Last updated on "),
                             .text(DateFormatter.lastUpdatedOnFormatter.string(from:dates.dateModified))
                         )
                     )
-                )
             }
-
         }
 
         func readmeTabContent() -> Node<HTML.BodyContext> {

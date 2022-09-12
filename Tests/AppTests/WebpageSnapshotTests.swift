@@ -142,7 +142,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         model.summary = ":package: Nothing but Cache. :octocat:"
         
-        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
         
         assertSnapshot(matching: page, as: .html)
     }
@@ -152,7 +152,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.license = .mit
         model.licenseUrl = "https://example.com/license.html"
 
-        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
         assertSnapshot(matching: page, as: .html)
     }
 
@@ -161,7 +161,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.license = .gpl_3_0
         model.licenseUrl = "https://example.com/license.html"
 
-        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
         assertSnapshot(matching: page, as: .html)
     }
 
@@ -170,7 +170,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.license = .other
         model.licenseUrl = "https://example.com/license.html"
 
-        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
         assertSnapshot(matching: page, as: .html)
     }
 
@@ -179,7 +179,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.license = .none
         model.licenseUrl = nil
 
-        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
         assertSnapshot(matching: page, as: .html)
     }
     
@@ -189,7 +189,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         model.authors = nil
         model.activity = nil
-        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
         
         assertSnapshot(matching: page, as: .html)
     }
@@ -197,7 +197,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
     func test_PackageShowView_with_single_documentation_link() throws {
         var model = PackageShow.Model.mock
         model.documentationMetadata = .init(reference: "main", defaultArchive: "Archive")
-        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
     }
@@ -232,7 +232,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                 latest: .init(referenceName: "main", results: compatible)
             )
         }
-        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
         
         assertSnapshot(matching: page, as: .html)
     }
@@ -242,7 +242,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         model.swiftVersionBuildInfo = .init(stable: nil, beta: nil, latest: nil)
         model.platformBuildInfo = .init(stable: nil, beta: nil, latest: nil)
-        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
     }
