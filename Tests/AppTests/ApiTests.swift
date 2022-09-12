@@ -490,10 +490,10 @@ class ApiTests: AppTestCase {
                        name: "repo",
                        owner: "owner").save(on: app.db).wait()
         // add builds
-        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .v5_5)
+        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .v5_6)
             .save(on: app.db)
             .wait()
-        try Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_4)
+        try Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_5)
             .save(on: app.db)
             .wait()
         do { // save decoy
@@ -505,7 +505,7 @@ class ApiTests: AppTestCase {
                            license: .mit,
                            name: "decoy",
                            owner: "owner").save(on: app.db).wait()
-            try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_3)
+            try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_4)
                 .save(on: app.db)
                 .wait()
         }
@@ -515,8 +515,8 @@ class ApiTests: AppTestCase {
 
         // validate
         XCTAssertEqual(sb.builds.sorted(), [
-            .init(.v5_4, .macosSpm, .ok),
-            .init(.v5_5, .linux, .ok)
+            .init(.v5_5, .macosSpm, .ok),
+            .init(.v5_6, .linux, .ok)
         ])
     }
 

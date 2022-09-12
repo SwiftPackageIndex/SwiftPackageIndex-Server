@@ -35,7 +35,7 @@ class MetricsTests: AppTestCase {
                                logger: app.logger,
                                triggers: [
                                 .init(versionId: versionId,
-                                      pairs: [.init(.macosSpm, .v5_3)])!
+                                      pairs: [.init(.macosSpm, .v5_7)])!
                                ]
         ).wait()
 
@@ -45,7 +45,7 @@ class MetricsTests: AppTestCase {
             XCTAssertEqual(res.status, .ok)
             let content = res.body.asString()
             XCTAssertTrue(content.contains(
-                #"spi_build_trigger_count{swiftVersion="5.3", platform="macos-spm"}"#
+                #"spi_build_trigger_count{swiftVersion="5.7", platform="macos-spm"}"#
             ), "was:\n\(content)")
         })
     }
