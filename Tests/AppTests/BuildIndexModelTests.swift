@@ -92,7 +92,7 @@ class BuildIndexModelTests: AppTestCase {
         let matrix = model.buildMatrix
 
         // validate
-        XCTAssertEqual(matrix.values.keys.count, 30)
+        XCTAssertEqual(matrix.values.keys.count, 24)
         XCTAssertEqual(
             matrix.values[.init(swiftVersion: .v5_6, platform: .ios)]?.map(\.column.label),
             ["1.2.3", "2.0.0-b1", "main"]
@@ -142,7 +142,7 @@ class BuildIndexModelTests: AppTestCase {
         let matrix = model.buildMatrix
 
         // validate
-        XCTAssertEqual(matrix.values.keys.count, 30)
+        XCTAssertEqual(matrix.values.keys.count, 24)
         XCTAssertEqual(
             matrix.values[.init(swiftVersion: .v5_6, platform: .ios)]?.map(\.column.label),
             ["1.2.3", "main"]
@@ -183,7 +183,7 @@ class BuildIndexModelTests: AppTestCase {
     func test_BuildItem() throws {
         // setup
         let id = UUID()
-        let bi = BuildItem(index: .init(swiftVersion: .v5_3, platform: .ios),
+        let bi = BuildItem(index: .init(swiftVersion: .v5_7, platform: .ios),
                            values: [.init("1.2.3", .release, id, .ok),
                                     .init("2.0.0-b1", .preRelease),
                                     .init("develop", .defaultBranch, id, .failed)])

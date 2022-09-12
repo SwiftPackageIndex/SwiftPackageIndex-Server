@@ -155,25 +155,22 @@ extension PackageShow.Model {
     }
 
     struct SwiftVersionResults: Equatable {
-        var v5_3: BuildResult<SwiftVersion>
         var v5_4: BuildResult<SwiftVersion>
         var v5_5: BuildResult<SwiftVersion>
         var v5_6: BuildResult<SwiftVersion>
         var v5_7: BuildResult<SwiftVersion>
 
-        init(status5_3: BuildStatus,
-             status5_4: BuildStatus,
+        init(status5_4: BuildStatus,
              status5_5: BuildStatus,
              status5_6: BuildStatus,
              status5_7: BuildStatus) {
-            self.v5_3 = .init(parameter: .v5_3, status: status5_3)
             self.v5_4 = .init(parameter: .v5_4, status: status5_4)
             self.v5_5 = .init(parameter: .v5_5, status: status5_5)
             self.v5_6 = .init(parameter: .v5_6, status: status5_6)
             self.v5_7 = .init(parameter: .v5_7, status: status5_7)
         }
 
-        var cells: [BuildResult<SwiftVersion>] { [v5_7, v5_6, v5_5, v5_4, v5_3 ] }
+        var cells: [BuildResult<SwiftVersion>] { [v5_7, v5_6, v5_5, v5_4 ] }
     }
 
     struct PlatformResults: Equatable {
