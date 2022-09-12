@@ -95,7 +95,7 @@ enum CommunitySponsors {
         ),
         CommunitySponsor(
             name: "Paul Hudson",
-            avatarUrl: "https://avatars.githubusercontent.com/u/190200?u=912a2a2f534026a4e445cd5dc3c5641d9825a6f4&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/190200?u=c394311c13273de9e59d56c3eb82d55e71d4081d&v=4"
         ),
         CommunitySponsor(
             name: "Jason Bruder",
@@ -198,20 +198,12 @@ enum CommunitySponsors {
             avatarUrl: "https://avatars.githubusercontent.com/u/1527679?v=4"
         ),
         CommunitySponsor(
-            name: "Jules Coynel",
-            avatarUrl: "https://avatars.githubusercontent.com/u/1749664?u=8739e6ed416a43a1a4e943c80ba96a2205175185&v=4"
-        ),
-        CommunitySponsor(
             name: "Hiroshi Kimura",
             avatarUrl: "https://avatars.githubusercontent.com/u/1888355?u=ad57f4522c12230428c401223f21b902cef4f6e5&v=4"
         ),
         CommunitySponsor(
             name: "Chris Mash",
             avatarUrl: "https://avatars.githubusercontent.com/u/2419640?v=4"
-        ),
-        CommunitySponsor(
-            name: "David Roman",
-            avatarUrl: "https://avatars.githubusercontent.com/u/2538074?u=1390da8466bd4d8c0f1223a3c41efdedcfefdf7d&v=4"
         ),
         CommunitySponsor(
             name: "David Okun",
@@ -280,10 +272,6 @@ enum CommunitySponsors {
         CommunitySponsor(
             name: "Victor Sigler",
             avatarUrl: "https://avatars.githubusercontent.com/u/4573453?u=ecc5faaa658a54d2c705c24c891d870a3993cce7&v=4"
-        ),
-        CommunitySponsor(
-            name: "Federico Zanetello",
-            avatarUrl: "https://avatars.githubusercontent.com/u/5277837?u=18315a30c7633bbb3fba55097f4cdf1a9e913a3e&v=4"
         ),
         CommunitySponsor(
             name: "Arpad Zalan",
@@ -380,10 +368,6 @@ enum CommunitySponsors {
         CommunitySponsor(
             name: "emin",
             avatarUrl: "https://avatars.githubusercontent.com/u/21968377?u=19b33db70d1f53634b30b06902c163dfd93b1327&v=4"
-        ),
-        CommunitySponsor(
-            name: "Richard L Zarth III",
-            avatarUrl: "https://avatars.githubusercontent.com/u/22179660?u=bbba7685433c8ae7d9977219157674f1118ac275&v=4"
         ),
         CommunitySponsor(
             name: "B.T. Franklin",
