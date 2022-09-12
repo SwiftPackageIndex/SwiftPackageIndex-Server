@@ -217,12 +217,14 @@ func triggerBuilds(on database: Database,
                             logger.info("too many pending pipelines (\(pendingJobs))")
                             return database.eventLoop.future()
                         }
-                        // If latest Swift version downscaling is in effect, only queue up 5.7 builds if we're below 50% of the pipeline limit
-                        var triggers = missingBuilds
-                        if let factor = Current.buildTriggerLatestSwiftVersionDownscaling(),
-                           pendingJobs + newJobs >= Current.gitlabPipelineLimit() / 2 {
-                            triggers = missingBuilds.map { $0.latestSwiftVersionDownscaled(to: factor) }
-                        }
+
+                        // Drop latest Swift version builds if that particular downscaling
+                        // is enabled *and* our queue is more than half full.
+                        let triggers = Current.buildTriggerLatestSwiftVersionDownscaling()
+                        && (pendingJobs + newJobs >= Current.gitlabPipelineLimit() / 2)
+                        ? missingBuilds.map { $0.droppingLatestSwiftVersion() }
+                        : missingBuilds
+
                         for trigger in triggers {
                             newJobs += trigger.pairs.count
                         }
@@ -348,14 +350,8 @@ extension BuildPair: Equatable, Hashable {
 
 
 extension Set where Element == BuildPair {
-    func latestSwiftVersionDownscaled(to factor: Double) -> Self {
-        filter {
-            if $0.swiftVersion == .latest, Current.random(0...1) > factor {
-                return false
-            } else {
-                return true
-            }
-        }
+    func droppingLatestSwiftVersion() -> Self {
+        filter { !$0.swiftVersion.isLatest }
     }
 }
 
@@ -381,9 +377,9 @@ struct BuildTriggerInfo: Equatable {
 
 
 extension BuildTriggerInfo {
-    func latestSwiftVersionDownscaled(to factor: Double) -> Self {
+    func droppingLatestSwiftVersion() -> Self {
         var result = self
-        result.pairs = pairs.latestSwiftVersionDownscaled(to: factor)
+        result.pairs = pairs.droppingLatestSwiftVersion()
         return result
     }
 }
