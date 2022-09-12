@@ -141,8 +141,8 @@
         "repositoryURL": "https://github.com/SwiftPackageIndex/SPIManifest",
         "state": {
           "branch": null,
-          "revision": "36eac3222fd744fe3b5621c351751d83ed518d64",
-          "version": "0.7.2"
+          "revision": "6ead3d2dea4e338f98ff6147b96fc320eded58f7",
+          "version": "0.8.0"
         }
       },
       {
