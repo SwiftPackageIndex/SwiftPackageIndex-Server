@@ -820,7 +820,6 @@ class BuildTriggerTests: AppTestCase {
             )
         }
 
-
         do {  // if the queue is < 50% full, all builds are triggered
             triggerCount = 0
             Current.gitlabPipelineLimit = { 100 }
@@ -850,7 +849,6 @@ class BuildTriggerTests: AppTestCase {
             // validate
             XCTAssertEqual(triggerCount, 24) // all builds are triggered
         }
-
 
         do {  // if the queue is >= 50% full, 5.7 builds are skipped
             triggerCount = 0
