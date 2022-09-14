@@ -382,23 +382,6 @@ class PackageShowModelTests: SnapshotTestCase {
             ]
         )
     }
-
-    func test_relativeDocumentationURL() throws {
-        var model = PackageShow.Model.mock
-        model.repositoryOwner = "foo"
-        model.repositoryName = "bar"
-
-        // MUT
-        XCTAssertEqual(model.relativeDocumentationURL(reference: "main", target: "bazqux"),
-                       "/foo/bar/main/documentation/bazqux")
-
-        model.repositoryOwner = "Foo"
-        model.repositoryName = "Bar"
-
-        // MUT
-        XCTAssertEqual(model.relativeDocumentationURL(reference: "Main", target: "BazQux"),
-                       "/Foo/Bar/Main/documentation/bazqux")
-    }
 }
 
 

@@ -244,7 +244,7 @@ struct DocumentationPageProcessor {
         }
     }
 
-    // Note: When this gets merged back with the refactored SiteURL, note that it's duplicated in `PackageShow.Model`.
+    // TODO: Merge this back with SiteURL at some point.
     static func relativeDocumentationURL(owner: String, repository: String, reference: String, docArchive: String) -> String {
         "/\(owner)/\(repository)/\(reference)/documentation/\(docArchive.lowercased())"
     }

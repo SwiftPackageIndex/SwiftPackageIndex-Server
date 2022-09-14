@@ -204,11 +204,6 @@ extension PackageShow.Model {
     var gitHubRepositoryUrl: String {
         "https://github.com/\(repositoryOwner)/\(repositoryName)"
     }
-
-    // Note: When this gets merged back with the refactored SiteURL, note that it's duplicated in `DocumentationPageProcessor`.
-    func relativeDocumentationURL(reference: String, target: String) -> String {
-        "/\(repositoryOwner)/\(repositoryName)/\(reference)/documentation/\(target.lowercased())"
-    }
 }
 
 extension PackageShow.Model {
