@@ -26,7 +26,7 @@ func updatePackages(client: Client,
         switch result {
             case .success(let jpr):
                 let pkg = jpr.model
-                // FIXME: only load defaultBranch version and release count and change Score.compute to take those as parameters instead of all versions
+                // FIXME: Only load significant `latest` version records and release count here and change Score.compute to take those as parameters instead of all versions. We need the defaultBranch and latest stable versions for current score calculations.
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1470
                 return pkg.$versions.load(on: database)
                     .flatMap {
