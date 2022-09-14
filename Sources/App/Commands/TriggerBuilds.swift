@@ -78,16 +78,21 @@ struct TriggerBuildsCommand: Command {
                 throw UsageError()
         }
 
-        try triggerBuilds(on: context.application.db,
-                          client: context.application.client,
-                          logger: logger,
-                          mode: mode).wait()
+        do {
+            try triggerBuilds(on: context.application.db,
+                              client: context.application.client,
+                              logger: logger,
+                              mode: mode).wait()
+        } catch {
+            logger.critical("\(error)")
+        }
+
         do {
             try AppMetrics.push(client: context.application.client,
                                 logger: context.application.logger,
                                 jobName: "trigger-builds").wait()
         } catch {
-            logger.warning("\(error.localizedDescription)")
+            logger.warning("\(error)")
         }
     }
 
