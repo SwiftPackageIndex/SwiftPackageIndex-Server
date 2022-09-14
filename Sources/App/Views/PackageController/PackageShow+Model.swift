@@ -121,20 +121,27 @@ extension PackageShow {
             else { return nil }
 
             let documentationUrl: String? = {
-                if let releaseVersion = result.releaseVersion,
+                if let spiManifest = result.defaultBranchVersion.spiManifest,
+                   let externalDocumentationUrl = spiManifest.externalLinks?.documentation {
+                    // External documentation links have priority over generated documentation.
+                    return externalDocumentationUrl
+                } else if let releaseVersion = result.releaseVersion,
                    let releaseVersionDocArchive = releaseVersion.docArchives?.first {
+                    // Ideal case is that we have a stable release documentation.
                     return DocumentationPageProcessor.relativeDocumentationURL(
                         owner: repositoryOwner,
                         repository: repositoryName,
                         reference: "\(releaseVersion.reference)",
                         docArchive: releaseVersionDocArchive.title)
                 } else if let defaultBranchDocArchive = result.defaultBranchVersion.docArchives?.first {
+                    // Fallback is default branch documentation.
                     return DocumentationPageProcessor.relativeDocumentationURL(
                         owner: repositoryOwner,
                         repository: repositoryName,
                         reference: "\(result.defaultBranchVersion.reference)",
                         docArchive: defaultBranchDocArchive.title)
                 } else {
+                    // Suppress the documentation link in the generated page.
                     return nil
                 }
             }()
