@@ -45,7 +45,7 @@ extension PackageShow {
         var isArchived: Bool
         var hasBinaryTargets: Bool
         var homepageUrl: String?
-        var generatedDocumentationMetadata: GeneratedDocumentationMetadata?
+        var documentationUrl: String? = nil
         var dependencyCodeSnippets: [App.Version.Kind: Link]
         var weightedKeywords: [WeightedKeyword]
 
@@ -73,7 +73,7 @@ extension PackageShow {
                       isArchived: Bool,
                       hasBinaryTargets: Bool = false,
                       homepageUrl: String? = nil,
-                      generatedDocumentationMetadata: GeneratedDocumentationMetadata? = nil,
+                      documentationUrl: String? = nil,
                       dependencyCodeSnippets: [App.Version.Kind: Link],
                       weightedKeywords: [WeightedKeyword] = []) {
             self.packageId = packageId
@@ -100,7 +100,7 @@ extension PackageShow {
             self.isArchived = isArchived
             self.hasBinaryTargets = hasBinaryTargets
             self.homepageUrl = homepageUrl
-            self.generatedDocumentationMetadata = generatedDocumentationMetadata
+            self.documentationUrl = documentationUrl
             self.dependencyCodeSnippets = dependencyCodeSnippets
             self.weightedKeywords = weightedKeywords
         }
@@ -120,15 +120,20 @@ extension PackageShow {
                 let packageId = result.package.id
             else { return nil }
 
-
-            let defaultDocumentationMetadata: GeneratedDocumentationMetadata? = {
+            let documentationUrl: String? = {
                 if let releaseVersion = result.releaseVersion,
                    let releaseVersionDocArchive = releaseVersion.docArchives?.first {
-                    return .init(reference: "\(releaseVersion.reference)",
-                                 defaultArchive: releaseVersionDocArchive.title)
+                    return DocumentationPageProcessor.relativeDocumentationURL(
+                        owner: repositoryOwner,
+                        repository: repositoryName,
+                        reference: "\(releaseVersion.reference)",
+                        docArchive: releaseVersionDocArchive.title)
                 } else if let defaultBranchDocArchive = result.defaultBranchVersion.docArchives?.first {
-                    return .init(reference: "\(result.defaultBranchVersion.reference)",
-                                 defaultArchive: defaultBranchDocArchive.title)
+                    return DocumentationPageProcessor.relativeDocumentationURL(
+                        owner: repositoryOwner,
+                        repository: repositoryName,
+                        reference: "\(result.defaultBranchVersion.reference)",
+                        docArchive: defaultBranchDocArchive.title)
                 } else {
                     return nil
                 }
@@ -167,7 +172,7 @@ extension PackageShow {
                 isArchived: repository.isArchived,
                 hasBinaryTargets: result.defaultBranchVersion.hasBinaryTargets,
                 homepageUrl: repository.homepageUrl,
-                generatedDocumentationMetadata: defaultDocumentationMetadata,
+                documentationUrl: documentationUrl,
                 dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
                     packageURL: result.package.url,
                     defaultBranchReference: result.defaultBranchVersion.model.reference,
