@@ -241,7 +241,7 @@ enum PackageShow {
                             )
                         )
                     },
-                    .unwrap(model.documentationMetadata) { metadata in
+                    .unwrap(model.generatedDocumentationMetadata) { metadata in
                         .li(
                             .a(
                                 .href(model.relativeDocumentationURL(reference: metadata.reference, target: metadata.defaultArchive)),

@@ -45,7 +45,7 @@ extension PackageShow {
         var isArchived: Bool
         var hasBinaryTargets: Bool
         var homepageUrl: String?
-        var documentationMetadata: DocumentationMetadata?
+        var generatedDocumentationMetadata: GeneratedDocumentationMetadata?
         var dependencyCodeSnippets: [App.Version.Kind: Link]
         var weightedKeywords: [WeightedKeyword]
 
@@ -73,7 +73,7 @@ extension PackageShow {
                       isArchived: Bool,
                       hasBinaryTargets: Bool = false,
                       homepageUrl: String? = nil,
-                      documentationMetadata: DocumentationMetadata? = nil,
+                      generatedDocumentationMetadata: GeneratedDocumentationMetadata? = nil,
                       dependencyCodeSnippets: [App.Version.Kind: Link],
                       weightedKeywords: [WeightedKeyword] = []) {
             self.packageId = packageId
@@ -100,7 +100,7 @@ extension PackageShow {
             self.isArchived = isArchived
             self.hasBinaryTargets = hasBinaryTargets
             self.homepageUrl = homepageUrl
-            self.documentationMetadata = documentationMetadata
+            self.generatedDocumentationMetadata = generatedDocumentationMetadata
             self.dependencyCodeSnippets = dependencyCodeSnippets
             self.weightedKeywords = weightedKeywords
         }
@@ -121,7 +121,7 @@ extension PackageShow {
             else { return nil }
 
 
-            let defaultDocumentationMetadata: DocumentationMetadata? = {
+            let defaultDocumentationMetadata: GeneratedDocumentationMetadata? = {
                 if let releaseVersion = result.releaseVersion,
                    let releaseVersionDocArchive = releaseVersion.docArchives?.first {
                     return .init(reference: "\(releaseVersion.reference)",
@@ -167,7 +167,7 @@ extension PackageShow {
                 isArchived: repository.isArchived,
                 hasBinaryTargets: result.defaultBranchVersion.hasBinaryTargets,
                 homepageUrl: repository.homepageUrl,
-                documentationMetadata: defaultDocumentationMetadata,
+                generatedDocumentationMetadata: defaultDocumentationMetadata,
                 dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
                     packageURL: result.package.url,
                     defaultBranchReference: result.defaultBranchVersion.model.reference,
@@ -179,7 +179,7 @@ extension PackageShow {
         }
     }
 
-    struct DocumentationMetadata: Equatable {
+    struct GeneratedDocumentationMetadata: Equatable {
         let reference: String
         let defaultArchive: String
 
