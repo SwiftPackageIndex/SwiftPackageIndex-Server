@@ -207,10 +207,10 @@ class WebpageSnapshotTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         do {
             let compatible = PackageShow.Model.SwiftVersionResults(
-                status5_3: .compatible,
                 status5_4: .compatible,
                 status5_5: .compatible,
-                status5_6: .compatible
+                status5_6: .compatible,
+                status5_7: .compatible
             )
             model.swiftVersionBuildInfo = .init(
                 stable: .init(referenceName: "5.2.5", results: compatible),

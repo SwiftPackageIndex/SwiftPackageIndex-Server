@@ -42,12 +42,7 @@ When running `xcodebuild`, we apply some heuristics to find the correct scheme t
 
 The build system aims to reproduce a real-world environment for building packages as much as possible. Ideally, if the Swift Package Index says it's compatible with Swift 5.1 and your project uses Swift 5.1, it should work. The most real-world way for us to build is to use multiple different versions of Xcode to process each package. We use the latest available version of Xcode that shipped with the release of Swift that we want to compile with as default.
 
-- Swift 5.1 builds with Xcode 11.3.1.
-- Swift 5.2 builds with Xcode 11.6.
-- Swift 5.3 builds with Xcode 12.4.
-- Swift 5.4 builds with Xcode 12.5.
-- Swift 5.5 builds with Xcode 13.1.
-- Swift 5.6 builds with Xcode 13.4.
+In order to find out which Xcode version a Swift version corresponds to, please refer to [swiftversion.net](https://swiftversion.net). We also show this as part of the build command on the details page of each individual build.
 
 The build system uses the `DEVELOPER_DIR` environment variable to switch versions of Xcode. This applies to both `xcodebuild` and `swift build` commands.
 

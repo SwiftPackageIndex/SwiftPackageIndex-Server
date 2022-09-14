@@ -36,7 +36,7 @@ let package = Package(
         .package(name: "SnapshotTesting",
                  url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
-        .package(url: "https://github.com/SwiftPackageIndex/SPIManifest", from: "0.7.1"),
+        .package(url: "https://github.com/SwiftPackageIndex/SPIManifest", from: "0.9.0"),
         .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
         .package(name: "SwiftPM", url: "https://github.com/apple/swift-package-manager.git",

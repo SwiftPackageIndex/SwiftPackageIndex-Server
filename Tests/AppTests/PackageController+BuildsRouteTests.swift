@@ -52,7 +52,7 @@ class PackageController_BuildsRouteTests: AppTestCase {
                                  name: "bar2",
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
-                (.id4, .branch("develop"), .ios, .v5_3, .ok),
+                (.id4, .branch("develop"), .ios, .v5_7, .ok),
             ]
             for b in builds {
                 let v = try App.Version(package: pkg,

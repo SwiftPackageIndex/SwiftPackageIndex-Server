@@ -267,6 +267,9 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 058 - adds tsvector to materialised search view
         app.migrations.add(UpdateSearchAddTSVector())
     }
+    do {  // Migration 059 - delete Swift 5.3 builds
+        app.migrations.add(DeleteSwift5_3Builds())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

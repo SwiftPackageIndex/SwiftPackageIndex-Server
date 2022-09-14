@@ -107,11 +107,11 @@ class BuildTriggerTests: AppTestCase {
          // i.e. ignoring patch version
          let allExceptFirst = Array(BuildPair.all.dropFirst())
          // just assert what the first one actually is so we test the right thing
-         XCTAssertEqual(BuildPair.all.first, .init(.ios, .init(5, 3, 3)))
-         // substitute in a 5.3 build with a different patch version
-         let existing = allExceptFirst + [.init(.ios, .init(5, 3, 0))]
+         XCTAssertEqual(BuildPair.all.first, .init(.ios, .init(5, 4, 0)))
+         // substitute in build with a different patch version
+         let existing = allExceptFirst + [.init(.ios, .init(5, 4, 1))]
 
-         // MUT & validate 5.1.4 is matched as an existing 5.1 build
+         // MUT & validate x.y.1 is matched as an existing x.y build
          XCTAssertEqual(missingPairs(existing: existing), Set())
      }
 
@@ -255,10 +255,10 @@ class BuildTriggerTests: AppTestCase {
         let swiftVersions = queries.compactMap { $0.variables["SWIFT_VERSION"] }
         XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
                         .mapValues(\.count),
-                       ["5.3": 6,
-                        "5.4": 6,
+                       ["5.4": 6,
                         "5.5": 6,
-                        "5.6": 6])
+                        "5.6": 6,
+                        "5.7": 6])
 
         // ensure the Build stubs are created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
@@ -746,8 +746,8 @@ class BuildTriggerTests: AppTestCase {
         // setup
         let pkgId = UUID()
         let versionId = UUID()
-        do {  // save package with an outdated Swift version
-              // (5.3.0 when SwiftVersion.v5_3 is "5.3.3")
+        do {  // save package with a different Swift patch version
+              // (5.7.1 when SwiftVersion.v5_7 is "5.7.0")
             let p = Package(id: pkgId, url: "1")
             try p.save(on: app.db).wait()
             let v = try Version(id: versionId,
@@ -759,7 +759,7 @@ class BuildTriggerTests: AppTestCase {
                       version: v,
                       platform: .ios,
                       status: .ok,
-                      swiftVersion: .init(5, 3, 0))
+                      swiftVersion: .init(5, 7, 1))
                 .save(on: app.db).wait()
         }
 
@@ -768,6 +768,118 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(res.count, 1)
         let triggerInfo = try XCTUnwrap(res.first)
         XCTAssertEqual(triggerInfo.pairs.count, 23)
-        XCTAssertTrue(!triggerInfo.pairs.contains(.init(.ios, .v5_3)))
+        XCTAssertTrue(!triggerInfo.pairs.contains(.init(.ios, .v5_7)))
     }
+
+    func test_BuildPair_droppingLatestSwiftVersion() throws {
+        XCTAssertEqual(
+            Set([
+                BuildPair(.ios, .v5_6),
+                BuildPair(.ios, .v5_7),
+            ]).droppingLatestSwiftVersion(),
+            Set([.init(.ios, .v5_6)])
+        )
+        XCTAssertEqual(
+            Set([
+                BuildPair(.ios, .v5_5),
+                BuildPair(.ios, .v5_6),
+            ]).droppingLatestSwiftVersion(),
+            Set([
+                BuildPair(.ios, .v5_5),
+                BuildPair(.ios, .v5_6),
+            ])
+        )
+    }
+
+    func test_BuildTriggerInfo_droppingLatestSwiftVersion() throws {
+        let pairs = Set([
+            BuildPair(.ios, .v5_6),
+            BuildPair(.ios, .v5_7),
+        ])
+        let trigger = BuildTriggerInfo(versionId: .id0, pairs: pairs)
+
+        XCTAssertEqual(trigger?.droppingLatestSwiftVersion().pairs,
+                       Set([BuildPair(.ios, .v5_6)]))
+    }
+
+    func test_triggerBuilds_buildTriggerLatestSwiftVersionDownscaling() throws {
+        // Test build trigger downscaling behaviour of latest Swift version builds
+        // setup
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
+        Current.buildTriggerLatestSwiftVersionDownscaling = { true }
+        // Use live dependency but replace actual client with a mock so we can
+        // assert on the details being sent without actually making a request
+        Current.triggerBuild = Gitlab.Builder.triggerBuild
+        var triggerCount = 0
+        let client = MockClient { _, res in
+            triggerCount += 1
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+        }
+
+        do {  // if the queue is < 50% full, all builds are triggered
+            triggerCount = 0
+            Current.gitlabPipelineLimit = { 100 }
+            Current.getStatusCount = { _, status in
+                switch status {
+                    case .pending:
+                        return self.future(49)
+
+                    default:
+                        return self.future(0)
+                }
+            }
+
+            let pkgId = UUID()
+            let versionId = UUID()
+            let p = Package(id: pkgId, url: "1")
+            try p.save(on: app.db).wait()
+            try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                .save(on: app.db).wait()
+
+            // MUT
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              mode: .packageId(pkgId, force: false)).wait()
+
+            // validate
+            XCTAssertEqual(triggerCount, 24) // all builds are triggered
+        }
+
+        do {  // if the queue is >= 50% full, 5.7 builds are skipped
+            triggerCount = 0
+            Current.gitlabPipelineLimit = { 100 }
+            Current.getStatusCount = { _, status in
+                switch status {
+                    case .pending:
+                        return self.future(50)
+
+                    default:
+                        return self.future(0)
+                }
+            }
+
+            let pkgId = UUID()
+            let versionId = UUID()
+            let p = Package(id: pkgId, url: "2")
+            try p.save(on: app.db).wait()
+            try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                .save(on: app.db).wait()
+
+            // MUT
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              mode: .packageId(pkgId, force: false)).wait()
+
+            // validate
+            XCTAssertEqual(triggerCount, 18) // 24 - 6 builds for 5.7
+        }
+
+    }
+
 }

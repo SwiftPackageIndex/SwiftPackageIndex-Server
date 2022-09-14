@@ -44,22 +44,22 @@ extension PackageShow.Model {
             swiftVersionBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",
-                    results: .init(status5_3: .incompatible,
-                                   status5_4: .incompatible,
-                                   status5_5: .unknown,
-                                   status5_6: .compatible)),
+                    results: .init(status5_4: .incompatible,
+                                   status5_5: .incompatible,
+                                   status5_6: .unknown,
+                                   status5_7: .compatible)),
                 beta: NamedBuildResults(
                     referenceName: "6.0.0-b1",
-                    results: .init(status5_3: .incompatible,
-                                   status5_4: .compatible,
+                    results: .init(status5_4: .incompatible,
                                    status5_5: .compatible,
-                                   status5_6: .compatible)),
+                                   status5_6: .compatible,
+                                   status5_7: .compatible)),
                 latest: NamedBuildResults(
                     referenceName: "main",
-                    results: .init(status5_3: .incompatible,
-                                   status5_4: .incompatible,
-                                   status5_5: .unknown,
-                                   status5_6: .compatible))),
+                    results: .init(status5_4: .incompatible,
+                                   status5_5: .incompatible,
+                                   status5_6: .unknown,
+                                   status5_7: .compatible))),
             platformBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",
