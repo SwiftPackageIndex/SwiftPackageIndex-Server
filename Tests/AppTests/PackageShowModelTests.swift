@@ -47,6 +47,50 @@ class PackageShowModelTests: SnapshotTestCase {
         XCTAssertEqual(m?.title, "bar")
     }
 
+    func test_init_generated_documentation() async throws {
+        let pkg = try savePackage(on: app.db, "1".url)
+        try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
+        let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
+        version.docArchives = [.init(name: "archive1", title: "Archive1")]
+        try await version.save(on: app.db)
+        let packageResult = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
+
+        // MUT
+        let model = try XCTUnwrap(PackageShow.Model(result: packageResult,
+                                                    history: nil,
+                                                    productCounts: .mock,
+                                                    swiftVersionBuildInfo: nil,
+                                                    platformBuildInfo: nil,
+                                                    weightedKeywords: []))
+
+        // validate
+        XCTAssertEqual(model.documentationUrl, "/foo/bar/main/documentation/archive1")
+    }
+
+    func test_init_external_documentation() async throws {
+        let pkg = try savePackage(on: app.db, "1".url)
+        try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
+        let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
+        version.spiManifest = try .init(yml: """
+        version: 1
+        external_links:
+            documentation: "https://example.com/package/documentation"
+        """)
+        try await version.save(on: app.db)
+        let packageResult = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
+
+        // MUT
+        let model = try XCTUnwrap(PackageShow.Model(result: packageResult,
+                                                    history: nil,
+                                                    productCounts: .mock,
+                                                    swiftVersionBuildInfo: nil,
+                                                    platformBuildInfo: nil,
+                                                    weightedKeywords: []))
+
+        // validate
+        XCTAssertEqual(model.documentationUrl, "https://example.com/package/documentation")
+    }
+
     func test_gitHubOwnerUrl() throws {
         var model = PackageShow.Model.mock
         model.repositoryOwner = "owner"
@@ -381,23 +425,6 @@ class PackageShowModelTests: SnapshotTestCase {
                                 url: ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;1.2.3&quot;)")
             ]
         )
-    }
-
-    func test_relativeDocumentationURL() throws {
-        var model = PackageShow.Model.mock
-        model.repositoryOwner = "foo"
-        model.repositoryName = "bar"
-
-        // MUT
-        XCTAssertEqual(model.relativeDocumentationURL(reference: "main", target: "bazqux"),
-                       "/foo/bar/main/documentation/bazqux")
-
-        model.repositoryOwner = "Foo"
-        model.repositoryName = "Bar"
-
-        // MUT
-        XCTAssertEqual(model.relativeDocumentationURL(reference: "Main", target: "BazQux"),
-                       "/Foo/Bar/Main/documentation/bazqux")
     }
 }
 

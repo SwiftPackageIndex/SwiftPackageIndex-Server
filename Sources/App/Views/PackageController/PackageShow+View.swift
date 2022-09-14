@@ -241,10 +241,10 @@ enum PackageShow {
                             )
                         )
                     },
-                    .unwrap(model.documentationMetadata) { metadata in
+                    .unwrap(model.documentationUrl) { url in
                         .li(
                             .a(
-                                .href(model.relativeDocumentationURL(reference: metadata.reference, target: metadata.defaultArchive)),
+                                .href(url),
                                 .data(named: "turbo", value: String(false)),
                                 "Documentation"
                             )
