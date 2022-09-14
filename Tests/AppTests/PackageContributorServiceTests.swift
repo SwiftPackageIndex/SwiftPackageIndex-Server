@@ -56,30 +56,17 @@ class PackageContributorServiceTests : AppTestCase {
         Current.fileManager.fileExists = { _ in true }
         Current.git.shortlog = { _ in
             """
-            1000  Rick Sanchez <rick@gmail.com>
-             871  Morty Smith <Morty@bluebite.com>
-             803  Summer Smith <Summer@orlandos.nl>
-             722  Beth Smith <Beth@tanner.xyz>
-             703  Summer <sexy@tanner.xyz>
-             360  Rick <ricko@tanner.xyz>
-             108  Jessica <jessi@gmail.com>
-              86  Birdperson <birdie@gmail.com>
-              43  Noob Noob  <n00b@weebly.com>
-              40  Jerry Smith <jerryS@users.noreply.github.com>
-              30  Jerry <jerry@yahoo.com>
-              29  Pickle Rick <skankingPickle@darkrainfall.org>
-              21  Squanchy <squanchy@gmail.com>
-              19  Planetina <planetina@hilenium.com>
-              19  The Vindicators <thevindicathors@users.noreply.github.com>
-              18  Nathalie <bitbucket@nathi.com>
-              16  Tricia Lange <tricia@users.noreply.github.com>
-              15  Naruto Smith <naruto@jarict.nl>
-              15  Doofus Rick <doofusrick@users.noreply.github.com>
-              15  Cop Rick <yourcop@mac-mp-and.local>
-              12  Snowball <snowball@artkay.nyc>
-              12  Cop Morty <notyourcop@sina.cn>
-              12  Weird Rick <nakedman@gmail.com>
-              11  Mr. Nimbus <mr.nimbus@gmail.com>
+            1000  Person 1 <person1@example.com>
+             871  Person 2 <person2@example.com>
+             803  Person 3 <person3@example.com>
+             722  Person 4 <person4@example.com>
+             703  Person 5 <person5@example.com>
+             360  Person 6 <person6@example.com>
+             108  Person 7 <person7@example.com>
+              86  Person 8 <person8@example.com>
+              43  Person 9 <person9@example.com>
+              40  Person 10 <person10@example.com>
+              11  Person 11 <person11@example.com>
             """
         }
         
@@ -90,12 +77,12 @@ class PackageContributorServiceTests : AppTestCase {
         // MUT
         let pkgAuthors = try PackageContributorService.authorExtractor(cacheDirPath: gitCacheDirectoryPath, packageID: pkg.id)
         
-        XCTAssertEqual(pkgAuthors.authorsName, ["Rick Sanchez",
-                                                "Morty Smith",
-                                                "Summer Smith",
-                                                "Beth Smith",
-                                                "Summer"])
-        XCTAssertEqual(pkgAuthors.numberOfContributors, 19)
+        XCTAssertEqual(pkgAuthors.authorsName, ["Person 1",
+                                                "Person 2",
+                                                "Person 3",
+                                                "Person 4",
+                                                "Person 5"])
+        XCTAssertEqual(pkgAuthors.numberOfContributors, 6)
         
     }
     
