@@ -20,6 +20,7 @@ enum Gitlab {
     static let baseURL = "https://gitlab.com/api/v4"
 
     enum Error: LocalizedError {
+        case decodingFailed(String)
         case missingConfiguration(String)
         case missingToken
         case requestFailed(HTTPStatus, URI)
@@ -101,8 +102,21 @@ extension Gitlab.Builder {
                     ])
                 try req.query.encode(data)
             }
-        return req.flatMapThrowing {
-            ($0.status, try $0.content.decode(Response.self).webUrl)
+        return req.flatMapThrowing { response in
+            do {
+                return (response.status, try response.content.decode(Response.self).webUrl)
+            } catch {
+                let body = response.body?.asString() ?? "nil"
+                throw Gitlab.Error.decodingFailed("""
+                    package: \(cloneURL)
+                    ref: \(reference)
+                    platform: \(platform)
+                    swift version: \(swiftVersion)
+                    version id: \(versionID)
+                    body: \(body)
+                    error: \(error)
+                    """)
+            }
         }
         .map(Build.TriggerResponse.init(status:webUrl:))
     }
