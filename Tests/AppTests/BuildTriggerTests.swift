@@ -137,7 +137,7 @@ class BuildTriggerTests: AppTestCase {
         }
 
         // MUT
-        let ids = try await fetchBuildCandidates(app.db, exceptLatestSwiftVersion: true).get()
+        let ids = try await fetchBuildCandidates(app.db, withLatestSwiftVersion: false).get()
 
         // validate
         // Only package with missing non-latest Swift version builds (.id2) must be selected
@@ -478,6 +478,47 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+    }
+
+    func test_buildTriggerCandidatesSkipLatestSwiftVersion() throws {
+        do {
+            // Test downscaling set to 10%
+            Current.buildTriggerLatestSwiftVersionDownscaling = { 0.1 }
+
+            // Roll just below threshold should keep latest Swift version
+            Current.random = { _ in 0.09}
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, true)
+            // Roll on threshold should skip latest Swift version
+            Current.random = { _ in 0.1}
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            // Roll just above threshold should skip latest Swift version
+            Current.random = { _ in 0.11}
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
+        }
+
+        do {
+            // Set downscaling to 0 in order to fully skip latest Swift version based candidate selection
+            Current.buildTriggerLatestSwiftVersionDownscaling = { 0 }
+
+            Current.random = { _ in 0 }
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            Current.random = { _ in 0.5 }
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            Current.random = { _ in 1 }
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
+        }
+
+        do {
+            // Set downscaling to 1 in order to fully disable any downscaling
+            Current.buildTriggerLatestSwiftVersionDownscaling = { 1 }
+
+            Current.random = { _ in 0 }
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, true)
+            Current.random = { _ in 0.5 }
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, true)
+            Current.random = { _ in 1 }
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, true)
+        }
     }
 
     func test_override_switch() throws {

@@ -28,7 +28,7 @@ struct AppEnvironment {
     var appVersion: () -> String?
     var builderToken: () -> String?
     var buildTriggerDownscaling: () -> Double
-    var buildTriggerLatestSwiftVersionDownscaling: () -> Bool
+    var buildTriggerLatestSwiftVersionDownscaling: () -> Double
     var collectionSigningCertificateChain: () -> [URL]
     var collectionSigningPrivateKey: () -> Data?
     var date: () -> Date
@@ -69,6 +69,15 @@ struct AppEnvironment {
     var twitterPostTweet: (_ client: Client, _ tweet: String) -> EventLoopFuture<Void>
 }
 
+
+extension AppEnvironment {
+    var buildTriggerCandidatesWithLatestSwiftVersion: Bool {
+        guard buildTriggerLatestSwiftVersionDownscaling() < 1 else { return true }
+        return random(0...1) < Current.buildTriggerLatestSwiftVersionDownscaling()
+    }
+}
+
+
 extension AppEnvironment {
     static var logger: Logger?
 
@@ -93,8 +102,8 @@ extension AppEnvironment {
         },
         buildTriggerLatestSwiftVersionDownscaling: {
             Environment.get("BUILD_TRIGGER_LATEST_SWIFT_VERSION_DOWNSCALING")
-                .flatMap(\.asBool)
-                ?? false
+                .flatMap(Double.init)
+                ?? 1.0
         },
         collectionSigningCertificateChain: {
             [

@@ -130,7 +130,11 @@ func triggerBuilds(on database: Database,
     switch mode {
         case .limit(let limit):
             logger.info("Triggering builds (limit: \(limit)) ...")
-            return fetchBuildCandidates(database)
+
+            let withLatestSwiftVersion = Current.buildTriggerCandidatesWithLatestSwiftVersion
+
+            return fetchBuildCandidates(database,
+                                        withLatestSwiftVersion: withLatestSwiftVersion)
                 .map { candidates in
                     AppMetrics.buildCandidatesCount?.set(candidates.count)
                     return Array(candidates.prefix(limit))
@@ -281,7 +285,7 @@ func triggerBuildsUnchecked(on database: Database,
 
 
 func fetchBuildCandidates(_ database: Database,
-                          exceptLatestSwiftVersion: Bool = false) -> EventLoopFuture<[Package.Id]> {
+                          withLatestSwiftVersion: Bool = true) -> EventLoopFuture<[Package.Id]> {
     guard let db = database as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
@@ -297,17 +301,15 @@ func fetchBuildCandidates(_ database: Database,
     let expectedBuildCount = BuildPair.all.count
     let expectedBuildCountWithoutLatestSwiftVersion = BuildPair.allExceptLatestSwiftVersion.count
 
-    let query: SQLQueryString = exceptLatestSwiftVersion
+    let query: SQLQueryString = withLatestSwiftVersion
     ? """
         SELECT package_id, min(created_at) FROM (
-            SELECT v.package_id, v.latest, MIN(v.created_at) created_at
-            FROM versions v
-            LEFT JOIN builds b ON b.version_id = v.id
-                AND (b.swift_version->'major')::INT = \(bind: SwiftVersion.latest.major)
-                AND (b.swift_version->'minor')::INT != \(bind: SwiftVersion.latest.minor)
-            WHERE v.latest IS NOT NULL
-            GROUP BY v.package_id, v.latest
-            HAVING COUNT(*) < \(bind: expectedBuildCountWithoutLatestSwiftVersion)
+        SELECT v.package_id, v.latest, MIN(v.created_at) created_at
+        FROM versions v
+        LEFT JOIN builds b ON b.version_id = v.id
+        WHERE v.latest IS NOT NULL
+        GROUP BY v.package_id, v.latest
+        HAVING COUNT(*) < \(bind: expectedBuildCount)
         ) AS t
         GROUP BY package_id
         ORDER BY MIN(created_at)
@@ -317,9 +319,11 @@ func fetchBuildCandidates(_ database: Database,
             SELECT v.package_id, v.latest, MIN(v.created_at) created_at
             FROM versions v
             LEFT JOIN builds b ON b.version_id = v.id
+                AND (b.swift_version->'major')::INT = \(bind: SwiftVersion.latest.major)
+                AND (b.swift_version->'minor')::INT != \(bind: SwiftVersion.latest.minor)
             WHERE v.latest IS NOT NULL
             GROUP BY v.package_id, v.latest
-            HAVING COUNT(*) < \(bind: expectedBuildCount)
+            HAVING COUNT(*) < \(bind: expectedBuildCountWithoutLatestSwiftVersion)
         ) AS t
         GROUP BY package_id
         ORDER BY MIN(created_at)
