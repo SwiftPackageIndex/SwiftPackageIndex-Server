@@ -107,7 +107,15 @@ extension Gitlab.Builder {
                 return (response.status, try response.content.decode(Response.self).webUrl)
             } catch {
                 let body = response.body?.asString() ?? "nil"
-                throw Gitlab.Error.decodingFailed("body: \(body), error: \(error)")
+                throw Gitlab.Error.decodingFailed("""
+                    package: \(cloneURL)
+                    ref: \(reference)
+                    platform: \(platform)
+                    swift version: \(swiftVersion)
+                    version id: \(versionID)
+                    body: \(body)
+                    error: \(error)
+                    """)
             }
         }
         .map(Build.TriggerResponse.init(status:webUrl:))
