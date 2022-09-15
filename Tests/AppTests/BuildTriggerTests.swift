@@ -102,6 +102,48 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(ids, [pkgId])
     }
 
+    func test_fetchBuildCandidates_exceptLatestSwiftVersion() async throws {
+        // setup
+        do {  // save package with just latest Swift version builds missing
+            let p = Package(id: .id1, url: "1")
+            try await p.save(on: app.db)
+            let v = try Version(id: .init(),
+                                package: p,
+                                latest: .release,
+                                reference: .tag(1, 2, 3))
+            try await v.save(on: app.db)
+            for platform in Build.Platform.allActive {
+                for swiftVersion in SwiftVersion
+                    .allActive
+                    // skip latest Swift version build
+                    .filter({ $0 != .latest }) {
+                    try await Build(id: .init(),
+                                        version: v,
+                                        platform: platform,
+                                        status: .ok,
+                                        swiftVersion: swiftVersion)
+                        .save(on: app.db)
+                }
+            }
+        }
+        do {  // save package without any builds
+            let p = Package(id: .id2, url: "2")
+            try await p.save(on: app.db)
+            let v = try Version(id: .id3,
+                                package: p,
+                                latest: .release,
+                                reference: .tag(1, 2, 3))
+            try await v.save(on: app.db)
+        }
+
+        // MUT
+        let ids = try await fetchBuildCandidates(app.db, withLatestSwiftVersion: false).get()
+
+        // validate
+        // Only package with missing non-latest Swift version builds (.id2) must be selected
+        XCTAssertEqual(ids, [.id2])
+    }
+
     func test_missingPairs() throws {
          // Ensure we find missing builds purely via x.y Swift version,
          // i.e. ignoring patch version
@@ -438,6 +480,47 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
     }
 
+    func test_buildTriggerCandidatesSkipLatestSwiftVersion() throws {
+        do {
+            // Test downscaling set to 10%
+            Current.buildTriggerLatestSwiftVersionDownscaling = { 0.1 }
+
+            // Roll just below threshold should keep latest Swift version
+            Current.random = { _ in 0.09}
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, true)
+            // Roll on threshold should skip latest Swift version
+            Current.random = { _ in 0.1}
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            // Roll just above threshold should skip latest Swift version
+            Current.random = { _ in 0.11}
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
+        }
+
+        do {
+            // Set downscaling to 0 in order to fully skip latest Swift version based candidate selection
+            Current.buildTriggerLatestSwiftVersionDownscaling = { 0 }
+
+            Current.random = { _ in 0 }
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            Current.random = { _ in 0.5 }
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            Current.random = { _ in 1 }
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
+        }
+
+        do {
+            // Set downscaling to 1 in order to fully disable any downscaling
+            Current.buildTriggerLatestSwiftVersionDownscaling = { 1 }
+
+            Current.random = { _ in 0 }
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, true)
+            Current.random = { _ in 0.5 }
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, true)
+            Current.random = { _ in 1 }
+            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, true)
+        }
+    }
+
     func test_override_switch() throws {
         // Ensure don't trigger if the override is off
         // setup
@@ -722,6 +805,12 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
     }
 
+    func test_BuildPair_counts() throws {
+        // Sanity checks for critical counts used in canadidate selection
+        XCTAssertEqual(BuildPair.all.count, 24)
+        XCTAssertEqual(BuildPair.allExceptLatestSwiftVersion.count, 18)
+    }
+
     func test_BuildPair_Equatable() throws {
         XCTAssertEqual(BuildPair(.ios, .init(5, 3, 0)),
                        BuildPair(.ios, .init(5, 3, 3)))
@@ -769,117 +858,6 @@ class BuildTriggerTests: AppTestCase {
         let triggerInfo = try XCTUnwrap(res.first)
         XCTAssertEqual(triggerInfo.pairs.count, 23)
         XCTAssertTrue(!triggerInfo.pairs.contains(.init(.ios, .v5_7)))
-    }
-
-    func test_BuildPair_droppingLatestSwiftVersion() throws {
-        XCTAssertEqual(
-            Set([
-                BuildPair(.ios, .v5_6),
-                BuildPair(.ios, .v5_7),
-            ]).droppingLatestSwiftVersion(),
-            Set([.init(.ios, .v5_6)])
-        )
-        XCTAssertEqual(
-            Set([
-                BuildPair(.ios, .v5_5),
-                BuildPair(.ios, .v5_6),
-            ]).droppingLatestSwiftVersion(),
-            Set([
-                BuildPair(.ios, .v5_5),
-                BuildPair(.ios, .v5_6),
-            ])
-        )
-    }
-
-    func test_BuildTriggerInfo_droppingLatestSwiftVersion() throws {
-        let pairs = Set([
-            BuildPair(.ios, .v5_6),
-            BuildPair(.ios, .v5_7),
-        ])
-        let trigger = BuildTriggerInfo(versionId: .id0, pairs: pairs)
-
-        XCTAssertEqual(trigger?.droppingLatestSwiftVersion().pairs,
-                       Set([BuildPair(.ios, .v5_6)]))
-    }
-
-    func test_triggerBuilds_buildTriggerLatestSwiftVersionDownscaling() throws {
-        // Test build trigger downscaling behaviour of latest Swift version builds
-        // setup
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
-        Current.buildTriggerLatestSwiftVersionDownscaling = { true }
-        // Use live dependency but replace actual client with a mock so we can
-        // assert on the details being sent without actually making a request
-        Current.triggerBuild = Gitlab.Builder.triggerBuild
-        var triggerCount = 0
-        let client = MockClient { _, res in
-            triggerCount += 1
-            try? res.content.encode(
-                Gitlab.Builder.Response.init(webUrl: "http://web_url")
-            )
-        }
-
-        do {  // if the queue is < 50% full, all builds are triggered
-            triggerCount = 0
-            Current.gitlabPipelineLimit = { 100 }
-            Current.getStatusCount = { _, status in
-                switch status {
-                    case .pending:
-                        return self.future(49)
-
-                    default:
-                        return self.future(0)
-                }
-            }
-
-            let pkgId = UUID()
-            let versionId = UUID()
-            let p = Package(id: pkgId, url: "1")
-            try p.save(on: app.db).wait()
-            try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-                .save(on: app.db).wait()
-
-            // MUT
-            try triggerBuilds(on: app.db,
-                              client: client,
-                              logger: app.logger,
-                              mode: .packageId(pkgId, force: false)).wait()
-
-            // validate
-            XCTAssertEqual(triggerCount, 24) // all builds are triggered
-        }
-
-        do {  // if the queue is >= 50% full, 5.7 builds are skipped
-            triggerCount = 0
-            Current.gitlabPipelineLimit = { 100 }
-            Current.getStatusCount = { _, status in
-                switch status {
-                    case .pending:
-                        return self.future(50)
-
-                    default:
-                        return self.future(0)
-                }
-            }
-
-            let pkgId = UUID()
-            let versionId = UUID()
-            let p = Package(id: pkgId, url: "2")
-            try p.save(on: app.db).wait()
-            try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-                .save(on: app.db).wait()
-
-            // MUT
-            try triggerBuilds(on: app.db,
-                              client: client,
-                              logger: app.logger,
-                              mode: .packageId(pkgId, force: false)).wait()
-
-            // validate
-            XCTAssertEqual(triggerCount, 18) // 24 - 6 builds for 5.7
-        }
-
     }
 
 }

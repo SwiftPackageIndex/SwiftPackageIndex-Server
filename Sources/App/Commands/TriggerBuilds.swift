@@ -130,15 +130,20 @@ func triggerBuilds(on database: Database,
     switch mode {
         case .limit(let limit):
             logger.info("Triggering builds (limit: \(limit)) ...")
-            return fetchBuildCandidates(database)
+
+            let withLatestSwiftVersion = Current.buildTriggerCandidatesWithLatestSwiftVersion
+
+            return fetchBuildCandidates(database,
+                                        withLatestSwiftVersion: withLatestSwiftVersion)
                 .map { candidates in
                     AppMetrics.buildCandidatesCount?.set(candidates.count)
                     return Array(candidates.prefix(limit))
                 }
-                .flatMap { triggerBuilds(on: database,
-                                         client: client,
-                                         logger: logger,
-                                         packages: $0)
+                .flatMap {
+                    triggerBuilds(on: database,
+                                  client: client,
+                                  logger: logger,
+                                  packages: $0)
                 }
                 .map {
                     AppMetrics.buildTriggerDurationSeconds?.time(since: start)
@@ -217,22 +222,16 @@ func triggerBuilds(on database: Database,
                 }
                 logger.info("Finding missing builds for package id: \(pkgId)")
                 return findMissingBuilds(database, packageId: pkgId)
-                    .flatMap { missingBuilds in
+                    .flatMap { triggers in
                         guard pendingJobs + newJobs < Current.gitlabPipelineLimit() else {
                             logger.info("too many pending pipelines (\(pendingJobs))")
                             return database.eventLoop.future()
                         }
 
-                        // Drop latest Swift version builds if that particular downscaling
-                        // is enabled *and* our queue is more than half full.
-                        let triggers = Current.buildTriggerLatestSwiftVersionDownscaling()
-                        && (pendingJobs + newJobs >= Current.gitlabPipelineLimit() / 2)
-                        ? missingBuilds.map { $0.droppingLatestSwiftVersion() }
-                        : missingBuilds
-
                         for trigger in triggers {
                             newJobs += trigger.pairs.count
                         }
+
                         return triggerBuildsUnchecked(on: database,
                                                       client: client,
                                                       logger: logger,
@@ -285,7 +284,8 @@ func triggerBuildsUnchecked(on database: Database,
 }
 
 
-func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]> {
+func fetchBuildCandidates(_ database: Database,
+                          withLatestSwiftVersion: Bool = true) -> EventLoopFuture<[Package.Id]> {
     guard let db = database as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
@@ -299,19 +299,37 @@ func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]>
     }
 
     let expectedBuildCount = BuildPair.all.count
+    let expectedBuildCountWithoutLatestSwiftVersion = BuildPair.allExceptLatestSwiftVersion.count
 
-    return db.raw("""
-            SELECT package_id, min(created_at) FROM (
-                SELECT v.package_id, v.latest, MIN(v.created_at) created_at
-                FROM versions v
-                LEFT JOIN builds b ON b.version_id = v.id
-                WHERE v.latest IS NOT NULL
-                GROUP BY v.package_id, v.latest
-                HAVING COUNT(*) < \(bind: expectedBuildCount)
-            ) AS t
-            GROUP BY package_id
-            ORDER BY MIN(created_at)
-            """)
+    let query: SQLQueryString = withLatestSwiftVersion
+    ? """
+        SELECT package_id, min(created_at) FROM (
+        SELECT v.package_id, v.latest, MIN(v.created_at) created_at
+        FROM versions v
+        LEFT JOIN builds b ON b.version_id = v.id
+        WHERE v.latest IS NOT NULL
+        GROUP BY v.package_id, v.latest
+        HAVING COUNT(*) < \(bind: expectedBuildCount)
+        ) AS t
+        GROUP BY package_id
+        ORDER BY MIN(created_at)
+        """
+    : """
+        SELECT package_id, min(created_at) FROM (
+            SELECT v.package_id, v.latest, MIN(v.created_at) created_at
+            FROM versions v
+            LEFT JOIN builds b ON b.version_id = v.id
+                AND (b.swift_version->'major')::INT = \(bind: SwiftVersion.latest.major)
+                AND (b.swift_version->'minor')::INT != \(bind: SwiftVersion.latest.minor)
+            WHERE v.latest IS NOT NULL
+            GROUP BY v.package_id, v.latest
+            HAVING COUNT(*) < \(bind: expectedBuildCountWithoutLatestSwiftVersion)
+        ) AS t
+        GROUP BY package_id
+        ORDER BY MIN(created_at)
+        """
+
+    return db.raw(query)
         .all(decoding: Row.self)
         .mapEach(\.packageId)
 }
@@ -326,13 +344,13 @@ struct BuildPair {
         self.swiftVersion = swiftVersion
     }
 
-    static let all: [Self] = {
-        Build.Platform.allActive.flatMap { platform in
-            SwiftVersion.allActive.map { swiftVersion in
-                BuildPair(platform, swiftVersion)
-            }
+    static let all = Build.Platform.allActive.flatMap { platform in
+        SwiftVersion.allActive.map { swiftVersion in
+            BuildPair(platform, swiftVersion)
         }
-    }()
+    }
+
+    static let allExceptLatestSwiftVersion = all.filter { $0.swiftVersion != .latest }
 }
 
 
@@ -354,13 +372,6 @@ extension BuildPair: Equatable, Hashable {
 }
 
 
-extension Set where Element == BuildPair {
-    func droppingLatestSwiftVersion() -> Self {
-        filter { !$0.swiftVersion.isLatest }
-    }
-}
-
-
 struct BuildTriggerInfo: Equatable {
     var versionId: Version.Id
     var pairs: Set<BuildPair>
@@ -377,15 +388,6 @@ struct BuildTriggerInfo: Equatable {
         self.pairs = pairs
         self.packageName = packageName
         self.reference = reference
-    }
-}
-
-
-extension BuildTriggerInfo {
-    func droppingLatestSwiftVersion() -> Self {
-        var result = self
-        result.pairs = pairs.droppingLatestSwiftVersion()
-        return result
     }
 }
 
