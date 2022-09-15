@@ -102,6 +102,48 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(ids, [pkgId])
     }
 
+    func test_fetchBuildCandidates_exceptLatestSwiftVersion() async throws {
+        // setup
+        do {  // save package with just latest Swift version builds missing
+            let p = Package(id: .id1, url: "1")
+            try await p.save(on: app.db)
+            let v = try Version(id: .init(),
+                                package: p,
+                                latest: .release,
+                                reference: .tag(1, 2, 3))
+            try await v.save(on: app.db)
+            for platform in Build.Platform.allActive {
+                for swiftVersion in SwiftVersion
+                    .allActive
+                    // skip latest Swift version build
+                    .filter({ $0 != .latest }) {
+                    try await Build(id: .init(),
+                                        version: v,
+                                        platform: platform,
+                                        status: .ok,
+                                        swiftVersion: swiftVersion)
+                        .save(on: app.db)
+                }
+            }
+        }
+        do {  // save package without any builds
+            let p = Package(id: .id2, url: "2")
+            try await p.save(on: app.db)
+            let v = try Version(id: .id3,
+                                package: p,
+                                latest: .release,
+                                reference: .tag(1, 2, 3))
+            try await v.save(on: app.db)
+        }
+
+        // MUT
+        let ids = try await fetchBuildCandidates(app.db, exceptLatestSwiftVersion: true).get()
+
+        // validate
+        // Only package with missing non-latest Swift version builds (.id2) must be selected
+        XCTAssertEqual(ids, [.id2])
+    }
+
     func test_missingPairs() throws {
          // Ensure we find missing builds purely via x.y Swift version,
          // i.e. ignoring patch version
@@ -720,6 +762,12 @@ class BuildTriggerTests: AppTestCase {
         // validate
         XCTAssertEqual(deleteCount, 1)
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+    }
+
+    func test_BuildPair_counts() throws {
+        // Sanity checks for critical counts used in canadidate selection
+        XCTAssertEqual(BuildPair.all.count, 24)
+        XCTAssertEqual(BuildPair.allExceptLatestSwiftVersion.count, 18)
     }
 
     func test_BuildPair_Equatable() throws {

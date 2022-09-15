@@ -135,10 +135,11 @@ func triggerBuilds(on database: Database,
                     AppMetrics.buildCandidatesCount?.set(candidates.count)
                     return Array(candidates.prefix(limit))
                 }
-                .flatMap { triggerBuilds(on: database,
-                                         client: client,
-                                         logger: logger,
-                                         packages: $0)
+                .flatMap {
+                    triggerBuilds(on: database,
+                                  client: client,
+                                  logger: logger,
+                                  packages: $0)
                 }
                 .map {
                     AppMetrics.buildTriggerDurationSeconds?.time(since: start)
@@ -285,7 +286,8 @@ func triggerBuildsUnchecked(on database: Database,
 }
 
 
-func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]> {
+func fetchBuildCandidates(_ database: Database,
+                          exceptLatestSwiftVersion: Bool = false) -> EventLoopFuture<[Package.Id]> {
     guard let db = database as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
@@ -299,19 +301,37 @@ func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]>
     }
 
     let expectedBuildCount = BuildPair.all.count
+    let expectedBuildCountWithoutLatestSwiftVersion = BuildPair.allExceptLatestSwiftVersion.count
 
-    return db.raw("""
-            SELECT package_id, min(created_at) FROM (
-                SELECT v.package_id, v.latest, MIN(v.created_at) created_at
-                FROM versions v
-                LEFT JOIN builds b ON b.version_id = v.id
-                WHERE v.latest IS NOT NULL
-                GROUP BY v.package_id, v.latest
-                HAVING COUNT(*) < \(bind: expectedBuildCount)
-            ) AS t
-            GROUP BY package_id
-            ORDER BY MIN(created_at)
-            """)
+    let query: SQLQueryString = exceptLatestSwiftVersion
+    ? """
+        SELECT package_id, min(created_at) FROM (
+            SELECT v.package_id, v.latest, MIN(v.created_at) created_at
+            FROM versions v
+            LEFT JOIN builds b ON b.version_id = v.id
+                AND (b.swift_version->'major')::INT = \(bind: SwiftVersion.latest.major)
+                AND (b.swift_version->'minor')::INT != \(bind: SwiftVersion.latest.minor)
+            WHERE v.latest IS NOT NULL
+            GROUP BY v.package_id, v.latest
+            HAVING COUNT(*) < \(bind: expectedBuildCountWithoutLatestSwiftVersion)
+        ) AS t
+        GROUP BY package_id
+        ORDER BY MIN(created_at)
+        """
+    : """
+        SELECT package_id, min(created_at) FROM (
+            SELECT v.package_id, v.latest, MIN(v.created_at) created_at
+            FROM versions v
+            LEFT JOIN builds b ON b.version_id = v.id
+            WHERE v.latest IS NOT NULL
+            GROUP BY v.package_id, v.latest
+            HAVING COUNT(*) < \(bind: expectedBuildCount)
+        ) AS t
+        GROUP BY package_id
+        ORDER BY MIN(created_at)
+        """
+
+    return db.raw(query)
         .all(decoding: Row.self)
         .mapEach(\.packageId)
 }
@@ -326,13 +346,13 @@ struct BuildPair {
         self.swiftVersion = swiftVersion
     }
 
-    static let all: [Self] = {
-        Build.Platform.allActive.flatMap { platform in
-            SwiftVersion.allActive.map { swiftVersion in
-                BuildPair(platform, swiftVersion)
-            }
+    static let all = Build.Platform.allActive.flatMap { platform in
+        SwiftVersion.allActive.map { swiftVersion in
+            BuildPair(platform, swiftVersion)
         }
-    }()
+    }
+
+    static let allExceptLatestSwiftVersion = all.filter { $0.swiftVersion != .latest }
 }
 
 
