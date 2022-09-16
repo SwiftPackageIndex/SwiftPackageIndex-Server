@@ -62,11 +62,14 @@ extension API {
                 .flatMapEach(on: req.eventLoop) { versionId -> EventLoopFuture<HTTPStatus> in
                     Build.trigger(database: req.db,
                                   client: req.client,
+                                  logger: req.logger,
                                   buildId: .init(),
                                   platform: dto.platform,
                                   swiftVersion: dto.swiftVersion,
                                   versionId: versionId)
-                        .map(\.status)
+                    .map { response in
+                        return response?.status ?? .badRequest
+                    }
                 }
                 .map { statuses -> HTTPStatus in
                     statuses.allSatisfy { $0 == .created || $0 == .ok }

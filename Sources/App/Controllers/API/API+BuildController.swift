@@ -96,10 +96,17 @@ extension API {
             let dto = try req.content.decode(PostBuildTriggerDTO.self)
             return Build.trigger(database: req.db,
                                  client: req.client,
+                                 logger: req.logger,
                                  buildId: .init(),
                                  platform: dto.platform,
                                  swiftVersion: dto.swiftVersion,
                                  versionId: versionId)
+            .flatMapThrowing { response in
+                guard let response = response else {
+                    throw Abort(.badRequest)
+                }
+                return response
+            }
         }
     }
 

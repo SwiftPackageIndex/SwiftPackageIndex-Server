@@ -157,6 +157,7 @@ class BuildTests: AppTestCase {
         // MUT
         let res = try Build.trigger(database: app.db,
                                     client: client,
+                                    logger: app.logger,
                                     buildId: buildId,
                                     platform: .macosXcodebuild,
                                     swiftVersion: .init(5, 2, 4),
@@ -164,7 +165,7 @@ class BuildTests: AppTestCase {
         
         // validate
         XCTAssertTrue(called)
-        XCTAssertEqual(res.status, .created)
+        XCTAssertEqual(res?.status, .created)
     }
     
     func test_query() async throws {

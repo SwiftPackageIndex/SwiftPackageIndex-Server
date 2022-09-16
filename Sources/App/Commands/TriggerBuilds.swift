@@ -235,7 +235,8 @@ func triggerBuilds(on database: Database,
                         return triggerBuildsUnchecked(on: database,
                                                       client: client,
                                                       logger: logger,
-                                                      triggers: triggers) }
+                                                      triggers: triggers)
+                    }
             }
             .flatten(on: database.eventLoop)
         }
@@ -264,18 +265,20 @@ func triggerBuildsUnchecked(on database: Database,
             AppMetrics.buildTriggerCount?.inc(1, .buildTriggerLabels(pair))
             let buildId: Build.Id = .init()
             return Build.trigger(database: database,
-                          client: client,
-                          buildId: buildId,
-                          platform: pair.platform,
-                          swiftVersion: pair.swiftVersion,
-                          versionId: trigger.versionId)
+                                 client: client,
+                                 logger: logger,
+                                 buildId: buildId,
+                                 platform: pair.platform,
+                                 swiftVersion: pair.swiftVersion,
+                                 versionId: trigger.versionId)
                 .flatMap { response in
-                    Build(id: buildId,
-                          versionId: trigger.versionId,
-                          jobUrl: response.webUrl,
-                          platform: pair.platform,
-                          status: .triggered,
-                          swiftVersion: pair.swiftVersion)
+                    guard let response = response else { return database.eventLoop.future() }
+                    return Build(id: buildId,
+                                 versionId: trigger.versionId,
+                                 jobUrl: response.webUrl,
+                                 platform: pair.platform,
+                                 status: .triggered,
+                                 swiftVersion: pair.swiftVersion)
                         .create(on: database)
                 }
         }
