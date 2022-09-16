@@ -507,6 +507,8 @@ class BuildTriggerTests: AppTestCase {
             triggerCount += 1
         }
 
+        let logger = Logger(label: "noop") { _ in SwiftLogNoOpLogHandler() }
+
         let p = Package(id: .id0, url: "1")
         try p.save(on: app.db).wait()
         let v = try Version(id: .id1, package: p, latest: .defaultBranch, reference: .branch("main"))
@@ -515,7 +517,7 @@ class BuildTriggerTests: AppTestCase {
         // MUT
         try triggerBuilds(on: app.db,
                           client: client,
-                          logger: app.logger,
+                          logger: logger,
                           mode: .packageId(.id0, force: false)).wait()
 
         // validate that one build record is saved, for the successful trigger
