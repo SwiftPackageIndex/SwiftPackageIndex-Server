@@ -149,7 +149,7 @@ extension Build {
 
     struct TriggerResponse: Content {
         var status: HTTPStatus
-        var webUrl: String
+        var webUrl: String?
     }
 
     static func trigger(database: Database,
@@ -158,7 +158,7 @@ extension Build {
                         buildId: Build.Id,
                         platform: Build.Platform,
                         swiftVersion: SwiftVersion,
-                        versionId: Version.Id) -> EventLoopFuture<TriggerResponse?> {
+                        versionId: Version.Id) -> EventLoopFuture<TriggerResponse> {
         let version: EventLoopFuture<Version> = Version
             .query(on: database)
             .filter(\.$id == versionId)

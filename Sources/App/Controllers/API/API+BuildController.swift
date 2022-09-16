@@ -101,12 +101,6 @@ extension API {
                                  platform: dto.platform,
                                  swiftVersion: dto.swiftVersion,
                                  versionId: versionId)
-            .flatMapThrowing { response in
-                guard let response = response else {
-                    throw Abort(.badRequest)
-                }
-                return response
-            }
         }
     }
 

@@ -67,9 +67,7 @@ extension API {
                                   platform: dto.platform,
                                   swiftVersion: dto.swiftVersion,
                                   versionId: versionId)
-                    .map { response in
-                        return response?.status ?? .badRequest
-                    }
+                    .map(\.status)
                 }
                 .map { statuses -> HTTPStatus in
                     statuses.allSatisfy { $0 == .created || $0 == .ok }

@@ -272,14 +272,13 @@ func triggerBuildsUnchecked(on database: Database,
                                  swiftVersion: pair.swiftVersion,
                                  versionId: trigger.versionId)
                 .flatMap { response in
-                    guard let response = response else { return database.eventLoop.future() }
-                    return Build(id: buildId,
-                                 versionId: trigger.versionId,
-                                 jobUrl: response.webUrl,
-                                 platform: pair.platform,
-                                 status: .triggered,
-                                 swiftVersion: pair.swiftVersion)
-                        .create(on: database)
+                    Build(id: buildId,
+                          versionId: trigger.versionId,
+                          jobUrl: response.webUrl,
+                          platform: pair.platform,
+                          status: .triggered,
+                          swiftVersion: pair.swiftVersion)
+                    .create(on: database)
                 }
         }
     }

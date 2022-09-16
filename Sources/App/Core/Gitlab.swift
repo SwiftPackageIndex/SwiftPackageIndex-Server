@@ -76,7 +76,7 @@ extension Gitlab.Builder {
                              platform: Build.Platform,
                              reference: Reference,
                              swiftVersion: SwiftVersion,
-                             versionID: Version.Id) -> EventLoopFuture<Build.TriggerResponse?> {
+                             versionID: Version.Id) -> EventLoopFuture<Build.TriggerResponse> {
         guard let pipelineToken = Current.gitlabPipelineToken(),
               let builderToken = Current.builderToken()
         else { return client.eventLoop.future(error: Gitlab.Error.missingToken) }
@@ -117,7 +117,7 @@ extension Gitlab.Builder {
                     error: \(error)
                     """
                 )
-                return nil
+                return .init(status: response.status, webUrl: nil)
             }
         }
     }

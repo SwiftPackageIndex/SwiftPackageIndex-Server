@@ -189,12 +189,9 @@ class LiveGitlabBuilderTests: AppTestCase {
             swiftVersion: .v5_6,
             versionID: versionID).wait()
 
-        do {
-            let res = try XCTUnwrap(res)
-            print("status: \(res.status)")
-            print("buildId: \(buildId)")
-            print("webUrl: \(res.webUrl)")
-        }
+        print("status: \(res.status)")
+        print("buildId: \(buildId)")
+        print("webUrl: \(res.webUrl)")
     }
 
 }

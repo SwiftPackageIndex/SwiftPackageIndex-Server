@@ -165,7 +165,7 @@ class BuildTests: AppTestCase {
         
         // validate
         XCTAssertTrue(called)
-        XCTAssertEqual(res?.status, .created)
+        XCTAssertEqual(res.status, .created)
     }
     
     func test_query() async throws {
