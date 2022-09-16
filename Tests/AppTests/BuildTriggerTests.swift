@@ -480,6 +480,48 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
     }
 
+    func test_triggerBuilds_error() throws {
+        // Ensure we trim builds as part of triggering
+        // setup
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
+        Current.gitlabPipelineLimit = { 300 }
+        // Use live dependency but replace actual client with a mock so we can
+        // assert on the details being sent without actually making a request
+        Current.triggerBuild = Gitlab.Builder.triggerBuild
+        var triggerCount = 0
+        let client = MockClient { _, res in
+            // let the 5th trigger succeed to ensure we don't early out on errors
+            if triggerCount == 5 {
+                try? res.content.encode(
+                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                )
+            } else {
+                struct Response: Content {
+                    var message: String
+                }
+                try? res.content.encode(Response(message: "Too many pipelines created in the last minute. Try again later."))
+                res.status = .tooManyRequests
+            }
+            triggerCount += 1
+        }
+
+        let p = Package(id: .id0, url: "1")
+        try p.save(on: app.db).wait()
+        let v = try Version(id: .id1, package: p, latest: .defaultBranch, reference: .branch("main"))
+        try v.save(on: app.db).wait()
+
+        // MUT
+        try triggerBuilds(on: app.db,
+                          client: client,
+                          logger: app.logger,
+                          mode: .packageId(.id0, force: false)).wait()
+
+        // validate that one build record is saved, for the successful trigger
+        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+    }
+
     func test_buildTriggerCandidatesSkipLatestSwiftVersion() throws {
         do {
             // Test downscaling set to 10%
