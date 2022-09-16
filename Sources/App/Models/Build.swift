@@ -149,11 +149,12 @@ extension Build {
 
     struct TriggerResponse: Content {
         var status: HTTPStatus
-        var webUrl: String
+        var webUrl: String?
     }
 
     static func trigger(database: Database,
                         client: Client,
+                        logger: Logger,
                         buildId: Build.Id,
                         platform: Build.Platform,
                         swiftVersion: SwiftVersion,
@@ -166,6 +167,7 @@ extension Build {
             .unwrap(or: Abort(.notFound))
         return version.flatMap {
             return Current.triggerBuild(client,
+                                        logger,
                                         buildId,
                                         $0.package.url,
                                         platform,

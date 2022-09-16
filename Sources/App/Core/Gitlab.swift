@@ -70,6 +70,7 @@ extension Gitlab.Builder {
     }
 
     static func triggerBuild(client: Client,
+                             logger: Logger,
                              buildId: Build.Id,
                              cloneURL: String,
                              platform: Build.Platform,
@@ -102,23 +103,23 @@ extension Gitlab.Builder {
                     ])
                 try req.query.encode(data)
             }
-        return req.flatMapThrowing { response in
+        return req.map { response in
             do {
-                return (response.status, try response.content.decode(Response.self).webUrl)
+                return Build.TriggerResponse(status: response.status,
+                                             webUrl: try response.content.decode(Response.self).webUrl)
             } catch {
                 let body = response.body?.asString() ?? "nil"
-                throw Gitlab.Error.decodingFailed("""
-                    package: \(cloneURL)
-                    ref: \(reference)
-                    platform: \(platform)
-                    swift version: \(swiftVersion)
-                    version id: \(versionID)
+                logger.error("""
+                    Trigger failed
+                    \(cloneURL) @ \(reference), \(platform) / \(swiftVersion), \(versionID)
+                    status: \(response.status)
                     body: \(body)
                     error: \(error)
-                    """)
+                    """
+                )
+                return .init(status: response.status, webUrl: nil)
             }
         }
-        .map(Build.TriggerResponse.init(status:webUrl:))
     }
 
     struct PostDTO: Codable, Equatable {
