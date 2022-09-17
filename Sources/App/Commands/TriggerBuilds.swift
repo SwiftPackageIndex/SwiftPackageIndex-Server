@@ -217,14 +217,14 @@ func triggerBuilds(on database: Database,
             return packages.map { pkgId in
                 // check if we have capacity to schedule more builds before querying for builds
                 guard pendingJobs + newJobs < Current.gitlabPipelineLimit() else {
-                    logger.info("too many pending pipelines (\(pendingJobs))")
+                    logger.info("too many pending pipelines (\(pendingJobs + newJobs))")
                     return database.eventLoop.future()
                 }
                 logger.info("Finding missing builds for package id: \(pkgId)")
                 return findMissingBuilds(database, packageId: pkgId)
                     .flatMap { triggers in
                         guard pendingJobs + newJobs < Current.gitlabPipelineLimit() else {
-                            logger.info("too many pending pipelines (\(pendingJobs))")
+                            logger.info("too many pending pipelines (\(pendingJobs + newJobs))")
                             return database.eventLoop.future()
                         }
 
