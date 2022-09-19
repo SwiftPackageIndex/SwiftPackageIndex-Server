@@ -52,7 +52,7 @@ We'd love to have your support. Thank you! You can read more about [how we are f
 
 <h3 id="swiftpm-library">What happened to the SwiftPM Library?</h3>
 
-This site is a spiritual successor and replacement for [the SwiftPM Library](/images/swiftpm-library.png). It has been re-implemented from scratch in Swift using Vapor and has had a name change at the same time. We learned many valuable lessons from the original implementation, and the Swift Package Index is the future of Swift package search.
+This site is a spiritual successor and replacement for [the SwiftPM Library](/images/screenshots/swiftpm-library.png). It has been re-implemented from scratch in Swift using Vapor and has had a name change at the same time. We learned many valuable lessons from the original implementation, and the Swift Package Index is the future of Swift package search.
 
 ---
 
@@ -75,8 +75,8 @@ We’re excited to see the GitHub Package Registry gain support for the Swift pa
 The Swift Package Index includes build information which is not able to be derived from the package manifest. Including full coverage of both Swift version compatibility, and platform compatibility, including Linux!
 
 <picture class="shadow">
-  <source srcset="/images/languages-and-platforms~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/languages-and-platforms~light.png" alt="Language and Platform information on a package page">
+  <source srcset="/images/screenshots/languages-and-platforms~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/screenshots/languages-and-platforms~light.png" alt="Language and Platform information on a package page">
 </picture>
 
 To determine what versions of Swift a package supports, and what platforms it is compatible with, the Swift Package Index runs real-world builds using several Swift compilers targeting several different platforms. You can learn more about how we do this in the [Swift Package Index Build System FAQ](/docs/builds).
@@ -132,8 +132,8 @@ Package releases must use git tags that are _fully qualified_ [semantic versions
 A good way to check what the latest semantic version release of a package is is to add it to a project in Xcode. By default, Xcode will show the latest semantic version when adding the package to a project. The number you see on this site should match the version Xcode shows when adding the package. If you see something different, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose)!
 
 <picture class="shadow">
-  <source srcset="/images/add-package-in-xcode~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/add-package-in-xcode~light.png" alt="Adding a package in Xcode">
+  <source srcset="/images/screenshots/add-package-in-xcode~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/screenshots/add-package-in-xcode~light.png" alt="Adding a package in Xcode">
 </picture>
 
 ---
