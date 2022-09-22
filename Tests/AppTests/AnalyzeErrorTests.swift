@@ -97,6 +97,15 @@ final class AnalyzeErrorTests: AppTestCase {
             if checkoutDir.hasSuffix("foo-2") { return .init(commit: "commit \(ref)", date: .t1) }
             throw SetupError()
         }
+        Current.git.shortlog = { _ in
+            """
+            1000  Person 1 <person1@example.com>
+             871  Person 2 <person2@example.com>
+             703  Person 3 <person5@example.com>
+             360  Person 4 <person6@example.com>
+             108  Person 5 <person7@example.com>
+            """
+        }
 
         Current.reportError = { _, _, error in
             Validator.reportedErrors.append(error)
