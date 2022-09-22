@@ -12,10 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This file is based on the Vapor project's template:
+# https://github.com/vapor/template-bare/blob/main/Dockerfile
+
 # ================================
 # Build image
 # ================================
-FROM registry.gitlab.com/finestructure/spi-base:0.8.0 as build
+FROM registry.gitlab.com/finestructure/spi-base:0.9.0 as build
+
+# Set up a build area
 WORKDIR /build
 
 # First just resolve dependencies.
@@ -29,29 +34,43 @@ RUN swift package resolve
 COPY . .
 
 # Compile with optimizations
-RUN swift build \
-    -c release \
-    -Xswiftc -g
+RUN swift build -c release --static-swift-stdlib
+
+# Switch to the staging area
+WORKDIR /staging
+
+# Copy main executable to staging area
+RUN cp "$(swift build --package-path /build -c release --show-bin-path)/Run" ./
+
+# Copy resources bundled by SPM to staging area
+RUN find -L "$(swift build --package-path /build -c release --show-bin-path)/" -regex '.*\.resources$' -exec cp -Ra {} ./ \;
+
+# Copy any resources from the public directory and views directory if the directories exist
+# Ensure that by default, neither the directory nor any of its contents are writable.
+RUN [ -d /build/Public ] && { mv /build/Public ./Public && chmod -R a-w ./Public; } || true
+RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w ./Resources; } || true
+
 
 # ================================
 # Run image
 # ================================
-# we need a special base image so that we can run `swift dump-package`
-FROM registry.gitlab.com/finestructure/spi-base:0.8.0
+FROM registry.gitlab.com/finestructure/spi-base:0.9.0
 
-WORKDIR /run
+# Create a vapor user and group with /app as its home directory
+RUN useradd --user-group --create-home --system --home-dir /app vapor
 
-# Copy build artifacts
-COPY --from=build /build/.build/release /run
-# Copy Swift runtime libraries
-COPY --from=build /usr/lib/swift/ /usr/lib/swift/
-# Copy static resources
-# Ridiculous hack for a docker bug: https://stackoverflow.com/a/62409523/1444152
-# https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1235
-RUN true
-# end hack
-COPY --from=build /build/Public /run/Public
-COPY --from=build /build/Resources /run/Resources
+# Switch to the new home directory
+WORKDIR /app
 
+# Copy built executable and any staged resources from builder
+COPY --from=build --chown=vapor:vapor /staging /app
+
+# Ensure all further commands run as the vapor user
+USER vapor:vapor
+
+# Let Docker bind to port 8080
+EXPOSE 8080
+
+# Start the Vapor service when the image is run, default to listening on 8080 in production environment
 ENTRYPOINT ["./Run"]
-CMD ["serve", "--env", "production", "--hostname", "0.0.0.0"]
+CMD ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8080"]
