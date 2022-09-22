@@ -25,9 +25,9 @@ final class RepositoryTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         let repo = try Repository(id: UUID(),
                                   package: pkg,
-                                  authors: [
+                                  authors: PackageAuthors(authors: [
                                     .init(name: "Foo", url: "fooUrl"),
-                                    .init(name: "Bar", url: "barUrl")],
+                                    .init(name: "Bar", url: "barUrl")], numberOfContributors: 0),
                                   commitCount: 123,
                                   defaultBranch: "branch",
                                   firstCommitDate: Date(timeIntervalSince1970: 0),
@@ -59,9 +59,9 @@ final class RepositoryTests: AppTestCase {
         do {
             let r = try XCTUnwrap(Repository.find(repo.id, on: app.db).wait())
             XCTAssertEqual(r.$package.id, pkg.id)
-            XCTAssertEqual(r.authors, [
-                            .init(name: "Foo", url: "fooUrl"),
-                            .init(name: "Bar", url: "barUrl")])
+            XCTAssertEqual(r.authors,
+                           PackageAuthors(authors: [ .init(name: "Foo", url: "fooUrl"), .init(name: "Bar", url: "barUrl")],
+                                          numberOfContributors: 0))
             XCTAssertEqual(r.commitCount, 123)
             XCTAssertEqual(r.defaultBranch, "branch")
             XCTAssertEqual(r.firstCommitDate, Date(timeIntervalSince1970: 0))

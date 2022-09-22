@@ -77,11 +77,11 @@ class PackageContributorServiceTests : AppTestCase {
         // MUT
         let pkgAuthors = try PackageContributorService.authorExtractor(cacheDirPath: gitCacheDirectoryPath, packageID: pkg.id)
         
-        XCTAssertEqual(pkgAuthors.authorsName, ["Person 1",
-                                                "Person 2",
-                                                "Person 3",
-                                                "Person 4",
-                                                "Person 5"])
+        XCTAssertEqual(pkgAuthors.authors, [Author(name: "Person 1") ,
+                                            Author(name: "Person 2"),
+                                            Author(name: "Person 3"),
+                                            Author(name: "Person 4"),
+                                            Author(name: "Person 5")])
         XCTAssertEqual(pkgAuthors.numberOfContributors, 6)
         
     }
