@@ -101,21 +101,29 @@ struct CommitSelector {
 }
 
 
-struct PackageAuthors {
-    let authorsName : [String]
-    let numberOfContributors : Int
+struct PackageAuthors : Encodable, Decodable, Equatable {
+    var authors : [Author]
+    var numberOfContributors : Int 
 }
 
 
 
 final class PackageContributorService {
     
+    
+    /// Extracts the possible authors of the package according to the number of commits.
+    /// A contributor is considered an author when the number of commits is at least a 60 percent
+    /// of the maximum commits done by a contributor
+    /// - Parameters:
+    ///   - cacheDirPath: path to the cache directory where the clone of the package is stored
+    ///   - packageID: the UUID of the package
+    /// - Returns: PackageAuthors
     static func authorExtractor(cacheDirPath: String, packageID: UUID?) throws -> PackageAuthors {
         let contributorsHistory = try GitHistoryLoader.loadContributorsHistory(cacheDirPath: cacheDirPath, packageID: packageID)
         let authors = CommitSelector.filter(candidates: contributorsHistory, threshold: 0.6)
         
-        return PackageAuthors(authorsName: authors.map(\.name),
-                                   numberOfContributors: contributorsHistory.count - authors.count)
+        return PackageAuthors(authors: authors.map { Author(name: $0.name) },
+                              numberOfContributors: contributorsHistory.count - authors.count)
     }
     
 }
