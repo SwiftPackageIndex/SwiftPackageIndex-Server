@@ -18,7 +18,7 @@
 # ================================
 # Build image
 # ================================
-FROM registry.gitlab.com/finestructure/spi-base:0.8.0 as build
+FROM registry.gitlab.com/finestructure/spi-base:ff0090f16efaa085dc930fba6cd1d947e601d47a as build
 
 # Set up a build area
 WORKDIR /build
@@ -54,7 +54,7 @@ RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w
 # ================================
 # Run image
 # ================================
-FROM registry.gitlab.com/finestructure/spi-base:0.8.0
+FROM registry.gitlab.com/finestructure/spi-base:ff0090f16efaa085dc930fba6cd1d947e601d47a
 
 WORKDIR /app
 
