@@ -270,6 +270,9 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 059 - delete Swift 5.3 builds
         app.migrations.add(DeleteSwift5_3Builds())
     }
+    do { // Migration 060 - update repository authors type
+        app.migrations.add(UpdateRepositoryAuthorsType())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
