@@ -43,7 +43,7 @@ final class Repository: Model, Content {
     // data fields
     
     @Field(key: "authors")
-    var authors: [Author]
+    var authors: PackageAuthors?
     
     @Field(key: "commit_count")
     var commitCount: Int
@@ -126,7 +126,7 @@ final class Repository: Model, Content {
     
     init(id: Id? = nil,
          package: Package,
-         authors: [Author] = [],
+         authors: PackageAuthors? = nil, // [Author] = [],
          commitCount: Int = 0,
          defaultBranch: String? = nil,
          firstCommitDate: Date? = nil,
