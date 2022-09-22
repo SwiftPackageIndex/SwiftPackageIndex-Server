@@ -212,22 +212,6 @@ extension Analyze {
         try refreshCheckout(logger: logger, package: package)
         try await updateRepository(on: transaction, package: package)
         
-        // -----------
-        // TODO: Put this in the right place
-        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
-            throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
-        }
-        
-        let pkgAuthors = try PackageContributorService.authorExtractor(cacheDirPath: cacheDir, packageID: package.model.id)
-        
-        logger.info("Written by ")
-        for authorName in pkgAuthors.authorsName {
-            logger.info("Author : \(authorName)")
-        }
-        if pkgAuthors.numberOfContributors != 0 {
-            logger.info("and \(pkgAuthors.numberOfContributors) contributors")
-        }
-        // -----------
         let versionDelta = try await diffVersions(client: client,
                                                   logger: logger,
                                                   transaction: transaction,
@@ -376,6 +360,22 @@ extension Analyze {
         repo.commitCount = (try? Current.git.commitCount(gitDirectory)) ?? 0
         repo.firstCommitDate = try? Current.git.firstCommitDate(gitDirectory)
         repo.lastCommitDate = try? Current.git.lastCommitDate(gitDirectory)
+        // TODO: Add authors in the repo here
+        // -----------
+        
+        let pkgAuthors = try PackageContributorService.authorExtractor(cacheDirPath: gitDirectory, packageID: package.model.id)
+        
+        print("Written by ")
+        for authorName in pkgAuthors.authors {
+            print("Author : \(authorName)")
+        }
+        if pkgAuthors.numberOfContributors != 0 {
+            print("and \(pkgAuthors.numberOfContributors) contributors")
+        }
+        
+        repo.authors = pkgAuthors
+        
+        // -----------
 
         try await repo.update(on: database)
     }
@@ -736,21 +736,6 @@ extension Analyze {
         } catch {
             logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
         }
-    }
-    
-    // TODO: Check the right place to call this
-    /// Extracts the possible authors of the package according to the number of commits.
-    /// A contributor is considered an author when the number of commits is at least a 60 percent
-    /// of the maximum commits done by a contributor
-    /// - Parameters:
-    ///   - logger: `Logger` object
-    ///   - cacheDirPath: path to the cache directory where the clone of the package is stored
-    ///   - packageID: the UUID of the package
-    /// - Returns: Array of authors names
-    static func extractAuthors(logger: Logger, cacheDirPath: String, packageID: UUID?) throws -> [String] {
-        logger.info("Extracting authors for package id: \(packageID)")
-
-        return try PackageContributorService.authorExtractor(cacheDirPath: cacheDirPath, packageID: packageID).authorsName
     }
     
 
