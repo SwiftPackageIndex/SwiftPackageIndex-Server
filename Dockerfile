@@ -59,7 +59,7 @@ FROM registry.gitlab.com/finestructure/spi-base:0.9.0
 WORKDIR /app
 
 # Create a vapor user and group with /app as its home directory
-RUN useradd --user-group --create-home --system --skel /dev/null --home-dir /app vapor
+RUN useradd --user-group --create-home --system --home-dir /app vapor
 
 # Switch to the new home directory
 WORKDIR /app
