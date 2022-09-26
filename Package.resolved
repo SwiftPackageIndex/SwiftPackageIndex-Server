@@ -141,8 +141,8 @@
         "repositoryURL": "https://github.com/SwiftPackageIndex/SPIManifest",
         "state": {
           "branch": null,
-          "revision": "604cc6a1d66ae4b052016a83fed2f40200573602",
-          "version": "0.9.0"
+          "revision": "066f6515386663fa25b58a6179c86702a80af626",
+          "version": "0.10.0"
         }
       },
       {
@@ -312,7 +312,7 @@
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "release/5.7",
-          "revision": "63c14b84dc12c943a9d4c102648b7617d8b92f67",
+          "revision": "e7b2c1a261ee74cc1214ee4e97a7706e7c05f7d1",
           "version": null
         }
       },
@@ -326,12 +326,12 @@
         }
       },
       {
-        "package": "SnapshotTesting",
+        "package": "swift-snapshot-testing",
         "repositoryURL": "https://github.com/pointfreeco/swift-snapshot-testing.git",
         "state": {
           "branch": null,
-          "revision": "f8a9c997c3c1dab4e216a8ec9014e23144cbab37",
-          "version": "1.9.0"
+          "revision": "f29e2014f6230cf7d5138fc899da51c7f513d467",
+          "version": "1.10.0"
         }
       },
       {
