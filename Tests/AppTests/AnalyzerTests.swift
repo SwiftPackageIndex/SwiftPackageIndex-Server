@@ -260,6 +260,12 @@ class AnalyzerTests: AppTestCase {
                     fatalError("unexpected reference: \(ref)")
             }
         }
+        Current.git.shortlog = { _ in
+            """
+            10 Person 1 <person1@example.com>
+             2 Person 2 <person2@example.com>
+            """
+        }
 
         Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("package dump-package") {
@@ -313,6 +319,12 @@ class AnalyzerTests: AppTestCase {
         Current.git.lastCommitDate = { _ in .t1 }
         Current.git.getTags = { _ in [.tag(1, 0, 0)] }
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
+        Current.git.shortlog = { _ in
+            """
+            10 Person 1 <person1@example.com>
+             2 Person 2 <person2@example.com>
+            """
+        }
 
         Current.shell.run = { cmd, path in
             // first package fails
@@ -364,6 +376,10 @@ class AnalyzerTests: AppTestCase {
             .gitCommitCount: "12",
             .gitFirstCommitDate: "0",
             .gitLastCommitDate: "1",
+            .gitShortlog : """
+                            10 Person 1 <person1@example.com>
+                             2 Person 2 <person2@example.com>
+                            """
         ]
         for (idx, ref) in refs.enumerated() {
             mockResults[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
@@ -429,6 +445,12 @@ class AnalyzerTests: AppTestCase {
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
+        Current.git.shortlog = { _ in
+            """
+            10 Person 1 <person1@example.com>
+             2 Person 2 <person2@example.com>
+            """
+        }
         Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
@@ -444,6 +466,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(repo?.commitCount, 12)
         XCTAssertEqual(repo?.firstCommitDate, .t0)
         XCTAssertEqual(repo?.lastCommitDate, .t1)
+        XCTAssertEqual(repo?.authors, PackageAuthors(authors: [Author(name: "Person 1")], numberOfContributors: 1))
     }
 
     func test_diffVersions() async throws {
@@ -742,6 +765,12 @@ class AnalyzerTests: AppTestCase {
         Current.git.lastCommitDate = { _ in .t1 }
         Current.git.getTags = { _ in [.tag(1, 0, 0), .tag(2, 0, 0)] }
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
+        Current.git.shortlog = { _ in
+            """
+            10 Person 1 <person1@example.com>
+             2 Person 2 <person2@example.com>
+            """
+        }
         Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("swift package dump-package") {
                 return #"""
