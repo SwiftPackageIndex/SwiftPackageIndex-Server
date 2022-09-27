@@ -60,20 +60,22 @@ enum PackageController {
         case css
         case data
         case documentation
-        case favicon
+        case faviconIco = "favicon.ico"
+        case faviconSvg = "favicon.svg"
         case images
         case img
         case index
         case js
-        case themeSettings
+        case themeSettings = "theme-settings.json"
+        case tutorials
 
         var contentType: String {
             switch self {
                 case .css:
                     return "text/css"
-                case  .data, .favicon, .images, .img, .index, .themeSettings:
+                case  .data, .faviconIco, .faviconSvg, .images, .img, .index, .themeSettings:
                     return "application/octet-stream"
-                case .documentation:
+                case .documentation, .tutorials:
                     return "text/html; charset=utf-8"
                 case .js:
                     return "application/javascript"
@@ -149,7 +151,7 @@ enum PackageController {
         }
 
         switch fragment {
-            case .documentation:
+            case .documentation, .tutorials:
                 let queryResult = try await Joined3<Version, Package, Repository>
                     .query(on: req.db,
                            join: \Version.$package.$id == \Package.$id, method: .inner,
@@ -233,7 +235,7 @@ enum PackageController {
                     for: req
                 )
 
-            case .css, .data, .favicon, .images, .img, .index, .js, .themeSettings:
+            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .themeSettings:
                 return try await awsResponse.encodeResponse(
                     status: .ok,
                     headers: req.headers
@@ -387,12 +389,12 @@ extension PackageController {
         let baseURL = "http://\(baseURLHost)/\(baseURLPath)"
 
         switch fragment {
-            case .css, .data, .documentation, .images, .img, .index, .js:
+            case .css, .data, .documentation, .images, .img, .index, .js, .tutorials:
                 return URI(string: "\(baseURL)/\(fragment)/\(path)")
-            case .favicon:
-                return URI(string: "\(baseURL)/\(path)")
-            case .themeSettings:
-                return URI(string: "\(baseURL)/theme-settings.json")
+            case .faviconIco, .faviconSvg, .themeSettings:
+                return path.isEmpty
+                ? URI(string: "\(baseURL)/\(fragment)")
+                : URI(string: "\(baseURL)/\(path)/\(fragment)")
         }
     }
 }
@@ -444,4 +446,9 @@ extension Array where Element == PackageController.DocumentationVersion {
             return firstSemVer < secondSemVer
         }
     }
+}
+
+
+extension PackageController.Fragment: CustomStringConvertible {
+    var description: String { rawValue }
 }

@@ -220,7 +220,11 @@ class PackageController_routesTests: AppTestCase {
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/js/path"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .themeSettings, path: "theme-settings.json").string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .themeSettings, path: "path").string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/path/theme-settings.json"
+        )
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .themeSettings, path: "").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/theme-settings.json"
         )
     }
@@ -451,6 +455,29 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
+    func test_favicon() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok,
+                  headers: ["content-type": "application/octet-stream"],
+                  body: .init(string: uri.path))
+        }
+
+        // MUT
+        try app.test(.GET, "/owner/package/1.2.3/favicon.ico") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/favicon.ico")
+        }
+
+        try app.test(.GET, "/owner/package/1.2.3/favicon.svg") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/favicon.svg")
+        }
+    }
+
     func test_themeSettings() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
@@ -468,6 +495,44 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
+    func test_tutorial() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok, body: .init(string: "<p>\(uri.path)</p>"))
+        }
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "0123456789",
+                    commitDate: Date(timeIntervalSince1970: 0),
+                    docArchives: [.init(name: "docs", title: "Docs")],
+                    latest: .defaultBranch,
+                    packageName: "pkg",
+                    reference: .tag(.init(1, 2, 3)))
+            .save(on: app.db).wait()
+
+        // MUT
+        // test path a/b
+        try app.test(.GET, "/owner/package/1.2.3/tutorials/a/b") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            XCTAssertTrue(
+                $0.body.asString().contains("<p>/owner/package/1.2.3/tutorials/a/b</p>"),
+                "was: \($0.body.asString())"
+            )
+            // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
+            XCTAssertTrue($0.body.asString()
+                    .contains(#"<link rel="stylesheet" href="/docc.css?test">"#),
+                          "was: \($0.body.asString())")
+        }
+
+        // Test case insensitive path.
+        try app.test(.GET, "/Owner/Package/1.2.3/tutorials/a/b") {
+            XCTAssertEqual($0.status, .ok)
+        }
+    }
 
     func test_documentationVersionArray_subscriptByReference() throws {
         let updatedAt = Date(timeIntervalSince1970: 0)

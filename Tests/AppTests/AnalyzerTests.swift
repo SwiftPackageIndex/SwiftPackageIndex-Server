@@ -26,6 +26,7 @@ import Vapor
 
 class AnalyzerTests: AppTestCase {
 
+    @MainActor
     func test_analyze() async throws {
         // End-to-end test, where we mock at the shell command level (i.e. we
         // don't mock the git commands themselves to ensure we're running the

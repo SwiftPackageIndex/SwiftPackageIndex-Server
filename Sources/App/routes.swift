@@ -65,8 +65,11 @@ func routes(_ app: Application) throws {
             app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") {
                 try await PackageController.documentation(req: $0, fragment: .documentation)
             }
-            app.get(":owner", ":repository", ":reference", "favicon.*") {
-                try await PackageController.documentation(req: $0, fragment: .favicon)
+            app.get(":owner", ":repository", ":reference", .fragment(.faviconIco)) {
+                try await PackageController.documentation(req: $0, fragment: .faviconIco)
+            }
+            app.get(":owner", ":repository", ":reference", .fragment(.faviconSvg)) {
+                try await PackageController.documentation(req: $0, fragment: .faviconSvg)
             }
             app.get(":owner", ":repository", ":reference", "css", "**") {
                 try await PackageController.documentation(req: $0, fragment: .css)
@@ -86,8 +89,11 @@ func routes(_ app: Application) throws {
             app.get(":owner", ":repository", ":reference", "js", "**") {
                 try await PackageController.documentation(req: $0, fragment: .js)
             }
-            app.get(":owner", ":repository", ":reference", "theme-settings.json") {
+            app.get(":owner", ":repository", ":reference", .fragment(.themeSettings)) {
                 try await PackageController.documentation(req: $0, fragment: .themeSettings)
+            }
+            app.get(":owner", ":repository", ":reference", "tutorials", "**") {
+                try await PackageController.documentation(req: $0, fragment: .tutorials)
             }
         }
 
@@ -197,4 +203,9 @@ func routes(_ app: Application) throws {
             return promise.futureResult
         }
     }
+}
+
+
+private extension PathComponent {
+    static func fragment(_ fragment: PackageController.Fragment) -> Self { "\(fragment)" }
 }
