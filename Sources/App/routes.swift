@@ -89,6 +89,9 @@ func routes(_ app: Application) throws {
             app.get(":owner", ":repository", ":reference", "theme-settings.json") {
                 try await PackageController.documentation(req: $0, fragment: .themeSettings)
             }
+            app.get(":owner", ":repository", ":reference", "tutorials", "**") {
+                try await PackageController.documentation(req: $0, fragment: .tutorials)
+            }
         }
 
         app.get(SiteURL.package(.key, .key, .none).pathComponents,

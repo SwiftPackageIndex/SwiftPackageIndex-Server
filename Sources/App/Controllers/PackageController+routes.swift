@@ -66,6 +66,7 @@ enum PackageController {
         case index
         case js
         case themeSettings
+        case tutorials
 
         var contentType: String {
             switch self {
@@ -73,7 +74,7 @@ enum PackageController {
                     return "text/css"
                 case  .data, .favicon, .images, .img, .index, .themeSettings:
                     return "application/octet-stream"
-                case .documentation:
+                case .documentation, .tutorials:
                     return "text/html; charset=utf-8"
                 case .js:
                     return "application/javascript"
@@ -149,7 +150,7 @@ enum PackageController {
         }
 
         switch fragment {
-            case .documentation:
+            case .documentation, .tutorials:
                 let queryResult = try await Joined3<Version, Package, Repository>
                     .query(on: req.db,
                            join: \Version.$package.$id == \Package.$id, method: .inner,
@@ -387,7 +388,7 @@ extension PackageController {
         let baseURL = "http://\(baseURLHost)/\(baseURLPath)"
 
         switch fragment {
-            case .css, .data, .documentation, .images, .img, .index, .js:
+            case .css, .data, .documentation, .images, .img, .index, .js, .tutorials:
                 return URI(string: "\(baseURL)/\(fragment)/\(path)")
             case .favicon:
                 return URI(string: "\(baseURL)/\(path)")
