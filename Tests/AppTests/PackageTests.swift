@@ -279,6 +279,12 @@ final class PackageTests: AppTestCase {
             .init(commit: "sha",
                   date: Date(timeIntervalSince1970: 0))
         }
+        Current.git.shortlog = { _ in
+            """
+            10 Person 1 <person1@example.com>
+             2 Person 2 <person2@example.com>
+            """
+        }
         Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("swift package dump-package") {
                 return #"{ "name": "Mock", "products": [] }"#

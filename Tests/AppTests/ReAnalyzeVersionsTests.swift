@@ -46,6 +46,12 @@ class ReAnalyzeVersionsTests: AppTestCase {
         Current.git.lastCommitDate = { _ in .t1 }
         Current.git.getTags = { _ in [.tag(1, 2, 3)] }
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
+        Current.git.shortlog = { _ in
+            """
+            10 Person 1 <person1@example.com>
+             2 Person 2 <person2@example.com>
+            """
+        }
 
         var pkgDump = #"""
             {
@@ -181,6 +187,12 @@ class ReAnalyzeVersionsTests: AppTestCase {
         Current.git.lastCommitDate = { _ in .t1 }
         Current.git.getTags = { _ in [] }
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
+        Current.git.shortlog = { _ in
+            """
+            10 Person 1 <person1@example.com>
+             2 Person 2 <person2@example.com>
+            """
+        }
         Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("swift package dump-package") {
                 // causing error to be thrown during package dump
