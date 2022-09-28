@@ -102,7 +102,7 @@ services:
 
 
   cadvisor:
-    image: google/cadvisor:v0.45.0
+    image: gcr.io/cadvisor/cadvisor:v0.45.0
     networks:
       - app_backend
     volumes:
