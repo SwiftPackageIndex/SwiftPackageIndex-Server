@@ -19,7 +19,7 @@ version: '3.7'
 services:
 
   grafana:
-    image: grafana/grafana:7.5.7
+    image: grafana/grafana:9.1.6
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: 'false'
@@ -40,7 +40,7 @@ services:
   # logging
 
   loki:
-    image: grafana/loki:2.2.1
+    image: grafana/loki:2.6.1
     command: -config.file=/loki.yml
     configs:
       - source: loki_cfg
@@ -50,7 +50,7 @@ services:
 
 
   promtail:
-    image: grafana/promtail:2.2.1
+    image: grafana/promtail:2.6.1
     command: -config.file=/promtail.yml
     configs:
       - source: promtail_cfg
@@ -66,7 +66,7 @@ services:
   # monitoring
 
   prometheus:
-    image: prom/prometheus:v2.27.1
+    image: prom/prometheus:v2.37.1
     volumes:
       - prometheus_data:/prometheus
     command: --config.file=/prometheus.yml
@@ -83,26 +83,26 @@ services:
 
 
   pushgateway:
-    image: prom/pushgateway:v1.4.0
+    image: prom/pushgateway:v1.4.3
     networks:
       - app_backend
 
 
   node-exporter:
-    image: prom/node-exporter:v1.1.2
+    image: prom/node-exporter:v1.3.1
     networks:
       - app_backend
     volumes:
       - /proc:/host/proc
       - /sys:/host/sys
       - /:/rootfs
-    command: --path.procfs /host/proc --path.sysfs /host/sys --collector.textfile.directory /etc/node-exporter/ --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($$|/)"
+    command: --path.procfs /host/proc --path.sysfs /host/sys --collector.textfile.directory /etc/node-exporter/ --collector.filesystem.mount-points-exclude "^/(sys|proc|dev|host|etc)($$|/)"
     deploy:
       mode: global
 
 
   cadvisor:
-    image: google/cadvisor:v0.33.0
+    image: gcr.io/cadvisor/cadvisor:v0.45.0
     networks:
       - app_backend
     volumes:
