@@ -38,11 +38,6 @@ test: xcbeautify
 	&& swift test --enable-code-coverage --disable-automatic-resolution --sanitize=thread \
 	2>&1 | ./xcbeautify
 
-test-without-tsan: xcbeautify
-	set -o pipefail \
-	&& swift test --enable-code-coverage --disable-automatic-resolution \
-	2>&1 | ./xcbeautify
-
 test-query-performance: xcbeautify
 	set -o pipefail \
 	&& env NSUnbufferedIO=YES RUN_QUERY_PERFORMANCE_TESTS=true \
