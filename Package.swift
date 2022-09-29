@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.6
 
 // Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
@@ -25,47 +25,45 @@ let package = Package(
         .library(name: "DependencyResolution", targets: ["DependencyResolution"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0-rc"),
-        .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0-rc"),
-        .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0-rc"),
         .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
         .package(url: "https://github.com/JohnSundell/Plot.git", from: "0.10.0"),
         .package(url: "https://github.com/JohnSundell/ShellOut.git", from: "2.0.0"),
         .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
-        .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.7.1"),
-        .package(name: "SnapshotTesting",
-                 url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
-        .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SPIManifest", from: "0.9.0"),
+        .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
+        .package(url: "https://github.com/apple/swift-package-manager.git", branch: "release/5.7"),
         .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0"),
+        .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.7.1"),
+        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
-        .package(name: "SwiftPM", url: "https://github.com/apple/swift-package-manager.git",
-                 .branch("release/5.7"))
+        .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0-rc"),
+        .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0-rc"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0-rc"),
     ],
     targets: [
         .executableTarget(name: "Run", dependencies: ["App"]),
         .target(name: "App", dependencies: [
-            "Plot",
             "Ink",
-            "SemanticVersion",
+            "OhhAuth",
+            "Plot",
             "SPIManifest",
+            "SemanticVersion",
             "ShellOut",
             "SwiftPrometheus",
-            "OhhAuth",
             "SwiftSoup",
             .product(name: "Fluent", package: "fluent"),
             .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
             .product(name: "Parsing", package: "swift-parsing"),
-            .product(name: "SwiftPMPackageCollections", package: "SwiftPM"),
+            .product(name: "SwiftPMPackageCollections", package: "swift-package-manager"),
             .product(name: "Vapor", package: "vapor"),
             .target(name: "DependencyResolution"),
         ]),
         .target(name: "DependencyResolution"),
         .testTarget(name: "AppTests",
             dependencies: [
+                .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
                 .product(name: "XCTVapor", package: "vapor"),
                 .target(name: "App"),
-                "SnapshotTesting"
             ],
             exclude: ["__Snapshots__", "Fixtures"]
         ),

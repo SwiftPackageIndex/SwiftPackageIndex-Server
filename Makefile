@@ -35,18 +35,13 @@ run:
 
 test: xcbeautify
 	set -o pipefail \
-	&& swift test --enable-code-coverage --disable-automatic-resolution --sanitize=thread \
-	2>&1 | ./xcbeautify
-
-test-without-tsan: xcbeautify
-	set -o pipefail \
-	&& swift test --enable-code-coverage --disable-automatic-resolution \
+	&& swift test --disable-automatic-resolution --sanitize=thread \
 	2>&1 | ./xcbeautify
 
 test-query-performance: xcbeautify
 	set -o pipefail \
 	&& env NSUnbufferedIO=YES RUN_QUERY_PERFORMANCE_TESTS=true \
-	   swift test --enable-code-coverage --disable-automatic-resolution \
+	   swift test --disable-automatic-resolution \
 	   --filter QueryPerformanceTests \
 	2>&1 | tee test.log
 	grep "ℹ️" test.log
