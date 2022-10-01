@@ -282,13 +282,10 @@ extension PackageShow.Model {
             return Node<HTML.BodyContext>.a(.href(authorURL), .text(author.name))
         }
 
-        switch pkgAuthors.numberOfContributors {
-            case 0: break
-            case 1:
-                nodes.append(.text("\(pkgAuthors.numberOfContributors) other contributor"))
-            default:
-                nodes.append(.text("\(pkgAuthors.numberOfContributors) other contributors"))
+        if (pkgAuthors.numberOfContributors > 0) {
+            nodes.append(.text("\(pkgAuthors.numberOfContributors) other " + "contributor".pluralized(for: pkgAuthors.numberOfContributors)))
         }
+        
         return .li(
             .class("authors"),
             .group(listPhrase(opening: "Written by ", nodes: nodes, ifEmpty: "-", closing: "."))
