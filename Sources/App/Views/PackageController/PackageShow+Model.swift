@@ -26,7 +26,7 @@ extension PackageShow {
         var repositoryOwnerName: String
         var repositoryName: String
         var activity: Activity?
-        var authors: [Link]? // TODO: change to PackageAuthors
+        var authors: PackageAuthors?//[Link]? // TODO: change to PackageAuthors
         var keywords: [String]?
         var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
         var platformBuildInfo: BuildInfo<PlatformResults>?
@@ -53,7 +53,7 @@ extension PackageShow {
                       repositoryOwnerName: String,
                       repositoryName: String,
                       activity: Activity? = nil,
-                      authors: [Link]? = nil,
+                      authors: PackageAuthors? = nil,//[Link]? = nil,
                       keywords: [String]? = nil,
                       swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil,
                       platformBuildInfo: BuildInfo<PlatformResults>? = nil,
@@ -273,11 +273,21 @@ extension PackageShow.Model {
     }
 
     func authorsListItem() -> Node<HTML.ListContext> {
-        guard let authors = authors else { return .empty }
-        let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
+        guard let pkgAuthors = authors else { return .empty }
+        var nodes = pkgAuthors.authors.map { author in
+            if (author.url != nil) {
+                return Node<HTML.BodyContext>.a(.href(author.url!), .text(author.name))
+            }
+            else {
+                return Node<HTML.BodyContext>.text(author.name)
+            }
+        }
+        if (pkgAuthors.numberOfContributors > 0) {
+            nodes.append(.text("\(pkgAuthors.numberOfContributors) other contributors"))
+        }
         return .li(
             .class("authors"),
-            .group(listPhrase(opening: "By ", nodes: nodes, ifEmpty: "-", closing: "."))
+            .group(listPhrase(opening: "Written by ", nodes: nodes, ifEmpty: "-", closing: "."))
         )
     }
 
