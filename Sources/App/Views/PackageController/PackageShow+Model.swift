@@ -275,15 +275,19 @@ extension PackageShow.Model {
     func authorsListItem() -> Node<HTML.ListContext> {
         guard let pkgAuthors = authors else { return .empty }
         var nodes = pkgAuthors.authors.map { author in
-            if (author.url != nil) {
-                return Node<HTML.BodyContext>.a(.href(author.url!), .text(author.name))
-            }
+            guard let authorURL = author.url
             else {
                 return Node<HTML.BodyContext>.text(author.name)
             }
+            return Node<HTML.BodyContext>.a(.href(authorURL), .text(author.name))
         }
-        if (pkgAuthors.numberOfContributors > 0) {
-            nodes.append(.text("\(pkgAuthors.numberOfContributors) other contributors"))
+
+        switch pkgAuthors.numberOfContributors {
+            case 0: break
+            case 1:
+                nodes.append(.text("\(pkgAuthors.numberOfContributors) other contributor"))
+            default:
+                nodes.append(.text("\(pkgAuthors.numberOfContributors) other contributors"))
         }
         return .li(
             .class("authors"),
