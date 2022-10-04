@@ -84,14 +84,14 @@ extension PackageController.PackageResult {
                 owner: repositoryOwner,
                 repository: repositoryName,
                 reference: "\(releaseVersion.reference)",
-                docArchive: releaseVersionDocArchive.title)
+                docArchive: releaseVersionDocArchive.name)
         } else if let defaultBranchDocArchive = defaultBranchVersion.docArchives?.first {
             // Fallback is default branch documentation.
             return DocumentationPageProcessor.relativeDocumentationURL(
                 owner: repositoryOwner,
                 repository: repositoryName,
                 reference: "\(defaultBranchVersion.reference)",
-                docArchive: defaultBranchDocArchive.title)
+                docArchive: defaultBranchDocArchive.name)
         } else {
             // There is no default dodcumentation.
             return nil
