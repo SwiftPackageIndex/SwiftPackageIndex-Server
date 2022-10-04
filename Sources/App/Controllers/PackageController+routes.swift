@@ -92,6 +92,22 @@ enum PackageController {
         var updatedAt: Date
     }
 
+    static func defaultDocumentation(req: Request) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else {
+            throw Abort(.notFound)
+        }
+
+        let result = try await PackageResult.query(on: req.db, owner: owner, repository: repository)
+        if let documentationUrl = result.defaultDocumentationUrl {
+            throw Abort.redirect(to: documentationUrl)
+        } else {
+            throw Abort(.notFound)
+        }
+    }
+
     static func documentation(req: Request) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),

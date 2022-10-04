@@ -45,7 +45,7 @@ extension PackageShow {
         var isArchived: Bool
         var hasBinaryTargets: Bool
         var homepageUrl: String?
-        var documentationUrl: String? = nil
+        var hasDocumentation: Bool = false
         var dependencyCodeSnippets: [App.Version.Kind: Link]
         var weightedKeywords: [WeightedKeyword]
 
@@ -73,7 +73,7 @@ extension PackageShow {
                       isArchived: Bool,
                       hasBinaryTargets: Bool = false,
                       homepageUrl: String? = nil,
-                      documentationUrl: String? = nil,
+                      hasDocumentation: Bool = false,
                       dependencyCodeSnippets: [App.Version.Kind: Link],
                       weightedKeywords: [WeightedKeyword] = []) {
             self.packageId = packageId
@@ -100,7 +100,7 @@ extension PackageShow {
             self.isArchived = isArchived
             self.hasBinaryTargets = hasBinaryTargets
             self.homepageUrl = homepageUrl
-            self.documentationUrl = documentationUrl
+            self.hasDocumentation = hasDocumentation
             self.dependencyCodeSnippets = dependencyCodeSnippets
             self.weightedKeywords = weightedKeywords
         }
@@ -153,7 +153,7 @@ extension PackageShow {
                 isArchived: repository.isArchived,
                 hasBinaryTargets: result.defaultBranchVersion.hasBinaryTargets,
                 homepageUrl: repository.homepageUrl,
-                documentationUrl: "",
+                hasDocumentation: result.defaultDocumentationUrl.isEmpty == false,
                 dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
                     packageURL: result.package.url,
                     defaultBranchReference: result.defaultBranchVersion.model.reference,
