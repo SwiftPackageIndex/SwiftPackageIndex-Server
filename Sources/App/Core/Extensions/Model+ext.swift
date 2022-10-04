@@ -27,10 +27,4 @@ extension Array where Element: FluentKit.Model {
             try await element.save(on: database)
         }
     }
-
-    public func update(on database: Database) -> EventLoopFuture<Void> {
-        map {
-            $0.update(on: database)
-        }.flatten(on: database.eventLoop)
-    }
 }
