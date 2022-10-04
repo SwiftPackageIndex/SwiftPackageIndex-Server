@@ -51,7 +51,7 @@ class PackageShowModelTests: SnapshotTestCase {
         let pkg = try savePackage(on: app.db, "1".url)
         try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
         let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
-        version.docArchives = [.init(name: "archive1", title: "Archive1")]
+        version.docArchives = [.init(name: "archive1", title: "Archive One")]
         try await version.save(on: app.db)
         let packageResult = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
 
