@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+// periphery:ignore
 extension Comparable {
     func clamped(to limits: ClosedRange<Self>) -> Self {
         clamped(to: limits.lowerBound...)
