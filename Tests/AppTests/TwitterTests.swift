@@ -126,7 +126,7 @@ class TwitterTests: AppTestCase {
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let res = Twitter.firehoseMessage(db: app.db, package: jpr, version: version)
+        let res = Twitter.firehoseMessage(package: jpr, version: version)
 
         // validate
         XCTAssertEqual(res, """
@@ -149,7 +149,7 @@ class TwitterTests: AppTestCase {
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let res = Twitter.firehoseMessage(db: app.db, package: jpr, version: version)
+        let res = Twitter.firehoseMessage(package: jpr, version: version)
 
         // validate
         XCTAssertEqual(res, """
@@ -191,7 +191,6 @@ class TwitterTests: AppTestCase {
 
         // MUT
         try Twitter.postToFirehose(client: app.client,
-                                   database: app.db,
                                    package: jpr,
                                    versions: [v1, v2, v3]).wait()
 
@@ -230,7 +229,6 @@ class TwitterTests: AppTestCase {
 
         // MUT
         try Twitter.postToFirehose(client: app.client,
-                                   database: app.db,
                                    package: jpr,
                                    versions: [v1, v2]).wait()
 
@@ -340,7 +338,7 @@ class TwitterTests: AppTestCase {
         // MUT & validate - disallow if set to false
         Current.allowTwitterPosts = { false }
         XCTAssertThrowsError(
-            try Twitter.postToFirehose(client: app.client, database: app.db, package: jpr, version: v).wait()
+            try Twitter.postToFirehose(client: app.client, package: jpr, version: v).wait()
         ) {
             XCTAssertTrue($0.localizedDescription.contains("App.Twitter.Error error 3"))
         }
@@ -348,7 +346,7 @@ class TwitterTests: AppTestCase {
 
         // MUT & validate - allow if set to true
         Current.allowTwitterPosts = { true }
-        try Twitter.postToFirehose(client: app.client, database: app.db, package: jpr, version: v).wait()
+        try Twitter.postToFirehose(client: app.client, package: jpr, version: v).wait()
         XCTAssertEqual(posted, 1)
     }
 
