@@ -120,32 +120,6 @@ extension PackageShow {
                 let packageId = result.package.id
             else { return nil }
 
-            let documentationUrl: String? = {
-                if let spiManifest = result.defaultBranchVersion.spiManifest,
-                   let externalDocumentationUrl = spiManifest.externalLinks?.documentation {
-                    // External documentation links have priority over generated documentation.
-                    return externalDocumentationUrl
-                } else if let releaseVersion = result.releaseVersion,
-                   let releaseVersionDocArchive = releaseVersion.docArchives?.first {
-                    // Ideal case is that we have a stable release documentation.
-                    return DocumentationPageProcessor.relativeDocumentationURL(
-                        owner: repositoryOwner,
-                        repository: repositoryName,
-                        reference: "\(releaseVersion.reference)",
-                        docArchive: releaseVersionDocArchive.title)
-                } else if let defaultBranchDocArchive = result.defaultBranchVersion.docArchives?.first {
-                    // Fallback is default branch documentation.
-                    return DocumentationPageProcessor.relativeDocumentationURL(
-                        owner: repositoryOwner,
-                        repository: repositoryName,
-                        reference: "\(result.defaultBranchVersion.reference)",
-                        docArchive: defaultBranchDocArchive.title)
-                } else {
-                    // Suppress the documentation link in the generated page.
-                    return nil
-                }
-            }()
-
             self.init(
                 packageId: packageId,
                 repositoryOwner: repositoryOwner,
@@ -179,7 +153,7 @@ extension PackageShow {
                 isArchived: repository.isArchived,
                 hasBinaryTargets: result.defaultBranchVersion.hasBinaryTargets,
                 homepageUrl: repository.homepageUrl,
-                documentationUrl: documentationUrl,
+                documentationUrl: "",
                 dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
                     packageURL: result.package.url,
                     defaultBranchReference: result.defaultBranchVersion.model.reference,

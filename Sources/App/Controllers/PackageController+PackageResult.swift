@@ -66,6 +66,38 @@ extension PackageController.PackageResult {
     }
 }
 
+extension PackageController.PackageResult {
+    var defaultDocumentationUrl: String? {
+        guard let repositoryOwner = repository.owner,
+              let repositoryName = repository.name
+        else { return nil }
+
+        if let spiManifest = defaultBranchVersion.spiManifest,
+           let externalDocumentationString = spiManifest.externalLinks?.documentation,
+           let externalDocumentationUrl = URL(string: externalDocumentationString) {
+            // External documentation links have priority over generated documentation.
+            return externalDocumentationUrl.absoluteString
+        } else if let releaseVersion = releaseVersion,
+                  let releaseVersionDocArchive = releaseVersion.docArchives?.first {
+            // Ideal case is that we have a stable release documentation.
+            return DocumentationPageProcessor.relativeDocumentationURL(
+                owner: repositoryOwner,
+                repository: repositoryName,
+                reference: "\(releaseVersion.reference)",
+                docArchive: releaseVersionDocArchive.title)
+        } else if let defaultBranchDocArchive = defaultBranchVersion.docArchives?.first {
+            // Fallback is default branch documentation.
+            return DocumentationPageProcessor.relativeDocumentationURL(
+                owner: repositoryOwner,
+                repository: repositoryName,
+                reference: "\(defaultBranchVersion.reference)",
+                docArchive: defaultBranchDocArchive.title)
+        } else {
+            // There is no default dodcumentation.
+            return nil
+        }
+    }
+}
 
 final class DefaultVersion: ModelAlias, Joinable {
     static let name = "default_version"
@@ -81,5 +113,3 @@ final class PreReleaseVersion: ModelAlias, Joinable {
     static let name = "pre_release_version"
     let model = Version()
 }
-
-
