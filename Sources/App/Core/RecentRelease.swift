@@ -66,7 +66,7 @@ extension RecentRelease {
     }
     
     static func fetch(on database: Database,
-                      limit: Int = Constants.recentPackagesLimit,
+                      limit: Int = Constants.recentReleasesLimit,
                       filter: Filter = .all) -> EventLoopFuture<[RecentRelease]> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
