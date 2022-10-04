@@ -268,6 +268,7 @@ enum SiteURL: Resourceable {
         case readme
         case releases
         case builds
+        case documentation
         case maintainerInfo = "information-for-package-maintainers"
     }
 
