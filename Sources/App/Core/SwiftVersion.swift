@@ -69,8 +69,6 @@ extension SwiftVersion {
 
 extension SwiftVersion {
     static var latest: Self { allActive.sorted().last! }
-
-    var isLatest: Bool { self == Self.latest }
 }
 
 
