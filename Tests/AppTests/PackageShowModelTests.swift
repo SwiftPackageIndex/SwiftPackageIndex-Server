@@ -64,7 +64,7 @@ class PackageShowModelTests: SnapshotTestCase {
                                                     weightedKeywords: []))
 
         // validate
-        XCTAssertEqual(model.documentationUrl, "/foo/bar/main/documentation/archive1")
+        XCTAssertEqual(model.hasDocumentation, true)
     }
 
     func test_init_external_documentation() async throws {
@@ -88,7 +88,7 @@ class PackageShowModelTests: SnapshotTestCase {
                                                     weightedKeywords: []))
 
         // validate
-        XCTAssertEqual(model.documentationUrl, "https://example.com/package/documentation")
+        XCTAssertEqual(model.hasDocumentation, true)
     }
 
     func test_gitHubOwnerUrl() throws {
