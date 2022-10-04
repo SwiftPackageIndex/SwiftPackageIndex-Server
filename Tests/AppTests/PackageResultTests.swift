@@ -210,4 +210,88 @@ class PackageResultTests: AppTestCase {
                              lastPullRequestClosedAt: "6 days ago"))
     }
 
+    func test_defaultDocumentationUrl_withExternalUrl() async throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try await Repository(package: pkg,
+                             name: "bar",
+                             owner: "foo").save(on: app.db)
+        let version = try App.Version(package: pkg,
+                                      commit: "0123456789",
+                                      commitDate: Date(timeIntervalSince1970: 0),
+                                      docArchives: [
+                                        // Inserting an archive here to test that the external URL overrides any generated docs.
+                                        .init(name: "archive1", title: "Archive One")
+                                      ],
+                                      latest: .defaultBranch,
+                                      packageName: "test",
+                                      reference: .branch("main"),
+                                      spiManifest: .init(yml: """
+                                        version: 1
+                                        external_links:
+                                          documentation: https://example.com/package/documentation/
+                                        """))
+        try await version.save(on: app.db)
+
+        // MUT
+        let res = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
+
+        // validate
+        XCTAssertEqual(res.defaultDocumentationUrl, "https://example.com/package/documentation/")
+    }
+
+    func test_defaultDocumentationUrl_withDocArchive_defaultBranch() async throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try await Repository(package: pkg,
+                             name: "bar",
+                             owner: "foo").save(on: app.db)
+        try await App.Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: Date(timeIntervalSince1970: 0),
+                              docArchives: [
+                                .init(name: "archive1", title: "Archive One")
+                              ],
+                              latest: .defaultBranch,
+                              packageName: "test",
+                              reference: .branch("main")).save(on: app.db)
+
+        // MUT
+        let res = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
+
+        // validate
+        XCTAssertEqual(res.defaultDocumentationUrl, "/foo/bar/main/documentation/archive1")
+    }
+
+    func test_defaultDocumentationUrl_withDocArchive_stableBranch() async throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try await Repository(package: pkg,
+                             name: "bar",
+                             owner: "foo").save(on: app.db)
+        try await App.Version(package: pkg,
+                              commit: "0000000000",
+                              commitDate: Date(timeIntervalSince1970: 0),
+                              docArchives: [
+                                .init(name: "archive1", title: "Archive One")
+                              ],
+                              latest: .defaultBranch,
+                              packageName: "test",
+                              reference: .branch("main")).save(on: app.db)
+        try await App.Version(package: pkg,
+                              commit: "11111111111",
+                              commitDate: Date(timeIntervalSince1970: 0),
+                              docArchives: [
+                                .init(name: "archive2", title: "Archive Two")
+                              ],
+                              latest: .release,
+                              packageName: "test",
+                              reference: .tag(1, 0, 0)).save(on: app.db)
+
+        // MUT
+        let res = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
+
+        // validate
+        XCTAssertEqual(res.defaultDocumentationUrl, "/foo/bar/1.0.0/documentation/archive2")
+    }
 }
