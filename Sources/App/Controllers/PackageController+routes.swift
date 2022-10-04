@@ -102,7 +102,10 @@ enum PackageController {
 
         let result = try await PackageResult.query(on: req.db, owner: owner, repository: repository)
         if let documentationUrl = result.defaultDocumentationUrl {
-            throw Abort.redirect(to: documentationUrl)
+            var pathComponents = req.parameters.getCatchall()
+            pathComponents.insert(documentationUrl, at: 0)
+            let fullDocumentationUrl = pathComponents.joined(separator: "/")
+            throw Abort.redirect(to: fullDocumentationUrl)
         } else {
             throw Abort(.notFound)
         }
