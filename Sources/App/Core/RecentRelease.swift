@@ -21,6 +21,7 @@ import SQLKit
 struct RecentRelease: Decodable, Equatable {
     static let schema = "recent_releases"
     
+    // periphery:ignore
     var packageId: UUID
     var repositoryOwner: String
     var repositoryName: String
