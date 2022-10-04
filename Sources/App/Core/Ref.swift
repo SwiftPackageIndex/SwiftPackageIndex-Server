@@ -44,16 +44,19 @@ extension Version: Referenceable {}
 ///                              |
 ///                              '-< Product
 /// ```
+// periphery:ignore
 struct Ref<M: Referenceable, R: Referenceable>: Referenceable {
     private(set) var model: M
 }
 
 
+// periphery:ignore
 struct Ref2<M: Referenceable, R1: Referenceable, R2: Referenceable>: Referenceable {
     private(set) var model: M
 }
 
 
+// periphery:ignore
 struct Ref3<M: Referenceable, R1: Referenceable, R2: Referenceable, R3: Referenceable>: Referenceable {
     private(set) var model: M
 }
