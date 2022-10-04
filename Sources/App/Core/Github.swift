@@ -296,6 +296,7 @@ extension Github {
             var forkCount: Int
             var homepageUrl: String?
             var isArchived: Bool
+            // periphery:ignore
             var isFork: Bool
             var isInOrganization: Bool
             var licenseInfo: LicenseInfo?
@@ -338,6 +339,7 @@ extension Github {
         }
 
         struct LicenseInfo: Decodable, Equatable {
+            // periphery:ignore
             var name: String
             var key: String
 
