@@ -29,3 +29,9 @@ extension Optional {
         case unexpectedNil
     }
 }
+
+extension Optional where Wrapped == String {
+    var isEmpty: Bool {
+        return self?.isEmpty ?? true
+    }
+}
