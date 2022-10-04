@@ -30,6 +30,7 @@ final class Build: Model, Content {
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
     
+    // periphery:ignore
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
     
@@ -137,12 +138,6 @@ extension Build {
 
 
 // MARK: - Triggers
-
-
-enum BuildTool: String, Codable {
-    case spm
-    case xcodebuild
-}
 
 
 extension Build {

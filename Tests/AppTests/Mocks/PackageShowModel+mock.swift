@@ -89,22 +89,6 @@ extension PackageShow.Model {
                 releaseCount: .init(label: "79 releases",
                                     url: "https://github.com/Alamofire/Alamofire/releases")
             ),
-            languagePlatforms: .init(
-                stable: .init(
-                    link: .init(label: "5.2.0",
-                                url: "https://github.com/Alamofire/Alamofire/releases/tag/5.2.0"),
-                    swiftVersions: ["5", "5.2"],
-                    platforms: [.ios("10.0"), .macos("10.12"), .watchos("3.0"), .tvos("10.0")]),
-                beta:.init(
-                    link: .init(label: "5.3.1-beta.1",
-                                url: "https://github.com/Alamofire/Alamofire/releases/tag/5.3.1-beta1"),
-                    swiftVersions: ["5.2"],
-                    platforms: [.ios("13.0"), .macos("10.15"), .watchos("6.0"), .tvos("13.0")]),
-                latest: .init(
-                    link: .init(label: "main",
-                                url: "https://github.com/Alamofire/Alamofire"),
-                    swiftVersions: ["5.2"],
-                    platforms: [.ios("13.0"), .macos("10.15"), .watchos("6.0"), .tvos("13.0")])),
             license: .mit,
             licenseUrl: nil,
             productCounts: .init(libraries: 3, executables: 1, plugins: 0),

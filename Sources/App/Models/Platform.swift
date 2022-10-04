@@ -30,7 +30,9 @@ struct Platform: Codable, Equatable {
     
     static func ios(_ version: String) -> Self { .init(name: .ios, version: version) }
     static func macos(_ version: String) -> Self { .init(name: .macos, version: version) }
+    // periphery:ignore
     static func watchos(_ version: String) -> Self { .init(name: .watchos, version: version) }
+    // periphery:ignore
     static func tvos(_ version: String) -> Self { .init(name: .tvos, version: version) }
 }
 

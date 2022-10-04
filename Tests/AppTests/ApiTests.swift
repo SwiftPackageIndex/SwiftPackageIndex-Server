@@ -20,7 +20,6 @@ import XCTVapor
 
 
 class ApiTests: AppTestCase {
-    typealias PackageResult = PackageController.PackageResult
     
     func test_version() throws {
         try app.test(.GET, "api/version", afterResponse: { res in

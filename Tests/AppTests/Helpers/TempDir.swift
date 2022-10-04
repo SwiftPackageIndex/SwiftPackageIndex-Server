@@ -35,10 +35,6 @@ class TempDir {
             print("⚠️ failed to delete temp directory: \(error.localizedDescription)")
         }
     }
-
-    enum Error: LocalizedError {
-        case invalidPath(String)
-    }
 }
 
 

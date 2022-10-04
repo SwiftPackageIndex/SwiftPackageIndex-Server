@@ -480,16 +480,6 @@ private extension PlatformSearchFilter {
 }
 
 
-private extension ProductTypeSearchFilter {
-    var bindableValue: Set<Self.ProductType>? {
-        guard case let .value(value) = predicate.bindableValue else {
-            return nil
-        }
-        return value as? Set<Self.ProductType>
-    }
-}
-
-
 private extension LicenseSearchFilter {
     var bindableValue: [String]? {
         guard case let .array(value) = predicate.bindableValue else {

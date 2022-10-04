@@ -160,12 +160,12 @@ private extension Environment {
 }
 
 
-public struct SQLExplain: SQLExpression {
-    public var builder: SQLQueryBuilder
-    public init(_ builder: SQLQueryBuilder) {
+struct SQLExplain: SQLExpression {
+    var builder: SQLQueryBuilder
+    init(_ builder: SQLQueryBuilder) {
         self.builder = builder
     }
-    public func serialize(to serializer: inout SQLSerializer) {
+    func serialize(to serializer: inout SQLSerializer) {
         serializer.write("EXPLAIN ANALYZE ")
         builder.query.serialize(to: &serializer)
     }

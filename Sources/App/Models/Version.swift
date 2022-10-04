@@ -71,6 +71,7 @@ final class Version: Model, Content {
     @Field(key: "release_notes")
     var releaseNotes: String?
 
+    // periphery:ignore
     @Field(key: "release_notes_html")
     var releaseNotesHTML: String?
 

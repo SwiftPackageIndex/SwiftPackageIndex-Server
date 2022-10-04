@@ -18,6 +18,7 @@ import Vapor
 
 extension API {
     
+    // periphery:ignore
     enum PackageController {
 
         static func index(req: Request) throws -> EventLoopFuture<[Package]> {

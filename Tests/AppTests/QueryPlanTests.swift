@@ -65,18 +65,6 @@ class QueryPlanTests: XCTestCase {
 // MARK: - Parsing helpers
 
 
-private struct Cost {
-    var firstRow: Double
-    var total: Double
-}
-
-
-private struct Details {
-    var rows: Int
-    var width: Int
-}
-
-
 struct QueryPlan: Equatable {
     var cost: Cost
     var actualTime: ActualTime
