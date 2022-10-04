@@ -32,7 +32,7 @@ extension NSRegularExpression {
         return firstMatch(in: string, options: [], range: range) != nil
     }
     
-    func matchGroups(_ string: String, options: NSRegularExpression.Options = []) -> [String] {
+    func matchGroups(_ string: String) -> [String] {
         let range = NSRange(string.startIndex..., in: string)
         guard let match = firstMatch(in: string, options: [], range: range) else { return [] }
         
