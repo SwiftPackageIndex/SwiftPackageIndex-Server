@@ -41,9 +41,12 @@ enum Rollbar {
 
 extension Rollbar {
     struct Item: Content {
+        // periphery:ignore
         let accessToken: String
+        // periphery:ignore
         let data: Data
         
+        // periphery:ignore
         enum CodingKeys: String, CodingKey {
             case accessToken = "access_token"
             case data
@@ -71,6 +74,7 @@ extension Rollbar {
             var uuid = UUID().uuidString
             
             struct Body: Content {
+                // periphery:ignore
                 var message: Message
                 
                 init(message: String) {
