@@ -19,9 +19,9 @@ import Vapor
 // based on LeafErrorMiddleware
 // https://github.com/brokenhandsio/leaf-error-middleware
 
-public final class ErrorMiddleware: AsyncMiddleware {
+final class ErrorMiddleware: AsyncMiddleware {
     
-    public func respond(to req: Request, chainingTo next: AsyncResponder) async throws -> Response {
+    func respond(to req: Request, chainingTo next: AsyncResponder) async throws -> Response {
         do {
             return try await next.respond(to: req)
         } catch let error as AbortError where error.status.code >= 400 {
@@ -39,7 +39,7 @@ public final class ErrorMiddleware: AsyncMiddleware {
 
             return ErrorPage.View(path: req.url.path, error: error)
                 .document()
-                .encodeResponse(for: req, status: error.status)
+                .encodeResponse(status: error.status)
         }
     }
 
