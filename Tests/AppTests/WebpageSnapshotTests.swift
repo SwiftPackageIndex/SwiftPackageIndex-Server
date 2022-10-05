@@ -196,7 +196,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_PackageShowView_with_documentation_link() throws {
         var model = PackageShow.Model.mock
-        model.documentationUrl = "https://example.com/package/documentation"
+        model.hasDocumentation = true
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)

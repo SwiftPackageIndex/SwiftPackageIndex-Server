@@ -51,7 +51,7 @@ class PackageShowModelTests: SnapshotTestCase {
         let pkg = try savePackage(on: app.db, "1".url)
         try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
         let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
-        version.docArchives = [.init(name: "archive1", title: "Archive1")]
+        version.docArchives = [.init(name: "archive1", title: "Archive One")]
         try await version.save(on: app.db)
         let packageResult = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
 
@@ -64,7 +64,7 @@ class PackageShowModelTests: SnapshotTestCase {
                                                     weightedKeywords: []))
 
         // validate
-        XCTAssertEqual(model.documentationUrl, "/foo/bar/main/documentation/archive1")
+        XCTAssertEqual(model.hasDocumentation, true)
     }
 
     func test_init_external_documentation() async throws {
@@ -88,7 +88,7 @@ class PackageShowModelTests: SnapshotTestCase {
                                                     weightedKeywords: []))
 
         // validate
-        XCTAssertEqual(model.documentationUrl, "https://example.com/package/documentation")
+        XCTAssertEqual(model.hasDocumentation, true)
     }
 
     func test_gitHubOwnerUrl() throws {
