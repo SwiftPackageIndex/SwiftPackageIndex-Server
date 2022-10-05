@@ -1,4 +1,4 @@
-▿ 18 elements
+▿ 19 elements
   - "./github.com-foo-2: reset"
   - "./github.com-foo-2: clean"
   - "./github.com-foo-2: fetch"
@@ -7,6 +7,7 @@
   - "./github.com-foo-2: commitCount"
   - "./github.com-foo-2: firstCommitDate"
   - "./github.com-foo-2: lastCommitDate"
+  - "./github.com-foo-2: shortlog"
   - "./github.com-foo-2: getTags"
   - "./github.com-foo-2: revisionInfo for main"
   - "./github.com-foo-2: revisionInfo for 2.0.0"
