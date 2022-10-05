@@ -84,7 +84,7 @@ class AnalyzerTests: AppTestCase {
                                                             with: ".")
                 Validation.commands.append(try .init(command: cmd, path: trimmedPath).unwrap())
             }
-            if cmd.string.starts(with: "git clone") && path.hasSuffix("foo-1") {
+            if cmd.string.starts(with: "git clone") {
                 firstDirCloned = true
             }
             if cmd == .gitListTags && path.hasSuffix("foo-1") {
