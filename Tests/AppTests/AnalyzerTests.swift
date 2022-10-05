@@ -51,7 +51,10 @@ class AnalyzerTests: AppTestCase {
             static var checkoutDir: String? = nil
             static var commands = [Command]()
         }
+        var firstDirCloned = false
         Current.fileManager.fileExists = { path in
+            if let outDir = Validation.checkoutDir,
+               path == "\(outDir)/github.com-foo-1" { return firstDirCloned }
             // let the check for the second repo checkout path succeed to simulate pull
             if let outDir = Validation.checkoutDir,
                path == "\(outDir)/github.com-foo-2" { return true }
@@ -80,6 +83,9 @@ class AnalyzerTests: AppTestCase {
                 let trimmedPath = path.replacingOccurrences(of: Validation.checkoutDir!,
                                                             with: ".")
                 Validation.commands.append(try .init(command: cmd, path: trimmedPath).unwrap())
+            }
+            if cmd.string.starts(with: "git clone") && path.hasSuffix("foo-1") {
+                firstDirCloned = true
             }
             if cmd == .gitListTags && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
@@ -138,6 +144,10 @@ class AnalyzerTests: AppTestCase {
             if cmd == .gitFirstCommitDate { return "0" }
             if cmd == .gitLastCommitDate { return "4" }
 
+            if cmd == .gitShortlog {
+                return "10 Person 1 <person1@example.com>"
+            }
+
             return ""
         }
 
@@ -150,7 +160,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         let outDir = try Validation.checkoutDir.unwrap()
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-        XCTAssertEqual(Validation.commands.count, 32)
+        XCTAssertEqual(Validation.commands.count, 34)
 
         // Snapshot for each package individually to avoid ordering issues when
         // concurrent processing causes commands to interleave between packages.
@@ -1130,6 +1140,7 @@ private struct Command: CustomStringConvertible {
         case getTags
         case reset
         case resetToBranch(String)
+        case shortlog
         case showDate
         case revisionInfo(String)
     }
@@ -1166,6 +1177,8 @@ private struct Command: CustomStringConvertible {
                 let branch = String(command.string.split(separator: " ")[2])
                     .trimmingCharacters(in: quotes)
                 self.kind = .resetToBranch(branch)
+            case .gitShortlog:
+                self.kind = .shortlog
             case _ where command.string.starts(with: #"git show -s --format=%ct"#):
                 self.kind = .showDate
             case _ where command.string.starts(with: #"git log -n1 --format=format:"%H\#(separator)%ct""#):
@@ -1181,7 +1194,7 @@ private struct Command: CustomStringConvertible {
 
     var description: String {
         switch self.kind {
-            case .clean, .commitCount, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .showDate, .reset:
+            case .clean, .commitCount, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .shortlog, .showDate, .reset:
                 return "\(path): \(kind)"
             case .checkout(let ref):
                 return "\(path): checkout \(ref)"
