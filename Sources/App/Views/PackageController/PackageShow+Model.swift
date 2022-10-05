@@ -153,7 +153,7 @@ extension PackageShow {
                 isArchived: repository.isArchived,
                 hasBinaryTargets: result.defaultBranchVersion.hasBinaryTargets,
                 homepageUrl: repository.homepageUrl,
-                hasDocumentation: result.defaultDocumentationUrl.isEmpty == false,
+                hasDocumentation: result.hasDocumentation,
                 dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
                     packageURL: result.package.url,
                     defaultBranchReference: result.defaultBranchVersion.model.reference,
