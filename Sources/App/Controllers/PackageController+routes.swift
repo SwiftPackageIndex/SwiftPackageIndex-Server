@@ -275,6 +275,15 @@ enum PackageController {
                               owner: String,
                               repository: String,
                               fragment: Fragment) async throws -> Response {
+        print("documentationVersions: \(documentationVersions)")
+        print("reference: \(reference)")
+        print("archive: \(archive)")
+        print("awsResponse: \(awsResponse.body?.asString().count)")
+        print("owner: \(owner)")
+        print("repository: \(repository)")
+        print("fragment: \(fragment)")
+
+
         guard let documentation = documentationVersions[reference: reference]
         else {
             // If there's no match for this reference with a docArchive, we're done!
@@ -337,13 +346,21 @@ enum PackageController {
 
     static func awsResponse(client: Client, owner: String, repository: String, reference: String, fragment: Fragment, path: String) async throws -> ClientResponse {
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
-        print("aws: \(url)")
-        guard let awsResponse = try? await Current.fetchDocumentation(client, url),
-              (200..<399).contains(awsResponse.status.code) else {
-            // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
+        print("## \(owner) \(repository) \(reference) \(fragment) \(path)")
+        print("## aws: \(url)")
+        guard let response = try? await Current.fetchDocumentation(client, url) else {
+            print("## response is nil")
             throw Abort(.notFound)
         }
-        return awsResponse
+        guard (200..<399).contains(response.status.code) else {
+            // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
+            print("## failed: \(response.status.code)")
+            throw Abort(.notFound)
+        }
+        if let body = response.body  {
+            print("## body: \(body.asString().count)")
+        }
+        return response
     }
 
     static func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
