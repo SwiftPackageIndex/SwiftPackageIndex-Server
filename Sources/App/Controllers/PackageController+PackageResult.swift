@@ -66,38 +66,109 @@ extension PackageController.PackageResult {
     }
 }
 
-extension PackageController.PackageResult {
-    var defaultDocumentationUrl: String? {
-        guard let repositoryOwner = repository.owner,
-              let repositoryName = repository.name
-        else { return nil }
+//extension PackageController.PackageResult {
+//    var defaultDocumentationUrl: String? {
+//        guard let repositoryOwner = repository.owner,
+//              let repositoryName = repository.name
+//        else { return nil }
+//
+//        if let spiManifest = defaultBranchVersion.spiManifest,
+//           let externalDocumentationString = spiManifest.externalLinks?.documentation,
+//           let externalDocumentationUrl = URL(string: externalDocumentationString) {
+//            // External documentation links have priority over generated documentation.
+//            return externalDocumentationUrl.absoluteString
+//        } else if let releaseVersion = releaseVersion,
+//                  let releaseVersionDocArchive = releaseVersion.docArchives?.first {
+//            // Ideal case is that we have a stable release documentation.
+//            return DocumentationPageProcessor.relativeDocumentationURL(
+//                owner: repositoryOwner,
+//                repository: repositoryName,
+//                reference: "\(releaseVersion.reference)",
+//                docArchive: releaseVersionDocArchive.name)
+//        } else if let defaultBranchDocArchive = defaultBranchVersion.docArchives?.first {
+//            // Fallback is default branch documentation.
+//            return DocumentationPageProcessor.relativeDocumentationURL(
+//                owner: repositoryOwner,
+//                repository: repositoryName,
+//                reference: "\(defaultBranchVersion.reference)",
+//                docArchive: defaultBranchDocArchive.name)
+//        } else {
+//            // There is no default dodcumentation.
+//            return nil
+//        }
+//    }
+//}
 
-        if let spiManifest = defaultBranchVersion.spiManifest,
-           let externalDocumentationString = spiManifest.externalLinks?.documentation,
-           let externalDocumentationUrl = URL(string: externalDocumentationString) {
-            // External documentation links have priority over generated documentation.
-            return externalDocumentationUrl.absoluteString
-        } else if let releaseVersion = releaseVersion,
-                  let releaseVersionDocArchive = releaseVersion.docArchives?.first {
-            // Ideal case is that we have a stable release documentation.
-            return DocumentationPageProcessor.relativeDocumentationURL(
-                owner: repositoryOwner,
-                repository: repositoryName,
-                reference: "\(releaseVersion.reference)",
-                docArchive: releaseVersionDocArchive.name)
-        } else if let defaultBranchDocArchive = defaultBranchVersion.docArchives?.first {
-            // Fallback is default branch documentation.
-            return DocumentationPageProcessor.relativeDocumentationURL(
-                owner: repositoryOwner,
-                repository: repositoryName,
-                reference: "\(defaultBranchVersion.reference)",
-                docArchive: defaultBranchDocArchive.name)
-        } else {
-            // There is no default dodcumentation.
-            return nil
+//extension PackageController.PackageResult {
+//    var documentationInfo: (reference: String, archive: String)? {
+//        if let spiManifest = defaultBranchVersion.spiManifest,
+//           spiManifest.externalLinks?.documentation != nil {
+//            // If there's external documentation, we're not handling it ourselves - hence the info is nil.
+//            return nil
+//        }
+//
+//        if let releaseVersion = releaseVersion,
+//           let releaseVersionDocArchive = releaseVersion.docArchives?.first {
+//            return ("\(releaseVersion.reference)", releaseVersionDocArchive.name)
+//        }
+//
+//        if let defaultBranchDocArchive = defaultBranchVersion.docArchives?.first {
+//            return ("\(defaultBranchVersion.reference)", defaultBranchDocArchive.name)
+//        }
+//
+//        return nil
+//    }
+//}
+
+
+enum DocumentationTarget: Equatable {
+    case external(String)
+    case `internal`(reference: String, archive: String)
+}
+
+extension [Version] {
+    var defaultBranchVersion: Version? { filter { $0.latest == .defaultBranch}.first }
+    var releaseVersion: Version? { filter { $0.latest == .release}.first }
+
+    var documentationTarget: DocumentationTarget? {
+        if let spiManifest = defaultBranchVersion?.spiManifest,
+           let documentation = spiManifest.externalLinks?.documentation {
+            return .external(documentation)
         }
+
+        if let releaseVersion = releaseVersion,
+           let releaseVersionDocArchive = releaseVersion.docArchives?.first {
+            return .internal(reference: "\(releaseVersion.reference)", archive: releaseVersionDocArchive.name)
+        }
+
+        if let defaultBranchVersion = defaultBranchVersion,
+           let defaultBranchDocArchive = defaultBranchVersion.docArchives?.first {
+            return .internal(reference: "\(defaultBranchVersion.reference)", archive: defaultBranchDocArchive.name)
+        }
+
+        return nil
+    }
+
+}
+
+
+extension [Joined3<Version, Package, Repository>] {
+    var versions: [Version] { map(\.model) }
+
+    var documentationTarget: DocumentationTarget? { versions.documentationTarget }
+}
+
+
+extension PackageController.PackageResult {
+    var hasDocumentation: Bool { documentationTarget != nil }
+
+    var documentationTarget: DocumentationTarget? {
+        [defaultBranchVersion.model, releaseVersion?.model, preReleaseVersion?.model]
+            .compactMap { $0 }
+            .documentationTarget
     }
 }
+
 
 final class DefaultVersion: ModelAlias, Joinable {
     static let name = "default_version"

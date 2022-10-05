@@ -210,7 +210,7 @@ class PackageResultTests: AppTestCase {
                              lastPullRequestClosedAt: "6 days ago"))
     }
 
-    func test_defaultDocumentationUrl_withExternalUrl() async throws {
+    func test_documentationTarget_withExternalUrl() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
@@ -237,10 +237,10 @@ class PackageResultTests: AppTestCase {
         let res = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
-        XCTAssertEqual(res.defaultDocumentationUrl, "https://example.com/package/documentation/")
+        XCTAssertEqual(res.documentationTarget, .external("https://example.com/package/documentation/"))
     }
 
-    func test_defaultDocumentationUrl_withDocArchive_defaultBranch() async throws {
+    func test_documentationTarget_withDocArchive_defaultBranch() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
@@ -260,10 +260,10 @@ class PackageResultTests: AppTestCase {
         let res = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
-        XCTAssertEqual(res.defaultDocumentationUrl, "/foo/bar/main/documentation/archive1")
+        XCTAssertEqual(res.documentationTarget, .internal(reference: "main", archive: "archive1"))
     }
 
-    func test_defaultDocumentationUrl_withDocArchive_stableBranch() async throws {
+    func test_documentationTarget_withDocArchive_stableBranch() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
@@ -292,6 +292,6 @@ class PackageResultTests: AppTestCase {
         let res = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
-        XCTAssertEqual(res.defaultDocumentationUrl, "/foo/bar/1.0.0/documentation/archive2")
+        XCTAssertEqual(res.documentationTarget, .internal(reference: "1.0.0", archive: "archive2"))
     }
 }

@@ -93,6 +93,7 @@ enum PackageController {
     }
 
     static func defaultDocumentation(req: Request) async throws -> Response {
+        print("## defaultDocumentation(req:) - \(req.url)")
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -100,11 +101,64 @@ enum PackageController {
             throw Abort(.notFound)
         }
 
-        let result = try await PackageResult.query(on: req.db, owner: owner, repository: repository)
-        if let documentationUrl = result.defaultDocumentationUrl {
-            throw Abort.redirect(to: documentationUrl)
-        } else {
-            throw Abort(.notFound)
+//        print("## PackageResult.query(...) // == Joined5.query(...)")
+//        let result = try await PackageResult.query(on: req.db, owner: owner, repository: repository)
+//        if let documentationUrl = result.defaultDocumentationUrl {
+//            print("## -> \(documentationUrl)")
+//            throw Abort.redirect(to: documentationUrl)
+//        } else {
+//            throw Abort(.notFound)
+//        }
+
+//        guard let docInfo = result.documentationInfo else { throw Abort(.notFound) }
+
+        print("## Joined3.query(...)")
+        let queryResult = try await Joined3<Version, Package, Repository>
+            .query(on: req.db,
+                   join: \Version.$package.$id == \Package.$id, method: .inner,
+                   join: \Package.$id == \Repository.$package.$id, method: .inner)
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            .filter(Repository.self, \.$name, .custom("ilike"), repository)
+            .filter(\Version.$docArchives != nil)
+            .field(Repository.self, \.$ownerName)
+            .field(Version.self, \.$commitDate)
+            .field(Version.self, \.$docArchives)
+            .field(Version.self, \.$latest)
+            .field(Version.self, \.$packageName)
+            .field(Version.self, \.$publishedAt)
+            .field(Version.self, \.$reference)
+            .field(Version.self, \.$spiManifest)
+            .all()
+
+        let documentationVersions = queryResult.map { result in
+            DocumentationVersion(reference: result.model.reference,
+                                 ownerName: result.relation2?.ownerName ?? owner,
+                                 packageName: result.model.packageName ?? repository,
+                                 docArchives: (result.model.docArchives ?? []).map(\.title),
+                                 latest: result.model.latest,
+                                 updatedAt: result.model.publishedAt ?? result.model.commitDate)
+        }
+
+        switch queryResult.documentationTarget {
+            case .none:
+                throw Abort(.notFound)
+
+            case let .some(.external(url)):
+                throw Abort.redirect(to: url)
+
+            case let .some(.internal(reference: reference, archive: archive)):
+                let catchAll = [archive].compactMap { $0 } + req.parameters.getCatchall()
+                let path = catchAll.joined(separator: "/")
+                let awsResponse = try await awsResponse(client: req.client, owner: owner, repository: repository, reference: reference, fragment: .documentation, path: path)
+
+                return try await documentation(req: req,
+                                               documentationVersions: documentationVersions,
+                                               reference: reference,
+                                               archive: archive,
+                                               awsResponse: awsResponse,
+                                               owner: owner,
+                                               repository: repository,
+                                               fragment: .documentation)
         }
     }
 
@@ -125,6 +179,7 @@ enum PackageController {
             }
         }()
 
+        // FIXME: avoid query -> redirect -> query
         guard let queryResult = try await Joined3<Version, Package, Repository>
             .query(on: req.db,
                    join: \Version.$package.$id == \Package.$id, method: .inner,
@@ -147,6 +202,7 @@ enum PackageController {
     }
 
     static func documentation(req: Request, fragment: Fragment) async throws -> Response {
+        print("## documentation(req:fragment:) - \(req.url) - \(fragment)")
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository"),
@@ -159,15 +215,11 @@ enum PackageController {
         let catchAll = [archive].compactMap { $0 } + req.parameters.getCatchall()
         let path = catchAll.joined(separator: "/")
 
-        let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
-        guard let awsResponse = try? await Current.fetchDocumentation(req.client, url),
-              (200..<399).contains(awsResponse.status.code) else {
-            // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
-            throw Abort(.notFound)
-        }
+        let awsResponse = try await awsResponse(client: req.client, owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
 
         switch fragment {
             case .documentation, .tutorials:
+                print("## Joined3.query(...)")
                 let queryResult = try await Joined3<Version, Package, Repository>
                     .query(on: req.db,
                            join: \Version.$package.$id == \Package.$id, method: .inner,
@@ -193,63 +245,14 @@ enum PackageController {
                                          updatedAt: result.model.publishedAt ?? result.model.commitDate)
                 }
 
-                guard let documentation = documentationVersions[reference: reference]
-                else {
-                    // If there's no match for this reference with a docArchive, we're done!
-                    throw Abort(.notFound, reason: "No docArchives for this reference")
-                }
-
-                let availableDocumentationVersions: [DocumentationPageProcessor.AvailableDocumentationVersion] = ([
-                    documentationVersions.first { $0.latest == .defaultBranch },
-                    documentationVersions.first { $0.latest == .preRelease }
-                ] + documentationVersions.latestMajorVersions())
-                    .compactMap { version in
-                        guard let version = version
-                        else { return nil }
-
-                        // There are versions in `documentationVersions` that have a nil `latest`, but given
-                        // the filtering above they can be assumed to be release versions for display.
-                        let versionKind = version.latest ?? .release
-                        let isLatesStable = version.latest == .release
-
-                        return .init(kind: versionKind,
-                                     reference: "\(version.reference)",
-                                     docArchives: version.docArchives,
-                                     isLatestStable: isLatesStable)
-                    }
-
-                let availableArchives: [DocumentationPageProcessor.AvailableArchive] = documentation.docArchives.map { archiveName in
-                        .init(name: archiveName, isCurrent: archiveName.lowercased() == archive)
-                }
-
-                // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
-                guard let body = awsResponse.body,
-                      let processor = DocumentationPageProcessor(repositoryOwner: owner,
-                                                                 repositoryOwnerName: documentation.ownerName,
-                                                                 repositoryName: repository,
-                                                                 packageName: documentation.packageName,
-                                                                 reference: reference,
-                                                                 referenceLatest: documentation.latest,
-                                                                 referenceKind: documentation.reference.versionKind,
-                                                                 availableArchives: availableArchives,
-                                                                 availableVersions: availableDocumentationVersions,
-                                                                 updatedAt: documentation.updatedAt,
-                                                                 rawHtml: body.asString())
-                else {
-                    return try await awsResponse.encodeResponse(
-                        status: .ok,
-                        headers: req.headers.replacingOrAdding(name: .contentType,
-                                                               value: fragment.contentType),
-                        for: req
-                    )
-                }
-
-                return try await processor.processedPage.encodeResponse(
-                    status: .ok,
-                    headers: req.headers.replacingOrAdding(name: .contentType,
-                                                           value: fragment.contentType),
-                    for: req
-                )
+                return try await documentation(req: req,
+                                               documentationVersions: documentationVersions,
+                                               reference: reference,
+                                               archive: archive,
+                                               awsResponse: awsResponse,
+                                               owner: owner,
+                                               repository: repository,
+                                               fragment: fragment)
 
             case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .themeSettings:
                 return try await awsResponse.encodeResponse(
@@ -262,6 +265,85 @@ enum PackageController {
                     for: req
                 )
         }
+    }
+
+    static func documentation(req: Request,
+                              documentationVersions: [DocumentationVersion],
+                              reference: String,
+                              archive: String?,
+                              awsResponse: ClientResponse,
+                              owner: String,
+                              repository: String,
+                              fragment: Fragment) async throws -> Response {
+        guard let documentation = documentationVersions[reference: reference]
+        else {
+            // If there's no match for this reference with a docArchive, we're done!
+            throw Abort(.notFound, reason: "No docArchives for this reference")
+        }
+
+        let availableDocumentationVersions: [DocumentationPageProcessor.AvailableDocumentationVersion] = ([
+            documentationVersions.first { $0.latest == .defaultBranch },
+            documentationVersions.first { $0.latest == .preRelease }
+        ] + documentationVersions.latestMajorVersions())
+            .compactMap { version in
+                guard let version = version
+                else { return nil }
+
+                // There are versions in `documentationVersions` that have a nil `latest`, but given
+                // the filtering above they can be assumed to be release versions for display.
+                let versionKind = version.latest ?? .release
+                let isLatesStable = version.latest == .release
+
+                return .init(kind: versionKind,
+                             reference: "\(version.reference)",
+                             docArchives: version.docArchives,
+                             isLatestStable: isLatesStable)
+            }
+
+        let availableArchives: [DocumentationPageProcessor.AvailableArchive] = documentation.docArchives.map { archiveName in
+                .init(name: archiveName, isCurrent: archiveName.lowercased() == archive)
+        }
+
+        // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
+        guard let body = awsResponse.body,
+              let processor = DocumentationPageProcessor(repositoryOwner: owner,
+                                                         repositoryOwnerName: documentation.ownerName,
+                                                         repositoryName: repository,
+                                                         packageName: documentation.packageName,
+                                                         reference: reference,
+                                                         referenceLatest: documentation.latest,
+                                                         referenceKind: documentation.reference.versionKind,
+                                                         availableArchives: availableArchives,
+                                                         availableVersions: availableDocumentationVersions,
+                                                         updatedAt: documentation.updatedAt,
+                                                         rawHtml: body.asString())
+        else {
+            return try await awsResponse.encodeResponse(
+                status: .ok,
+                headers: req.headers.replacingOrAdding(name: .contentType,
+                                                       value: fragment.contentType),
+                for: req
+            )
+        }
+
+        print("## -> aws")
+        return try await processor.processedPage.encodeResponse(
+            status: .ok,
+            headers: req.headers.replacingOrAdding(name: .contentType,
+                                                   value: fragment.contentType),
+            for: req
+        )
+    }
+
+    static func awsResponse(client: Client, owner: String, repository: String, reference: String, fragment: Fragment, path: String) async throws -> ClientResponse {
+        let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
+        print("aws: \(url)")
+        guard let awsResponse = try? await Current.fetchDocumentation(client, url),
+              (200..<399).contains(awsResponse.status.code) else {
+            // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
+            throw Abort(.notFound)
+        }
+        return awsResponse
     }
 
     static func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
