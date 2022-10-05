@@ -360,22 +360,9 @@ extension Analyze {
         repo.commitCount = (try? Current.git.commitCount(gitDirectory)) ?? 0
         repo.firstCommitDate = try? Current.git.firstCommitDate(gitDirectory)
         repo.lastCommitDate = try? Current.git.lastCommitDate(gitDirectory)
-        // TODO: Add authors in the repo here
-        // -----------
-        
+
         let pkgAuthors = try PackageContributorService.authorExtractor(cacheDirPath: gitDirectory, packageID: package.model.id)
-        
-        print("Written by ")
-        for authorName in pkgAuthors.authors {
-            print("Author : \(authorName)")
-        }
-        if pkgAuthors.numberOfContributors != 0 {
-            print("and \(pkgAuthors.numberOfContributors) contributors")
-        }
-        
         repo.authors = pkgAuthors
-        
-        // -----------
 
         try await repo.update(on: database)
     }

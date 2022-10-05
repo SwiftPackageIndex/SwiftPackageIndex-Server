@@ -273,22 +273,22 @@ extension PackageShow.Model {
     }
 
     func authorsListItem() -> Node<HTML.ListContext> {
-        guard let pkgAuthors = authors else { return .empty }
-        var nodes = pkgAuthors.authors.map { author in
-            guard let authorURL = author.url
-            else {
-                return Node<HTML.BodyContext>.text(author.name)
+        guard let authors else { return .empty }
+        var nodes = authors.authors.map { author -> Node<HTML.BodyContext> in
+            if let authorURL = author.url {
+                return .a(.href(authorURL), .text(author.name))
+            } else {
+                return .text(author.name)
             }
-            return Node<HTML.BodyContext>.a(.href(authorURL), .text(author.name))
         }
 
-        if (pkgAuthors.numberOfContributors > 0) {
-            nodes.append(.text("\(pkgAuthors.numberOfContributors) other " + "contributor".pluralized(for: pkgAuthors.numberOfContributors)))
+        if (authors.numberOfContributors > 0) {
+            nodes.append(.text("\(authors.numberOfContributors) other " + "contributor".pluralized(for: authors.numberOfContributors)))
         }
         
         return .li(
             .class("authors"),
-            .group(listPhrase(opening: "Written by ", nodes: nodes, ifEmpty: "-", closing: "."))
+            .group(listPhrase(opening: "Written by ", nodes: nodes, closing: "."))
         )
     }
 

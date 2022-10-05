@@ -18,8 +18,6 @@ import Foundation
 extension PackageController.PackageResult {
 
     func authors() -> PackageAuthors? {
-        // TODO: fill in
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/175
         return repository.authors
     }
 
