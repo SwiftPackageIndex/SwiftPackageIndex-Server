@@ -376,9 +376,11 @@ class AnalyzerTests: AppTestCase {
         }
         var checkoutDir: String? = nil
 
+        var firstDirCloned = false
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
             if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
+            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-1" { return firstDirCloned }
             if path.hasSuffix("Package.swift") { return true }
             return false
         }
@@ -410,6 +412,9 @@ class AnalyzerTests: AppTestCase {
             }
 
             if let result = mockResults[cmd] { return result }
+            if cmd.string.starts(with: "git clone") {
+                firstDirCloned = true
+            }
 
             // returning a blank string will cause an exception when trying to
             // decode it as the manifest result - we use this to simulate errors
@@ -425,7 +430,7 @@ class AnalyzerTests: AppTestCase {
         // validation (not in detail, this is just to ensure command count is as expected)
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
-        XCTAssertEqual(Validation.commands.count, 32, "was: \(dump(Validation.commands))")
+        XCTAssertEqual(Validation.commands.count, 34, "was: \(dump(Validation.commands))")
         // 2 packages with 2 tags + 1 default branch each -> 6 versions
         let versionCount = try await Version.query(on: app.db).count()
         XCTAssertEqual(versionCount, 6)
