@@ -26,7 +26,7 @@ extension PackageShow {
         var repositoryOwnerName: String
         var repositoryName: String
         var activity: Activity?
-        var authors: PackageAuthors?//[Link]? // TODO: change to PackageAuthors
+        var authors: PackageAuthors?
         var keywords: [String]?
         var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
         var platformBuildInfo: BuildInfo<PlatformResults>?
@@ -53,7 +53,7 @@ extension PackageShow {
                       repositoryOwnerName: String,
                       repositoryName: String,
                       activity: Activity? = nil,
-                      authors: PackageAuthors? = nil,//[Link]? = nil,
+                      authors: PackageAuthors? = nil,
                       keywords: [String]? = nil,
                       swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil,
                       platformBuildInfo: BuildInfo<PlatformResults>? = nil,
