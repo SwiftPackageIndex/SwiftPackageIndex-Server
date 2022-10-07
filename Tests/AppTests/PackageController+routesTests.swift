@@ -536,7 +536,7 @@ class PackageController_routesTests: AppTestCase {
 
     func test_documentationVersionArray_subscriptByReference() throws {
         let updatedAt = Date(timeIntervalSince1970: 0)
-        let versions: [PackageController.DocumentationVersion] = [
+        let versions: [DocumentationVersion] = [
             .init(reference: .branch("main"), ownerName: "owner",
                   packageName: "package", docArchives: [], updatedAt: updatedAt),
             .init(reference: .tag(.init(1, 0, 0), "1.0.0"), ownerName: "owner",
@@ -560,7 +560,7 @@ class PackageController_routesTests: AppTestCase {
 
     func test_documentationVersionArray_latestMajorVersions() throws {
         let updatedAt = Date(timeIntervalSince1970: 0)
-        let versions: [PackageController.DocumentationVersion] = [
+        let versions: [DocumentationVersion] = [
             .init(reference: .branch("main"), ownerName: "owner",
                   packageName: "package", docArchives: [], latest: .defaultBranch, updatedAt: updatedAt),
             .init(reference: .tag(.init(1, 0, 0), "1.0.0"), ownerName: "owner",
