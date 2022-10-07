@@ -341,8 +341,6 @@ struct QueryParameter {
 }
 
 
-// FIXME: move?
-
 extension SiteURL {
     static func relativeURL(documentation: DocumentationTarget, path: String = "") -> String {
         switch documentation {
