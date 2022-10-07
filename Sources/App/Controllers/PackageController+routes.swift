@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright 2020-2022 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,15 +83,6 @@ enum PackageController {
         }
     }
 
-    struct DocumentationVersion: Equatable {
-        var reference: Reference
-        var ownerName: String
-        var packageName: String
-        var docArchives: [String]
-        var latest: Version.Kind?
-        var updatedAt: Date
-    }
-
     static func defaultDocumentation(req: Request) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
@@ -133,7 +124,6 @@ enum PackageController {
     }
 
     static func documentation(req: Request, fragment: Fragment) async throws -> Response {
-        print("## documentation(req:fragment:) - \(req.url) - \(fragment)")
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository"),
@@ -150,31 +140,8 @@ enum PackageController {
 
         switch fragment {
             case .documentation, .tutorials:
-                print("## Joined3.query(...)")
-                let queryResult = try await Joined3<Version, Package, Repository>
-                    .query(on: req.db,
-                           join: \Version.$package.$id == \Package.$id, method: .inner,
-                           join: \Package.$id == \Repository.$package.$id, method: .inner)
-                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-                    .filter(Repository.self, \.$name, .custom("ilike"), repository)
-                    .filter(\Version.$docArchives != nil)
-                    .field(Version.self, \.$reference)
-                    .field(Version.self, \.$latest)
-                    .field(Version.self, \.$packageName)
-                    .field(Version.self, \.$docArchives)
-                    .field(Version.self, \.$commitDate)
-                    .field(Version.self, \.$publishedAt)
-                    .field(Repository.self, \.$ownerName)
-                    .all()
-
-                let documentationVersions = queryResult.map { result in
-                    DocumentationVersion(reference: result.model.reference,
-                                         ownerName: result.relation2?.ownerName ?? owner,
-                                         packageName: result.model.packageName ?? repository,
-                                         docArchives: (result.model.docArchives ?? []).map(\.title),
-                                         latest: result.model.latest,
-                                         updatedAt: result.model.publishedAt ?? result.model.commitDate)
-                }
+                let documentationVersions = try await DocumentationVersion
+                    .query(on: req.db, owner: owner, repository: repository)
 
                 return try await documentation(req: req,
                                                archive: archive,
@@ -445,7 +412,7 @@ private extension HTTPHeaders {
     }
 }
 
-extension Array where Element == PackageController.DocumentationVersion {
+extension Array where Element == DocumentationVersion {
     subscript(reference reference: String) -> Element? {
         first { "\($0.reference)" == reference }
     }
