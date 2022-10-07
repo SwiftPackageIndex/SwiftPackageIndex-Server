@@ -152,20 +152,6 @@ enum DocumentationTarget: Equatable {
             .map(\.model)
             .documentationTarget(owner: owner, repository: repository)
     }
-
-    func url(path: String = "") -> String {
-        switch self {
-            case .external(let url):
-                return path.isEmpty
-                ? url
-                : url + "/" + path
-
-            case .internal(let owner, let repository, let reference, let archive):
-                return path.isEmpty
-                ? "/\(owner)/\(repository)/\(reference)/documentation/\(archive.lowercased())"
-                : "/\(owner)/\(repository)/\(reference)/documentation/\(path)"
-        }
-    }
 }
 
 
@@ -206,10 +192,8 @@ extension [Version] {
 
 
 extension PackageController.PackageResult {
-    @available(*, deprecated)
     var hasDocumentation: Bool { documentationTarget != nil }
 
-    @available(*, deprecated)
     var documentationTarget: DocumentationTarget? {
         guard let owner = repository.owner, let repo = repository.name else { return .none }
         return [defaultBranchVersion.model, releaseVersion?.model, preReleaseVersion?.model]
