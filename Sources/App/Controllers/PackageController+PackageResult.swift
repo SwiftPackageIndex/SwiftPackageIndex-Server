@@ -125,9 +125,8 @@ extension PackageController.PackageResult {
 enum DocumentationTarget: Equatable {
     case external(url: String)
     case `internal`(owner: String, repository: String, reference: String, archive: String)
-    case none
 
-    static func query(on database: Database, owner: String, repository: String) async throws -> Self {
+    static func query(on database: Database, owner: String, repository: String) async throws -> Self? {
         let results = try await Joined3<Version, Package, Repository>
             .query(on: database,
                    join: \Version.$package.$id == \Package.$id, method: .inner,
@@ -154,23 +153,17 @@ enum DocumentationTarget: Equatable {
             .documentationTarget(owner: owner, repository: repository)
     }
 
-    // TODO: Merge this back with SiteURL at some point.
-    static func relativeURL(owner: String, repository: String, reference: String, docArchive: String) -> String {
-        "/\(owner)/\(repository)/\(reference)/documentation/\(docArchive.lowercased())"
-    }
-
-    func relativeURL(path: String) -> String? {
+    func url(path: String = "") -> String {
         switch self {
             case .external(let url):
-                return url + "/" + path
+                return path.isEmpty
+                ? url
+                : url + "/" + path
 
             case .internal(let owner, let repository, let reference, let archive):
                 return path.isEmpty
                 ? "/\(owner)/\(repository)/\(reference)/documentation/\(archive.lowercased())"
                 : "/\(owner)/\(repository)/\(reference)/documentation/\(path)"
-
-            case .none:
-                return nil
         }
     }
 }
@@ -180,7 +173,7 @@ extension [Version] {
     var defaultBranchVersion: Version? { filter { $0.latest == .defaultBranch}.first }
     var releaseVersion: Version? { filter { $0.latest == .release}.first }
 
-    func documentationTarget(owner: String, repository: String) -> DocumentationTarget {
+    func documentationTarget(owner: String, repository: String) -> DocumentationTarget? {
         // External documentation links have priority over generated documentation.
         if let spiManifest = defaultBranchVersion?.spiManifest,
            let documentation = spiManifest.externalLinks?.documentation {
@@ -206,7 +199,7 @@ extension [Version] {
         }
 
         // There is no default dodcumentation.
-        return .none
+        return nil
     }
 
 }
@@ -214,10 +207,10 @@ extension [Version] {
 
 extension PackageController.PackageResult {
     @available(*, deprecated)
-    var hasDocumentation: Bool { documentationTarget != .none }
+    var hasDocumentation: Bool { documentationTarget != nil }
 
     @available(*, deprecated)
-    var documentationTarget: DocumentationTarget {
+    var documentationTarget: DocumentationTarget? {
         guard let owner = repository.owner, let repo = repository.name else { return .none }
         return [defaultBranchVersion.model, releaseVersion?.model, preReleaseVersion?.model]
             .compactMap { $0 }

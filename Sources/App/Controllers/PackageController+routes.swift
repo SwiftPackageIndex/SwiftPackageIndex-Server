@@ -100,25 +100,17 @@ enum PackageController {
         else {
             throw Abort(.notFound)
         }
+        let path = req.parameters.getCatchall().joined(separator: "/")
 
         let documentationTarget = try await DocumentationTarget.query(on: req.db,
                                                                       owner: owner,
                                                                       repository: repository)
 
-        switch documentationTarget {
-            case .none:
-                throw Abort(.notFound)
-
-            case let .external(url: url):
-                // FIXME: attach catchall
-                throw Abort.redirect(to: url)
-
-            case let .internal(owner: owner, repository: repository, reference: reference, archive: archive):
-                let path = req.parameters.getCatchall().joined(separator: "/")
-                print("## path: \(path)")
-                let url = documentationTarget.relativeURL(path: path)!
-                throw Abort.redirect(to: url)
+        guard let url = documentationTarget?.url(path: path) else {
+            throw Abort(.notFound)
         }
+
+        throw Abort.redirect(to: url)
     }
 
     static func documentation(req: Request) async throws -> Response {
@@ -138,7 +130,7 @@ enum PackageController {
             }
         }()
 
-        // FIXME: avoid query -> redirect -> query
+        // FIXME: use DocumentationTarget
         guard let queryResult = try await Joined3<Version, Package, Repository>
             .query(on: req.db,
                    join: \Version.$package.$id == \Package.$id, method: .inner,
@@ -154,10 +146,10 @@ enum PackageController {
         // This package has at least one docArchive, so redirect to it.
         guard let docArchive = queryResult.model.docArchives?.first
         else { throw Abort(.notFound) }
-        throw Abort.redirect(to: DocumentationTarget.relativeURL(owner: owner,
-                                                                 repository: repository,
-                                                                 reference: reference,
-                                                                 docArchive: docArchive.name))
+        throw Abort.redirect(to: DocumentationTarget.internal(owner: owner,
+                                                              repository: repository,
+                                                              reference: reference,
+                                                              archive: docArchive.name).url())
     }
 
     static func documentation(req: Request, fragment: Fragment) async throws -> Response {
