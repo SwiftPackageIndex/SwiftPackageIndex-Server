@@ -121,51 +121,94 @@ extension PackageController.PackageResult {
 //}
 
 
+
 enum DocumentationTarget: Equatable {
-    case external(String)
-    case `internal`(reference: String, archive: String)
+    case external(url: String)
+    case `internal`(url: String, reference: String, archive: String)
+    case none
+
+    static func query(on database: Database, owner: String, repository: String) async throws -> Self {
+        let results = try await Joined3<Version, Package, Repository>
+            .query(on: database,
+                   join: \Version.$package.$id == \Package.$id, method: .inner,
+                   join: \Package.$id == \Repository.$package.$id, method: .inner)
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            .filter(Repository.self, \.$name, .custom("ilike"), repository)
+            .filter(\Version.$docArchives != nil)
+            .field(Repository.self, \.$ownerName)
+            .field(Version.self, \.$commitDate)
+            .field(Version.self, \.$docArchives)
+            .field(Version.self, \.$latest)
+            .field(Version.self, \.$packageName)
+            .field(Version.self, \.$publishedAt)
+            .field(Version.self, \.$reference)
+            .field(Version.self, \.$spiManifest)
+            .all()
+
+        return results.map(\.model).documentationTarget(owner: owner, repository: repository)
+    }
 }
 
 extension [Version] {
     var defaultBranchVersion: Version? { filter { $0.latest == .defaultBranch}.first }
     var releaseVersion: Version? { filter { $0.latest == .release}.first }
 
-    var documentationTarget: DocumentationTarget? {
+    func documentationTarget(owner: String, repository: String) -> DocumentationTarget {
+        // External documentation links have priority over generated documentation.
         if let spiManifest = defaultBranchVersion?.spiManifest,
            let documentation = spiManifest.externalLinks?.documentation {
-            return .external(documentation)
+            return .external(url: documentation)
         }
 
-        if let releaseVersion = releaseVersion,
-           let releaseVersionDocArchive = releaseVersion.docArchives?.first {
-            return .internal(reference: "\(releaseVersion.reference)", archive: releaseVersionDocArchive.name)
+        // Ideal case is that we have a stable release documentation.
+        if let version = releaseVersion,
+           let archive = version.docArchives?.first?.name {
+            let reference = "\(version.reference)"
+            return .internal(
+                url: DocumentationPageProcessor.relativeDocumentationURL(
+                    owner: owner,
+                    repository: repository,
+                    reference: reference,
+                    docArchive: archive
+                ),
+                reference: reference,
+                archive: archive
+            )
         }
 
-        if let defaultBranchVersion = defaultBranchVersion,
-           let defaultBranchDocArchive = defaultBranchVersion.docArchives?.first {
-            return .internal(reference: "\(defaultBranchVersion.reference)", archive: defaultBranchDocArchive.name)
+        // Fallback is default branch documentation.
+        if let version = defaultBranchVersion,
+           let archive = version.docArchives?.first?.name {
+            let reference = "\(version.reference)"
+            return .internal(
+                url: DocumentationPageProcessor.relativeDocumentationURL(
+                    owner: owner,
+                    repository: repository,
+                    reference: reference,
+                    docArchive: archive
+                ),
+                reference: reference,
+                archive: archive
+            )
         }
 
-        return nil
+        // There is no default dodcumentation.
+        return .none
     }
 
 }
 
 
-extension [Joined3<Version, Package, Repository>] {
-    var versions: [Version] { map(\.model) }
-
-    var documentationTarget: DocumentationTarget? { versions.documentationTarget }
-}
-
-
 extension PackageController.PackageResult {
-    var hasDocumentation: Bool { documentationTarget != nil }
+    @available(*, deprecated)
+    var hasDocumentation: Bool { documentationTarget != .none }
 
-    var documentationTarget: DocumentationTarget? {
-        [defaultBranchVersion.model, releaseVersion?.model, preReleaseVersion?.model]
+    @available(*, deprecated)
+    var documentationTarget: DocumentationTarget {
+        guard let owner = repository.owner, let repo = repository.name else { return .none }
+        return [defaultBranchVersion.model, releaseVersion?.model, preReleaseVersion?.model]
             .compactMap { $0 }
-            .documentationTarget
+            .documentationTarget(owner: owner, repository: repo)
     }
 }
 
