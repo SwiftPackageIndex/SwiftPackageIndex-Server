@@ -120,36 +120,16 @@ enum PackageController {
             throw Abort(.notFound)
         }
 
-        let referenceToMatch: Reference = {
-            if let semanticVersion = SemanticVersion(reference) {
-                return .tag(semanticVersion, reference)
-            } else {
-                return .branch(reference)
-            }
-        }()
+        let referenceToMatch: Reference = SemanticVersion(reference)
+            .map { .tag($0, reference) } ?? .branch(reference)
 
-        // FIXME: use DocumentationTarget
-        guard let queryResult = try await Joined3<Version, Package, Repository>
-            .query(on: req.db,
-                   join: \Version.$package.$id == \Package.$id, method: .inner,
-                   join: \Package.$id == \Repository.$package.$id, method: .inner)
-            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-            .filter(Repository.self, \.$name, .custom("ilike"), repository)
-            .filter(\Version.$reference == referenceToMatch)
-            .filter(\Version.$docArchives != nil)
-            .field(Version.self, \.$docArchives)
-            .first()
+        guard let target = try await DocumentationTarget.query(on: req.db,
+                                                               owner: owner,
+                                                               repository: repository,
+                                                               reference: referenceToMatch)
         else { throw Abort(.notFound) }
 
-        // This package has at least one docArchive, so redirect to it.
-        guard let docArchive = queryResult.model.docArchives?.first
-        else { throw Abort(.notFound) }
-        throw Abort.redirect(
-            to: SiteURL.relativeURL(documentation: .internal(owner: owner,
-                                                             repository: repository,
-                                                             reference: reference,
-                                                             archive: docArchive.name))
-        )
+        throw Abort.redirect(to: SiteURL.relativeURL(documentation: target))
     }
 
     static func documentation(req: Request, fragment: Fragment) async throws -> Response {

@@ -19,6 +19,12 @@ enum DocumentationTarget: Equatable {
     case external(url: String)
     case `internal`(owner: String, repository: String, reference: String, archive: String)
 
+    /// Fetch DocumentationTarget for a given package.
+    /// - Parameters:
+    ///   - database: Database connection
+    ///   - owner: Repository owner
+    ///   - repository: Repository name
+    /// - Returns: DocumentationTarget or nil
     static func query(on database: Database, owner: String, repository: String) async throws -> Self? {
         let results = try await Joined3<Version, Package, Repository>
             .query(on: database,
@@ -44,6 +50,34 @@ enum DocumentationTarget: Equatable {
         return results
             .map(\.model)
             .documentationTarget(owner: owner, repository: repository)
+    }
+
+    /// Fetch DocumentationTarget for a specific reference. This returns an `internal` DocumentationTarget by definition, because `external` targets have no notion of references.
+    /// - Parameters:
+    ///   - database: Database connection
+    ///   - owner: Repository owner
+    ///   - repository: Repository name
+    ///   - reference: Version reference
+    /// - Returns: DocumentationTarget or nil
+    static func query(on database: Database, owner: String, repository: String, reference: Reference) async throws -> Self? {
+        let archive = try await Joined3<Version, Package, Repository>
+            .query(on: database,
+                   join: \Version.$package.$id == \Package.$id, method: .inner,
+                   join: \Package.$id == \Repository.$package.$id, method: .inner)
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            .filter(Repository.self, \.$name, .custom("ilike"), repository)
+            .filter(\Version.$reference == reference)
+            .filter(\Version.$docArchives != nil)
+            .field(Version.self, \.$docArchives)
+            .first()
+            .flatMap { $0.model.docArchives?.first?.name }
+
+        return archive.map {
+            .internal(owner: owner,
+                      repository: repository,
+                      reference: "\(reference)",
+                      archive: $0)
+        }
     }
 }
 
