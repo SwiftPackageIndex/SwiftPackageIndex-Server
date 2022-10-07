@@ -143,14 +143,16 @@ enum PackageController {
                 let documentationVersions = try await DocumentationVersion
                     .query(on: req.db, owner: owner, repository: repository)
 
-                return try await documentation(req: req,
-                                               archive: archive,
-                                               awsResponse: awsResponse,
-                                               documentationVersions: documentationVersions,
-                                               fragment: fragment,
-                                               owner: owner,
-                                               reference: reference,
-                                               repository: repository)
+                return try await documentationResponse(
+                    req: req,
+                    archive: archive,
+                    awsResponse: awsResponse,
+                    documentationVersions: documentationVersions,
+                    fragment: fragment,
+                    owner: owner,
+                    reference: reference,
+                    repository: repository
+                )
 
             case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .themeSettings:
                 return try await awsResponse.encodeResponse(
@@ -165,14 +167,14 @@ enum PackageController {
         }
     }
 
-    static func documentation(req: Request,
-                              archive: String?,
-                              awsResponse: ClientResponse,
-                              documentationVersions: [DocumentationVersion],
-                              fragment: Fragment,
-                              owner: String,
-                              reference: String,
-                              repository: String) async throws -> Response {
+    static func documentationResponse(req: Request,
+                                      archive: String?,
+                                      awsResponse: ClientResponse,
+                                      documentationVersions: [DocumentationVersion],
+                                      fragment: Fragment,
+                                      owner: String,
+                                      reference: String,
+                                      repository: String) async throws -> Response {
 
         guard let documentation = documentationVersions[reference: reference]
         else {
