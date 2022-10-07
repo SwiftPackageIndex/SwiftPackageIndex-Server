@@ -20,6 +20,35 @@ import XCTest
 final class DocumentationTargetTests: AppTestCase {
 
     func test_external() async throws {
+        // Test external doc url lookup
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try await Repository(package: pkg,
+                             name: "bar",
+                             owner: "foo").save(on: app.db)
+        let version = try App.Version(package: pkg,
+                                      commit: "0123456789",
+                                      commitDate: Date(timeIntervalSince1970: 0),
+                                      docArchives: nil,
+                                      latest: .defaultBranch,
+                                      packageName: "test",
+                                      reference: .branch("main"),
+                                      spiManifest: .init(yml: """
+                                        version: 1
+                                        external_links:
+                                          documentation: https://example.com/package/documentation/
+                                        """))
+        try await version.save(on: app.db)
+
+        // MUT
+        let res = try await DocumentationTarget.query(on: app.db, owner: "foo", repository: "bar")
+
+        // validate
+        XCTAssertEqual(res, .external(url: "https://example.com/package/documentation/"))
+    }
+
+    func test_external_override() async throws {
+        // Test external doc url lookup overriding internal doc archives
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
@@ -69,7 +98,8 @@ final class DocumentationTargetTests: AppTestCase {
         let res = try await DocumentationTarget.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
-        XCTAssertEqual(res, .internal(url: "/foo/bar/main/documentation/archive1",
+        XCTAssertEqual(res, .internal(owner: "foo",
+                                      repository: "bar",
                                       reference: "main",
                                       archive: "archive1"))
     }
@@ -103,7 +133,8 @@ final class DocumentationTargetTests: AppTestCase {
         let res = try await DocumentationTarget.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
-        XCTAssertEqual(res, .internal(url: "/foo/bar/1.0.0/documentation/archive2",
+        XCTAssertEqual(res, .internal(owner: "foo",
+                                      repository: "bar",
                                       reference: "1.0.0",
                                       archive: "archive2"))
     }

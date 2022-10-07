@@ -113,11 +113,11 @@ enum PackageController {
                 // FIXME: attach catchall
                 throw Abort.redirect(to: url)
 
-            case let .internal(url: url, reference: reference, archive: archive):
-                let catchAll = [archive].compactMap { $0 } + req.parameters.getCatchall()
-                let path = catchAll.joined(separator: "/")
+            case let .internal(owner: owner, repository: repository, reference: reference, archive: archive):
+                let path = req.parameters.getCatchall().joined(separator: "/")
+                print("## path: \(path)")
+                let url = documentationTarget.relativeURL(path: path)!
                 throw Abort.redirect(to: url)
-
         }
     }
 
@@ -154,10 +154,10 @@ enum PackageController {
         // This package has at least one docArchive, so redirect to it.
         guard let docArchive = queryResult.model.docArchives?.first
         else { throw Abort(.notFound) }
-        throw Abort.redirect(to: DocumentationPageProcessor.relativeDocumentationURL(owner: owner,
-                                                                                     repository: repository,
-                                                                                     reference: reference,
-                                                                                     docArchive: docArchive.name))
+        throw Abort.redirect(to: DocumentationTarget.relativeURL(owner: owner,
+                                                                 repository: repository,
+                                                                 reference: reference,
+                                                                 docArchive: docArchive.name))
     }
 
     static func documentation(req: Request, fragment: Fragment) async throws -> Response {

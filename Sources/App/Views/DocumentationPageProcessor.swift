@@ -97,10 +97,10 @@ struct DocumentationPageProcessor {
             return .li(
                 .if(version.reference == reference, .class("current")),
                 .a(
-                    .href(Self.relativeDocumentationURL(owner: repositoryOwner,
-                                                        repository: repositoryName,
-                                                        reference: version.reference,
-                                                        docArchive: currentArchive.name)),
+                    .href(DocumentationTarget.relativeURL(owner: repositoryOwner,
+                                                          repository: repositoryName,
+                                                          reference: version.reference,
+                                                          docArchive: currentArchive.name)),
                     .span(
                         .class(version.kind.cssClass),
                         .text(version.reference)
@@ -129,10 +129,10 @@ struct DocumentationPageProcessor {
                         .li(
                             .if(archive.isCurrent, .class("current")),
                             .a(
-                                .href(Self.relativeDocumentationURL(owner: repositoryOwner,
-                                                                    repository: repositoryName,
-                                                                    reference: reference,
-                                                                    docArchive: archive.name)),
+                                .href(DocumentationTarget.relativeURL(owner: repositoryOwner,
+                                                                      repository: repositoryName,
+                                                                      reference: reference,
+                                                                      docArchive: archive.name)),
                                 .text(archive.name)
                             )
                         )
@@ -164,7 +164,7 @@ struct DocumentationPageProcessor {
                                     .unwrap(latestStable.docArchives.first) { docArchive in
                                             .group(
                                                 .a(
-                                                    .href(Self.relativeDocumentationURL(owner:repositoryOwner,
+                                                    .href(DocumentationTarget.relativeURL(owner:repositoryOwner,
                                                                                         repository: repositoryName,
                                                                                         reference: latestStable.reference,
                                                                                         docArchive: docArchive)),
@@ -242,11 +242,6 @@ struct DocumentationPageProcessor {
         } catch {
             return "An error occurred while rendering processed documentation."
         }
-    }
-
-    // TODO: Merge this back with SiteURL at some point.
-    static func relativeDocumentationURL(owner: String, repository: String, reference: String, docArchive: String) -> String {
-        "/\(owner)/\(repository)/\(reference)/documentation/\(docArchive.lowercased())"
     }
 
     var latestStableLinkExplanatoryText: String {
