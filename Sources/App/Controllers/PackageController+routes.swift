@@ -414,46 +414,6 @@ private extension HTTPHeaders {
     }
 }
 
-extension Array where Element == DocumentationVersion {
-    subscript(reference reference: String) -> Element? {
-        first { "\($0.reference)" == reference }
-    }
-
-    func latestMajorVersions() -> Self {
-        let stableVersions = self.filter { version in
-            guard let semVer = version.reference.semVer else { return false }
-            return semVer.isStable
-        }
-        let groupedStableVersions = Dictionary.init(grouping: stableVersions) { version in
-            version.reference.semVer?.major
-        }
-
-        return groupedStableVersions.compactMap { key, versions -> Element? in
-            // If any of the references had a nil semVer then there could be a nil key in the dictionary.
-            guard key != nil else { return nil }
-
-            // Filter down to only the largest semVer in each group.
-            let latestMajorStableVersion = versions
-                .compactMap { result -> (result: Element, semVer: SemanticVersion)? in
-                    guard let semVer = result.reference.semVer else { return nil }
-                    return (result: result, semVer: semVer)
-                }
-                .sorted { $0.semVer > $1.semVer }
-                .first?
-                .result
-
-            return latestMajorStableVersion
-        }
-        .sorted { firstVersion, secondVersion in
-            guard let firstSemVer = firstVersion.reference.semVer,
-                  let secondSemVer = secondVersion.reference.semVer
-            else { return false }
-
-            return firstSemVer < secondSemVer
-        }
-    }
-}
-
 
 extension PackageController.Fragment: CustomStringConvertible {
     var description: String { rawValue }
