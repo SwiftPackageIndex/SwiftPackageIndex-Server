@@ -98,12 +98,11 @@ struct DocumentationPageProcessor {
                 .if(version.reference == reference, .class("current")),
                 .a(
                     .href(
-                        SiteURL.relativeURL(documentation:
-                                .internal(owner: repositoryOwner,
-                                          repository: repositoryName,
-                                          reference: version.reference,
-                                          archive: currentArchive.name)
-                        )
+                        SiteURL.relativeURL(
+                            owner: repositoryOwner,
+                            repository: repositoryName,
+                            documentation: .internal(reference: version.reference,
+                                                     archive: currentArchive.name))
                     ),
                     .span(
                         .class(version.kind.cssClass),
@@ -134,11 +133,11 @@ struct DocumentationPageProcessor {
                             .if(archive.isCurrent, .class("current")),
                             .a(
                                 .href(
-                                    SiteURL.relativeURL(documentation:
-                                            .internal(owner: repositoryOwner,
-                                                      repository: repositoryName,
-                                                      reference: reference,
-                                                      archive: archive.name)
+                                    SiteURL.relativeURL(
+                                        owner: repositoryOwner,
+                                        repository: repositoryName,
+                                        documentation: .internal(reference: reference,
+                                                                 archive: archive.name)
                                     )
                                 ),
                                 .text(archive.name)
@@ -173,11 +172,11 @@ struct DocumentationPageProcessor {
                                             .group(
                                                 .a(
                                                     .href(
-                                                        SiteURL.relativeURL(documentation:
-                                                                .internal(owner:repositoryOwner,
-                                                                          repository: repositoryName,
-                                                                          reference: latestStable.reference,
-                                                                          archive: docArchive)
+                                                        SiteURL.relativeURL(
+                                                            owner: repositoryOwner,
+                                                            repository: repositoryName,
+                                                            documentation: .internal(reference: latestStable.reference,
+                                                                                     archive: docArchive)
                                                         )
                                                     ),
                                                     .text("View latest documentation")
