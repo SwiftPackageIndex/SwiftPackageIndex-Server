@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright 2020-2022 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -210,88 +210,4 @@ class PackageResultTests: AppTestCase {
                              lastPullRequestClosedAt: "6 days ago"))
     }
 
-    func test_documentationTarget_withExternalUrl() async throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1".url)
-        try await Repository(package: pkg,
-                             name: "bar",
-                             owner: "foo").save(on: app.db)
-        let version = try App.Version(package: pkg,
-                                      commit: "0123456789",
-                                      commitDate: Date(timeIntervalSince1970: 0),
-                                      docArchives: [
-                                        // Inserting an archive here to test that the external URL overrides any generated docs.
-                                        .init(name: "archive1", title: "Archive One")
-                                      ],
-                                      latest: .defaultBranch,
-                                      packageName: "test",
-                                      reference: .branch("main"),
-                                      spiManifest: .init(yml: """
-                                        version: 1
-                                        external_links:
-                                          documentation: https://example.com/package/documentation/
-                                        """))
-        try await version.save(on: app.db)
-
-        // MUT
-        let res = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
-
-        // validate
-        XCTAssertEqual(res.documentationTarget, .external(url: "https://example.com/package/documentation/"))
-    }
-
-    func test_documentationTarget_withDocArchive_defaultBranch() async throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1".url)
-        try await Repository(package: pkg,
-                             name: "bar",
-                             owner: "foo").save(on: app.db)
-        try await App.Version(package: pkg,
-                              commit: "0123456789",
-                              commitDate: Date(timeIntervalSince1970: 0),
-                              docArchives: [
-                                .init(name: "archive1", title: "Archive One")
-                              ],
-                              latest: .defaultBranch,
-                              packageName: "test",
-                              reference: .branch("main")).save(on: app.db)
-
-        // MUT
-        let res = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
-
-        // validate
-        XCTAssertEqual(res.documentationTarget, .internal(url: "", reference: "main", archive: "archive1"))
-    }
-
-    func test_documentationTarget_withDocArchive_stableBranch() async throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1".url)
-        try await Repository(package: pkg,
-                             name: "bar",
-                             owner: "foo").save(on: app.db)
-        try await App.Version(package: pkg,
-                              commit: "0000000000",
-                              commitDate: Date(timeIntervalSince1970: 0),
-                              docArchives: [
-                                .init(name: "archive1", title: "Archive One")
-                              ],
-                              latest: .defaultBranch,
-                              packageName: "test",
-                              reference: .branch("main")).save(on: app.db)
-        try await App.Version(package: pkg,
-                              commit: "11111111111",
-                              commitDate: Date(timeIntervalSince1970: 0),
-                              docArchives: [
-                                .init(name: "archive2", title: "Archive Two")
-                              ],
-                              latest: .release,
-                              packageName: "test",
-                              reference: .tag(1, 0, 0)).save(on: app.db)
-
-        // MUT
-        let res = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
-
-        // validate
-        XCTAssertEqual(res.documentationTarget, .internal(url: "", reference: "1.0.0", archive: "archive2"))
-    }
 }
