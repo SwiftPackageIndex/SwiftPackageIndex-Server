@@ -99,7 +99,10 @@ enum PackageController {
             throw Abort(.notFound)
         }
 
-        throw Abort.redirect(to: SiteURL.relativeURL(documentation: target, path: path))
+        throw Abort.redirect(to: SiteURL.relativeURL(owner: owner,
+                                                     repository: repository,
+                                                     documentation: target,
+                                                     path: path))
     }
 
     static func documentation(req: Request) async throws -> Response {
@@ -120,7 +123,9 @@ enum PackageController {
                                                                reference: referenceToMatch)
         else { throw Abort(.notFound) }
 
-        throw Abort.redirect(to: SiteURL.relativeURL(documentation: target))
+        throw Abort.redirect(to: SiteURL.relativeURL(owner: owner,
+                                                     repository: repository,
+                                                     documentation: target))
     }
 
     static func documentation(req: Request, fragment: Fragment) async throws -> Response {

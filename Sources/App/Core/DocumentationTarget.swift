@@ -17,7 +17,7 @@ import Fluent
 
 enum DocumentationTarget: Equatable {
     case external(url: String)
-    case `internal`(owner: String, repository: String, reference: String, archive: String)
+    case `internal`(reference: String, archive: String)
 
     /// Fetch DocumentationTarget for a given package.
     /// - Parameters:
@@ -49,7 +49,7 @@ enum DocumentationTarget: Equatable {
 
         return results
             .map(\.model)
-            .documentationTarget(owner: owner, repository: repository)
+            .documentationTarget()
     }
 
     /// Fetch DocumentationTarget for a specific reference. This returns an `internal` DocumentationTarget by definition, because `external` targets have no notion of references.
@@ -73,10 +73,7 @@ enum DocumentationTarget: Equatable {
             .flatMap { $0.model.docArchives?.first?.name }
 
         return archive.map {
-            .internal(owner: owner,
-                      repository: repository,
-                      reference: "\(reference)",
-                      archive: $0)
+            .internal(reference: "\(reference)", archive: $0)
         }
     }
 }
@@ -86,7 +83,7 @@ private extension [Version] {
     var defaultBranchVersion: Version? { filter { $0.latest == .defaultBranch}.first }
     var releaseVersion: Version? { filter { $0.latest == .release}.first }
 
-    func documentationTarget(owner: String, repository: String) -> DocumentationTarget? {
+    func documentationTarget() -> DocumentationTarget? {
         // External documentation links have priority over generated documentation.
         if let spiManifest = defaultBranchVersion?.spiManifest,
            let documentation = spiManifest.externalLinks?.documentation {
@@ -96,19 +93,13 @@ private extension [Version] {
         // Ideal case is that we have a stable release documentation.
         if let version = releaseVersion,
            let archive = version.docArchives?.first?.name {
-            return .internal(owner: owner,
-                             repository: repository,
-                             reference: "\(version.reference)",
-                             archive: archive)
+            return .internal(reference: "\(version.reference)", archive: archive)
         }
 
         // Fallback is default branch documentation.
         if let version = defaultBranchVersion,
            let archive = version.docArchives?.first?.name {
-            return .internal(owner: owner,
-                             repository: repository,
-                             reference: "\(version.reference)",
-                             archive: archive)
+            return .internal(reference: "\(version.reference)", archive: archive)
         }
 
         // There is no default dodcumentation.
@@ -122,10 +113,9 @@ extension PackageController.PackageResult {
     var hasDocumentation: Bool { documentationTarget != nil }
 
     var documentationTarget: DocumentationTarget? {
-        guard let owner = repository.owner, let repo = repository.name else { return .none }
         return [defaultBranchVersion.model, releaseVersion?.model, preReleaseVersion?.model]
             .compactMap { $0 }
-            .documentationTarget(owner: owner, repository: repo)
+            .documentationTarget()
     }
 }
 
