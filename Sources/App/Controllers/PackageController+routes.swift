@@ -242,19 +242,12 @@ enum PackageController {
 
     static func awsResponse(client: Client, owner: String, repository: String, reference: String, fragment: Fragment, path: String) async throws -> ClientResponse {
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
-        print("## \(owner) \(repository) \(reference) \(fragment) \(path)")
-        print("## aws: \(url)")
         guard let response = try? await Current.fetchDocumentation(client, url) else {
-            print("## response is nil")
             throw Abort(.notFound)
         }
         guard (200..<399).contains(response.status.code) else {
             // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
-            print("## failed: \(response.status.code)")
             throw Abort(.notFound)
-        }
-        if let body = response.body  {
-            print("## body: \(body.asString().count)")
         }
         return response
     }
