@@ -101,64 +101,23 @@ enum PackageController {
             throw Abort(.notFound)
         }
 
-//        print("## PackageResult.query(...) // == Joined5.query(...)")
-//        let result = try await PackageResult.query(on: req.db, owner: owner, repository: repository)
-//        if let documentationUrl = result.defaultDocumentationUrl {
-//            print("## -> \(documentationUrl)")
-//            throw Abort.redirect(to: documentationUrl)
-//        } else {
-//            throw Abort(.notFound)
-//        }
+        let documentationTarget = try await DocumentationTarget.query(on: req.db,
+                                                                      owner: owner,
+                                                                      repository: repository)
 
-//        guard let docInfo = result.documentationInfo else { throw Abort(.notFound) }
-
-        print("## Joined3.query(...)")
-        let queryResult = try await Joined3<Version, Package, Repository>
-            .query(on: req.db,
-                   join: \Version.$package.$id == \Package.$id, method: .inner,
-                   join: \Package.$id == \Repository.$package.$id, method: .inner)
-            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-            .filter(Repository.self, \.$name, .custom("ilike"), repository)
-            .filter(\Version.$docArchives != nil)
-            .field(Repository.self, \.$ownerName)
-            .field(Version.self, \.$commitDate)
-            .field(Version.self, \.$docArchives)
-            .field(Version.self, \.$latest)
-            .field(Version.self, \.$packageName)
-            .field(Version.self, \.$publishedAt)
-            .field(Version.self, \.$reference)
-            .field(Version.self, \.$spiManifest)
-            .all()
-
-        let documentationVersions = queryResult.map { result in
-            DocumentationVersion(reference: result.model.reference,
-                                 ownerName: result.relation2?.ownerName ?? owner,
-                                 packageName: result.model.packageName ?? repository,
-                                 docArchives: (result.model.docArchives ?? []).map(\.title),
-                                 latest: result.model.latest,
-                                 updatedAt: result.model.publishedAt ?? result.model.commitDate)
-        }
-
-        switch queryResult.documentationTarget {
+        switch documentationTarget {
             case .none:
                 throw Abort(.notFound)
 
-            case let .some(.external(url)):
+            case let .external(url: url):
+                // FIXME: attach catchall
                 throw Abort.redirect(to: url)
 
-            case let .some(.internal(reference: reference, archive: archive)):
+            case let .internal(url: url, reference: reference, archive: archive):
                 let catchAll = [archive].compactMap { $0 } + req.parameters.getCatchall()
                 let path = catchAll.joined(separator: "/")
-                let awsResponse = try await awsResponse(client: req.client, owner: owner, repository: repository, reference: reference, fragment: .documentation, path: path)
+                throw Abort.redirect(to: url)
 
-                return try await documentation(req: req,
-                                               documentationVersions: documentationVersions,
-                                               reference: reference,
-                                               archive: archive,
-                                               awsResponse: awsResponse,
-                                               owner: owner,
-                                               repository: repository,
-                                               fragment: .documentation)
         }
     }
 
@@ -246,13 +205,13 @@ enum PackageController {
                 }
 
                 return try await documentation(req: req,
-                                               documentationVersions: documentationVersions,
-                                               reference: reference,
                                                archive: archive,
                                                awsResponse: awsResponse,
+                                               documentationVersions: documentationVersions,
+                                               fragment: fragment,
                                                owner: owner,
-                                               repository: repository,
-                                               fragment: fragment)
+                                               reference: reference,
+                                               repository: repository)
 
             case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .themeSettings:
                 return try await awsResponse.encodeResponse(
@@ -268,21 +227,13 @@ enum PackageController {
     }
 
     static func documentation(req: Request,
-                              documentationVersions: [DocumentationVersion],
-                              reference: String,
                               archive: String?,
                               awsResponse: ClientResponse,
+                              documentationVersions: [DocumentationVersion],
+                              fragment: Fragment,
                               owner: String,
-                              repository: String,
-                              fragment: Fragment) async throws -> Response {
-        print("documentationVersions: \(documentationVersions)")
-        print("reference: \(reference)")
-        print("archive: \(archive)")
-        print("awsResponse: \(awsResponse.body?.asString().count)")
-        print("owner: \(owner)")
-        print("repository: \(repository)")
-        print("fragment: \(fragment)")
-
+                              reference: String,
+                              repository: String) async throws -> Response {
 
         guard let documentation = documentationVersions[reference: reference]
         else {
@@ -335,7 +286,6 @@ enum PackageController {
             )
         }
 
-        print("## -> aws")
         return try await processor.processedPage.encodeResponse(
             status: .ok,
             headers: req.headers.replacingOrAdding(name: .contentType,

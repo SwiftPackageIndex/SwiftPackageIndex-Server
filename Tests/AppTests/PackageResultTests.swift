@@ -237,7 +237,7 @@ class PackageResultTests: AppTestCase {
         let res = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
-        XCTAssertEqual(res.documentationTarget, .external("https://example.com/package/documentation/"))
+        XCTAssertEqual(res.documentationTarget, .external(url: "https://example.com/package/documentation/"))
     }
 
     func test_documentationTarget_withDocArchive_defaultBranch() async throws {
@@ -260,7 +260,7 @@ class PackageResultTests: AppTestCase {
         let res = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
-        XCTAssertEqual(res.documentationTarget, .internal(reference: "main", archive: "archive1"))
+        XCTAssertEqual(res.documentationTarget, .internal(url: "", reference: "main", archive: "archive1"))
     }
 
     func test_documentationTarget_withDocArchive_stableBranch() async throws {
@@ -292,6 +292,6 @@ class PackageResultTests: AppTestCase {
         let res = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
-        XCTAssertEqual(res.documentationTarget, .internal(reference: "1.0.0", archive: "archive2"))
+        XCTAssertEqual(res.documentationTarget, .internal(url: "", reference: "1.0.0", archive: "archive2"))
     }
 }
