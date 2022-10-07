@@ -93,7 +93,6 @@ enum PackageController {
     }
 
     static func defaultDocumentation(req: Request) async throws -> Response {
-        print("## defaultDocumentation(req:) - \(req.url)")
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -102,15 +101,14 @@ enum PackageController {
         }
         let path = req.parameters.getCatchall().joined(separator: "/")
 
-        let documentationTarget = try await DocumentationTarget.query(on: req.db,
-                                                                      owner: owner,
-                                                                      repository: repository)
-
-        guard let url = documentationTarget?.url(path: path) else {
+        guard let target = try await DocumentationTarget.query(on: req.db,
+                                                               owner: owner,
+                                                               repository: repository)
+        else {
             throw Abort(.notFound)
         }
 
-        throw Abort.redirect(to: url)
+        throw Abort.redirect(to: SiteURL.relativeURL(documentation: target, path: path))
     }
 
     static func documentation(req: Request) async throws -> Response {
@@ -146,10 +144,12 @@ enum PackageController {
         // This package has at least one docArchive, so redirect to it.
         guard let docArchive = queryResult.model.docArchives?.first
         else { throw Abort(.notFound) }
-        throw Abort.redirect(to: DocumentationTarget.internal(owner: owner,
-                                                              repository: repository,
-                                                              reference: reference,
-                                                              archive: docArchive.name).url())
+        throw Abort.redirect(
+            to: SiteURL.relativeURL(documentation: .internal(owner: owner,
+                                                             repository: repository,
+                                                             reference: reference,
+                                                             archive: docArchive.name))
+        )
     }
 
     static func documentation(req: Request, fragment: Fragment) async throws -> Response {
