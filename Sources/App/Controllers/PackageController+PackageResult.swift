@@ -124,7 +124,7 @@ extension PackageController.PackageResult {
 
 enum DocumentationTarget: Equatable {
     case external(url: String)
-    case `internal`(url: String, reference: String, archive: String)
+    case `internal`(owner: String, repository: String, reference: String, archive: String)
     case none
 
     static func query(on database: Database, owner: String, repository: String) async throws -> Self {
@@ -134,7 +134,11 @@ enum DocumentationTarget: Equatable {
                    join: \Package.$id == \Repository.$package.$id, method: .inner)
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .filter(Repository.self, \.$name, .custom("ilike"), repository)
-            .filter(\Version.$docArchives != nil)
+            .group(.or) {
+                $0
+                    .filter(\Version.$docArchives != nil)
+                    .filter(\Version.$spiManifest != nil)
+            }
             .field(Repository.self, \.$ownerName)
             .field(Version.self, \.$commitDate)
             .field(Version.self, \.$docArchives)
@@ -145,9 +149,32 @@ enum DocumentationTarget: Equatable {
             .field(Version.self, \.$spiManifest)
             .all()
 
-        return results.map(\.model).documentationTarget(owner: owner, repository: repository)
+        return results
+            .map(\.model)
+            .documentationTarget(owner: owner, repository: repository)
+    }
+
+    // TODO: Merge this back with SiteURL at some point.
+    static func relativeURL(owner: String, repository: String, reference: String, docArchive: String) -> String {
+        "/\(owner)/\(repository)/\(reference)/documentation/\(docArchive.lowercased())"
+    }
+
+    func relativeURL(path: String) -> String? {
+        switch self {
+            case .external(let url):
+                return url + "/" + path
+
+            case .internal(let owner, let repository, let reference, let archive):
+                return path.isEmpty
+                ? "/\(owner)/\(repository)/\(reference)/documentation/\(archive.lowercased())"
+                : "/\(owner)/\(repository)/\(reference)/documentation/\(path)"
+
+            case .none:
+                return nil
+        }
     }
 }
+
 
 extension [Version] {
     var defaultBranchVersion: Version? { filter { $0.latest == .defaultBranch}.first }
@@ -163,33 +190,19 @@ extension [Version] {
         // Ideal case is that we have a stable release documentation.
         if let version = releaseVersion,
            let archive = version.docArchives?.first?.name {
-            let reference = "\(version.reference)"
-            return .internal(
-                url: DocumentationPageProcessor.relativeDocumentationURL(
-                    owner: owner,
-                    repository: repository,
-                    reference: reference,
-                    docArchive: archive
-                ),
-                reference: reference,
-                archive: archive
-            )
+            return .internal(owner: owner,
+                             repository: repository,
+                             reference: "\(version.reference)",
+                             archive: archive)
         }
 
         // Fallback is default branch documentation.
         if let version = defaultBranchVersion,
            let archive = version.docArchives?.first?.name {
-            let reference = "\(version.reference)"
-            return .internal(
-                url: DocumentationPageProcessor.relativeDocumentationURL(
-                    owner: owner,
-                    repository: repository,
-                    reference: reference,
-                    docArchive: archive
-                ),
-                reference: reference,
-                archive: archive
-            )
+            return .internal(owner: owner,
+                             repository: repository,
+                             reference: "\(version.reference)",
+                             archive: archive)
         }
 
         // There is no default dodcumentation.
