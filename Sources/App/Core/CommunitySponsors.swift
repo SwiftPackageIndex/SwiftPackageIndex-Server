@@ -42,6 +42,10 @@ enum CommunitySponsors {
             avatarUrl: "https://avatars.githubusercontent.com/u/43388?u=a7ee72fd086f74f732941f971cd530350142ec3e&v=4"
         ),
         CommunitySponsor(
+            name: "Gwendal Roué",
+            avatarUrl: "https://avatars.githubusercontent.com/u/54219?u=73ae5871c4a96c72fae2650b267d578440e38983&v=4"
+        ),
+        CommunitySponsor(
             name: "Peter Steinberger",
             avatarUrl: "https://avatars.githubusercontent.com/u/58493?u=95a4fccef3d341039661c427695691a664e333ba&v=4"
         ),
@@ -55,7 +59,7 @@ enum CommunitySponsors {
         ),
         CommunitySponsor(
             name: "Drew McCormack",
-            avatarUrl: "https://avatars.githubusercontent.com/u/77312?u=f078a71b06088b642f47748ac1a0d0d7a9068e93&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/77312?u=ad58f63182bfded488ae855c793af7bda94aae2c&v=4"
         ),
         CommunitySponsor(
             name: "Joshua Nozzi",
@@ -322,6 +326,10 @@ enum CommunitySponsors {
             avatarUrl: "https://avatars.githubusercontent.com/u/10637868?u=ae73f0a44ef110c3375bb5b03985c78602031ac3&v=4"
         ),
         CommunitySponsor(
+            name: "Maxim Bazarov",
+            avatarUrl: "https://avatars.githubusercontent.com/u/11208417?u=caf85feb05c65e4f264e8ec95bdef416b7c4bfdb&v=4"
+        ),
+        CommunitySponsor(
             name: nil,
             avatarUrl: "https://avatars.githubusercontent.com/u/11362913?u=4af3d048fb1678f198a4c9fe9a246017bed75052&v=4"
         ),
@@ -348,10 +356,6 @@ enum CommunitySponsors {
         CommunitySponsor(
             name: "James Sherlock",
             avatarUrl: "https://avatars.githubusercontent.com/u/15193942?u=f789c13c13098bf6f7e96aca9116d6d8dbf1a73b&v=4"
-        ),
-        CommunitySponsor(
-            name: "Manu Rodríguez",
-            avatarUrl: "https://avatars.githubusercontent.com/u/15260744?u=6bae0835af37b2320f46a07a1d9a1611ba67ae83&v=4"
         ),
         CommunitySponsor(
             name: "Loopwerk",
@@ -410,8 +414,8 @@ enum CommunitySponsors {
             avatarUrl: "https://avatars.githubusercontent.com/u/51964521?v=4"
         ),
         CommunitySponsor(
-            name: "Dev Agani",
-            avatarUrl: "https://avatars.githubusercontent.com/u/64806625?u=e7985c9a4c87a845557e1bfdf70841d579936411&v=4"
+            name: "Mattes Mohr",
+            avatarUrl: "https://avatars.githubusercontent.com/u/64681110?u=2270894ff05a553bf3039f1d3df1e2dcd2c44cea&v=4"
         ),
         CommunitySponsor(
             name: "Emerge Tools",
