@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-import NIO
 import XCTest
+
+@testable import App
+
+import NIO
+import SPIManifest
 
 
 class ArrayExtensionTests: XCTestCase {
@@ -90,4 +93,137 @@ class ArrayExtensionTests: XCTestCase {
         XCTAssertEqual(res.compactMap { try? $0.get() }, ["0", "2"])
     }
 
+    func test_defaultBranchVersion() throws {
+        XCTAssertEqual(
+            [
+                Version(id: .id0, latest: .release),
+                Version(id: .id1, latest: .defaultBranch)
+            ].defaultBranchVersion?.id,
+            .id1
+        )
+        XCTAssertEqual(
+            [
+                Version(id: .id0, latest: .release),
+                Version(id: .id1, latest: .preRelease),
+            ].defaultBranchVersion?.id,
+            nil
+        )
+    }
+
+    func test_releaseVersion() throws {
+        XCTAssertEqual(
+            [
+                Version(id: .id0, latest: .defaultBranch),
+                Version(id: .id1, latest: .release)
+            ].releaseVersion?.id,
+            .id1
+        )
+        XCTAssertEqual(
+            [
+                Version(id: .id0, latest: .defaultBranch),
+                Version(id: .id1, latest: .preRelease),
+            ].releaseVersion?.id,
+            nil
+        )
+    }
+
+    func test_documentationTarget_external() throws {
+        // Test with only external link
+        XCTAssertEqual(
+            [
+                Version(id: .id0, latest: .release),
+                Version(id: .id1, latest: .defaultBranch, spiManifest: .withExternalDocLink("link")),
+            ].documentationTarget(),
+            .external(url: "link")
+        )
+
+        // Test external link overrides generated docs
+        XCTAssertEqual(
+            [
+                Version(id: .id0, latest: .release),
+                Version(id: .id1, latest: .defaultBranch,
+                        spiManifest: .withExternalDocLink("link"),
+                        docArchives: [.init(name: "foo", title: "Foo")]),
+            ].documentationTarget(),
+            .external(url: "link")
+        )
+
+        // Test external link overrides generated docs, also if they're release docs
+        XCTAssertEqual(
+            [
+                Version(id: .id0, latest: .release,
+                        docArchives: [.init(name: "foo", title: "Foo")]),
+                Version(id: .id1, latest: .defaultBranch,
+                        spiManifest: .withExternalDocLink("link")),
+            ].documentationTarget(),
+            .external(url: "link")
+        )
+    }
+
+    func test_documentationTarget_internal() throws {
+        // Test default path - release docs available
+        XCTAssertEqual(
+            [
+                Version(id: .id0, latest: .release, reference: .tag(1, 2, 3),
+                        docArchives: [.init(name: "foo", title: "Foo")]),
+            ].documentationTarget(),
+            .internal(reference: "1.2.3", archive: "foo")
+        )
+
+        // Test default branch fallback
+        XCTAssertEqual(
+            [
+                Version(id: .id0, latest: .release, reference: .tag(1, 2, 3)),
+                Version(id: .id0, latest: .defaultBranch, reference: .branch("main"),
+                        docArchives: [.init(name: "foo", title: "Foo")]),
+            ].documentationTarget(),
+            .internal(reference: "main", archive: "foo")
+        )
+
+        // No default branch version available
+        XCTAssertEqual(
+            [
+                Version(id: .id0, latest: .release, reference: .tag(1, 2, 3)),
+            ].documentationTarget(),
+            nil
+        )
+
+        // No doc archives available at all
+        XCTAssertEqual(
+            [
+                Version(id: .id0, latest: .release, reference: .tag(1, 2, 3)),
+                Version(id: .id0, latest: .defaultBranch, reference: .branch("main")),
+            ].documentationTarget(),
+            nil
+        )
+
+        // Or simply no versions in array at all
+        XCTAssertEqual([Version]().documentationTarget(), nil)
+    }
+
+}
+
+
+private extension Version {
+    convenience init(id: Version.Id,
+                     latest: Version.Kind,
+                     reference: Reference? = nil,
+                     spiManifest: SPIManifest.Manifest? = nil,
+                     docArchives: [DocArchive]? = nil) {
+        self.init()
+        self.id = id
+        if let reference {
+            self.reference = reference
+        }
+        self.spiManifest = spiManifest
+        self.docArchives = docArchives
+        self.latest = latest
+    }
+}
+
+
+private extension SPIManifest.Manifest {
+    static func withExternalDocLink(_ link: String) -> Self {
+        .init(externalLinks: .init(documentation: link))
+    }
 }

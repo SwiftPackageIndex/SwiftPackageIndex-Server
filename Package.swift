@@ -29,7 +29,7 @@ let package = Package(
         .package(url: "https://github.com/JohnSundell/Plot.git", from: "0.10.0"),
         .package(url: "https://github.com/JohnSundell/ShellOut.git", from: "2.0.0"),
         .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
-        .package(url: "https://github.com/SwiftPackageIndex/SPIManifest", from: "0.9.0"),
+        .package(url: "https://github.com/SwiftPackageIndex/SPIManifest", from: "0.10.1"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
         .package(url: "https://github.com/apple/swift-package-manager.git", branch: "release/5.7"),
         .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0"),
