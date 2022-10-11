@@ -143,13 +143,6 @@ class AnalyzerTests: AppTestCase {
             if cmd == .gitCommitCount { return "12" }
             if cmd == .gitFirstCommitDate { return "0" }
             if cmd == .gitLastCommitDate { return "4" }
-            if cmd == .gitShortlog { return
-                """
-                10 Person 1 <person1@example.com>
-                 2 Person 2 <person2@example.com>
-                """
-            }
-
             if cmd == .gitShortlog {
                 return "10 Person 1 <person1@example.com>"
             }
