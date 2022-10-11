@@ -84,9 +84,9 @@ final class PreReleaseVersion: ModelAlias, Joinable {
 
 
 extension PackageController.PackageResult {
-    var hasDocumentation: Bool { documentationTarget != nil }
+    func hasDocumentation() -> Bool { documentationTarget() != nil }
 
-    var documentationTarget: DocumentationTarget? {
+    func documentationTarget() -> DocumentationTarget? {
         return [defaultBranchVersion.model, releaseVersion?.model, preReleaseVersion?.model]
             .compactMap { $0 }
             .documentationTarget()

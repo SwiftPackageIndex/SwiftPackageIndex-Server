@@ -21,35 +21,24 @@ class PackageResultTests: AppTestCase {
     typealias PackageResult = PackageController.PackageResult
 
     func test_joined5() async throws {
-        do {
-            let pkg = try savePackage(on: app.db, "1".url)
-            try await Repository(package: pkg,
-                                 defaultBranch: "main",
-                                 forks: 42,
-                                 license: .mit,
-                                 name: "bar",
-                                 owner: "foo",
-                                 stars: 17,
-                                 summary: "summary").save(on: app.db)
-            do {
-                try await App.Version(package: pkg,
-                                      latest: .defaultBranch,
-                                      reference: .branch("main")
-                ).save(on: app.db)
-            }
-            do {
-                try await App.Version(package: pkg,
-                                      latest: .release,
-                                      reference: .tag(1, 2, 3)
-                ).save(on: app.db)
-            }
-            do {
-                try await App.Version(package: pkg,
-                                      latest: .preRelease,
-                                      reference: .tag(2, 0, 0, "b1")
-                ).save(on: app.db)
-            }
-        }
+        let pkg = try savePackage(on: app.db, "1".url)
+        try await Repository(package: pkg,
+                             defaultBranch: "main",
+                             forks: 42,
+                             license: .mit,
+                             name: "bar",
+                             owner: "foo",
+                             stars: 17,
+                             summary: "summary").save(on: app.db)
+        try await App.Version(package: pkg,
+                              latest: .defaultBranch,
+                              reference: .branch("main")).save(on: app.db)
+        try await App.Version(package: pkg,
+                              latest: .release,
+                              reference: .tag(1, 2, 3)).save(on: app.db)
+        try await App.Version(package: pkg,
+                              latest: .preRelease,
+                              reference: .tag(2, 0, 0, "b1")).save(on: app.db)
 
         // MUT
         let res = try await PackageController.PackageResult
@@ -65,68 +54,93 @@ class PackageResultTests: AppTestCase {
 
     func test_joined5_no_preRelease() async throws {
         do {
-            // FIXME: add unrelated package and version to test right/left join correctness
             let pkg = try savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  forks: 42,
                                  license: .mit,
-                                 name: "bar",
+                                 name: "bar1",
                                  owner: "foo",
                                  stars: 17,
                                  summary: "summary").save(on: app.db)
-            do {
-                try await App.Version(package: pkg,
-                                      latest: .defaultBranch,
-                                      reference: .branch("main")
-                ).save(on: app.db)
-            }
-            do {
-                try await App.Version(package: pkg,
-                                      latest: .release,
-                                      reference: .tag(1, 2, 3)
-                ).save(on: app.db)
-            }
+            try await App.Version(package: pkg,
+                                  latest: .defaultBranch,
+                                  reference: .branch("main")).save(on: app.db)
+            try await App.Version(package: pkg,
+                                  latest: .release,
+                                  reference: .tag(1, 2, 3)).save(on: app.db)
+        }
+        do {
+            // unrelated package to test join behaviour
+            let pkg = try savePackage(on: app.db, "2".url)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 forks: 42,
+                                 license: .mit,
+                                 name: "bar2",
+                                 owner: "foo",
+                                 stars: 17,
+                                 summary: "summary").save(on: app.db)
+            try await App.Version(package: pkg,
+                                  latest: .defaultBranch,
+                                  reference: .branch("main")).save(on: app.db)
+            try await App.Version(package: pkg,
+                                  latest: .release,
+                                  reference: .tag(1, 2, 3)).save(on: app.db)
         }
 
         // MUT
         let res = try await PackageController.PackageResult
-            .query(on: app.db, owner: "foo", repository: "bar")
+            .query(on: app.db, owner: "foo", repository: "bar1")
 
         // validate
         XCTAssertEqual(res.model.url, "1")
-        XCTAssertEqual(res.repository.name, "bar")
+        XCTAssertEqual(res.repository.name, "bar1")
         XCTAssertEqual(res.defaultBranchVersion.reference, .branch("main"))
         XCTAssertEqual(res.releaseVersion?.reference, .tag(1, 2, 3))
     }
 
     func test_joined5_defaultBranch_only() async throws {
         do {
-            // FIXME: add unrelated package and version to test right/left join correctness
             let pkg = try savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  forks: 42,
                                  license: .mit,
-                                 name: "bar",
+                                 name: "bar1",
                                  owner: "foo",
                                  stars: 17,
                                  summary: "summary").save(on: app.db)
-            do {
-                try await App.Version(package: pkg,
-                                      latest: .defaultBranch,
-                                      reference: .branch("main")
-                ).save(on: app.db)
-            }
+            try await App.Version(package: pkg,
+                                  latest: .defaultBranch,
+                                  reference: .branch("main")).save(on: app.db)
+        }
+        do {
+            // unrelated package to test join behaviour
+            let pkg = try savePackage(on: app.db, "2".url)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 forks: 42,
+                                 license: .mit,
+                                 name: "bar2",
+                                 owner: "foo",
+                                 stars: 17,
+                                 summary: "summary").save(on: app.db)
+            try await App.Version(package: pkg,
+                                  latest: .defaultBranch,
+                                  reference: .branch("main")).save(on: app.db)
+            try await App.Version(package: pkg,
+                                  latest: .release,
+                                  reference: .tag(1, 2, 3)).save(on: app.db)
         }
 
         // MUT
         let res = try await PackageController.PackageResult
-            .query(on: app.db, owner: "foo", repository: "bar")
+            .query(on: app.db, owner: "foo", repository: "bar1")
 
         // validate
         XCTAssertEqual(res.model.url, "1")
-        XCTAssertEqual(res.repository.name, "bar")
+        XCTAssertEqual(res.repository.name, "bar1")
         XCTAssertEqual(res.defaultBranchVersion.reference, .branch("main"))
     }
 
@@ -195,7 +209,6 @@ class PackageResultTests: AppTestCase {
         try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
         let pr = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
         
-        
         // MUT
         let res = pr.activity()
         
@@ -208,6 +221,105 @@ class PackageResultTests: AppTestCase {
                                                      url: "https://github.com/Alamofire/Alamofire/pulls"),
                              lastIssueClosedAt: "5 days ago",
                              lastPullRequestClosedAt: "6 days ago"))
+    }
+
+    func test_documentationTarget() async throws {
+        // Test documentationTarget. Variations are covered in ArrayExtensionTests, this test
+        // is just to ensure it's wired up correctly.
+        // setup
+        do {
+            let pkg = try savePackage(on: app.db, "1".url)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 forks: 42,
+                                 license: .mit,
+                                 name: "bar",
+                                 owner: "foo",
+                                 stars: 17,
+                                 summary: "summary").save(on: app.db)
+            try await App.Version(package: pkg,
+                                  docArchives: [.init(name: "foo", title: "Foo")],
+                                  latest: .defaultBranch,
+                                  reference: .branch("main")).save(on: app.db)
+            try await App.Version(package: pkg,
+                                  latest: .release,
+                                  reference: .tag(1, 2, 3)).save(on: app.db)
+            try await App.Version(package: pkg,
+                                  latest: .preRelease,
+                                  reference: .tag(2, 0, 0, "b1")).save(on: app.db)
+        }
+
+        // MUT
+        let res = try await PackageController.PackageResult
+            .query(on: app.db, owner: "foo", repository: "bar")
+
+        // validate
+        XCTAssertEqual(res.documentationTarget(), .internal(reference: "main", archive: "foo"))
+    }
+
+    func test_hasDocumentation() async throws {
+        // setup
+        do {
+            // first package has docs
+            let pkg = try savePackage(on: app.db, "1".url)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 forks: 42,
+                                 license: .mit,
+                                 name: "bar1",
+                                 owner: "foo",
+                                 stars: 17,
+                                 summary: "summary").save(on: app.db)
+            do {
+                try await App.Version(package: pkg,
+                                      docArchives: [.init(name: "foo", title: "Foo")],
+                                      latest: .defaultBranch,
+                                      reference: .branch("main")).save(on: app.db)
+            }
+            do {
+                try await App.Version(package: pkg,
+                                      latest: .release,
+                                      reference: .tag(1, 2, 3)).save(on: app.db)
+            }
+            do {
+                try await App.Version(package: pkg,
+                                      latest: .preRelease,
+                                      reference: .tag(2, 0, 0, "b1")).save(on: app.db)
+            }
+        }
+        do {
+            // seconds package doesn't have docs
+            let pkg = try savePackage(on: app.db, "2".url)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 forks: 42,
+                                 license: .mit,
+                                 name: "bar2",
+                                 owner: "foo",
+                                 stars: 17,
+                                 summary: "summary").save(on: app.db)
+            try await App.Version(package: pkg,
+                                  latest: .defaultBranch,
+                                  reference: .branch("main")).save(on: app.db)
+        }
+
+        do {
+            // MUT
+            let res = try await PackageController.PackageResult
+                .query(on: app.db, owner: "foo", repository: "bar1")
+            
+            // validate
+            XCTAssertEqual(res.hasDocumentation(), true)
+        }
+
+        do {
+            // MUT
+            let res = try await PackageController.PackageResult
+                .query(on: app.db, owner: "foo", repository: "bar2")
+
+            // validate
+            XCTAssertEqual(res.hasDocumentation(), false)
+        }
     }
 
 }

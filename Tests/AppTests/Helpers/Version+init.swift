@@ -11,6 +11,7 @@ extension Version {
                      package: Package,
                      commit: CommitHash = "",
                      commitDate: Date = .distantPast,
+                     docArchives: [DocArchive]? = nil,
                      latest: Kind? = nil,
                      packageName: String? = nil,
                      publishedAt: Date? = nil,
@@ -27,6 +28,7 @@ extension Version {
         self.$package.id = try package.requireID()
         self.commit = commit
         self.commitDate = commitDate
+        self.docArchives = docArchives
         self.latest = latest
         self.packageName = packageName
         self.publishedAt = publishedAt
