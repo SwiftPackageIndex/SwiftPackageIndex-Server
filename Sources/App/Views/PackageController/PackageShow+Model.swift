@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright 2020-2022 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -273,6 +273,7 @@ extension PackageShow.Model {
     }
 
     func authorsListItem() -> Node<HTML.ListContext> {
+        guard Environment.current == .development else { return .empty }
         guard let authors else { return .empty }
         var nodes = authors.authors.map { author -> Node<HTML.BodyContext> in
             if let authorURL = author.url {
