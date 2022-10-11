@@ -272,6 +272,10 @@ class PackageController_routesTests: AppTestCase {
             XCTAssertEqual($0.status, .seeOther)
             XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo")
         }
+        try app.test(.GET, "/owner/package/documentation/foo#anchor") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo#anchor")
+        }
     }
 
     func test_documentationRoot_redirect() throws {
