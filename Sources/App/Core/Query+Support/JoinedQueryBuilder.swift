@@ -40,6 +40,19 @@ struct JoinedQueryBuilder<J: ModelInitializable> {
         return self
     }
 
+    @discardableResult
+    public func group(
+        _ relation: DatabaseQuery.Filter.Relation = .and,
+        _ closure: (QueryBuilder<J.M>) throws -> ()
+    ) rethrows -> Self {
+        let group = QueryBuilder<J.M>(database: queryBuilder.database)
+        try closure(group)
+        if !group.query.filters.isEmpty {
+            queryBuilder.query.filters.append(.group(group.query.filters, relation))
+        }
+        return self
+    }
+
     func sort(_ sort: DatabaseQuery.Sort) -> Self {
         // the queryBuilder method is not marked with `@discardableResult`
         // (perhaps an oversight), therefore we need to ignore the return

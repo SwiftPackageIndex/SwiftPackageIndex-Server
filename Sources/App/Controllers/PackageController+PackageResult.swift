@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright 2020-2022 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,38 +66,6 @@ extension PackageController.PackageResult {
     }
 }
 
-extension PackageController.PackageResult {
-    var defaultDocumentationUrl: String? {
-        guard let repositoryOwner = repository.owner,
-              let repositoryName = repository.name
-        else { return nil }
-
-        if let spiManifest = defaultBranchVersion.spiManifest,
-           let externalDocumentationString = spiManifest.externalLinks?.documentation,
-           let externalDocumentationUrl = URL(string: externalDocumentationString) {
-            // External documentation links have priority over generated documentation.
-            return externalDocumentationUrl.absoluteString
-        } else if let releaseVersion = releaseVersion,
-                  let releaseVersionDocArchive = releaseVersion.docArchives?.first {
-            // Ideal case is that we have a stable release documentation.
-            return DocumentationPageProcessor.relativeDocumentationURL(
-                owner: repositoryOwner,
-                repository: repositoryName,
-                reference: "\(releaseVersion.reference)",
-                docArchive: releaseVersionDocArchive.name)
-        } else if let defaultBranchDocArchive = defaultBranchVersion.docArchives?.first {
-            // Fallback is default branch documentation.
-            return DocumentationPageProcessor.relativeDocumentationURL(
-                owner: repositoryOwner,
-                repository: repositoryName,
-                reference: "\(defaultBranchVersion.reference)",
-                docArchive: defaultBranchDocArchive.name)
-        } else {
-            // There is no default dodcumentation.
-            return nil
-        }
-    }
-}
 
 final class DefaultVersion: ModelAlias, Joinable {
     static let name = "default_version"
@@ -112,4 +80,15 @@ final class ReleaseVersion: ModelAlias, Joinable {
 final class PreReleaseVersion: ModelAlias, Joinable {
     static let name = "pre_release_version"
     let model = Version()
+}
+
+
+extension PackageController.PackageResult {
+    func hasDocumentation() -> Bool { documentationTarget() != nil }
+
+    func documentationTarget() -> DocumentationTarget? {
+        return [defaultBranchVersion.model, releaseVersion?.model, preReleaseVersion?.model]
+            .compactMap { $0 }
+            .documentationTarget()
+    }
 }

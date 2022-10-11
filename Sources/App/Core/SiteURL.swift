@@ -339,3 +339,23 @@ struct QueryParameter {
         return "\(key)=\(value)"
     }
 }
+
+
+extension SiteURL {
+    static func relativeURL(owner: String,
+                            repository: String,
+                            documentation: DocumentationTarget,
+                            path: String = "") -> String {
+        switch documentation {
+            case .external(let url):
+                return path.isEmpty
+                ? url
+                : url + "/" + path
+
+            case let .internal(reference, archive):
+                return path.isEmpty
+                ? "/\(owner)/\(repository)/\(reference)/documentation/\(archive.lowercased())"
+                : "/\(owner)/\(repository)/\(reference)/documentation/\(path)"
+        }
+    }
+}
