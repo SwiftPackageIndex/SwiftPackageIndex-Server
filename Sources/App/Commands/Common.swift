@@ -91,8 +91,8 @@ func recordError(database: Database,
             return setStatus(id: id, status: .ingestionFailed)
         case let .invalidPackageCachePath(id, _):
             return setStatus(id: id, status: .invalidCachePath)
-        case let .unexistentPackageCacheDir(id, _):
-            return setStatus(id: id, status: .unexistentCacheDir)
+        case let .cacheDirectoryDoesNotExist(id, _):
+            return setStatus(id: id, status: .cacheDirectoryDoesNotExist)
         case let .invalidPackageUrl(id, _):
             return setStatus(id: id, status: .invalidUrl)
         case let .invalidRevision(id, _):

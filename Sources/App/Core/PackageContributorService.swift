@@ -42,7 +42,7 @@ struct GitHistoryLoader {
     private static func queryVCHistory(cacheDirPath: String, packageID: UUID?) throws -> String {
         
         if !Current.fileManager.fileExists(atPath: cacheDirPath) {
-            throw AppError.unexistentPackageCacheDir(packageID, cacheDirPath)
+            throw AppError.cacheDirectoryDoesNotExist(packageID, cacheDirPath)
         }
 
         // attempt to shortlog
@@ -62,7 +62,7 @@ struct GitHistoryLoader {
         for line in log.components(separatedBy: .newlines) {
             let log = line.split(whereSeparator: { $0 == " " || $0 == "\t"})
             
-            if (log.count != 2) {
+            if (log.count > 2) {
                 var identifier = [String]()
                 for i in 1..<(log.count - 1) {
                     identifier.append(String(log[i]))
