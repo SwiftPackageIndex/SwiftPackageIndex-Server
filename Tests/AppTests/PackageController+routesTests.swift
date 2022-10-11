@@ -229,6 +229,51 @@ class PackageController_routesTests: AppTestCase {
         )
     }
 
+    func test_defaultDocumentation() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+                .init(status: .notFound)
+        }
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "0123456789",
+                    commitDate: .t0,
+                    docArchives: [.init(name: "docs", title: "Docs")],
+                    latest: .defaultBranch,
+                    packageName: "pkg",
+                    reference: .branch("main"))
+        .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "9876543210",
+                    commitDate: .t0,
+                    docArchives: [.init(name: "docs", title: "Docs")],
+                    latest: .release,
+                    packageName: "pkg",
+                    reference: .tag(1, 0, 0))
+        .save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/documentation") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/docs")
+        }
+        try app.test(.GET, "/owner/package/documentation/docs/symbol") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/docs/symbol")
+        }
+        // There is nothing magic about the catchall - authors need to make sure they point
+        // the path after `documentation/` at a valid doc path. We do not try and map it to
+        // generated docs (i.e. `docs` in this test) as that would prevent them from
+        // cross-target linking.
+        // Effectively, all we're doing is inserting the correct `ref` before `documentation`.
+        try app.test(.GET, "/owner/package/documentation/foo") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo")
+        }
+    }
+
     func test_documentationRoot_redirect() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
@@ -239,7 +284,7 @@ class PackageController_routesTests: AppTestCase {
             .save(on: app.db).wait()
         try Version(package: pkg,
                     commit: "0123456789",
-                    commitDate: Date(timeIntervalSince1970: 0),
+                    commitDate: .t0,
                     docArchives: [.init(name: "docs", title: "Docs")],
                     latest: .defaultBranch,
                     packageName: "pkg",
@@ -247,11 +292,11 @@ class PackageController_routesTests: AppTestCase {
         .save(on: app.db).wait()
         try Version(package: pkg,
                     commit: "9876543210",
-                    commitDate: Date(timeIntervalSince1970: 0),
+                    commitDate: .t0,
                     docArchives: [.init(name: "docs", title: "Docs")],
                     latest: .release,
                     packageName: "pkg",
-                    reference: .tag(.init(1, 0, 0), "1.0.0"))
+                    reference: .tag(1, 0, 0))
         .save(on: app.db).wait()
 
         // MUT
@@ -273,7 +318,7 @@ class PackageController_routesTests: AppTestCase {
             .save(on: app.db).wait()
         try Version(package: pkg,
                     commit: "0123456789",
-                    commitDate: Date(timeIntervalSince1970: 0),
+                    commitDate: .t0,
                     docArchives: [], // No docArchives!
                     latest: .defaultBranch,
                     packageName: "pkg",
@@ -281,11 +326,11 @@ class PackageController_routesTests: AppTestCase {
         .save(on: app.db).wait()
         try Version(package: pkg,
                     commit: "9876543210",
-                    commitDate: Date(timeIntervalSince1970: 0),
+                    commitDate: .t0,
                     docArchives: [], // No docArchives!
                     latest: .release,
                     packageName: "pkg",
-                    reference: .tag(.init(1, 0, 0), "1.0.0"))
+                    reference: .tag(1, 0, 0))
         .save(on: app.db).wait()
 
         // MUT
@@ -308,11 +353,11 @@ class PackageController_routesTests: AppTestCase {
             .save(on: app.db).wait()
         try Version(package: pkg,
                     commit: "0123456789",
-                    commitDate: Date(timeIntervalSince1970: 0),
+                    commitDate: .t0,
                     docArchives: [.init(name: "docs", title: "Docs")],
                     latest: .defaultBranch,
                     packageName: "pkg",
-                    reference: .tag(.init(1, 2, 3)))
+                    reference: .tag(1, 2, 3))
             .save(on: app.db).wait()
 
         // MUT
@@ -595,3 +640,9 @@ class PackageController_routesTests: AppTestCase {
 
 
 private struct FetchError: Error { }
+
+private extension HTTPHeaders {
+    var location: String? {
+        self.first(name: .location)
+    }
+}
