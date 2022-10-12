@@ -155,3 +155,6 @@ run-stylelint-auto-fix:
 	docker run --rm -v $$PWD:/host -w /host --entrypoint sh node:18-alpine -c "/usr/local/bin/yarn && /usr/local/bin/yarn run stylelint --fix --config .stylelintrc.js 'FrontEnd/**/*.scss'"
 
 lint-front-end-auto-fix: run-prettier-auto-fix run-stylelint-auto-fix
+
+periphery:
+	periphery scan --quiet
