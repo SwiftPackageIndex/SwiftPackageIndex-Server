@@ -42,7 +42,7 @@ struct JoinedQueryBuilder<J: ModelInitializable> {
     }
 
     @discardableResult
-    public func group(
+    func group(
         _ relation: DatabaseQuery.Filter.Relation = .and,
         _ closure: (QueryBuilder<J.M>) throws -> ()
     ) rethrows -> Self {
