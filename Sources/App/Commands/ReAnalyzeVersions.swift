@@ -200,7 +200,7 @@ enum ReAnalyzeVersions {
                                                              before: cutoffDate)
                 logger.info("Updating \(versions.count) versions (id: \(pkg.model.id)) ...")
 
-                try await setUpdatedAt(on: tx, package: pkg, versions: versions)
+                try await setUpdatedAt(on: tx, versions: versions)
 
                 Analyze.mergeReleaseInfo(package: pkg, into: versions)
 
@@ -240,7 +240,7 @@ enum ReAnalyzeVersions {
     }
 
 
-    static func setUpdatedAt(on database: Database, package: Joined<Package, Repository>, versions: [Version]) async throws {
+    static func setUpdatedAt(on database: Database, versions: [Version]) async throws {
         for version in versions {
             version.updatedAt = Current.date()
         }

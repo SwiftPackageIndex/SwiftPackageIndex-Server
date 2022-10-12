@@ -15,18 +15,14 @@
 import SQLKit
 
 
-public struct SQLOrderByGroup: SQLExpression {
-    public let orderByClauses: [SQLOrderBy]
+struct SQLOrderByGroup: SQLExpression {
+    let orderByClauses: [SQLOrderBy]
 
-    public init(_ orderby: SQLOrderBy...) {
+    init(_ orderby: [SQLOrderBy]) {
         self.orderByClauses = orderby
     }
 
-    public init(_ orderby: [SQLOrderBy]) {
-        self.orderByClauses = orderby
-    }
-
-    public func serialize(to serializer: inout SQLSerializer) {
+    func serialize(to serializer: inout SQLSerializer) {
         guard let first = orderByClauses.first else { return }
         first.serialize(to: &serializer)
         for clause in orderByClauses.dropFirst() {

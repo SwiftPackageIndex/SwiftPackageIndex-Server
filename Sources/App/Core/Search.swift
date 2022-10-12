@@ -21,7 +21,6 @@ enum Search {
     static let schema = "search"
 
     // identifiers
-    static let author = SQLIdentifier("author")
     static let hasDocs = SQLIdentifier("has_docs")
     static let keyword = SQLIdentifier("keyword")
     static let keywords = SQLIdentifier("keywords")
@@ -63,10 +62,6 @@ enum Search {
 
         var sqlAlias: SQLAlias {
             SQLAlias(literal,as: Self.identifier)
-        }
-
-        static func equals(_ value: MatchType) -> SQLExpression {
-            eq(MatchType.identifier, value.literal)
         }
     }
 
@@ -110,15 +105,6 @@ enum Search {
                 let name = repositoryName
             else { return nil }
             return SiteURL.package(.value(owner), .value(name), .none).relativeURL()
-        }
-
-        var isPackage: Bool {
-            switch matchType {
-                case .author, .keyword:
-                    return false
-                case .package:
-                    return true
-            }
         }
     }
 

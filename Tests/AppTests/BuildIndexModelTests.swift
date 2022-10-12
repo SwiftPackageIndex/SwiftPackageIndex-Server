@@ -219,4 +219,3 @@ class BuildIndexModelTests: AppTestCase {
 fileprivate typealias BuildCell = BuildIndex.Model.BuildCell
 fileprivate typealias BuildInfo = BuildIndex.Model.BuildInfo
 fileprivate typealias BuildItem = BuildIndex.Model.BuildItem
-fileprivate typealias RowIndex = BuildIndex.Model.RowIndex

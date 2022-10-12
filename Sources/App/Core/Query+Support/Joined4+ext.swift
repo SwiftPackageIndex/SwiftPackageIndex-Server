@@ -16,10 +16,14 @@ import Fluent
 import Vapor
 
 extension Joined4 where M == Package, R1 == Repository, R2 == Version, R3 == Product {
+    // periphery:ignore
     var package: Package { model }
     // Safe to force unwrap all relationshipts due to inner joins
+    // periphery:ignore
     var repository: Repository { relation1! }
+    // periphery:ignore
     var version: Version { relation2! }
+    // periphery:ignore
     var product: Product { relation3! }
 
     static func query(on database: Database, owner: String, repository: String) -> JoinedQueryBuilder<Self> {

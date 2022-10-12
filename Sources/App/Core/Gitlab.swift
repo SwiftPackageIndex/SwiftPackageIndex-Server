@@ -139,6 +139,7 @@ extension Gitlab.Builder {
         case success
     }
 
+    // periphery:ignore
     struct Pipeline: Decodable {
         var id: Int
         var status: Status

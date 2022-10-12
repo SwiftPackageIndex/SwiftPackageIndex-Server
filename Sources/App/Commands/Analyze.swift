@@ -247,7 +247,6 @@ extension Analyze {
 
         await onNewVersions(client: client,
                             logger: logger,
-                            transaction: transaction,
                             package: package,
                             versions: newVersions)
     }
@@ -712,12 +711,10 @@ extension Analyze {
     ///   - versions: array of new `Versions`s
     static func onNewVersions(client: Client,
                               logger: Logger,
-                              transaction: Database,
                               package: Joined<Package, Repository>,
                               versions: [Version]) async {
         do {
             try await Twitter.postToFirehose(client: client,
-                                             database: transaction,
                                              package: package,
                                              versions: versions).get()
         } catch {

@@ -48,7 +48,7 @@ enum PackageController {
                 AppMetrics.packageShowMissingTotal?.inc()
                 return MissingPackage.View(path: req.url.path, model: model)
                     .document()
-                    .encodeResponse(for: req, status: .notFound)
+                    .encodeResponse(status: .notFound)
             case .packageDoesNotExist:
                 // If GitHub 404s, we throw notFound, which will render our standard 404 page.
                 AppMetrics.packageShowNonexistentTotal?.inc()

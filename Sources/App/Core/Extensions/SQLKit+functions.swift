@@ -21,22 +21,14 @@ func any(_ array: SQLExpression) -> SQLFunction {
     SQLFunction("ANY", args: array)
 }
 
+
 func arrayToString(_ array: SQLExpression, delimiter: String) -> SQLFunction {
     SQLFunction("ARRAY_TO_STRING", args: array, SQLLiteral.string(delimiter))
-}
-
-func concat(_ args: SQLExpression...) -> SQLFunction {
-    SQLFunction("CONCAT", args: args)
 }
 
 
 func concat(with separator: String, _ args: SQLExpression...) -> SQLFunction {
     SQLFunction("CONCAT_WS", args: [SQLLiteral.string(separator)] + args)
-}
-
-
-func count(_ args: SQLExpression...) -> SQLFunction {
-    SQLFunction("COUNT", args: args)
 }
 
 
@@ -52,13 +44,6 @@ func lower(_ arg: SQLExpression) -> SQLFunction {
 
 func unnest(_ array: SQLExpression) -> SQLFunction {
     SQLFunction("UNNEST", args: array)
-}
-
-func to_tsvector(_ array: SQLExpression) -> SQLFunction {
-    // The argument is meant to be a string, which this wraps and converts
-    // first into a tsvector internal type, and then applies weighting
-    // for query ranking purposes.
-    SQLFunction("to_tsvector", args: array)
 }
 
 func plainto_tsquery(_ array: SQLExpression) -> SQLFunction {

@@ -21,6 +21,7 @@ import SQLKit
 struct RecentRelease: Decodable, Equatable {
     static let schema = "recent_releases"
     
+    // periphery:ignore
     var packageId: UUID
     var repositoryOwner: String
     var repositoryName: String
@@ -65,7 +66,7 @@ extension RecentRelease {
     }
     
     static func fetch(on database: Database,
-                      limit: Int = Constants.recentPackagesLimit,
+                      limit: Int = Constants.recentReleasesLimit,
                       filter: Filter = .all) -> EventLoopFuture<[RecentRelease]> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")

@@ -29,6 +29,7 @@ final class Product: Model, Content {
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
     
+    // periphery:ignore
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
     
@@ -113,13 +114,6 @@ enum ProductType: Codable, Equatable {
             default: return false
         }
     }
-}
-
-
-extension Product {
-    var isLibrary: Bool { type?.isLibrary ?? false }
-    var isExecutable: Bool { type?.isExecutable ?? false }
-    var isPlugin: Bool { type?.isPlugin ?? false }
 }
 
 

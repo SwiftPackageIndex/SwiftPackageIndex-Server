@@ -15,6 +15,7 @@
 import Foundation
 
 
+// periphery:ignore
 extension UUID {
     static var id0: Self { UUID(uuidString: "5974d34d-b2b9-4cdb-9580-e1ac74cb579d")! }
     static var id1: Self { UUID(uuidString: "e879173a-dc19-4949-8014-f7b6dafbf0ce")! }

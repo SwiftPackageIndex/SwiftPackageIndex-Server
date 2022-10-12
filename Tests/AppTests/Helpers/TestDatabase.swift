@@ -31,45 +31,6 @@ final class TestDatabase: SQLDatabase {
     }
 }
 
-struct TestRow: SQLRow {
-    enum Datum { // yes, this is just Optional by another name
-        case some(Encodable)
-        case none
-    }
-
-    var data: [String: Datum]
-
-    enum _Error: Error {
-        case missingColumn(String)
-        case typeMismatch(Any, Any.Type)
-    }
-
-    var allColumns: [String] {
-        .init(self.data.keys)
-    }
-
-    func contains(column: String) -> Bool {
-        self.data.keys.contains(column)
-    }
-
-    func decodeNil(column: String) throws -> Bool {
-        if case .some(.none) = self.data[column] { return true }
-        return false
-    }
-
-    func decode<D>(column: String, as type: D.Type) throws -> D
-        where D : Decodable
-    {
-        guard case let .some(.some(value)) = self.data[column] else {
-            throw _Error.missingColumn(column)
-        }
-        guard let cast = value as? D else {
-            throw _Error.typeMismatch(value, D.self)
-        }
-        return cast
-    }
-}
-
 struct GenericDialect: SQLDialect {
     var name: String { "generic" }
 
@@ -88,10 +49,5 @@ struct GenericDialect: SQLDialect {
     var alterTableSyntax = SQLAlterTableSyntax(alterColumnDefinitionClause: SQLRaw("MODIFY"), alterColumnDefinitionTypeKeyword: nil)
     var upsertSyntax: SQLUpsertSyntax = .standard
     var unionFeatures: SQLUnionFeatures = []
-
-    mutating func setTriggerSyntax(create: SQLTriggerSyntax.Create = [], drop: SQLTriggerSyntax.Drop = []) {
-        self.triggerSyntax.create = create
-        self.triggerSyntax.drop = drop
-    }
 }
 

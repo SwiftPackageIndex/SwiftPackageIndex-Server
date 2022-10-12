@@ -90,18 +90,10 @@ extension BuildIndex.Model {
 
         var isCompleted: Bool { status.isCompleted }
 
-        init?(_ build: App.Build) {
-            guard let id = build.id else { return nil }
-            self.init(id: id,
-                      swiftVersion: build.swiftVersion,
-                      platform: build.platform,
-                      status: build.status)
-        }
-
-        internal init(id: App.Build.Id,
-                      swiftVersion: App.SwiftVersion,
-                      platform: App.Build.Platform,
-                      status: App.Build.Status) {
+        init(id: App.Build.Id,
+             swiftVersion: App.SwiftVersion,
+             platform: App.Build.Platform,
+             status: App.Build.Status) {
             self.id = id
             self.platform = platform
             self.status = status

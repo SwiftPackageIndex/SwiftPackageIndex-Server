@@ -31,17 +31,6 @@ extension XCTestCase {
         ProcessInfo.processInfo.environment.keys.contains("RUN_QUERY_PERFORMANCE_TESTS")
     }
 
-    func assertEquals<Root, Value: Equatable>(_ keyPath: KeyPath<Root, Value>,
-                                              _ value1: Root,
-                                              _ value2: Root,
-                                              file: StaticString = #file,
-                                              line: UInt = #line) {
-        XCTAssertEqual(value1[keyPath: keyPath],
-                       value2[keyPath: keyPath],
-                       "\(value1[keyPath: keyPath]) not equal to \(value2[keyPath: keyPath])",
-                       file: (file), line: line)
-    }
-    
     func assertEquals<Root, Value: Equatable>(_ values: [Root],
                                               _ keyPath: KeyPath<Root, Value>,
                                               _ expectations: [Value],

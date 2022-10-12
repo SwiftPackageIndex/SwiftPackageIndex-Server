@@ -31,7 +31,6 @@ extension PackageShow {
         var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
         var platformBuildInfo: BuildInfo<PlatformResults>?
         var history: History?
-        var languagePlatforms: LanguagePlatformInfo
         var license: License
         var licenseUrl: String?
         var productCounts: ProductCounts?
@@ -59,7 +58,6 @@ extension PackageShow {
                       swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil,
                       platformBuildInfo: BuildInfo<PlatformResults>? = nil,
                       history: History? = nil,
-                      languagePlatforms: LanguagePlatformInfo,
                       license: License,
                       licenseUrl: String? = nil,
                       productCounts: ProductCounts? = nil,
@@ -86,7 +84,6 @@ extension PackageShow {
             self.swiftVersionBuildInfo = swiftVersionBuildInfo
             self.platformBuildInfo = platformBuildInfo
             self.history = history
-            self.languagePlatforms = languagePlatforms
             self.license = license
             self.licenseUrl = licenseUrl
             self.productCounts = productCounts
@@ -131,11 +128,6 @@ extension PackageShow {
                 swiftVersionBuildInfo: swiftVersionBuildInfo,
                 platformBuildInfo: platformBuildInfo,
                 history: history,
-                languagePlatforms: Self.languagePlatformInfo(
-                    packageUrl: result.package.url,
-                    defaultBranchVersion: result.defaultBranchVersion,
-                    releaseVersion: result.releaseVersion,
-                    preReleaseVersion: result.preReleaseVersion),
                 license: repository.license,
                 licenseUrl: repository.licenseUrl,
                 productCounts: productCounts,
@@ -162,21 +154,6 @@ extension PackageShow {
                 weightedKeywords: weightedKeywords
             )
 
-        }
-    }
-
-    struct GeneratedDocumentationMetadata: Equatable {
-        let reference: String
-        let defaultArchive: String
-
-        init?(reference: String?, defaultArchive: String?) {
-            guard
-                let reference = reference,
-                let defaultArchive = defaultArchive
-            else { return nil }
-
-            self.reference = reference
-            self.defaultArchive = defaultArchive
         }
     }
 
@@ -668,13 +645,6 @@ extension License.Kind {
             case .none: return "no-license"
             case .incompatibleWithAppStore, .other: return "incompatible_license"
             case .compatibleWithAppStore: return "compatible_license"
-        }
-    }
-
-    var iconName: String {
-        switch self {
-            case .compatibleWithAppStore: return "osi"
-            case .incompatibleWithAppStore, .other, .none: return "warning"
         }
     }
 }

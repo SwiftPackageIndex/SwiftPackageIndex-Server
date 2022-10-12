@@ -105,8 +105,7 @@ extension Twitter {
                       url: "\(url)#releases")
     }
 
-    static func firehoseMessage(db: Database,
-                                package: Joined<Package, Repository>,
+    static func firehoseMessage(package: Joined<Package, Repository>,
                                 version: Version) -> String? {
         guard let packageName = version.packageName,
               let repoName = package.repository?.name,
@@ -128,14 +127,12 @@ extension Twitter {
     }
 
     static func postToFirehose(client: Client,
-                               database: Database,
                                package: Joined<Package, Repository>,
                                version: Version) -> EventLoopFuture<Void> {
         guard Current.allowTwitterPosts() else {
             return client.eventLoop.future(error: Error.postingDisabled)
         }
-        guard let message = firehoseMessage(db: database,
-                                            package: package,
+        guard let message = firehoseMessage(package: package,
                                             version: version)
         else {
             return client.eventLoop.future(error: Error.invalidMessage)
@@ -144,7 +141,6 @@ extension Twitter {
     }
 
     static func postToFirehose(client: Client,
-                               database: Database,
                                package: Joined<Package, Repository>,
                                versions: [Version]) -> EventLoopFuture<Void> {
         let (release, preRelease, defaultBranch) = Package.findSignificantReleases(
@@ -160,7 +156,6 @@ extension Twitter {
         }
         return versions.map {
             postToFirehose(client: client,
-                           database: database,
                            package: package,
                            version: $0)
         }

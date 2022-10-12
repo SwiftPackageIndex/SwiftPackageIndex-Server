@@ -13,18 +13,6 @@
 // limitations under the License.
 
 
-extension Result {
-    func getError() -> Error? {
-        switch self {
-            case .success:
-                return nil
-            case .failure(let error):
-                return error
-        }
-    }
-}
-
-
 extension Result where Failure == Error {
     init(catching body: () async throws -> Success) async {
         do {

@@ -90,10 +90,6 @@ extension SignedCollection {
 
 
 private extension ObservabilityScope {
-    static var logged: ObservabilityScope {
-        ObservabilitySystem { _, diagnostic in print(diagnostic) }.topScope
-    }
-
     static var ignored: ObservabilityScope {
         ObservabilitySystem { _, _ in }.topScope
     }

@@ -416,8 +416,3 @@ final class PackageTests: AppTestCase {
 func daysAgo(_ days: Int) -> Date {
     Calendar.current.date(byAdding: .init(day: -days), to: Current.date())!
 }
-
-
-typealias NamedBuildResults = PackageShow.Model.NamedBuildResults
-typealias SwiftVersionResults = PackageShow.Model.SwiftVersionResults
-typealias PlatformResults = PackageShow.Model.PlatformResults

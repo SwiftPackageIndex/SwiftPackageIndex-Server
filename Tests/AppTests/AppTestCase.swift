@@ -24,10 +24,6 @@ class AppTestCase: XCTestCase {
         app.eventLoopGroup.next().future(value)
     }
     
-    func future<T>(error: Error) -> EventLoopFuture<T> {
-        app.eventLoopGroup.next().future(error: error)
-    }
-
     override func setUp() async throws {
         try await super.setUp()
         app = try await setup(.testing)
