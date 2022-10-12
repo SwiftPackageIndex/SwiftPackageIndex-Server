@@ -531,10 +531,8 @@ class PackageController_routesTests: AppTestCase {
 
         // MUT
         try app.test(.GET, "/owner/package/tutorials") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/tutorials")
+            XCTAssertEqual($0.status, .notFound)
         }
-
         try app.test(.GET, "/owner/package/tutorials/foo") {
             XCTAssertEqual($0.status, .seeOther)
             XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/tutorials/foo")
