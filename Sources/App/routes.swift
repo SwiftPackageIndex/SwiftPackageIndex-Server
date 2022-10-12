@@ -56,12 +56,21 @@ func routes(_ app: Application) throws {
 
     do {  // package pages
         do {  // temporary, hacky docc-proxy
+            // default handlers (no ref)
             app.get(":owner", ":repository", "documentation") {
-                try await PackageController.defaultDocumentation(req: $0)
+                try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
             }
             app.get(":owner", ":repository", "documentation", "**") {
-                try await PackageController.defaultDocumentation(req: $0)
+                try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
             }
+            app.get(":owner", ":repository", "tutorials") {
+                try await PackageController.defaultDocumentation(req: $0, fragment: .tutorials)
+            }
+            app.get(":owner", ":repository", "tutorials", "**") {
+                try await PackageController.defaultDocumentation(req: $0, fragment: .tutorials)
+            }
+
+            // targeted handlers (with ref)
             app.get(":owner", ":repository", ":reference", "documentation") {
                 try await PackageController.documentation(req: $0)
             }
