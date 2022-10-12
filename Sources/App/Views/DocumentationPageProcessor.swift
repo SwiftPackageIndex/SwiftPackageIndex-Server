@@ -102,7 +102,9 @@ struct DocumentationPageProcessor {
                             owner: repositoryOwner,
                             repository: repositoryName,
                             documentation: .internal(reference: version.reference,
-                                                     archive: currentArchive.name))
+                                                     archive: currentArchive.name),
+                            fragment: .documentation
+                        )
                     ),
                     .span(
                         .class(version.kind.cssClass),
@@ -137,7 +139,8 @@ struct DocumentationPageProcessor {
                                         owner: repositoryOwner,
                                         repository: repositoryName,
                                         documentation: .internal(reference: reference,
-                                                                 archive: archive.name)
+                                                                 archive: archive.name),
+                                        fragment: .documentation
                                     )
                                 ),
                                 .text(archive.name)
@@ -176,7 +179,8 @@ struct DocumentationPageProcessor {
                                                             owner: repositoryOwner,
                                                             repository: repositoryName,
                                                             documentation: .internal(reference: latestStable.reference,
-                                                                                     archive: docArchive)
+                                                                                     archive: docArchive),
+                                                            fragment: .documentation
                                                         )
                                                     ),
                                                     .text("View latest documentation")

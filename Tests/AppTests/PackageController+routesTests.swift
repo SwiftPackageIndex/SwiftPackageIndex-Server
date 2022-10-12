@@ -504,6 +504,46 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
+    func test_defaultTutorial() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+                .init(status: .notFound)
+        }
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "0123456789",
+                    commitDate: .t0,
+                    docArchives: [.init(name: "docs", title: "Docs")],
+                    latest: .defaultBranch,
+                    packageName: "pkg",
+                    reference: .branch("main"))
+        .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "9876543210",
+                    commitDate: .t0,
+                    docArchives: [.init(name: "docs", title: "Docs")],
+                    latest: .release,
+                    packageName: "pkg",
+                    reference: .tag(1, 0, 0))
+        .save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/tutorials") {
+            XCTAssertEqual($0.status, .notFound)
+        }
+        try app.test(.GET, "/owner/package/tutorials/foo") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/tutorials/foo")
+        }
+        try app.test(.GET, "/owner/package/tutorials/foo#anchor") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/tutorials/foo#anchor")
+        }
+    }
+
+
     func test_favicon() throws {
         // setup
         Current.fetchDocumentation = { _, uri in

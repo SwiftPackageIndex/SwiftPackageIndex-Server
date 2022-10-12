@@ -345,17 +345,25 @@ extension SiteURL {
     static func relativeURL(owner: String,
                             repository: String,
                             documentation: DocumentationTarget,
+                            fragment: PackageController.Fragment,
                             path: String = "") -> String {
-        switch documentation {
-            case .external(let url):
+        switch (documentation, fragment) {
+            case (.external(let url), _):
                 return path.isEmpty
                 ? url
                 : url + "/" + path
 
-            case let .internal(reference, archive):
+            case let (.internal(reference, archive), .documentation):
+                // Point documentation fragment URLs at the archive unless there's a specific path given.
                 return path.isEmpty
-                ? "/\(owner)/\(repository)/\(reference)/documentation/\(archive.lowercased())"
-                : "/\(owner)/\(repository)/\(reference)/documentation/\(path)"
+                ? "/\(owner)/\(repository)/\(reference)/\(fragment)/\(archive.lowercased())"
+                : "/\(owner)/\(repository)/\(reference)/\(fragment)/\(path)"
+
+            case let (.internal(reference, _), _):
+                // All other fragments (for instance `tutorials`) default to just the fragment plus optionally the path.
+                return path.isEmpty
+                ? "/\(owner)/\(repository)/\(reference)/\(fragment)"
+                : "/\(owner)/\(repository)/\(reference)/\(fragment)/\(path)"
         }
     }
 }
