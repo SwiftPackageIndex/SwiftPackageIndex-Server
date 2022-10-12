@@ -20,10 +20,10 @@ class PackageContributorServiceTests : AppTestCase {
   
     func test_CommitSelector_filter() throws {
         
-        let candidates = [Contributor(numberOfCommits: 10, email: "tim@apple.com", name: "Tim"),
-                          Contributor(numberOfCommits: 100, email: "john@apple.com", name: "John"),
-                          Contributor(numberOfCommits: 900, email: "maria@apple.com", name: "Maria"),
-                          Contributor(numberOfCommits: 1000, email: "nathalie@apple.com", name: "Nathalie")]
+        let candidates = [Contributor(numberOfCommits: 10, name: "Tim"),
+                          Contributor(numberOfCommits: 100, name: "John"),
+                          Contributor(numberOfCommits: 900, name: "Maria"),
+                          Contributor(numberOfCommits: 1000, name: "Nathalie")]
         
         // MUT
         let authors = CommitSelector.filter(candidates: candidates, threshold: 0.6)
@@ -43,7 +43,7 @@ class PackageContributorServiceTests : AppTestCase {
     
     func test_CommitSelector_filter_singleCandidate() throws {
         // MUT
-        let authors = CommitSelector.filter(candidates: [Contributor(numberOfCommits: 10, email: "tim@apple.com", name: "Tim")], threshold: 0.6)
+        let authors = CommitSelector.filter(candidates: [Contributor(numberOfCommits: 10, name: "Tim")], threshold: 0.6)
         
         XCTAssertEqual(authors.count, 1)
         XCTAssertEqual(authors.map(\.name), ["Tim"] )
@@ -75,7 +75,7 @@ class PackageContributorServiceTests : AppTestCase {
         }
         
         // MUT
-        let pkgAuthors = try PackageContributors.extract(cacheDirPath: gitCacheDirectoryPath, packageID: pkg.id)
+        let pkgAuthors = try PackageContributors.extract(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: pkg.id)
         
         XCTAssertEqual(pkgAuthors.authors, [Author(name: "Person 1") ,
                                             Author(name: "Person 2"),

@@ -44,7 +44,6 @@ final class PackageContributors {
 struct Contributor {
     /// Total number of commits
     public let numberOfCommits: Int
-    public let email: String
     public let name: String
 }
 
@@ -89,9 +88,11 @@ struct GitHistoryLoader {
                 for i in 1..<(log.count - 1) {
                     identifier.append(String(log[i]))
                 }
-                
-                let committer = Contributor(numberOfCommits: Int(log.first!) ?? 0,
-                                            email: String(log.last!),
+                var numberOfCommits = 0
+                if (log.first != nil) {
+                    numberOfCommits = Int(log.first!) ?? 0
+                }
+                let committer = Contributor(numberOfCommits: numberOfCommits,
                                             name: identifier.joined(separator: " "))
                 committers.append(committer)
             }
