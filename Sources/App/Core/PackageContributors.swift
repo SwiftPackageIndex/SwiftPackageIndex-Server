@@ -17,46 +17,68 @@ import ShellOut
 import Vapor
 
 
-public struct Contributor {
+struct PackageAuthors : Encodable, Decodable, Equatable {
+    var authors : [Author]
+    var numberOfContributors : Int
+}
+
+final class PackageContributors {
+
+    /// Extracts the possible authors of the package according to the number of commits.
+    /// A contributor is considered an author when the number of commits is at least a 60 percent
+    /// of the maximum commits done by a contributor.
+    /// - Parameters:
+    ///   - gitCacheDirectoryPath: path to the cache directory where the clone of the package is stored
+    ///   - packageID: the UUID of the package
+    /// - Returns: PackageAuthors
+    static func extract(gitCacheDirectoryPath: String, packageID: UUID?) throws -> PackageAuthors {
+        let contributorsHistory = try GitHistoryLoader.loadContributorsHistory(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
+        let authors = CommitSelector.filter(candidates: contributorsHistory, threshold: 0.6)
+
+        return PackageAuthors(authors: authors.map { Author(name: $0.name) },
+                              numberOfContributors: contributorsHistory.count - authors.count)
+    }
+
+}
+
+struct Contributor {
     /// Total number of commits
     public let numberOfCommits: Int
     public let email: String
     public let name: String
-    
 }
-
 
 /// Loads the contributors history from a Git repository
 struct GitHistoryLoader {
     
-    static func loadContributorsHistory(cacheDirPath: String, packageID: UUID?) throws -> [Contributor] {
+    static func loadContributorsHistory(gitCacheDirectoryPath: String, packageID: UUID?) throws -> [Contributor] {
         do {
-            let commitHistory = try queryVCHistory(cacheDirPath: cacheDirPath, packageID: packageID)
-            return try parseVCHistory(log: commitHistory)
+            let commitHistory = try queryGitHistory(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
+            return try parseGitHistory(log: commitHistory)
         } catch {
             throw AppError.analysisError(packageID, "loadContributorsHistory failed: \(error.localizedDescription)")
         }
     }
     
-    /// Gets the version control history in a string log
-    private static func queryVCHistory(cacheDirPath: String, packageID: UUID?) throws -> String {
+    /// Gets the git history in a string log
+    private static func queryGitHistory(gitCacheDirectoryPath: String, packageID: UUID?) throws -> String {
         
-        if !Current.fileManager.fileExists(atPath: cacheDirPath) {
-            throw AppError.cacheDirectoryDoesNotExist(packageID, cacheDirPath)
+        if !Current.fileManager.fileExists(atPath: gitCacheDirectoryPath) {
+            throw AppError.cacheDirectoryDoesNotExist(packageID, gitCacheDirectoryPath)
         }
 
         // attempt to shortlog
         do {
-            return try Current.git.shortlog(cacheDirPath)
+            return try Current.git.shortlog(gitCacheDirectoryPath)
         } catch {
             throw AppError.shellCommandFailed("gitShortlog",
-                                              cacheDirPath,
-                                              "queryVCHistory failed: \(error.localizedDescription)")
+                                              gitCacheDirectoryPath,
+                                              "queryGitHistory failed: \(error.localizedDescription)")
         }
     }
     
-    /// Parses the result of queryVCHistory into a collection of contributors
-    private static func parseVCHistory(log: String) throws -> [Contributor] {
+    /// Parses the result of queryGitHistory into a collection of contributors
+    private static func parseGitHistory(log: String) throws -> [Contributor] {
         var committers = [Contributor]()
         
         for line in log.components(separatedBy: .newlines) {
@@ -101,32 +123,7 @@ struct CommitSelector {
 }
 
 
-struct PackageAuthors : Encodable, Decodable, Equatable {
-    var authors : [Author]
-    var numberOfContributors : Int 
-}
 
-
-
-final class PackageContributorService {
-    
-    
-    /// Extracts the possible authors of the package according to the number of commits.
-    /// A contributor is considered an author when the number of commits is at least a 60 percent
-    /// of the maximum commits done by a contributor
-    /// - Parameters:
-    ///   - cacheDirPath: path to the cache directory where the clone of the package is stored
-    ///   - packageID: the UUID of the package
-    /// - Returns: PackageAuthors
-    static func authorExtractor(cacheDirPath: String, packageID: UUID?) throws -> PackageAuthors {
-        let contributorsHistory = try GitHistoryLoader.loadContributorsHistory(cacheDirPath: cacheDirPath, packageID: packageID)
-        let authors = CommitSelector.filter(candidates: contributorsHistory, threshold: 0.6)
-        
-        return PackageAuthors(authors: authors.map { Author(name: $0.name) },
-                              numberOfContributors: contributorsHistory.count - authors.count)
-    }
-    
-}
 
 
 
