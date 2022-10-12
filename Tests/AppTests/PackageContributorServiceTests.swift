@@ -75,7 +75,7 @@ class PackageContributorServiceTests : AppTestCase {
         }
         
         // MUT
-        let pkgAuthors = try PackageContributorService.authorExtractor(cacheDirPath: gitCacheDirectoryPath, packageID: pkg.id)
+        let pkgAuthors = try PackageContributors.extract(cacheDirPath: gitCacheDirectoryPath, packageID: pkg.id)
         
         XCTAssertEqual(pkgAuthors.authors, [Author(name: "Person 1") ,
                                             Author(name: "Person 2"),

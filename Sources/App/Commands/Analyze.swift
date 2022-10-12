@@ -360,9 +360,7 @@ extension Analyze {
         repo.commitCount = (try? Current.git.commitCount(gitDirectory)) ?? 0
         repo.firstCommitDate = try? Current.git.firstCommitDate(gitDirectory)
         repo.lastCommitDate = try? Current.git.lastCommitDate(gitDirectory)
-
-        let pkgAuthors = try PackageContributorService.authorExtractor(cacheDirPath: gitDirectory, packageID: package.model.id)
-        repo.authors = pkgAuthors
+        repo.authors = try PackageContributors.extract(cacheDirPath: gitDirectory, packageID: package.model.id)
 
         try await repo.update(on: database)
     }
