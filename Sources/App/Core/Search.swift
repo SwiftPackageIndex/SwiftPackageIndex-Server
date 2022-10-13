@@ -138,6 +138,9 @@ enum Search {
         // constants
         let emptyString = SQLLiteral.string("")
         let contains = SQLRaw("~*")
+        let tsrankDelimiter = SQLBinaryExpression(ts_rank(vector: tsvector, query: tsquery),
+                                                  .greaterThanOrEqual,
+                                                  SQLLiteral.numeric("0.05"))
 
         let haystack = concat(
             with: " ",
@@ -146,8 +149,8 @@ enum Search {
 
         let exactPackageNameMatch = eq(lower(coalesce(packageName, emptyString)), mergedTerms)
         let sortOrder = SQLOrderBy(exactPackageNameMatch, .descending)
-            .then(score, .descending)
             .then(tsrankvalue, .descending)
+            .then(score, .descending)
             .then(stars, .descending)
             .then(packageName, .ascending)
 
@@ -168,7 +171,7 @@ enum Search {
             .column(keywords)
             .column(hasDocs)
             .column(nullInt, as: levenshteinDist)
-            .column(ts_rank(vector: tsvector, query: tsquery), as: tsrankvalue)
+            .column(tsrankDelimiter, as: tsrankvalue)
             .from(searchView)
             .from(plainto_tsquery(mergedTerms), as: tsquery)
 
@@ -225,7 +228,7 @@ enum Search {
         select = select
             .column(nullInt, as: levenshteinDist)
         select = select
-            .column(nullNumeric, as: tsrankvalue)
+            .column(nullBool, as: tsrankvalue)
         select = select
             .from(searchView)
         select = select
@@ -281,7 +284,7 @@ enum Search {
             .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
                     as: levenshteinDist)
         select = select
-            .column(nullNumeric, as: tsrankvalue)
+            .column(nullBool, as: tsrankvalue)
         select = select
             .from(searchView)
         select = select
