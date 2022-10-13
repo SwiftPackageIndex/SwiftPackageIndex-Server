@@ -20,13 +20,13 @@ class PackageContributorServiceTests : AppTestCase {
   
     func test_CommitSelector_filter() throws {
         
-        let candidates = [Contributor(numberOfCommits: 10, name: "Tim"),
-                          Contributor(numberOfCommits: 100, name: "John"),
-                          Contributor(numberOfCommits: 900, name: "Maria"),
-                          Contributor(numberOfCommits: 1000, name: "Nathalie")]
+        let candidates = [PackageContributors.Contributor(numberOfCommits: 10, name: "Tim"),
+                          PackageContributors.Contributor(numberOfCommits: 100, name: "John"),
+                          PackageContributors.Contributor(numberOfCommits: 900, name: "Maria"),
+                          PackageContributors.Contributor(numberOfCommits: 1000, name: "Nathalie")]
         
         // MUT
-        let authors = CommitSelector.filter(candidates: candidates, threshold: 0.6)
+        let authors = PackageContributors.primaryContributors(candidates: candidates, threshold: 0.6)
         
         XCTAssertEqual(authors.count, 2)
         XCTAssertEqual(authors.map(\.name), ["Maria", "Nathalie"] )
@@ -36,14 +36,15 @@ class PackageContributorServiceTests : AppTestCase {
     
     func test_CommitSelector_filter_noCandidates() throws {
         // MUT
-        let authors = CommitSelector.filter(candidates: [], threshold: 0.6)
+        let authors = PackageContributors.primaryContributors(candidates: [], threshold: 0.6)
         
         XCTAssertEqual(authors.count, 0)
     }
     
     func test_CommitSelector_filter_singleCandidate() throws {
         // MUT
-        let authors = CommitSelector.filter(candidates: [Contributor(numberOfCommits: 10, name: "Tim")], threshold: 0.6)
+        let authors = PackageContributors.primaryContributors(candidates: [PackageContributors.Contributor(numberOfCommits: 10, name: "Tim")],
+                                                              threshold: 0.6)
         
         XCTAssertEqual(authors.count, 1)
         XCTAssertEqual(authors.map(\.name), ["Tim"] )
