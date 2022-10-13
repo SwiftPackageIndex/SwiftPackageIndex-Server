@@ -144,7 +144,7 @@ enum Search {
             packageName, coalesce(summary, emptyString), repoName, repoOwner, arrayToString(keywords, delimiter: " ")
         )
 
-        let exactPackageNameMatch = eq(lower(packageName), mergedTerms)
+        let exactPackageNameMatch = eq(lower(coalesce(packageName, emptyString)), mergedTerms)
         let sortOrder = SQLOrderBy(exactPackageNameMatch, .descending)
             .then(tsrankvalue, .descending)
             .then(score, .descending)
