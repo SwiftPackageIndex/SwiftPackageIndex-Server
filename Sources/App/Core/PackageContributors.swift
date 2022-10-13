@@ -22,7 +22,7 @@ struct PackageAuthors : Encodable, Decodable, Equatable {
     var numberOfContributors : Int
 }
 
-final class PackageContributors {
+enum PackageContributors {
 
     /// Extracts the possible authors of the package according to the number of commits.
     /// A contributor is considered an author when the number of commits is at least a 60 percent
@@ -33,95 +33,96 @@ final class PackageContributors {
     /// - Returns: PackageAuthors
     static func extract(gitCacheDirectoryPath: String, packageID: UUID?) throws -> PackageAuthors {
         let contributorsHistory = try GitHistoryLoader.loadContributorsHistory(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
-        let authors = CommitSelector.filter(candidates: contributorsHistory, threshold: 0.6)
+        let authors = primaryContributors(candidates: contributorsHistory, threshold: 0.6)
 
         return PackageAuthors(authors: authors.map { Author(name: $0.name) },
                               numberOfContributors: contributorsHistory.count - authors.count)
     }
 
-}
 
-struct Contributor {
-    /// Total number of commits
-    public let numberOfCommits: Int
-    public let name: String
-}
-
-/// Loads the contributors history from a Git repository
-struct GitHistoryLoader {
-    
-    static func loadContributorsHistory(gitCacheDirectoryPath: String, packageID: UUID?) throws -> [Contributor] {
-        do {
-            let commitHistory = try queryGitHistory(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
-            return try parseGitHistory(log: commitHistory)
-        } catch {
-            throw AppError.analysisError(packageID, "loadContributorsHistory failed: \(error.localizedDescription)")
-        }
+    struct Contributor {
+        /// Total number of commits
+        let numberOfCommits: Int
+        let name: String
     }
-    
-    /// Gets the git history in a string log
-    private static func queryGitHistory(gitCacheDirectoryPath: String, packageID: UUID?) throws -> String {
-        
-        if !Current.fileManager.fileExists(atPath: gitCacheDirectoryPath) {
-            throw AppError.cacheDirectoryDoesNotExist(packageID, gitCacheDirectoryPath)
-        }
 
-        // attempt to shortlog
-        do {
-            return try Current.git.shortlog(gitCacheDirectoryPath)
-        } catch {
-            throw AppError.shellCommandFailed("gitShortlog",
-                                              gitCacheDirectoryPath,
-                                              "queryGitHistory failed: \(error.localizedDescription)")
-        }
-    }
-    
-    /// Parses the result of queryGitHistory into a collection of contributors
-    private static func parseGitHistory(log: String) throws -> [Contributor] {
-        var committers = [Contributor]()
-        
-        for line in log.components(separatedBy: .newlines) {
-            let log = line.split(whereSeparator: { $0 == " " || $0 == "\t"})
-            
-            if (log.count > 2) {
-                var identifier = [String]()
-                for i in 1..<(log.count - 1) {
-                    identifier.append(String(log[i]))
-                }
-                var numberOfCommits = 0
-                if (log.first != nil) {
-                    numberOfCommits = Int(log.first!) ?? 0
-                }
-                let committer = Contributor(numberOfCommits: numberOfCommits,
-                                            name: identifier.joined(separator: " "))
-                committers.append(committer)
+    /// Loads the contributors history from a Git repository
+    struct GitHistoryLoader {
+
+        static func loadContributorsHistory(gitCacheDirectoryPath: String, packageID: UUID?) throws -> [Contributor] {
+            do {
+                let commitHistory = try queryGitHistory(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
+                return try parseGitHistory(log: commitHistory)
+            } catch {
+                throw AppError.analysisError(packageID, "loadContributorsHistory failed: \(error.localizedDescription)")
             }
-            
         }
-        return committers
+
+        /// Gets the git history in a string log
+        private static func queryGitHistory(gitCacheDirectoryPath: String, packageID: UUID?) throws -> String {
+
+            if !Current.fileManager.fileExists(atPath: gitCacheDirectoryPath) {
+                throw AppError.cacheDirectoryDoesNotExist(packageID, gitCacheDirectoryPath)
+            }
+
+            // attempt to shortlog
+            do {
+                return try Current.git.shortlog(gitCacheDirectoryPath)
+            } catch {
+                throw AppError.shellCommandFailed("gitShortlog",
+                                                  gitCacheDirectoryPath,
+                                                  "queryGitHistory failed: \(error.localizedDescription)")
+            }
+        }
+
+        /// Parses the result of queryGitHistory into a collection of contributors
+        private static func parseGitHistory(log: String) throws -> [Contributor] {
+            var committers = [Contributor]()
+
+            for line in log.components(separatedBy: .newlines) {
+                let log = line.split(whereSeparator: { $0 == " " || $0 == "\t"})
+
+                if (log.count > 2) {
+                    var identifier = [String]()
+                    for i in 1..<(log.count - 1) {
+                        identifier.append(String(log[i]))
+                    }
+                    var numberOfCommits = 0
+                    if (log.first != nil) {
+                        numberOfCommits = Int(log.first!) ?? 0
+                    }
+                    let committer = Contributor(numberOfCommits: numberOfCommits,
+                                                name: identifier.joined(separator: " "))
+                    committers.append(committer)
+                }
+
+            }
+            return committers
+        }
+
     }
-    
-}
 
-
-
-/// Strategy for selecting contributors based entirely on the number of commits 
-struct CommitSelector {
-    
-    static func filter(candidates: [Contributor], threshold: Float) -> [Contributor] {
+    /// Strategy for selecting contributors based entirely on the number of commits
+    static func primaryContributors(candidates: [Contributor], threshold: Float) -> [Contributor] {
         if candidates.isEmpty {
             return []
         }
-        
+
         let maxNumberOfCommits = candidates.max(by: { (a,b) -> Bool in
             return a.numberOfCommits < b.numberOfCommits
         })!.numberOfCommits
-        
+
         return candidates.filter { canditate in
             return Float(canditate.numberOfCommits) > threshold * Float(maxNumberOfCommits)
         }
     }
+
+
+
+
+
 }
+
 
 
 
