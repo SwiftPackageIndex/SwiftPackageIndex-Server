@@ -146,8 +146,9 @@ enum Search {
 
         let exactPackageNameMatch = eq(lower(coalesce(packageName, emptyString)), mergedTerms)
         let sortOrder = SQLOrderBy(exactPackageNameMatch, .descending)
-            .then(tsrankvalue, .descending)
             .then(score, .descending)
+            .then(tsrankvalue, .descending)
+            .then(stars, .descending)
             .then(packageName, .ascending)
 
         let preamble = db
