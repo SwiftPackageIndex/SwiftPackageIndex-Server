@@ -591,7 +591,49 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res.results.map(\.package?.repositoryName),
                        ["1", "3", "2"])
     }
-    
+
+    func test_exact_name_null_packageName() throws {
+        // Ensure null packageName value aren't boosted
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2072
+        // setup
+        // We have three packages that all match in some way:
+        // 1: exact package name match - we want this one to be at the top
+        // 2: package name contains search term
+        // 3: summary contains search term
+        let p1 = Package(id: UUID(), url: "1", score: 30)
+        let p2 = Package(id: UUID(), url: "2", score: 20)
+        let p3 = Package(id: UUID(), url: "3", score: 10)
+        try [p1, p2, p3].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "foo",
+                       summary: "bar1").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       name: "2",
+                       owner: "foo",
+                       summary: "bar2").save(on: app.db).wait()
+        try Repository(package: p3,
+                       defaultBranch: "main",
+                       name: "3",
+                       owner: "foo",
+                       summary: "bar3").save(on: app.db).wait()
+        try Version(package: p1, packageName: "Bar1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "Bar2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p3, packageName: nil, reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        // MUT
+        let res = try Search.fetch(app.db, ["bar"], page: 1, pageSize: 20).wait()
+
+        XCTAssertEqual(res.results.map(\.package?.repositoryName),
+                       ["1", "2", "3"])
+    }
+
     func test_exclude_null_fields() throws {
         // Ensure excluding results with NULL fields
         // setup:
