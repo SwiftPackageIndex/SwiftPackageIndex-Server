@@ -44,7 +44,6 @@ enum Search {
     static let null = SQLRaw("NULL")
     static let nullBool = SQLRaw("NULL::BOOL")
     static let nullInt = SQLRaw("NULL::INT")
-    static let nullNumeric = SQLRaw("NULL::NUMERIC")
     static let nullTextArray = SQLRaw("NULL::TEXT[]")
     static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
     static let nullUUID = SQLRaw("NULL::UUID")
