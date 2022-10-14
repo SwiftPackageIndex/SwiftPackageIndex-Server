@@ -690,6 +690,47 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(packageResult.packageName, nil)
     }
 
+    func test_exact_word_match() throws {
+        // Ensure exact word matches are boosted
+        // See also https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2072
+        // setup
+        // We have three packages that all match the search term "ping". This test
+        // ensures the one with the whole word match is boosted to the front
+        // despite having the lowest score.
+        let p1 = Package(id: UUID(), url: "1", score: 30)
+        let p2 = Package(id: UUID(), url: "2", score: 20)
+        let p3 = Package(id: UUID(), url: "3", score: 10)
+        try [p1, p2, p3].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "foo",
+                       summary: "mapping").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       name: "2",
+                       owner: "foo",
+                       summary: "flopping").save(on: app.db).wait()
+        try Repository(package: p3,
+                       defaultBranch: "main",
+                       name: "3",
+                       owner: "foo",
+                       summary: "ping").save(on: app.db).wait()
+        try Version(package: p1, packageName: "Foo1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "Foo2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p3, packageName: "Foo3", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        // MUT
+        let res = try Search.fetch(app.db, ["ping"], page: 1, pageSize: 20).wait()
+
+        XCTAssertEqual(res.results.map(\.package?.repositoryName),
+                       ["3", "1", "2"])
+    }
+
     func test_sanitize() throws {
         XCTAssertEqual(Search.sanitize(["*"]), ["\\*"])
         XCTAssertEqual(Search.sanitize(["?"]), ["\\?"])
