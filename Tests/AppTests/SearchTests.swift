@@ -596,10 +596,9 @@ class SearchTests: AppTestCase {
         // Ensure null packageName value aren't boosted
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2072
         // setup
-        // We have three packages that all match in some way:
-        // 1: exact package name match - we want this one to be at the top
-        // 2: package name contains search term
-        // 3: summary contains search term
+        // We have three packages that match the search term "bar" via their summary.
+        // The third package has no package name. This test ensure it's not boosted
+        // to the front.
         let p1 = Package(id: UUID(), url: "1", score: 30)
         let p2 = Package(id: UUID(), url: "2", score: 20)
         let p3 = Package(id: UUID(), url: "3", score: 10)
