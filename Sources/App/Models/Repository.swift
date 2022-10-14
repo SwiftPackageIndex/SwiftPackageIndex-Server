@@ -126,7 +126,7 @@ final class Repository: Model, Content {
     
     init(id: Id? = nil,
          package: Package,
-         authors: PackageAuthors? = nil, // [Author] = [],
+         authors: PackageAuthors? = nil,
          commitCount: Int = 0,
          defaultBranch: String? = nil,
          firstCommitDate: Date? = nil,
