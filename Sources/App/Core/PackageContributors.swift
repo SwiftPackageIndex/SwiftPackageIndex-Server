@@ -17,9 +17,9 @@ import ShellOut
 import Vapor
 
 
-struct PackageAuthors : Encodable, Decodable, Equatable {
-    var authors : [Author]
-    var numberOfContributors : Int
+struct PackageAuthors: Codable, Equatable {
+    var authors: [Author]
+    var numberOfContributors: Int
 }
 
 enum PackageContributors {
