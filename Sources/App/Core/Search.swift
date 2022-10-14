@@ -37,14 +37,13 @@ enum Search {
     static let summary = SQLIdentifier("summary")
     static let searchView = SQLIdentifier("search")
     static let tsquery = SQLIdentifier("tsquery")
-    static let tsrankvalue = SQLIdentifier("tsrankvalue")
+    static let hasExactWordMatches = SQLIdentifier("has_exact_word_matches")
     static let tsvector = SQLIdentifier("tsvector")
     
     static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
     static let nullBool = SQLRaw("NULL::BOOL")
     static let nullInt = SQLRaw("NULL::INT")
-    static let nullNumeric = SQLRaw("NULL::NUMERIC")
     static let nullTextArray = SQLRaw("NULL::TEXT[]")
     static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
     static let nullUUID = SQLRaw("NULL::UUID")
@@ -138,16 +137,20 @@ enum Search {
         // constants
         let emptyString = SQLLiteral.string("")
         let contains = SQLRaw("~*")
+        let exactWordMatch = SQLBinaryExpression(ts_rank(vector: tsvector, query: tsquery),
+                                                 .greaterThanOrEqual,
+                                                 SQLLiteral.numeric("0.05"))
 
         let haystack = concat(
             with: " ",
             packageName, coalesce(summary, emptyString), repoName, repoOwner, arrayToString(keywords, delimiter: " ")
         )
 
-        let exactPackageNameMatch = eq(lower(packageName), mergedTerms)
+        let exactPackageNameMatch = eq(lower(coalesce(packageName, emptyString)), mergedTerms)
         let sortOrder = SQLOrderBy(exactPackageNameMatch, .descending)
-            .then(tsrankvalue, .descending)
+            .then(hasExactWordMatches, .descending)
             .then(score, .descending)
+            .then(stars, .descending)
             .then(packageName, .ascending)
 
         let preamble = db
@@ -167,7 +170,7 @@ enum Search {
             .column(keywords)
             .column(hasDocs)
             .column(nullInt, as: levenshteinDist)
-            .column(ts_rank(vector: tsvector, query: tsquery), as: tsrankvalue)
+            .column(exactWordMatch, as: hasExactWordMatches)
             .from(searchView)
             .from(plainto_tsquery(mergedTerms), as: tsquery)
 
@@ -224,7 +227,7 @@ enum Search {
         select = select
             .column(nullInt, as: levenshteinDist)
         select = select
-            .column(nullNumeric, as: tsrankvalue)
+            .column(nullBool, as: hasExactWordMatches)
         select = select
             .from(searchView)
         select = select
@@ -280,7 +283,7 @@ enum Search {
             .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
                     as: levenshteinDist)
         select = select
-            .column(nullNumeric, as: tsrankvalue)
+            .column(nullBool, as: hasExactWordMatches)
         select = select
             .from(searchView)
         select = select
