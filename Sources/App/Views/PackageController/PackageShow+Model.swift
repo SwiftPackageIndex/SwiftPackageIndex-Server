@@ -283,7 +283,7 @@ extension PackageShow.Model {
             }
         }
 
-        if (authors.numberOfContributors > 0) {
+        if authors.numberOfContributors > 0 {
             nodes.append(.text("\(authors.numberOfContributors) other " + "contributor".pluralized(for: authors.numberOfContributors)))
         }
         
