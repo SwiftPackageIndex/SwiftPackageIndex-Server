@@ -92,13 +92,12 @@ enum Score {
             if let spiManifest = defaultVersion.spiManifest,
                let _ = spiManifest.externalLinks?.documentation {
                 return true
-            } else if defaultVersion.docArchives?.isEmpty == false {
-                return true
-            } else if let latestStableVersion = versions.latest(for: .release),
-                      latestStableVersion.docArchives?.isEmpty == false {
-                return true
             } else {
-                return false
+                return [
+                    defaultVersion,
+                    versions.latest(for: .release),
+                    versions.latest(for: .preRelease)
+                ].compactMap { $0 }.documentationTarget() != nil
             }
         }()
 
