@@ -87,20 +87,13 @@ enum Score {
             let defaultVersion = versions.latest(for: .defaultBranch),
             let repo = package.repository
         else { return 0 }
-
-        let hasDocumentation: Bool = {
-            if let spiManifest = defaultVersion.spiManifest,
-               let _ = spiManifest.externalLinks?.documentation {
-                return true
-            } else {
-                return [
-                    defaultVersion,
-                    versions.latest(for: .release),
-                    versions.latest(for: .preRelease)
-                ].compactMap { $0 }.documentationTarget() != nil
-            }
-        }()
-
+        
+        let hasDocumentation = [
+            defaultVersion,
+            versions.latest(for: .release),
+            versions.latest(for: .preRelease)
+        ].compactMap { $0 }.documentationTarget() != nil
+        
         return Score.compute(
             .init(licenseKind: repo.license.licenseKind,
                   releaseCount: versions.releases.count,
