@@ -40,4 +40,5 @@ extension [Version] {
         return nil
     }
 
+    func hasDocumentation() -> Bool { documentationTarget() != nil }
 }
