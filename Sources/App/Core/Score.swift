@@ -92,7 +92,7 @@ enum Score {
             defaultVersion,
             versions.latest(for: .release),
             versions.latest(for: .preRelease)
-        ].compactMap { $0 }.documentationTarget() != nil
+        ].hasDocumentation()
         
         return Score.compute(
             .init(licenseKind: repo.license.licenseKind,
