@@ -22,6 +22,7 @@ enum Score {
         var isArchived: Bool
         var numberOfDependencies: Int?
         var lastActivityAt: Date?
+        var hasDocumentation: Bool
     }
     
     static func compute(_ candidate: Input) -> Int {
@@ -74,6 +75,10 @@ enum Score {
             }
         }
 
+        if candidate.hasDocumentation {
+            score += 15
+        }
+
         return score
     }
 
@@ -82,14 +87,21 @@ enum Score {
             let defaultVersion = versions.latest(for: .defaultBranch),
             let repo = package.repository
         else { return 0 }
-
+        
+        let hasDocumentation = [
+            defaultVersion,
+            versions.latest(for: .release),
+            versions.latest(for: .preRelease)
+        ].hasDocumentation()
+        
         return Score.compute(
             .init(licenseKind: repo.license.licenseKind,
                   releaseCount: versions.releases.count,
                   likeCount: repo.stars,
                   isArchived: repo.isArchived,
                   numberOfDependencies: defaultVersion.resolvedDependencies?.count,
-                  lastActivityAt: repo.lastActivityAt)
+                  lastActivityAt: repo.lastActivityAt,
+                  hasDocumentation: hasDocumentation)
         )
     }
 }

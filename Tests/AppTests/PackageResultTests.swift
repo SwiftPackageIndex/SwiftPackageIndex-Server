@@ -223,40 +223,6 @@ class PackageResultTests: AppTestCase {
                              lastPullRequestClosedAt: "6 days ago"))
     }
 
-    func test_documentationTarget() async throws {
-        // Test documentationTarget. Variations are covered in ArrayExtensionTests, this test
-        // is just to ensure it's wired up correctly.
-        // setup
-        do {
-            let pkg = try savePackage(on: app.db, "1".url)
-            try await Repository(package: pkg,
-                                 defaultBranch: "main",
-                                 forks: 42,
-                                 license: .mit,
-                                 name: "bar",
-                                 owner: "foo",
-                                 stars: 17,
-                                 summary: "summary").save(on: app.db)
-            try await App.Version(package: pkg,
-                                  docArchives: [.init(name: "foo", title: "Foo")],
-                                  latest: .defaultBranch,
-                                  reference: .branch("main")).save(on: app.db)
-            try await App.Version(package: pkg,
-                                  latest: .release,
-                                  reference: .tag(1, 2, 3)).save(on: app.db)
-            try await App.Version(package: pkg,
-                                  latest: .preRelease,
-                                  reference: .tag(2, 0, 0, "b1")).save(on: app.db)
-        }
-
-        // MUT
-        let res = try await PackageController.PackageResult
-            .query(on: app.db, owner: "foo", repository: "bar")
-
-        // validate
-        XCTAssertEqual(res.documentationTarget(), .internal(reference: "main", archive: "foo"))
-    }
-
     func test_hasDocumentation() async throws {
         // setup
         do {

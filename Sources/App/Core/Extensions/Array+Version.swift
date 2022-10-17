@@ -40,4 +40,10 @@ extension [Version] {
         return nil
     }
 
+    func hasDocumentation() -> Bool { documentationTarget() != nil }
+}
+
+
+extension [Version?] {
+    func hasDocumentation() -> Bool { compactMap { $0 }.hasDocumentation() }
 }
