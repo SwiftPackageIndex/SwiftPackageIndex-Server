@@ -130,6 +130,7 @@ class ScoreTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db).wait()
         try Version(package: pkg,
+                    docArchives: [.init(name: "archive1", title: "Archive One")],
                     reference: .branch("default"),
                     swiftVersions: ["5"].asSwiftVersions).save(on: app.db).wait()
         try (0..<20).forEach {
@@ -144,7 +145,7 @@ class ScoreTests: AppTestCase {
             .wait()
 
         // MUT
-        XCTAssertEqual(Score.compute(package: jpr, versions: versions), 82)
+        XCTAssertEqual(Score.compute(package: jpr, versions: versions), 97)
     }
 
 }
