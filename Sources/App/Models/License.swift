@@ -138,10 +138,7 @@ enum License: String, Codable, Equatable, CaseIterable {
             case .agpl_3_0,
                  .gpl,
                  .gpl_2_0,
-                 .gpl_3_0,
-                 .lgpl,
-                 .lgpl_2_1,
-                 .lgpl_3_0: return .incompatibleWithAppStore
+                 .gpl_3_0: return .incompatibleWithAppStore
             default: return .compatibleWithAppStore
         }
     }
