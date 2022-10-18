@@ -1,0 +1,19 @@
+{
+    "task.allowAutomaticTasks": "on",
+
+    // Auto Formatting
+    "css.validate": false,
+    "less.validate": false,
+    "scss.validate": false,
+    "[javascript][json][jsonc][html][yaml][md][scss][css]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "stylelint.validate": ["css", "scss", "less", "postcss"],
+    "[scss][css]": {
+        "editor.formatOnSave": false,
+        "editor.codeActionsOnSave": {
+            "source.fixAll.stylelint": true
+        }
+    }
+}
