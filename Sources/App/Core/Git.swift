@@ -79,10 +79,7 @@ extension Git {
     }
     
     static func shortlog(at path: String) throws -> String {
-        guard let shortlog = try? Current.shell.run(command: .gitShortlog, at: path) else {
-            throw GitError.invalidString
-        }
-        return shortlog
+        try Current.shell.run(command: .gitShortlog, at: path)
     }
 
     struct RevisionInfo: Equatable {
