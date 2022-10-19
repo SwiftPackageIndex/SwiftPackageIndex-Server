@@ -144,7 +144,7 @@ class AnalyzerTests: AppTestCase {
             if cmd == .gitFirstCommitDate { return "0" }
             if cmd == .gitLastCommitDate { return "4" }
             if cmd == .gitShortlog {
-                return "10 Person 1 <person1@example.com>"
+                return "10\tPerson 1"
             }
 
             return ""
@@ -271,8 +271,8 @@ class AnalyzerTests: AppTestCase {
         }
         Current.git.shortlog = { _ in
             """
-            10 Person 1 <person1@example.com>
-             2 Person 2 <person2@example.com>
+            10\tPerson 1
+             2\tPerson 2
             """
         }
 
@@ -330,8 +330,8 @@ class AnalyzerTests: AppTestCase {
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.git.shortlog = { _ in
             """
-            10 Person 1 <person1@example.com>
-             2 Person 2 <person2@example.com>
+            10\tPerson 1
+             2\tPerson 2
             """
         }
 
@@ -388,8 +388,8 @@ class AnalyzerTests: AppTestCase {
             .gitFirstCommitDate: "0",
             .gitLastCommitDate: "1",
             .gitShortlog : """
-                            10 Person 1 <person1@example.com>
-                             2 Person 2 <person2@example.com>
+                            10\tPerson 1
+                             2\tPerson 2
                             """
         ]
         for (idx, ref) in refs.enumerated() {
@@ -461,8 +461,8 @@ class AnalyzerTests: AppTestCase {
         Current.git.lastCommitDate = { _ in .t1 }
         Current.git.shortlog = { _ in
             """
-            10 Person 1 <person1@example.com>
-             2 Person 2 <person2@example.com>
+            10\tPerson 1
+             2\tPerson 2
             """
         }
         Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
@@ -781,8 +781,8 @@ class AnalyzerTests: AppTestCase {
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.git.shortlog = { _ in
             """
-            10 Person 1 <person1@example.com>
-             2 Person 2 <person2@example.com>
+            10\tPerson 1
+             2\tPerson 2
             """
         }
         Current.shell.run = { cmd, path in

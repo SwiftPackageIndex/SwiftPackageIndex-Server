@@ -99,11 +99,11 @@ final class AnalyzeErrorTests: AppTestCase {
         }
         Current.git.shortlog = { _ in
             """
-            1000  Person 1 <person1@example.com>
-             871  Person 2 <person2@example.com>
-             703  Person 3 <person5@example.com>
-             360  Person 4 <person6@example.com>
-             108  Person 5 <person7@example.com>
+            1000\tPerson 1
+             871\tPerson 2
+             703\tPerson 3
+             360\tPerson 4
+             108\tPerson 5
             """
         }
 

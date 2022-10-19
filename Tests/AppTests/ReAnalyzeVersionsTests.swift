@@ -48,8 +48,8 @@ class ReAnalyzeVersionsTests: AppTestCase {
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.git.shortlog = { _ in
             """
-            10 Person 1 <person1@example.com>
-             2 Person 2 <person2@example.com>
+            10\tPerson 1
+             2\tPerson 2
             """
         }
 
@@ -189,8 +189,8 @@ class ReAnalyzeVersionsTests: AppTestCase {
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.git.shortlog = { _ in
             """
-            10 Person 1 <person1@example.com>
-             2 Person 2 <person2@example.com>
+            10\tPerson 1
+             2\tPerson 2
             """
         }
         Current.shell.run = { cmd, path in
