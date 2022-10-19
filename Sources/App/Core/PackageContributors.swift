@@ -52,7 +52,7 @@ enum PackageContributors {
         static func loadContributorsHistory(gitCacheDirectoryPath: String, packageID: UUID?) throws -> [Contributor] {
             do {
                 let commitHistory = try queryGitHistory(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
-                return try parseGitHistory(log: commitHistory)
+                return try parseGitHistory(logHistory: commitHistory)
             } catch {
                 throw AppError.analysisError(packageID, "loadContributorsHistory failed: \(error.localizedDescription)")
             }
@@ -75,51 +75,53 @@ enum PackageContributors {
             }
         }
 
-        /// Parses the result of queryGitHistory into a collection of contributors
-        private static func parseGitHistory(log: String) throws -> [Contributor] {
+        /// Parses the string result of queryGitHistory into a collection of contributors
+        /// The assumption here is that each log is of the form `numberOfCommits\tName <person@email.com>\n`
+        /// where the Name is an arbitrary string with possible white spaces inbetween.
+        /// It is assumed that order. Example:
+        /// `1000\tJohn Albert Doe <john.doe@mail.com>`
+        /// This method only parses the number of commits and the name of the commiter
+        private static func parseGitHistory(logHistory: String) throws -> [Contributor] {
             var committers = [Contributor]()
 
-            for line in log.components(separatedBy: .newlines) {
-                let log = line.split(whereSeparator: { $0 == " " || $0 == "\t"})
-
+            for line in logHistory.components(separatedBy: .newlines) {
+                var log = line.split(whereSeparator: { $0 == " " || $0 == "\t"})
                 if (log.count > 2) {
-                    var identifier = [String]()
-                    for i in 1..<(log.count - 1) {
-                        identifier.append(String(log[i]))
-                    }
-                    var numberOfCommits = 0
-                    if (log.first != nil) {
-                        numberOfCommits = Int(log.first!) ?? 0
-                    }
+                    let numberOfCommits = Int(log.removeFirst()) ?? 0
+                    let identifier = log.dropLast()
+                                        .joined(separator: " ")
                     let committer = Contributor(numberOfCommits: numberOfCommits,
-                                                name: identifier.joined(separator: " "))
+                                                name: identifier)
                     committers.append(committer)
                 }
-
             }
             return committers
         }
-
     }
 
-    /// Strategy for selecting contributors based entirely on the number of commits
+    /// Strategy for selecting contributors based entirely on the number of commits.
+    /// The main contributor is automatically a primary contributor and the rest are
+    /// considered primary contributors if their number of commits is above
+    /// a percentage of the main contributors commit
+    /// - Parameters:
+    ///   - candidates: collection of all the contributors
+    ///   - threshold: percentage represented between 0 and 1 of the highest number of commits
+    /// - Returns: collection of primary contributors `[Contributor]`
     static func primaryContributors(candidates: [Contributor], threshold: Float) -> [Contributor] {
         if candidates.isEmpty {
             return []
         }
 
-        let maxNumberOfCommits = candidates.max(by: { (a,b) -> Bool in
+        guard let mainContributor = candidates.max(by: { (a,b) -> Bool in
             return a.numberOfCommits < b.numberOfCommits
-        })!.numberOfCommits
+        }) else {
+            return []
+        }
 
         return candidates.filter { canditate in
-            return Float(canditate.numberOfCommits) > threshold * Float(maxNumberOfCommits)
+            return Float(canditate.numberOfCommits) > threshold * Float(mainContributor.numberOfCommits)
         }
     }
-
-
-
-
 
 }
 
