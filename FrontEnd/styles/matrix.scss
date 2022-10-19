@@ -127,7 +127,6 @@
 
             & > .pending,
             & > .unknown {
-                background-size: 12px;
                 background-color: var(--grid-default-background);
                 background-image: var(--image-compatibility-unknown);
             }
