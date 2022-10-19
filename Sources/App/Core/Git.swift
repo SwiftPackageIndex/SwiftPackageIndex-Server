@@ -19,7 +19,6 @@ import ShellOut
 
 enum GitError: LocalizedError {
     case invalidInteger
-    case invalidString
     case invalidTimestamp
     case invalidRevisionInfo
 }
