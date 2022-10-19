@@ -13,7 +13,7 @@ description: Frequently Asked Questions about the Swift Package Index
 - [How does the Swift Package Index work?](#how-does-it-work)
 - [What about the GitHub Package Registry?](#package-registry)
 - [How is the Swift language and platform support calculated?](#language-and-platforms)
-- [What do the license colours mean?](#licenses)
+- [Why are certain licenses highlighted?](#licenses)
 - [Can I contribute to the Swift Package Index?](#contributing)
 - [Is there an API?](#api)
 - [Why are package versions missing?](#missing-versions)
@@ -83,31 +83,33 @@ To determine what versions of Swift a package supports, and what platforms it is
 
 ---
 
-<h3 id="licenses">What do the license colours mean?</h3>
+<h3 id="licenses">Why are certain licenses highlighted?</h3>
 
-If a package's license shows with a background that is orange or red, it is for one of three reasons:
+If a package's license shows with an orange or red exclamation mark icon, it is for one of three reasons:
 
-1. The package does not have a license.
-2. We're unable to detect the software license that the package uses.
-3. The license chosen by the package authors is incompatible with the terms and conditions of the App Store.
+1. The package has no license.
+2. We have been unable to automatically detect the software license used by the package.
+3. The license chosen by the package authors may be incompatible with the App Store.
 
 #### No License
 
-If the package license is showing as "No License", it means we could not find _any_ license information in the package repository.
+If the package license is showing as "No License" with a red exclamation icon, we could not find _any_ license information in the package repository.
 
-If you are considering using a package that does not have a license, you should be aware that it presents a significant legal risk. Code without a license is not open-source, and the original author reserves all rights by default. For more information, read [this great blog post](https://expressionengine.com/blog/the-truth-about-the-risks-of-unlicensed-software) on the significant risks of using unlicensed code.
+Using a package that does not have a license presents a significant legal risk. Unlicensed code is not open-source, and the original author reserves all rights by default. For more information, read [this great blog post](https://expressionengine.com/blog/the-truth-about-the-risks-of-unlicensed-software) on using unlicensed code.
 
-If you are the package author, you can fix this by adding a `LICENSE` file with an open-source license that is compatible with the terms and conditions of the App Store. The Swift Package Index will update license metadata a few hours after you push a license to the repository.
+If you are the package author, you can fix this by adding a `LICENSE` file with an open-source license in your package's repository. The Swift Package Index will update license metadata a few hours after you add the license.
 
 #### Unknown License
 
-If the package license is showing as "Unknown License", it means we have been unable to detect the license. It may be an open-source license where GitHub's license detection algorithm has failed, or it could be a completely different type of license, such as a commercial license. If you are considering using a package with an unidentified license, you should check the package's repository for the license details.
+If the package license is showing as "Unknown License" with an orange exclamation icon, we have been unable to automatically detect a license in the package repository.
 
-If you are the package author of a package showing an unknown license, and you believe it should show a valid open-source license, please [see GitHub's documentation](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses a few hours after GitHub recognises a valid license.
+There could be one of several reasons automatic detection failed. The package may use a commercial or closed-source license, or it could be that GitHub's license detection algorithm has failed. Before using a package with an unknown license, you should check the package repository for a `LICENSE` file and ensure you understand the terms that the package author has defined.
+
+If you are the author of a package showing with an unknown license and believe it should show a valid open-source license, please [see GitHub's documentation](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses a few hours after GitHub recognises a valid license.
 
 #### Incompatible license
 
-If the package license shows with an orange background but does _not_ say "No License" or "Unknown License", then the package is using a license which is incompatible with the terms and conditions of the App Store, such as any GPL style license. If you are considering shipping your app to the App Store, you should be aware that using code licensed under one of these licences presents a legal risk.
+If the package license shows with an orange exclamation icon but does _not_ say "No License" or "Unknown License", then the package is using a license which may be incompatible with how the App Store works, such as a GPL-style license. If you are considering shipping software that includes a package licensed with one of these licenses to the App Store, you should be aware that using code licensed under one of these licences may present a legal risk.
 
 ---
 
