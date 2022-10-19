@@ -73,11 +73,11 @@
             }
 
             li.activity::before {
-                background-image: var(--image-clock);
+                background-image: var(--image-activity);
             }
 
             li.stars::before {
-                background-image: var(--image-star);
+                background-image: var(--image-stars);
             }
 
             li.has-documentation::before {
