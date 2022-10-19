@@ -105,7 +105,7 @@ enum PackageContributors {
     /// a percentage of the main contributors commit
     /// - Parameters:
     ///   - candidates: collection of all the contributors
-    ///   - threshold: percentage represented between 0 and 1 of the highest number of commits
+    ///   - threshold: percentage of the highest number of commits to be taken as a threshold. It is represented by a float between 0 and 1 
     /// - Returns: collection of primary contributors `[Contributor]`
     static func primaryContributors(candidates: [Contributor], threshold: Float) -> [Contributor] {
         if candidates.isEmpty {
