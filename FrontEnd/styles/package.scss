@@ -71,7 +71,7 @@
 
             li.activity {
                 grid-column-start: span 2;
-                background-image: var(--image-speech-bubble);
+                background-image: var(--image-activity);
             }
 
             li.dependencies {
@@ -118,8 +118,6 @@
             }
 
             li.plugins {
-                background-position: 3px center;
-                background-size: 14px;
                 background-image: var(--image-plugins);
             }
 
