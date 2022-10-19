@@ -16,9 +16,9 @@ import XCTest
 
 @testable import App
 
-class PackageContributorServiceTests : AppTestCase {
+class PackageContributorsTests : AppTestCase {
   
-    func test_CommitSelector_filter() throws {
+    func test_CommitSelector_primaryContributors() throws {
         
         let candidates = [PackageContributors.Contributor(numberOfCommits: 10, name: "Tim"),
                           PackageContributors.Contributor(numberOfCommits: 100, name: "John"),
@@ -34,7 +34,7 @@ class PackageContributorServiceTests : AppTestCase {
     }
     
     
-    func test_CommitSelector_filter_noCandidates() throws {
+    func test_CommitSelector_primaryContributors_noCandidates() throws {
         // MUT
         let authors = PackageContributors.primaryContributors(candidates: [], threshold: 0.6)
         
@@ -51,23 +51,23 @@ class PackageContributorServiceTests : AppTestCase {
     }
     
 
-    func test_PackageContributorService_authorExtractor() async throws {
+    func test_PackageContributors_extract() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
         Current.fileManager.fileExists = { _ in true }
         Current.git.shortlog = { _ in
             """
-            1000  Person 1 <person1@example.com>
-             871  Person 2 <person2@example.com>
-             803  Person 3 <person3@example.com>
-             722  Person 4 <person4@example.com>
-             703  Person 5 <person5@example.com>
-             360  Person 6 <person6@example.com>
-             108  Person 7 <person7@example.com>
-              86  Person 8 <person8@example.com>
-              43  Person 9 <person9@example.com>
-              40  Person 10 <person10@example.com>
-              11  Person 11 <person11@example.com>
+            1000\tPerson 1
+             871\tPerson 2
+             803\tPerson 3
+             722\tPerson 4
+             703\tPerson 5
+             360\tPerson 6
+             108\tPerson 7
+              86\tPerson 8
+              43\tPerson 9
+              40\tPerson 10
+              11\tPerson 11
             """
         }
         
