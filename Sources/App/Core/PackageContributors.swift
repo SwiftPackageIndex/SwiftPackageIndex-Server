@@ -76,23 +76,21 @@ enum PackageContributors {
         }
 
         /// Parses the string result of queryGitHistory into a collection of contributors
-        /// The assumption here is that each log is of the form `numberOfCommits\tName <person@email.com>\n`
-        /// where the Name is an arbitrary string with possible white spaces inbetween.
+        /// The assumption here is that each log is of the form `numberOfCommits\tName`
+        /// where the numberOfCommits can have leading white spaces.
         /// It is assumed that order. Example:
-        /// `1000\tJohn Albert Doe <john.doe@mail.com>`
+        /// ` 1000\tJohn Albert Doe`
         /// This method only parses the number of commits and the name of the commiter
         private static func parseGitHistory(logHistory: String) throws -> [Contributor] {
             var committers = [Contributor]()
 
             for line in logHistory.components(separatedBy: .newlines) {
-                var log = line.split(whereSeparator: { $0 == " " || $0 == "\t"})
-                if (log.count > 2) {
-                    let numberOfCommits = Int(log.removeFirst()) ?? 0
-                    let identifier = log.dropLast()
-                                        .joined(separator: " ")
-                    let committer = Contributor(numberOfCommits: numberOfCommits,
-                                                name: identifier)
-                    committers.append(committer)
+                let log = line.split(whereSeparator: {$0 == "\t"})
+                if (log.count == 2) {
+                    let numberOfCommits = Int(log[0].trimmingCharacters(in: .whitespaces)) ?? 0
+                    let identifier = String(log[1])
+                    committers.append(Contributor(numberOfCommits: numberOfCommits,
+                                                  name: identifier))
                 }
             }
             return committers
@@ -105,7 +103,7 @@ enum PackageContributors {
     /// a percentage of the main contributors commit
     /// - Parameters:
     ///   - candidates: collection of all the contributors
-    ///   - threshold: percentage of the highest number of commits to be taken as a threshold. It is represented by a float between 0 and 1 
+    ///   - threshold: percentage of the highest number of commits to be taken as a threshold
     /// - Returns: collection of primary contributors `[Contributor]`
     static func primaryContributors(candidates: [Contributor], threshold: Float) -> [Contributor] {
         if candidates.isEmpty {
