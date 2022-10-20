@@ -140,8 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SPIManifest",
       "state" : {
-        "revision" : "d7ce4f1a685c4d09eb95b26a2e07dfafb95f06f9",
-        "version" : "0.10.1"
+        "revision" : "2f086bff48dbf64ea398fb3b04d4a6caabf19616",
+        "version" : "0.11.0"
       }
     },
     {
@@ -356,8 +356,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/MrLotU/SwiftPrometheus.git",
       "state" : {
-        "revision" : "688e1fd540aecc191a9e40ef5c378432cbf2f787",
-        "version" : "1.0.0"
+        "revision" : "2095e26b2b70f8e04598c7d57ca6268d1221aecd",
+        "version" : "1.0.1"
       }
     },
     {
@@ -392,8 +392,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "30314f1ece684dd60679d598a9b89107557b67d9",
-        "version" : "0.4.1"
+        "revision" : "16e6409ee82e1b81390bdffbf217b9c08ab32784",
+        "version" : "0.5.0"
       }
     },
     {
