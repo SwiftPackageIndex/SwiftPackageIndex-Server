@@ -127,9 +127,8 @@
 
             & > .pending,
             & > .unknown {
-                background-size: 12px;
                 background-color: var(--grid-default-background);
-                background-image: var(--image-unknown);
+                background-image: var(--image-compatibility-unknown);
             }
 
             & > .compatible {
@@ -165,7 +164,7 @@
                 background-color: var(--grid-succeeded-background);
 
                 a {
-                    background-image: var(--image-succeeded);
+                    background-image: var(--image-build-succeeded);
                 }
             }
 
@@ -173,7 +172,7 @@
                 background-color: var(--grid-failed-background);
 
                 a {
-                    background-image: var(--image-failed);
+                    background-image: var(--image-build-failed);
                 }
             }
         }

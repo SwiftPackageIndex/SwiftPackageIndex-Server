@@ -66,17 +66,17 @@
 
             li.history {
                 grid-column-start: span 2;
-                background-image: var(--image-clock);
+                background-image: var(--image-history);
             }
 
             li.activity {
                 grid-column-start: span 2;
-                background-image: var(--image-speech-bubble);
+                background-image: var(--image-activity);
             }
 
             li.dependencies {
                 grid-column-start: span 2;
-                background-image: var(--image-dependency-tree);
+                background-image: var(--image-dependencies);
             }
 
             li.license {
@@ -106,26 +106,24 @@
             }
 
             li.stars {
-                background-image: var(--image-star);
+                background-image: var(--image-stars);
             }
 
             li.libraries {
-                background-image: var(--image-box);
+                background-image: var(--image-libraries);
             }
 
             li.executables {
-                background-image: var(--image-prompt);
+                background-image: var(--image-executables);
             }
 
             li.plugins {
-                background-position: 3px center;
-                background-size: 14px;
-                background-image: var(--image-plug);
+                background-image: var(--image-plugins);
             }
 
             li.keywords {
                 grid-column-start: span 2;
-                background-image: var(--image-tag);
+                background-image: var(--image-tags);
 
                 a {
                     display: flex;

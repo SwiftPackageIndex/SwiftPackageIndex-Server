@@ -68,7 +68,7 @@
 
                 > span {
                     padding-left: 25px;
-                    background-image: var(--image-succeeded);
+                    background-image: var(--image-build-succeeded);
                 }
             }
 
@@ -77,7 +77,7 @@
 
                 > span {
                     padding-left: 25px;
-                    background-image: var(--image-failed);
+                    background-image: var(--image-build-failed);
                 }
             }
         }
