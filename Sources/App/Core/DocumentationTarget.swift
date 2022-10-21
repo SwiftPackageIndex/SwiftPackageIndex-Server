@@ -18,6 +18,7 @@ import Fluent
 enum DocumentationTarget: Equatable {
     case external(url: String)
     case `internal`(reference: String, archive: String)
+    case universal
 
     /// Fetch DocumentationTarget for a given package.
     /// - Parameters:
