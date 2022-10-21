@@ -121,7 +121,8 @@ enum MaintainerInfoIndex {
                             .a(
                                 .href(docLink(.selfHosting)),
                                 "Configure a link to your self-hosted documentation"
-                            )
+                            ),
+                            "."
                         )
                     ),
                     .li(
