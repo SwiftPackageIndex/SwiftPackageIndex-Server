@@ -99,12 +99,12 @@ enum MaintainerInfoIndex {
 
                 .h3("Manifest File"),
                 .p(
-                    "There are more aspects of how the Swift Package Index displays your package you can control. You can do this by adding the manifest file ",
-                    .code(".spi.yml"),
-                    " to your package repository."
+                    "You can control more aspects of how the Swift Package Index treats your package repository, including improving build compatibility results and opting into automated DocC documentation hosting."
                 ),
                 .p(
-                    "Here are some of the things you can control or enable:"
+                    "As the Swift Package Index scans your package repository, it will look for a manifest file named ",
+                    .code(".spi.yml"),
+                    ". If found, here are some of the things you can control or enable with it:"
                 ),
                 .ul(
                     .li(
@@ -120,7 +120,7 @@ enum MaintainerInfoIndex {
                         .p(
                             .a(
                                 .href(docLink(.selfHosting)),
-                                "Configure a link to your self-hosted documentation"
+                                "Configure a link to external self-hosted documentation"
                             ),
                             "."
                         )
@@ -147,11 +147,12 @@ enum MaintainerInfoIndex {
                     ),
                     .li(
                         .p(
+                            "If your builds require additional operating system-level dependencies to succeed, you can ",
                             .a(
                                 .href(docLink(.linuxImages)),
-                                "Configure base images for Linux builds"
+                                "configure base images for Linux builds"
                             ),
-                            " in case you require additional operating system level dependencies for your builds to succeed."
+                            "."
                         )
                     )
                 ),  // end of ul
@@ -163,7 +164,7 @@ enum MaintainerInfoIndex {
                                                   documentation: .universal,
                                                   fragment: .documentation,
                                                   path: "spimanifest")),
-                        "SPIManifest package documentatation"
+                        "SPIManifest package documentation"
                     ),
                     " for more details."
                 )
