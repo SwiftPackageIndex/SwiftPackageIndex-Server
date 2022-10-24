@@ -47,7 +47,7 @@ enum PackageContributors {
     }
 
     /// Loads the contributors history from a Git repository
-    struct GitHistoryLoader {
+    private struct GitHistoryLoader {
 
         static func loadContributorsHistory(gitCacheDirectoryPath: String, packageID: UUID?) throws -> [Contributor] {
             do {
