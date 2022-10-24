@@ -32,7 +32,7 @@ enum PackageContributors {
     ///   - packageID: the UUID of the package
     /// - Returns: PackageAuthors
     static func extract(gitCacheDirectoryPath: String, packageID: UUID?) throws -> PackageAuthors {
-        let contributorsHistory = try GitShortlog.loadContributors(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
+        let contributorsHistory = try GitShortlog.loadContributors(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID
         let authors = primaryContributors(candidates: contributorsHistory, threshold: 0.6)
 
         return PackageAuthors(authors: authors.map { Author(name: $0.name) },
