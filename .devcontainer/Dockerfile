@@ -1,8 +1,9 @@
-FROM swift:5.6.1-focal
+FROM swift:5.7-focal
 
 # Install SPM build dependencies
 RUN apt-get update && apt-get install -y curl git make unzip \
-    sqlite3 libsqlite3-dev
+    sqlite3 libsqlite3-dev  `# dependencies for building SPM` \
+    libcurl4-openssl-dev    `# Foundation networking`
 
 # Install front-end dependencies
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
