@@ -121,11 +121,37 @@
             <img alt="Platform Compatibility for Example Package" src="https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms"/>
           </div>
           <p>Copy the Markdown above into your package's README file to show always-up-to-date compatibility status for your package.</p>
-          <h3>Build Compatibility</h3>
-          <p>For information on improving your 
-            <a href="/example/package/builds">package's build results</a>, including why you might want to add a 
-            <code>.spi.yml</code> which controls the Swift Package Index build system, see the 
-            <a href="/docs/builds">build system documentation</a>.
+          <h3>Manifest File</h3>
+          <p>There are more aspects of how the Swift Package Index displays your package you can control. You can do this by adding the manifest file 
+            <code>.spi.yml</code> to your package repository.
+          </p>
+          <p>Here are some of the things you can control or enable:</p>
+          <ul>
+            <li>
+              <p>
+                <a href="/SwiftPackageIndex/SPIManifest/documentation/spimanifest/commonusecases#spiHosting">Hosting your documentation</a> on the Swift Package Index site.
+              </p>
+            </li>
+            <li>
+              <p>
+                <a href="/SwiftPackageIndex/SPIManifest/documentation/spimanifest/commonusecases#selfHosting">Configure a link to your self-hosted documentation</a>.
+              </p>
+            </li>
+            <li>
+              <p>
+                <a href="/SwiftPackageIndex/SPIManifest/documentation/spimanifest/commonusecases#targetsAndSchemes">Control build targets and schemes</a> to improve your 
+                <a href="/example/package/builds">package's build results</a>. For more details about the build system, see the 
+                <a href="/docs/builds">build system documentation</a>.
+              </p>
+            </li>
+            <li>
+              <p>
+                <a href="/SwiftPackageIndex/SPIManifest/documentation/spimanifest/commonusecases#linuxImages">Configure base images for Linux builds</a> in case you require additional operating system level dependencies for your builds to succeed.
+              </p>
+            </li>
+          </ul>
+          <p>See the 
+            <a href="/SwiftPackageIndex/SPIManifest/documentation/spimanifest">SPIManifest package documentatation</a> for more details.
           </p>
         </div>
       </div>
