@@ -10,13 +10,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get install -y nodejs
 RUN npm install --global yarn
 
-# Shell customisation
-# RUN apt-get update && apt-get install -y fish
-# RUN chsh -s $(which fish)
-#
-# or...
-#
-# RUN apt-get update && apt-get install -y zsh
-# RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-# RUN curl https://gist.githubusercontent.com/daveverwer/73bd218b27181512f6252b59dc098610/raw/09ada460a7bd20bbf2c779e7747e193e5c38b028/zshrc > ~/.zshrc
-# RUN chsh -s $(which zsh)
+# Install shells
+RUN apt-get update && apt-get install -y fish zsh
+
+# Install zsh customisation
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+RUN curl https://gist.githubusercontent.com/daveverwer/73bd218b27181512f6252b59dc098610/raw/09ada460a7bd20bbf2c779e7747e193e5c38b028/zshrc > ~/.zshrc
