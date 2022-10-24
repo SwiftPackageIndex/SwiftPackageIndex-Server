@@ -211,7 +211,7 @@ extension Analyze {
                         package: Joined<Package, Repository>) async throws {
         try refreshCheckout(logger: logger, package: package)
         try await updateRepository(on: transaction, package: package)
-        
+
         let versionDelta = try await diffVersions(client: client,
                                                   logger: logger,
                                                   transaction: transaction,
@@ -356,7 +356,7 @@ extension Analyze {
         guard let gitDirectory = Current.fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
-        
+
         repo.commitCount = (try? Current.git.commitCount(gitDirectory)) ?? 0
         repo.firstCommitDate = try? Current.git.firstCommitDate(gitDirectory)
         repo.lastCommitDate = try? Current.git.lastCommitDate(gitDirectory)
@@ -435,11 +435,11 @@ extension Analyze {
             .map { ref in
                 let revInfo = try Current.git.revisionInfo(ref, cacheDir)
                 let url = package.model.versionUrl(for: ref)
-                    return try Version(package: package.model,
-                                       commit: revInfo.commit,
-                                       commitDate: revInfo.date,
-                                       reference: ref,
-                                       url: url)
+                return try Version(package: package.model,
+                                   commit: revInfo.commit,
+                                   commitDate: revInfo.date,
+                                   reference: ref,
+                                   url: url)
             }
     }
 
