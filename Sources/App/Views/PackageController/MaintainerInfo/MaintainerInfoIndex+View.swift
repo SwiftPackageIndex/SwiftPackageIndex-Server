@@ -42,6 +42,21 @@ enum MaintainerInfoIndex {
             ]
         }
 
+        private enum Anchor: String {
+            case spiHosting = "Host-DocC-documentation-in-the-Swift-Package-Index"
+            case selfHosting = "Configure-a-documentation-URL-for-existing-documentation"
+            case targetsAndSchemes = "Control-Targets-and-Schemes"
+            case linuxImages = "Images-for-Linux"
+        }
+
+        private func docLink(_ anchor: Anchor) -> String {
+            SiteURL.relativeURL(owner: "SwiftPackageIndex",
+                                repository: "SPIManifest",
+                                documentation: .universal,
+                                fragment: .documentation,
+                                path: "spimanifest/commonusecases#\(anchor)")
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .div(
                 .h2("Information for \(model.packageName) Maintainers"),
@@ -81,21 +96,77 @@ enum MaintainerInfoIndex {
                     )
                 ),
                 .p("Copy the Markdown above into your package's README file to show always-up-to-date compatibility status for your package."),
-                .h3("Build Compatibility"),
+
+                .h3("Manifest File"),
                 .p(
-                    .text("For information on improving your "),
-                    .a(
-                        .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
-                        "package's build results"
-                    ),
-                    .text(", including why you might want to add a "),
+                    "You can control more aspects of how the Swift Package Index treats your package repository, including improving build compatibility results and opting into automated DocC documentation hosting."
+                ),
+                .p(
+                    "As the Swift Package Index scans your package repository, it will look for a manifest file named ",
                     .code(".spi.yml"),
-                    .text(" which controls the Swift Package Index build system, see the "),
-                    .a(
-                        .href(SiteURL.docs(.builds).relativeURL()),
-                        "build system documentation"
+                    ". If found, here are some of the things you can control or enable with it:"
+                ),
+                .ul(
+                    .li(
+                        .p(
+                            .a(
+                                .href(docLink(.spiHosting)),
+                                "Hosting your documentation"
+                            ),
+                            " on the Swift Package Index site."
+                        )
                     ),
-                    .text(".")
+                    .li(
+                        .p(
+                            .a(
+                                .href(docLink(.selfHosting)),
+                                "Configure a link to external self-hosted documentation"
+                            ),
+                            "."
+                        )
+                    ),
+                    .li(
+                        .p(
+                            .a(
+                                .href(docLink(.targetsAndSchemes)),
+                                "Control build targets and schemes"
+                            ),
+                            " to improve your ",
+                            .a(
+                                .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
+                                "package's build results"
+                            ),
+                            ".",
+                            " For more details about the build system, see the ",
+                            .a(
+                                .href(SiteURL.docs(.builds).relativeURL()),
+                                "build system documentation"
+                            ),
+                            "."
+                        )
+                    ),
+                    .li(
+                        .p(
+                            "If your builds require additional operating system-level dependencies to succeed, you can ",
+                            .a(
+                                .href(docLink(.linuxImages)),
+                                "configure base images for Linux builds"
+                            ),
+                            "."
+                        )
+                    )
+                ),  // end of ul
+                .p(
+                    "See the ",
+                    .a(
+                        .href(SiteURL.relativeURL(owner: "SwiftPackageIndex",
+                                                  repository: "SPIManifest",
+                                                  documentation: .universal,
+                                                  fragment: .documentation,
+                                                  path: "spimanifest")),
+                        "SPIManifest package documentation"
+                    ),
+                    " for more details."
                 )
             )
         }

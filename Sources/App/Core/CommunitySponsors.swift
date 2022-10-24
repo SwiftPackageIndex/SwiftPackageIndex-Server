@@ -322,10 +322,6 @@ enum CommunitySponsors {
             avatarUrl: "https://avatars.githubusercontent.com/u/9993442?u=208f39b88bc630bc7d0dc7f906a9ec4aed9ed37a&v=4"
         ),
         CommunitySponsor(
-            name: "Frank",
-            avatarUrl: "https://avatars.githubusercontent.com/u/10637868?u=ae73f0a44ef110c3375bb5b03985c78602031ac3&v=4"
-        ),
-        CommunitySponsor(
             name: "Maxim Bazarov",
             avatarUrl: "https://avatars.githubusercontent.com/u/11208417?u=caf85feb05c65e4f264e8ec95bdef416b7c4bfdb&v=4"
         ),
@@ -424,10 +420,6 @@ enum CommunitySponsors {
         CommunitySponsor(
             name: "TapEnvy.us, LLC",
             avatarUrl: "https://avatars.githubusercontent.com/u/88908726?v=4"
-        ),
-        CommunitySponsor(
-            name: "Sparrow Code",
-            avatarUrl: "https://avatars.githubusercontent.com/u/98487302?v=4"
         ),
     ]
 }

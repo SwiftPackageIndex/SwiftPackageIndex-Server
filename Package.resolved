@@ -140,8 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SPIManifest",
       "state" : {
-        "revision" : "2f086bff48dbf64ea398fb3b04d4a6caabf19616",
-        "version" : "0.11.0"
+        "revision" : "5569d7aca29b7d7f4f793ba997bfaa72ca99fca7",
+        "version" : "0.12.0"
       }
     },
     {
@@ -222,7 +222,7 @@
       "location" : "https://github.com/apple/swift-driver.git",
       "state" : {
         "branch" : "release/5.7",
-        "revision" : "719426df790661020de657bf38beb2a8b1de5ad3"
+        "revision" : "82b274af66cfbb8f3131677676517b34d01e30fd"
       }
     },
     {
@@ -284,8 +284,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-ssl.git",
       "state" : {
-        "revision" : "ba7c0d7f82affc518147ea61d240330bf7f7ea9b",
-        "version" : "2.22.1"
+        "revision" : "4fb7ead803e38949eb1d6fabb849206a72c580f3",
+        "version" : "2.23.0"
       }
     },
     {
@@ -293,8 +293,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-transport-services.git",
       "state" : {
-        "revision" : "b6e37a0d442745760d6ed0195d8f283d3ce0414a",
-        "version" : "1.14.1"
+        "revision" : "c0d9a144cfaec8d3d596aadde3039286a266c15c",
+        "version" : "1.15.0"
       }
     },
     {

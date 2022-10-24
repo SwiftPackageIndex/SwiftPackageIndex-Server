@@ -32,7 +32,7 @@ enum PackageContributors {
     ///   - packageID: the UUID of the package
     /// - Returns: PackageAuthors
     static func extract(gitCacheDirectoryPath: String, packageID: UUID?) throws -> PackageAuthors {
-        let contributorsHistory = try GitHistoryLoader.loadContributorsHistory(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
+        let contributorsHistory = try GitShortlog.loadContributors(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
         let authors = primaryContributors(candidates: contributorsHistory, threshold: 0.6)
 
         return PackageAuthors(authors: authors.map { Author(name: $0.name) },
@@ -46,20 +46,20 @@ enum PackageContributors {
         let name: String
     }
 
-    /// Loads the contributors history from a Git repository
-    struct GitHistoryLoader {
+    /// Loads git contributors from repository history
+    private struct GitShortlog {
 
-        static func loadContributorsHistory(gitCacheDirectoryPath: String, packageID: UUID?) throws -> [Contributor] {
+        static func loadContributors(gitCacheDirectoryPath: String, packageID: UUID?) throws -> [Contributor] {
             do {
-                let commitHistory = try queryGitHistory(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
-                return try parseGitHistory(logHistory: commitHistory)
+                let commitHistory = try runShortlog(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
+                return try parse(logHistory: commitHistory)
             } catch {
                 throw AppError.analysisError(packageID, "loadContributorsHistory failed: \(error.localizedDescription)")
             }
         }
 
         /// Gets the git history in a string log
-        private static func queryGitHistory(gitCacheDirectoryPath: String, packageID: UUID?) throws -> String {
+        private static func runShortlog(gitCacheDirectoryPath: String, packageID: UUID?) throws -> String {
 
             if Current.fileManager.fileExists(atPath: gitCacheDirectoryPath) == false {
                 throw AppError.cacheDirectoryDoesNotExist(packageID, gitCacheDirectoryPath)
@@ -81,7 +81,7 @@ enum PackageContributors {
         /// It is assumed that order. Example:
         /// ` 1000\tJohn Albert Doe`
         /// This method only parses the number of commits and the name of the commiter
-        private static func parseGitHistory(logHistory: String) throws -> [Contributor] {
+        private static func parse(logHistory: String) throws -> [Contributor] {
             var committers = [Contributor]()
 
             for line in logHistory.components(separatedBy: .newlines) {

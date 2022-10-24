@@ -89,7 +89,6 @@ extension Node where Context: HTML.BodyContext {
                           tabContent: [Node<HTML.BodyContext>]) -> Node<HTML.BodyContext> {
         .section(
             .data(named: "controller", value: "tab-bar"),
-            .data(named: "action", value: "popstate@window->tab-bar#setTabFromLocation"),
             .nav(
                 .ul(
                     .class("tab-list"),
