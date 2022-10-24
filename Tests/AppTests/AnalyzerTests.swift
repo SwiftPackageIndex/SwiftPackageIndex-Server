@@ -745,7 +745,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(targets.map(\.name), ["t1", "t2"])
     }
 
-    func test_updatePackage() throws {
+    func test_updatePackage() async throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
             .map(Joined<Package, Repository>.init(model:))
@@ -756,15 +756,15 @@ class AnalyzerTests: AppTestCase {
         ]
 
         // MUT
-        try updatePackages(client: app.client,
-                           database: app.db,
-                           logger: app.logger,
-                           results: results,
-                           stage: .analysis).wait()
+        try await updatePackages(client: app.client,
+                                 database: app.db,
+                                 logger: app.logger,
+                                 results: results,
+                                 stage: .analysis)
 
         // validate
         do {
-            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            let packages = try await Package.query(on: app.db).sort(\.$url).all()
             assertEquals(packages, \.status, [.noValidVersions, .ok])
             assertEquals(packages, \.processingStage, [.analysis, .analysis])
         }

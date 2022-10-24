@@ -19,11 +19,11 @@ import XCTVapor
 
 class ErrorReportingTests: AppTestCase {
     
-    func test_recordError() throws {
+    func test_recordError() async throws {
         let pkg = try savePackage(on: app.db, "1")
-        try recordError(database: app.db,
-                        error: AppError.invalidPackageUrl(pkg.id, "foo"),
-                        stage: .ingestion).wait()
+        try await recordError(database: app.db,
+                              error: AppError.invalidPackageUrl(pkg.id, "foo"),
+                              stage: .ingestion)
         do {
             let pkg = try fetch(id: pkg.id, on: app.db)
             XCTAssertEqual(pkg.status, .invalidUrl)

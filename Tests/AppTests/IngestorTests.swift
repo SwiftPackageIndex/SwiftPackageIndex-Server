@@ -268,7 +268,7 @@ class IngestorTests: AppTestCase {
                                  database: app.db,
                                  logger: app.logger,
                                  results: results,
-                                 stage: .ingestion).get()
+                                 stage: .ingestion)
         
         // validate
         do {
@@ -294,7 +294,7 @@ class IngestorTests: AppTestCase {
                                  database: app.db,
                                  logger: app.logger,
                                  results: results,
-                                 stage: .ingestion).get()
+                                 stage: .ingestion)
         
         // validate
         do {
