@@ -20,7 +20,7 @@ import XCTVapor
 class ErrorReportingTests: AppTestCase {
     
     func test_recordError() async throws {
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackageAsync(on: app.db, "1")
         try await recordError(database: app.db,
                               error: AppError.invalidPackageUrl(pkg.id, "foo"),
                               stage: .ingestion)
@@ -39,7 +39,7 @@ class ErrorReportingTests: AppTestCase {
     
     func test_Ingestor_error_reporting() async throws {
         // setup
-        try savePackages(on: app.db, ["1", "2"], processingStage: .reconciliation)
+        try await savePackagesAsync(on: app.db, ["1", "2"], processingStage: .reconciliation)
         Current.fetchMetadata = { _, _ in throw AppError.invalidPackageUrl(nil, "foo") }
         
         var reportedLevel: AppError.Level? = nil
@@ -59,7 +59,8 @@ class ErrorReportingTests: AppTestCase {
     
     func test_Analyzer_error_reporting() async throws {
         // setup
-        try savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)
+        try await savePackagesAsync(on: app.db, ["1", "2"].asGithubUrls.asURLs,
+                                    processingStage: .ingestion)
         Current.fileManager.fileExists = { _ in true }
         Current.shell.run = { cmd, path in
             if cmd.string == "git tag" { return "1.0.0" }
@@ -88,7 +89,7 @@ class ErrorReportingTests: AppTestCase {
     
     func test_invalidPackageCachePath() async throws {
         // setup
-        try savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
+        try await savePackagesAsync(on: app.db, ["1", "2"], processingStage: .ingestion)
         
         // MUT
         try await Analyze.analyze(client: app.client,
