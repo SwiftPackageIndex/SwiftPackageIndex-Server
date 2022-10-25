@@ -73,11 +73,11 @@ class ErrorReportingTests: AppTestCase {
             return "invalid"
         }
         
-        var reportedLevel: AppError.Level? = nil
-        var reportedError: Error? = nil
+        let reportedLevel = ActorIsolated<AppError.Level?>(nil)
+        let reportedError = ActorIsolated<Error?>(nil)
         Current.reportError = { _, level, error in
-            reportedLevel = level
-            reportedError = error
+            await reportedLevel.setValue(level)
+            await reportedError.setValue(error)
         }
         
         // MUT
@@ -87,8 +87,12 @@ class ErrorReportingTests: AppTestCase {
                                   mode: .limit(10))
         
         // validation
-        XCTAssertNotNil(reportedError)
-        XCTAssertEqual(reportedLevel, .error)
+        await reportedLevel.withValue {
+            XCTAssertEqual($0, .error)
+        }
+        await reportedError.withValue {
+            XCTAssertNotNil($0)
+        }
     }
     
     func test_invalidPackageCachePath() async throws {
