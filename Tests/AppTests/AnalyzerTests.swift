@@ -47,16 +47,15 @@ class AnalyzerTests: AppTestCase {
                              name: "2",
                              owner: "foo",
                              stars: 100).save(on: app.db)
-        actor Validation {
-            static var checkoutDir: String? = nil
-            static var commands = [Command]()
-        }
-        var firstDirCloned = false
+
+        let checkoutDir = QueueIsolated<String?>(nil)
+        let commands = QueueIsolated<[Command]>([])
+        let firstDirCloned = QueueIsolated(false)
         Current.fileManager.fileExists = { path in
-            if let outDir = Validation.checkoutDir,
-               path == "\(outDir)/github.com-foo-1" { return firstDirCloned }
+            if let outDir = checkoutDir.value,
+               path == "\(outDir)/github.com-foo-1" { return firstDirCloned.value }
             // let the check for the second repo checkout path succeed to simulate pull
-            if let outDir = Validation.checkoutDir,
+            if let outDir = checkoutDir.value,
                path == "\(outDir)/github.com-foo-2" { return true }
             if path.hasSuffix("Package.swift") { return true }
             if path.hasSuffix("Package.resolved") { return true }
@@ -69,7 +68,7 @@ class AnalyzerTests: AppTestCase {
                 return nil
             }
         }
-        Current.fileManager.createDirectory = { path, _, _ in Validation.checkoutDir = path }
+        Current.fileManager.createDirectory = { path, _, _ in checkoutDir.setValue(path) }
         Current.git = .live
         Current.loadSPIManifest = { path in
             if path.hasSuffix("foo-1") {
@@ -80,12 +79,14 @@ class AnalyzerTests: AppTestCase {
         }
         Current.shell.run = { cmd, path in
             try self.testQueue.sync {
-                let trimmedPath = path.replacingOccurrences(of: Validation.checkoutDir!,
+                let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!,
                                                             with: ".")
-                Validation.commands.append(try .init(command: cmd, path: trimmedPath).unwrap())
+                try commands.withValue {
+                    $0.append(try .init(command: cmd, path: trimmedPath).unwrap())
+                }
             }
             if cmd.string.starts(with: "git clone") {
-                firstDirCloned = true
+                firstDirCloned.setValue(true)
             }
             if cmd == .gitListTags && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
@@ -157,16 +158,16 @@ class AnalyzerTests: AppTestCase {
                                   mode: .limit(10))
 
         // validation
-        let outDir = try Validation.checkoutDir.unwrap()
+        let outDir = try checkoutDir.value.unwrap()
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-        XCTAssertEqual(Validation.commands.count, 34)
+        XCTAssertEqual(commands.value.count, 34)
 
         // Snapshot for each package individually to avoid ordering issues when
         // concurrent processing causes commands to interleave between packages.
-        assertSnapshot(matching: Validation.commands
+        assertSnapshot(matching: commands.value
                         .filter { $0.path.hasSuffix("foo-1") }
                         .map(\.description), as: .dump)
-        assertSnapshot(matching: Validation.commands
+        assertSnapshot(matching: commands.value
                         .filter { $0.path.hasSuffix("foo-2") }
                         .map(\.description), as: .dump)
 
