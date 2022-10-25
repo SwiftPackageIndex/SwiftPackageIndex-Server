@@ -397,12 +397,10 @@ class AnalyzerTests: AppTestCase {
             mockResults[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
         }
 
-        actor Validation {
-            static var commands = [Command]()
-        }
+        let commands = QueueIsolated<[Command]>([])
         Current.shell.run = { cmd, path in
-            try self.testQueue.sync {
-                Validation.commands.append(try .init(command: cmd, path: path).unwrap())
+            try commands.withValue {
+                $0.append(try .init(command: cmd, path: path).unwrap())
             }
 
             if let result = mockResults[cmd] { return result }
@@ -424,25 +422,24 @@ class AnalyzerTests: AppTestCase {
         // validation (not in detail, this is just to ensure command count is as expected)
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
-        XCTAssertEqual(Validation.commands.count, 34, "was: \(dump(Validation.commands))")
+        XCTAssertEqual(commands.value.count, 34, "was: \(dump(commands.value))")
         // 2 packages with 2 tags + 1 default branch each -> 6 versions
         let versionCount = try await Version.query(on: app.db).count()
         XCTAssertEqual(versionCount, 6)
     }
 
+    @MainActor
     func test_refreshCheckout() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
         try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         Current.fileManager.fileExists = { _ in true }
-        actor Validator {
-            static var commands = [String]()
-        }
+        let commands = QueueIsolated<[String]>([])
         Current.shell.run = { cmd, path in
-            self.testQueue.sync {
-                // mask variable checkout
-                let checkoutDir = Current.fileManager.checkoutsDirectory()
-                Validator.commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
+            // mask variable checkout
+            let checkoutDir = Current.fileManager.checkoutsDirectory()
+            commands.withValue {
+                $0.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
             }
             return ""
         }
@@ -452,7 +449,7 @@ class AnalyzerTests: AppTestCase {
         _ = try Analyze.refreshCheckout(logger: app.logger, package: jpr)
 
         // validate
-        assertSnapshot(matching: Validator.commands, as: .dump)
+        assertSnapshot(matching: commands.value, as: .dump)
     }
 
     func test_updateRepository() async throws {
@@ -570,12 +567,10 @@ class AnalyzerTests: AppTestCase {
     func test_getPackageInfo() async throws {
         // Tests getPackageInfo(package:version:)
         // setup
-        actor Validation {
-            static var commands = [String]()
-        }
+        let commands = QueueIsolated<[String]>([])
         Current.shell.run = { cmd, _ in
-            self.testQueue.sync {
-                Validation.commands.append(cmd.string)
+            commands.withValue {
+                $0.append(cmd.string)
             }
             if cmd == .swiftDumpPackage {
                 return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
@@ -595,7 +590,7 @@ class AnalyzerTests: AppTestCase {
         let info = try Analyze.getPackageInfo(package: jpr, version: version)
 
         // validation
-        XCTAssertEqual(Validation.commands, [
+        XCTAssertEqual(commands.value, [
             "git checkout \"0.4.2\" --quiet",
             "swift package dump-package"
         ])
@@ -831,6 +826,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try Product.query(on: app.db).count().wait(), 12)
     }
 
+    @MainActor
     func test_issue_70() async throws {
         // Certain git commands fail when index.lock exists
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/70
@@ -843,13 +839,11 @@ class AnalyzerTests: AppTestCase {
         // we want to trigger the cleanup mechanism
         Current.fileManager.fileExists = { path in true }
 
-        actor Validator {
-            static var commands = [String]()
-        }
+        let commands = QueueIsolated<[String]>([])
         Current.shell.run = { cmd, path in
-            self.testQueue.sync {
+            commands.withValue {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "...")
-                Validator.commands.append(c)
+                $0.append(c)
             }
             return ""
         }
@@ -863,9 +857,10 @@ class AnalyzerTests: AppTestCase {
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
-        assertSnapshot(matching: Validator.commands, as: .dump)
+        assertSnapshot(matching: commands.value, as: .dump)
     }
 
+    @MainActor
     func test_issue_498() async throws {
         // git checkout can still fail despite git reset --hard + git clean
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
@@ -878,13 +873,11 @@ class AnalyzerTests: AppTestCase {
         // we want to trigger the cleanup mechanism
         Current.fileManager.fileExists = { path in true }
 
-        actor Validator {
-            static var commands = [String]()
-        }
+        let commands = QueueIsolated<[String]>([])
         Current.shell.run = { cmd, path in
-            self.testQueue.sync {
+            commands.withValue {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
-                Validator.commands.append(c)
+                $0.append(c)
             }
             if cmd == .gitCheckout(branch: "master") {
                 throw TestError.simulatedCheckoutError
@@ -901,7 +894,7 @@ class AnalyzerTests: AppTestCase {
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
-        assertSnapshot(matching: Validator.commands, as: .dump)
+        assertSnapshot(matching: commands.value, as: .dump)
     }
 
     func test_dumpPackage_5_4() throws {
@@ -968,6 +961,7 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
+    @MainActor
     func test_issue_693() async throws {
         // Handle moved tags
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/693
@@ -978,14 +972,12 @@ class AnalyzerTests: AppTestCase {
         }
         let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
         Current.fileManager.fileExists = { _ in true }
-        actor Validator {
-            static var commands = [String]()
-        }
+        let commands = QueueIsolated<[String]>([])
         Current.shell.run = { cmd, _ in
-            self.testQueue.sync {
+            commands.withValue {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
-                Validator.commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
+                $0.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
             }
             if cmd == .gitFetchAndPruneTags { throw TestError.simulatedFetchError }
             return ""
@@ -995,7 +987,7 @@ class AnalyzerTests: AppTestCase {
         _ = try Analyze.refreshCheckout(logger: app.logger, package: pkg)
 
         // validate
-        assertSnapshot(matching: Validator.commands, as: .dump)
+        assertSnapshot(matching: commands.value, as: .dump)
     }
 
     func test_updateLatestVersions() throws {
