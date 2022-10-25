@@ -246,6 +246,7 @@ struct Git {
     var getTags: (String) throws -> [Reference]
     var showDate: (CommitHash, String) throws -> Date
     var revisionInfo: (Reference, String) throws -> RevisionInfo
+    var shortlog: (String) throws -> String
 
     static let live: Self = .init(
         commitCount: commitCount(at:),
@@ -253,7 +254,8 @@ struct Git {
         lastCommitDate: lastCommitDate(at:),
         getTags: getTags(at:),
         showDate: showDate(_:at:),
-        revisionInfo: revisionInfo(_:at:)
+        revisionInfo: revisionInfo(_:at:),
+        shortlog: shortlog(at:)
     )
 }
 

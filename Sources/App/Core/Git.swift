@@ -76,6 +76,10 @@ extension Git {
         let date = Date(timeIntervalSince1970: timestamp)
         return .init(commit: hash, date: date)
     }
+    
+    static func shortlog(at path: String) throws -> String {
+        try Current.shell.run(command: .gitShortlog, at: path)
+    }
 
     struct RevisionInfo: Equatable {
         let commit: CommitHash

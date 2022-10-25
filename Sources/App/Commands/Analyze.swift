@@ -360,6 +360,7 @@ extension Analyze {
         repo.commitCount = (try? Current.git.commitCount(gitDirectory)) ?? 0
         repo.firstCommitDate = try? Current.git.firstCommitDate(gitDirectory)
         repo.lastCommitDate = try? Current.git.lastCommitDate(gitDirectory)
+        repo.authors = try? PackageContributors.extract(gitCacheDirectoryPath: gitDirectory, packageID: package.model.id)
 
         try await repo.update(on: database)
     }
@@ -434,11 +435,11 @@ extension Analyze {
             .map { ref in
                 let revInfo = try Current.git.revisionInfo(ref, cacheDir)
                 let url = package.model.versionUrl(for: ref)
-                    return try Version(package: package.model,
-                                       commit: revInfo.commit,
-                                       commitDate: revInfo.date,
-                                       reference: ref,
-                                       url: url)
+                return try Version(package: package.model,
+                                   commit: revInfo.commit,
+                                   commitDate: revInfo.date,
+                                   reference: ref,
+                                   url: url)
             }
     }
 

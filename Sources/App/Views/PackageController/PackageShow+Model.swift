@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright 2020-2022 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ extension PackageShow {
         var repositoryOwnerName: String
         var repositoryName: String
         var activity: Activity?
-        var authors: [Link]?
+        var authors: PackageAuthors?
         var keywords: [String]?
         var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
         var platformBuildInfo: BuildInfo<PlatformResults>?
@@ -53,7 +53,7 @@ extension PackageShow {
                       repositoryOwnerName: String,
                       repositoryName: String,
                       activity: Activity? = nil,
-                      authors: [Link]? = nil,
+                      authors: PackageAuthors? = nil,
                       keywords: [String]? = nil,
                       swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil,
                       platformBuildInfo: BuildInfo<PlatformResults>? = nil,
@@ -273,11 +273,23 @@ extension PackageShow.Model {
     }
 
     func authorsListItem() -> Node<HTML.ListContext> {
-        guard let authors = authors else { return .empty }
-        let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
+        guard Environment.current == .development else { return .empty }
+        guard let authors else { return .empty }
+        var nodes = authors.authors.map { author -> Node<HTML.BodyContext> in
+            if let authorURL = author.url {
+                return .a(.href(authorURL), .text(author.name))
+            } else {
+                return .text(author.name)
+            }
+        }
+
+        if authors.numberOfContributors > 0 {
+            nodes.append(.text("\(authors.numberOfContributors) other " + "contributor".pluralized(for: authors.numberOfContributors)))
+        }
+        
         return .li(
             .class("authors"),
-            .group(listPhrase(opening: "By ", nodes: nodes, ifEmpty: "-", closing: "."))
+            .group(listPhrase(opening: "Written by ", nodes: nodes, closing: "."))
         )
     }
 

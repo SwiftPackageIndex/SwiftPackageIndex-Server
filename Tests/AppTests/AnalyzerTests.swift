@@ -51,7 +51,10 @@ class AnalyzerTests: AppTestCase {
             static var checkoutDir: String? = nil
             static var commands = [Command]()
         }
+        var firstDirCloned = false
         Current.fileManager.fileExists = { path in
+            if let outDir = Validation.checkoutDir,
+               path == "\(outDir)/github.com-foo-1" { return firstDirCloned }
             // let the check for the second repo checkout path succeed to simulate pull
             if let outDir = Validation.checkoutDir,
                path == "\(outDir)/github.com-foo-2" { return true }
@@ -80,6 +83,9 @@ class AnalyzerTests: AppTestCase {
                 let trimmedPath = path.replacingOccurrences(of: Validation.checkoutDir!,
                                                             with: ".")
                 Validation.commands.append(try .init(command: cmd, path: trimmedPath).unwrap())
+            }
+            if cmd.string.starts(with: "git clone") {
+                firstDirCloned = true
             }
             if cmd == .gitListTags && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
@@ -137,6 +143,9 @@ class AnalyzerTests: AppTestCase {
             if cmd == .gitCommitCount { return "12" }
             if cmd == .gitFirstCommitDate { return "0" }
             if cmd == .gitLastCommitDate { return "4" }
+            if cmd == .gitShortlog {
+                return "10\tPerson 1"
+            }
 
             return ""
         }
@@ -150,7 +159,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         let outDir = try Validation.checkoutDir.unwrap()
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-        XCTAssertEqual(Validation.commands.count, 32)
+        XCTAssertEqual(Validation.commands.count, 34)
 
         // Snapshot for each package individually to avoid ordering issues when
         // concurrent processing causes commands to interleave between packages.
@@ -260,6 +269,12 @@ class AnalyzerTests: AppTestCase {
                     fatalError("unexpected reference: \(ref)")
             }
         }
+        Current.git.shortlog = { _ in
+            """
+            10\tPerson 1
+             2\tPerson 2
+            """
+        }
 
         Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("package dump-package") {
@@ -313,6 +328,12 @@ class AnalyzerTests: AppTestCase {
         Current.git.lastCommitDate = { _ in .t1 }
         Current.git.getTags = { _ in [.tag(1, 0, 0)] }
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
+        Current.git.shortlog = { _ in
+            """
+            10\tPerson 1
+             2\tPerson 2
+            """
+        }
 
         Current.shell.run = { cmd, path in
             // first package fails
@@ -348,9 +369,11 @@ class AnalyzerTests: AppTestCase {
         }
         var checkoutDir: String? = nil
 
+        var firstDirCloned = false
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
             if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
+            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-1" { return firstDirCloned }
             if path.hasSuffix("Package.swift") { return true }
             return false
         }
@@ -364,6 +387,10 @@ class AnalyzerTests: AppTestCase {
             .gitCommitCount: "12",
             .gitFirstCommitDate: "0",
             .gitLastCommitDate: "1",
+            .gitShortlog : """
+                            10\tPerson 1
+                             2\tPerson 2
+                            """
         ]
         for (idx, ref) in refs.enumerated() {
             mockResults[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
@@ -378,6 +405,9 @@ class AnalyzerTests: AppTestCase {
             }
 
             if let result = mockResults[cmd] { return result }
+            if cmd.string.starts(with: "git clone") {
+                firstDirCloned = true
+            }
 
             // returning a blank string will cause an exception when trying to
             // decode it as the manifest result - we use this to simulate errors
@@ -393,7 +423,7 @@ class AnalyzerTests: AppTestCase {
         // validation (not in detail, this is just to ensure command count is as expected)
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
-        XCTAssertEqual(Validation.commands.count, 32, "was: \(dump(Validation.commands))")
+        XCTAssertEqual(Validation.commands.count, 34, "was: \(dump(Validation.commands))")
         // 2 packages with 2 tags + 1 default branch each -> 6 versions
         let versionCount = try await Version.query(on: app.db).count()
         XCTAssertEqual(versionCount, 6)
@@ -429,6 +459,12 @@ class AnalyzerTests: AppTestCase {
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
+        Current.git.shortlog = { _ in
+            """
+            10\tPerson 1
+             2\tPerson 2
+            """
+        }
         Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
@@ -444,6 +480,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(repo?.commitCount, 12)
         XCTAssertEqual(repo?.firstCommitDate, .t0)
         XCTAssertEqual(repo?.lastCommitDate, .t1)
+        XCTAssertEqual(repo?.authors, PackageAuthors(authors: [Author(name: "Person 1")], numberOfContributors: 1))
     }
 
     func test_diffVersions() async throws {
@@ -742,6 +779,12 @@ class AnalyzerTests: AppTestCase {
         Current.git.lastCommitDate = { _ in .t1 }
         Current.git.getTags = { _ in [.tag(1, 0, 0), .tag(2, 0, 0)] }
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
+        Current.git.shortlog = { _ in
+            """
+            10\tPerson 1
+             2\tPerson 2
+            """
+        }
         Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("swift package dump-package") {
                 return #"""
@@ -1101,6 +1144,7 @@ private struct Command: CustomStringConvertible {
         case getTags
         case reset
         case resetToBranch(String)
+        case shortlog
         case showDate
         case revisionInfo(String)
     }
@@ -1137,6 +1181,8 @@ private struct Command: CustomStringConvertible {
                 let branch = String(command.string.split(separator: " ")[2])
                     .trimmingCharacters(in: quotes)
                 self.kind = .resetToBranch(branch)
+            case .gitShortlog:
+                self.kind = .shortlog
             case _ where command.string.starts(with: #"git show -s --format=%ct"#):
                 self.kind = .showDate
             case _ where command.string.starts(with: #"git log -n1 --format=format:"%H\#(separator)%ct""#):
@@ -1152,7 +1198,7 @@ private struct Command: CustomStringConvertible {
 
     var description: String {
         switch self.kind {
-            case .clean, .commitCount, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .showDate, .reset:
+            case .clean, .commitCount, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .shortlog, .showDate, .reset:
                 return "\(path): \(kind)"
             case .checkout(let ref):
                 return "\(path): checkout \(ref)"
