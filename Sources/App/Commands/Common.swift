@@ -22,18 +22,20 @@ func updatePackages(client: Client,
                     logger: Logger,
                     results: [Result<Joined<Package, Repository>, Error>],
                     stage: Package.ProcessingStage) async throws {
-
     let updates = await withThrowingTaskGroup(of: Void.self) { group in
         for result in results {
             group.addTask {
+                let res = await result.mapAsync { jpr in
+                    try? await jpr.package.$versions.load(on: database)
+                    return (jpr, jpr.package.versions)
+                }
                 try await updatePackage(client: client,
                                         database: database,
                                         logger: logger,
-                                        result: result,
+                                        result: res,
                                         stage: stage)
             }
         }
-
         return await group.results()
     }
 
@@ -44,12 +46,12 @@ func updatePackages(client: Client,
 func updatePackage(client: Client,
                    database: Database,
                    logger: Logger,
-                   result: Result<Joined<Package, Repository>, Error>,
+                   result: Result<(Joined<Package, Repository>, [Version]), Error>,
                    stage: Package.ProcessingStage) async throws {
     switch result {
-        case .success(let jpr):
+        case .success(let res):
+            let (jpr, versions) = res
             let pkg = jpr.package
-            try await pkg.$versions.load(on: database)
             if stage == .ingestion && pkg.status == .new {
                 // newly ingested package: leave status == .new for fast-track
                 // analysis
@@ -57,7 +59,7 @@ func updatePackage(client: Client,
                 pkg.status = .ok
             }
             pkg.processingStage = stage
-            pkg.score = Score.compute(package: jpr, versions: pkg.versions)
+            pkg.score = Score.compute(package: jpr, versions: versions)
             do {
                 try await pkg.update(on: database)
             } catch {
@@ -73,8 +75,7 @@ func updatePackage(client: Client,
         case .failure(let error):
             try? await Current.reportError(client, .error, error)
             try await recordError(database: database, error: error, stage: stage)
-    } // switch result
-
+    }
 }
 
 
@@ -83,7 +84,7 @@ func recordError(database: Database,
                  stage: Package.ProcessingStage) async throws {
     func setStatus(id: Package.Id?, status: Package.Status) async throws {
         guard let id = id else { return }
-        return try await Package.query(on: database)
+        try await Package.query(on: database)
             .filter(\.$id == id)
             .set(\.$processingStage, to: stage)
             .set(\.$status, to: status)
