@@ -17,6 +17,18 @@ import XCTest
 @testable import App
 
 class PackageContributorsTests : AppTestCase {
+
+    func test_packageAuthors_hasAuthors() throws {
+        let noPackageAuthors = PackageAuthors(authors: [], numberOfContributors: 0)
+
+        let somePackageAuthors = PackageAuthors(authors: [
+            .init(name: "Person One"),
+            .init(name: "Person Two")
+        ], numberOfContributors: 0)
+
+        XCTAssertFalse(noPackageAuthors.hasAuthors)
+        XCTAssertTrue(somePackageAuthors.hasAuthors)
+    }
   
     func test_CommitSelector_primaryContributors() throws {
         
