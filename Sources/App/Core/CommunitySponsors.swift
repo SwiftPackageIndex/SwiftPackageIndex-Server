@@ -214,6 +214,10 @@ enum CommunitySponsors {
             avatarUrl: "https://avatars.githubusercontent.com/u/2419640?v=4"
         ),
         CommunitySponsor(
+            name: "David Roman",
+            avatarUrl: "https://avatars.githubusercontent.com/u/2538074?u=251e2687ed55a7cf5c2811f34ed7bfdd10e12b42&v=4"
+        ),
+        CommunitySponsor(
             name: "David Okun",
             avatarUrl: "https://avatars.githubusercontent.com/u/2584705?u=775c6272e145b256cb41057716e1b8ba8677742c&v=4"
         ),
