@@ -41,20 +41,24 @@ class ErrorReportingTests: AppTestCase {
         // setup
         try await savePackagesAsync(on: app.db, ["1", "2"], processingStage: .reconciliation)
         Current.fetchMetadata = { _, _ in throw AppError.invalidPackageUrl(nil, "foo") }
-        
-        var reportedLevel: AppError.Level? = nil
-        var reportedError: AppError? = nil
+
+        let reportedLevel = ActorIsolated<AppError.Level?>(nil)
+        let reportedError = ActorIsolated<AppError?>(nil)
         Current.reportError = { _, level, error in
-            reportedLevel = level
-            reportedError = error as? AppError
+            await reportedLevel.setValue(level)
+            await reportedError.setValue(error as? AppError)
         }
         
         // MUT
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         // validation
-        XCTAssertEqual(reportedError, AppError.invalidPackageUrl(nil, "foo"))
-        XCTAssertEqual(reportedLevel, .error)
+        await reportedLevel.withValue {
+            XCTAssertEqual($0, .error)
+        }
+        await reportedError.withValue {
+            XCTAssertEqual($0, AppError.invalidPackageUrl(nil, "foo"))
+        }
     }
     
     func test_Analyzer_error_reporting() async throws {
