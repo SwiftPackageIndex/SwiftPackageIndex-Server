@@ -20,6 +20,11 @@ import Vapor
 struct PackageAuthors: Codable, Equatable {
     var authors: [Author]
     var numberOfContributors: Int
+
+    var hasAuthors: Bool {
+        // No need to check numberOfContributors here. If there are no authors, there are no authors.
+        authors.isEmpty == false
+    }
 }
 
 enum PackageContributors {

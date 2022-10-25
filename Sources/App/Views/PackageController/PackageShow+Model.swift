@@ -274,7 +274,10 @@ extension PackageShow.Model {
 
     func authorsListItem() -> Node<HTML.ListContext> {
         guard Environment.current == .development else { return .empty }
-        guard let authors else { return .empty }
+
+        guard let authors, authors.hasAuthors
+        else { return .empty }
+
         var nodes = authors.authors.map { author -> Node<HTML.BodyContext> in
             if let authorURL = author.url {
                 return .a(.href(authorURL), .text(author.name))
