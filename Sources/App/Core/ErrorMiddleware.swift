@@ -30,7 +30,7 @@ final class ErrorMiddleware: AsyncMiddleware {
 
             if isCritical {
                 Task.detached {
-                    try await Current.reportError(req.client, .critical, error).get()
+                    try await Current.reportError(req.client, .critical, error)
                 }
                 Current.logger()?.critical("\(error): \(req.url)")
             } else {

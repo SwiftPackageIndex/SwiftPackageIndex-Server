@@ -31,10 +31,10 @@ class ErrorReportingTests: AppTestCase {
         }
     }
     
-    func test_Rollbar_createItem() throws {
+    func test_Rollbar_createItem() async throws {
         Current.rollbarToken = { "token" }
         let client = MockClient { _, resp in resp.status = .ok }
-        try Rollbar.createItem(client: client, level: .critical, message: "Test critical").wait()
+        try await Rollbar.createItem(client: client, level: .critical, message: "Test critical")
     }
     
     func test_Ingestor_error_reporting() async throws {
@@ -47,7 +47,6 @@ class ErrorReportingTests: AppTestCase {
         Current.reportError = { _, level, error in
             reportedLevel = level
             reportedError = error as? AppError
-            return self.future(())
         }
         
         // MUT
@@ -74,7 +73,6 @@ class ErrorReportingTests: AppTestCase {
         Current.reportError = { _, level, error in
             reportedLevel = level
             reportedError = error
-            return self.future(())
         }
         
         // MUT

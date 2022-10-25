@@ -264,7 +264,7 @@ extension Analyze {
             let msg = "Failed to create checkouts directory: \(error.localizedDescription)"
             try await Current.reportError(client,
                                           .critical,
-                                          AppError.genericError(nil, msg)).get()
+                                          AppError.genericError(nil, msg))
             return
         }
     }
@@ -426,7 +426,7 @@ extension Analyze {
         } catch {
             let appError = AppError.genericError(pkgId, "Git.tag failed: \(error.localizedDescription)")
             logger.report(error: appError)
-            try? await Current.reportError(client, .error, appError).get()
+            try? await Current.reportError(client, .error, appError)
             tags = []
         }
 

@@ -109,7 +109,6 @@ final class AnalyzeErrorTests: AppTestCase {
 
         Current.reportError = { _, _, error in
             Validator.reportedErrors.append(error)
-            return self.app.eventLoopGroup.future()
         }
 
         Current.shell.run = Self.defaultShellRun

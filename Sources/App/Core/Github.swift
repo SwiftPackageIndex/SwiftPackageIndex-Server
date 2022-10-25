@@ -105,13 +105,12 @@ extension Github {
         let response = try await client.get(uri, headers: headers(with: token))
 
         guard !isRateLimited(response) else {
-            return try await Current
-                .reportError(client,
-                             .critical,
-                             AppError.metadataRequestFailed(nil, .tooManyRequests, uri))
-                .flatMap {
-                    client.eventLoop.future(error: Error.requestFailed(.tooManyRequests))
-                }.get()
+            try await Current.reportError(
+                client,
+                .critical,
+                AppError.metadataRequestFailed(nil, .tooManyRequests, uri)
+            )
+            throw Error.requestFailed(.tooManyRequests)
         }
 
         guard response.status == .ok else {
@@ -156,15 +155,14 @@ extension Github {
         }
 
         guard !isRateLimited(response) else {
-            return try await Current
-                .reportError(client,
-                             .critical,
-                             AppError.metadataRequestFailed(nil,
-                                                            .tooManyRequests,
-                                                            Self.graphQLApiUri))
-                .flatMap {
-                    client.eventLoop.future(error: Error.requestFailed(.tooManyRequests))
-                }.get()
+            try await Current.reportError(
+                client,
+                .critical,
+                AppError.metadataRequestFailed(nil,
+                                               .tooManyRequests,
+                                               Self.graphQLApiUri)
+            )
+            throw Error.requestFailed(.tooManyRequests)
         }
 
         guard response.status == .ok else {
