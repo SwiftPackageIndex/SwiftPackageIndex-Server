@@ -22,19 +22,3 @@ extension Sequence {
         return results
     }
 }
-
-
-//extension Result {
-//    func mapAsync<NewSuccess, NewFailure>(_ transform: (Success) async throws -> NewSuccess) async -> Result<NewSuccess, NewFailure> where NewFailure == any Error {
-//        switch self {
-//            case .success(let success):
-//                do {
-//                    return try await .success(transform(success))
-//                } catch {
-//                    return .failure(error)
-//                }
-//            case .failure(let failure):
-//                return .failure(failure)
-//        }
-//    }
-//}
