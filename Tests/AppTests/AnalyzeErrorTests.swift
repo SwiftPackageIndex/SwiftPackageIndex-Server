@@ -32,15 +32,8 @@ final class AnalyzeErrorTests: AppTestCase {
     let badPackageID: Package.Id = .id0
     let goodPackageID: Package.Id = .id1
 
-    actor Validator {
-        static var reportedErrors = [Error]()
-        static var tweets = [String]()
-
-        static func reset() {
-            reportedErrors = []
-            tweets = []
-        }
-    }
+    let reportedErrors = ActorIsolated<[Error]>([])
+    let tweets = ActorIsolated<[String]>([])
 
     static var defaultShellRun: (ShellOutCommand, String) throws -> String = { cmd, path in
         switch cmd {
@@ -61,7 +54,8 @@ final class AnalyzeErrorTests: AppTestCase {
     override func setUp() async throws {
         try await super.setUp()
 
-        Validator.reset()
+        await reportedErrors.setValue([])
+        await tweets.setValue([])
 
         // Silence logging
         app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
@@ -108,15 +102,13 @@ final class AnalyzeErrorTests: AppTestCase {
         }
 
         Current.reportError = { _, _, error in
-            Validator.reportedErrors.append(error)
-            return self.app.eventLoopGroup.future()
+            await self.reportedErrors.withValue { $0.append(error) }
         }
 
         Current.shell.run = Self.defaultShellRun
 
         Current.twitterPostTweet = { client, message in
-            Validator.tweets.append(message)
-            return self.app.eventLoopGroup.future()
+            await self.tweets.withValue { $0.append(message) }
         }
     }
 
@@ -143,17 +135,19 @@ final class AnalyzeErrorTests: AppTestCase {
 
         // validate
         try await defaultValidation()
-        XCTAssertEqual(Validator.reportedErrors.count, 1)
-        let error = try Validator.reportedErrors.first.unwrap().localizedDescription
-        XCTAssertTrue(
-            error.contains(
+        try await reportedErrors.withValue { errors in
+            XCTAssertEqual(errors.count, 1)
+            let error = try errors.first.unwrap().localizedDescription
+            XCTAssertTrue(
+                error.contains(
                 #"""
                 Analysis failed: refreshCheckout failed: Shell command failed:
                 command: "git clone https://github.com/foo/1
                 """#
-            ),
-            "was: \(error)"
-        )
+                ),
+                "was: \(error)"
+            )
+        }
     }
 
     func test_analyze_updateRepository_invalidPackageCachePath() async throws {
@@ -173,16 +167,18 @@ final class AnalyzeErrorTests: AppTestCase {
 
         // validate
         try await defaultValidation()
-        XCTAssertEqual(Validator.reportedErrors.count, 1)
-        let error = try Validator.reportedErrors.first.unwrap().localizedDescription
-        XCTAssertTrue(
-            error.contains(
+        try await reportedErrors.withValue { errors in
+            XCTAssertEqual(errors.count, 1)
+            let error = try errors.first.unwrap().localizedDescription
+            XCTAssertTrue(
+                error.contains(
                 #"""
                 Invalid packge cache path: foo/1
                 """#
-            ),
-            "was: \(error)"
-        )
+                ),
+                "was: \(error)"
+            )
+        }
     }
 
     func test_analyze_getPackageInfo_gitCheckout_error() async throws {
@@ -205,16 +201,18 @@ final class AnalyzeErrorTests: AppTestCase {
 
         // validate
         try await defaultValidation()
-        XCTAssertEqual(Validator.reportedErrors.count, 1)
-        let error = try Validator.reportedErrors.first.unwrap().localizedDescription
-        XCTAssertTrue(
-            error.contains(
+        try await reportedErrors.withValue { errors in
+            XCTAssertEqual(errors.count, 1)
+            let error = try errors.first.unwrap().localizedDescription
+            XCTAssertTrue(
+                error.contains(
                 #"""
                 No valid version found for package 'https://github.com/foo/1'
                 """#
-            ),
-            "was: \(error)"
-        )
+                ),
+                "was: \(error)"
+            )
+        }
     }
 
     func test_analyze_dumpPackage_missing_manifest() async throws {
@@ -234,17 +232,19 @@ final class AnalyzeErrorTests: AppTestCase {
 
         // validate
         try await defaultValidation()
-        XCTAssertEqual(Validator.reportedErrors.count, 1)
-        let error = try Validator.reportedErrors.first.unwrap().localizedDescription
-        print(error)
-        XCTAssertTrue(
-            error.contains(
+        try await reportedErrors.withValue { errors in
+            XCTAssertEqual(errors.count, 1)
+            let error = try errors.first.unwrap().localizedDescription
+            print(error)
+            XCTAssertTrue(
+                error.contains(
                 #"""
                 No valid version found for package 'https://github.com/foo/1'
                 """#
-            ),
-            "was: \(error)"
-        )
+                ),
+                "was: \(error)"
+            )
+        }
     }
 
 
@@ -259,13 +259,15 @@ extension AnalyzeErrorTests {
         XCTAssertEqual(versions.count, 2)
         XCTAssertEqual(versions.filter(\.isBranch).first?.latest, .defaultBranch)
         XCTAssertEqual(versions.filter(\.isTag).first?.latest, .release)
-        XCTAssertEqual(Validator.tweets, [
+        await tweets.withValue { tweets in
+            XCTAssertEqual(tweets, [
             """
             ⬆️ foo just released foo-2 v1.2.3
 
             http://localhost:8080/foo/2#releases
             """
-        ])
+            ])
+        }
     }
 }
 

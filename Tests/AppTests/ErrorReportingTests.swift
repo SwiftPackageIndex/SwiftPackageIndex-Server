@@ -19,11 +19,11 @@ import XCTVapor
 
 class ErrorReportingTests: AppTestCase {
     
-    func test_recordError() throws {
-        let pkg = try savePackage(on: app.db, "1")
-        try recordError(database: app.db,
-                        error: AppError.invalidPackageUrl(pkg.id, "foo"),
-                        stage: .ingestion).wait()
+    func test_recordError() async throws {
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        try await recordError(database: app.db,
+                              error: AppError.invalidPackageUrl(pkg.id, "foo"),
+                              stage: .ingestion)
         do {
             let pkg = try fetch(id: pkg.id, on: app.db)
             XCTAssertEqual(pkg.status, .invalidUrl)
@@ -31,36 +31,40 @@ class ErrorReportingTests: AppTestCase {
         }
     }
     
-    func test_Rollbar_createItem() throws {
+    func test_Rollbar_createItem() async throws {
         Current.rollbarToken = { "token" }
         let client = MockClient { _, resp in resp.status = .ok }
-        try Rollbar.createItem(client: client, level: .critical, message: "Test critical").wait()
+        try await Rollbar.createItem(client: client, level: .critical, message: "Test critical")
     }
     
     func test_Ingestor_error_reporting() async throws {
         // setup
-        try savePackages(on: app.db, ["1", "2"], processingStage: .reconciliation)
+        try await savePackagesAsync(on: app.db, ["1", "2"], processingStage: .reconciliation)
         Current.fetchMetadata = { _, _ in throw AppError.invalidPackageUrl(nil, "foo") }
-        
-        var reportedLevel: AppError.Level? = nil
-        var reportedError: AppError? = nil
+
+        let reportedLevel = ActorIsolated<AppError.Level?>(nil)
+        let reportedError = ActorIsolated<AppError?>(nil)
         Current.reportError = { _, level, error in
-            reportedLevel = level
-            reportedError = error as? AppError
-            return self.future(())
+            await reportedLevel.setValue(level)
+            await reportedError.setValue(error as? AppError)
         }
         
         // MUT
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         // validation
-        XCTAssertEqual(reportedError, AppError.invalidPackageUrl(nil, "foo"))
-        XCTAssertEqual(reportedLevel, .error)
+        await reportedLevel.withValue {
+            XCTAssertEqual($0, .error)
+        }
+        await reportedError.withValue {
+            XCTAssertEqual($0, AppError.invalidPackageUrl(nil, "foo"))
+        }
     }
     
     func test_Analyzer_error_reporting() async throws {
         // setup
-        try savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)
+        try await savePackagesAsync(on: app.db, ["1", "2"].asGithubUrls.asURLs,
+                                    processingStage: .ingestion)
         Current.fileManager.fileExists = { _ in true }
         Current.shell.run = { cmd, path in
             if cmd.string == "git tag" { return "1.0.0" }
@@ -69,12 +73,11 @@ class ErrorReportingTests: AppTestCase {
             return "invalid"
         }
         
-        var reportedLevel: AppError.Level? = nil
-        var reportedError: Error? = nil
+        let reportedLevel = ActorIsolated<AppError.Level?>(nil)
+        let reportedError = ActorIsolated<Error?>(nil)
         Current.reportError = { _, level, error in
-            reportedLevel = level
-            reportedError = error
-            return self.future(())
+            await reportedLevel.setValue(level)
+            await reportedError.setValue(error)
         }
         
         // MUT
@@ -84,13 +87,17 @@ class ErrorReportingTests: AppTestCase {
                                   mode: .limit(10))
         
         // validation
-        XCTAssertNotNil(reportedError)
-        XCTAssertEqual(reportedLevel, .error)
+        await reportedLevel.withValue {
+            XCTAssertEqual($0, .error)
+        }
+        await reportedError.withValue {
+            XCTAssertNotNil($0)
+        }
     }
     
     func test_invalidPackageCachePath() async throws {
         // setup
-        try savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
+        try await savePackagesAsync(on: app.db, ["1", "2"], processingStage: .ingestion)
         
         // MUT
         try await Analyze.analyze(client: app.client,
