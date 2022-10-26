@@ -64,7 +64,6 @@ class ErrorMiddlewareTests: AppTestCase {
         var errorReported = false
         Current.reportError = { _, level, error in
             errorReported = true
-            return self.future(())
         }
         
         try app.test(.GET, "404", afterResponse: { response in
@@ -81,7 +80,6 @@ class ErrorMiddlewareTests: AppTestCase {
                 reportedLevel = level
                 reportedError = error.localizedDescription
             }
-            return self.future(())
         }
         
         try app.test(.GET, "500", afterResponse: { response in
