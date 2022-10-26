@@ -17,6 +17,16 @@ import PostgresNIO
 import Vapor
 
 
+/// Update packages (in the `[Result<Joined<Package, Repository>, Error>]` array).
+///
+/// Unlike the overload with a result parameter `Result<(Joined<Package, Repository>, [Version])` this will not use `Version` information to update the package.
+///
+/// - Parameters:
+///   - client: `Client` object
+///   - database: `Database` object
+///   - logger: `Logger` object
+///   - results: `Joined<Package, Repository>` results to update
+///   - stage: Processing stage
 func updatePackages(client: Client,
                     database: Database,
                     logger: Logger,
@@ -39,6 +49,16 @@ func updatePackages(client: Client,
 }
 
 
+/// Update packages (in the `[Result<(Joined<Package, Repository>, [Version])]` array).
+///
+/// This overload will use `Version` information to update the package, for example to compute a new package score.
+///
+/// - Parameters:
+///   - client: `Client` object
+///   - database: `Database` object
+///   - logger: `Logger` object
+///   - results: `(Joined<Package, Repository>, [Version])` results to update
+///   - stage: Processing stage
 func updatePackages(client: Client,
                     database: Database,
                     logger: Logger,
@@ -100,6 +120,7 @@ func updatePackage(client: Client,
                    logger: Logger,
                    result: Result<(Joined<Package, Repository>, [Version]), Error>,
                    stage: Package.ProcessingStage) async throws {
+    // Compute the package score and update the result before passing it to `updatePackage`
     let result = result.map {
         let (jpr, versions) = $0
         jpr.package.score = Score.compute(package: jpr, versions: versions)
