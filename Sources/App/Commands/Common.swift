@@ -67,11 +67,11 @@ func updatePackage(client: Client,
 
         case .failure(let error) where error as? PostgresNIO.PostgresError != nil:
             // Escalate database errors to critical
-            try await Current.reportError(client, .critical, error)
+            try? await Current.reportError(client, .critical, error)
             try await recordError(database: database, error: error, stage: stage)
 
         case .failure(let error):
-            try await Current.reportError(client, .error, error)
+            try? await Current.reportError(client, .error, error)
             try await recordError(database: database, error: error, stage: stage)
     } // switch result
 
