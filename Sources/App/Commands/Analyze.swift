@@ -717,7 +717,7 @@ extension Analyze {
         do {
             try await Twitter.postToFirehose(client: client,
                                              package: package,
-                                             versions: versions).get()
+                                             versions: versions)
         } catch {
             logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
         }
