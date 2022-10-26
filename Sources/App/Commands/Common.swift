@@ -85,11 +85,11 @@ func updatePackage(client: Client,
 
         case .failure(let error) where error as? PostgresNIO.PostgresError != nil:
             // Escalate database errors to critical
-            try await Current.reportError(client, .critical, error)
+            try? await Current.reportError(client, .critical, error)
             try await recordError(database: database, error: error, stage: stage)
 
         case .failure(let error):
-            try await Current.reportError(client, .error, error)
+            try? await Current.reportError(client, .error, error)
             try await recordError(database: database, error: error, stage: stage)
     }
 }
@@ -100,35 +100,17 @@ func updatePackage(client: Client,
                    logger: Logger,
                    result: Result<(Joined<Package, Repository>, [Version]), Error>,
                    stage: Package.ProcessingStage) async throws {
-    // FIXME: use other updatePackage (without version) then update score only
-    switch result {
-        case .success(let res):
-            let (jpr, versions) = res
-            let pkg = jpr.package
-            if stage == .ingestion && pkg.status == .new {
-                // newly ingested package: leave status == .new for fast-track
-                // analysis
-            } else {
-                pkg.status = .ok
-            }
-            pkg.processingStage = stage
-            pkg.score = Score.compute(package: jpr, versions: versions)
-            do {
-                try await pkg.update(on: database)
-            } catch {
-                logger.report(error: error)
-                try await Current.reportError(client, .critical, error)
-            }
-
-        case .failure(let error) where error as? PostgresNIO.PostgresError != nil:
-            // Escalate database errors to critical
-            try? await Current.reportError(client, .critical, error)
-            try await recordError(database: database, error: error, stage: stage)
-
-        case .failure(let error):
-            try? await Current.reportError(client, .error, error)
-            try await recordError(database: database, error: error, stage: stage)
+    let result = result.map {
+        let (jpr, versions) = $0
+        jpr.package.score = Score.compute(package: jpr, versions: versions)
+        return jpr
     }
+
+    try await updatePackage(client: client,
+                            database: database,
+                            logger: logger,
+                            result: result,
+                            stage: stage)
 }
 
 
