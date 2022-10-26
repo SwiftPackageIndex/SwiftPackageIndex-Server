@@ -25,14 +25,32 @@ func updatePackages(client: Client,
     let updates = await withThrowingTaskGroup(of: Void.self) { group in
         for result in results {
             group.addTask {
-                let res = await result.mapAsync { jpr in
-                    try? await jpr.package.$versions.load(on: database)
-                    return (jpr, jpr.package.versions)
-                }
                 try await updatePackage(client: client,
                                         database: database,
                                         logger: logger,
-                                        result: res,
+                                        result: result,
+                                        stage: stage)
+            }
+        }
+        return await group.results()
+    }
+
+    logger.debug("updateStatus ops: \(updates.count)")
+}
+
+
+func updatePackages(client: Client,
+                    database: Database,
+                    logger: Logger,
+                    results: [Result<(Joined<Package, Repository>, [Version]), Error>],
+                    stage: Package.ProcessingStage) async throws {
+    let updates = await withThrowingTaskGroup(of: Void.self) { group in
+        for result in results {
+            group.addTask {
+                try await updatePackage(client: client,
+                                        database: database,
+                                        logger: logger,
+                                        result: result,
                                         stage: stage)
             }
         }
@@ -46,8 +64,43 @@ func updatePackages(client: Client,
 func updatePackage(client: Client,
                    database: Database,
                    logger: Logger,
+                   result: Result<(Joined<Package, Repository>), Error>,
+                   stage: Package.ProcessingStage) async throws {
+    switch result {
+        case .success(let res):
+            let pkg = res.package
+            if stage == .ingestion && pkg.status == .new {
+                // newly ingested package: leave status == .new for fast-track
+                // analysis
+            } else {
+                pkg.status = .ok
+            }
+            pkg.processingStage = stage
+            do {
+                try await pkg.update(on: database)
+            } catch {
+                logger.report(error: error)
+                try await Current.reportError(client, .critical, error)
+            }
+
+        case .failure(let error) where error as? PostgresNIO.PostgresError != nil:
+            // Escalate database errors to critical
+            try await Current.reportError(client, .critical, error)
+            try await recordError(database: database, error: error, stage: stage)
+
+        case .failure(let error):
+            try await Current.reportError(client, .error, error)
+            try await recordError(database: database, error: error, stage: stage)
+    }
+}
+
+
+func updatePackage(client: Client,
+                   database: Database,
+                   logger: Logger,
                    result: Result<(Joined<Package, Repository>, [Version]), Error>,
                    stage: Package.ProcessingStage) async throws {
+    // FIXME: use other updatePackage (without version) then update score only
     switch result {
         case .success(let res):
             let (jpr, versions) = res
