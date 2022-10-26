@@ -669,7 +669,7 @@ extension Analyze {
     ///   - package: package to update
     /// - Returns: future
     static func updateLatestVersions(on database: Database, package: Joined<Package, Repository>) async throws -> [Version] {
-        try await package.model .$versions.load(on: database)
+        try await package.model.$versions.load(on: database)
 
         // find previous markers
         let previous = package.model.versions.filter { $0.latest != nil }
