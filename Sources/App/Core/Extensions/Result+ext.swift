@@ -22,16 +22,3 @@ extension Result where Failure == Error {
         }
     }
 }
-
-
-extension Result {
-    func mapAsync<NewSuccess>(_ transform: (Success) async -> NewSuccess) async -> Result<NewSuccess, Failure> {
-        switch self {
-            case let .success(success):
-                return await .success(transform(success))
-
-            case let .failure(error):
-                return .failure(error)
-        }
-    }
-}
