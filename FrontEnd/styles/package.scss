@@ -157,7 +157,7 @@
                         background-color: var(--bordered-button-hover);
                     }
 
-                    &[href^='https://github.com/' i] {
+                    &.github {
                         padding-left: 33px;
                         background-position: center left 8px;
                         background-repeat: no-repeat;
