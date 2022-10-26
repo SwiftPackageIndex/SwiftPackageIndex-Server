@@ -932,30 +932,28 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
-    func test_issue_577() throws {
+    func test_issue_577() async throws {
         // Duplicate "latest release" versions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/577
         // setup
         let pkgId = UUID()
         let pkg = Package(id: pkgId, url: "1")
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try await pkg.save(on: app.db)
+        try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         // existing "latest release" version
-        try Version(package: pkg, latest: .release, packageName: "foo", reference: .tag(1, 2, 3))
-            .save(on: app.db).wait()
+        try await Version(package: pkg, latest: .release, packageName: "foo", reference: .tag(1, 2, 3))
+            .save(on: app.db)
         // new, not yet considered release version
-        try Version(package: pkg, packageName: "foo", reference: .tag(1, 3, 0))
-            .save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        try await Version(package: pkg, packageName: "foo", reference: .tag(1, 3, 0))
+            .save(on: app.db)
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
         // MUT
-        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
+        let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         // validate
         do {  // refetch package to ensure changes are persisted
-            let pkg = try XCTUnwrap(Package.find(pkgId, on: app.db).wait())
-            try pkg.$versions.load(on: app.db).wait()
-            let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+            let versions = versions.sorted(by: { $0.createdAt! < $1.createdAt! })
             XCTAssertEqual(versions.map(\.reference.description), ["1.2.3", "1.3.0"])
             XCTAssertEqual(versions.map(\.latest), [nil, .release])
         }
@@ -990,62 +988,62 @@ class AnalyzerTests: AppTestCase {
         assertSnapshot(matching: commands.value, as: .dump)
     }
 
-    func test_updateLatestVersions() throws {
+    func test_updateLatestVersions() async throws {
         // setup
         func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
         let pkg = Package(id: UUID(), url: "1")
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        try Version(package: pkg, commitDate: t(2), packageName: "foo", reference: .branch("main"))
-            .save(on: app.db).wait()
-        try Version(package: pkg, commitDate: t(0), packageName: "foo", reference: .tag(1, 2, 3))
-            .save(on: app.db).wait()
-        try Version(package: pkg, commitDate: t(1), packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
-            .save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        try await pkg.save(on: app.db)
+        try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
+        try await Version(package: pkg, commitDate: t(2), packageName: "foo", reference: .branch("main"))
+            .save(on: app.db)
+        try await Version(package: pkg, commitDate: t(0), packageName: "foo", reference: .tag(1, 2, 3))
+            .save(on: app.db)
+        try await Version(package: pkg, commitDate: t(1), packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
+            .save(on: app.db)
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
         // MUT
-        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
+        let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         // validate
-        try pkg.$versions.load(on: app.db).wait()
-        let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-        XCTAssertEqual(versions.map(\.reference.description), ["main", "1.2.3", "2.0.0-rc1"])
-        XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, .preRelease])
+        do {
+            try pkg.$versions.load(on: app.db).wait()
+            let versions = versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+            XCTAssertEqual(versions.map(\.reference.description), ["main", "1.2.3", "2.0.0-rc1"])
+            XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, .preRelease])
+        }
     }
 
-    func test_updateLatestVersions_old_beta() throws {
+    func test_updateLatestVersions_old_beta() async throws {
         // Test to ensure outdated betas aren't picked up as latest versions
         // and that faulty db content (outdated beta marked as latest pre-release)
         // is correctly reset.
         // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/188
         // setup
         let pkg = Package(id: UUID(), url: "1")
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        try Version(package: pkg,
+        try await pkg.save(on: app.db)
+        try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
+        try await Version(package: pkg,
                     latest: .defaultBranch,
                     packageName: "foo",
                     reference: .branch("main"))
-            .save(on: app.db).wait()
-        try Version(package: pkg,
+            .save(on: app.db)
+        try await Version(package: pkg,
                     latest: .release,
                     packageName: "foo",
                     reference: .tag(2, 0, 0))
-            .save(on: app.db).wait()
-        try Version(package: pkg,
+            .save(on: app.db)
+        try await Version(package: pkg,
                     latest: .preRelease,  // this should have been nil - ensure it's reset
                     packageName: "foo",
                     reference: .tag(2, 0, 0, "rc1"))
-            .save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+            .save(on: app.db)
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
         // MUT
-        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
+        let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         // validate
-        let versions = try Version.query(on: app.db)
-            .sort(\.$createdAt).all().wait()
         XCTAssertEqual(versions.map(\.reference.description), ["main", "2.0.0", "2.0.0-rc1"])
         XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, nil])
     }
