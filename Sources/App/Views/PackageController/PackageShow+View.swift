@@ -206,6 +206,7 @@ enum PackageShow {
                 .ul(
                     .li(
                         .a(
+                            .class("github"),
                             .href(model.gitHubRepositoryUrl),
                             "View on GitHub"
                         )
