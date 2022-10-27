@@ -168,8 +168,8 @@ extension Analyze {
         }
 
         let packageResults = await withThrowingTaskGroup(
-            of: (Joined<Package, Repository>, [Version]).self,
-            returning: [Result<(Joined<Package, Repository>, [Version]), Error>].self
+            of: Joined<Package, Repository>.self,
+            returning: [Result<Joined<Package, Repository>, Error>].self
         ) { group in
             for pkg in packages {
                 group.addTask {
@@ -182,9 +182,9 @@ extension Analyze {
                                               package: pkg)
                         }
                     }
-                    let versions = try result.get()
+                    try result.get()
 
-                    return (pkg, versions)
+                    return pkg
                 }
             }
 
@@ -208,7 +208,7 @@ extension Analyze {
     static func analyze(client: Client,
                         transaction: Database,
                         logger: Logger,
-                        package: Joined<Package, Repository>) async throws -> [Version] {
+                        package: Joined<Package, Repository>) async throws {
         try refreshCheckout(logger: logger, package: package)
         try await updateRepository(on: transaction, package: package)
 
@@ -243,14 +243,12 @@ extension Analyze {
                                       manifest: pkgInfo.packageManifest)
         }
 
-        let updatedVersions = try await updateLatestVersions(on: transaction, package: package)
+        try await updateLatestVersions(on: transaction, package: package).get()
 
         await onNewVersions(client: client,
                             logger: logger,
                             package: package,
                             versions: newVersions)
-
-        return updatedVersions
     }
 
 
@@ -668,38 +666,39 @@ extension Analyze {
     ///   - database: `Database` object
     ///   - package: package to update
     /// - Returns: future
-    static func updateLatestVersions(on database: Database, package: Joined<Package, Repository>) async throws -> [Version] {
-        try await package.model.$versions.load(on: database)
+    static func updateLatestVersions(on database: Database, package: Joined<Package, Repository>) -> EventLoopFuture<Void> {
+        package.model
+            .$versions.load(on: database)
+            .flatMap {
+                // find previous markers
+                let previous = package.model.versions
+                    .filter { $0.latest != nil }
 
-        // find previous markers
-        let previous = package.model.versions.filter { $0.latest != nil }
+                let versions = package.model.$versions.value ?? []
 
-        let versions = package.model.$versions.value ?? []
+                // find new significant releases
+                let (release, preRelease, defaultBranch) = Package.findSignificantReleases(
+                    versions: versions,
+                    branch: package.repository?.defaultBranch
+                )
+                release.map { $0.latest = .release }
+                preRelease.map { $0.latest = .preRelease }
+                defaultBranch.map { $0.latest = .defaultBranch }
+                let updates = [release, preRelease, defaultBranch].compactMap { $0 }
 
-        // find new significant releases
-        let (release, preRelease, defaultBranch) = Package.findSignificantReleases(
-            versions: versions,
-            branch: package.repository?.defaultBranch
-        )
-        release.map { $0.latest = .release }
-        preRelease.map { $0.latest = .preRelease }
-        defaultBranch.map { $0.latest = .defaultBranch }
-        let updates = [release, preRelease, defaultBranch].compactMap { $0 }
+                // reset versions that aren't being updated
+                let resets = previous
+                    .filter { !updates.map(\.id).contains($0.id) }
+                    .map { version -> Version in
+                        version.latest = nil
+                        return version
+                    }
 
-        // reset versions that aren't being updated
-        let resets = previous
-            .filter { !updates.map(\.id).contains($0.id) }
-            .map { version -> Version in
-                version.latest = nil
-                return version
+                // save changes
+                return (updates + resets)
+                    .map { $0.save(on: database) }
+                    .flatten(on: database.eventLoop)
             }
-
-        // save changes
-        for version in updates + resets {
-            try await version.save(on: database)
-        }
-
-        return versions
     }
 
 
