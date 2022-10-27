@@ -41,6 +41,23 @@ func updatePackages(client: Client,
 }
 
 
+// FIXME: pass through to updatePackage that uses versions to update score
+func updatePackages(client: Client,
+                    database: Database,
+                    logger: Logger,
+                    results: [Result<(Joined<Package, Repository>, [Version]), Error>],
+                    stage: Package.ProcessingStage) async throws {
+    let results = results.map { result in
+        result.map { $0.0 }
+    }
+    try await updatePackages(client: client,
+                             database: database,
+                             logger: logger,
+                             results: results,
+                             stage: stage)
+}
+
+
 func updatePackage(client: Client,
                    database: Database,
                    logger: Logger,

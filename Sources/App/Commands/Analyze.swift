@@ -168,8 +168,8 @@ extension Analyze {
         }
 
         let packageResults = await withThrowingTaskGroup(
-            of: Joined<Package, Repository>.self,
-            returning: [Result<Joined<Package, Repository>, Error>].self
+            of: (Joined<Package, Repository>, [Version]).self,
+            returning: [Result<(Joined<Package, Repository>, [Version]), Error>].self
         ) { group in
             for pkg in packages {
                 group.addTask {
@@ -182,9 +182,9 @@ extension Analyze {
                                               package: pkg)
                         }
                     }
-                    try result.get()
+                    let versions = try result.get()
 
-                    return pkg
+                    return (pkg, versions)
                 }
             }
 
@@ -208,7 +208,7 @@ extension Analyze {
     static func analyze(client: Client,
                         transaction: Database,
                         logger: Logger,
-                        package: Joined<Package, Repository>) async throws {
+                        package: Joined<Package, Repository>) async throws -> [Version] {
         try refreshCheckout(logger: logger, package: package)
         try await updateRepository(on: transaction, package: package)
 
@@ -243,12 +243,14 @@ extension Analyze {
                                       manifest: pkgInfo.packageManifest)
         }
 
-        try await updateLatestVersions(on: transaction, package: package)
+        let updatedVersions = try await updateLatestVersions(on: transaction, package: package)
 
         await onNewVersions(client: client,
                             logger: logger,
                             package: package,
                             versions: newVersions)
+
+        return updatedVersions
     }
 
 
