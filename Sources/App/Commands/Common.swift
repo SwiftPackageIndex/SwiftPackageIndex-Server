@@ -73,8 +73,7 @@ func updatePackage(client: Client,
         case .failure(let error):
             try? await Current.reportError(client, .error, error)
             try await recordError(database: database, error: error, stage: stage)
-    } // switch result
-
+    }
 }
 
 
@@ -83,7 +82,7 @@ func recordError(database: Database,
                  stage: Package.ProcessingStage) async throws {
     func setStatus(id: Package.Id?, status: Package.Status) async throws {
         guard let id = id else { return }
-        return try await Package.query(on: database)
+        try await Package.query(on: database)
             .filter(\.$id == id)
             .set(\.$processingStage, to: stage)
             .set(\.$status, to: status)
