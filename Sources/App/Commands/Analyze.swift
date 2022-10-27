@@ -243,7 +243,7 @@ extension Analyze {
                                       manifest: pkgInfo.packageManifest)
         }
 
-        _ = try await updateLatestVersions(on: transaction, package: package)
+        try await updateLatestVersions(on: transaction, package: package)
 
         await onNewVersions(client: client,
                             logger: logger,
@@ -665,7 +665,8 @@ extension Analyze {
     /// - Parameters:
     ///   - database: `Database` object
     ///   - package: package to update
-    /// - Returns: future
+    /// - Returns: all versions, with updated `latest` fields
+    @discardableResult
     static func updateLatestVersions(on database: Database, package: Joined<Package, Repository>) async throws -> [Version] {
         try await package.model.$versions.load(on: database)
 
