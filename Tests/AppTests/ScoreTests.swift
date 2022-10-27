@@ -125,24 +125,21 @@ class ScoreTests: AppTestCase {
                        122)
     }
     
-    func test_compute_package_versions() throws {
+    func test_compute_package_versions() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db).wait()
-        try Version(package: pkg,
-                    docArchives: [.init(name: "archive1", title: "Archive One")],
-                    reference: .branch("default"),
-                    swiftVersions: ["5"].asSwiftVersions).save(on: app.db).wait()
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        try await Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db)
+        try await Version(package: pkg,
+                          docArchives: [.init(name: "archive1", title: "Archive One")],
+                          reference: .branch("default"),
+                          swiftVersions: ["5"].asSwiftVersions).save(on: app.db)
         try (0..<20).forEach {
             try Version(package: pkg, reference: .tag(.init($0, 0, 0)))
                 .save(on: app.db).wait()
         }
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
         // update versions
-        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
-        let versions = try pkg.$versions.load(on: app.db)
-            .map { pkg.versions }
-            .wait()
+        let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         // MUT
         XCTAssertEqual(Score.compute(package: jpr, versions: versions), 97)
