@@ -17,12 +17,21 @@ import PostgresNIO
 import Vapor
 
 
+/// Update packages (in the `[Result<Joined<Package, Repository>, Error>]` array).
+///
+/// Unlike the overload with a result parameter `Result<(Joined<Package, Repository>, [Version])` this will not use `Version` information to update the package.
+///
+/// - Parameters:
+///   - client: `Client` object
+///   - database: `Database` object
+///   - logger: `Logger` object
+///   - results: `Joined<Package, Repository>` results to update
+///   - stage: Processing stage
 func updatePackages(client: Client,
                     database: Database,
                     logger: Logger,
                     results: [Result<Joined<Package, Repository>, Error>],
                     stage: Package.ProcessingStage) async throws {
-
     let updates = await withThrowingTaskGroup(of: Void.self) { group in
         for result in results {
             group.addTask {
@@ -33,28 +42,60 @@ func updatePackages(client: Client,
                                         stage: stage)
             }
         }
-
         return await group.results()
     }
-
     logger.debug("updateStatus ops: \(updates.count)")
 }
 
 
-// FIXME: pass through to updatePackage that uses versions to update score
+/// Update packages (in the `[Result<(Joined<Package, Repository>, [Version])]` array).
+///
+/// This overload will use `Version` information to update the package, for example to compute a new package score.
+///
+/// - Parameters:
+///   - client: `Client` object
+///   - database: `Database` object
+///   - logger: `Logger` object
+///   - results: `(Joined<Package, Repository>, [Version])` results to update
+///   - stage: Processing stage
 func updatePackages(client: Client,
                     database: Database,
                     logger: Logger,
                     results: [Result<(Joined<Package, Repository>, [Version]), Error>],
                     stage: Package.ProcessingStage) async throws {
-    let results = results.map { result in
-        result.map { $0.0 }
+    let updates = await withThrowingTaskGroup(of: Void.self) { group in
+        for result in results {
+            group.addTask {
+                try await updatePackage(client: client,
+                                        database: database,
+                                        logger: logger,
+                                        result: result,
+                                        stage: stage)
+            }
+        }
+        return await group.results()
     }
-    try await updatePackages(client: client,
-                             database: database,
-                             logger: logger,
-                             results: results,
-                             stage: stage)
+    logger.debug("updateStatus ops: \(updates.count)")
+}
+
+
+func updatePackage(client: Client,
+                   database: Database,
+                   logger: Logger,
+                   result: Result<(Joined<Package, Repository>, [Version]), Error>,
+                   stage: Package.ProcessingStage) async throws {
+    // Compute the package score and update the result before passing it to `updatePackage`
+    let result = result.map {
+        let (jpr, versions) = $0
+        jpr.package.score = Score.compute(package: jpr, versions: versions)
+        return jpr
+    }
+
+    try await updatePackage(client: client,
+                            database: database,
+                            logger: logger,
+                            result: result,
+                            stage: stage)
 }
 
 
@@ -66,7 +107,6 @@ func updatePackage(client: Client,
     switch result {
         case .success(let jpr):
             let pkg = jpr.package
-            try await pkg.$versions.load(on: database)
             if stage == .ingestion && pkg.status == .new {
                 // newly ingested package: leave status == .new for fast-track
                 // analysis
@@ -74,7 +114,6 @@ func updatePackage(client: Client,
                 pkg.status = .ok
             }
             pkg.processingStage = stage
-            pkg.score = Score.compute(package: jpr, versions: pkg.versions)
             do {
                 try await pkg.update(on: database)
             } catch {
