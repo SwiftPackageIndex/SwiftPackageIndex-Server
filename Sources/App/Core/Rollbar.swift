@@ -19,12 +19,12 @@ enum Rollbar {
     static func createItem(client: Client,
                            level: Item.Level,
                            message: String,
-                           environment: Environment = (try? Environment.detect()) ?? .testing) async throws {
+                           environment: Environment = (try? Environment.detect()) ?? .testing) -> EventLoopFuture<Void> {
         guard let token = Current.rollbarToken() else {
             // fail silently
-            return
+            return client.eventLoop.future()
         }
-        _ = try await client.post(rollbarURI) { req in
+        return client.post(rollbarURI) { req in
             try req.content.encode(
                 Rollbar.Item(accessToken: token,
                              environment: environment,
@@ -32,6 +32,7 @@ enum Rollbar {
                              message: message)
             )
         }
+        .transform(to: ())
     }
     
     static var rollbarURI: URI { URI("https://api.rollbar.com/api/1/item/") }

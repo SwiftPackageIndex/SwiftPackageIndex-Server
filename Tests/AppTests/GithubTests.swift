@@ -253,6 +253,7 @@ class GithubTests: AppTestCase {
         Current.reportError = { _, level, error in
             reportedLevel = level
             reportedError = error
+            return self.future(())
         }
         
         // MUT

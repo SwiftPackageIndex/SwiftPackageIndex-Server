@@ -131,7 +131,7 @@ func ingest(client: Client,
                                     database: database,
                                     logger: logger,
                                     results: updates,
-                                    stage: .ingestion)
+                                    stage: .ingestion).get()
 }
 
 

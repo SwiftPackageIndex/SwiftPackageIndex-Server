@@ -47,15 +47,16 @@ class AnalyzerTests: AppTestCase {
                              name: "2",
                              owner: "foo",
                              stars: 100).save(on: app.db)
-
-        let checkoutDir = QueueIsolated<String?>(nil)
-        let commands = QueueIsolated<[Command]>([])
-        let firstDirCloned = QueueIsolated(false)
+        actor Validation {
+            static var checkoutDir: String? = nil
+            static var commands = [Command]()
+        }
+        var firstDirCloned = false
         Current.fileManager.fileExists = { path in
-            if let outDir = checkoutDir.value,
-               path == "\(outDir)/github.com-foo-1" { return firstDirCloned.value }
+            if let outDir = Validation.checkoutDir,
+               path == "\(outDir)/github.com-foo-1" { return firstDirCloned }
             // let the check for the second repo checkout path succeed to simulate pull
-            if let outDir = checkoutDir.value,
+            if let outDir = Validation.checkoutDir,
                path == "\(outDir)/github.com-foo-2" { return true }
             if path.hasSuffix("Package.swift") { return true }
             if path.hasSuffix("Package.resolved") { return true }
@@ -68,7 +69,7 @@ class AnalyzerTests: AppTestCase {
                 return nil
             }
         }
-        Current.fileManager.createDirectory = { path, _, _ in checkoutDir.setValue(path) }
+        Current.fileManager.createDirectory = { path, _, _ in Validation.checkoutDir = path }
         Current.git = .live
         Current.loadSPIManifest = { path in
             if path.hasSuffix("foo-1") {
@@ -79,14 +80,12 @@ class AnalyzerTests: AppTestCase {
         }
         Current.shell.run = { cmd, path in
             try self.testQueue.sync {
-                let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!,
+                let trimmedPath = path.replacingOccurrences(of: Validation.checkoutDir!,
                                                             with: ".")
-                try commands.withValue {
-                    $0.append(try .init(command: cmd, path: trimmedPath).unwrap())
-                }
+                Validation.commands.append(try .init(command: cmd, path: trimmedPath).unwrap())
             }
             if cmd.string.starts(with: "git clone") {
-                firstDirCloned.setValue(true)
+                firstDirCloned = true
             }
             if cmd == .gitListTags && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
@@ -158,16 +157,16 @@ class AnalyzerTests: AppTestCase {
                                   mode: .limit(10))
 
         // validation
-        let outDir = try checkoutDir.value.unwrap()
+        let outDir = try Validation.checkoutDir.unwrap()
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-        XCTAssertEqual(commands.value.count, 34)
+        XCTAssertEqual(Validation.commands.count, 34)
 
         // Snapshot for each package individually to avoid ordering issues when
         // concurrent processing causes commands to interleave between packages.
-        assertSnapshot(matching: commands.value
+        assertSnapshot(matching: Validation.commands
                         .filter { $0.path.hasSuffix("foo-1") }
                         .map(\.description), as: .dump)
-        assertSnapshot(matching: commands.value
+        assertSnapshot(matching: Validation.commands
                         .filter { $0.path.hasSuffix("foo-2") }
                         .map(\.description), as: .dump)
 
@@ -397,10 +396,12 @@ class AnalyzerTests: AppTestCase {
             mockResults[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
         }
 
-        let commands = QueueIsolated<[Command]>([])
+        actor Validation {
+            static var commands = [Command]()
+        }
         Current.shell.run = { cmd, path in
-            try commands.withValue {
-                $0.append(try .init(command: cmd, path: path).unwrap())
+            try self.testQueue.sync {
+                Validation.commands.append(try .init(command: cmd, path: path).unwrap())
             }
 
             if let result = mockResults[cmd] { return result }
@@ -422,24 +423,25 @@ class AnalyzerTests: AppTestCase {
         // validation (not in detail, this is just to ensure command count is as expected)
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
-        XCTAssertEqual(commands.value.count, 34, "was: \(dump(commands.value))")
+        XCTAssertEqual(Validation.commands.count, 34, "was: \(dump(Validation.commands))")
         // 2 packages with 2 tags + 1 default branch each -> 6 versions
         let versionCount = try await Version.query(on: app.db).count()
         XCTAssertEqual(versionCount, 6)
     }
 
-    @MainActor
     func test_refreshCheckout() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
         try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         Current.fileManager.fileExists = { _ in true }
-        let commands = QueueIsolated<[String]>([])
+        actor Validator {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, path in
-            // mask variable checkout
-            let checkoutDir = Current.fileManager.checkoutsDirectory()
-            commands.withValue {
-                $0.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
+            self.testQueue.sync {
+                // mask variable checkout
+                let checkoutDir = Current.fileManager.checkoutsDirectory()
+                Validator.commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
             }
             return ""
         }
@@ -449,7 +451,7 @@ class AnalyzerTests: AppTestCase {
         _ = try Analyze.refreshCheckout(logger: app.logger, package: jpr)
 
         // validate
-        assertSnapshot(matching: commands.value, as: .dump)
+        assertSnapshot(matching: Validator.commands, as: .dump)
     }
 
     func test_updateRepository() async throws {
@@ -567,10 +569,12 @@ class AnalyzerTests: AppTestCase {
     func test_getPackageInfo() async throws {
         // Tests getPackageInfo(package:version:)
         // setup
-        let commands = QueueIsolated<[String]>([])
+        actor Validation {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, _ in
-            commands.withValue {
-                $0.append(cmd.string)
+            self.testQueue.sync {
+                Validation.commands.append(cmd.string)
             }
             if cmd == .swiftDumpPackage {
                 return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
@@ -590,7 +594,7 @@ class AnalyzerTests: AppTestCase {
         let info = try Analyze.getPackageInfo(package: jpr, version: version)
 
         // validation
-        XCTAssertEqual(commands.value, [
+        XCTAssertEqual(Validation.commands, [
             "git checkout \"0.4.2\" --quiet",
             "swift package dump-package"
         ])
@@ -741,7 +745,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(targets.map(\.name), ["t1", "t2"])
     }
 
-    func test_updatePackage() async throws {
+    func test_updatePackage() throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
             .map(Joined<Package, Repository>.init(model:))
@@ -752,15 +756,15 @@ class AnalyzerTests: AppTestCase {
         ]
 
         // MUT
-        try await updatePackages(client: app.client,
-                                 database: app.db,
-                                 logger: app.logger,
-                                 results: results,
-                                 stage: .analysis)
+        try updatePackages(client: app.client,
+                           database: app.db,
+                           logger: app.logger,
+                           results: results,
+                           stage: .analysis).wait()
 
         // validate
         do {
-            let packages = try await Package.query(on: app.db).sort(\.$url).all()
+            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
             assertEquals(packages, \.status, [.noValidVersions, .ok])
             assertEquals(packages, \.processingStage, [.analysis, .analysis])
         }
@@ -826,7 +830,6 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try Product.query(on: app.db).count().wait(), 12)
     }
 
-    @MainActor
     func test_issue_70() async throws {
         // Certain git commands fail when index.lock exists
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/70
@@ -839,11 +842,13 @@ class AnalyzerTests: AppTestCase {
         // we want to trigger the cleanup mechanism
         Current.fileManager.fileExists = { path in true }
 
-        let commands = QueueIsolated<[String]>([])
+        actor Validator {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, path in
-            commands.withValue {
+            self.testQueue.sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "...")
-                $0.append(c)
+                Validator.commands.append(c)
             }
             return ""
         }
@@ -857,10 +862,9 @@ class AnalyzerTests: AppTestCase {
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
-        assertSnapshot(matching: commands.value, as: .dump)
+        assertSnapshot(matching: Validator.commands, as: .dump)
     }
 
-    @MainActor
     func test_issue_498() async throws {
         // git checkout can still fail despite git reset --hard + git clean
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
@@ -873,11 +877,13 @@ class AnalyzerTests: AppTestCase {
         // we want to trigger the cleanup mechanism
         Current.fileManager.fileExists = { path in true }
 
-        let commands = QueueIsolated<[String]>([])
+        actor Validator {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, path in
-            commands.withValue {
+            self.testQueue.sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
-                $0.append(c)
+                Validator.commands.append(c)
             }
             if cmd == .gitCheckout(branch: "master") {
                 throw TestError.simulatedCheckoutError
@@ -894,7 +900,7 @@ class AnalyzerTests: AppTestCase {
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
-        assertSnapshot(matching: commands.value, as: .dump)
+        assertSnapshot(matching: Validator.commands, as: .dump)
     }
 
     func test_dumpPackage_5_4() throws {
@@ -932,34 +938,35 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
-    func test_issue_577() async throws {
+    func test_issue_577() throws {
         // Duplicate "latest release" versions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/577
         // setup
         let pkgId = UUID()
         let pkg = Package(id: pkgId, url: "1")
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         // existing "latest release" version
-        try await Version(package: pkg, latest: .release, packageName: "foo", reference: .tag(1, 2, 3))
-            .save(on: app.db)
+        try Version(package: pkg, latest: .release, packageName: "foo", reference: .tag(1, 2, 3))
+            .save(on: app.db).wait()
         // new, not yet considered release version
-        try await Version(package: pkg, packageName: "foo", reference: .tag(1, 3, 0))
-            .save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        try Version(package: pkg, packageName: "foo", reference: .tag(1, 3, 0))
+            .save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
+        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
 
         // validate
         do {  // refetch package to ensure changes are persisted
-            let versions = versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+            let pkg = try XCTUnwrap(Package.find(pkgId, on: app.db).wait())
+            try pkg.$versions.load(on: app.db).wait()
+            let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
             XCTAssertEqual(versions.map(\.reference.description), ["1.2.3", "1.3.0"])
             XCTAssertEqual(versions.map(\.latest), [nil, .release])
         }
     }
 
-    @MainActor
     func test_issue_693() async throws {
         // Handle moved tags
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/693
@@ -970,12 +977,14 @@ class AnalyzerTests: AppTestCase {
         }
         let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
         Current.fileManager.fileExists = { _ in true }
-        let commands = QueueIsolated<[String]>([])
+        actor Validator {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, _ in
-            commands.withValue {
+            self.testQueue.sync {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
-                $0.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
+                Validator.commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
             }
             if cmd == .gitFetchAndPruneTags { throw TestError.simulatedFetchError }
             return ""
@@ -985,65 +994,65 @@ class AnalyzerTests: AppTestCase {
         _ = try Analyze.refreshCheckout(logger: app.logger, package: pkg)
 
         // validate
-        assertSnapshot(matching: commands.value, as: .dump)
+        assertSnapshot(matching: Validator.commands, as: .dump)
     }
 
-    func test_updateLatestVersions() async throws {
+    func test_updateLatestVersions() throws {
         // setup
         func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
         let pkg = Package(id: UUID(), url: "1")
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
-        try await Version(package: pkg, commitDate: t(2), packageName: "foo", reference: .branch("main"))
-            .save(on: app.db)
-        try await Version(package: pkg, commitDate: t(0), packageName: "foo", reference: .tag(1, 2, 3))
-            .save(on: app.db)
-        try await Version(package: pkg, commitDate: t(1), packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
-            .save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try Version(package: pkg, commitDate: t(2), packageName: "foo", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: pkg, commitDate: t(0), packageName: "foo", reference: .tag(1, 2, 3))
+            .save(on: app.db).wait()
+        try Version(package: pkg, commitDate: t(1), packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
+            .save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
+        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
 
         // validate
-        do {
-            try pkg.$versions.load(on: app.db).wait()
-            let versions = versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-            XCTAssertEqual(versions.map(\.reference.description), ["main", "1.2.3", "2.0.0-rc1"])
-            XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, .preRelease])
-        }
+        try pkg.$versions.load(on: app.db).wait()
+        let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+        XCTAssertEqual(versions.map(\.reference.description), ["main", "1.2.3", "2.0.0-rc1"])
+        XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, .preRelease])
     }
 
-    func test_updateLatestVersions_old_beta() async throws {
+    func test_updateLatestVersions_old_beta() throws {
         // Test to ensure outdated betas aren't picked up as latest versions
         // and that faulty db content (outdated beta marked as latest pre-release)
         // is correctly reset.
         // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/188
         // setup
         let pkg = Package(id: UUID(), url: "1")
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
-        try await Version(package: pkg,
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try Version(package: pkg,
                     latest: .defaultBranch,
                     packageName: "foo",
                     reference: .branch("main"))
-            .save(on: app.db)
-        try await Version(package: pkg,
+            .save(on: app.db).wait()
+        try Version(package: pkg,
                     latest: .release,
                     packageName: "foo",
                     reference: .tag(2, 0, 0))
-            .save(on: app.db)
-        try await Version(package: pkg,
+            .save(on: app.db).wait()
+        try Version(package: pkg,
                     latest: .preRelease,  // this should have been nil - ensure it's reset
                     packageName: "foo",
                     reference: .tag(2, 0, 0, "rc1"))
-            .save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+            .save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
+        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
 
         // validate
+        let versions = try Version.query(on: app.db)
+            .sort(\.$createdAt).all().wait()
         XCTAssertEqual(versions.map(\.reference.description), ["main", "2.0.0", "2.0.0-rc1"])
         XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, nil])
     }
