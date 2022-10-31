@@ -69,7 +69,7 @@ extension AppEnvironment {
             logger: { nil },
             metricsPushGatewayUrl: { "http://pushgateway:9091" },
             random: Double.random,
-            reportError: { _, _, _ in },
+            reportError: { _, _, _ in eventLoop.future(()) },
             rollbarToken: { nil },
             rollbarLogLevel: { .critical },
             setLogger: { _ in },
@@ -79,7 +79,7 @@ extension AppEnvironment {
                 eventLoop.future(.init(status: .ok, webUrl: "http://web_url"))
             },
             twitterCredentials: { nil },
-            twitterPostTweet: { _, _ in }
+            twitterPostTweet: { _, _ in eventLoop.future() }
         )
     }
 }

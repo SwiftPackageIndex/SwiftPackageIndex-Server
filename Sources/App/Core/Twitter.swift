@@ -35,9 +35,9 @@ enum Twitter {
         var accessToken: (key: String, secret: String)
     }
 
-    static func post(client: Client, tweet: String) async throws {
+    static func post(client: Client, tweet: String) -> EventLoopFuture<Void> {
         guard let credentials = Current.twitterCredentials() else {
-            throw Error.missingCredentials
+            return client.eventLoop.future(error: Error.missingCredentials)
         }
         let url: URL = URL(string: "\(apiUrl)?status=\(tweet.urlEncodedString())")!
         let signature = OhhAuth.calculateSignature(
@@ -51,10 +51,13 @@ enum Twitter {
         var headers: HTTPHeaders = .init()
         headers.add(name: "Authorization", value: signature)
         headers.add(name: "Content-Type", value: "application/x-www-form-urlencoded")
-        let response = try await client.post(URI(string: url.absoluteString), headers: headers)
-        guard response.status == .ok else {
-            throw Error.requestFailed(response.status, response.body?.asString() ?? "")
-        }
+        return client.post(URI(string: url.absoluteString), headers: headers)
+            .flatMapThrowing { response in
+                guard response.status == .ok else {
+                    throw Error.requestFailed(response.status, response.body?.asString() ?? "")
+                }
+            }
+            .transform(to: ())
     }
 
 }
@@ -125,21 +128,21 @@ extension Twitter {
 
     static func postToFirehose(client: Client,
                                package: Joined<Package, Repository>,
-                               version: Version) async throws {
+                               version: Version) -> EventLoopFuture<Void> {
         guard Current.allowTwitterPosts() else {
-            throw Error.postingDisabled
+            return client.eventLoop.future(error: Error.postingDisabled)
         }
         guard let message = firehoseMessage(package: package,
                                             version: version)
         else {
-            throw Error.invalidMessage
+            return client.eventLoop.future(error: Error.invalidMessage)
         }
-        try await Current.twitterPostTweet(client, message)
+        return Current.twitterPostTweet(client, message)
     }
 
     static func postToFirehose(client: Client,
                                package: Joined<Package, Repository>,
-                               versions: [Version]) async throws {
+                               versions: [Version]) -> EventLoopFuture<Void> {
         let (release, preRelease, defaultBranch) = Package.findSignificantReleases(
             versions: versions,
             branch: package.repository?.defaultBranch
@@ -151,11 +154,12 @@ extension Twitter {
                   let id = version.id else { return false }
             return idsLatest.contains(id)
         }
-        for version in versions {
-            try await postToFirehose(client: client,
-                                     package: package,
-                                     version: version)
+        return versions.map {
+            postToFirehose(client: client,
+                           package: package,
+                           version: $0)
         }
+        .flatten(on: client.eventLoop)
     }
 
 }

@@ -82,10 +82,10 @@ extension AppError.Level: Comparable {
 
 
 extension AppError {
-    static func report(_ client: Client, _ level: Level, _ error: Error) async throws {
-        guard level >= Current.rollbarLogLevel() else { return }
-        try await Rollbar.createItem(client: client,
-                                     level: .init(level: level),
-                                     message: error.localizedDescription)
+    static func report(_ client: Client, _ level: Level, _ error: Error) -> EventLoopFuture<Void> {
+        guard level >= Current.rollbarLogLevel() else { return client.eventLoop.future() }
+        return Rollbar.createItem(client: client,
+                                  level: .init(level: level),
+                                  message: error.localizedDescription)
     }
 }

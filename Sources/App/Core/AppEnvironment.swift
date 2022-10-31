@@ -52,7 +52,7 @@ struct AppEnvironment {
     var logger: () -> Logger?
     var metricsPushGatewayUrl: () -> String?
     var random: (_ range: ClosedRange<Double>) -> Double
-    var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) async throws -> Void
+    var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) -> EventLoopFuture<Void>
     var rollbarToken: () -> String?
     var rollbarLogLevel: () -> AppError.Level
     var setLogger: (Logger) -> Void
@@ -67,7 +67,7 @@ struct AppEnvironment {
                        _ swiftVersion: SwiftVersion,
                        _ versionID: Version.Id) -> EventLoopFuture<Build.TriggerResponse>
     var twitterCredentials: () -> Twitter.Credentials?
-    var twitterPostTweet: (_ client: Client, _ tweet: String) async throws -> Void
+    var twitterPostTweet: (_ client: Client, _ tweet: String) -> EventLoopFuture<Void>
 }
 
 

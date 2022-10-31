@@ -268,7 +268,7 @@ class IngestorTests: AppTestCase {
                                  database: app.db,
                                  logger: app.logger,
                                  results: results,
-                                 stage: .ingestion)
+                                 stage: .ingestion).get()
         
         // validate
         do {
@@ -294,7 +294,7 @@ class IngestorTests: AppTestCase {
                                  database: app.db,
                                  logger: app.logger,
                                  results: results,
-                                 stage: .ingestion)
+                                 stage: .ingestion).get()
         
         // validate
         do {
@@ -388,6 +388,7 @@ class IngestorTests: AppTestCase {
             // Errors seen here go to Rollbar
             reportedLevel = level
             reportedError = error.localizedDescription
+            return self.future(())
         }
         let lastUpdate = Date()
         

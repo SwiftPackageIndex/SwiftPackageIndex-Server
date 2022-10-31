@@ -159,26 +159,26 @@ class TwitterTests: AppTestCase {
             """)
     }
 
-    func test_postToFirehose_only_release_and_preRelease() async throws {
+    func test_postToFirehose_only_release_and_preRelease() throws {
         // ensure we only tweet about releases and pre-releases
         // setup
         let pkg = Package(url: "1".asGithubUrl.url)
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg,
-                             name: "repoName",
-                             owner: "repoOwner",
-                             summary: "This is a test package").save(on: app.db)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg,
+                       name: "repoName",
+                       owner: "repoOwner",
+                       summary: "This is a test package").save(on: app.db).wait()
         let v1 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try await v1.save(on: app.db)
+        try v1.save(on: app.db).wait()
         let v2 = try Version(package: pkg,
                              commitDate: Date(timeIntervalSince1970: 0),
                              packageName: "MyPackage",
                              reference: .tag(2, 0, 0, "b1"))
-        try await v2.save(on: app.db)
+        try v2.save(on: app.db).wait()
         let v3 = try Version(package: pkg, packageName: "MyPackage", reference: .branch("main"))
         try v3.save(on: app.db).wait()
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
-        try await Analyze.updateLatestVersions(on: app.db, package: jpr).get()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
 
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
@@ -186,32 +186,33 @@ class TwitterTests: AppTestCase {
         var posted = 0
         Current.twitterPostTweet = { _, _ in
             posted += 1
+            return self.app.eventLoopGroup.future()
         }
 
         // MUT
-        try await Twitter.postToFirehose(client: app.client,
-                                         package: jpr,
-                                         versions: [v1, v2, v3])
+        try Twitter.postToFirehose(client: app.client,
+                                   package: jpr,
+                                   versions: [v1, v2, v3]).wait()
 
         // validate
         XCTAssertEqual(posted, 2)
     }
 
-    func test_postToFirehose_only_latest() async throws {
+    func test_postToFirehose_only_latest() throws {
         // ensure we only tweet about latest versions
         // setup
         let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg,
-                             name: "repoName",
-                             owner: "repoOwner",
-                             summary: "This is a test package").save(on: app.db)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg,
+                       name: "repoName",
+                       owner: "repoOwner",
+                       summary: "This is a test package").save(on: app.db).wait()
         let v1 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try await v1.save(on: app.db)
+        try v1.save(on: app.db).wait()
         let v2 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(2, 0, 0))
-        try await v2.save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
-        try await Analyze.updateLatestVersions(on: app.db, package: jpr).get()
+        try v2.save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
 
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
@@ -223,12 +224,13 @@ class TwitterTests: AppTestCase {
             } else {
                 XCTFail("message must only be set once")
             }
+            return self.app.eventLoopGroup.future()
         }
 
         // MUT
-        try await Twitter.postToFirehose(client: app.client,
+        try Twitter.postToFirehose(client: app.client,
                                    package: jpr,
-                                   versions: [v1, v2])
+                                   versions: [v1, v2]).wait()
 
         // validate
         XCTAssertTrue(message?.contains("v2.0.0") ?? false)
@@ -246,6 +248,7 @@ class TwitterTests: AppTestCase {
             } else {
                 XCTFail("message must only be set once")
             }
+            return self.app.eventLoopGroup.future()
         }
 
         var tag = Reference.tag(1, 2, 3)
@@ -317,39 +320,39 @@ class TwitterTests: AppTestCase {
         XCTAssertTrue(msg.hasPrefix("⬆️ foo just released Mock v2.0.0"), "was: \(msg)")
     }
 
-    func test_allowTwitterPosts_switch() async throws {
+    func test_allowTwitterPosts_switch() throws {
         // test ALLOW_TWITTER_POSTS environment variable
         // setup
         let pkg = Package(url: "1".asGithubUrl.url)
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg,
-                             name: "repoName",
-                             owner: "repoOwner",
-                             summary: "This is a test package").save(on: app.db)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg,
+                       name: "repoName",
+                       owner: "repoOwner",
+                       summary: "This is a test package").save(on: app.db).wait()
         let v = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try await v.save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        try v.save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
         }
         var posted = 0
         Current.twitterPostTweet = { _, _ in
             posted += 1
+            return self.app.eventLoopGroup.future()
         }
 
         // MUT & validate - disallow if set to false
         Current.allowTwitterPosts = { false }
-        do {
-            try await Twitter.postToFirehose(client: app.client, package: jpr, version: v)
-            XCTFail("Expected error to be thrown")
-        } catch {
-            XCTAssertTrue(error.localizedDescription.contains("App.Twitter.Error error 3"))
+        XCTAssertThrowsError(
+            try Twitter.postToFirehose(client: app.client, package: jpr, version: v).wait()
+        ) {
+            XCTAssertTrue($0.localizedDescription.contains("App.Twitter.Error error 3"))
         }
         XCTAssertEqual(posted, 0)
 
         // MUT & validate - allow if set to true
         Current.allowTwitterPosts = { true }
-        try await Twitter.postToFirehose(client: app.client, package: jpr, version: v)
+        try Twitter.postToFirehose(client: app.client, package: jpr, version: v).wait()
         XCTAssertEqual(posted, 1)
     }
 
