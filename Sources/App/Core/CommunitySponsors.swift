@@ -425,6 +425,10 @@ enum CommunitySponsors {
             name: "TapEnvy.us, LLC",
             avatarUrl: "https://avatars.githubusercontent.com/u/88908726?v=4"
         ),
+        CommunitySponsor(
+            name: "Sparrow Code",
+            avatarUrl: "https://avatars.githubusercontent.com/u/98487302?v=4"
+        ),
     ]
 }
 
