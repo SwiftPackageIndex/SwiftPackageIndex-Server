@@ -59,7 +59,9 @@ private extension Array where Element == PackageController.BuildsRoute.BuildInfo
             BuildIndex.Model.BuildInfo.init(id: $0.buildId,
                                             swiftVersion: $0.swiftVersion,
                                             platform: $0.platform,
-                                            status: $0.status)
+                                            status: $0.status,
+                                            // TODO: Replace `generatedDocs: false` as part of #1888.
+                                            generatedDocs: false)
         }
         return .init(name: name, kind: kind, builds: buildInfo)
     }
@@ -87,17 +89,20 @@ extension BuildIndex.Model {
         var platform: App.Build.Platform
         var status: App.Build.Status
         var swiftVersion: App.SwiftVersion
+        var generatedDocs: Bool
 
         var isCompleted: Bool { status.isCompleted }
 
         init(id: App.Build.Id,
              swiftVersion: App.SwiftVersion,
              platform: App.Build.Platform,
-             status: App.Build.Status) {
+             status: App.Build.Status,
+             generatedDocs: Bool) {
             self.id = id
             self.platform = platform
             self.status = status
             self.swiftVersion = swiftVersion
+            self.generatedDocs = generatedDocs
         }
     }
 }
@@ -118,8 +123,7 @@ extension BuildIndex.Model {
                 var column = [RowIndex: BuildCell]()
                 for build in group.builds {
                     guard let index = RowIndex(build) else { continue }
-                    // TODO: Replace `generatedDocs: false` as part of #1888.
-                    column[index] = .init(group.name, group.kind, build.id, build.status, generatedDocs: false)
+                    column[index] = .init(group.name, group.kind, build.id, build.status, generatedDocs: build.generatedDocs)
                 }
                 RowIndex.all.forEach {
                     values[$0, default: []]

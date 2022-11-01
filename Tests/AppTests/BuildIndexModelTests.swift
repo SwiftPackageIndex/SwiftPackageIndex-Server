@@ -70,13 +70,13 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let stable: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok),
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok),
-            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok, generatedDocs: true),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, generatedDocs: false),
         ]
         let latest: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed),
-            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, generatedDocs: false),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
                                           ownerName: "Foo",
@@ -121,13 +121,13 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let stable: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok),
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok),
-            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, generatedDocs: false),
         ]
         let latest: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed),
-            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, generatedDocs: false),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
                                           ownerName: "Foo",
