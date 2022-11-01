@@ -169,10 +169,13 @@ class BuildIndexModelTests: AppTestCase {
 
     func test_BuildCell() throws {
         let id = UUID()
-        XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok).node.render(), """
+        XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok, generatedDocs: false).node.render(), """
             <div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div>
             """)
-        XCTAssertEqual(BuildCell("1.2.3", .release, id, .failed).node.render(), """
+        XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok, generatedDocs: true).node.render(), """
+            <div class="succeeded docs"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div>
+            """)
+        XCTAssertEqual(BuildCell("1.2.3", .release, id, .failed, generatedDocs: false).node.render(), """
             <div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div>
             """)
         XCTAssertEqual(BuildCell("1.2.3", .release).node.render(), """
@@ -184,9 +187,9 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let bi = BuildItem(index: .init(swiftVersion: .v5_7, platform: .ios),
-                           values: [.init("1.2.3", .release, id, .ok),
+                           values: [.init("1.2.3", .release, id, .ok, generatedDocs: false),
                                     .init("2.0.0-b1", .preRelease),
-                                    .init("develop", .defaultBranch, id, .failed)])
+                                    .init("develop", .defaultBranch, id, .failed, generatedDocs: false)])
 
         // MUT - altogether now
         let node = bi.node
