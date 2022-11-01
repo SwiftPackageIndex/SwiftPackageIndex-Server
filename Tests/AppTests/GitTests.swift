@@ -21,11 +21,13 @@ import XCTVapor
 class GitTests: XCTestCase {
     
     static let tempDir = NSTemporaryDirectory().appending("spi-test-\(UUID())")
-    static let errNoZip = fixturesDirectory().appendingPathComponent("ErrNo.zip").path
+    static let sampleGitRepoName = "ErrNo"
+    static let sampleGitRepoZipFile = fixturesDirectory()
+        .appendingPathComponent("\(sampleGitRepoName).zip").path
     
     override class func setUp() {
         try! Foundation.FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: false, attributes: nil)
-        try! ShellOut.shellOut(to: .init(#"unzip "\#(errNoZip)""#), at: tempDir)
+        try! ShellOut.shellOut(to: .init(#"unzip "\#(sampleGitRepoZipFile)""#), at: tempDir)
     }
     
     override class func tearDown() {
@@ -90,19 +92,27 @@ class GitTests: XCTestCase {
     
     func test_firstCommitDate() throws {
         Current.shell = .live
-        XCTAssertEqual(try Git.firstCommitDate(at: "\(Self.tempDir)/ErrNo"),
+        XCTAssertEqual(try Git.firstCommitDate(at: "\(Self.tempDir)/\(Self.sampleGitRepoName)"),
                        Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
     }
     
     func test_lastCommitDate() throws {
         Current.shell = .live
-        XCTAssertEqual(try Git.lastCommitDate(at: "\(Self.tempDir)/ErrNo"),
+        XCTAssertEqual(try Git.lastCommitDate(at: "\(Self.tempDir)/\(Self.sampleGitRepoName)"),
                        Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
     }
     
     func test_commitCount() throws {
         Current.shell = .live
-        XCTAssertEqual(try Git.commitCount(at: "\(Self.tempDir)/ErrNo"), 57)
+        XCTAssertEqual(try Git.commitCount(at: "\(Self.tempDir)/\(Self.sampleGitRepoName)"), 57)
+    }
+
+    func test_shortlog() throws {
+        Current.shell = .live
+        XCTAssertEqual(try Git.shortlog(at: "\(Self.tempDir)/\(Self.sampleGitRepoName)"), """
+                36\tNeil Pankey
+                21\tJacob Williams
+            """)
     }
 
 }
