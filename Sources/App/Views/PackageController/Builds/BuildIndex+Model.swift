@@ -168,7 +168,7 @@ extension BuildIndex.Model {
         }
 
         func cell(text: String) -> Node<HTML.BodyContext> {
-            return .div(
+            .div(
                 .span(
                     .text(text)
                 )
@@ -181,7 +181,13 @@ extension BuildIndex.Model {
                 .a(
                     .href(linkURL),
                     .text(text)
-                )
+                ),
+                .unwrap(generatedDocs, { generatedDocs in
+                        .if(generatedDocs, .span(
+                            .class("generated-docs"),
+                            .title("If successful, this build generated package documentation.")
+                        ))
+                })
             )
         }
 

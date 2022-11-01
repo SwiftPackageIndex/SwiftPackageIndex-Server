@@ -150,6 +150,7 @@
         }
 
         .results > div {
+            position: relative;
             background-color: var(--grid-default-background);
 
             &.succeeded > a,
@@ -175,6 +176,23 @@
                     background-image: var(--image-build-failed);
                 }
             }
+
+            > .generated-docs {
+                position: absolute;
+                right: 5px;
+                display: inline-block;
+                width: 25px;
+                height: 25px;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: 15px;
+                background-color: var(--grid-callout-background);
+                background-image: var(--image-documentation);
+                border-radius: 50%;
+            }
+        }
+
+        .generated-docs {
         }
     }
 }
