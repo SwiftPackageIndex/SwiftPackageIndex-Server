@@ -173,7 +173,7 @@ class BuildIndexModelTests: AppTestCase {
             <div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div>
             """)
         XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok, generatedDocs: true).node.render(), """
-            <div class="succeeded docs"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div>
+            <div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a><span class="generated-docs" title="If successful, this build generated package documentation."></span></div>
             """)
         XCTAssertEqual(BuildCell("1.2.3", .release, id, .failed, generatedDocs: false).node.render(), """
             <div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div>
