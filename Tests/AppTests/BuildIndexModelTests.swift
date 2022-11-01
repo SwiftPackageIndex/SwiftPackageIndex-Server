@@ -216,6 +216,42 @@ class BuildIndexModelTests: AppTestCase {
         XCTAssertEqual(node.render(), expectation.render())
    }
 
+    func test_BuildItem_generatedDocs() throws {
+        // setup
+        let id = UUID()
+        let bi = BuildItem(index: .init(swiftVersion: .v5_7, platform: .ios),
+                           values: [ .init("main", .defaultBranch, id, .ok, generatedDocs: true) ])
+
+        // MUT
+        let node = bi.node
+
+        let expectation: Node<HTML.ListContext> = .li(
+            .class("row"),
+            .div(
+                .class("row-labels"),
+                .strong("iOS")
+            ),
+            .div(
+                .class("column-labels"),
+                .div(.span(.class("branch"), .text("main")))
+            ),
+            .div(
+                .class("results"),
+                .div(
+                    .class("succeeded"),
+                    .a(
+                        .href("/builds/\(id.uuidString)"),
+                        .text("Build Succeeded")
+                    ),
+                    .span(
+                        .class("generated-docs"),
+                        .title("If successful, this build generated package documentation.")
+                    )
+                )
+            )
+        )
+        XCTAssertEqual(node.render(), expectation.render())
+    }
 }
 
 
