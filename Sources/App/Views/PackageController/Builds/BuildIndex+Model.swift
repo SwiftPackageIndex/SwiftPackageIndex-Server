@@ -59,7 +59,9 @@ private extension Array where Element == PackageController.BuildsRoute.BuildInfo
             BuildIndex.Model.BuildInfo.init(id: $0.buildId,
                                             swiftVersion: $0.swiftVersion,
                                             platform: $0.platform,
-                                            status: $0.status)
+                                            status: $0.status,
+                                            // TODO: Replace `generatedDocs: false` as part of #1888.
+                                            generatedDocs: false)
         }
         return .init(name: name, kind: kind, builds: buildInfo)
     }
@@ -87,17 +89,20 @@ extension BuildIndex.Model {
         var platform: App.Build.Platform
         var status: App.Build.Status
         var swiftVersion: App.SwiftVersion
+        var generatedDocs: Bool
 
         var isCompleted: Bool { status.isCompleted }
 
         init(id: App.Build.Id,
              swiftVersion: App.SwiftVersion,
              platform: App.Build.Platform,
-             status: App.Build.Status) {
+             status: App.Build.Status,
+             generatedDocs: Bool) {
             self.id = id
             self.platform = platform
             self.status = status
             self.swiftVersion = swiftVersion
+            self.generatedDocs = generatedDocs
         }
     }
 }
@@ -118,7 +123,7 @@ extension BuildIndex.Model {
                 var column = [RowIndex: BuildCell]()
                 for build in group.builds {
                     guard let index = RowIndex(build) else { continue }
-                    column[index] = .init(group.name, group.kind, build.id, build.status)
+                    column[index] = .init(group.name, group.kind, build.id, build.status, generatedDocs: build.generatedDocs)
                 }
                 RowIndex.all.forEach {
                     values[$0, default: []]
@@ -137,10 +142,12 @@ extension BuildIndex.Model {
     struct BuildCell: Equatable {
         var column: ColumnIndex
         var value: Value?
+        var generatedDocs: Bool?
 
-        init(_ column: String, _ kind: App.Version.Kind, _ id: App.Build.Id, _ status: Build.Status) {
+        init(_ column: String, _ kind: App.Version.Kind, _ id: App.Build.Id, _ status: Build.Status, generatedDocs: Bool) {
             self.column = .init(label: column, kind: kind)
             self.value = .init(id: id, status: status)
+            self.generatedDocs = generatedDocs
         }
 
         init(_ column: String, _ kind: App.Version.Kind) {
@@ -156,8 +163,8 @@ extension BuildIndex.Model {
             let buildURL = SiteURL.builds(.value(value.id)).relativeURL()
 
             switch value.status {
-                case .ok: return cell(text: "Build Succeeded", linkURL: buildURL, cssClass: "succeeded")
-                case .failed: return cell(text: "Build Failed", linkURL: buildURL, cssClass: "failed")
+                case .ok: return cell(text: "Build Succeeded", linkURL: buildURL, cssClass: "succeeded", generatedDocs: generatedDocs)
+                case .failed: return cell(text: "Build Failed", linkURL: buildURL, cssClass: "failed", generatedDocs: generatedDocs)
                 case .triggered: return cell(text: "Build Queued")
                 case .infrastructureError: return cell(text: "Build Errored")
                 case .timeout: return cell(text: "Build Timed Out")
@@ -165,20 +172,26 @@ extension BuildIndex.Model {
         }
 
         func cell(text: String) -> Node<HTML.BodyContext> {
-            return .div(
+            .div(
                 .span(
                     .text(text)
                 )
             )
         }
 
-        func cell(text: String, linkURL: String, cssClass: String) -> Node<HTML.BodyContext> {
+        func cell(text: String, linkURL: String, cssClass: String, generatedDocs: Bool?) -> Node<HTML.BodyContext> {
             return .div(
                 .class(cssClass),
                 .a(
                     .href(linkURL),
                     .text(text)
-                )
+                ),
+                .unwrap(generatedDocs, { generatedDocs in
+                        .if(generatedDocs, .span(
+                            .class("generated-docs"),
+                            .title("If successful, this build generated package documentation.")
+                        ))
+                })
             )
         }
 

@@ -70,13 +70,13 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let stable: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok),
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok),
-            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok, generatedDocs: true),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, generatedDocs: false),
         ]
         let latest: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed),
-            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, generatedDocs: false),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
                                           ownerName: "Foo",
@@ -121,13 +121,13 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let stable: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok),
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok),
-            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, generatedDocs: false),
         ]
         let latest: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed),
-            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, generatedDocs: false),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
                                           ownerName: "Foo",
@@ -169,10 +169,13 @@ class BuildIndexModelTests: AppTestCase {
 
     func test_BuildCell() throws {
         let id = UUID()
-        XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok).node.render(), """
+        XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok, generatedDocs: false).node.render(), """
             <div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div>
             """)
-        XCTAssertEqual(BuildCell("1.2.3", .release, id, .failed).node.render(), """
+        XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok, generatedDocs: true).node.render(), """
+            <div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a><span class="generated-docs" title="If successful, this build generated package documentation."></span></div>
+            """)
+        XCTAssertEqual(BuildCell("1.2.3", .release, id, .failed, generatedDocs: false).node.render(), """
             <div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div>
             """)
         XCTAssertEqual(BuildCell("1.2.3", .release).node.render(), """
@@ -184,9 +187,9 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let bi = BuildItem(index: .init(swiftVersion: .v5_7, platform: .ios),
-                           values: [.init("1.2.3", .release, id, .ok),
+                           values: [.init("1.2.3", .release, id, .ok, generatedDocs: false),
                                     .init("2.0.0-b1", .preRelease),
-                                    .init("develop", .defaultBranch, id, .failed)])
+                                    .init("develop", .defaultBranch, id, .failed, generatedDocs: false)])
 
         // MUT - altogether now
         let node = bi.node
@@ -213,6 +216,42 @@ class BuildIndexModelTests: AppTestCase {
         XCTAssertEqual(node.render(), expectation.render())
    }
 
+    func test_BuildItem_generatedDocs() throws {
+        // setup
+        let id = UUID()
+        let bi = BuildItem(index: .init(swiftVersion: .v5_7, platform: .ios),
+                           values: [ .init("main", .defaultBranch, id, .ok, generatedDocs: true) ])
+
+        // MUT
+        let node = bi.node
+
+        let expectation: Node<HTML.ListContext> = .li(
+            .class("row"),
+            .div(
+                .class("row-labels"),
+                .strong("iOS")
+            ),
+            .div(
+                .class("column-labels"),
+                .div(.span(.class("branch"), .text("main")))
+            ),
+            .div(
+                .class("results"),
+                .div(
+                    .class("succeeded"),
+                    .a(
+                        .href("/builds/\(id.uuidString)"),
+                        .text("Build Succeeded")
+                    ),
+                    .span(
+                        .class("generated-docs"),
+                        .title("If successful, this build generated package documentation.")
+                    )
+                )
+            )
+        )
+        XCTAssertEqual(node.render(), expectation.render())
+    }
 }
 
 

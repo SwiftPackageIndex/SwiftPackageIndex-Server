@@ -121,6 +121,7 @@
     --grid-incompatible-background: var(--light-grey);
     --grid-succeeded-background: var(--very-light-grey);
     --grid-failed-background: var(--very-light-grey);
+    --grid-callout-background: var(--white);
 
     --package-list-border: var(--very-light-grey);
     --package-list-background: var(--very-very-light-grey);
@@ -226,6 +227,7 @@
         --grid-incompatible-background: var(--very-dark-grey);
         --grid-succeeded-background: var(--very-dark-grey);
         --grid-failed-background: var(--very-dark-grey);
+        --grid-callout-background: var(--black);
 
         --package-list-border: var(--very-dark-grey);
         --package-list-background: var(--very-very-dark-grey);
