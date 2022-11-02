@@ -170,16 +170,16 @@ class BuildIndexModelTests: AppTestCase {
     func test_BuildCell() throws {
         let id = UUID()
         XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok, generatedDocs: false).node.render(), """
-            <div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div>
+            <div class="succeeded"><a href="/builds/\(id.uuidString)">Succeeded</a></div>
             """)
         XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok, generatedDocs: true).node.render(), """
-            <div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a><span class="generated-docs" title="If successful, this build generated package documentation."></span></div>
+            <div class="succeeded"><a href="/builds/\(id.uuidString)">Succeeded</a><span class="generated-docs" title="If successful, this build generated package documentation."></span></div>
             """)
         XCTAssertEqual(BuildCell("1.2.3", .release, id, .failed, generatedDocs: false).node.render(), """
-            <div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div>
+            <div class="failed"><a href="/builds/\(id.uuidString)">Failed</a></div>
             """)
         XCTAssertEqual(BuildCell("1.2.3", .release).node.render(), """
-            <div><span>Build Pending</span></div>
+            <div><span>Pending</span></div>
             """)
     }
 
@@ -208,9 +208,9 @@ class BuildIndexModelTests: AppTestCase {
             ),
             .div(
                 .class("results"),
-                .div(.class("succeeded"), .a(.href("/builds/\(id.uuidString)"), .text("Build Succeeded"))),
-                .div(.span(.text("Build Pending"))),
-                .div(.class("failed"), .a(.href("/builds/\(id.uuidString)"), .text("Build Failed")))
+                .div(.class("succeeded"), .a(.href("/builds/\(id.uuidString)"), .text("Succeeded"))),
+                .div(.span(.text("Pending"))),
+                .div(.class("failed"), .a(.href("/builds/\(id.uuidString)"), .text("Failed")))
             )
         )
         XCTAssertEqual(node.render(), expectation.render())
@@ -241,7 +241,7 @@ class BuildIndexModelTests: AppTestCase {
                     .class("succeeded"),
                     .a(
                         .href("/builds/\(id.uuidString)"),
-                        .text("Build Succeeded")
+                        .text("Succeeded")
                     ),
                     .span(
                         .class("generated-docs"),

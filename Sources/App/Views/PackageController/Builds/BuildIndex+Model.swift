@@ -157,17 +157,17 @@ extension BuildIndex.Model {
         var node: Node<HTML.BodyContext> {
             guard let value = value else {
                 // No value indicates a missing/pending build
-                return cell(text: "Build Pending")
+                return cell(text: "Pending")
             }
 
             let buildURL = SiteURL.builds(.value(value.id)).relativeURL()
 
             switch value.status {
-                case .ok: return cell(text: "Build Succeeded", linkURL: buildURL, cssClass: "succeeded", generatedDocs: generatedDocs)
-                case .failed: return cell(text: "Build Failed", linkURL: buildURL, cssClass: "failed", generatedDocs: generatedDocs)
-                case .triggered: return cell(text: "Build Queued")
-                case .infrastructureError: return cell(text: "Build Errored")
-                case .timeout: return cell(text: "Build Timed Out")
+                case .ok: return cell(text: "Succeeded", linkURL: buildURL, cssClass: "succeeded", generatedDocs: generatedDocs)
+                case .failed: return cell(text: "Failed", linkURL: buildURL, cssClass: "failed", generatedDocs: generatedDocs)
+                case .triggered: return cell(text: "Queued")
+                case .infrastructureError: return cell(text: "Errored")
+                case .timeout: return cell(text: "Timed Out")
             }
         }
 
