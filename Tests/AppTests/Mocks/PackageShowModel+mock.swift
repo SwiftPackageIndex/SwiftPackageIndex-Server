@@ -41,6 +41,7 @@ extension PackageShow.Model {
             //     .init(label: "Kevin Harwood", url: "https://github.com/kcharwood"),
             //     .init(label: "186 other contributors", url: "https://github.com/Alamofire/Alamofire/graphs/contributors"),
             // ],
+            authors: PackageAuthors(authors: [Author(name: "Christian Noon", url: "https://github.com/cnoon")], numberOfContributors: 249),
             swiftVersionBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",
