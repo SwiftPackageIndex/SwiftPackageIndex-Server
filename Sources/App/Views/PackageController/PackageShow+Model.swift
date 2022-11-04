@@ -286,9 +286,8 @@ extension PackageShow.Model {
             }
         }
 
-        if authors.numberOfContributors > 0 {
-            guard let numberOfContributors = NumberFormatter.spiDefault.string(from: authors.numberOfContributors)
-            else { return .empty }
+        if authors.numberOfContributors > 0,
+           let numberOfContributors = NumberFormatter.spiDefault.string(from: authors.numberOfContributors) {
             nodes.append(.text("\(numberOfContributors) other " + "contributor".pluralized(for: authors.numberOfContributors)))
         }
         
