@@ -287,7 +287,12 @@ extension PackageShow.Model {
         }
 
         if authors.numberOfContributors > 0 {
-            nodes.append(.text("\(authors.numberOfContributors) other " + "contributor".pluralized(for: authors.numberOfContributors)))
+            if let numberOfContributors = NumberFormatter.spiDefault.string(from: authors.numberOfContributors) {
+                nodes.append(.text(numberOfContributors))
+            } else {
+                nodes.append(.text("\(authors.numberOfContributors)"))
+            }
+            nodes.append(.text(" other contributor".pluralized(for: authors.numberOfContributors)))
         }
         
         return .li(
