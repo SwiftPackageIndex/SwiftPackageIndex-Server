@@ -32,7 +32,7 @@ extension AppEnvironment {
             collectionSigningCertificateChain: {
                 [
                     SignedCollection.certsDir
-                        .appendingPathComponent("package_collections_dev.cer"),
+                        .appendingPathComponent("package_collections.cer"),
                     SignedCollection.certsDir
                         .appendingPathComponent("AppleWWDRCAG3.cer"),
                     SignedCollection.certsDir
