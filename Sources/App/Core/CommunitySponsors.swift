@@ -198,10 +198,6 @@ enum CommunitySponsors {
             avatarUrl: "https://avatars.githubusercontent.com/u/1244926?v=4"
         ),
         CommunitySponsor(
-            name: "Juanpe Catalán",
-            avatarUrl: "https://avatars.githubusercontent.com/u/1409041?u=cf6a1ead5e8c9fb31852e60fbaf2cefc9377e82e&v=4"
-        ),
-        CommunitySponsor(
             name: "PSPDFKit GmbH",
             avatarUrl: "https://avatars.githubusercontent.com/u/1527679?v=4"
         ),
@@ -343,7 +339,7 @@ enum CommunitySponsors {
         ),
         CommunitySponsor(
             name: "Kyle Lee",
-            avatarUrl: "https://avatars.githubusercontent.com/u/13292981?u=849cd0ce3da6b708a8b05fe17c04fe11f5f1dea1&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/13292981?u=bf0e3376ca03669afa3b155046e8b4e09c783a85&v=4"
         ),
         CommunitySponsor(
             name: nil,
