@@ -29,20 +29,8 @@ extension AppEnvironment {
             builderToken: { nil },
             buildTriggerDownscaling: { 1.0 },
             buildTriggerLatestSwiftVersionDownscaling: { 1.0 },
-            collectionSigningCertificateChain: {
-                [
-                    SignedCollection.certsDir
-                        .appendingPathComponent("package_collections_dev.cer"),
-                    SignedCollection.certsDir
-                        .appendingPathComponent("AppleWWDRCAG3.cer"),
-                    SignedCollection.certsDir
-                        .appendingPathComponent("AppleIncRootCertificate.cer")
-                ]
-            },
-            collectionSigningPrivateKey: {
-                Environment.get("COLLECTION_SIGNING_PRIVATE_KEY")
-                    .map { Data($0.utf8) }
-            },
+            collectionSigningCertificateChain: AppEnvironment.live.collectionSigningCertificateChain,
+            collectionSigningPrivateKey: AppEnvironment.live.collectionSigningPrivateKey,
             date: Date.init,
             dbId: { "db-id" },
             fetchDocumentation: { _, _ in .init(status: .ok) },
