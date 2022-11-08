@@ -68,7 +68,7 @@ struct AppEnvironment {
                        _ swiftVersion: SwiftVersion,
                        _ versionID: Version.Id) -> EventLoopFuture<Build.TriggerResponse>
     var twitterCredentials: () -> Twitter.Credentials?
-    var twitterPostTweet: (_ client: Client, _ tweet: String) async throws -> Void
+    var twitterPost: (_ client: Client, _ tweet: String) async throws -> Void
 }
 
 
@@ -179,7 +179,7 @@ extension AppEnvironment {
             return .init(apiKey: (key: apiKey, secret: apiKeySecret),
                          accessToken: (key: accessToken, secret: accessTokenSecret))
         },
-        twitterPostTweet: Twitter.post(client:tweet:)
+        twitterPost: Twitter.post(client:tweet:)
     )
 }
 

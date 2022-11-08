@@ -26,7 +26,7 @@ class TwitterTests: AppTestCase {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
         }
         var message: String?
-        Current.twitterPostTweet = { _, msg in
+        Current.twitterPost = { _, msg in
             if message == nil {
                 message = msg
             } else {
@@ -119,7 +119,7 @@ class TwitterTests: AppTestCase {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
         }
         var posted = 0
-        Current.twitterPostTweet = { _, _ in
+        Current.twitterPost = { _, _ in
             posted += 1
         }
 

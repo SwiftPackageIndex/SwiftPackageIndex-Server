@@ -107,7 +107,7 @@ final class AnalyzeErrorTests: AppTestCase {
 
         Current.shell.run = Self.defaultShellRun
 
-        Current.twitterPostTweet = { client, message in
+        Current.twitterPost = { client, message in
             await self.tweets.withValue { $0.append(message) }
         }
     }

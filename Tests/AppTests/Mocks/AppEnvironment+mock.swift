@@ -68,7 +68,7 @@ extension AppEnvironment {
                 eventLoop.future(.init(status: .ok, webUrl: "http://web_url"))
             },
             twitterCredentials: { nil },
-            twitterPostTweet: { _, _ in }
+            twitterPost: { _, _ in }
         )
     }
 }

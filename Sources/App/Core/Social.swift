@@ -103,7 +103,7 @@ enum Social {
                                             maxLength: Twitter.tweetMaxLength) else {
             throw Error.invalidMessage
         }
-        try await Current.twitterPostTweet(client, message)
+        try await Current.twitterPost(client, message)
     }
 
     static func postToFirehose(client: Client,
