@@ -715,9 +715,9 @@ extension Analyze {
                               package: Joined<Package, Repository>,
                               versions: [Version]) async {
         do {
-            try await Twitter.postToFirehose(client: client,
-                                             package: package,
-                                             versions: versions)
+            try await Social.postToFirehose(client: client,
+                                            package: package,
+                                            versions: versions)
         } catch {
             logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
         }
