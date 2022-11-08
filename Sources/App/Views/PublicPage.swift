@@ -361,6 +361,17 @@ class PublicPage {
                             "all our sponsors for their generosity"
                         ),
                         .text(".")
+                    ),
+                    // Mastodon verification links
+                    .a(
+                        .attribute(named: "rel", value: "me"),
+                        .href("https://mas.to/@SwiftPackageIndex"),
+                        ""
+                    ),
+                    .a(
+                        .attribute(named: "rel", value: "me"),
+                        .href("https://mas.to/@SwiftPackageUpdates"),
+                        ""
                     )
                 )
             )
