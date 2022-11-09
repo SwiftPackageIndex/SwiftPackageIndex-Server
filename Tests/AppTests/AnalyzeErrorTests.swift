@@ -116,7 +116,6 @@ final class AnalyzeErrorTests: AppTestCase {
 
         Current.twitterPostTweet = { client, message in
             Validator.tweets.append(message)
-            return self.app.eventLoopGroup.future()
         }
     }
 

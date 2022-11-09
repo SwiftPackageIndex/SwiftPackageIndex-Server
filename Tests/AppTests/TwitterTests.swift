@@ -19,222 +19,6 @@ import SemanticVersion
 
 
 class TwitterTests: AppTestCase {
-    
-    func test_versionUpdateMessage() throws {
-        XCTAssertEqual(
-            Twitter.versionUpdateMessage(
-                packageName: "packageName",
-                repositoryOwnerName: "owner",
-                url: "http://localhost:8080/owner/SuperAwesomePackage",
-                version: .init(2, 6, 4),
-                summary: "This is a test package"),
-            """
-            ⬆️ owner just released packageName v2.6.4 – This is a test package
-
-            http://localhost:8080/owner/SuperAwesomePackage#releases
-            """
-        )
-
-        // no summary
-        XCTAssertEqual(
-            Twitter.versionUpdateMessage(
-                packageName: "packageName",
-                repositoryOwnerName: "owner",
-                url: "http://localhost:8080/owner/SuperAwesomePackage",
-                version: .init(2, 6, 4),
-                summary: nil),
-            """
-            ⬆️ owner just released packageName v2.6.4
-
-            http://localhost:8080/owner/SuperAwesomePackage#releases
-            """
-        )
-
-        // empty summary
-        XCTAssertEqual(
-            Twitter.versionUpdateMessage(
-                packageName: "packageName",
-                repositoryOwnerName: "owner",
-                url: "http://localhost:8080/owner/SuperAwesomePackage",
-                version: .init(2, 6, 4),
-                summary: ""),
-            """
-            ⬆️ owner just released packageName v2.6.4
-
-            http://localhost:8080/owner/SuperAwesomePackage#releases
-            """
-        )
-
-        // whitespace summary
-        XCTAssertEqual(
-            Twitter.versionUpdateMessage(
-                packageName: "packageName",
-                repositoryOwnerName: "owner",
-                url: "http://localhost:8080/owner/SuperAwesomePackage",
-                version: .init(2, 6, 4),
-                summary: " \n"),
-            """
-            ⬆️ owner just released packageName v2.6.4
-
-            http://localhost:8080/owner/SuperAwesomePackage#releases
-            """
-        )
-    }
-
-    func test_versionUpdateMessage_trimming() throws {
-        let msg = Twitter.versionUpdateMessage(
-            packageName: "packageName",
-            repositoryOwnerName: "owner",
-            url: "http://localhost:8080/owner/SuperAwesomePackage",
-            version: .init(2, 6, 4),
-            summary: String(repeating: "x", count: 280)
-        )
-
-        XCTAssertEqual(msg.count, 260)
-        XCTAssertEqual(msg, """
-            ⬆️ owner just released packageName v2.6.4 – xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…
-
-            http://localhost:8080/owner/SuperAwesomePackage#releases
-            """)
-    }
-
-    func test_newPackageMessage() throws {
-        XCTAssertEqual(
-            Twitter.newPackageMessage(
-                packageName: "packageName",
-                repositoryOwnerName: "owner",
-                url: "http://localhost:8080/owner/SuperAwesomePackage",
-                summary: "This is a test package"),
-            """
-            📦 owner just added a new package, packageName – This is a test package
-
-            http://localhost:8080/owner/SuperAwesomePackage
-            """
-        )
-    }
-
-    func test_firehoseMessage_new_version() throws {
-        // setup
-        let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg,
-                       name: "repoName",
-                       owner: "owner",
-                       summary: "This is a test package").save(on: app.db).wait()
-        let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try version.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-
-        // MUT
-        let res = Twitter.firehoseMessage(package: jpr, version: version)
-
-        // validate
-        XCTAssertEqual(res, """
-            ⬆️ owner just released MyPackage v1.2.3 – This is a test package
-
-            http://localhost:8080/owner/repoName#releases
-            """)
-    }
-
-    func test_firehoseMessage_new_package() throws {
-        // setup
-        let pkg = Package(url: "1".asGithubUrl.url, status: .new)
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg,
-                       name: "repoName",
-                       owner: "owner",
-                       summary: "This is a test package").save(on: app.db).wait()
-        let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try version.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-
-        // MUT
-        let res = Twitter.firehoseMessage(package: jpr, version: version)
-
-        // validate
-        XCTAssertEqual(res, """
-            📦 owner just added a new package, MyPackage – This is a test package
-
-            http://localhost:8080/owner/repoName
-            """)
-    }
-
-    func test_postToFirehose_only_release_and_preRelease() throws {
-        // ensure we only tweet about releases and pre-releases
-        // setup
-        let pkg = Package(url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg,
-                       name: "repoName",
-                       owner: "repoOwner",
-                       summary: "This is a test package").save(on: app.db).wait()
-        let v1 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try v1.save(on: app.db).wait()
-        let v2 = try Version(package: pkg,
-                             commitDate: Date(timeIntervalSince1970: 0),
-                             packageName: "MyPackage",
-                             reference: .tag(2, 0, 0, "b1"))
-        try v2.save(on: app.db).wait()
-        let v3 = try Version(package: pkg, packageName: "MyPackage", reference: .branch("main"))
-        try v3.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
-
-        Current.twitterCredentials = {
-            .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
-        }
-        var posted = 0
-        Current.twitterPostTweet = { _, _ in
-            posted += 1
-            return self.app.eventLoopGroup.future()
-        }
-
-        // MUT
-        try Twitter.postToFirehose(client: app.client,
-                                   package: jpr,
-                                   versions: [v1, v2, v3]).wait()
-
-        // validate
-        XCTAssertEqual(posted, 2)
-    }
-
-    func test_postToFirehose_only_latest() throws {
-        // ensure we only tweet about latest versions
-        // setup
-        let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg,
-                       name: "repoName",
-                       owner: "repoOwner",
-                       summary: "This is a test package").save(on: app.db).wait()
-        let v1 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try v1.save(on: app.db).wait()
-        let v2 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(2, 0, 0))
-        try v2.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
-
-        Current.twitterCredentials = {
-            .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
-        }
-        var message: String?
-        Current.twitterPostTweet = { _, msg in
-            if message == nil {
-                message = msg
-            } else {
-                XCTFail("message must only be set once")
-            }
-            return self.app.eventLoopGroup.future()
-        }
-
-        // MUT
-        try Twitter.postToFirehose(client: app.client,
-                                   package: jpr,
-                                   versions: [v1, v2]).wait()
-
-        // validate
-        XCTAssertTrue(message?.contains("v2.0.0") ?? false)
-    }
 
     func test_endToEnd() async throws {
         // setup
@@ -248,7 +32,6 @@ class TwitterTests: AppTestCase {
             } else {
                 XCTFail("message must only be set once")
             }
-            return self.app.eventLoopGroup.future()
         }
 
         var tag = Reference.tag(1, 2, 3)
@@ -320,39 +103,39 @@ class TwitterTests: AppTestCase {
         XCTAssertTrue(msg.hasPrefix("⬆️ foo just released Mock v2.0.0"), "was: \(msg)")
     }
 
-    func test_allowTwitterPosts_switch() throws {
+    func test_allowTwitterPosts_switch() async throws {
         // test ALLOW_TWITTER_POSTS environment variable
         // setup
         let pkg = Package(url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg,
-                       name: "repoName",
-                       owner: "repoOwner",
-                       summary: "This is a test package").save(on: app.db).wait()
+        try await pkg.save(on: app.db)
+        try await Repository(package: pkg,
+                             name: "repoName",
+                             owner: "repoOwner",
+                             summary: "This is a test package").save(on: app.db)
         let v = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try v.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        try await v.save(on: app.db)
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
         }
         var posted = 0
         Current.twitterPostTweet = { _, _ in
             posted += 1
-            return self.app.eventLoopGroup.future()
         }
 
         // MUT & validate - disallow if set to false
         Current.allowTwitterPosts = { false }
-        XCTAssertThrowsError(
-            try Twitter.postToFirehose(client: app.client, package: jpr, version: v).wait()
-        ) {
-            XCTAssertTrue($0.localizedDescription.contains("App.Twitter.Error error 3"))
+        do {
+            try await Social.postToFirehose(client: app.client, package: jpr, version: v)
+            XCTFail("expected error to be thrown")
+        } catch {
+            XCTAssertEqual("\(error)", "postingDisabled")
         }
         XCTAssertEqual(posted, 0)
 
         // MUT & validate - allow if set to true
         Current.allowTwitterPosts = { true }
-        try Twitter.postToFirehose(client: app.client, package: jpr, version: v).wait()
+        try await Social.postToFirehose(client: app.client, package: jpr, version: v)
         XCTAssertEqual(posted, 1)
     }
 
