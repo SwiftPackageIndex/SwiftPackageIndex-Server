@@ -20,7 +20,7 @@ services:
 
   grafana:
     # https://github.com/grafana/grafana/releases
-    image: grafana/grafana:9.2.0
+    image: grafana/grafana:9.2.4
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: 'false'
@@ -71,7 +71,7 @@ services:
 
   prometheus:
     # https://github.com/prometheus/prometheus/releases
-    image: prom/prometheus:v2.39.1
+    image: prom/prometheus:v2.40.1
     volumes:
       - prometheus_data:/prometheus
     command: --config.file=/prometheus.yml
@@ -109,7 +109,7 @@ services:
 
   cadvisor:
     # https://github.com/google/cadvisor/releases
-    image: gcr.io/cadvisor/cadvisor:v0.45.0
+    image: gcr.io/cadvisor/cadvisor:v0.46.0
     networks:
       - app_backend
     volumes:

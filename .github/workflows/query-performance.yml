@@ -27,7 +27,7 @@ jobs:
       image: registry.gitlab.com/finestructure/spi-base:0.8.0
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install unzip
         run: apt-get update && apt-get install -y unzip
       - name: Run tests
