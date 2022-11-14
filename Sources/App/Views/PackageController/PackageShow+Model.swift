@@ -287,12 +287,15 @@ extension PackageShow.Model {
         }
 
         if authors.numberOfContributors > 0 {
-            if let numberOfContributors = NumberFormatter.spiDefault.string(from: authors.numberOfContributors) {
-                nodes.append(.text(numberOfContributors))
-            } else {
-                nodes.append(.text("\(authors.numberOfContributors)"))
-            }
-            nodes.append(.text(" other contributor".pluralized(for: authors.numberOfContributors)))
+            let formattedNumberOfContributors = {
+                if let numberOfContributors = NumberFormatter.spiDefault.string(from: authors.numberOfContributors) {
+                    return numberOfContributors
+                } else {
+                    return "\(authors.numberOfContributors)"
+                }
+            }()
+            nodes.append(.text("\(formattedNumberOfContributors) other contributor"
+                .pluralized(for: authors.numberOfContributors)))
         }
         
         return .li(
