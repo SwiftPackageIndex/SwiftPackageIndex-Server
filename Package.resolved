@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server/async-http-client.git",
       "state" : {
-        "revision" : "10f42e647a15d6e5c0e9de2e081761d23730a249",
-        "version" : "1.13.0"
+        "revision" : "5bee16a79922e3efcb5cea06ecd27e6f8048b56b",
+        "version" : "1.13.1"
       }
     },
     {
@@ -374,8 +374,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "0eacdf3c7eab6df493ce328f2e97c2873b3e1c1e",
-        "version" : "4.67.1"
+        "revision" : "a037bbf91b081ce4f91cbef5a917f8f7844d3daa",
+        "version" : "4.67.2"
       }
     },
     {
