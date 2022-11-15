@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server/async-http-client.git",
       "state" : {
-        "revision" : "10f42e647a15d6e5c0e9de2e081761d23730a249",
-        "version" : "1.13.0"
+        "revision" : "5bee16a79922e3efcb5cea06ecd27e6f8048b56b",
+        "version" : "1.13.1"
       }
     },
     {
@@ -149,8 +149,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/sql-kit.git",
       "state" : {
-        "revision" : "3c5413a229bc2abc962dab17ea66d25e448ad344",
-        "version" : "3.21.0"
+        "revision" : "dcf10a00d7d5df987b7948e6fd5596fb65f6d0c2",
+        "version" : "3.23.0"
       }
     },
     {
@@ -374,8 +374,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "0eacdf3c7eab6df493ce328f2e97c2873b3e1c1e",
-        "version" : "4.67.1"
+        "revision" : "a037bbf91b081ce4f91cbef5a917f8f7844d3daa",
+        "version" : "4.67.2"
       }
     },
     {
@@ -392,8 +392,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "16e6409ee82e1b81390bdffbf217b9c08ab32784",
-        "version" : "0.5.0"
+        "revision" : "5a5457a744239896e9b0b03a8e1a5069c3e7b91f",
+        "version" : "0.6.0"
       }
     },
     {
