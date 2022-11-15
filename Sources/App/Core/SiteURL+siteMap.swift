@@ -31,13 +31,27 @@ extension SiteURL {
                     .changefreq($0.changefreq)
                 )
             },
-            .forEach(packages) { p in
-                .url(
-                    .loc(
-                        SiteURL.package(.value(p.owner), .value(p.repository), .none).absoluteURL()),
-                    .changefreq(
-                        SiteURL.package(.value(p.owner), .value(p.repository), .none).changefreq)
-                )
+            .forEach(packages) { package in
+                    .group(
+                        .url(
+                            .loc(SiteURL.package(.value(package.owner),
+                                                 .value(package.repository),
+                                                 .none).absoluteURL()),
+                            .changefreq(SiteURL.package(.value(package.owner),
+                                                        .value(package.repository),
+                                                        .none).changefreq)
+                        ),
+                        .unwrap(package.hasDocs, { hasDocs in
+                                .if(hasDocs, .url(
+                                    .loc(SiteURL.package(.value(package.owner),
+                                                         .value(package.repository),
+                                                         .documentation).absoluteURL()),
+                                    .changefreq(SiteURL.package(.value(package.owner),
+                                                                .value(package.repository),
+                                                                .documentation).changefreq)
+                                ))
+                        })
+                    )
             }
         )
     }
@@ -96,10 +110,12 @@ extension SiteMap {
     struct Package: Equatable, Decodable {
         var owner: String
         var repository: String
+        var hasDocs: Bool? = nil
         
         enum CodingKeys: String, CodingKey {
             case owner = "owner"
             case repository = "name"
+            case hasDocs = "has_docs"
         }
     }
     
@@ -114,6 +130,7 @@ extension SiteMap {
         let query = db.select()
             .column(Search.repoName, as: "name")
             .column(Search.repoOwner, as: "owner")
+            .column(Search.hasDocs, as: "has_docs")
             .from(Search.searchView)
             .orderBy(Search.repoName)
             .orderBy(Search.repoOwner)
