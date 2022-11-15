@@ -51,7 +51,7 @@ class SitemapTests: SnapshotTestCase {
         // setup
         Current.siteURL = { "https://indexsite.com" }
         let packages: [SiteMap.Package] = [
-            .init(owner: "foo1", repository: "bar1"),
+            .init(owner: "foo1", repository: "bar1", hasDocs: true),
             .init(owner: "foo2", repository: "bar2"),
             .init(owner: "foo3", repository: "bar3"),
         ]
