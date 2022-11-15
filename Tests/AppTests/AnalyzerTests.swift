@@ -78,12 +78,9 @@ class AnalyzerTests: AppTestCase {
             }
         }
         Current.shell.run = { cmd, path in
-            try self.testQueue.sync {
-                let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!,
-                                                            with: ".")
-                try commands.withValue {
-                    $0.append(try .init(command: cmd, path: trimmedPath).unwrap())
-                }
+            let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!, with: ".")
+            try commands.withValue {
+                $0.append(try .init(command: cmd, path: trimmedPath).unwrap())
             }
             if cmd.string.starts(with: "git clone") {
                 firstDirCloned.setValue(true)

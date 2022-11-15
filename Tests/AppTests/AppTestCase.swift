@@ -18,7 +18,6 @@ import XCTVapor
 
 class AppTestCase: XCTestCase {
     var app: Application!
-    let testQueue = DispatchQueue(label: "test-queue")
 
     func future<T>(_ value: T) -> EventLoopFuture<T> {
         app.eventLoopGroup.next().future(value)
