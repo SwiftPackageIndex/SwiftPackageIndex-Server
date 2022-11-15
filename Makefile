@@ -33,10 +33,8 @@ build:
 run:
 	swift run
 
-test: xcbeautify
-	set -o pipefail \
-	&& swift test --disable-automatic-resolution --sanitize=thread \
-	2>&1 | ./xcbeautify
+test:
+	swift test --disable-automatic-resolution --sanitize=thread
 
 test-query-performance: xcbeautify
 	set -o pipefail \
