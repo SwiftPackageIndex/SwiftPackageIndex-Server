@@ -17,6 +17,10 @@
     <changefreq>daily</changefreq>
   </url>
   <url>
+    <loc>https://indexsite.com/foo1/bar1/documentation</loc>
+    <changefreq>daily</changefreq>
+  </url>
+  <url>
     <loc>https://indexsite.com/foo2/bar2</loc>
     <changefreq>daily</changefreq>
   </url>
