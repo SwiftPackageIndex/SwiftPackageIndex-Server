@@ -668,6 +668,7 @@ extension Analyze {
     ///   - database: `Database` object
     ///   - package: package to update
     /// - Returns: future
+    @discardableResult
     static func updateLatestVersions(on database: Database, package: Joined<Package, Repository>) async throws -> [Version] {
         try await package.model.$versions.load(on: database)
 
