@@ -140,8 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SPIManifest",
       "state" : {
-        "revision" : "5569d7aca29b7d7f4f793ba997bfaa72ca99fca7",
-        "version" : "0.12.0"
+        "revision" : "2c8538d38f8d38e07e93ca957c13e0d313d6358d",
+        "version" : "0.13.0"
       }
     },
     {
@@ -149,8 +149,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/sql-kit.git",
       "state" : {
-        "revision" : "3c5413a229bc2abc962dab17ea66d25e448ad344",
-        "version" : "3.21.0"
+        "revision" : "dcf10a00d7d5df987b7948e6fd5596fb65f6d0c2",
+        "version" : "3.23.0"
       }
     },
     {
@@ -374,8 +374,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "a037bbf91b081ce4f91cbef5a917f8f7844d3daa",
-        "version" : "4.67.2"
+        "revision" : "e227a63b72c33dcb8a28db3eda05709daa965b3b",
+        "version" : "4.67.3"
       }
     },
     {
@@ -392,8 +392,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "16e6409ee82e1b81390bdffbf217b9c08ab32784",
-        "version" : "0.5.0"
+        "revision" : "5a5457a744239896e9b0b03a8e1a5069c3e7b91f",
+        "version" : "0.6.0"
       }
     },
     {
