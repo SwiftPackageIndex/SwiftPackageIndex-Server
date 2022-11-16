@@ -25,8 +25,8 @@ class ErrorMiddlewareTests: AppTestCase {
         
         // set up some test routes
         app.get("ok") { _ in return "ok" }
-        app.get("404") { req -> EventLoopFuture<Response> in throw Abort(.notFound) }
-        app.get("500") { req -> EventLoopFuture<Response> in throw Abort(.internalServerError) }
+        app.get("404") { req async throws -> Response in throw Abort(.notFound) }
+        app.get("500") { req async throws -> Response in throw Abort(.internalServerError) }
     }
     
     func test_custom_routes() throws {
