@@ -33,15 +33,11 @@ extension PackageShow.Model {
                 lastIssueClosedAt: "5 days ago",
                 lastPullRequestClosedAt: "6 days ago"
             ),
-            // No need for mock authors until we support showing author information!
-            // authors: [
-            //     .init(label: "Christian Noon", url: "https://github.com/cnoon"),
-            //     .init(label: "Mattt", url: "https://github.com/mattt"),
-            //     .init(label: "Jon Shier", url: "https://github.com/jshier"),
-            //     .init(label: "Kevin Harwood", url: "https://github.com/kcharwood"),
-            //     .init(label: "186 other contributors", url: "https://github.com/Alamofire/Alamofire/graphs/contributors"),
-            // ],
-            authors: PackageAuthors(authors: [Author(name: "Christian Noon", url: "https://github.com/cnoon")], numberOfContributors: 249),
+            authors: PackageAuthors(authors: [
+                .init(name: "Author One"),
+                .init(name: "Author Two"),
+                .init(name: "Author Three"),
+            ], numberOfContributors: 5),
             swiftVersionBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",
