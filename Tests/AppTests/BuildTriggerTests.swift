@@ -201,12 +201,10 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = Gitlab.Builder.triggerBuild
-        var queries = [Gitlab.Builder.PostDTO]()
+        let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
         let client = MockClient { req, res in
-            self.testQueue.sync {
-                guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
-                queries.append(query)
-            }
+            guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
+            queries.withValue { $0.append(query) }
             try? res.content.encode(
                 Gitlab.Builder.Response.init(webUrl: "http://web_url")
             )
@@ -231,9 +229,9 @@ class BuildTriggerTests: AppTestCase {
         // validate
         // ensure Gitlab requests go out
         XCTAssertEqual(queries.count, 1)
-        XCTAssertEqual(queries.map { $0.variables["VERSION_ID"] }, [versionId.uuidString])
-        XCTAssertEqual(queries.map { $0.variables["BUILD_PLATFORM"] }, ["ios"])
-        XCTAssertEqual(queries.map { $0.variables["SWIFT_VERSION"] }, ["5.4"])
+        XCTAssertEqual(queries.value.map { $0.variables["VERSION_ID"] }, [versionId.uuidString])
+        XCTAssertEqual(queries.value.map { $0.variables["BUILD_PLATFORM"] }, ["ios"])
+        XCTAssertEqual(queries.value.map { $0.variables["SWIFT_VERSION"] }, ["5.4"])
 
         // ensure the Build stubs is created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
@@ -253,12 +251,10 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = Gitlab.Builder.triggerBuild
-        var queries = [Gitlab.Builder.PostDTO]()
+        let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
         let client = MockClient { req, res in
-            self.testQueue.sync {
-                guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
-                queries.append(query)
-            }
+            guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
+            queries.withValue { $0.append(query) }
             try? res.content.encode(
                 Gitlab.Builder.Response.init(webUrl: "http://web_url")
             )
@@ -283,9 +279,9 @@ class BuildTriggerTests: AppTestCase {
         // validate
         // ensure Gitlab requests go out
         XCTAssertEqual(queries.count, 24)
-        XCTAssertEqual(queries.map { $0.variables["VERSION_ID"] },
+        XCTAssertEqual(queries.value.map { $0.variables["VERSION_ID"] },
                        Array(repeating: versionId.uuidString, count: 24))
-        let buildPlatforms = queries.compactMap { $0.variables["BUILD_PLATFORM"] }
+        let buildPlatforms = queries.value.compactMap { $0.variables["BUILD_PLATFORM"] }
         XCTAssertEqual(Dictionary(grouping: buildPlatforms, by: { $0 })
                         .mapValues(\.count),
                        ["ios": 4,
@@ -294,7 +290,7 @@ class BuildTriggerTests: AppTestCase {
                         "linux": 4,
                         "watchos": 4,
                         "tvos": 4])
-        let swiftVersions = queries.compactMap { $0.variables["SWIFT_VERSION"] }
+        let swiftVersions = queries.value.compactMap { $0.variables["SWIFT_VERSION"] }
         XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
                         .mapValues(\.count),
                        ["5.4": 6,

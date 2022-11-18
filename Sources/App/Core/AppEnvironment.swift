@@ -52,7 +52,7 @@ struct AppEnvironment {
     var logger: () -> Logger?
     var metricsPushGatewayUrl: () -> String?
     var random: (_ range: ClosedRange<Double>) -> Double
-    var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) -> EventLoopFuture<Void>
+    var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) async throws -> Void
     var rollbarToken: () -> String?
     var rollbarLogLevel: () -> AppError.Level
     var setLogger: (Logger) -> Void

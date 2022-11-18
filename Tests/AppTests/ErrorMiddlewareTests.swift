@@ -25,8 +25,8 @@ class ErrorMiddlewareTests: AppTestCase {
         
         // set up some test routes
         app.get("ok") { _ in return "ok" }
-        app.get("404") { req -> EventLoopFuture<Response> in throw Abort(.notFound) }
-        app.get("500") { req -> EventLoopFuture<Response> in throw Abort(.internalServerError) }
+        app.get("404") { req async throws -> Response in throw Abort(.notFound) }
+        app.get("500") { req async throws -> Response in throw Abort(.internalServerError) }
     }
     
     func test_custom_routes() throws {
@@ -64,7 +64,6 @@ class ErrorMiddlewareTests: AppTestCase {
         var errorReported = false
         Current.reportError = { _, level, error in
             errorReported = true
-            return self.future(())
         }
         
         try app.test(.GET, "404", afterResponse: { response in
@@ -72,25 +71,22 @@ class ErrorMiddlewareTests: AppTestCase {
         })
     }
     
-    func test_500_alert() throws {
+    func test_500_alert() async throws {
         // Test to ensure 500s *do* trigger a Rollbar alert
-        var reportedLevel: AppError.Level? = nil
-        var reportedError: String? = nil
+        let reportedLevel = ActorIsolated<AppError.Level?>(nil)
+        let reportedError = ActorIsolated<String?>(nil)
         Current.reportError = { _, level, error in
-            self.testQueue.sync {
-                reportedLevel = level
-                reportedError = error.localizedDescription
-            }
-            return self.future(())
+            await reportedLevel.setValue(level)
+            await reportedError.setValue(error.localizedDescription)
         }
         
-        try app.test(.GET, "500", afterResponse: { response in
-            try testQueue.sync {
-                XCTAssertEqual(reportedLevel, .critical)
-                let errorMessage = try reportedError.unwrap()
-                XCTAssert(errorMessage.contains("Abort.500: Internal Server Error"),
-                          "error was: \(errorMessage)")
+        try await app.test(.GET, "500", afterResponse: { response in
+            await reportedLevel.withValue {
+                XCTAssertEqual($0, .critical)
             }
+            let errorMessage = try await reportedError.value.unwrap()
+            XCTAssert(errorMessage.contains("Abort.500: Internal Server Error"),
+                      "error was: \(errorMessage)")
         })
     }
     

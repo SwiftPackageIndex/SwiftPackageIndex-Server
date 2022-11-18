@@ -57,7 +57,7 @@ extension AppEnvironment {
             logger: { nil },
             metricsPushGatewayUrl: { "http://pushgateway:9091" },
             random: Double.random,
-            reportError: { _, _, _ in eventLoop.future(()) },
+            reportError: { _, _, _ in },
             rollbarToken: { nil },
             rollbarLogLevel: { .critical },
             setLogger: { _ in },
