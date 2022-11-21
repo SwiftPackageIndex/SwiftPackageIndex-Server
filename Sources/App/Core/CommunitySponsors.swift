@@ -134,10 +134,6 @@ enum CommunitySponsors {
             avatarUrl: "https://avatars.githubusercontent.com/u/637026?u=95adf59c4fab9321e9f7caacf711eea283d27e91&v=4"
         ),
         CommunitySponsor(
-            name: "Marc Prud'hommeaux",
-            avatarUrl: "https://avatars.githubusercontent.com/u/659086?u=652e7f668806a424936e6ae31b6e7d5c9857383a&v=4"
-        ),
-        CommunitySponsor(
             name: "Jeffrey Macko",
             avatarUrl: "https://avatars.githubusercontent.com/u/661647?u=81081703e576c7211f21e1470994ac713f176c68&v=4"
         ),
@@ -371,7 +367,7 @@ enum CommunitySponsors {
         ),
         CommunitySponsor(
             name: "emin",
-            avatarUrl: "https://avatars.githubusercontent.com/u/21968377?u=19b33db70d1f53634b30b06902c163dfd93b1327&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/21968377?u=32bbdbce9b089d5423fb4d4049704ba68b6902a5&v=4"
         ),
         CommunitySponsor(
             name: "B.T. Franklin",
