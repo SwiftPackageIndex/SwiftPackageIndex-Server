@@ -42,7 +42,7 @@ services:
 
   loki:
     # https://github.com/grafana/loki/releases
-    image: grafana/loki:2.7.0
+    image: grafana/loki:2.6.1
     command: -config.file=/loki.yml
     configs:
       - source: loki_cfg
