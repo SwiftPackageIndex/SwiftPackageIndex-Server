@@ -675,7 +675,7 @@ extension Analyze {
         // find previous markers
         let previous = package.model.versions.filter { $0.latest != nil }
 
-        let versions = package.model.$versions.value ?? []
+        let versions = package.model.versions
 
         // find new significant releases
         let (release, preRelease, defaultBranch) = Package.findSignificantReleases(
