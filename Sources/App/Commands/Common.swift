@@ -49,38 +49,6 @@ func updatePackages(client: Client,
 }
 
 
-/// Update packages (in the `[Result<(Joined<Package, Repository>, [Version])]` array).
-///
-/// This overload will use `Version` information to update the package, for example to compute a new package score.
-///
-/// - Parameters:
-///   - client: `Client` object
-///   - database: `Database` object
-///   - logger: `Logger` object
-///   - results: `(Joined<Package, Repository>, [Version])` results to update
-///   - stage: Processing stage
-func updatePackages(client: Client,
-                    database: Database,
-                    logger: Logger,
-                    results: [Result<(Joined<Package, Repository>, [Version]), Error>],
-                    stage: Package.ProcessingStage) async throws {
-    let updates = await withThrowingTaskGroup(of: Void.self) { group in
-        for result in results {
-            group.addTask {
-                try await updatePackage(client: client,
-                                        database: database,
-                                        logger: logger,
-                                        result: result,
-                                        stage: stage)
-            }
-        }
-        return await group.results()
-    }
-
-    logger.debug("updateStatus ops: \(updates.count)")
-}
-
-
 func updatePackage(client: Client,
                    database: Database,
                    logger: Logger,
@@ -112,26 +80,6 @@ func updatePackage(client: Client,
             try? await Current.reportError(client, .error, error)
             try await recordError(database: database, error: error, stage: stage)
     }
-}
-
-
-func updatePackage(client: Client,
-                   database: Database,
-                   logger: Logger,
-                   result: Result<(Joined<Package, Repository>, [Version]), Error>,
-                   stage: Package.ProcessingStage) async throws {
-    // Compute the package score and update the result before passing it to `updatePackage`
-    let result = result.map {
-        let (jpr, versions) = $0
-        jpr.package.score = Score.compute(package: jpr, versions: versions)
-        return jpr
-    }
-
-    try await updatePackage(client: client,
-                            database: database,
-                            logger: logger,
-                            result: result,
-                            stage: stage)
 }
 
 

@@ -168,8 +168,8 @@ extension Analyze {
         }
 
         let packageResults = await withThrowingTaskGroup(
-            of: (Joined<Package, Repository>, [Version]).self,
-            returning: [Result<(Joined<Package, Repository>, [Version]), Error>].self
+            of: (Joined<Package, Repository>).self,
+            returning: [Result<(Joined<Package, Repository>), Error>].self
         ) { group in
             for pkg in packages {
                 group.addTask {
@@ -182,9 +182,9 @@ extension Analyze {
                                               package: pkg)
                         }
                     }
-                    let versions = try result.get()
+                    try result.get()
 
-                    return (pkg, versions)
+                    return pkg
                 }
             }
 
@@ -208,7 +208,7 @@ extension Analyze {
     static func analyze(client: Client,
                         transaction: Database,
                         logger: Logger,
-                        package: Joined<Package, Repository>) async throws -> [Version] {
+                        package: Joined<Package, Repository>) async throws {
         try refreshCheckout(logger: logger, package: package)
         try await updateRepository(on: transaction, package: package)
 
@@ -243,14 +243,14 @@ extension Analyze {
                                       manifest: pkgInfo.packageManifest)
         }
 
-        let updatedVersions = try await updateLatestVersions(on: transaction, package: package)
+        let versions = try await updateLatestVersions(on: transaction, package: package)
+
+        updateScore(package: package, versions: versions)
 
         await onNewVersions(client: client,
                             logger: logger,
                             package: package,
                             versions: newVersions)
-
-        return updatedVersions
     }
 
 
@@ -671,11 +671,10 @@ extension Analyze {
     @discardableResult
     static func updateLatestVersions(on database: Database, package: Joined<Package, Repository>) async throws -> [Version] {
         try await package.model.$versions.load(on: database)
+        let versions = package.model.versions
 
         // find previous markers
-        let previous = package.model.versions.filter { $0.latest != nil }
-
-        let versions = package.model.versions
+        let previous = versions.filter { $0.latest != nil }
 
         // find new significant releases
         let (release, preRelease, defaultBranch) = Package.findSignificantReleases(
@@ -701,6 +700,15 @@ extension Analyze {
         }
 
         return versions
+    }
+
+
+    /// Updates the score of the given `package` based on the given `package` itself and the given `Version`s. The `Version`s are passed in as a parameter to avoid re-fetching.
+    /// - Parameters:
+    ///   - package: `Package` input
+    ///   - versions: `[Version]` input
+    static func updateScore(package: Joined<Package, Repository>, versions: [Version]) {
+        package.model.score = Score.compute(package: package, versions: versions)
     }
 
 
