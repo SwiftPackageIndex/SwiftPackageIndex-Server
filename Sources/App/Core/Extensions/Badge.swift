@@ -69,7 +69,7 @@ extension Badge {
 
     static private func loadSVGLogo() -> String? {
         let pathToFile = Current.fileManager.workingDirectory()
-            .appending("Public/images/logo-tiny.svg")
+            .appending("Public/images/logo.png")
 
         return try? String(contentsOfFile: pathToFile)
     }
