@@ -17,8 +17,14 @@ import Foundation
 
 extension PackageController.PackageResult {
 
-    func authors() -> PackageAuthors? {
-        return repository.authors
+    func authors() -> AuthorMetadata? {
+        if let spiManifest = defaultBranchVersion.spiManifest,
+           let metadata = spiManifest.metadata,
+           let authors = metadata.authors {
+            return AuthorMetadata.fromSPIManifest(authors)
+        } else {
+            return AuthorMetadata.fromGitRepository(repository.authors)
+        }
     }
 
     func activity() -> PackageShow.Model.Activity? {

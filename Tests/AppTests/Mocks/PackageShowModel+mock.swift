@@ -33,11 +33,11 @@ extension PackageShow.Model {
                 lastIssueClosedAt: "5 days ago",
                 lastPullRequestClosedAt: "6 days ago"
             ),
-            authors: PackageAuthors(authors: [
+            authors: AuthorMetadata.fromGitRepository(.init(authors: [
                 .init(name: "Author One"),
                 .init(name: "Author Two"),
                 .init(name: "Author Three"),
-            ], numberOfContributors: 5),
+            ], numberOfContributors: 5)),
             swiftVersionBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",

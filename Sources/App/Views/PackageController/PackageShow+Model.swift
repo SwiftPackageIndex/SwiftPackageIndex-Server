@@ -18,6 +18,12 @@ import Vapor
 import DependencyResolution
 import SPIManifest
 
+
+enum AuthorMetadata : Equatable {
+    case fromSPIManifest(String?)
+    case fromGitRepository(PackageAuthors?)
+}
+
 extension PackageShow {
 
     struct Model: Equatable {
@@ -26,7 +32,7 @@ extension PackageShow {
         var repositoryOwnerName: String
         var repositoryName: String
         var activity: Activity?
-        var authors: PackageAuthors?
+        var authors: AuthorMetadata?
         var keywords: [String]?
         var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
         var platformBuildInfo: BuildInfo<PlatformResults>?
@@ -53,7 +59,7 @@ extension PackageShow {
                       repositoryOwnerName: String,
                       repositoryName: String,
                       activity: Activity? = nil,
-                      authors: PackageAuthors? = nil,
+                      authors: AuthorMetadata? = nil,
                       keywords: [String]? = nil,
                       swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil,
                       platformBuildInfo: BuildInfo<PlatformResults>? = nil,
@@ -275,33 +281,44 @@ extension PackageShow.Model {
     func authorsListItem() -> Node<HTML.ListContext> {
         guard Environment.current == .development else { return .empty }
 
-        guard let authors, authors.hasAuthors
-        else { return .empty }
-
-        var nodes = authors.authors.map { author -> Node<HTML.BodyContext> in
-            if let authorURL = author.url {
-                return .a(.href(authorURL), .text(author.name))
-            } else {
-                return .text(author.name)
+        guard let authors
+        else {
+            return .empty
+        }
+        switch authors {
+        case .fromSPIManifest(let spiymlAuthors) :
+            guard var spiymlAuthors
+            else { return .empty }
+            if spiymlAuthors.count > 200 {
+                spiymlAuthors = String(spiymlAuthors.prefix(200)) + "..."
             }
-        }
+            return .li(
+                .class("authors"),
+                .text(spiymlAuthors))
+        case .fromGitRepository(let repositoryAuthors) :
+            guard let repositoryAuthors, repositoryAuthors.hasAuthors
+            else { return .empty }
+            var nodes = repositoryAuthors.authors.map { author -> Node<HTML.BodyContext> in
+                    return .text(author.name)
+            }
 
-        if authors.numberOfContributors > 0 {
-            let formattedNumberOfContributors = {
-                if let numberOfContributors = NumberFormatter.spiDefault.string(from: authors.numberOfContributors) {
-                    return numberOfContributors
-                } else {
-                    return "\(authors.numberOfContributors)"
-                }
-            }()
-            nodes.append(.text("\(formattedNumberOfContributors) other contributor"
-                .pluralized(for: authors.numberOfContributors)))
+            if repositoryAuthors.numberOfContributors > 0 {
+                let formattedNumberOfContributors = {
+                    if let numberOfContributors = NumberFormatter.spiDefault.string(from: repositoryAuthors.numberOfContributors) {
+                        return numberOfContributors
+                    } else {
+                        return "\(repositoryAuthors.numberOfContributors)"
+                    }
+                }()
+                nodes.append(.text("\(formattedNumberOfContributors) other contributor"
+                    .pluralized(for: repositoryAuthors.numberOfContributors)))
+            }
+
+            return .li(
+                .class("authors"),
+                .group(listPhrase(opening: "Written by ", nodes: nodes, closing: "."))
+            )
         }
-        
-        return .li(
-            .class("authors"),
-            .group(listPhrase(opening: "Written by ", nodes: nodes, closing: "."))
-        )
     }
 
     func archivedListItem() -> Node<HTML.ListContext> {
