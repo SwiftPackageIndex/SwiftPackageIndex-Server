@@ -290,7 +290,7 @@ extension PackageShow.Model {
             guard var spiymlAuthors
             else { return .empty }
             if spiymlAuthors.count > 200 {
-                spiymlAuthors = String(spiymlAuthors.prefix(200)) + "..."
+                spiymlAuthors = String(spiymlAuthors.prefix(200)) + "&hellip;"
             }
             return .li(
                 .class("authors"),
