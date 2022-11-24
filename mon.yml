@@ -71,7 +71,7 @@ services:
 
   prometheus:
     # https://github.com/prometheus/prometheus/releases
-    image: prom/prometheus:v2.40.2
+    image: prom/prometheus:v2.40.1
     volumes:
       - prometheus_data:/prometheus
     command: --config.file=/prometheus.yml
