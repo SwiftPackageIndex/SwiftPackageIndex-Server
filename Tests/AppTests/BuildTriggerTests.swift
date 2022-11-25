@@ -663,7 +663,7 @@ class BuildTriggerTests: AppTestCase {
         triggerCount = 0
 
         do {  // if we get lucky however...
-            Current.random = { _ in 0.049 }  // rolling a 0.05 gets you in
+            Current.random = { _ in 0.049 }  // rolling a 0.049 gets you in
 
             let pkgId = UUID()
             let versionId = UUID()

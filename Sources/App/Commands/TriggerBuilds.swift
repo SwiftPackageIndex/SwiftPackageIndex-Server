@@ -203,11 +203,6 @@ func triggerBuilds(on database: Database,
         .flatten(on: database.eventLoop)
     }
 
-    guard Current.random(0...1) < Current.buildTriggerDownscaling() else {
-        logger.info("Build trigger downscaling in effect - skipping builds")
-        return database.eventLoop.future()
-    }
-
     return Current.getStatusCount(client, .pending)
         .and(Current.getStatusCount(client, .running))
         .flatMap { (pendingJobs, runningJobs) in
@@ -215,6 +210,11 @@ func triggerBuilds(on database: Database,
             AppMetrics.buildRunningJobsCount?.set(runningJobs)
             var newJobs = 0
             return packages.map { pkgId in
+                guard Current.random(0...1) < Current.buildTriggerDownscaling() else {
+                    logger.info("Build trigger downscaling in effect - skipping builds")
+                    return database.eventLoop.future()
+                }
+
                 // check if we have capacity to schedule more builds before querying for builds
                 guard pendingJobs + newJobs < Current.gitlabPipelineLimit() else {
                     logger.info("too many pending pipelines (\(pendingJobs + newJobs))")
