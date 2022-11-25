@@ -27,6 +27,7 @@ extension AppEnvironment {
             awsDocsBucket: { "awsDocsBucket" },
             appVersion: { "test" },
             builderToken: { nil },
+            buildTriggerAllowList: { [] },
             buildTriggerDownscaling: { 1.0 },
             buildTriggerLatestSwiftVersionDownscaling: { 1.0 },
             collectionSigningCertificateChain: AppEnvironment.live.collectionSigningCertificateChain,

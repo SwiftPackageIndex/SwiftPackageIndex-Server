@@ -210,7 +210,9 @@ func triggerBuilds(on database: Database,
             AppMetrics.buildRunningJobsCount?.set(runningJobs)
             var newJobs = 0
             return packages.map { pkgId in
-                guard Current.random(0...1) < Current.buildTriggerDownscaling() else {
+                let allowListed = Current.buildTriggerAllowList().contains(pkgId)
+                let downscalingAccepted = Current.random(0...1) < Current.buildTriggerDownscaling()
+                guard allowListed || downscalingAccepted else {
                     logger.info("Build trigger downscaling in effect - skipping builds")
                     return database.eventLoop.future()
                 }
