@@ -401,22 +401,22 @@ class ApiTests: AppTestCase {
         XCTAssertEqual(Set(versionIds), [.id0])
     }
 
-    func test_post_build_trigger_package_name() throws {
+    func test_post_build_trigger_package_name() async throws {
         // Test POST /packages/{owner}/{repo}/trigger-builds
         // setup
         Current.builderToken = { "secr3t" }
         Current.gitlabPipelineToken = { "ptoken" }
         let p = try savePackage(on: app.db, "1")
-        try Repository(package: p,
+        try await Repository(package: p,
                        defaultBranch: "main",
                        license: .mit,
                        name: "bar",
-                       owner: "foo").save(on: app.db).wait()
-        try Version(package: p, reference: .branch("main")).save(on: app.db).wait()
-        try Version(package: p, reference: .tag(.init(1, 2, 3))).save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
+                       owner: "foo").save(on: app.db)
+        try await Version(package: p, reference: .branch("main")).save(on: app.db)
+        try await Version(package: p, reference: .tag(.init(1, 2, 3))).save(on: app.db)
+        let jpr = try await Package.fetchCandidate(app.db, id: p.id!).get()
         // update versions
-        _ = try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
+        try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         let owner = "foo"
         let repo = "bar"

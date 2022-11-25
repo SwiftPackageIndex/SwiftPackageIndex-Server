@@ -178,17 +178,16 @@ class SocialTests: AppTestCase {
                              name: "repoName",
                              owner: "repoOwner",
                              summary: "This is a test package").save(on: app.db)
-        let v1 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try await v1.save(on: app.db)
-        let v2 = try Version(package: pkg,
-                             commitDate: Date(timeIntervalSince1970: 0),
-                             packageName: "MyPackage",
-                             reference: .tag(2, 0, 0, "b1"))
-        try await v2.save(on: app.db)
-        let v3 = try Version(package: pkg, packageName: "MyPackage", reference: .branch("main"))
-        try await v3.save(on: app.db)
+        try await Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commitDate: Date(timeIntervalSince1970: 0),
+                          packageName: "MyPackage",
+                          reference: .tag(2, 0, 0, "b1")).save(on: app.db)
+        try await Version(package: pkg, packageName: "MyPackage", reference: .branch("main"))
+            .save(on: app.db)
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
-        try await Analyze.updateLatestVersions(on: app.db, package: jpr).get()
+        let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
@@ -201,7 +200,7 @@ class SocialTests: AppTestCase {
         // MUT
         try await Social.postToFirehose(client: app.client,
                                         package: jpr,
-                                        versions: [v1, v2, v3])
+                                        versions: versions)
 
         // validate
         XCTAssertEqual(posted, 2)
@@ -216,12 +215,12 @@ class SocialTests: AppTestCase {
                              name: "repoName",
                              owner: "repoOwner",
                              summary: "This is a test package").save(on: app.db)
-        let v1 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try await v1.save(on: app.db)
-        let v2 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(2, 0, 0))
-        try await v2.save(on: app.db)
+        try await Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
+            .save(on: app.db)
+        try await Version(package: pkg, packageName: "MyPackage", reference: .tag(2, 0, 0))
+            .save(on: app.db)
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
-        try await Analyze.updateLatestVersions(on: app.db, package: jpr).get()
+        let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
@@ -238,7 +237,7 @@ class SocialTests: AppTestCase {
         // MUT
         try await Social.postToFirehose(client: app.client,
                                          package: jpr,
-                                         versions: [v1, v2])
+                                         versions: versions)
 
         // validate
         XCTAssertTrue(message?.contains("v2.0.0") ?? false)

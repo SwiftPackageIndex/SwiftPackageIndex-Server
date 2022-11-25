@@ -168,8 +168,8 @@ extension Analyze {
         }
 
         let packageResults = await withThrowingTaskGroup(
-            of: Joined<Package, Repository>.self,
-            returning: [Result<Joined<Package, Repository>, Error>].self
+            of: (Joined<Package, Repository>).self,
+            returning: [Result<(Joined<Package, Repository>), Error>].self
         ) { group in
             for pkg in packages {
                 group.addTask {
@@ -243,7 +243,9 @@ extension Analyze {
                                       manifest: pkgInfo.packageManifest)
         }
 
-        try await updateLatestVersions(on: transaction, package: package).get()
+        let versions = try await updateLatestVersions(on: transaction, package: package)
+
+        updateScore(package: package, versions: versions)
 
         await onNewVersions(client: client,
                             logger: logger,
@@ -666,39 +668,47 @@ extension Analyze {
     ///   - database: `Database` object
     ///   - package: package to update
     /// - Returns: future
-    static func updateLatestVersions(on database: Database, package: Joined<Package, Repository>) -> EventLoopFuture<Void> {
-        package.model
-            .$versions.load(on: database)
-            .flatMap {
-                // find previous markers
-                let previous = package.model.versions
-                    .filter { $0.latest != nil }
+    @discardableResult
+    static func updateLatestVersions(on database: Database, package: Joined<Package, Repository>) async throws -> [Version] {
+        try await package.model.$versions.load(on: database)
+        let versions = package.model.versions
 
-                let versions = package.model.$versions.value ?? []
+        // find previous markers
+        let previous = versions.filter { $0.latest != nil }
 
-                // find new significant releases
-                let (release, preRelease, defaultBranch) = Package.findSignificantReleases(
-                    versions: versions,
-                    branch: package.repository?.defaultBranch
-                )
-                release.map { $0.latest = .release }
-                preRelease.map { $0.latest = .preRelease }
-                defaultBranch.map { $0.latest = .defaultBranch }
-                let updates = [release, preRelease, defaultBranch].compactMap { $0 }
+        // find new significant releases
+        let (release, preRelease, defaultBranch) = Package.findSignificantReleases(
+            versions: versions,
+            branch: package.repository?.defaultBranch
+        )
+        release.map { $0.latest = .release }
+        preRelease.map { $0.latest = .preRelease }
+        defaultBranch.map { $0.latest = .defaultBranch }
+        let updates = [release, preRelease, defaultBranch].compactMap { $0 }
 
-                // reset versions that aren't being updated
-                let resets = previous
-                    .filter { !updates.map(\.id).contains($0.id) }
-                    .map { version -> Version in
-                        version.latest = nil
-                        return version
-                    }
-
-                // save changes
-                return (updates + resets)
-                    .map { $0.save(on: database) }
-                    .flatten(on: database.eventLoop)
+        // reset versions that aren't being updated
+        let resets = previous
+            .filter { !updates.map(\.id).contains($0.id) }
+            .map { version -> Version in
+                version.latest = nil
+                return version
             }
+
+        // save changes
+        for version in updates + resets {
+            try await version.save(on: database)
+        }
+
+        return versions
+    }
+
+
+    /// Updates the score of the given `package` based on the given `package` itself and the given `Version`s. The `Version`s are passed in as a parameter to avoid re-fetching.
+    /// - Parameters:
+    ///   - package: `Package` input
+    ///   - versions: `[Version]` input
+    static func updateScore(package: Joined<Package, Repository>, versions: [Version]) {
+        package.model.score = Score.compute(package: package, versions: versions)
     }
 
 
