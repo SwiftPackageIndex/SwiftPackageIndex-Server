@@ -27,6 +27,7 @@ struct AppEnvironment {
     var awsDocsBucket: () -> String?
     var appVersion: () -> String?
     var builderToken: () -> String?
+    var buildTriggerAllowList: () -> [Package.Id]
     var buildTriggerDownscaling: () -> Double
     var buildTriggerLatestSwiftVersionDownscaling: () -> Double
     var collectionSigningCertificateChain: () -> [URL]
@@ -96,6 +97,12 @@ extension AppEnvironment {
         awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
         appVersion: { App.appVersion },
         builderToken: { Environment.get("BUILDER_TOKEN") },
+        buildTriggerAllowList: {
+            Environment.get("BUILD_TRIGGER_ALLOW_LIST")
+                .map { Data($0.utf8) }
+                .flatMap { try? JSONDecoder().decode([Package.Id].self, from: $0) }
+            ?? []
+        },
         buildTriggerDownscaling: {
             Environment.get("BUILD_TRIGGER_DOWNSCALING")
                 .flatMap(Double.init)

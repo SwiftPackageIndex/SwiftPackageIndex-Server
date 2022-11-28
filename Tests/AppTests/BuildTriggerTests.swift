@@ -663,7 +663,7 @@ class BuildTriggerTests: AppTestCase {
         triggerCount = 0
 
         do {  // if we get lucky however...
-            Current.random = { _ in 0.049 }  // rolling a 0.05 gets you in
+            Current.random = { _ in 0.049 }  // rolling a 0.049 gets you in
 
             let pkgId = UUID()
             let versionId = UUID()
@@ -682,6 +682,46 @@ class BuildTriggerTests: AppTestCase {
             XCTAssertEqual(triggerCount, 24)
         }
 
+    }
+
+    func test_downscaling_allow_list_override() throws {
+        // Test build trigger downscaling behaviour for allow-listed packages
+        // setup
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
+        Current.buildTriggerDownscaling = { 0.05 }  // 5% downscaling rate
+        let pkgId = UUID()
+        Current.buildTriggerAllowList = { [pkgId] }
+        // Use live dependency but replace actual client with a mock so we can
+        // assert on the details being sent without actually making a request
+        Current.triggerBuild = Gitlab.Builder.triggerBuild
+        var triggerCount = 0
+        let client = MockClient { _, res in
+            triggerCount += 1
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+        }
+
+        do {  // confirm that we trigger even when rolling above the threshold
+            Current.random = { _ in 0.051 }
+
+            let versionId = UUID()
+            let p = Package(id: pkgId, url: "https://github.com/foo/bar.git")
+            try p.save(on: app.db).wait()
+            try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                .save(on: app.db).wait()
+
+            // MUT
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              mode: .packageId(pkgId, force: false)).wait()
+
+            // validate
+            XCTAssertEqual(triggerCount, 24)
+        }
     }
 
     func test_trimBuilds() throws {
