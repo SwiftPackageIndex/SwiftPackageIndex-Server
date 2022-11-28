@@ -307,23 +307,30 @@ func fetchBuildCandidates(_ database: Database,
 
     let expectedBuildCount = BuildPair.all.count
     let expectedBuildCountWithoutLatestSwiftVersion = BuildPair.allExceptLatestSwiftVersion.count
+    let priorityIDs = Current.buildTriggerAllowList()
 
     let query: SQLQueryString = withLatestSwiftVersion
     ? """
-        SELECT package_id, min(created_at) FROM (
-        SELECT v.package_id, v.latest, MIN(v.created_at) created_at
-        FROM versions v
-        LEFT JOIN builds b ON b.version_id = v.id
-        WHERE v.latest IS NOT NULL
-        GROUP BY v.package_id, v.latest
-        HAVING COUNT(*) < \(bind: expectedBuildCount)
+        SELECT package_id, is_prio, min(created_at) FROM (
+            SELECT v.package_id,
+                   ARRAY[v.package_id] <@ \(bind: priorityIDs) is_prio,
+                   v.latest,
+                   MIN(v.created_at) created_at
+            FROM versions v
+            LEFT JOIN builds b ON b.version_id = v.id
+            WHERE v.latest IS NOT NULL
+            GROUP BY v.package_id, v.latest
+            HAVING COUNT(*) < \(bind: expectedBuildCount)
         ) AS t
-        GROUP BY package_id
-        ORDER BY MIN(created_at)
+        GROUP BY package_id, is_prio
+        ORDER BY is_prio DESC, MIN(created_at)
         """
     : """
-        SELECT package_id, min(created_at) FROM (
-            SELECT v.package_id, v.latest, MIN(v.created_at) created_at
+        SELECT package_id, is_prio, min(created_at) FROM (
+            SELECT v.package_id,
+                   ARRAY[v.package_id] <@ \(bind: priorityIDs) is_prio,
+                   v.latest,
+                   MIN(v.created_at) created_at
             FROM versions v
             LEFT JOIN builds b ON b.version_id = v.id
                 AND (b.swift_version->'major')::INT = \(bind: SwiftVersion.latest.major)
@@ -332,8 +339,8 @@ func fetchBuildCandidates(_ database: Database,
             GROUP BY v.package_id, v.latest
             HAVING COUNT(*) < \(bind: expectedBuildCountWithoutLatestSwiftVersion)
         ) AS t
-        GROUP BY package_id
-        ORDER BY MIN(created_at)
+        GROUP BY package_id, is_prio
+        ORDER BY is_prio DESC, MIN(created_at)
         """
 
     return db.raw(query)

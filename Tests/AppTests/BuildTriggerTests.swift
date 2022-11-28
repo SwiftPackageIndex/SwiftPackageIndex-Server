@@ -144,6 +144,45 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(ids, [.id2])
     }
 
+    func test_fetchBuildCandidates_priorityIDs() throws {
+        // Ensure allow-listed IDs can be prioritised. See
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2159
+        // for details
+        // setup
+        let pkgIdIncomplete1 = UUID()
+        let pkgIdIncomplete2 = UUID()
+        Current.buildTriggerAllowList = { [pkgIdIncomplete2] }
+        // save two packages with partially completed builds
+        try [pkgIdIncomplete1, pkgIdIncomplete2].forEach { id in
+            let p = Package(id: id, url: id.uuidString.url)
+            try p.save(on: app.db).wait()
+            try [Version.Kind.defaultBranch, .release].forEach { kind in
+                let v = try Version(package: p,
+                                    latest: kind,
+                                    reference: kind == .release
+                                        ? .tag(1, 2, 3)
+                                        : .branch("main"))
+                try v.save(on: app.db).wait()
+                try BuildPair.all
+                    .dropFirst() // skip one platform to create a build gap
+                    .forEach { pair in
+                        try Build(id: UUID(),
+                                  version: v,
+                                  platform: pair.platform,
+                                  status: .ok,
+                                  swiftVersion: pair.swiftVersion)
+                            .save(on: app.db).wait()
+                    }
+            }
+        }
+
+        // MUT
+        let ids = try fetchBuildCandidates(app.db).wait()
+
+        // validate
+        XCTAssertEqual(ids, [pkgIdIncomplete2, pkgIdIncomplete1])
+    }
+
     func test_missingPairs() throws {
          // Ensure we find missing builds purely via x.y Swift version,
          // i.e. ignoring patch version
