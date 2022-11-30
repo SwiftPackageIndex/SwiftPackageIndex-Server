@@ -279,8 +279,6 @@ extension PackageShow.Model {
     }
 
     func authorsListItem() -> Node<HTML.ListContext> {
-        guard Environment.current == .development else { return .empty }
-
         guard let authors else { return .empty }
 
         switch authors {
