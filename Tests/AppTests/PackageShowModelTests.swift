@@ -270,6 +270,19 @@ class PackageShowModelTests: SnapshotTestCase {
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">2 executables</li>")
     }
 
+    func test_authorMetadata() throws {
+        var model = PackageShow.Model.mock
+
+        model.authors = AuthorMetadata.fromGitRepository(PackageAuthors(authors: [
+            Author(name: "Author One"),
+            Author(name: "Author Two")
+        ], numberOfContributors: 5))
+        XCTAssertEqual(model.authorsListItem().render(), "<li class=\"authors\">Written by Author One, Author Two, and 5 other contributors.</li>")
+
+        model.authors = AuthorMetadata.fromSPIManifest("By Author One, Author Two, and more!")
+        XCTAssertEqual(model.authorsListItem().render(), "<li class=\"authors\">By Author One, Author Two, and more!</li>")
+    }
+
     func test_BuildInfo_init() throws {
         // ensure nil propagation when all versions' values are nil
         // (the generic type is irrelevant, we're just using Int for simplicity)
