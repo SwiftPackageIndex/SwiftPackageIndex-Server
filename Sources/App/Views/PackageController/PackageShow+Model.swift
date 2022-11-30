@@ -281,43 +281,42 @@ extension PackageShow.Model {
     func authorsListItem() -> Node<HTML.ListContext> {
         guard Environment.current == .development else { return .empty }
 
-        guard let authors
-        else {
-            return .empty
-        }
+        guard let authors else { return .empty }
+
         switch authors {
-        case .fromSPIManifest(let spiymlAuthors) :
-            guard var spiymlAuthors
-            else { return .empty }
-            if spiymlAuthors.count > 200 {
-                spiymlAuthors = String(spiymlAuthors.prefix(200)) + "&hellip;"
-            }
-            return .li(
-                .class("authors"),
-                .text(spiymlAuthors))
-        case .fromGitRepository(let repositoryAuthors) :
-            guard let repositoryAuthors, repositoryAuthors.hasAuthors
-            else { return .empty }
-            var nodes = repositoryAuthors.authors.map { author -> Node<HTML.BodyContext> in
+            case .fromSPIManifest(let spiymlAuthors) :
+                guard var spiymlAuthors else { return .empty }
+                if spiymlAuthors.count > 200 {
+                    spiymlAuthors = String(spiymlAuthors.prefix(200)) + "&hellip;"
+                }
+
+                return .li(
+                    .class("authors"),
+                    .text(spiymlAuthors)
+                )
+
+            case .fromGitRepository(let repositoryAuthors) :
+                guard let repositoryAuthors, repositoryAuthors.hasAuthors else { return .empty }
+                var nodes = repositoryAuthors.authors.map { author -> Node<HTML.BodyContext> in
                     return .text(author.name)
-            }
+                }
 
-            if repositoryAuthors.numberOfContributors > 0 {
-                let formattedNumberOfContributors = {
-                    if let numberOfContributors = NumberFormatter.spiDefault.string(from: repositoryAuthors.numberOfContributors) {
-                        return numberOfContributors
-                    } else {
-                        return "\(repositoryAuthors.numberOfContributors)"
-                    }
-                }()
-                nodes.append(.text("\(formattedNumberOfContributors) other contributor"
-                    .pluralized(for: repositoryAuthors.numberOfContributors)))
-            }
+                if repositoryAuthors.numberOfContributors > 0 {
+                    let formattedNumberOfContributors = {
+                        if let numberOfContributors = NumberFormatter.spiDefault.string(from: repositoryAuthors.numberOfContributors) {
+                            return numberOfContributors
+                        } else {
+                            return "\(repositoryAuthors.numberOfContributors)"
+                        }
+                    }()
+                    nodes.append(.text("\(formattedNumberOfContributors) other contributor"
+                        .pluralized(for: repositoryAuthors.numberOfContributors)))
+                }
 
-            return .li(
-                .class("authors"),
-                .group(listPhrase(opening: "Written by ", nodes: nodes, closing: "."))
-            )
+                return .li(
+                    .class("authors"),
+                    .group(listPhrase(opening: "Written by ", nodes: nodes, closing: "."))
+                )
         }
     }
 
