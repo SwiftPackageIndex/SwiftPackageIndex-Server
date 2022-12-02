@@ -51,6 +51,8 @@ struct AppEnvironment {
     var hideStagingBanner: () -> Bool
     var loadSPIManifest: (String) -> SPIManifest.Manifest?
     var logger: () -> Logger?
+    var mastodonCredentials: () -> Mastodon.Credentials?
+    var mastodonPost: (_ client: Client, _ post: String) async throws -> Void
     var metricsPushGatewayUrl: () -> String?
     var random: (_ range: ClosedRange<Double>) -> Double
     var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) async throws -> Void
@@ -158,6 +160,14 @@ extension AppEnvironment {
         },
         loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },
+        mastodonCredentials: {
+            guard let clientKey = Environment.get("MASTODON_CLIENT_KEY"),
+                  let clientSecret = Environment.get("MASTODON_CLIENT_SECRET"),
+                  let accessToken = Environment.get("MASTODON_ACCESS_TOKEN")
+            else { return nil }
+            return .init(clientKey: clientKey, clientSecret: clientSecret, accessToken: accessToken)
+        },
+        mastodonPost: Mastodon.post(client:message:),
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         random: Double.random,
         reportError: AppError.report,

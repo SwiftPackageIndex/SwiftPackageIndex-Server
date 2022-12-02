@@ -56,6 +56,8 @@ extension AppEnvironment {
             hideStagingBanner: { false },
             loadSPIManifest: { _ in nil },
             logger: { nil },
+            mastodonCredentials: { nil },
+            mastodonPost: { _, _ in },
             metricsPushGatewayUrl: { "http://pushgateway:9091" },
             random: Double.random,
             reportError: { _, _, _ in },
