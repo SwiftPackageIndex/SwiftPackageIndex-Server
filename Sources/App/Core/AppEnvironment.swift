@@ -161,11 +161,8 @@ extension AppEnvironment {
         loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },
         mastodonCredentials: {
-            guard let clientKey = Environment.get("MASTODON_CLIENT_KEY"),
-                  let clientSecret = Environment.get("MASTODON_CLIENT_SECRET"),
-                  let accessToken = Environment.get("MASTODON_ACCESS_TOKEN")
-            else { return nil }
-            return .init(clientKey: clientKey, clientSecret: clientSecret, accessToken: accessToken)
+            Environment.get("MASTODON_ACCESS_TOKEN")
+                .map(Mastodon.Credentials.init(accessToken:))
         },
         mastodonPost: Mastodon.post(client:message:),
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },

@@ -17,22 +17,34 @@ import Vapor
 
 enum Mastodon {
 
-    private static let apiUrl: String = "https://api.twitter.com/1.1/statuses/update.json"
+    private static let instance = "mas.to"
+    private static let apiURL = "https://\(instance)/api/v1/statuses"
     private static let postMaxLength = 490  // 500, leaving some buffer for unicode accounting oddities
 
-    enum Error: LocalizedError {
-        case invalidMessage
-        case missingCredentials
-        case requestFailed(HTTPStatus, String)
-    }
-
     struct Credentials {
-        var clientKey: String
-        var clientSecret: String
         var accessToken: String
     }
 
     static func post(client: Client, message: String) async throws {
+        guard let credentials = Current.mastodonCredentials() else {
+            throw Social.Error.missingCredentials
+        }
+
+        let headers = HTTPHeaders([
+            ("Authorization", "Bearer \(credentials.accessToken)"),
+            ("Idempotency-Key", UUID().uuidString),
+        ])
+
+        struct Query: Encodable {
+            var status: String
+        }
+
+        let res = try await client.post(URI(string: apiURL), headers: headers) { req in
+            try req.query.encode(Query(status: message))
+        }
+        guard res.status == .ok else {
+            throw Social.Error.requestFailed(res.status, res.body?.asString() ?? "")
+        }
     }
 
 }
