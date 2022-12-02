@@ -170,7 +170,7 @@ class SocialTests: AppTestCase {
     }
 
     func test_postToFirehose_only_release_and_preRelease() async throws {
-        // ensure we only tweet about releases and pre-releases
+        // ensure we only post about releases and pre-releases
         // setup
         let pkg = Package(url: "1".asGithubUrl.url)
         try await pkg.save(on: app.db)
@@ -193,9 +193,8 @@ class SocialTests: AppTestCase {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
         }
         var posted = 0
-        Current.twitterPostTweet = { _, _ in
-            posted += 1
-        }
+        Current.twitterPost = { _, _ in posted += 1 }
+        Current.mastodonPost = { _, _ in posted += 1 }
 
         // MUT
         try await Social.postToFirehose(client: app.client,
@@ -203,11 +202,11 @@ class SocialTests: AppTestCase {
                                         versions: versions)
 
         // validate
-        XCTAssertEqual(posted, 2)
+        XCTAssertEqual(posted, 4)
     }
 
     func test_postToFirehose_only_latest() async throws {
-        // ensure we only tweet about latest versions
+        // ensure we only post about latest versions
         // setup
         let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
         try await pkg.save(on: app.db)
@@ -225,13 +224,14 @@ class SocialTests: AppTestCase {
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
         }
-        var message: String?
-        Current.twitterPostTweet = { _, msg in
-            if message == nil {
-                message = msg
-            } else {
-                XCTFail("message must only be set once")
-            }
+        var posted = 0
+        Current.twitterPost = { _, msg in
+            XCTAssertTrue(msg.contains("v2.0.0"))
+            posted += 1
+        }
+        Current.mastodonPost = { _, msg in
+            XCTAssertTrue(msg.contains("v2.0.0"))
+            posted += 1
         }
 
         // MUT
@@ -240,7 +240,7 @@ class SocialTests: AppTestCase {
                                          versions: versions)
 
         // validate
-        XCTAssertTrue(message?.contains("v2.0.0") ?? false)
+        XCTAssertEqual(posted, 2)
     }
 
 }

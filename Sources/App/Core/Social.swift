@@ -103,7 +103,9 @@ enum Social {
                                             maxLength: Twitter.tweetMaxLength) else {
             throw Error.invalidMessage
         }
-        try await Current.twitterPostTweet(client, message)
+        // Ignore errors from here for now to keep concurrency simpler
+        async let _ = try? await Current.twitterPost(client, message)
+        async let _ = try? await Current.mastodonPost(client, message)
     }
 
     static func postToFirehose(client: Client,

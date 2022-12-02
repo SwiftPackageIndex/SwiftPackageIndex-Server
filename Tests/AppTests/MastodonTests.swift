@@ -18,15 +18,12 @@ import XCTVapor
 import SemanticVersion
 
 
-class TwitterTests: AppTestCase {
+final class MastodonTests: AppTestCase {
 
     func test_endToEnd() async throws {
         // setup
-        Current.twitterCredentials = {
-            .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
-        }
         var message: String?
-        Current.twitterPost = { _, msg in
+        Current.mastodonPost = { _, msg in
             if message == nil {
                 message = msg
             } else {
@@ -61,7 +58,7 @@ class TwitterTests: AppTestCase {
         try await reconcile(client: app.client, database: app.db)
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
 
-        // MUT - analyze, triggering the tweet
+        // MUT - analyze, triggering the post
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
@@ -101,42 +98,6 @@ class TwitterTests: AppTestCase {
         // validate
         let msg = try XCTUnwrap(message)
         XCTAssertTrue(msg.hasPrefix("⬆️ foo just released Mock v2.0.0"), "was: \(msg)")
-    }
-
-    func test_allowTwitterPosts_switch() async throws {
-        // test ALLOW_TWITTER_POSTS environment variable
-        // setup
-        let pkg = Package(url: "1".asGithubUrl.url)
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg,
-                             name: "repoName",
-                             owner: "repoOwner",
-                             summary: "This is a test package").save(on: app.db)
-        let v = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try await v.save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
-        Current.twitterCredentials = {
-            .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
-        }
-        var posted = 0
-        Current.twitterPost = { _, _ in
-            posted += 1
-        }
-
-        // MUT & validate - disallow if set to false
-        Current.allowTwitterPosts = { false }
-        do {
-            try await Social.postToFirehose(client: app.client, package: jpr, version: v)
-            XCTFail("expected error to be thrown")
-        } catch {
-            XCTAssertEqual("\(error)", "postingDisabled")
-        }
-        XCTAssertEqual(posted, 0)
-
-        // MUT & validate - allow if set to true
-        Current.allowTwitterPosts = { true }
-        try await Social.postToFirehose(client: app.client, package: jpr, version: v)
-        XCTAssertEqual(posted, 1)
     }
 
 }

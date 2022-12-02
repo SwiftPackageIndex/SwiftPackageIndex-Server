@@ -51,6 +51,8 @@ struct AppEnvironment {
     var hideStagingBanner: () -> Bool
     var loadSPIManifest: (String) -> SPIManifest.Manifest?
     var logger: () -> Logger?
+    var mastodonCredentials: () -> Mastodon.Credentials?
+    var mastodonPost: (_ client: Client, _ post: String) async throws -> Void
     var metricsPushGatewayUrl: () -> String?
     var random: (_ range: ClosedRange<Double>) -> Double
     var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) async throws -> Void
@@ -68,7 +70,7 @@ struct AppEnvironment {
                        _ swiftVersion: SwiftVersion,
                        _ versionID: Version.Id) -> EventLoopFuture<Build.TriggerResponse>
     var twitterCredentials: () -> Twitter.Credentials?
-    var twitterPostTweet: (_ client: Client, _ tweet: String) async throws -> Void
+    var twitterPost: (_ client: Client, _ tweet: String) async throws -> Void
 }
 
 
@@ -158,6 +160,11 @@ extension AppEnvironment {
         },
         loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },
+        mastodonCredentials: {
+            Environment.get("MASTODON_ACCESS_TOKEN")
+                .map(Mastodon.Credentials.init(accessToken:))
+        },
+        mastodonPost: Mastodon.post(client:message:),
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         random: Double.random,
         reportError: AppError.report,
@@ -179,7 +186,7 @@ extension AppEnvironment {
             return .init(apiKey: (key: apiKey, secret: apiKeySecret),
                          accessToken: (key: accessToken, secret: accessTokenSecret))
         },
-        twitterPostTweet: Twitter.post(client:tweet:)
+        twitterPost: Twitter.post(client:tweet:)
     )
 }
 

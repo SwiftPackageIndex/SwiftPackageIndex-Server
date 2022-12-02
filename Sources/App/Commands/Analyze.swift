@@ -729,7 +729,7 @@ extension Analyze {
                                             package: package,
                                             versions: versions)
         } catch {
-            logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
+            logger.warning("Social.postToFirehose failed: \(error.localizedDescription)")
         }
     }
 
