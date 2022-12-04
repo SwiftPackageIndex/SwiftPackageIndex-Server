@@ -142,7 +142,7 @@ enum PackageController {
 
         let archive = req.parameters.get("archive")
         let catchAll = [archive].compactMap { $0 } + req.parameters.getCatchall()
-        let path = catchAll.joined(separator: "/")
+        let path = catchAll.joined(separator: "/").lowercased()
 
         let awsResponse = try await awsResponse(client: req.client, owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
 

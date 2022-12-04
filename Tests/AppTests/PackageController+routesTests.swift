@@ -387,6 +387,17 @@ class PackageController_routesTests: AppTestCase {
         // Test case insensitive path.
         try app.test(.GET, "/Owner/Package/1.2.3/documentation/a/b") {
             XCTAssertEqual($0.status, .ok)
+            XCTAssertTrue(
+                $0.body.asString().contains("<p>/owner/package/1.2.3/documentation/a/b</p>"),
+                "was: \($0.body.asString())"
+            )
+        }
+        try app.test(.GET, "/owner/package/1.2.3/documentation/A/B") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertTrue(
+                $0.body.asString().contains("<p>/owner/package/1.2.3/documentation/a/b</p>"),
+                "was: \($0.body.asString())"
+            )
         }
     }
 
