@@ -91,7 +91,7 @@ enum PackageController {
             throw Abort(.notFound)
         }
         let anchor = req.url.fragment.map { "#\($0)"} ?? ""
-        let path = req.parameters.getCatchall().joined(separator: "/") + anchor
+        let path = req.parameters.getCatchall().joined(separator: "/").lowercased() + anchor
 
         guard let target = try await DocumentationTarget.query(on: req.db,
                                                                owner: owner,

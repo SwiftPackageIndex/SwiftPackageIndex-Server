@@ -276,6 +276,11 @@ class PackageController_routesTests: AppTestCase {
             XCTAssertEqual($0.status, .seeOther)
             XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo#anchor")
         }
+        try app.test(.GET, "/owner/package/documentation/FOO") {
+            // Ensure we redirect to lowercase path URLs (which is what DocC generates.
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo")
+        }
     }
 
     func test_documentationRoot_redirect() throws {
