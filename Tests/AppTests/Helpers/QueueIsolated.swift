@@ -30,9 +30,7 @@ public final class QueueIsolated<Value> {
 
     public var value: Value {
         get {
-            _queue.sync {
-                return self._value
-            }
+            _queue.sync { self._value }
         }
     }
 
