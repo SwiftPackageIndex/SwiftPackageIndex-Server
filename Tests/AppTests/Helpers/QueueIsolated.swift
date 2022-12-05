@@ -22,15 +22,21 @@ import Foundation
 public final class QueueIsolated<Value> {
     private var _queue = DispatchQueue(label: "queue-isolated")
 
-    public var value: Value
+    private var _value: Value
 
     public init(_ value: Value) {
-        self.value = value
+        self._value = value
+    }
+
+    public var value: Value {
+        get {
+            _queue.sync { self._value }
+        }
     }
 
     public subscript<Subject>(dynamicMember keyPath: KeyPath<Value, Subject>) -> Subject {
         _queue.sync {
-            self.value[keyPath: keyPath]
+            self._value[keyPath: keyPath]
         }
     }
 
@@ -38,15 +44,15 @@ public final class QueueIsolated<Value> {
         _ operation: (inout Value) throws -> T
     ) rethrows -> T {
         try _queue.sync {
-            var value = self.value
-            defer { self.value = value }
+            var value = self._value
+            defer { self._value = value }
             return try operation(&value)
         }
     }
 
     public func setValue(_ newValue: Value) {
         _queue.async {
-            self.value = newValue
+            self._value = newValue
         }
     }
 }

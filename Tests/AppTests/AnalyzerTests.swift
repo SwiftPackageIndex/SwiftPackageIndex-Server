@@ -154,12 +154,6 @@ class AnalyzerTests: AppTestCase {
                                   logger: app.logger,
                                   mode: .limit(10))
 
-        // Attempt to fix
-        //    ✖ test_analyze, XCTAssertEqual failed: ("33") is not equal to ("34") -
-        //    ✖ test_analyze, failed - Snapshot does not match reference.
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/actions/runs/3513107047/jobs/5885715992
-        await Task.yield()
-
         // validation
         let outDir = try checkoutDir.value.unwrap()
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
