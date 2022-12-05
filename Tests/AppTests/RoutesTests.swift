@@ -21,12 +21,23 @@ final class RoutesTests: AppTestCase {
 
     func test_documentation_images() async throws {
         // setup
-        Current.fetchDocumentation = { _, _ in .init(status: .ok) }
-
+        Current.fetchDocumentation = { _, uri in
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok, body: .init(string: uri.path))
+        }
+        
         // MUT
-        try app.test(.GET, "foo/bar/1.2.3/images/baz.png") { res in
+        try app.test(.GET, "foo/bar/1.2.3/images/baz.png") {
             // validation
-            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual($0.body.asString(), "/foo/bar/1.2.3/images/baz.png")
+        }
+        try app.test(.GET, "foo/bar/1.2.3/images/BAZ.png") {
+            // validation
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual($0.body.asString(), "/foo/bar/1.2.3/images/BAZ.png")
         }
     }
 
