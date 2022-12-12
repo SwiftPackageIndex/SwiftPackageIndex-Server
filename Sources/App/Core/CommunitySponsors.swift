@@ -338,10 +338,6 @@ enum CommunitySponsors {
             avatarUrl: "https://avatars.githubusercontent.com/u/13292981?u=bf0e3376ca03669afa3b155046e8b4e09c783a85&v=4"
         ),
         CommunitySponsor(
-            name: nil,
-            avatarUrl: "https://avatars.githubusercontent.com/u/14205867?v=4"
-        ),
-        CommunitySponsor(
             name: "Marcos Griselli",
             avatarUrl: "https://avatars.githubusercontent.com/u/14804033?u=43370bf3b74f17be2fe12c9a80b87b16029512fb&v=4"
         ),
@@ -360,10 +356,6 @@ enum CommunitySponsors {
         CommunitySponsor(
             name: "Arnold Rozon",
             avatarUrl: "https://avatars.githubusercontent.com/u/16907089?u=58c29bc8fbe3092512f93764e01b352b4bd78571&v=4"
-        ),
-        CommunitySponsor(
-            name: "Witek Bobrowski",
-            avatarUrl: "https://avatars.githubusercontent.com/u/18266391?u=871aff7b95834f35da5c4a2a89b1b2a4015bb5c6&v=4"
         ),
         CommunitySponsor(
             name: "emin",
