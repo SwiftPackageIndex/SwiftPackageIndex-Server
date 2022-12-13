@@ -42,9 +42,7 @@ services:
 
   loki:
     # https://github.com/grafana/loki/releases
-    # 2.7.0 resulted in https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/2149#issue-1457830106
-    # latest is 2.7.1 (to be validated)
-    image: grafana/loki:2.6.1
+    image: grafana/loki:2.7.1
     command: -config.file=/loki.yml
     configs:
       - source: loki_cfg
@@ -56,7 +54,7 @@ services:
   promtail:
     # https://github.com/grafana/loki/releases
     # (promtail is released in parallel with loki)
-    image: grafana/promtail:2.6.1
+    image: grafana/promtail:2.7.1
     command: -config.file=/promtail.yml
     configs:
       - source: promtail_cfg
