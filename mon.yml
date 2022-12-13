@@ -20,7 +20,7 @@ services:
 
   grafana:
     # https://github.com/grafana/grafana/releases
-    image: grafana/grafana:9.2.6
+    image: grafana/grafana:9.3.1
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: 'false'
@@ -42,6 +42,8 @@ services:
 
   loki:
     # https://github.com/grafana/loki/releases
+    # 2.7.0 resulted in https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/2149#issue-1457830106
+    # latest is 2.7.1 (to be validated)
     image: grafana/loki:2.6.1
     command: -config.file=/loki.yml
     configs:
@@ -71,7 +73,7 @@ services:
 
   prometheus:
     # https://github.com/prometheus/prometheus/releases
-    image: prom/prometheus:v2.40.3
+    image: prom/prometheus:v2.40.6
     volumes:
       - prometheus_data:/prometheus
     command: --config.file=/prometheus.yml
@@ -89,14 +91,14 @@ services:
 
   pushgateway:
     # https://github.com/prometheus/pushgateway/releases
-    image: prom/pushgateway:v1.4.3
+    image: prom/pushgateway:v1.5.1
     networks:
       - app_backend
 
 
   node-exporter:
     # https://github.com/prometheus/node_exporter/releases
-    image: prom/node-exporter:v1.4.0
+    image: prom/node-exporter:v1.5.0
     networks:
       - app_backend
     volumes:
