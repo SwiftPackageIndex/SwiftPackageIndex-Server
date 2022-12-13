@@ -4,6 +4,8 @@
 
 The [Swift Package Index](https://swiftpackageindex.com) is the place to find packages that are compatible with the [Swift Package Manager](https://swift.org/package-manager/). The project is [open-source](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/LICENSE) and written in Swift using [Vapor](https://swiftpackageindex.com/vapor/vapor).
 
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftPackageIndex%2FSwiftPackageIndex-Server%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/SwiftPackageIndex/SwiftPackageIndex-Server) [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftPackageIndex%2FSwiftPackageIndex-Server%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/SwiftPackageIndex/SwiftPackageIndex-Server)
+
 ## Code of Conduct
 
 All participation in this project, whether contributing code, communicating in discussions or issues, or pull requests, is subject to our code of conduct. Please read the [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
