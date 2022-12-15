@@ -23,6 +23,7 @@ enum Score {
         var numberOfDependencies: Int?
         var lastActivityAt: Date?
         var hasDocumentation: Bool
+        var numberOfContributors: Int
     }
     
     static func compute(_ candidate: Input) -> Int {
@@ -79,6 +80,12 @@ enum Score {
             score += 15
         }
 
+        switch candidate.numberOfContributors {
+            case   ..<5: break
+            case 5..<20: score += 5
+            default: score += 10
+        }
+
         return score
     }
 
@@ -93,6 +100,11 @@ enum Score {
             versions.latest(for: .release),
             versions.latest(for: .preRelease)
         ].hasDocumentation()
+
+        let numberOfContributors = {
+            guard let authors = repo.authors else { return 0 }
+            return authors.authors.count + authors.numberOfContributors
+        }()
         
         return Score.compute(
             .init(licenseKind: repo.license.licenseKind,
@@ -101,7 +113,8 @@ enum Score {
                   isArchived: repo.isArchived,
                   numberOfDependencies: defaultVersion.resolvedDependencies?.count,
                   lastActivityAt: repo.lastActivityAt,
-                  hasDocumentation: hasDocumentation)
+                  hasDocumentation: hasDocumentation,
+                  numberOfContributors: numberOfContributors)
         )
     }
 }
