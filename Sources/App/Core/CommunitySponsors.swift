@@ -198,6 +198,14 @@ enum CommunitySponsors {
             avatarUrl: "https://avatars.githubusercontent.com/u/1527679?v=4"
         ),
         CommunitySponsor(
+            name: "Will Field-Thompson",
+            avatarUrl: "https://avatars.githubusercontent.com/u/1696960?u=480042020f9901e9459be75fc2e891081b6f0492&v=4"
+        ),
+        CommunitySponsor(
+            name: "Thomas Rademaker",
+            avatarUrl: "https://avatars.githubusercontent.com/u/1885323?u=236e99eb7cb909bff3a7e9f5c85f120dc458fd27&v=4"
+        ),
+        CommunitySponsor(
             name: "Hiroshi Kimura",
             avatarUrl: "https://avatars.githubusercontent.com/u/1888355?u=ad57f4522c12230428c401223f21b902cef4f6e5&v=4"
         ),
