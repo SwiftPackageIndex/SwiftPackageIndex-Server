@@ -518,6 +518,15 @@ class PackageController_routesTests: AppTestCase {
             XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
             XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/data/a/b")
         }
+
+        // test case-insensitivity
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
+        try app.test(.GET, "/apple/swift-nio/main/data/documentation/NIOCore.json") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual($0.body.asString(),
+                           "/apple/swift-nio/main/data/documentation/niocore.json")
+        }
     }
 
     func test_defaultTutorial() throws {

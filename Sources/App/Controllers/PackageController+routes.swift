@@ -144,15 +144,15 @@ enum PackageController {
         let catchAll = [archive].compactMap { $0 } + req.parameters.getCatchall()
         let path: String
         switch fragment {
-            case .documentation, .tutorials:
-                // DocC lowercases documentation and tutorial URLs. Since these routes can also
+            case .data, .documentation, .tutorials:
+                // DocC lowercases "target" names in URLs. Since these routes can also
                 // appear in user generated content which might use uppercase spelling, we need
-                // to lowercase the input in these cases.
+                // to lowercase the input in certain cases.
                 // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
                 // and https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2172
                 // for details.
                 path = catchAll.joined(separator: "/").lowercased()
-            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .themeSettings:
+            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .themeSettings:
                 path = catchAll.joined(separator: "/")
         }
 
