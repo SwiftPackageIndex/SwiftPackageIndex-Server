@@ -15,9 +15,16 @@
 import Foundation
 
 extension DateFormatter {
-    static let lastUpdatedOnFormatter: DateFormatter = {
+    static let lastUpdatedOnDisplayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
+        formatter.locale = .init(identifier: "en_GB")
+        return formatter
+    }()
+
+    static let lastUpdatedOnDateTimeAttributeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = .init(identifier: "en_GB")
         return formatter
     }()

@@ -285,10 +285,7 @@ enum PackageShow {
                 .section(
                     .hr(),
                     .p(
-                        .small(
-                            .text("Last updated on "),
-                            .text(DateFormatter.lastUpdatedOnFormatter.string(from:dates.dateModified))
-                        )
+                        .lastUpdatedTime(dates.dateModified)
                     )
                 )
             }
