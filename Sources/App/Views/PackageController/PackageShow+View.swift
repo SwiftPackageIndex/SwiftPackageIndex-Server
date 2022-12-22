@@ -285,12 +285,7 @@ enum PackageShow {
                 .section(
                     .hr(),
                     .p(
-                        .element(named: "time", nodes: [
-                            .group(
-                                .text("Last updated on "),
-                                .text(DateFormatter.lastUpdatedOnFormatter.string(from:dates.dateModified))
-                            )
-                        ])
+                        .lastUpdatedTime(dates.dateModified)
                     )
                 )
             }

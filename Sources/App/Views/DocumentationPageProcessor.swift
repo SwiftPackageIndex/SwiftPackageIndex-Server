@@ -200,10 +200,7 @@ struct DocumentationPageProcessor {
             .class("spi"),
             .div(
                 .class("inner"),
-                .small(
-                    .text("Last updated on "),
-                    .text(DateFormatter.lastUpdatedOnFormatter.string(from:updatedAt))
-                ),
+                .lastUpdatedTime(updatedAt),
                 .nav(
                     .ul(
                         .li(
