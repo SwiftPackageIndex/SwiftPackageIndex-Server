@@ -27,20 +27,20 @@ class WebpageSnapshotTests: SnapshotTestCase {
         HomeIndex.Model.twitterSpaceLinks = HomeIndex.Model.TwitterSpaceLinks(previousUrl: "https://example.com/previous/twitter/space/", nextUrl: "https://example.com/next/twitter/space/")
 
         CommunitySponsors.sponsors = [
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(name: "Community Sponsor", avatarUrl: "/images/logo.svg")
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
+            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg")
         ]
 
         let page = { HomeIndex.View(path: "/", model: .mock).document() }
