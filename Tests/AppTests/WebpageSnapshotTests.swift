@@ -423,6 +423,13 @@ class WebpageSnapshotTests: SnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
     }
 
+    func test_SearchShow_withXSSAttempt() throws {
+        let page = { SearchShow.View(path: "/search?query=%27%3E%22%3E%3C/script%3E%3Csvg/onload=confirm(%27XSS%27)%3E",
+                                     model: .mockWithXSS()).document() }
+
+        assertSnapshot(matching: page, as: .html)
+    }
+
     func test_KeywordShow() throws {
         let page = { KeywordShow.View(path: "", model: .mock).document() }
 
