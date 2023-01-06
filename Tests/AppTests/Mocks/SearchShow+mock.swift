@@ -22,6 +22,7 @@ extension SearchShow.Model {
         let keywords = results.compactMap { $0.keywordResult?.keyword }
         return zip(keywords, 1...).map(WeightedKeyword.init)
     }
+
     static func mock(results: [Search.Result] = .mock()) -> Self {
         return .init(page: 3,
                      query: "query",
@@ -37,5 +38,15 @@ extension SearchShow.Model {
                                         .init(key: "license", operator: "is", value: "mit")
                                      ],
                                      results: results), weightedKeywords: mockedWeightedKeywords(results: results))
+    }
+
+    static func mockWithXSS() -> Self {
+        .init(page: 3,
+              query: #"'>"></script><svg/onload=confirm('XSS')>"#,
+              response: .init(hasMoreResults: false,
+                              searchTerm: #"'>"></script><svg/onload=confirm('XSS')>"#,
+                              searchFilters: [],
+                              results: []),
+              weightedKeywords: [])
     }
 }

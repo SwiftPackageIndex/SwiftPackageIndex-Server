@@ -44,6 +44,43 @@ class SearchShowModelTests: XCTestCase {
         XCTAssertEqual(model.response.results.count, 10)
     }
 
+    func test_SearchShow_Model_init_sanitized() throws {
+        do {
+            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1409
+            let query = #"'>"></script><svg/onload=confirm(42)>"#
+            // MUT
+            let model = SearchShow.Model(
+                page: 1,
+                query: query,
+                response: .init(hasMoreResults: false, searchTerm: query, searchFilters: [], results: []),
+                weightedKeywords: []
+            )
+
+            XCTAssertEqual(
+                model.query,
+                "&apos;&gt;&quot;&gt;&lt;/script&gt;&lt;svg/onload=confirm(42)&gt;"
+            )
+            XCTAssertEqual(
+                model.term,
+                "&apos;&gt;&quot;&gt;&lt;/script&gt;&lt;svg/onload=confirm(42)&gt;"
+            )
+        }
+        do {
+            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1409
+            let query = "test'two"
+            // MUT
+            let model = SearchShow.Model(
+                page: 1,
+                query: query,
+                response: .init(hasMoreResults: false, searchTerm: query, searchFilters: [], results: []),
+                weightedKeywords: []
+            )
+
+            XCTAssertEqual(model.query, "test&apos;two")
+            XCTAssertEqual(model.term, "test&apos;two")
+        }
+    }
+
     func test_SearchShow_Model_authorResults() throws {
         let results: [Search.Result] = .mock()
         let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false,
@@ -100,4 +137,5 @@ class SearchShowModelTests: XCTestCase {
 
         XCTAssertEqual(matchingKeywords, ["keyword2", "keyword4"])
     }
+
 }
