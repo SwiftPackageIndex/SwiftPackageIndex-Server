@@ -24,8 +24,8 @@ enum SearchShow {
 
         internal init(page: Int, query: String, response: Search.Response, weightedKeywords: [WeightedKeyword]) {
             self.page = page
-            self.query = query.filteredForDisplay()
-            self.term = response.searchTerm.filteredForDisplay()
+            self.query = query.sanitized()
+            self.term = response.searchTerm.sanitized()
             self.filters = response.searchFilters
             self.response = Model.Response(response: response)
             self.weightedKeywords = weightedKeywords
@@ -70,7 +70,7 @@ enum SearchShow {
 }
 
 extension String {
-    func filteredForDisplay() -> String {
+    func sanitized() -> String {
         // This does not strip HTML tags as it's possible people would want to search for them.
         // Instead, it changes angle brackets and quotes and when combined with our SQL sanitisation does everything we need.
         self.replacingOccurrences(of: ">", with: "&gt;")
