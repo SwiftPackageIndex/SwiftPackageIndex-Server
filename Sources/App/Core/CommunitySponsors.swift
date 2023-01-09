@@ -165,7 +165,7 @@ enum CommunitySponsors {
         CommunitySponsor(
             login: "mackoj",
             name: "Jeffrey Macko",
-            avatarUrl: "https://avatars.githubusercontent.com/u/661647?u=0ba72b192be797d895dc54fc8347f574964660be&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/661647?u=5c50a085f9f334030d23ec2e213de62ea053e952&v=4"
         ),
         CommunitySponsor(
             login: "Theome",
