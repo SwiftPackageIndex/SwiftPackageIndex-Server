@@ -48,6 +48,7 @@ We also have a Discord server. If you'd like to join, please [use this invite](h
 
 The best place to start is our in-depth guide to [setting up the Swift Package Index for local development](LOCAL_DEVELOPMENT_SETUP.md)! If you run into any problems, please [start a discussion](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/discussions) or [join us on Discord](https://discord.gg/vQRb6KkYRw).
 
+
 ### Contributor License Agreements
 
 The Swift Package Index is [licensed under the Apache 2.0 license](LICENSE). Before we can accept your contributions, you'll need to sign a standard Apache 2.0 Contributor License Agreement. We will organise this during your first pull request.
