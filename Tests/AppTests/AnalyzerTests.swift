@@ -170,7 +170,7 @@ class AnalyzerTests: AppTestCase {
 
         // validate versions
         // A bit awkward... create a helper? There has to be a better way?
-        let pkg1 = try Package.query(on: app.db).filter(by: urls[0].url).with(\.$versions).first().wait()!
+        let pkg1 = try await Package.query(on: app.db).filter(by: urls[0].url).with(\.$versions).first()!
         XCTAssertEqual(pkg1.status, .ok)
         XCTAssertEqual(pkg1.processingStage, .analysis)
         XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1", "foo-1"])
@@ -183,7 +183,7 @@ class AnalyzerTests: AppTestCase {
                         .map(\.packageName),
                        ["foo-1", "foo-1", "foo-1"])
 
-        let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
+        let pkg2 = try await Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first()!
         XCTAssertEqual(pkg2.status, .ok)
         XCTAssertEqual(pkg2.processingStage, .analysis)
         XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2", "foo-2"])
@@ -197,7 +197,7 @@ class AnalyzerTests: AppTestCase {
 
         // validate products
         // (2 packages with 3 versions with 1 product each = 6 products)
-        let products = try Product.query(on: app.db).sort(\.$name).all().wait()
+        let products = try await Product.query(on: app.db).sort(\.$name).all()
         XCTAssertEqual(products.count, 6)
         assertEquals(products, \.name, ["p1", "p1", "p1", "p2", "p2", "p2"])
         assertEquals(products, \.targets,
@@ -206,7 +206,7 @@ class AnalyzerTests: AppTestCase {
 
         // validate targets
         // (2 packages with 3 versions with 1 target each = 6 targets)
-        let targets = try Target.query(on: app.db).sort(\.$name).all().wait()
+        let targets = try await Target.query(on: app.db).sort(\.$name).all()
         XCTAssertEqual(targets.map(\.name), ["t1", "t1", "t1", "t2", "t2", "t2"])
 
         // validate score
@@ -226,7 +226,7 @@ class AnalyzerTests: AppTestCase {
         // setup
         let pkgId = UUID()
         let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         try await Repository(package: pkg,
                              defaultBranch: "main",
                              name: "1",
@@ -303,7 +303,7 @@ class AnalyzerTests: AppTestCase {
 
         // validate versions
         let p = try await Package.find(pkgId, on: app.db).unwrap()
-        try p.$versions.load(on: app.db).wait()
+        try await p.$versions.load(on: app.db)
         let versions = p.versions.sorted(by: { $0.commitDate < $1.commitDate })
         XCTAssertEqual(versions.map(\.commitDate), [.t1, .t2, .t3])
         XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "1.1.1", "main"])
@@ -462,7 +462,7 @@ class AnalyzerTests: AppTestCase {
         }
         Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
 
         do {  // MUT
@@ -490,7 +490,7 @@ class AnalyzerTests: AppTestCase {
         let pkgId = UUID()
         do {
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url)
-            try pkg.save(on: app.db).wait()
+            try await pkg.save(on: app.db)
             try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         }
         let pkg = try await Package.fetchCandidate(app.db, id: pkgId).get()
@@ -580,8 +580,8 @@ class AnalyzerTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
         try await Repository(package: pkg, name: "1", owner: "foo").save(on: app.db)
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
-        try version.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        try await version.save(on: app.db)
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
         // MUT
         let info = try Analyze.getPackageInfo(package: jpr, version: version)
@@ -1004,7 +1004,7 @@ class AnalyzerTests: AppTestCase {
 
         // validate
         do {
-            try pkg.$versions.load(on: app.db).wait()
+            try await pkg.$versions.load(on: app.db)
             let versions = versions.sorted(by: { $0.createdAt! < $1.createdAt! })
             XCTAssertEqual(versions.map(\.reference.description), ["main", "1.2.3", "2.0.0-rc1"])
             XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, .preRelease])
@@ -1052,7 +1052,7 @@ class AnalyzerTests: AppTestCase {
         do {
             let url = "1".asGithubUrl.url
             let pkg = Package.init(url: url, processingStage: .ingestion)
-            try pkg.save(on: app.db).wait()
+            try await pkg.save(on: app.db)
             Current.fileManager.fileExists = { path in
                 if path.hasSuffix("github.com-foo-1") { return false }
                 return true
