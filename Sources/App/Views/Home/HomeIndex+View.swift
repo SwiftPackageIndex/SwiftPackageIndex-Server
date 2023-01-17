@@ -64,7 +64,7 @@ enum HomeIndex {
                     .section(
                         .class("podcast"),
                         .p(
-                            .text("Join Dave and Sven every two weeks for a chat about the development of the Swift Package Index and a selection of package recommendations from the community on our "),
+                            .text("Join Dave and Sven biweekly for a chat about ongoing Swift Package Index development and a selection of package recommendations on our "),
                             .a(
                                 .href("https://swiftpackageindexing.transistor.fm"),
                                 "Swift Package Indexing podcast"

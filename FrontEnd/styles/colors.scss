@@ -51,8 +51,6 @@
     --very-very-light-grey: #f8f8f8;
     --white: #ffffff;
 
-    --twitter-blue: #1d9bf0;
-
     // -------------------------------------------------------------------------
     // Semantic colours.
     // -------------------------------------------------------------------------
@@ -68,6 +66,9 @@
     --panel-shadow: 0 6px 10px 5px rgba(0, 0, 0, 10%);
     --panel-underlay-background: var(--black);
     --panel-underlay-opacity: 0.5;
+
+    --podcast-panel-background: var(--very-light-blue);
+    --podcast-panel-border: var(--light-blue);
 
     --green-text: var(--light-green);
     --orange-text: var(--orange);
@@ -187,6 +188,9 @@
         --panel-background: var(--very-dark-grey);
         --panel-border: var(--dark-grey);
         --panel-underlay-opacity: 0.8;
+
+        --podcast-panel-background: var(--very-dark-blue);
+        --podcast-panel-border: var(--dark-blue);
 
         --green-text: var(--mid-green);
 
