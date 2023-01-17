@@ -32,7 +32,7 @@ class BuildIndexModelTests: AppTestCase {
                              owner: "foo",
                              stars: 17,
                              summary: "summary").save(on: app.db)
-        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
+        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
         let (pkgInfo, buildInfo) = try await PackageController.BuildsRoute
             .query(on: app.db, owner: "foo", repository: "bar")
 

@@ -42,7 +42,7 @@ class ReconcilerTests: AppTestCase {
         try await reconcile(client: app.client, database: app.db)
 
         // validate
-        let packages = try Package.query(on: app.db).all().wait()
+        let packages = try await Package.query(on: app.db).all()
         XCTAssertEqual(packages.map(\.url).sorted(), urls.sorted())
         packages.forEach {
             XCTAssertNotNil($0.id)

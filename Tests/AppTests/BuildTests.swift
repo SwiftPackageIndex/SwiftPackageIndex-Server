@@ -173,10 +173,10 @@ class BuildTests: AppTestCase {
         // setup
         let pkg = try savePackage(on: app.db, "1")
         let v1 = try Version(package: pkg)
-        try v1.save(on: app.db).wait()
+        try await v1.save(on: app.db)
         do { // decoy version and build
             let v2 = try Version(package: pkg)
-            try v2.save(on: app.db).wait()
+            try await v2.save(on: app.db)
             try await Build(version: v2,
                             platform: .linux,
                             status: .ok,
@@ -351,11 +351,11 @@ class BuildTests: AppTestCase {
     func test_DeleteArmBuilds_migration() async throws {
         // setup
         let p = Package(url: "1")
-        try p.save(on: app.db).wait()
+        try await p.save(on: app.db)
         let v = try Version(package: p, latest: .defaultBranch)
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
         // save a Build with platform `macos-spm`
-        try Build(id: .id0, version: v, platform: .macosSpm, status: .triggered, swiftVersion: .v5_5).save(on: app.db).wait()
+        try await Build(id: .id0, version: v, platform: .macosSpm, status: .triggered, swiftVersion: .v5_5).save(on: app.db)
         // save a Build with `macos-spm-arm` - we need to use raw SQL, because the platform enum
         // does not exist anymore
         try await (app.db as! SQLDatabase).raw(#"""

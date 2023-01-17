@@ -96,7 +96,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
             r.releases = [
                 .mock(description: "rel 1.2.3", tagName: "1.2.3")
             ]
-            try r.save(on: app.db).wait()
+            try await r.save(on: app.db)
             // Package has gained a SPI manifest
             Current.loadSPIManifest = { path in
                 if path.hasSuffix("foo-1") {
@@ -111,9 +111,9 @@ class ReAnalyzeVersionsTests: AppTestCase {
                                       database: app.db,
                                       logger: app.logger,
                                       mode: .limit(10))
-            let versions = try Version.query(on: app.db)
+            let versions = try await Version.query(on: app.db)
                 .with(\.$targets)
-                .all().wait()
+                .all()
             XCTAssertEqual(versions.map(\.toolsVersion), [nil, nil])
             XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [[], []])
             XCTAssertEqual(versions.map(\.releaseNotes) , [nil, nil])
@@ -129,10 +129,10 @@ class ReAnalyzeVersionsTests: AppTestCase {
                                                       limit: 10)
 
         // validate that re-analysis has now updated existing versions
-        let versions = try Version.query(on: app.db)
+        let versions = try await Version.query(on: app.db)
             .with(\.$targets)
             .sort(\.$createdAt)
-            .all().wait()
+            .all()
         XCTAssertEqual(versions.map(\.toolsVersion), ["5.3", "5.3"])
         XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [["t1"], ["t1"]])
         XCTAssertEqual(versions.compactMap(\.releaseNotes) , ["rel 1.2.3"])

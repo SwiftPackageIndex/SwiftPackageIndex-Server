@@ -229,7 +229,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
         // setup
         let pkg = Package(url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
         // start at t0

@@ -64,9 +64,9 @@ class PackageController_routesTests: AppTestCase {
     func test_ShowModel_packageAvailable() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
         // MUT
         let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
