@@ -62,29 +62,14 @@ enum HomeIndex {
                 .class("two-column"),
                 .section(
                     .section(
-                        .class("twitter-spaces"),
+                        .class("podcast"),
                         .p(
-                            .text("Join us for our "),
+                            .text("Join Dave and Sven every two weeks for a chat about the development of the Swift Package Index and a selection of package recommendations from the community on our "),
                             .a(
-                                .href(Model.twitterSpaceLinks.nextUrl),
-                                "next Twitter Space"
-                            ),
-                            .text(" discussing new and updated packages. Or catch up with "),
-                            .a(
-                                .href(Model.twitterSpaceLinks.previousUrl),
-                                "our most recent episode"
+                                .href("https://swiftpackageindexing.transistor.fm"),
+                                "Swift Package Indexing podcast"
                             ),
                             .text(".")
-                        ),
-                        .p(
-                            .class("twitter-profile"),
-                            .small(
-                                .text("Follow along at "),
-                                .a(
-                                    .href(ExternalURL.twitter),
-                                    "@SwiftPackages"
-                                )
-                            )
                         )
                     ),
                     .section(
