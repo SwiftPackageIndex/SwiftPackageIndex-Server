@@ -389,7 +389,7 @@ extension Analyze {
         let incoming = try await getIncomingVersions(client: client, logger: logger, package: package)
 
         let throttled = throttle(
-            lastestExistingVersion: existing.latestBranchVersion,
+            latestExistingVersion: existing.latestBranchVersion,
             incoming: incoming
         )
         let origDiff = Version.diff(local: existing, incoming: incoming)
@@ -446,8 +446,8 @@ extension Analyze {
     }
 
 
-    static func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version] {
-        guard let existingVersion = lastestExistingVersion else {
+    static func throttle(latestExistingVersion: Version?, incoming: [Version]) -> [Version] {
+        guard let existingVersion = latestExistingVersion else {
             // there's no existing branch version -> leave incoming alone (which will lead to addition)
             return incoming
         }
