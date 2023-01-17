@@ -389,7 +389,7 @@ extension Analyze {
         let incoming = try await getIncomingVersions(client: client, logger: logger, package: package)
 
         let throttled = throttle(
-            lastestExistingVersion: existing.latestBranchVersion,
+            latestExistingVersion: existing.latestBranchVersion,
             incoming: incoming
         )
         let origDiff = Version.diff(local: existing, incoming: incoming)
@@ -446,8 +446,8 @@ extension Analyze {
     }
 
 
-    static func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version] {
-        guard let existingVersion = lastestExistingVersion else {
+    static func throttle(latestExistingVersion: Version?, incoming: [Version]) -> [Version] {
+        guard let existingVersion = latestExistingVersion else {
             // there's no existing branch version -> leave incoming alone (which will lead to addition)
             return incoming
         }
@@ -459,11 +459,20 @@ extension Analyze {
 
         let ageOfExistingVersion = Current.date().timeIntervalSinceReferenceDate - existingVersion.commitDate.timeIntervalSinceReferenceDate
 
-        // if existing version isn't older than our "window", keep it - otherwise
-        // use the latest incoming version
-        let resultingBranchVersion = ageOfExistingVersion < Constants.branchVersionRefreshDelay
-        ? existingVersion
-        : incomingVersion
+        let resultingBranchVersion: Version
+        if existingVersion.reference.branchName != incomingVersion.reference.branchName {
+            // if branch names differ we've got a renamed default branch and want to make
+            // sure it's updated as soon as possible -> no throttling
+            resultingBranchVersion = incomingVersion
+        } else {
+            // if existing version isn't older than our "window", keep it - otherwise
+            // use the latest incoming version
+            if ageOfExistingVersion < Constants.branchVersionRefreshDelay {
+                resultingBranchVersion = existingVersion
+            } else {
+                resultingBranchVersion = incomingVersion
+            }
+        }
 
         return incoming
             .filter(!\.isBranch)        // remove all branch versions

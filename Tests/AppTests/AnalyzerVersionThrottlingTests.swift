@@ -29,7 +29,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", -.hours(1), .branch("main"))
 
         // MUT
-        let res = Analyze.throttle(lastestExistingVersion: old, incoming: [new])
+        let res = Analyze.throttle(latestExistingVersion: old, incoming: [new])
 
         // validate
         XCTAssertEqual(res, [old])
@@ -45,7 +45,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", .hours(-1), .branch("main"))
 
         // MUT
-        let res = Analyze.throttle(lastestExistingVersion: old, incoming: [new])
+        let res = Analyze.throttle(latestExistingVersion: old, incoming: [new])
 
         // validate
         XCTAssertEqual(res, [new])
@@ -61,7 +61,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", .hours(-1), .tag(2, 0, 0))
 
         // MUT
-        let res = Analyze.throttle(lastestExistingVersion: old, incoming: [new])
+        let res = Analyze.throttle(latestExistingVersion: old, incoming: [new])
 
         // validate
         XCTAssertEqual(res, [new])
@@ -76,7 +76,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", .hours(-1), .branch("main"))
 
         // MUT
-        let res = Analyze.throttle(lastestExistingVersion: nil, incoming: [new])
+        let res = Analyze.throttle(latestExistingVersion: nil, incoming: [new])
 
         // validate
         XCTAssertEqual(res, [new])
@@ -84,6 +84,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
     func test_throttle_branch_ref_change() throws {
         // Test behaviour when changing default branch names
+        // Changed to return [new] to avoid branch renames causing 404s
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2217
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
@@ -92,14 +94,16 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", .hours(-1), .branch("main"))
 
         // MUT
-        let res = Analyze.throttle(lastestExistingVersion: old, incoming: [new])
+        let res = Analyze.throttle(latestExistingVersion: old, incoming: [new])
 
         // validate
-        XCTAssertEqual(res, [old])
+        XCTAssertEqual(res, [new])
     }
 
     func test_throttle_rename() throws {
         // Ensure incoming branch renames are throttled
+        // Changed to return [new] to avoid branch renames causing 404s
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2217
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
@@ -108,10 +112,10 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new = try makeVersion(pkg, "sha", .hours(-1), .branch("main-new"))
 
         // MUT
-        let res = Analyze.throttle(lastestExistingVersion: old, incoming: [new])
+        let res = Analyze.throttle(latestExistingVersion: old, incoming: [new])
 
         // validate
-        XCTAssertEqual(res, [old])
+        XCTAssertEqual(res, [new])
     }
 
     func test_throttle_multiple_incoming_branches_keep_old() throws {
@@ -128,7 +132,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new2 = try makeVersion(pkg, "sha_new2", .hours(-1), .branch("main"))
 
         // MUT
-        let res = Analyze.throttle(lastestExistingVersion: old,
+        let res = Analyze.throttle(latestExistingVersion: old,
                                    incoming: [new0, new1, new2].shuffled())
 
         // validate
@@ -149,7 +153,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new2 = try makeVersion(pkg, "sha_new2", .hours(-1), .branch("main"))
 
         // MUT
-        let res = Analyze.throttle(lastestExistingVersion: old,
+        let res = Analyze.throttle(latestExistingVersion: old,
                                    incoming: [new0, new1, new2].shuffled())
 
         // validate
@@ -294,7 +298,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             let inc = try makeVersion(pkg, "sha-inc", .hours(-23), .branch("main"))
 
             // MUT
-            let res = Analyze.throttle(lastestExistingVersion: ex, incoming: [inc])
+            let res = Analyze.throttle(latestExistingVersion: ex, incoming: [inc])
 
             // validate
             XCTAssertEqual(res, [ex])
@@ -305,7 +309,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             let inc = try makeVersion(pkg, "sha-inc", .hours(-26), .branch("main"))
 
             // MUT
-            let res = Analyze.throttle(lastestExistingVersion: ex, incoming: [inc])
+            let res = Analyze.throttle(latestExistingVersion: ex, incoming: [inc])
 
             // validate
             XCTAssertEqual(res, [ex])
@@ -316,7 +320,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             let inc = try makeVersion(pkg, "sha-inc", .hours(-28), .branch("main"))
 
             // MUT
-            let res = Analyze.throttle(lastestExistingVersion: ex, incoming: [inc])
+            let res = Analyze.throttle(latestExistingVersion: ex, incoming: [inc])
 
             // validate
             XCTAssertEqual(res, [inc])
