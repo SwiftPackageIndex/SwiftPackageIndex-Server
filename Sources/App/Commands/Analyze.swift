@@ -459,11 +459,20 @@ extension Analyze {
 
         let ageOfExistingVersion = Current.date().timeIntervalSinceReferenceDate - existingVersion.commitDate.timeIntervalSinceReferenceDate
 
-        // if existing version isn't older than our "window", keep it - otherwise
-        // use the latest incoming version
-        let resultingBranchVersion = ageOfExistingVersion < Constants.branchVersionRefreshDelay
-        ? existingVersion
-        : incomingVersion
+        let resultingBranchVersion: Version
+        if existingVersion.reference.branchName != incomingVersion.reference.branchName {
+            // if branch names differ we've got a renamed default branch and want to make
+            // sure it's updated as soon as possible -> no throttling
+            resultingBranchVersion = incomingVersion
+        } else {
+            // if existing version isn't older than our "window", keep it - otherwise
+            // use the latest incoming version
+            if ageOfExistingVersion < Constants.branchVersionRefreshDelay {
+                resultingBranchVersion = existingVersion
+            } else {
+                resultingBranchVersion = incomingVersion
+            }
+        }
 
         return incoming
             .filter(!\.isBranch)        // remove all branch versions

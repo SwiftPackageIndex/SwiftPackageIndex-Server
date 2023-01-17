@@ -84,6 +84,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
     func test_throttle_branch_ref_change() throws {
         // Test behaviour when changing default branch names
+        // Changed to return [new] to avoid branch renames causing 404s
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2217
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
@@ -95,11 +97,13 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let res = Analyze.throttle(latestExistingVersion: old, incoming: [new])
 
         // validate
-        XCTAssertEqual(res, [old])
+        XCTAssertEqual(res, [new])
     }
 
     func test_throttle_rename() throws {
         // Ensure incoming branch renames are throttled
+        // Changed to return [new] to avoid branch renames causing 404s
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2217
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
@@ -111,7 +115,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let res = Analyze.throttle(latestExistingVersion: old, incoming: [new])
 
         // validate
-        XCTAssertEqual(res, [old])
+        XCTAssertEqual(res, [new])
     }
 
     func test_throttle_multiple_incoming_branches_keep_old() throws {

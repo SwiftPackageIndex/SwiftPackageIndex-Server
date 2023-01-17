@@ -48,6 +48,15 @@ enum Reference: Equatable, Hashable {
     
     var isRelease: Bool { semVer?.isStable ?? false }
 
+    var branchName: String? {
+        switch self {
+            case let .branch(name):
+                return name
+            case .tag:
+                return nil
+        }
+    }
+
     var tagName: String? {
         switch self {
             case .branch:
