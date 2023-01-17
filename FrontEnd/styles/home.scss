@@ -47,14 +47,14 @@
     }
 }
 
-// Twitter Spaces CTA.
+// Podcast CTA.
 
-.twitter-spaces {
+.podcast {
     position: relative;
     margin: 20px 0 60px;
     padding: 15px;
-    background-color: var(--panel-background);
-    border-bottom: 3px var(--twitter-blue) solid;
+    background-color: var(--podcast-panel-background);
+    border-bottom: 3px var(--podcast-panel-border) solid;
 
     &::before {
         content: '';
@@ -66,15 +66,11 @@
         height: 40px;
         background-repeat: no-repeat;
         background-size: 100%;
-        background-image: url('/images/twitter-spaces.svg');
+        background-image: var(--image-podcast);
     }
 
     p {
         margin: 0;
-    }
-
-    .twitter-profile {
-        text-align: right;
     }
 
     @media screen and (max-width: $mobile-breakpoint) {
