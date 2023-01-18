@@ -108,7 +108,7 @@ extension Gitlab.Builder {
                     status: response.status,
                     webUrl: try response.content.decode(Response.self).webUrl
                 )
-                logger.info("Triggered build versionId: \(versionID), jobURL: \(res.webUrl)")
+                logger.info("Triggered build: \(res.webUrl)")
                 return res
             } catch {
                 let body = response.body?.asString() ?? "nil"
