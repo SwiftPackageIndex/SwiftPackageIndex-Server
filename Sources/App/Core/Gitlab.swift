@@ -104,8 +104,12 @@ extension Gitlab.Builder {
             }
         return req.map { response in
             do {
-                return Build.TriggerResponse(status: response.status,
-                                             webUrl: try response.content.decode(Response.self).webUrl)
+                let res = Build.TriggerResponse(
+                    status: response.status,
+                    webUrl: try response.content.decode(Response.self).webUrl
+                )
+                logger.info("Triggered build \(buildId) \(res.webUrl)")
+                return res
             } catch {
                 let body = response.body?.asString() ?? "nil"
                 logger.error("Trigger failed: \(cloneURL) @ \(reference), \(platform) / \(swiftVersion), \(versionID), status: \(response.status), body: \(body)")
