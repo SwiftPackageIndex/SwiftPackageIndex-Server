@@ -232,15 +232,12 @@ class PublicPage {
     }
 
     func announcementBanner() -> Node<HTML.BodyContext> {
-        .p(
-            .class("announcement"),
-            .text("Do you maintain a package with DocC-compatible documentation? "),
-            .a(
-                .href("https://blog.swiftpackageindex.com/posts/auto-generating-auto-hosting-and-auto-updating-docc-documentation/"),
-                "Let us build and host your docs"
-            ),
-            .text("! 📚")
-        )
+        return .empty
+
+//        .p(
+//            .class("announcement"),
+//            .text("No current announcement.")
+//        )
     }
 
     /// Optional content that will be inserted in between the page header and the main content for the page.
