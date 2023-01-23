@@ -71,7 +71,7 @@ services:
 
   prometheus:
     # https://github.com/prometheus/prometheus/releases
-    image: prom/prometheus:v2.40.6
+    image: prom/prometheus:v2.41.0
     volumes:
       - prometheus_data:/prometheus
     command: --config.file=/prometheus.yml
@@ -110,7 +110,7 @@ services:
 
   cadvisor:
     # https://github.com/google/cadvisor/releases
-    image: gcr.io/cadvisor/cadvisor:v0.46.0
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
     networks:
       - app_backend
     volumes:
