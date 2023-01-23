@@ -9,8 +9,7 @@ db.sqlite
 
 SPI-checkouts/
 .env
-.env.development
-.env.testing
+.env.*
 *.dump
 misc/
 
@@ -29,6 +28,5 @@ Tests/AppTests/__Snapshots__/WebpageSnapshotTests/*
 .nova/
 .vscode/*
 !.vscode/*.template
-.env.staging
 xcbeautify
 test.log
