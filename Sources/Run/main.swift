@@ -13,7 +13,10 @@
 // limitations under the License.
 
 import App
+import Backtrace
 import Vapor
+
+Backtrace.install()
 
 var env = try Environment.detect()
 try LoggingSystem.bootstrap(from: &env)
