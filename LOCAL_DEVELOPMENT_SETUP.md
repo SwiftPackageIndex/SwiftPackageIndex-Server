@@ -182,3 +182,51 @@ docker run --rm -v "$PWD":/host -w /host --add-host=host.docker.internal:host-ga
 Make sure you use the most recent `spi-base` image. You can find the latest image name in the `test-docker` target, which also provides a convenient way to run all all tests in a docker container.
 
 Running the tests in a separate command like above can be useful to run tests individually, via a `--filter <test selector>` parameter.
+
+## Running the server in a container
+
+In order to run just the server in a container (i.e. without running the full stack locally), proceed as follows.
+
+First, build the base image as outlined above via
+
+```
+make docker-build
+```
+
+NB: if you are on an Apple Silicon Mac you will have to [build the base image's base image locally in an arm64 variant](https://gitlab.com/finestructure/spi-base/blob/main/README.md#L8).
+
+Next, launch a shell inside the container:
+
+```
+docker run --rm -it -v $PWD:/host -w /host --network="host" --entrypoint sh registry.gitlab.com/finestructure/swiftpackageindex:be565ca16725d4836efbb2517fd0285fddbe9da0
+```
+
+The image version will typically be the current commit of the repository and you can see the full image name at the end of the `docker build` output:
+
+```
+ => exporting to image
+ => => exporting layers
+ => => writing image sha256:c2c4df8ad280f9f06fcf1650779587949b743b43f3df8dda33341f44a1f247ff
+ => => naming to registry.gitlab.com/finestructure/swiftpackageindex:be565ca16725d4836efbb2517fd0285fddbe9da0
+ ```
+
+ Once inside the container you can launch the server:
+
+ ```
+ /app/Run serve --env development --hostname 0.0.0.0 --port 8080
+ ```
+
+ And access it from the host:
+
+ ```
+ ❯ curl -sL -w "%{http_code}" http://localhost:8080 -o /dev/null
+200
+ ```
+
+As described above, it is important to make sure your database is accessible from within the docker network. Typically this will mean to set the `DATABASE_HOST` variable to `host.docker.internal` as described above.
+
+If you use this mechanism frequently, rather than editing `.env.development` or `.env.testing`, you can simply create a new environment `.env.docker` and use it via
+
+```
+ /app/Run serve --env docker --hostname 0.0.0.0 --port 8080
+```
