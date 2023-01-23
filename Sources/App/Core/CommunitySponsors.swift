@@ -408,11 +408,6 @@ enum CommunitySponsors {
             avatarUrl: "https://avatars.githubusercontent.com/u/11362913?u=4af3d048fb1678f198a4c9fe9a246017bed75052&v=4"
         ),
         CommunitySponsor(
-            login: "Smallfan",
-            name: "Fan Xiao",
-            avatarUrl: "https://avatars.githubusercontent.com/u/11558568?u=5ce251e0329793f96ccce2a2e2901acf9082b7c4&v=4"
-        ),
-        CommunitySponsor(
             login: "mflknr",
             name: "Marius Felkner",
             avatarUrl: "https://avatars.githubusercontent.com/u/11645567?u=54066dd6578c7170742cb00acae0bdf56cfe9ca9&v=4"
