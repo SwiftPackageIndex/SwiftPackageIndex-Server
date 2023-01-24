@@ -35,42 +35,67 @@ extension Foundation.FileManager: FileManager { }
 
 
 public func getResolvedDependencies(_ fileManager: FileManager = Foundation.FileManager.default, at path: String) -> [ResolvedDependency]? {
-    //    object:
-    //      pins:
-    //        - package: String
-    //          repositoryURL: URL
-    //          state:
-    //            branch: String?
-    //            revision: CommitHash
-    //            version: SemVer?
-    //        - ...
-    //      version: 1
     struct PackageResolved: Decodable {
-        var object: Object
+        //    object:
+        //      pins:
+        //        - package: String
+        //          repositoryURL: URL
+        //        - ...
+        //      version: 1
+        struct V1: Decodable {
+            var object: Object
 
-        struct Object: Decodable {
+            struct Object: Decodable {
+                var pins: [Pin]
+
+                struct Pin: Decodable {
+                    var package: String
+                    var repositoryURL: URL
+                }
+            }
+        }
+
+        //    object:
+        //      pins:
+        //        - identity: String
+        //          location: URL
+        //        - ...
+        //      version: 1
+        struct V2: Decodable {
             var pins: [Pin]
 
             struct Pin: Decodable {
-                var package: String
-                var repositoryURL: URL
+                var identity: String
+                var location: URL
             }
         }
     }
 
     let filePath = URL(fileURLWithPath: path)
         .appendingPathComponent("Package.resolved").path
+
     guard fileManager.fileExists(atPath: filePath),
-          let json = fileManager.contents(atPath: filePath),
-          let packageResolved = try? JSONDecoder()
-            .decode(PackageResolved.self, from: json)
-    else {
-        return nil
+          let json = fileManager.contents(atPath: filePath) else { return nil }
+    
+    if let packageResolvedV2 = try? JSONDecoder()
+        .decode(PackageResolved.V2.self, from: json) {
+        return packageResolvedV2.pins.map {
+            ResolvedDependency(
+                packageName: $0.identity,
+                repositoryURL: $0.location.absoluteString
+            )
+        }
     }
-    return packageResolved.object.pins.map {
-        ResolvedDependency(
-            packageName: $0.package,
-            repositoryURL: $0.repositoryURL.absoluteString
-        )
+
+    if let packageResolvedV1 = try? JSONDecoder()
+        .decode(PackageResolved.V1.self, from: json) {
+        return packageResolvedV1.object.pins.map {
+            ResolvedDependency(
+                packageName: $0.package,
+                repositoryURL: $0.repositoryURL.absoluteString
+            )
+        }
     }
+
+    return nil
 }
