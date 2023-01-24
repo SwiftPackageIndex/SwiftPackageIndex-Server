@@ -67,6 +67,9 @@ let package = Package(
             ],
             exclude: ["__Snapshots__", "Fixtures"]
         ),
+        .testTarget(name: "DependencyResolutionTests",
+            dependencies: [.target(name: "DependencyResolution")]
+        ),
     ],
     swiftLanguageVersions: [.v5]
 )
