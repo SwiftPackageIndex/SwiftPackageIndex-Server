@@ -441,7 +441,7 @@ extension PackageShow.Model {
 
         return .li(
             .class("libraries"),
-            .text("library".pluralizedCount(productCounts.libraries, plural: "libraries", capitalized: true))
+            .text(productCounts.libraries.labeled("library", plural: "libraries", capitalized: true))
         )
     }
 
@@ -451,7 +451,7 @@ extension PackageShow.Model {
 
         return .li(
             .class("executables"),
-            .text("executable".pluralizedCount(productCounts.executables, capitalized: true))
+            .text(productCounts.executables.labeled("executable", capitalized: true))
         )
     }
 
@@ -461,7 +461,7 @@ extension PackageShow.Model {
 
         return .li(
             .class("plugins"),
-            .text("plugin".pluralizedCount(productCounts.plugins, capitalized: true))
+            .text(productCounts.plugins.labeled("plugin", capitalized: true))
         )
     }
 

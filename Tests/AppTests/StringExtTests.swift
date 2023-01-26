@@ -18,18 +18,6 @@ import XCTest
 
 final class StringExtTests: XCTestCase {
 
-    func test_pluralizedCount() throws {
-        XCTAssertEqual("executable".pluralizedCount(0), "no executables")
-        XCTAssertEqual("executable".pluralizedCount(1), "1 executable")
-        XCTAssertEqual("executable".pluralizedCount(2), "2 executables")
-
-        XCTAssertEqual("library".pluralizedCount(1, plural: "libraries"), "1 library")
-        XCTAssertEqual("library".pluralizedCount(2, plural: "libraries"), "2 libraries")
-
-        XCTAssertEqual("executable".pluralizedCount(0, capitalized: true), "No executables")
-        XCTAssertEqual("library".pluralizedCount(0, plural: "libraries", capitalized: true), "No libraries")
-    }
-
     func test_pluralised() throws {
         XCTAssertEqual("version".pluralized(for: 0), "versions")
         XCTAssertEqual("version".pluralized(for: 1), "version")

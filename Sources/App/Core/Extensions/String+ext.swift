@@ -41,10 +41,6 @@ extension String {
 // MARK: - Pluralisation
 
 extension String {
-    func pluralizedCount(_ count: Int, plural: String? = nil, capitalized: Bool = false, numberFormatter: NumberFormatter = .spiDefault) -> String {
-        "\(pluralizedCount: count, singular: self, plural: plural, capitalized: capitalized, numberFormatter: numberFormatter)"
-    }
-
     func pluralized(for count: Int, plural: String? = nil) -> String {
         let plural = plural ?? self + "s"
         switch count {
