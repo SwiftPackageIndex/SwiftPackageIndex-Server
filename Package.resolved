@@ -28,6 +28,15 @@
       }
     },
     {
+      "identity" : "dependencyresolution",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftPackageIndex/DependencyResolution",
+      "state" : {
+        "revision" : "d740e4f3e644f2dd13967e741d26a2785d75c427",
+        "version" : "1.0.1"
+      }
+    },
+    {
       "identity" : "fluent",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent.git",

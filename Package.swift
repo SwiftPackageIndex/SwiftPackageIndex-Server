@@ -21,14 +21,12 @@ let package = Package(
     platforms: [
         .macOS(.v12)
     ],
-    products: [
-        .library(name: "DependencyResolution", targets: ["DependencyResolution"]),
-    ],
     dependencies: [
         .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
         .package(url: "https://github.com/JohnSundell/Plot.git", from: "0.10.0"),
         .package(url: "https://github.com/JohnSundell/ShellOut.git", from: "2.0.0"),
         .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
+        .package(url: "https://github.com/SwiftPackageIndex/DependencyResolution", from: "1.0.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SPIManifest", from: "0.10.1"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
         .package(url: "https://github.com/apple/swift-package-manager.git", branch: "release/5.7"),
@@ -51,14 +49,13 @@ let package = Package(
             "ShellOut",
             "SwiftPrometheus",
             "SwiftSoup",
+            .product(name: "DependencyResolution", package: "DependencyResolution"),
             .product(name: "Fluent", package: "fluent"),
             .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
             .product(name: "Parsing", package: "swift-parsing"),
             .product(name: "SwiftPMPackageCollections", package: "swift-package-manager"),
             .product(name: "Vapor", package: "vapor"),
-            .target(name: "DependencyResolution"),
         ]),
-        .target(name: "DependencyResolution"),
         .testTarget(name: "AppTests",
             dependencies: [
                 .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
