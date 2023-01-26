@@ -432,8 +432,7 @@ extension PackageShow.Model {
         guard dependencies.count > 0
         else { return "This package has no package dependencies." }
 
-        let dependenciesCount = pluralizedCount(dependencies.count, singular: "other package")
-        return "This package depends on \(dependenciesCount)."
+        return "This package depends on \(pluralizedCount: dependencies.count, singular: "other package")."
     }
 
     func librariesListItem() -> Node<HTML.ListContext> {
@@ -442,7 +441,7 @@ extension PackageShow.Model {
 
         return .li(
             .class("libraries"),
-            .text(pluralizedCount(productCounts.libraries, singular: "library", plural: "libraries", capitalized: true))
+            .text("library".pluralizedCount(productCounts.libraries, plural: "libraries", capitalized: true))
         )
     }
 
@@ -452,7 +451,7 @@ extension PackageShow.Model {
 
         return .li(
             .class("executables"),
-            .text(pluralizedCount(productCounts.executables, singular: "executable", capitalized: true))
+            .text("executable".pluralizedCount(productCounts.executables, capitalized: true))
         )
     }
 
@@ -462,7 +461,7 @@ extension PackageShow.Model {
 
         return .li(
             .class("plugins"),
-            .text(pluralizedCount(productCounts.plugins, singular: "plugin", capitalized: true))
+            .text("plugin".pluralizedCount(productCounts.plugins, capitalized: true))
         )
     }
 

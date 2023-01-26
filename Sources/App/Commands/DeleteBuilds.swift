@@ -34,7 +34,7 @@ struct DeleteBuildsCommand: Command {
                 context.console.info("Deleting builds for version id \(versionId) ...")
                 let count = try Build.delete(on: context.application.db,
                                              versionId: versionId).wait()
-                context.console.info("Deleted \(pluralizedCount(count, singular: "record"))")
+                context.console.info("Deleted \(pluralizedCount: count, singular: "record")")
 
             case let (.none, packageId?):
                 context.console.info("Deleting builds for package id \(packageId) ...")
@@ -47,7 +47,7 @@ struct DeleteBuildsCommand: Command {
                     count = try Build.delete(on: context.application.db,
                                                  packageId: packageId).wait()
                 }
-                context.console.info("Deleted \(pluralizedCount(count, singular: "record"))")
+                context.console.info("Deleted \(pluralizedCount: count, singular: "record")")
 
             case (.some, .some):
                 context.console.error("Specift either 'version-id' or 'package-id' but not both")

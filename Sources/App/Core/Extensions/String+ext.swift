@@ -38,6 +38,27 @@ extension String {
 }
 
 
+// MARK: - Pluralisation
+
+extension String {
+    func pluralizedCount(_ count: Int, plural: String? = nil, capitalized: Bool = false, numberFormatter: NumberFormatter = .spiDefault) -> String {
+        "\(pluralizedCount: count, singular: self, plural: plural, capitalized: capitalized, numberFormatter: numberFormatter)"
+    }
+
+    func pluralized(for count: Int, plural: String? = nil) -> String {
+        let plural = plural ?? self + "s"
+        switch count {
+            case 0:
+                return plural
+            case 1:
+                return self
+            default:
+                return plural
+        }
+    }
+}
+
+
 extension String.StringInterpolation {
 
     mutating func appendInterpolation<T: CustomStringConvertible>(_ value: T?) {

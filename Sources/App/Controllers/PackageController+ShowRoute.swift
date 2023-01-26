@@ -87,10 +87,10 @@ extension PackageController {
                     return nil
                 }
                 let cl = Link(
-                    label: pluralizedCount(commitCount, singular: "commit"),
+                    label: "commit".pluralizedCount(commitCount),
                     url: url.droppingGitExtension + "/commits/\(defaultBranch)")
                 let rl = Link(
-                    label: pluralizedCount(releaseCount, singular: "release"),
+                    label: "release".pluralizedCount(releaseCount),
                     url: url.droppingGitExtension + "/releases")
                 return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",
                              commitCount: cl,
