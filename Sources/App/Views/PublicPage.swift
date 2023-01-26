@@ -359,6 +359,9 @@ class PublicPage {
                         ),
                         .text(".")
                     ),
+                    .small(
+                        .text("The Swift Package Index is operated by SPI Operations Limited, a company registered in the UK with company number 13466692.")
+                    ),
                     // Mastodon verification links
                     .a(
                         .attribute(named: "rel", value: "me"),
