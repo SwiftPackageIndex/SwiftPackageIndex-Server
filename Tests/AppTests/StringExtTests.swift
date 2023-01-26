@@ -17,6 +17,17 @@ import XCTest
 @testable import App
 
 final class StringExtTests: XCTestCase {
+
+    func test_pluralised() throws {
+        XCTAssertEqual("version".pluralized(for: 0), "versions")
+        XCTAssertEqual("version".pluralized(for: 1), "version")
+        XCTAssertEqual("version".pluralized(for: 2), "versions")
+
+        XCTAssertEqual("library".pluralized(for: 0, plural: "libraries"), "libraries")
+        XCTAssertEqual("library".pluralized(for: 1, plural: "libraries"), "library")
+        XCTAssertEqual("library".pluralized(for: 2, plural: "libraries"), "libraries")
+    }
+
     func testDroppingGitSuffix() {
         XCTAssertEqual(
             "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server".droppingGitExtension,

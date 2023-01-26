@@ -262,7 +262,11 @@ func triggerBuildsUnchecked(on database: Database,
                             logger: Logger,
                             triggers: [BuildTriggerInfo]) -> EventLoopFuture<Void> {
     triggers.flatMap { trigger -> [EventLoopFuture<Void>] in
-        logger.info("Triggering \(trigger.pairs.count) builds for package name: \(trigger.packageName), ref: \(trigger.reference)")
+        if let packageName = trigger.packageName, let reference = trigger.reference {
+            logger.info("Triggering \(pluralizedCount: trigger.pairs.count, singular: "build") for package name: \(packageName), ref: \(reference)")
+        } else {
+            logger.info("Triggering \(pluralizedCount: trigger.pairs.count, singular: "build") for version ID: \(trigger.versionId)")
+        }
         return trigger.pairs.map { pair in
             AppMetrics.buildTriggerCount?.inc(1, .buildTriggerLabels(pair))
             let buildId: Build.Id = .init()

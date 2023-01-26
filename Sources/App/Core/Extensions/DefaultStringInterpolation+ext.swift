@@ -15,6 +15,29 @@
 import Foundation
 
 
+// Pluralization
+extension DefaultStringInterpolation {
+
+    static func pluralize(_ count: Int, singular: String, plural: String? = nil, capitalized: Bool = false, numberFormatter: NumberFormatter = .spiDefault) -> String {
+        let plural = plural ?? singular + "s"
+        switch count {
+            case 0:
+                return capitalized ? "No \(plural)" : "no \(plural)"
+            case 1:
+                return "1 \(singular)"
+            default:
+                return "\(numberFormatter.string(from: count) ?? "\(count)") \(plural)"
+        }
+    }
+
+    mutating func appendInterpolation(pluralizedCount: Int, singular: String, plural: String? = nil, capitalized: Bool = false, numberFormatter: NumberFormatter = .spiDefault) {
+        appendInterpolation(Self.pluralize(pluralizedCount, singular: singular, plural: plural, capitalized: capitalized, numberFormatter: numberFormatter))
+    }
+
+}
+
+
+// Date formatting
 extension DefaultStringInterpolation {
 
     mutating func appendInterpolation(date: Date, relativeTo referenceDate: Date) {
@@ -52,21 +75,21 @@ extension DefaultStringInterpolation {
             case 30 ..< m + 30:
                 return "1 minute"
             case m + 30 ..< 44*m + 30:
-                return pluralizedCount(minutes, singular: "minute")
+                return Self.pluralize(minutes, singular: "minute")
             case 44*m + 30 ..< 89*m + 30:
                 return "1 hour"
             case 89*m + 30 ..< 24*H - 30:
-                return pluralizedCount(hours, singular: "hour")
+                return Self.pluralize(hours, singular: "hour")
             case 24*H - 30 ..< 42*H - 30:
                 return "1 day"
             case 42*H - 30 ..< 30*d - 30:
-                return pluralizedCount(days, singular: "day")
+                return Self.pluralize(days, singular: "day")
             case 30*d - 30 ..< 45*d - 30:
                 return "about 1 month"
             case 45*d - 30 ..< 60*d - 30:
                 return "about 2 months"
             case 60*d - 30 ..< Y - 1:
-                return pluralizedCount(months, singular: "month")
+                return Self.pluralize(months, singular: "month")
             case Y ..< Y + 3*M:
                 return "about 1 year"
             case Y + 3*M ..< Y + 9*M:
@@ -74,7 +97,7 @@ extension DefaultStringInterpolation {
             case Y + 9*M ..< 2*Y - 1:
                 return "almost 2 years"
             default:
-                return pluralizedCount(years, singular: "year")
+                return Self.pluralize(years, singular: "year")
         }
     }
 

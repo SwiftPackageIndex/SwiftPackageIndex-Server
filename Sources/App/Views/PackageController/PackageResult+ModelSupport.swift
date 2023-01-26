@@ -30,9 +30,9 @@ extension PackageController.PackageResult {
     func activity() -> PackageShow.Model.Activity? {
         guard repository.lastPullRequestClosedAt != nil else { return nil }
 
-        let openIssues = Link(label: pluralizedCount(repository.openIssues, singular: "open issue"),
+        let openIssues = Link(label: repository.openIssues.labeled("open issue"),
                               url: package.url.droppingGitExtension + "/issues")
-        let openPRs = Link(label: pluralizedCount(repository.openPullRequests, singular: "open pull request"),
+        let openPRs = Link(label: repository.openPullRequests.labeled("open pull request"),
                            url: package.url.droppingGitExtension + "/pulls")
         let lastIssueClosed = repository.lastIssueClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
         let lastPRClosed = repository.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
