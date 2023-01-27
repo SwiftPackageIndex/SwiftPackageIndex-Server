@@ -20,24 +20,23 @@ import XCTest
 
 class MetricsTests: AppTestCase {
 
-    func test_basic() throws {
+    func test_basic() async throws {
         // setup - trigger build to increment counter
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
         let versionId = UUID()
         do {  // save minimal package + version
             let p = Package(id: UUID(), url: "1")
-            try p.save(on: app.db).wait()
-            try Version(id: versionId, package: p, reference: .branch("main")).save(on: app.db).wait()
+            try await p.save(on: app.db)
+            try await Version(id: versionId, package: p, reference: .branch("main")).save(on: app.db)
         }
-        try triggerBuildsUnchecked(on: app.db,
-                               client: app.client,
-                               logger: app.logger,
-                               triggers: [
-                                .init(versionId: versionId,
-                                      pairs: [.init(.macosSpm, .v5_7)])!
-                               ]
-        ).wait()
+        try await triggerBuildsUnchecked(on: app.db,
+                                         client: app.client,
+                                         logger: app.logger,
+                                         triggers: [
+                                            .init(versionId: versionId,
+                                                  pairs: [.init(.macosSpm, .v5_7)])!
+                                         ])
 
         // MUT
         try app.test(.GET, "metrics", afterResponse: { res in
@@ -132,12 +131,12 @@ class MetricsTests: AppTestCase {
         XCTAssert((AppMetrics.analyzeDurationSeconds?.get()) ?? 0 > 0)
     }
 
-    func test_triggerBuildsDurationSeconds() throws {
+    func test_triggerBuildsDurationSeconds() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
 
         // MUT
-        try triggerBuilds(on: app.db, client: app.client, logger: app.logger, mode: .packageId(pkg.id!, force: true)).wait()
+        try await triggerBuilds(on: app.db, client: app.client, logger: app.logger, mode: .packageId(pkg.id!, force: true))
 
         // validation
         XCTAssert((AppMetrics.buildTriggerDurationSeconds?.get()) ?? 0 > 0)

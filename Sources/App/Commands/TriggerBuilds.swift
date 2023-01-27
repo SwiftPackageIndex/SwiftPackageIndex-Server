@@ -17,7 +17,7 @@ import SQLKit
 import Vapor
 
 
-struct TriggerBuildsCommand: Command {
+struct TriggerBuildsCommand: CommandAsync {
     let defaultLimit = 1
 
     struct Signature: CommandSignature {
@@ -48,7 +48,7 @@ struct TriggerBuildsCommand: Command {
         case triggerInfo(Version.Id, BuildPair)
     }
 
-    func run(using context: CommandContext, signature: Signature) throws {
+    func run(using context: CommandContext, signature: Signature) async {
         let logger = Logger(component: "trigger-builds")
 
         Self.resetMetrics()
@@ -65,7 +65,7 @@ struct TriggerBuildsCommand: Command {
                 guard let platform = signature.platform,
                       let swiftVersion = signature.swiftVersion else {
                     printUsage(using: context)
-                    throw UsageError()
+                    return
                 }
                 let buildPair = BuildPair(platform, swiftVersion)
                 mode = .triggerInfo(versionId, buildPair)
@@ -75,22 +75,22 @@ struct TriggerBuildsCommand: Command {
 
             default:
                 printUsage(using: context)
-                throw UsageError()
+                return
         }
 
         do {
-            try triggerBuilds(on: context.application.db,
-                              client: context.application.client,
-                              logger: logger,
-                              mode: mode).wait()
+            try await triggerBuilds(on: context.application.db,
+                                    client: context.application.client,
+                                    logger: logger,
+                                    mode: mode)
         } catch {
             logger.critical("\(error)")
         }
 
         do {
-            try AppMetrics.push(client: context.application.client,
-                                logger: context.application.logger,
-                                jobName: "trigger-builds").wait()
+            try await AppMetrics.push(client: context.application.client,
+                                      logger: context.application.logger,
+                                      jobName: "trigger-builds")
         } catch {
             logger.warning("\(error)")
         }
@@ -100,8 +100,6 @@ struct TriggerBuildsCommand: Command {
         var context = context
         outputHelp(using: &context)
     }
-
-    struct UsageError: Error { }
 }
 
 
@@ -121,56 +119,47 @@ extension TriggerBuildsCommand {
 ///   - logger: `Logger` used for logging
 ///   - parameter: `BuildTriggerCommand.Parameter` holding either a list of package ids
 ///   or a fetch limit for candidate selection.
-/// - Returns: `EventLoopFuture<Void>` future
 func triggerBuilds(on database: Database,
                    client: Client,
                    logger: Logger,
-                   mode: TriggerBuildsCommand.Mode) -> EventLoopFuture<Void> {
+                   mode: TriggerBuildsCommand.Mode) async throws {
     let start = DispatchTime.now().uptimeNanoseconds
     switch mode {
         case .limit(let limit):
             logger.info("Triggering builds (limit: \(limit)) ...")
 
             let withLatestSwiftVersion = Current.buildTriggerCandidatesWithLatestSwiftVersion
+            let candidates = try await fetchBuildCandidates(database,
+                                                            withLatestSwiftVersion: withLatestSwiftVersion)
+            AppMetrics.buildCandidatesCount?.set(candidates.count)
 
-            return fetchBuildCandidates(database,
-                                        withLatestSwiftVersion: withLatestSwiftVersion)
-                .map { candidates in
-                    AppMetrics.buildCandidatesCount?.set(candidates.count)
-                    return Array(candidates.prefix(limit))
-                }
-                .flatMap {
-                    triggerBuilds(on: database,
-                                  client: client,
-                                  logger: logger,
-                                  packages: $0)
-                }
-                .map {
-                    AppMetrics.buildTriggerDurationSeconds?.time(since: start)
-                }
+            let limitedCandidates = Array(candidates.prefix(limit))
+            try await triggerBuilds(on: database,
+                                    client: client,
+                                    logger: logger,
+                                    packages: limitedCandidates)
+            AppMetrics.buildTriggerDurationSeconds?.time(since: start)
 
         case let .packageId(id, force):
             logger.info("Triggering builds (packageID: \(id)) ...")
-            return triggerBuilds(on: database,
-                                 client: client,
-                                 logger: logger,
-                                 packages: [id],
-                                 force: force)
-                .map {
-                    AppMetrics.buildTriggerDurationSeconds?.time(since: start)
-                }
+            try await triggerBuilds(on: database,
+                                    client: client,
+                                    logger: logger,
+                                    packages: [id],
+                                    force: force)
+            AppMetrics.buildTriggerDurationSeconds?.time(since: start)
 
         case let .triggerInfo(versionId, buildPair):
             logger.info("Triggering builds (versionID: \(versionId), \(buildPair)) ...")
             guard let trigger = BuildTriggerInfo(versionId: versionId,
                                                  pairs: [buildPair]) else {
                 logger.error("Failed to create trigger.")
-                return database.eventLoop.makeSucceededVoidFuture()
+                return
             }
-            return triggerBuildsUnchecked(on: database,
-                                          client: client,
-                                          logger: logger,
-                                          triggers: [trigger])
+            try await triggerBuildsUnchecked(on: database,
+                                             client: client,
+                                             logger: logger,
+                                             triggers: [trigger])
 
     }
 }
@@ -184,68 +173,76 @@ func triggerBuilds(on database: Database,
 ///   - logger: `Logger` used for logging
 ///   - packages: list of `Package.Id`s to trigger
 ///   - force: do not check pipeline capacity and ignore downscaling
-/// - Returns: `EventLoopFuture<Void>` future
 func triggerBuilds(on database: Database,
                    client: Client,
                    logger: Logger,
                    packages: [Package.Id],
-                   force: Bool = false) -> EventLoopFuture<Void> {
+                   force: Bool = false) async throws {
     guard Current.allowBuildTriggers() else {
         logger.info("Build trigger override switch OFF - no builds are being triggered")
-        return database.eventLoop.future()
+        return
     }
 
     guard !force else {
-        return packages.map {
-            findMissingBuilds(database, packageId: $0).flatMap {
-                triggerBuildsUnchecked(on: database, client: client, logger: logger, triggers: $0) }
+        return await withThrowingTaskGroup(of: Void.self) { group in
+            for package in packages {
+                group.addTask {
+                    let triggerInfo = try await findMissingBuilds(database, packageId: package)
+                    try await triggerBuildsUnchecked(on: database, client: client, logger: logger, triggers: triggerInfo)
+                }
+            }
         }
-        .flatten(on: database.eventLoop)
     }
 
-    return Current.getStatusCount(client, .pending)
-        .and(Current.getStatusCount(client, .running))
-        .flatMap { (pendingJobs, runningJobs) in
-            AppMetrics.buildPendingJobsCount?.set(pendingJobs)
-            AppMetrics.buildRunningJobsCount?.set(runningJobs)
-            var newJobs = 0
-            return packages.map { pkgId in
-                let allowListed = Current.buildTriggerAllowList().contains(pkgId)
-                let downscalingAccepted = Current.random(0...1) < Current.buildTriggerDownscaling()
-                guard allowListed || downscalingAccepted else {
-                    logger.info("Build trigger downscaling in effect - skipping builds")
-                    return database.eventLoop.future()
-                }
+    async let pendingJobsTask = Current.getStatusCount(client, .pending).get()
+    async let runningJobsTask = Current.getStatusCount(client, .running).get()
+    let pendingJobs = try await pendingJobsTask
+    let runningJobs = try await runningJobsTask
 
-                // check if we have capacity to schedule more builds before querying for builds
-                guard pendingJobs + newJobs < Current.gitlabPipelineLimit() else {
-                    logger.info("too many pending pipelines (\(pendingJobs + newJobs))")
-                    return database.eventLoop.future()
-                }
-                logger.info("Finding missing builds for package id: \(pkgId)")
-                return findMissingBuilds(database, packageId: pkgId)
-                    .flatMap { triggers in
-                        guard pendingJobs + newJobs < Current.gitlabPipelineLimit() else {
-                            logger.info("too many pending pipelines (\(pendingJobs + newJobs))")
-                            return database.eventLoop.future()
-                        }
+    AppMetrics.buildPendingJobsCount?.set(pendingJobs)
+    AppMetrics.buildRunningJobsCount?.set(runningJobs)
 
-                        for trigger in triggers {
-                            newJobs += trigger.pairs.count
-                        }
+    let newJobs = ActorIsolated(0)
 
-                        return triggerBuildsUnchecked(on: database,
-                                                      client: client,
-                                                      logger: logger,
-                                                      triggers: triggers)
-                    }
+    await withThrowingTaskGroup(of: Void.self) { group in
+        for pkgId in packages {
+            let allowListed = Current.buildTriggerAllowList().contains(pkgId)
+            let downscalingAccepted = Current.random(0...1) < Current.buildTriggerDownscaling()
+            guard allowListed || downscalingAccepted else {
+                logger.info("Build trigger downscaling in effect - skipping builds")
+                continue
             }
-            .flatten(on: database.eventLoop)
+
+            group.addTask {
+                // check if we have capacity to schedule more builds before querying for builds
+                var newJobCount = await newJobs.value
+                guard pendingJobs + newJobCount < Current.gitlabPipelineLimit() else {
+                    logger.info("too many pending pipelines (\(pendingJobs + newJobCount))")
+                    return
+                }
+
+                logger.info("Finding missing builds for package id: \(pkgId)")
+                let triggers = try await findMissingBuilds(database, packageId: pkgId)
+
+                newJobCount = await newJobs.value
+                guard pendingJobs + newJobCount < Current.gitlabPipelineLimit() else {
+                    logger.info("too many pending pipelines (\(pendingJobs + newJobCount))")
+                    return
+                }
+
+                let triggeredJobCount = triggers.reduce(0) { $0 + $1.pairs.count }
+                await newJobs.withValue { $0 += triggeredJobCount }
+
+                try await triggerBuildsUnchecked(on: database,
+                                                 client: client,
+                                                 logger: logger,
+                                                 triggers: triggers)
+            }
         }
-        .flatMap { trimBuilds(on: database) }
-        .map {
-            AppMetrics.buildTrimCount?.inc($0)
-        }
+    }
+    let deleted = try await trimBuilds(on: database)
+
+    AppMetrics.buildTrimCount?.inc(deleted)
 }
 
 
@@ -256,47 +253,49 @@ func triggerBuilds(on database: Database,
 ///   - client: `Client` used for http request
 ///   - logger: `Logger` used for logging
 ///   - triggers: trigger information for builds to trigger
-/// - Returns: `EventLoopFuture<Void>` future
 func triggerBuildsUnchecked(on database: Database,
                             client: Client,
                             logger: Logger,
-                            triggers: [BuildTriggerInfo]) -> EventLoopFuture<Void> {
-    triggers.flatMap { trigger -> [EventLoopFuture<Void>] in
-        if let packageName = trigger.packageName, let reference = trigger.reference {
-            logger.info("Triggering \(pluralizedCount: trigger.pairs.count, singular: "build") for package name: \(packageName), ref: \(reference)")
-        } else {
-            logger.info("Triggering \(pluralizedCount: trigger.pairs.count, singular: "build") for version ID: \(trigger.versionId)")
-        }
-        return trigger.pairs.map { pair in
-            AppMetrics.buildTriggerCount?.inc(1, .buildTriggerLabels(pair))
-            let buildId: Build.Id = .init()
-            return Build.trigger(database: database,
-                                 client: client,
-                                 logger: logger,
-                                 buildId: buildId,
-                                 platform: pair.platform,
-                                 swiftVersion: pair.swiftVersion,
-                                 versionId: trigger.versionId)
-                .flatMap { response in
+                            triggers: [BuildTriggerInfo]) async throws {
+    await withThrowingTaskGroup(of: Void.self) { group in
+        for trigger in triggers {
+            if let packageName = trigger.packageName, let reference = trigger.reference {
+                logger.info("Triggering \(pluralizedCount: trigger.pairs.count, singular: "build") for package name: \(packageName), ref: \(reference)")
+            } else {
+                logger.info("Triggering \(pluralizedCount: trigger.pairs.count, singular: "build") for version ID: \(trigger.versionId)")
+            }
+
+            for pair in trigger.pairs {
+                group.addTask {
+                    AppMetrics.buildTriggerCount?.inc(1, .buildTriggerLabels(pair))
+                    let buildId = Build.Id()
+
+                    let response = try await Build.trigger(database: database,
+                                                           client: client,
+                                                           logger: logger,
+                                                           buildId: buildId,
+                                                           platform: pair.platform,
+                                                           swiftVersion: pair.swiftVersion,
+                                                           versionId: trigger.versionId).get()
                     guard [HTTPStatus.ok, .created].contains(response.status),
                           let jobUrl = response.webUrl
-                    else { return database.eventLoop.future() }
-                    return Build(id: buildId,
-                                 versionId: trigger.versionId,
-                                 jobUrl: jobUrl,
-                                 platform: pair.platform,
-                                 status: .triggered,
-                                 swiftVersion: pair.swiftVersion)
-                    .create(on: database)
+                    else { return }
+
+                    try await Build(id: buildId,
+                                    versionId: trigger.versionId,
+                                    jobUrl: jobUrl,
+                                    platform: pair.platform,
+                                    status: .triggered,
+                                    swiftVersion: pair.swiftVersion).create(on: database)
                 }
+            }
         }
     }
-    .flatten(on: database.eventLoop)
 }
 
 
 func fetchBuildCandidates(_ database: Database,
-                          withLatestSwiftVersion: Bool = true) -> EventLoopFuture<[Package.Id]> {
+                          withLatestSwiftVersion: Bool = true) async throws -> [Package.Id] {
     guard let db = database as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
@@ -347,9 +346,9 @@ func fetchBuildCandidates(_ database: Database,
         ORDER BY is_prio DESC, MIN(created_at)
         """
 
-    return db.raw(query)
+    return try await db.raw(query)
         .all(decoding: Row.self)
-        .mapEach(\.packageId)
+        .map(\.packageId)
 }
 
 
@@ -416,14 +415,14 @@ func missingPairs(existing: [BuildPair]) -> Set<BuildPair> {
 
 
 func findMissingBuilds(_ database: Database,
-                       packageId: Package.Id) -> EventLoopFuture<[BuildTriggerInfo]> {
-    let versions = Version.query(on: database)
+                       packageId: Package.Id) async throws -> [BuildTriggerInfo] {
+    let versions = try await Version.query(on: database)
         .with(\.$builds)
         .filter(\.$package.$id == packageId)
         .filter(\.$latest != nil)
         .all()
 
-    return versions.mapEachCompact { v in
+    return versions.compactMap { v in
         guard let versionId = v.id else { return nil }
         let existing = v.builds.map { BuildPair($0.platform, $0.swiftVersion) }
         return BuildTriggerInfo(versionId: versionId,
@@ -434,7 +433,7 @@ func findMissingBuilds(_ database: Database,
 }
 
 
-func trimBuilds(on database: Database) -> EventLoopFuture<Int> {
+func trimBuilds(on database: Database) async throws -> Int {
     guard let db = database as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
@@ -443,7 +442,7 @@ func trimBuilds(on database: Database) -> EventLoopFuture<Int> {
         var id: Build.Id
     }
 
-    return db.raw("""
+    return try await db.raw("""
         DELETE
         FROM builds b
         USING versions v
@@ -458,5 +457,5 @@ func trimBuilds(on database: Database) -> EventLoopFuture<Int> {
         RETURNING b.id
         """)
         .all(decoding: Row.self)
-        .map { $0.count }
+        .count
 }
