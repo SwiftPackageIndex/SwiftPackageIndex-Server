@@ -293,21 +293,23 @@ func triggerBuildsUnchecked(on database: Database,
                     } catch {
                         if let error = error as? PostgresError,
                            error.code == .uniqueViolation {
-                            if let build = try await Build.query(on: database,
-                                                                 platform: pair.platform,
-                                                                 swiftVersion: pair.swiftVersion,
-                                                                 versionId: trigger.versionId) {
+                            if let oldBuild = try await Build.query(on: database,
+                                                                    platform: pair.platform,
+                                                                    swiftVersion: pair.swiftVersion,
+                                                                    versionId: trigger.versionId) {
                                 // Fluent doesn't allow modification of the buildId of an existing
                                 // record, therefore we need to delete + create.
                                 let newBuild = Build(id: buildId,
                                                      versionId: trigger.versionId,
-                                                     buildCommand: build.buildCommand,
+                                                     buildCommand: oldBuild.buildCommand,
                                                      jobUrl: jobUrl,
                                                      platform: pair.platform,
                                                      status: .triggered,
                                                      swiftVersion: pair.swiftVersion)
-                                try await build.delete(on: database)
-                                try await newBuild.create(on: database)
+                                try await database.transaction { tx in
+                                    try await oldBuild.delete(on: tx)
+                                    try await newBuild.create(on: tx)
+                                }
                             }
                         } else {
                             throw error
