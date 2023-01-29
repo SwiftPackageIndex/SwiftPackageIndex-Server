@@ -357,7 +357,7 @@ class BuildTriggerTests: AppTestCase {
         // This is how we rountinely manually trigger doc-related builds.
         // This test ensures that the build record is updated in this case rather than
         // being completely ignored because the command errors out.
-        // See
+        // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2237
         // setup
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
