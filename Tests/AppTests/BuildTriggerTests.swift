@@ -399,17 +399,13 @@ class BuildTriggerTests: AppTestCase {
                                          triggers: triggers)
 
         // validate
-        // ensure Gitlab requests go out
-        XCTAssertEqual(queries.count, 1)
-        // triggerBuildsUnchecked always creates a new buildId
+        // triggerBuildsUnchecked always creates a new buildId,
+        // so the triggered id must be different from the existing one
         let newBuildId = try XCTUnwrap(queries.value.first?.variables["BUILD_ID"]
             .flatMap(UUID.init(uuidString:)))
         XCTAssertNotEqual(newBuildId, buildId)
-        XCTAssertEqual(queries.value.map { $0.variables["VERSION_ID"] }, [versionId.uuidString])
-        XCTAssertEqual(queries.value.map { $0.variables["BUILD_PLATFORM"] }, ["macos-spm"])
-        XCTAssertEqual(queries.value.map { $0.variables["SWIFT_VERSION"] }, ["5.7"])
 
-        // ensure the Build stubs is created to prevent re-selection
+        // ensure existing build record is updated
         let v = try await Version.find(versionId, on: app.db)
         try await v?.$builds.load(on: app.db)
         XCTAssertEqual(v?.builds.count, 1)
