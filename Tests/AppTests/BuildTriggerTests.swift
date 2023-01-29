@@ -354,7 +354,7 @@ class BuildTriggerTests: AppTestCase {
         // The only way this can currently happen is by running a manual trigger command
         // from a container in the dev or prod envs (docker exec ...), like so:
         //   ./Run trigger-builds -v {version-id} -p macos-spm -s 5.7
-        // This is how we rountinely manually trigger doc-related builds.
+        // This is how we routinely manually trigger doc-related builds.
         // This test ensures that the build record is updated in this case rather than
         // being completely ignored because the command errors out.
         // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2237
