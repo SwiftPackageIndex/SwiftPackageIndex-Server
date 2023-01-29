@@ -347,6 +347,77 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(candidates, [])
     }
 
+    func test_triggerBuildsUnchecked_build_exists() async throws {
+        // Tests error handling when a build record already exists and `create` raises a
+        // uq:builds.version_id+builds.platform+builds.swift_version+v2
+        // unique key violation.
+        // The only way this can currently happen is by running a manual trigger command
+        // from a container in the dev or prod envs (docker exec ...), like so:
+        //   ./Run trigger-builds -v {version-id} -p macos-spm -s 5.7
+        // This is how we rountinely manually trigger doc-related builds.
+        // This test ensures that the build record is updated in this case rather than
+        // being completely ignored because the command errors out.
+        // See
+        // setup
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
+
+        // Use live dependency but replace actual client with a mock so we can
+        // assert on the details being sent without actually making a request
+        Current.triggerBuild = Gitlab.Builder.triggerBuild
+        let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
+        let client = MockClient { req, res in
+            guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
+            queries.withValue { $0.append(query) }
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+        }
+
+        let buildId = UUID()
+        let versionId = UUID()
+        do {  // save package with a build that we re-trigger
+            let p = Package(id: UUID(), url: "2")
+            try await p.save(on: app.db)
+            let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+            try await v.save(on: app.db)
+            try await Build(id: buildId,
+                            version: v,
+                            platform: .macosSpm,
+                            status: .failed,
+                            swiftVersion: .v5_7).save(on: app.db)
+
+        }
+        let triggers = [BuildTriggerInfo(versionId: versionId,
+                                         pairs: [BuildPair(.macosSpm, .v5_7)])!]
+
+        // MUT
+        try await triggerBuildsUnchecked(on: app.db,
+                                         client: client,
+                                         logger: app.logger,
+                                         triggers: triggers)
+
+        // validate
+        // ensure Gitlab requests go out
+        XCTAssertEqual(queries.count, 1)
+        // triggerBuildsUnchecked always creates a new buildId
+        let newBuildId = try XCTUnwrap(queries.value.first?.variables["BUILD_ID"]
+            .flatMap(UUID.init(uuidString:)))
+        XCTAssertNotEqual(newBuildId, buildId)
+        XCTAssertEqual(queries.value.map { $0.variables["VERSION_ID"] }, [versionId.uuidString])
+        XCTAssertEqual(queries.value.map { $0.variables["BUILD_PLATFORM"] }, ["macos-spm"])
+        XCTAssertEqual(queries.value.map { $0.variables["SWIFT_VERSION"] }, ["5.7"])
+
+        // ensure the Build stubs is created to prevent re-selection
+        let v = try await Version.find(versionId, on: app.db)
+        try await v?.$builds.load(on: app.db)
+        XCTAssertEqual(v?.builds.count, 1)
+        XCTAssertEqual(v?.builds.map(\.id), [newBuildId])
+        XCTAssertEqual(v?.builds.map(\.status), [.triggered])
+        XCTAssertEqual(v?.builds.map(\.jobUrl), ["http://web_url"])
+    }
+
     func test_triggerBuilds_checked() async throws {
         // Ensure we respect the pipeline limit when triggering builds
         // setup
