@@ -99,6 +99,7 @@ class ApiTests: AppTestCase {
         do {  // MUT - initial insert
             let dto: API.PostCreateBuildDTO = .init(
                 buildCommand: "xcodebuild -scheme Foo",
+                buildId: .id0,
                 jobUrl: "https://example.com/jobs/1",
                 logUrl: "log url",
                 platform: .macosXcodebuild,
@@ -137,6 +138,7 @@ class ApiTests: AppTestCase {
         
         do {  // MUT - update of the same record
             let dto: API.PostCreateBuildDTO = .init(
+                buildId: .id0,
                 platform: .macosXcodebuild,
                 resolvedDependencies: [.init(packageName: "foo",
                                              repositoryURL: "http://foo/bar")],
@@ -171,6 +173,7 @@ class ApiTests: AppTestCase {
 
         do {  // MUT - add another build to test Package.platformCompatibility
             let dto: API.PostCreateBuildDTO = .init(
+                buildId: .id0,
                 platform: .ios,
                 resolvedDependencies: [.init(packageName: "foo",
                                              repositoryURL: "http://foo/bar")],
@@ -204,6 +207,7 @@ class ApiTests: AppTestCase {
 
         let dto: API.PostCreateBuildDTO = .init(
             buildCommand: "xcodebuild -scheme Foo",
+            buildId: .id0,
             jobUrl: "https://example.com/jobs/1",
             logUrl: "log url",
             platform: .macosXcodebuild,
@@ -233,7 +237,8 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-        let dto: API.PostCreateBuildDTO = .init(platform: .macosXcodebuild,
+        let dto: API.PostCreateBuildDTO = .init(buildId: .id0,
+                                                platform: .macosXcodebuild,
                                                 status: .ok,
                                                 swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
@@ -271,7 +276,8 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-        let dto: API.PostCreateBuildDTO = .init(platform: .macosXcodebuild,
+        let dto: API.PostCreateBuildDTO = .init(buildId: .id0,
+                                                platform: .macosXcodebuild,
                                                 status: .ok,
                                                 swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
