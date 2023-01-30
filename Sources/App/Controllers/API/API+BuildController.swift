@@ -20,7 +20,7 @@ import Vapor
 extension API {
     
     enum BuildController {
-        static func create(req: Request) async throws -> HTTPStatus {
+        static func buildReport(req: Request) async throws -> HTTPStatus {
             let dto = try req.content.decode(PostCreateBuildDTO.self)
             let version = try await App.Version
                 .find(req.parameters.get("id"), on: req.db)
@@ -30,11 +30,9 @@ extension API {
                   // Find or create build for updating.
                   // We look up by default, because the common case is that a build stub
                   // is present.
-                let build = try await Build.query(on: req.db,
-                                                  platform: dto.platform,
-                                                  swiftVersion: dto.swiftVersion,
-                                                  versionId: version.requireID())
-                ?? Build(version: version,
+                let build = try await Build.find(dto.buildId, on: req.db)
+                ?? Build(id: dto.buildId,
+                         version: version,
                          platform: dto.platform,
                          status: dto.status,
                          swiftVersion: dto.swiftVersion)

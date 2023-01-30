@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 import DependencyResolution
 
 
@@ -23,6 +25,7 @@ extension API {
 
     struct PostCreateBuildDTO: Codable {
         var buildCommand: String?
+        var buildId: UUID
         var docArchives: [DocArchive]?
         var jobUrl: String?
         var logUrl: String?
