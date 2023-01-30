@@ -88,7 +88,7 @@ class ApiTests: AppTestCase {
         })
     }
     
-    func test_post_build() throws {
+    func test_post_buildReport() throws {
         // setup
         Current.builderToken = { "secr3t" }
         let p = try savePackage(on: app.db, "1")
@@ -194,7 +194,7 @@ class ApiTests: AppTestCase {
         }
 
     }
-    func test_post_build_infrastructureError() throws {
+    func test_post_buildReport_infrastructureError() throws {
         // setup
         Current.builderToken = { "secr3t" }
         let p = try savePackage(on: app.db, "1")
@@ -225,7 +225,7 @@ class ApiTests: AppTestCase {
             })
     }
 
-    func test_post_build_unauthenticated() throws {
+    func test_post_buildReport_unauthenticated() throws {
         // Ensure unauthenticated access raises a 401
         // setup
         Current.builderToken = { "secr3t" }
@@ -263,7 +263,7 @@ class ApiTests: AppTestCase {
             })
     }
     
-    func test_post_build_unauthenticated_without_server_token() throws {
+    func test_post_buildReport_unauthenticated_without_server_token() throws {
         // Ensure we don't allow API requests when no token is configured server-side
         // setup
         Current.builderToken = { nil }

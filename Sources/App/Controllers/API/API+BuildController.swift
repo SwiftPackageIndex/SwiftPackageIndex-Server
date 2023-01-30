@@ -20,7 +20,7 @@ import Vapor
 extension API {
     
     enum BuildController {
-        static func create(req: Request) async throws -> HTTPStatus {
+        static func buildReport(req: Request) async throws -> HTTPStatus {
             let dto = try req.content.decode(PostCreateBuildDTO.self)
             let version = try await App.Version
                 .find(req.parameters.get("id"), on: req.db)
