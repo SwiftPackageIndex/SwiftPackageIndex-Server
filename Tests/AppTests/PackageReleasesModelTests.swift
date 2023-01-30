@@ -103,10 +103,7 @@ class PackageReleasesModelTests: AppTestCase {
             """
 
             XCTAssertEqual(PackageReleases.Model.updateDescription(descriptionHTML, replacingTitle: "v1.0.0"),
-                            """
-                            <h2>Header for version 1</h2>
-                            <h2>Second Header for v1.0.0</h2>
-                            """)
+                            "<h2>Header for version 1</h2> \n<h2>Second Header for v1.0.0</h2>")
         }
 
         do { // Supports all header versions (h1-h6)
