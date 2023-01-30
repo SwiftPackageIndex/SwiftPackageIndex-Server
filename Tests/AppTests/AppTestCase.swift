@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,12 +22,12 @@ class AppTestCase: XCTestCase {
     func future<T>(_ value: T) -> EventLoopFuture<T> {
         app.eventLoopGroup.next().future(value)
     }
-    
+
     override func setUp() async throws {
         try await super.setUp()
         app = try await setup(.testing)
     }
-    
+
     override func tearDown() async throws {
         app.shutdown()
         try await super.tearDown()

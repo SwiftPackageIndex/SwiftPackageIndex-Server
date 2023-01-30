@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import SemanticVersion
 enum Reference: Equatable, Hashable {
     case branch(String)
     case tag(SemanticVersion, _ tagName: String)
-    
+
     static func tag(_ semVer: SemanticVersion) -> Self {
         .tag(semVer, "\(semVer)")
     }
@@ -34,9 +34,9 @@ enum Reference: Equatable, Hashable {
             case .tag:    return false
         }
     }
-    
+
     var isTag: Bool { !isBranch }
-    
+
     var semVer: SemanticVersion? {
         switch self {
             case .branch:
@@ -45,7 +45,7 @@ enum Reference: Equatable, Hashable {
                 return v
         }
     }
-    
+
     var isRelease: Bool { semVer?.isStable ?? false }
 
     var branchName: String? {
@@ -82,7 +82,7 @@ extension Reference: Codable {
         var semVer: SemanticVersion
         var tagName: String
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         if let value = try? container.decode(String.self, forKey: .branch) {
@@ -97,7 +97,7 @@ extension Reference: Codable {
             DecodingError.Context(codingPath: container.codingPath,
                                   debugDescription: "none of the required keys found"))
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
@@ -107,7 +107,7 @@ extension Reference: Codable {
                 try container.encode(Tag(semVer: semVer, tagName: tagName), forKey: .tag)
         }
     }
-    
+
     enum CodingKeys: CodingKey, CaseIterable {
         case branch
         case tag

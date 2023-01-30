@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ enum Twitter {
 
     private static let apiUrl: String = "https://api.twitter.com/1.1/statuses/update.json"
     static let tweetMaxLength = 260  // exactly 280 is rejected, plus leave some room for unicode accounting oddities
-    
+
     struct Credentials {
         var apiKey: (key: String, secret: String)
         var accessToken: (key: String, secret: String)

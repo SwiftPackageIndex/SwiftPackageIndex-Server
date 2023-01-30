@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import XCTest
 
 
 class ManifestTests: XCTestCase {
-    
+
     func test_decode_Product_Type() throws {
         // Test product type decoding.
         // JSON snippets via `swift package dump-package` from the following
@@ -36,7 +36,7 @@ class ManifestTests: XCTestCase {
         struct Test: Decodable, Equatable {
             var type: Manifest.ProductType
         }
-        
+
         do { // exe
             let data = Data("""
             {
@@ -93,7 +93,7 @@ class ManifestTests: XCTestCase {
                            .init(type: .test))
         }
     }
-    
+
     func test_decode_basic() throws {
         let data = try fixtureData(for: "manifest-1.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
@@ -175,7 +175,7 @@ class ManifestTests: XCTestCase {
                   type: .library(.automatic)),
         ])
     }
-    
+
     func test_platform_list() throws {
         // Test to ensure the platforms listed in the DTO struct Manifest.Platform.Name
         // do not accidentally diverge from those in the db entity's Platform.Name
@@ -193,4 +193,3 @@ class ManifestTests: XCTestCase {
     }
 
 }
-

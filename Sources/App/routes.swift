@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -171,7 +171,7 @@ func routes(_ app: Application) throws {
             protected.post(SiteURL.api(.packages(.key, .key, .triggerBuilds)).pathComponents,
                            use: API.PackageController.triggerBuilds)
         }
-        
+
         // sas: 2020-05-19: shut down public API until we have an auth mechanism
         //  api.get("packages", use: API.PackageController.index)
         //  api.get("packages", ":id", use: API.PackageController.get)
@@ -181,13 +181,13 @@ func routes(_ app: Application) throws {
         //
         //  api.get("packages", "run", ":command", use: API.PackageController.run)
     }
-    
+
     do {  // RSS + Sitemap
         app.get(SiteURL.rssPackages.pathComponents) { req in
             RSSFeed.recentPackages(on: req.db, limit: Constants.rssFeedMaxItemCount)
                 .map { $0.rss }
         }
-        
+
         app.get(SiteURL.rssReleases.pathComponents) { req -> EventLoopFuture<RSS> in
             var filter: RecentRelease.Filter = []
             for param in ["major", "minor", "patch", "pre"] {
@@ -201,7 +201,7 @@ func routes(_ app: Application) throws {
                                           filter: filter)
                 .map { $0.rss }
         }
-        
+
         app.get(SiteURL.siteMap.pathComponents) { req in
             SiteMap.fetchPackages(req.db)
                 .map(SiteURL.siteMap)

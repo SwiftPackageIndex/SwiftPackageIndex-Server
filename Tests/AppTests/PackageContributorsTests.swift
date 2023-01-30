@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,39 +29,39 @@ class PackageContributorsTests : AppTestCase {
         XCTAssertFalse(noPackageAuthors.hasAuthors)
         XCTAssertTrue(somePackageAuthors.hasAuthors)
     }
-  
+
     func test_CommitSelector_primaryContributors() throws {
-        
+
         let candidates = [PackageContributors.Contributor(numberOfCommits: 10, name: "Tim"),
                           PackageContributors.Contributor(numberOfCommits: 100, name: "John"),
                           PackageContributors.Contributor(numberOfCommits: 900, name: "Maria"),
                           PackageContributors.Contributor(numberOfCommits: 1000, name: "Nathalie")]
-        
+
         // MUT
         let authors = PackageContributors.primaryContributors(candidates: candidates, threshold: 0.6)
-        
+
         XCTAssertEqual(authors.count, 2)
         XCTAssertEqual(authors.map(\.name), ["Maria", "Nathalie"] )
-        
+
     }
-    
-    
+
+
     func test_CommitSelector_primaryContributors_noCandidates() throws {
         // MUT
         let authors = PackageContributors.primaryContributors(candidates: [], threshold: 0.6)
-        
+
         XCTAssertEqual(authors.count, 0)
     }
-    
+
     func test_CommitSelector_filter_singleCandidate() throws {
         // MUT
         let authors = PackageContributors.primaryContributors(candidates: [PackageContributors.Contributor(numberOfCommits: 10, name: "Tim")],
                                                               threshold: 0.6)
-        
+
         XCTAssertEqual(authors.count, 1)
         XCTAssertEqual(authors.map(\.name), ["Tim"] )
     }
-    
+
 
     func test_PackageContributors_extract() async throws {
         // setup
@@ -82,25 +82,25 @@ class PackageContributorsTests : AppTestCase {
               11\tPerson 11
             """
         }
-        
+
         guard let gitCacheDirectoryPath = Current.fileManager.cacheDirectoryPath(for: pkg) else {
             throw AppError.invalidPackageCachePath(pkg.id, pkg.url)
         }
-        
+
         // MUT
         let pkgAuthors = try PackageContributors.extract(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: pkg.id)
-        
+
         XCTAssertEqual(pkgAuthors.authors, [Author(name: "Person 1") ,
                                             Author(name: "Person 2"),
                                             Author(name: "Person 3"),
                                             Author(name: "Person 4"),
                                             Author(name: "Person 5")])
         XCTAssertEqual(pkgAuthors.numberOfContributors, 6)
-        
-    }
-    
-    
-    
 
-    
+    }
+
+
+
+
+
 }

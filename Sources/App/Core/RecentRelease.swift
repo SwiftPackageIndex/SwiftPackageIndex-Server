@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import SQLKit
 
 struct RecentRelease: Decodable, Equatable {
     static let schema = "recent_releases"
-    
+
     // periphery:ignore
     var packageId: UUID
     var repositoryOwner: String
@@ -31,7 +31,7 @@ struct RecentRelease: Decodable, Equatable {
     var releasedAt: Date
     var releaseUrl: String?
     var releaseNotesHTML: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case packageId = "package_id"
         case repositoryOwner = "repository_owner"
@@ -52,7 +52,7 @@ extension RecentRelease {
         }
         return db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
     }
-    
+
     static func filterReleases(_ releases: [RecentRelease], by filter: Filter) -> [RecentRelease] {
         if filter == .all { return releases }
         return releases.filter { recent in
@@ -64,14 +64,14 @@ extension RecentRelease {
             return false
         }
     }
-    
+
     static func fetch(on database: Database,
                       limit: Int = Constants.recentReleasesLimit,
                       filter: Filter = .all) -> EventLoopFuture<[RecentRelease]> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        
+
         return db.raw("SELECT * FROM \(raw: Self.schema) ORDER BY released_at DESC LIMIT \(bind: limit)")
             .all(decoding: RecentRelease.self)
             .map { filterReleases($0, by: filter) }
@@ -82,7 +82,7 @@ extension RecentRelease {
 extension RecentRelease {
     struct Filter: OptionSet {
         let rawValue: Int
-        
+
         static let major = Filter(rawValue: 1 << 0)
         static let minor = Filter(rawValue: 1 << 1)
         static let patch = Filter(rawValue: 1 << 2)

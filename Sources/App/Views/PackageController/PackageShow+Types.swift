@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@ import Plot
 
 
 extension PackageShow.Model {
-    
+
     struct History: Equatable {
         var since: String
         var commitCount: Link
         var releaseCount: Link
     }
-    
+
     struct Activity: Equatable {
         var openIssuesCount: Int
         var openIssues: Link?
@@ -30,31 +30,31 @@ extension PackageShow.Model {
         var lastIssueClosedAt: String?
         var lastPullRequestClosedAt: String?
     }
-    
+
     struct ProductCounts: Equatable {
         var libraries: Int
         var executables: Int
         var plugins: Int
     }
-    
+
     struct ReleaseInfo: Equatable {
         var stable: DatedLink?
         var beta: DatedLink?
         var latest: DatedLink?
     }
-    
+
     struct Version: Equatable {
         var link: Link
         var swiftVersions: [String]
         var platforms: [Platform]
     }
-    
+
     struct LanguagePlatformInfo: Equatable {
         var stable: Version?
         var beta: Version?
         var latest: Version?
     }
-    
+
     struct BuildInfo<T: Equatable>: Equatable {
         var stable: NamedBuildResults<T>?
         var beta: NamedBuildResults<T>?
@@ -70,7 +70,7 @@ extension PackageShow.Model {
             self.latest = latest
         }
     }
-    
+
     enum PlatformCompatibility: BuildResultParameter {
         case ios
         case linux
@@ -124,21 +124,21 @@ extension PackageShow.Model {
             }
         }
     }
-    
+
     struct BuildStatusRow<T: Equatable>: Equatable {
         var references: [Reference]
         var results: T
-        
+
         init(references: [Reference], results: T) {
             self.references = references
             self.results = results
         }
-        
+
         init(namedResult: NamedBuildResults<T>, kind: App.Version.Kind) {
             self.references = [.init(name: namedResult.referenceName, kind: kind)]
             self.results = namedResult.results
         }
-        
+
         var labelParagraphNode: Node<HTML.BodyContext> {
             guard !references.isEmpty else { return .empty }
             return .p(
@@ -148,7 +148,7 @@ extension PackageShow.Model {
             )
         }
     }
-    
+
     struct NamedBuildResults<T: Equatable>: Equatable {
         var referenceName: String
         var results: T
@@ -208,21 +208,21 @@ extension PackageShow.Model {
     struct BuildResult<T: BuildResultParameter>: Equatable {
         var parameter: T
         var status: BuildStatus
-        
+
         var headerNode: Node<HTML.BodyContext> {
             .div(
                 .text(parameter.displayName),
                 .unwrap(parameter.note) { .small(.text("(\($0))")) }
             )
         }
-        
+
         var cellNode: Node<HTML.BodyContext> {
             .div(
                 .class("\(status.cssClass)"),
                 .title(title)
             )
         }
-        
+
         var title: String {
             switch status {
                 case .compatible:
@@ -234,7 +234,7 @@ extension PackageShow.Model {
             }
         }
     }
-    
+
 }
 
 

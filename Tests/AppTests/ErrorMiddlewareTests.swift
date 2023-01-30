@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,16 +19,16 @@ import XCTest
 
 
 class ErrorMiddlewareTests: AppTestCase {
-    
+
     override func setUpWithError() throws {
         try super.setUpWithError()
-        
+
         // set up some test routes
         app.get("ok") { _ in return "ok" }
         app.get("404") { req async throws -> Response in throw Abort(.notFound) }
         app.get("500") { req async throws -> Response in throw Abort(.internalServerError) }
     }
-    
+
     func test_custom_routes() throws {
         // Test to ensure the test routes we've set up in setUpWithError are in effect
         try app.test(.GET, "ok", afterResponse: { response in
@@ -36,7 +36,7 @@ class ErrorMiddlewareTests: AppTestCase {
             XCTAssertEqual(response.body.asString(), "ok")
         })
     }
-    
+
     func test_html_error() throws {
         // Test to ensure errors are converted to html error pages via the ErrorMiddleware
         try app.test(.GET, "404", afterResponse: { response in
@@ -44,7 +44,7 @@ class ErrorMiddlewareTests: AppTestCase {
             XCTAssert(response.body.asString().contains("404 - Not Found"))
         })
     }
-    
+
     func test_status_code() throws {
         // Ensure we're still reporting the actual status code even when serving html pages
         // (Status is important for Google ranking, see
@@ -58,19 +58,19 @@ class ErrorMiddlewareTests: AppTestCase {
             XCTAssertEqual(response.content.contentType, .html)
         })
     }
-    
+
     func test_404_alert() throws {
         // Test to ensure 404s do *not* trigger a Rollbar alert
         var errorReported = false
         Current.reportError = { _, level, error in
             errorReported = true
         }
-        
+
         try app.test(.GET, "404", afterResponse: { response in
             XCTAssertFalse(errorReported)
         })
     }
-    
+
     func test_500_alert() async throws {
         // Test to ensure 500s *do* trigger a Rollbar alert
         let reportedLevel = ActorIsolated<AppError.Level?>(nil)
@@ -79,7 +79,7 @@ class ErrorMiddlewareTests: AppTestCase {
             await reportedLevel.setValue(level)
             await reportedError.setValue(error.localizedDescription)
         }
-        
+
         try await app.test(.GET, "500", afterResponse: { response in
             await reportedLevel.withValue {
                 XCTAssertEqual($0, .critical)
@@ -89,5 +89,5 @@ class ErrorMiddlewareTests: AppTestCase {
                       "error was: \(errorMessage)")
         })
     }
-    
+
 }

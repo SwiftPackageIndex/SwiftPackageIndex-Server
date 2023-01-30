@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+# Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,115 +22,115 @@ requests:
             query: dogs
         validation:
             status: 200
-    /search/distinct:        
+    /search/distinct:
         url: ${base_url}/api/search
         query:
             query: distinct
         validation:
             status: 200
-    /search/hospital:        
+    /search/hospital:
         url: ${base_url}/api/search
         query:
             query: hospital
         validation:
             status: 200
-    /search/organic:        
+    /search/organic:
         url: ${base_url}/api/search
         query:
             query: organic
         validation:
             status: 200
-    /search/crowd:        
+    /search/crowd:
         url: ${base_url}/api/search
         query:
             query: crowd
         validation:
             status: 200
-    /search/second-hand:        
+    /search/second-hand:
         url: ${base_url}/api/search
         query:
             query: second-hand
         validation:
             status: 200
-    /search/noise:        
+    /search/noise:
         url: ${base_url}/api/search
         query:
             query: noise
         validation:
             status: 200
-    /search/argument:        
+    /search/argument:
         url: ${base_url}/api/search
         query:
             query: argument
         validation:
             status: 200
-    /search/bumpy:        
+    /search/bumpy:
         url: ${base_url}/api/search
         query:
             query: bumpy
         validation:
             status: 200
-    /search/exciting:        
+    /search/exciting:
         url: ${base_url}/api/search
         query:
             query: exciting
         validation:
             status: 200
-    /search/dreary:        
+    /search/dreary:
         url: ${base_url}/api/search
         query:
             query: dreary
         validation:
             status: 200
-    /search/large:        
+    /search/large:
         url: ${base_url}/api/search
         query:
             query: large
         validation:
             status: 200
-    /search/superb:        
+    /search/superb:
         url: ${base_url}/api/search
         query:
             query: superb
         validation:
             status: 200
-    /search/improve:        
+    /search/improve:
         url: ${base_url}/api/search
         query:
             query: improve
         validation:
             status: 200
-    /search/skin:        
+    /search/skin:
         url: ${base_url}/api/search
         query:
             query: skin
         validation:
             status: 200
-    /search/button:        
+    /search/button:
         url: ${base_url}/api/search
         query:
             query: button
         validation:
             status: 200
-    /search/weight:        
+    /search/weight:
         url: ${base_url}/api/search
         query:
             query: weight
         validation:
             status: 200
-    /search/forgetful:        
+    /search/forgetful:
         url: ${base_url}/api/search
         query:
             query: forgetful
         validation:
             status: 200
-    /search/tawdry:        
+    /search/tawdry:
         url: ${base_url}/api/search
         query:
             query: tawdry
         validation:
             status: 200
-    /search/wing:        
+    /search/wing:
         url: ${base_url}/api/search
         query:
             query: wing

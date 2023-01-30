@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import Vapor
 // https://github.com/brokenhandsio/leaf-error-middleware
 
 final class ErrorMiddleware: AsyncMiddleware {
-    
+
     func respond(to req: Request, chainingTo next: AsyncResponder) async throws -> Response {
         do {
             return try await next.respond(to: req)

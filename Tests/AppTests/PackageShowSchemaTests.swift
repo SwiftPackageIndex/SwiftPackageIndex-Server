@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ class PackageShowSchemaTests: SnapshotTestCase {
             dateModified: Date(timeIntervalSinceReferenceDate: 0),
             keywords: ["foo", "bar", "baz"]
         )
-        
+
         XCTAssertEqual(schema.context, "https://schema.org")
         XCTAssertEqual(schema.type, "SoftwareSourceCode")
         XCTAssertEqual(schema.identifier, "Owner/Name")
@@ -43,13 +43,13 @@ class PackageShowSchemaTests: SnapshotTestCase {
         XCTAssertEqual(schema.datePublished, Date(timeIntervalSince1970: 0))
         XCTAssertEqual(schema.dateModified, Date(timeIntervalSinceReferenceDate: 0))
         XCTAssertEqual(schema.keywords, ["foo", "bar", "baz"])
-        
+
         XCTAssertEqual(schema.sourceOrganization.type, "Organization")
         XCTAssertEqual(schema.sourceOrganization.legalName, "OrganisationName")
-        
+
         XCTAssertEqual(schema.programmingLanguage.type, "ComputerLanguage")
         XCTAssertEqual(schema.programmingLanguage.name, "Swift")
         XCTAssertEqual(schema.programmingLanguage.url, "https://swift.org/")
     }
-    
+
 }

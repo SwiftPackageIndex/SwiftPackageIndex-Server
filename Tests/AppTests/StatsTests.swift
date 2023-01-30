@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import XCTVapor
 
 
 class StatsTests: AppTestCase {
-    
+
     func test_fetch() throws {
         // setup
         do {
@@ -30,12 +30,12 @@ class StatsTests: AppTestCase {
             try pkg.save(on: app.db).wait()
         }
         try Stats.refresh(on: app.db).wait()
-        
+
         // MUT
         let res = try Stats.fetch(on: app.db).wait()
-        
+
         // validate
         XCTAssertEqual(res, .some(.init(packageCount: 2)))
     }
-    
+
 }

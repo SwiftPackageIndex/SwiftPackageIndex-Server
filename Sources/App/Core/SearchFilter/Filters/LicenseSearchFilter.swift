@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ struct LicenseSearchFilter: SearchFilterProtocol {
         guard let filterType = FilterType(rawValue: expression.value.lowercased()) else {
             throw SearchFilterError.invalidValueType
         }
-        
+
         let predicateOperator: SearchFilter.PredicateOperator
         switch expression.operator {
             case .is:

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+# Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,5 +16,5 @@
 
 for filename in Resources/SVGs/*.svg; do
   [ -e "$filename" ] || continue
-  base64 -i "$filename" -o "${filename}".base64  
+  base64 -i "$filename" -o "${filename}".base64
 done

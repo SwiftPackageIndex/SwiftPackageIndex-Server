@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ func _resetDb(_ app: Application) async throws {
     guard let db = app.db as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
-    
+
     guard let tables = tableNamesCache else {
         struct Row: Decodable { var table_name: String }
         tableNamesCache = try await db.raw("""
@@ -72,7 +72,7 @@ func _resetDb(_ app: Application) async throws {
         }
         return
     }
-    
+
     for table in tables {
         try await db.raw("TRUNCATE TABLE \(raw: table) CASCADE").run()
     }
@@ -146,21 +146,21 @@ func fetch(id: Package.Id?, on db: Database, file: StaticString = #file, line: U
 class MockClient: Client {
     let eventLoopGroup: EventLoopGroup
     var updateResponse: (ClientRequest, inout ClientResponse) -> Void
-    
+
     func send(_ request: ClientRequest) -> EventLoopFuture<ClientResponse> {
         var response = ClientResponse()
         updateResponse(request, &response)
         return eventLoop.makeSucceededFuture(response)
     }
-    
+
     var eventLoop: EventLoop {
         eventLoopGroup.next()
     }
-    
+
     func delegating(to eventLoop: EventLoop) -> Client {
         self
     }
-    
+
     init(_ updateResponse: @escaping (ClientRequest, inout ClientResponse) -> Void) {
         self.eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
         self.updateResponse = updateResponse

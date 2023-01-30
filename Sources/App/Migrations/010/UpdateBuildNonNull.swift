@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ struct UpdateBuildNonNull: Migration {
             .unique(on: "version_id", "platform", "swift_version")
             .update()
     }
-    
+
     func revert(on database: Database) -> EventLoopFuture<Void> {
         database.schema("builds")
             .deleteField("platform").field("platform", .json)

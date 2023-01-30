@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ enum Search {
     static let tsquery = SQLIdentifier("tsquery")
     static let hasExactWordMatches = SQLIdentifier("has_exact_word_matches")
     static let tsvector = SQLIdentifier("tsvector")
-    
+
     static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
     static let nullBool = SQLRaw("NULL::BOOL")
@@ -97,7 +97,7 @@ enum Search {
             case keywords
             case hasDocs = "has_docs"
         }
-        
+
         var packageURL: String? {
             guard
                 let owner = repositoryOwner,
@@ -366,11 +366,11 @@ enum Search {
                       pageSize: Int) -> EventLoopFuture<Search.Response> {
         let page = page.clamped(to: 1...)
         let (sanitizedTerms, filters) = SearchFilter.split(terms: sanitize(terms))
-        
+
         // Metrics
         AppMetrics.searchTermsCount?.set(sanitizedTerms.count)
         AppMetrics.searchFiltersCount?.set(filters.count)
-        
+
         guard let query = query(database,
                                 sanitizedTerms,
                                 filters: filters,
@@ -395,7 +395,7 @@ enum Search {
                                        results: Array(results.prefix(keep)))
             }
     }
-    
+
     static func refresh(on database: Database) -> EventLoopFuture<Void> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")

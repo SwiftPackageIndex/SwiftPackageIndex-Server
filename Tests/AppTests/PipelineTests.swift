@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import XCTest
 // - processing stage recording
 // - error recording
 class PipelineTests: AppTestCase {
-    
+
     func test_fetchCandidates_ingestion_fifo() throws {
         // oldest first
         try [
@@ -36,7 +36,7 @@ class PipelineTests: AppTestCase {
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
         XCTAssertEqual(batch.map(\.model.url), ["1", "2"])
     }
-    
+
     func test_fetchCandidates_ingestion_limit() throws {
         try [
             Package(url: "1", status: .ok, processingStage: .reconciliation),
@@ -47,7 +47,7 @@ class PipelineTests: AppTestCase {
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 1).wait()
         XCTAssertEqual(batch.map(\.model.url), ["1"])
     }
-    
+
     func test_fetchCandidates_ingestion_correct_stage() throws {
         // only pick up from reconciliation stage
         try [
@@ -58,7 +58,7 @@ class PipelineTests: AppTestCase {
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
         XCTAssertEqual(batch.map(\.model.url), ["2"])
     }
-    
+
     func test_fetchCandidates_ingestion_prefer_new() throws {
         // make sure records with status = new come first, then least recent
         try [
@@ -71,7 +71,7 @@ class PipelineTests: AppTestCase {
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
         XCTAssertEqual(batch.map(\.model.url), ["2", "1", "3"])
     }
-    
+
     func test_fetchCandidates_ingestion_eventual_refresh() throws {
         // Make sure packages in .analysis stage get re-ingested after a while to
         // check for upstream package changes
@@ -116,7 +116,7 @@ class PipelineTests: AppTestCase {
         let batch = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
         XCTAssertEqual(batch.map(\.model.url), ["3"])
     }
-    
+
     func test_fetchCandidates_analysis_prefer_new() throws {
         // Test pick up from ingestion stage with status = new first, then FIFO
         try [
@@ -128,7 +128,7 @@ class PipelineTests: AppTestCase {
         let batch = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
         XCTAssertEqual(batch.map(\.model.url), ["4", "1", "2", "3"])
     }
-    
+
     func test_processing_pipeline() async throws {
         // Test pipeline pick-up end to end
         // setup
@@ -154,10 +154,10 @@ class PipelineTests: AppTestCase {
             }
             return ""
         }
-        
+
         // MUT - first stage
         try await reconcile(client: app.client, database: app.db)
-        
+
         do {  // validate
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
@@ -165,10 +165,10 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.processingStage), [.reconciliation, .reconciliation, .reconciliation])
             XCTAssertEqual(packages.map(\.isNew), [true, true, true])
         }
-        
+
         // MUT - second stage
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
-        
+
         do { // validate
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
@@ -176,13 +176,13 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
             XCTAssertEqual(packages.map(\.isNew), [true, true, true])
         }
-        
+
         // MUT - third stage
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
                                   mode: .limit(10))
-        
+
         do { // validate
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
@@ -190,13 +190,13 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
             XCTAssertEqual(packages.map(\.isNew), [false, false, false])
         }
-        
+
         // Now we've got a new package and a deletion
         Current.fetchPackageList = { _ in ["1", "3", "4"].asGithubUrls.asURLs }
-        
+
         // MUT - reconcile again
         try await reconcile(client: app.client, database: app.db)
-        
+
         do {  // validate - only new package moves to .reconciliation stage
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
@@ -204,10 +204,10 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .reconciliation])
             XCTAssertEqual(packages.map(\.isNew), [false, false, true])
         }
-        
+
         // MUT - ingest again
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
-        
+
         do {  // validate - only new package moves to .ingestion stage
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
@@ -215,14 +215,14 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .ingestion])
             XCTAssertEqual(packages.map(\.isNew), [false, false, true])
         }
-        
+
         // MUT - analyze again
         let lastAnalysis = Current.date()
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
                                   mode: .limit(10))
-        
+
         do {  // validate - only new package moves to .ingestion stage
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
@@ -231,13 +231,13 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map { $0.updatedAt! > lastAnalysis }, [false, false, true])
             XCTAssertEqual(packages.map(\.isNew), [false, false, false])
         }
-        
+
         // fast forward our clock by the deadtime interval
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
-        
+
         // MUT - ingest yet again
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
-        
+
         do {  // validate - now all three packages should have been updated
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
@@ -245,13 +245,13 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
             XCTAssertEqual(packages.map(\.isNew), [false, false, false])
         }
-        
+
         // MUT - re-run analysis to complete the sequence
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
                                   mode: .limit(10))
-        
+
         do {  // validate - only new package moves to .ingestion stage
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
@@ -259,9 +259,9 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
             XCTAssertEqual(packages.map(\.isNew), [false, false, false])
         }
-        
+
         // at this point we've ensured that retriggering ingestion after the deadtime will
         // refresh analysis as expected
     }
-    
+
 }

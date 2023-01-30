@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,24 +17,24 @@ import Vapor
 
 
 extension API {
-    
+
     // periphery:ignore
     enum PackageController {
 
         static func index(req: Request) throws -> EventLoopFuture<[Package]> {
             return Package.query(on: req.db).all()
         }
-        
+
         static func create(req: Request) throws -> EventLoopFuture<Package> {
             let pkg = try req.content.decode(Package.self)
             return pkg.save(on: req.db).map { pkg }
         }
-        
+
         static func get(req: Request) throws -> EventLoopFuture<Package> {
             return Package.find(req.parameters.get("id"), on: req.db)
                 .unwrap(or: Abort(.notFound))
         }
-        
+
         static func replace(req: Request) throws -> EventLoopFuture<HTTPStatus> {
             let pkg = try req.content.decode(Package.self)
             return Package.find(req.parameters.get("id"), on: req.db)
@@ -42,14 +42,14 @@ extension API {
                 .flatMap { _ in pkg.save(on: req.db) }
                 .transform(to: .ok)
         }
-        
+
         static func delete(req: Request) throws -> EventLoopFuture<HTTPStatus> {
             return Package.find(req.parameters.get("id"), on: req.db)
                 .unwrap(or: Abort(.notFound))
                 .flatMap { $0.delete(on: req.db) }
                 .transform(to: .ok)
         }
-        
+
         static func triggerBuilds(req: Request) throws -> EventLoopFuture<HTTPStatus> {
             guard
                 let owner = req.parameters.get("owner"),
@@ -75,7 +75,7 @@ extension API {
                     ? .ok : .badRequest
                 }
         }
-        
+
         static func run(req: Request) async throws -> Command.Response {
             let cmd = req.parameters.get("command")
                 .flatMap(Command.init(rawValue:))
@@ -133,7 +133,7 @@ extension API.PackageController {
         case reconcile
         case ingest
         case analyze
-        
+
         struct Response: Content {
             var status: String
             var rows: Int

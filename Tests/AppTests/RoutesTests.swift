@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ final class RoutesTests: AppTestCase {
             // embed uri.path in the body as a simple way to test the requested url
             .init(status: .ok, body: .init(string: uri.path))
         }
-        
+
         // MUT
         try app.test(.GET, "foo/bar/1.2.3/images/baz.png") {
             // validation

@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ import XCTVapor
 
 
 class ApiTests: AppTestCase {
-    
+
     func test_version() throws {
         try app.test(.GET, "api/version", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(try res.content.decode(API.Version.self), API.Version(version: "Unknown"))
         })
     }
-    
+
     func test_search_noQuery() throws {
         try app.test(.GET, "api/search", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
@@ -38,7 +38,7 @@ class ApiTests: AppTestCase {
                                  results: []))
         })
     }
-    
+
     func test_search_basic_param() throws {
         // setup
         let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
@@ -60,7 +60,7 @@ class ApiTests: AppTestCase {
         try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
         try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-        
+
         // MUT
         try app.test(.GET, "api/search?query=foo%20bar", afterResponse: { res in
             // validation
@@ -87,7 +87,7 @@ class ApiTests: AppTestCase {
             )
         })
     }
-    
+
     func test_post_buildReport() throws {
         // setup
         Current.builderToken = { "secr3t" }
@@ -95,7 +95,7 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p, latest: .defaultBranch)
         try v.save(on: app.db).wait()
         let versionId = try v.requireID()
-        
+
         do {  // MUT - initial insert
             let dto: API.PostCreateBuildDTO = .init(
                 buildCommand: "xcodebuild -scheme Foo",
@@ -136,7 +136,7 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(p.platformCompatibility, [])
                 })
         }
-        
+
         do {  // MUT - update of the same record
             let dto: API.PostCreateBuildDTO = .init(
                 buildId: .id0,
@@ -244,7 +244,7 @@ class ApiTests: AppTestCase {
                                                 status: .ok,
                                                 swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-        
+
         // MUT - no auth header
         try app.test(
             .POST,
@@ -256,7 +256,7 @@ class ApiTests: AppTestCase {
                 XCTAssertEqual(res.status, .unauthorized)
                 XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
             })
-        
+
         // MUT - wrong token
         try app.test(
             .POST,
@@ -269,7 +269,7 @@ class ApiTests: AppTestCase {
                 XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
             })
     }
-    
+
     func test_post_buildReport_unauthenticated_without_server_token() throws {
         // Ensure we don't allow API requests when no token is configured server-side
         // setup
@@ -283,7 +283,7 @@ class ApiTests: AppTestCase {
                                                 status: .ok,
                                                 swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-        
+
         // MUT - no auth header
         try app.test(
             .POST,
@@ -295,7 +295,7 @@ class ApiTests: AppTestCase {
                 XCTAssertEqual(res.status, .unauthorized)
                 XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
             })
-        
+
         // MUT - with auth header
         try app.test(
             .POST,
@@ -320,7 +320,7 @@ class ApiTests: AppTestCase {
         let versionId = try XCTUnwrap(v.id)
         let dto: API.PostBuildTriggerDTO = .init(platform: .macosXcodebuild, swiftVersion: .init(5, 2, 4))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-        
+
         // we're testing the exact Gitlab trigger post request in detail in
         // GitlabBuilderTests - so here we just ensure a request is being made
         var requestSent = false
@@ -330,7 +330,7 @@ class ApiTests: AppTestCase {
                 .init(status: .ok, webUrl: "http://web_url")
             )
         }
-        
+
         // MUT
         try app.test(
             .POST,
@@ -342,7 +342,7 @@ class ApiTests: AppTestCase {
                 XCTAssertTrue(requestSent)
             })
     }
-    
+
     func test_post_build_trigger_protected() throws {
         // Ensure unauthenticated access raises a 401
         // setup
@@ -353,7 +353,7 @@ class ApiTests: AppTestCase {
         let versionId = try XCTUnwrap(v.id)
         let dto: API.PostBuildTriggerDTO = .init(platform: .macosXcodebuild, swiftVersion: .init(5, 2, 4))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-        
+
         // MUT - no auth header
         try app.test(
             .POST,
@@ -364,7 +364,7 @@ class ApiTests: AppTestCase {
                 // validation
                 XCTAssertEqual(res.status, .unauthorized)
             })
-        
+
         // MUT - wrong token
         try app.test(
             .POST,
@@ -430,7 +430,7 @@ class ApiTests: AppTestCase {
         let repo = "bar"
         let dto: API.PostBuildTriggerDTO = .init(platform: .macosXcodebuild, swiftVersion: .init(5, 2, 4))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-        
+
         // we're testing the exact Gitlab trigger post request in detail in
         // GitlabBuilderTests - so here we just ensure two requests are being
         // made (one for each version to build)
@@ -453,7 +453,7 @@ class ApiTests: AppTestCase {
                 XCTAssertEqual(requestsSent, 2)
             })
     }
-    
+
     func test_post_build_trigger_package_name_protected() throws {
         // Test POST /packages/{owner}/{repo}/trigger-builds
         // Ensure unauthenticated access raises a 401
@@ -467,12 +467,12 @@ class ApiTests: AppTestCase {
         let repo = "repo"
         let dto: API.PostBuildTriggerDTO = .init(platform: .macosXcodebuild, swiftVersion: .init(5, 2, 4))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-        
+
         var requestsSent = 0
         app.clients.use( { _ in MockClient { req, _ in
             requestsSent += 1
         }})
-        
+
         // MUT - no auth header
         try app.test(
             .POST,

@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import Vapor
 
 
 extension API {
-    
+
     enum BuildController {
         static func buildReport(req: Request) async throws -> HTTPStatus {
             let dto = try req.content.decode(PostCreateBuildDTO.self)

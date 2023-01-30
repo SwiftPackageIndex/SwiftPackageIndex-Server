@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ class GitlabBuilderTests: XCTestCase {
         Current.siteURL = { "http://example.com" }
         let buildId = UUID()
         let versionID = UUID()
-        
+
         var called = false
         let client = MockClient { req, res in
             called = true
@@ -69,7 +69,7 @@ class GitlabBuilderTests: XCTestCase {
                                 "VERSION_ID": versionID.uuidString,
                             ]))
         }
-        
+
         // MUT
         _ = try Gitlab.Builder.triggerBuild(client: client,
                                             logger: Logger(label: "test"),

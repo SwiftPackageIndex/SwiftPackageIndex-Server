@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 // limitations under the License.
 
 enum License: String, Codable, Equatable, CaseIterable {
-    
+
     // This is not an exhaustive list, but includes most commonly used license types
     case afl_3_0 = "afl-3.0"
     case apache_2_0 = "apache-2.0"
@@ -46,11 +46,11 @@ enum License: String, Codable, Equatable, CaseIterable {
     case ncsa
     case unlicense // NB: This is an actual license and *not* a typo of "unlicensed"
     case zlib
-    
+
     // These are special cases, not license types
     case other // An unknown or unidentified license
     case none // Actually unlicensed code!
-    
+
     var fullName: String {
         switch self {
             case .afl_3_0: return "Academic Free License v3.0"
@@ -84,12 +84,12 @@ enum License: String, Codable, Equatable, CaseIterable {
             case .ncsa: return "University of Illinois/NCSA Open Source License"
             case .unlicense: return "The Unlicense"
             case .zlib: return "zLib License"
-                
+
             case .other: return "Unknown or Unrecognised License"
             case .none: return "No License"
         }
     }
-    
+
     var shortName: String {
         switch self {
             case .afl_3_0: return "AFL 3.0"
@@ -123,12 +123,12 @@ enum License: String, Codable, Equatable, CaseIterable {
             case .ncsa: return "NCSA"
             case .unlicense: return "The Unlicense"
             case .zlib: return "zLib"
-                
+
             case .other: return "Unknown license"
             case .none: return "No license"
         }
     }
-    
+
     var licenseKind: Kind {
         switch self {
             case .other:
@@ -145,13 +145,13 @@ enum License: String, Codable, Equatable, CaseIterable {
             default: return .compatibleWithAppStore
         }
     }
-    
+
     enum Kind: String {
         case none
         case other
         case incompatibleWithAppStore = "incompatible"
         case compatibleWithAppStore = "compatible"
-        
+
         var userFacingString: String {
             switch self {
             case .none: return "not defined"

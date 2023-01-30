@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@ import Vapor
 
 struct User: Authenticatable {
     var name: String
-    
+
     static var builder: Self { .init(name: "builder") }
-    
+
     struct TokenAuthenticator: BearerAuthenticator {
         func authenticate(bearer: BearerAuthorization, for request: Request) -> EventLoopFuture<Void> {
             if

@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@ import SQLKit
 
 
 extension SiteURL {
-    
+
     static var staticRoutes: [SiteURL] = [
         .faq, .home, .privacy
     ]
-    
+
     static func siteMap(with packages: [SiteMap.Package]) -> SiteMap {
         .init(
             .forEach(staticRoutes) {
@@ -55,7 +55,7 @@ extension SiteURL {
             }
         )
     }
-    
+
     var changefreq: SiteMapChangeFrequency {
         switch self {
             case .addAPackage:
@@ -102,7 +102,7 @@ extension SiteURL {
                 return .monthly
         }
     }
-    
+
 }
 
 
@@ -111,19 +111,19 @@ extension SiteMap {
         var owner: String
         var repository: String
         var hasDocs: Bool? = nil
-        
+
         enum CodingKeys: String, CodingKey {
             case owner = "owner"
             case repository = "name"
             case hasDocs = "has_docs"
         }
     }
-    
+
     static func fetchPackages(_ database: Database) -> EventLoopFuture<[Package]> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        
+
         // Drive sitemap from the search view for two reasons:
         // 1) access is fast
         // 2) packages listed are valid for presentation
@@ -134,7 +134,7 @@ extension SiteMap {
             .from(Search.searchView)
             .orderBy(Search.repoName)
             .orderBy(Search.repoOwner)
-        
+
         return query.all(decoding: Package.self)
     }
 }

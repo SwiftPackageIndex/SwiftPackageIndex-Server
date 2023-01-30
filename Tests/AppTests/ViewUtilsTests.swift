@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import XCTest
 
 
 class ViewUtilsTests: XCTestCase {
-    
+
     func test_listPhrase() throws {
         // test listing 2 and 3 values
         XCTAssertEqual(listPhrase(nodes: ["A", "B"]).render(),

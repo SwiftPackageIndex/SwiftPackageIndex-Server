@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,18 +21,18 @@ struct CreateProduct: Migration {
             .id()
             .field("created_at", .datetime)
             .field("updated_at", .datetime)
-            
+
             // reference fields
             .field("version_id", .uuid,
                    .references("versions", "id", onDelete: .cascade))
-            
+
             // data fields
             .field("name", .string, .required)
             .field("type", .string, .required)
-            
+
             .create()
     }
-    
+
     func revert(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("products").delete()
     }

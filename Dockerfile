@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+# Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ FROM registry.gitlab.com/finestructure/spi-base:0.9.2 as build
 WORKDIR /build
 
 # First just resolve dependencies.
-# This creates a cached layer that can be reused 
+# This creates a cached layer that can be reused
 # as long as your Package.swift/Package.resolved
 # files do not change.
 COPY ./Package.* ./

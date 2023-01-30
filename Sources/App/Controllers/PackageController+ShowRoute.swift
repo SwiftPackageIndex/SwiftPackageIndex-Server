@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -119,7 +119,7 @@ extension PackageController {
                 .first(decoding: Record.self)
         }
     }
-    
+
     enum ProductCount {
         static func query(on database: Database, owner: String, repository: String) async throws -> [ProductType] {
             try await Joined4<Package, Repository, Version, Product>

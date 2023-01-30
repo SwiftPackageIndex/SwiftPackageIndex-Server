@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ struct UpdateVersionAddHasBinaryTargets: AsyncMigration {
             .field("has_binary_targets", .bool, .sql(.default(false)), .required)
             .update()
     }
-    
+
     func revert(on database: Database) async throws {
         try await database.schema("versions")
             .deleteField("has_binary_targets")

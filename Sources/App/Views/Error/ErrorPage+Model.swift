@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@ import Vapor
 import Plot
 
 extension ErrorPage {
-    
+
     struct Model {
         let error: AbortError
-        
+
         init(_ error: AbortError) {
             self.error = error
         }
-        
+
         var errorMessage: String {
             get {
                 var message = "\(error.status.code) - \(error.status.reasonPhrase)"
@@ -33,7 +33,7 @@ extension ErrorPage {
                 return message
             }
         }
-        
+
         var errorInstructions: Node<HTML.BodyContext> {
             get {
                 switch error.status.code {
@@ -52,5 +52,5 @@ extension ErrorPage {
             }
         }
     }
-    
+
 }

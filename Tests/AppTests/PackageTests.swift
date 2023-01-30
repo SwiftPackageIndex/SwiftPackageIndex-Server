@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(Package(url: "file://foo").cacheDirectoryName, nil)
         XCTAssertEqual(Package(url: "http:///foo/bar").cacheDirectoryName, nil)
     }
-    
+
     func test_save_status() throws {
         do {  // default status
             let pkg = Package()  // avoid using init with default argument in order to test db default
@@ -75,14 +75,14 @@ final class PackageTests: AppTestCase {
             XCTAssertEqual(pkg.status, .ok)
         }
     }
-    
+
     func test_encode() throws {
         let p = Package(id: UUID(), url: URL(string: "https://github.com/finestructure/Arena")!)
         p.status = .ok
         let data = try JSONEncoder().encode(p)
         XCTAssertTrue(!data.isEmpty)
     }
-    
+
     func test_decode_date() throws {
         let json = """
         {
@@ -105,12 +105,12 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(p.updatedAt, Date(timeIntervalSince1970: 1))
         XCTAssertEqual(p.platformCompatibility, [.ios, .macos])
     }
-    
+
     func test_unique_url() throws {
         try Package(url: "p1").save(on: app.db).wait()
         XCTAssertThrowsError(try Package(url: "p1").save(on: app.db).wait())
     }
-    
+
     func test_filter_by_url() throws {
         try ["https://foo.com/1", "https://foo.com/2"].forEach {
             try Package(url: $0).save(on: app.db).wait()
@@ -118,7 +118,7 @@ final class PackageTests: AppTestCase {
         let res = try Package.query(on: app.db).filter(by: "https://foo.com/1").all().wait()
         XCTAssertEqual(res.map(\.url), ["https://foo.com/1"])
     }
-    
+
     func test_repository() throws {
         let pkg = try savePackage(on: app.db, "1")
         do {
@@ -132,7 +132,7 @@ final class PackageTests: AppTestCase {
             XCTAssertEqual(pkg.repositories.first, repo)
         }
     }
-    
+
     func test_versions() throws {
         let pkg = try savePackage(on: app.db, "1")
         let versions = [

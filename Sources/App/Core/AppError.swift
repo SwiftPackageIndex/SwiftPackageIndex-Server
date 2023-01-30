@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@ enum AppError: LocalizedError {
     case metadataRequestFailed(Package.Id?, HTTPStatus, URI)
     case noValidVersions(Package.Id?, _ url: String)
     case shellCommandFailed(_ command: String, _ path: String, _ message: String)
-    
+
     case genericError(Package.Id?, _ message: String)
-    
+
     var localizedDescription: String {
         switch self {
             case let .analysisError(id, message):
@@ -59,11 +59,11 @@ enum AppError: LocalizedError {
                 return "Error: \(value) (id: \(id))"
         }
     }
-    
+
     var errorDescription: String? {
         localizedDescription
     }
-    
+
     enum Level: String, Codable, CaseIterable {
         case critical
         case error

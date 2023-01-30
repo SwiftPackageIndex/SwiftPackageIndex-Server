@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ enum Rollbar {
             )
         }
     }
-    
+
     static var rollbarURI: URI { URI("https://api.rollbar.com/api/1/item/") }
 }
 
@@ -44,13 +44,13 @@ extension Rollbar {
         let accessToken: String
         // periphery:ignore
         let data: Data
-        
+
         // periphery:ignore
         enum CodingKeys: String, CodingKey {
             case accessToken = "access_token"
             case data
         }
-        
+
         init(accessToken: String, environment: Environment, level: Level, message: String) {
             #if DEBUG
             // always pin to testing for debug builds, so we don't ever risk polluting prod
@@ -63,7 +63,7 @@ extension Rollbar {
                               body: .init(message: message),
                               level: level)
         }
-        
+
         struct Data: Content {
             var environment: String
             var body: Body
@@ -71,28 +71,28 @@ extension Rollbar {
             var language = "swift"
             var framework = "vapor"
             var uuid = UUID().uuidString
-            
+
             struct Body: Content {
                 // periphery:ignore
                 var message: Message
-                
+
                 init(message: String) {
                     self.message = .init(body: message)
                 }
-                
+
                 struct Message: Content {
                     let body: String
                 }
             }
         }
-        
+
         enum Level: String, Codable {
             case critical
             case error
             case warning
             case info
             case debug
-            
+
             init(level: AppError.Level) {
                 switch level {
                     case .critical: self = .critical

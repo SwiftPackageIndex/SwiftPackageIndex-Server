@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import XCTest
 
 
 class GithubTests: AppTestCase {
-    
+
     func test_parseOwnerName() throws {
         do {
             let res = try Github.parseOwnerName(url: "https://github.com/foo/bar")
@@ -163,7 +163,7 @@ class GithubTests: AppTestCase {
             }
         }
     }
-    
+
     func test_fetchMetadata_badData() async throws {
         // setup
         Current.githubToken = { "secr3t" }
@@ -185,7 +185,7 @@ class GithubTests: AppTestCase {
             }
         }
     }
-    
+
     func test_fetchMetadata_rateLimiting_429() async throws {
         // Github doesn't actually send a 429 when you hit the rate limit
         // setup
@@ -207,7 +207,7 @@ class GithubTests: AppTestCase {
             }
         }
     }
-    
+
     func test_isRateLimited() throws {
         do {
             let res = ClientResponse(status: .forbidden,
@@ -235,7 +235,7 @@ class GithubTests: AppTestCase {
             XCTAssertFalse(Github.isRateLimited(res))
         }
     }
-    
+
     func test_fetchMetadata_rateLimiting_403() async throws {
         // Github sends a 403 and a rate limit remaining header
         //   X-RateLimit-Limit: 60
@@ -254,7 +254,7 @@ class GithubTests: AppTestCase {
             reportedLevel = level
             reportedError = error
         }
-        
+
         // MUT
         do {
             _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)

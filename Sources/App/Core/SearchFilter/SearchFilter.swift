@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 
 enum SearchFilter {
-    
+
     /// Separates search terms from filter syntax.
     ///
     /// A "filter syntax" is a part of the user input which is a set of instructions to the search controller to filter the results by. "Search terms" is anything which is not
@@ -31,7 +31,7 @@ enum SearchFilter {
             }
         }
     }
-    
+
     /// Attempts to identify the appropriate `SearchFilter` for the provided term. If it does not match our filter syntax, then this will return `nil` and it should
     /// be treated as a search term.
     static func parse(filterTerm: String) -> SearchFilterProtocol? {
@@ -49,7 +49,7 @@ enum SearchFilter {
 
         return try? key.searchFilter.init(expression: expression)
     }
-    
+
 }
 
 
@@ -57,4 +57,3 @@ enum SearchFilterError: Error {
     case invalidValueType
     case unsupportedComparisonMethod
 }
-

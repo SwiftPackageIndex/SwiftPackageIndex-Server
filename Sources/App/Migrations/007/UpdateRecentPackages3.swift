@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import SQLKit
 
 struct UpdateRecentPackages3: Migration {
     let dropSQL: SQLQueryString = "DROP MATERIALIZED VIEW recent_packages"
-    
+
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
@@ -49,7 +49,7 @@ struct UpdateRecentPackages3: Migration {
         return db.raw(dropSQL).run()
             .flatMap { db.raw(updatedViewSQL).run() }
     }
-    
+
     func revert(on database: Database) -> EventLoopFuture<Void> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")

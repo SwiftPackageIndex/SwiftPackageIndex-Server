@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ class PackageShowModelTests: SnapshotTestCase {
                                   swiftVersionBuildInfo: nil,
                                   platformBuildInfo: nil,
                                   weightedKeywords: [])
-        
+
         // validate
         XCTAssertNotNil(m)
         XCTAssertEqual(m?.title, "bar")
@@ -120,7 +120,7 @@ class PackageShowModelTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         model.hasBinaryTargets = true
         model.licenseUrl = "<license-url-here>"
-        
+
         let renderedBinaryOnly = model.binaryTargetsItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedBinaryOnly, as: .lines)
     }
@@ -129,7 +129,7 @@ class PackageShowModelTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         model.hasBinaryTargets = true
         model.licenseUrl = nil
-        
+
         let renderedBinaryOnly = model.binaryTargetsItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedBinaryOnly, as: .lines)
     }
@@ -146,15 +146,15 @@ class PackageShowModelTests: SnapshotTestCase {
         let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedHistory, as: .lines)
     }
-    
+
     func test_archived_warning_line_for_active_package() throws {
         var model = PackageShow.Model.mock
         model.isArchived = false
-        
+
         let renderedHistory = model.archivedListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedHistory, as: .lines)
     }
-    
+
     func test_archived_warning_line_for_archived_package() throws {
         var model = PackageShow.Model.mock
         model.isArchived = true
@@ -170,7 +170,7 @@ class PackageShowModelTests: SnapshotTestCase {
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedActivity, as: .lines)
     }
-    
+
     func test_activity_variants__missing_open_PRs() throws {
         var model = PackageShow.Model.mock
         model.activity?.openPullRequests = nil
@@ -178,7 +178,7 @@ class PackageShowModelTests: SnapshotTestCase {
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedActivity, as: .lines)
     }
-    
+
     func test_activity_variants__missing_open_issues_and_PRs() throws {
         var model = PackageShow.Model.mock
         model.activity?.openIssues = nil
@@ -187,7 +187,7 @@ class PackageShowModelTests: SnapshotTestCase {
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedActivity, as: .lines)
     }
-    
+
     func test_activity_variants__missing_last_closed_issue() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastIssueClosedAt = nil
@@ -195,7 +195,7 @@ class PackageShowModelTests: SnapshotTestCase {
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedActivity, as: .lines)
     }
-    
+
     func test_activity_variants__missing_last_closed_PR() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastPullRequestClosedAt = nil
@@ -203,7 +203,7 @@ class PackageShowModelTests: SnapshotTestCase {
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedActivity, as: .lines)
     }
-    
+
     func test_activity_variants__missing_last_closed_issue_and_PR() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastIssueClosedAt = nil
@@ -212,7 +212,7 @@ class PackageShowModelTests: SnapshotTestCase {
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedActivity, as: .lines)
     }
-    
+
     func test_activity_variants__missing_everything() throws {
         var model = PackageShow.Model.mock
         model.activity?.openIssues = nil
@@ -259,7 +259,7 @@ class PackageShowModelTests: SnapshotTestCase {
         model.productCounts?.libraries = 2
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">2 libraries</li>")
     }
-    
+
     func test_num_executables_formatting() throws {
         var model = PackageShow.Model.mock
         model.productCounts?.executables = 0
@@ -312,10 +312,10 @@ class PackageShowModelTests: SnapshotTestCase {
                                                          results: result2),
                                              latest: .init(referenceName: "main",
                                                            results: result3))!
-            
+
             // MUT
             let res = PackageShow.Model.groupBuildInfo(buildInfo)
-            
+
             // validate
             XCTAssertEqual(res, [
                 .init(references: [.init(name: "1.2.3", kind: .release)], results: result1),
@@ -323,7 +323,7 @@ class PackageShowModelTests: SnapshotTestCase {
                 .init(references: [.init(name: "main", kind: .defaultBranch)], results: result3),
             ])
         }
-        
+
         do {  // stable and latest share the same result and should be grouped
             let buildInfo: BuildInfo = .init(stable: .init(referenceName: "1.2.3",
                                                            results: result1),
@@ -331,10 +331,10 @@ class PackageShowModelTests: SnapshotTestCase {
                                                          results: result2),
                                              latest: .init(referenceName: "main",
                                                            results: result1))!
-            
+
             // MUT
             let res = PackageShow.Model.groupBuildInfo(buildInfo)
-            
+
             // validate
             XCTAssertEqual(res, [
                 .init(references: [.init(name: "1.2.3", kind: .release),

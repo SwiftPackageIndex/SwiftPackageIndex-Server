@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ extension PackageReleases.Model {
                 """,
                 link: "https://github.com/Sherlouk/swift-snapshot-testing-stitch/releases/tag/1.0.0"
             ),
-            
+
             // Release where HTML contains duplicated version (which will be removed)
             .init(
                 title: "v0.0.2",
@@ -47,7 +47,7 @@ extension PackageReleases.Model {
                 """,
                 link: "https://github.com/Sherlouk/swift-snapshot-testing-stitch/releases/tag/0.0.0"
             ),
-            
+
             // Release with no notes (fallback message)
             .init(
                 title: "v0.0.1",

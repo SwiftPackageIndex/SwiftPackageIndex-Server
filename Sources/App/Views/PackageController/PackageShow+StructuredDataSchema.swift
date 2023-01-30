@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 import Foundation
 
 extension PackageShow {
-    
+
     struct PackageSchema: Encodable {
         enum CodingKeys: String, CodingKey {
             case context = "@context", type = "@type"
@@ -23,10 +23,10 @@ extension PackageShow {
                  codeRepository, url, datePublished, dateModified,
                  sourceOrganization, programmingLanguage, keywords
         }
-        
+
         var context: String = "https://schema.org"
         var type: String = "SoftwareSourceCode"
-        
+
         let identifier: String
         let name: String
         let description: String?
@@ -39,7 +39,7 @@ extension PackageShow {
         let sourceOrganization: OrganisationSchema
         let programmingLanguage: ComputerLanguageSchema
         let keywords: [String]
-        
+
         init(
             repositoryOwner: String,
             repositoryName: String,
@@ -65,7 +65,7 @@ extension PackageShow {
             self.programmingLanguage = ComputerLanguageSchema(name: "Swift", url: "https://swift.org/")
             self.keywords = keywords
         }
-        
+
         init?(result: PackageController.PackageResult) {
             let package = result.package
             let repository = result.repository
@@ -75,7 +75,7 @@ extension PackageShow {
             else {
                 return nil
             }
-            
+
             self.init(
                 repositoryOwner: repositoryOwner,
                 repositoryName: repositoryName,
@@ -93,42 +93,42 @@ extension PackageShow {
                 keywords: repository.keywords
             )
         }
-        
+
         var publicationDates: (datePublished: Date, dateModified: Date)? {
             guard let datePublished = datePublished, let dateModified = dateModified
             else { return nil }
             return (datePublished, dateModified)
         }
     }
-    
+
     struct OrganisationSchema: Encodable {
         enum CodingKeys: String, CodingKey {
             case context = "@context", type = "@type"
             case legalName
         }
-        
+
         var context: String = "https://schema.org"
         var type: String = "Organization"
-        
+
         let legalName: String
-        
+
         init(legalName: String) {
             self.legalName = legalName
         }
     }
-    
+
     struct ComputerLanguageSchema: Encodable {
         enum CodingKeys: String, CodingKey {
             case context = "@context", type = "@type"
             case name, url
         }
-        
+
         var context: String = "https://schema.org"
         var type: String = "ComputerLanguage"
-        
+
         let name: String
         let url: String
-        
+
         init(name: String, url: String) {
             self.name = name
             self.url = url
