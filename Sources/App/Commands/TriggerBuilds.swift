@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Fluent
+import PostgresKit
 import SQLKit
 import Vapor
 
@@ -281,12 +282,39 @@ func triggerBuildsUnchecked(on database: Database,
                           let jobUrl = response.webUrl
                     else { return }
 
-                    try await Build(id: buildId,
-                                    versionId: trigger.versionId,
-                                    jobUrl: jobUrl,
-                                    platform: pair.platform,
-                                    status: .triggered,
-                                    swiftVersion: pair.swiftVersion).create(on: database)
+                    do {
+                        try await Build(id: buildId,
+                                        versionId: trigger.versionId,
+                                        jobUrl: jobUrl,
+                                        platform: pair.platform,
+                                        status: .triggered,
+                                        swiftVersion: pair.swiftVersion)
+                        .create(on: database)
+                    } catch {
+                        if let error = error as? PostgresError,
+                           error.code == .uniqueViolation {
+                            if let oldBuild = try await Build.query(on: database,
+                                                                    platform: pair.platform,
+                                                                    swiftVersion: pair.swiftVersion,
+                                                                    versionId: trigger.versionId) {
+                                // Fluent doesn't allow modification of the buildId of an existing
+                                // record, therefore we need to delete + create.
+                                let newBuild = Build(id: buildId,
+                                                     versionId: trigger.versionId,
+                                                     buildCommand: oldBuild.buildCommand,
+                                                     jobUrl: jobUrl,
+                                                     platform: pair.platform,
+                                                     status: .triggered,
+                                                     swiftVersion: pair.swiftVersion)
+                                try await database.transaction { tx in
+                                    try await oldBuild.delete(on: tx)
+                                    try await newBuild.create(on: tx)
+                                }
+                            }
+                        } else {
+                            throw error
+                        }
+                    }
                 }
             }
         }
