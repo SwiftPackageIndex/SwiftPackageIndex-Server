@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/DependencyResolution",
       "state" : {
-        "revision" : "d740e4f3e644f2dd13967e741d26a2785d75c427",
-        "version" : "1.0.1"
+        "revision" : "56ce8fc95ae0d74dc66c5dff207a8252d9d94097",
+        "version" : "1.0.2"
       }
     },
     {
@@ -149,8 +149,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SPIManifest",
       "state" : {
-        "revision" : "192a38aa22d55108d9e6ac6a7702c7873203bf95",
-        "version" : "0.14.0"
+        "revision" : "268fab2006be5c11411994bc76f429d9971a840a",
+        "version" : "0.15.0"
       }
     },
     {
@@ -248,8 +248,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-log.git",
       "state" : {
-        "revision" : "3e3ef75109d6801b2c44504e73f55f0dce6662c9",
-        "version" : "1.5.1"
+        "revision" : "32e8d724467f8fe623624570367e3d50c5638e46",
+        "version" : "1.5.2"
       }
     },
     {
@@ -266,8 +266,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "4ad2c3733845abd9ee8892a323b0fa0d80f37e34",
-        "version" : "2.47.0"
+        "revision" : "45167b8006448c79dda4b7bd604e07a034c15c49",
+        "version" : "2.48.0"
       }
     },
     {
