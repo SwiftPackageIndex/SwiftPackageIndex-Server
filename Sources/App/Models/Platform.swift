@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ struct Platform: Codable, Equatable {
     }
     var name: Name
     var version: String
-    
+
     static func ios(_ version: String) -> Self { .init(name: .ios, version: version) }
     static func macos(_ version: String) -> Self { .init(name: .macos, version: version) }
     // periphery:ignore

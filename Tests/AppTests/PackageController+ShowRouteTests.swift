@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -420,4 +420,3 @@ class PackageController_ShowRouteTests: AppTestCase {
 private func mkBuildInfo(_ status: Build.Status) -> PackageController.BuildsRoute.BuildInfo {
     .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v5_5, platform: .ios, status: status)
 }
-

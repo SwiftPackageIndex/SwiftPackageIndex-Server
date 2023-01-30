@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import SQLKit
 
 struct Stats: Decodable, Equatable {
     static let schema = "stats"
-    
+
     var packageCount: Int
 
     enum CodingKeys: String, CodingKey {
@@ -34,8 +34,8 @@ extension Stats {
         }
         return db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
     }
-    
-    
+
+
     static func fetch(on database: Database) -> EventLoopFuture<Stats?> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")

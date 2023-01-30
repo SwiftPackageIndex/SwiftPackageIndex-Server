@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ class ProductTests: AppTestCase {
                 test)
         }
     }
-    
+
     func test_Product_save() throws {
         let pkg = Package(id: UUID(), url: "1")
         let ver = try Version(id: UUID(), package: pkg)
@@ -77,7 +77,7 @@ class ProductTests: AppTestCase {
             XCTAssertEqual(p.targets, ["t1", "t2"])
         }
     }
-    
+
     func test_delete_cascade() throws {
         // delete version must delete products
         let pkg = Package(id: UUID(), url: "1")
@@ -86,14 +86,14 @@ class ProductTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         try ver.save(on: app.db).wait()
         try prod.save(on: app.db).wait()
-        
+
         XCTAssertEqual(try Package.query(on: app.db).count().wait(), 1)
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 1)
         XCTAssertEqual(try Product.query(on: app.db).count().wait(), 1)
-        
+
         // MUT
         try ver.delete(on: app.db).wait()
-        
+
         // version and product should be deleted
         XCTAssertEqual(try Package.query(on: app.db).count().wait(), 1)
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 0)

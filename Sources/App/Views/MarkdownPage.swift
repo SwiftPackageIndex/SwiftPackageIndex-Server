@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,46 +18,46 @@ import Ink
 
 
 class MarkdownPage: PublicPage {
-    
+
     enum Metadata: String {
         case pageTitle = "page-title"
         case description
     }
-    
+
     let metadata: [String: String]
     let html: String?
-    
+
     init(path: String, _ markdownFilename: String) {
         let pathToMarkdownFile = Current.fileManager.workingDirectory()
             .appending("Resources/Markdown/")
             .appending(markdownFilename)
-        
+
         let markdown = try? String(contentsOfFile: pathToMarkdownFile)
         let result = markdown.map(MarkdownParser().parse)
         metadata = result?.metadata ?? [:]
         html = result?.html
-        
+
         super.init(path: path)
     }
-    
+
     init(path: String, html: String) {
         self.metadata = [:]
         self.html = html
         super.init(path: path)
     }
-    
+
     override func pageTitle() -> String? {
         metadata[Metadata.pageTitle]
     }
-    
+
     override func pageDescription() -> String? {
         metadata[Metadata.description]
     }
-    
+
     override func bodyClass() -> String? {
         "markdown"
     }
-    
+
     override func breadcrumbs() -> [Breadcrumb] {
         guard let pageTitle = metadata[Metadata.pageTitle] else { return [] }
 
@@ -73,7 +73,7 @@ class MarkdownPage: PublicPage {
         }
         return .raw(html)
     }
-    
+
 }
 
 

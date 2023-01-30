@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -231,7 +231,7 @@ struct FileManager {
     }
     func fileExists(atPath path: String) -> Bool { fileExists(path) }
     func removeItem(atPath path: String) throws { try removeItem(path) }
-    
+
     static let live: Self = .init(
         attributesOfItem: Foundation.FileManager.default.attributesOfItem,
         contentsOfDirectory: Foundation.FileManager.default.contentsOfDirectory,
@@ -286,7 +286,7 @@ struct Shell {
             throw AppError.shellCommandFailed(command.string, path, error.localizedDescription)
         }
     }
-    
+
     static let live: Self = .init(run: { cmd, path in
         try ShellOut.shellOut(to: cmd, at: path)
     })

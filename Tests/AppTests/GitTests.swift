@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,21 +19,21 @@ import XCTVapor
 
 
 class GitTests: XCTestCase {
-    
+
     static let tempDir = NSTemporaryDirectory().appending("spi-test-\(UUID())")
     static let sampleGitRepoName = "ErrNo"
     static let sampleGitRepoZipFile = fixturesDirectory()
         .appendingPathComponent("\(sampleGitRepoName).zip").path
-    
+
     override class func setUp() {
         try! Foundation.FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: false, attributes: nil)
         try! ShellOut.shellOut(to: .init(#"unzip "\#(sampleGitRepoZipFile)""#), at: tempDir)
     }
-    
+
     override class func tearDown() {
         try? Foundation.FileManager.default.removeItem(atPath: tempDir)
     }
-    
+
     func test_tag() throws {
         Current.shell.run = mock(for: "git tag", """
             test
@@ -51,7 +51,7 @@ class GitTests: XCTestCase {
                 .tag(.init(1, 0, 2)),
             ])
     }
-    
+
     func test_showDate() throws {
         Current.shell.run = mock(
             for: #"git show -s --format=%ct "2c6399a1fa6f3b023bcdeac24b6a46ce3bd89ed0""#, """
@@ -63,7 +63,7 @@ class GitTests: XCTestCase {
             Date(timeIntervalSince1970: 1536799579)
         )
     }
-    
+
     func test_revInfo() throws {
         Current.shell.run = { cmd, _ in
             if cmd.string == #"git log -n1 --format=format:"%H-%ct" "2.2.1""# {
@@ -75,7 +75,7 @@ class GitTests: XCTestCase {
                        .init(commit: "63c973f3c2e632a340936c285e94d59f9ffb01d5",
                              date: Date(timeIntervalSince1970: 1536799579)))
     }
-    
+
     func test_revInfo_tagName() throws {
         // Ensure we look up by tag name and not semver
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/139
@@ -89,19 +89,19 @@ class GitTests: XCTestCase {
                        .init(commit: "63c973f3c2e632a340936c285e94d59f9ffb01d5",
                              date: Date(timeIntervalSince1970: 1536799579)))
     }
-    
+
     func test_firstCommitDate() throws {
         Current.shell = .live
         XCTAssertEqual(try Git.firstCommitDate(at: "\(Self.tempDir)/\(Self.sampleGitRepoName)"),
                        Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
     }
-    
+
     func test_lastCommitDate() throws {
         Current.shell = .live
         XCTAssertEqual(try Git.lastCommitDate(at: "\(Self.tempDir)/\(Self.sampleGitRepoName)"),
                        Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
     }
-    
+
     func test_commitCount() throws {
         Current.shell = .live
         XCTAssertEqual(try Git.commitCount(at: "\(Self.tempDir)/\(Self.sampleGitRepoName)"), 57)

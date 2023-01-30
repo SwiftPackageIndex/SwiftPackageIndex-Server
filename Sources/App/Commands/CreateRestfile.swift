@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ enum Variant: String, LosslessStringConvertible {
     var description: String {
         rawValue
     }
-    
+
     case all
     case active
-    
+
     init(_ string: String) {
         self = Variant(rawValue: string) ?? .active
     }
@@ -35,9 +35,9 @@ struct CreateRestfileCommand: Command {
         @Argument(name: "variant")
         var variant: Variant
     }
-    
+
     var help: String { "Create restfile for automated testing" }
-    
+
     func run(using context: CommandContext, signature: Signature) throws {
         guard let db = context.application.db as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")

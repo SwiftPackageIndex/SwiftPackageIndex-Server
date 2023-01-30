@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,26 +19,26 @@ import Vapor
 
 final class Build: Model, Content {
     static let schema = "builds"
-    
+
     typealias Id = UUID
-    
+
     // managed fields
-    
+
     @ID(key: .id)
     var id: Id?
-    
+
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
-    
+
     // periphery:ignore
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
-    
+
     // reference fields
-    
+
     @Parent(key: "version_id")
     var version: Version
-    
+
     // data fields
 
     @Field(key: "build_command")
@@ -55,15 +55,15 @@ final class Build: Model, Content {
 
     @Field(key: "runner_id")
     var runnerId: String?
-    
+
     @Field(key: "status")
     var status: Status
-    
+
     @Field(key: "swift_version")
     var swiftVersion: SwiftVersion
-    
+
     init() { }
-    
+
     init(id: Id? = nil,
          versionId: Version.Id,
          buildCommand: String? = nil,
@@ -171,7 +171,7 @@ extension Build {
                                         versionId)
         }
     }
-    
+
 }
 
 
@@ -262,4 +262,3 @@ extension Build {
     }
 
 }
-

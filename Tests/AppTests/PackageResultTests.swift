@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -208,10 +208,10 @@ class PackageResultTests: AppTestCase {
                              owner: "foo").create(on: app.db)
         try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
         let pr = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
-        
+
         // MUT
         let res = pr.activity()
-        
+
         // validate
         XCTAssertEqual(res,
                        .init(openIssuesCount: 27,
@@ -273,7 +273,7 @@ class PackageResultTests: AppTestCase {
             // MUT
             let res = try await PackageController.PackageResult
                 .query(on: app.db, owner: "foo", repository: "bar1")
-            
+
             // validate
             XCTAssertEqual(res.hasDocumentation(), true)
         }

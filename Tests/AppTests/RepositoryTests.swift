@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import XCTVapor
 
 
 final class RepositoryTests: AppTestCase {
-    
+
     func test_save() throws {
         let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
@@ -53,9 +53,9 @@ final class RepositoryTests: AppTestCase {
                                   ],
                                   stars: 42,
                                   summary: "desc")
-        
+
         try repo.save(on: app.db).wait()
-        
+
         do {
             let r = try XCTUnwrap(Repository.find(repo.id, on: app.db).wait())
             XCTAssertEqual(r.$package.id, pkg.id)
@@ -165,7 +165,7 @@ final class RepositoryTests: AppTestCase {
         // test some ways to resolve the relationship
         XCTAssertEqual(repo.$package.id, pkg.id)
         XCTAssertEqual(try repo.$package.get(on: app.db).wait().url, "p1")
-        
+
         // ensure one-to-one is in place
         do {
             let repo = try Repository(package: pkg)
@@ -173,45 +173,45 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(try Repository.query(on: app.db).all().wait().count, 1)
         }
     }
-    
+
     func test_forkedFrom_relationship() throws {
         let p1 = Package(url: "p1")
         try p1.save(on: app.db).wait()
         let p2 = Package(url: "p2")
         try p2.save(on: app.db).wait()
-        
+
         // test forked from link
         let parent = try Repository(package: p1)
         try parent.save(on: app.db).wait()
         let child = try Repository(package: p2, forkedFrom: parent)
         try child.save(on: app.db).wait()
     }
-    
+
     func test_delete_cascade() throws {
         // delete package must delete repository
         let pkg = Package(id: UUID(), url: "1")
         let repo = try Repository(id: UUID(), package: pkg)
         try pkg.save(on: app.db).wait()
         try repo.save(on: app.db).wait()
-        
+
         XCTAssertEqual(try Package.query(on: app.db).count().wait(), 1)
         XCTAssertEqual(try Repository.query(on: app.db).count().wait(), 1)
-        
+
         // MUT
         try pkg.delete(on: app.db).wait()
-        
+
         // version and product should be deleted
         XCTAssertEqual(try Package.query(on: app.db).count().wait(), 0)
         XCTAssertEqual(try Repository.query(on: app.db).count().wait(), 0)
     }
-    
+
     func test_uniqueOwnerRepository() throws {
         // Ensure owner/repository is unique, testing various combinations with
         // matching/non-matching case
         let p1 = try savePackage(on: app.db, "1")
         try Repository(id: UUID(), package: p1, name: "bar", owner: "foo").save(on: app.db).wait()
         let p2 = try savePackage(on: app.db, "2")
-        
+
         XCTAssertThrowsError(
             // MUT - identical
             try Repository(id: UUID(), package: p2, name: "bar", owner: "foo").save(on: app.db).wait()
@@ -220,7 +220,7 @@ final class RepositoryTests: AppTestCase {
                         #"duplicate key value violates unique constraint "idx_repositories_owner_name""#))
             XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
         }
-        
+
         XCTAssertThrowsError(
             // MUT - diffrent case repository
             try Repository(id: UUID(), package: p2, name: "Bar", owner: "foo").save(on: app.db).wait()
@@ -229,7 +229,7 @@ final class RepositoryTests: AppTestCase {
                         #"duplicate key value violates unique constraint "idx_repositories_owner_name""#))
             XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
         }
-        
+
         XCTAssertThrowsError(
             // MUT - diffrent case owner
             try Repository(id: UUID(), package: p2, name: "bar", owner: "Foo").save(on: app.db).wait()
@@ -239,7 +239,7 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
         }
     }
-    
+
     func test_name_index() throws {
         let db = try XCTUnwrap(app.db as? SQLDatabase)
         // Quick way to check index exists - this will throw
@@ -251,5 +251,5 @@ final class RepositoryTests: AppTestCase {
             "CREATE INDEX idx_repositories_name ON repositories USING gin (name gin_trgm_ops)"
         ).run().wait()
     }
-    
+
 }

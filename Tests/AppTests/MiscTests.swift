@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import XCTest
 
 /// Tests for utilities and extesions that don't each need a full separate test class
 class MiscTests: XCTestCase {
-    
+
     func test_Array_queryString() throws {
         // Single parameter
         XCTAssertEqual([QueryParameter(key: "foo", value: "bar")].queryString(), "?foo=bar")

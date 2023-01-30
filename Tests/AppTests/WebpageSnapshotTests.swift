@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,12 +44,12 @@ class WebpageSnapshotTests: SnapshotTestCase {
         ]
 
         let page = { HomeIndex.View(path: "/", model: .mock).document() }
-        
+
         assertSnapshot(matching: page, as: .html)
     }
-    
+
     func test_PackageShowView() throws {
-        
+
         // Work-around to set the local time zone for time sensitive
         // tests. Sets the explicit default time zone to UTC for the duration
         // of this test.
@@ -63,7 +63,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         model.homepageUrl = "https://swiftpackageindex.com/"
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
-        
+
         assertSnapshot(matching: page, as: .html)
     }
 
@@ -73,12 +73,12 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.hasBinaryTargets = true
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
-        
+
         assertSnapshot(matching: page, as: .html)
     }
 
     func test_PackageShowView_few_keywords() throws {
-        
+
         // Work-around to set the local time zone for time sensitive
         // tests. Sets the explicit default time zone to UTC for the duration
         // of this test.
@@ -95,17 +95,17 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                   ("tag3", 100),
                                   ("tag4", 1000),
                                   ("tag5", 1234)]
-        
+
         model.keywords = keywordsWithCounts.map { $0.0 }
         model.weightedKeywords = keywordsWithCounts.map(WeightedKeyword.init)
-        
+
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
     }
 
     func test_PackageShowView_many_keywords() throws {
-        
+
         // Work-around to set the local time zone for time sensitive
         // tests. Sets the explicit default time zone to UTC for the duration
         // of this test.
@@ -119,20 +119,20 @@ class WebpageSnapshotTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         let keywordsWithCounts = [("tag1", 1), ("tag2", 10), ("tag3", 100), ("tag4", 1000), ("tag5", 1234),
                         ("tag6", 1250), ("tag7", 1249), ("tag8", 1251), ("tag9", 12345),
-                        
+
                         ("tag10", 123456), ("tag11", 1234567), ("tag12", 7654321), ("tag13", 8765432),
-                        
+
                         ("tag14", 1100), ("tag15", 2200), ("tag16", 3300), ("tag17", 4400), ("tag18", 5500),
                         ("tag19", 6600), ("tag20", 7700), ("tag21", 8800), ("tag22", 9900),
-                        
+
                         ("tag23", 1149), ("tag24", 1151), ("tag25", 2249), ("tag26", 2250), ("tag27", 3349),
                         ("tag28", 3350), ("tag29", 4449), ("tag30", 4450), ("tag31", 5549), ("tag32", 5550),
                         ("tag33", 6649), ("tag34", 6650), ("tag35", 7749), ("tag36", 7750), ("tag37", 8849),
                         ("tag38", 8850), ("tag39", 9949), ("tag40", 9950)]
-        
+
         model.keywords = keywordsWithCounts.map { $0.0 }
         model.weightedKeywords = keywordsWithCounts.map(WeightedKeyword.init)
-        
+
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
@@ -141,9 +141,9 @@ class WebpageSnapshotTests: SnapshotTestCase {
     func test_PackageShowView_emoji_summary() throws {
         var model = PackageShow.Model.mock
         model.summary = ":package: Nothing but Cache. :octocat:"
-        
+
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
-        
+
         assertSnapshot(matching: page, as: .html)
     }
 
@@ -182,7 +182,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
         assertSnapshot(matching: page, as: .html)
     }
-    
+
     func test_PackageShowView_no_authors_activity() throws {
         // Test to ensure we don't display empty bullet points when there is
         // no author or activity info
@@ -190,7 +190,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.authors = nil
         model.activity = nil
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
-        
+
         assertSnapshot(matching: page, as: .html)
     }
 
@@ -233,7 +233,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
             )
         }
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
-        
+
         assertSnapshot(matching: page, as: .html)
     }
 
@@ -278,34 +278,34 @@ class WebpageSnapshotTests: SnapshotTestCase {
     func test_PackageReleasesView() throws {
         let model = PackageReleases.Model.mock
         let page = { PackageReleases.View(model: model).document() }
-        
+
         assertSnapshot(matching: page, as: .html)
     }
-    
+
     func test_PackageReleasesView_NoModel() throws {
         let page = { PackageReleases.View(model: nil).document() }
-        
+
         assertSnapshot(matching: page, as: .html)
     }
 
     func test_ErrorPageView() throws {
         let page = { ErrorPage.View(path: "", error: Abort(.notFound)).document() }
-        
+
         assertSnapshot(matching: page, as: .html)
     }
 
     func test_MarkdownPage() throws {
         let page = { MarkdownPage(path: "", "privacy.md").document() }
-        
+
         assertSnapshot(matching: page, as: .html)
     }
-    
+
     func test_MarkdownPageStyling() throws {
         let data = try XCTUnwrap(try fixtureData(for: "markdown-test.md"))
         let markdown = try XCTUnwrap(String(data: data, encoding: .utf8))
         let html = MarkdownParser().parse(markdown).html
         let page = { MarkdownPage(path: "", html: html).document() }
-        
+
         assertSnapshot(matching: page, as: .html)
     }
 
@@ -332,10 +332,10 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
         assertSnapshot(matching: page, as: .html)
     }
-    
+
     func test_AuthorShow() throws {
         let page = { AuthorShow.View(path: "", model: .mock).document() }
-        
+
         assertSnapshot(matching: page, as: .html)
     }
 
@@ -416,7 +416,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
         assertSnapshot(matching: page, as: .html)
     }
-    
+
     func test_SearchShow_withFilters() throws {
         let page = { SearchShow.View(path: "", model: .mockWithFilter()).document() }
 

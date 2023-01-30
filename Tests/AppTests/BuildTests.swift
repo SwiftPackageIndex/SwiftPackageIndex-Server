@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import XCTVapor
 
 
 class BuildTests: AppTestCase {
-    
+
     func test_save() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -34,10 +34,10 @@ class BuildTests: AppTestCase {
                           platform: .linux,
                           status: .ok,
                           swiftVersion: .init(5, 2, 0))
-        
+
         // MUT
         try b.save(on: app.db).wait()
-        
+
         do {  // validate
             let b = try XCTUnwrap(Build.find(b.id, on: app.db).wait())
             XCTAssertEqual(b.buildCommand, #"xcrun xcodebuild -scheme "Foo""#)
@@ -49,7 +49,7 @@ class BuildTests: AppTestCase {
             XCTAssertEqual(b.$version.id, v.id)
         }
     }
-    
+
     func test_delete_cascade() throws {
         // Ensure deleting a version also deletes the builds
         // setup
@@ -62,14 +62,14 @@ class BuildTests: AppTestCase {
                           swiftVersion: .init(5, 2, 0))
         try b.save(on: app.db).wait()
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
-        
+
         // MUT
         try v.delete(on: app.db).wait()
-        
+
         // validate
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
     }
-    
+
     func test_unique_constraint() throws {
         // Ensure builds are unique over (id, platform, swiftVersion)
         // setup
@@ -78,7 +78,7 @@ class BuildTests: AppTestCase {
         try v1.save(on: app.db).wait()
         let v2 = try Version(package: pkg)
         try v2.save(on: app.db).wait()
-        
+
         // MUT
         // initial save - ok
         try Build(version: v1,
@@ -100,7 +100,7 @@ class BuildTests: AppTestCase {
                   platform: .linux,
                   status: .ok,
                   swiftVersion: .init(4, 0, 0)).save(on: app.db).wait()
-        
+
         // (v1, linx, 5.2.0) - not ok
         XCTAssertThrowsError(
             try Build(version: v1,
@@ -110,11 +110,11 @@ class BuildTests: AppTestCase {
         ) {
             XCTAssertEqual(($0 as? PostgresError)?.code, .uniqueViolation)
         }
-        
+
         // validate
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 4)
     }
-    
+
     func test_trigger() throws {
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
@@ -153,7 +153,7 @@ class BuildTests: AppTestCase {
                                 "VERSION_ID": versionID.uuidString,
                             ]))
         }
-        
+
         // MUT
         let res = try Build.trigger(database: app.db,
                                     client: client,
@@ -162,12 +162,12 @@ class BuildTests: AppTestCase {
                                     platform: .macosXcodebuild,
                                     swiftVersion: .init(5, 2, 4),
                                     versionId: versionID).wait()
-        
+
         // validate
         XCTAssertTrue(called)
         XCTAssertEqual(res.status, .created)
     }
-    
+
     func test_query() async throws {
         // Test querying by (platform/swiftVersion/versionId)
         // setup

@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ struct SwiftVersion: Content, Equatable, Hashable {
     var major: Int
     var minor: Int
     var patch: Int
-    
+
     init(_ major: Int, _ minor: Int, _ patch: Int) {
         self.major = major
         self.minor = minor
@@ -37,7 +37,7 @@ extension SwiftVersion: LosslessStringConvertible {
         else { return nil }
         self = .init(major, Int(groups[1]) ?? 0, Int(groups[2]) ?? 0)
     }
-    
+
     var description: String {
         switch (major, minor, patch) {
             case let (major, 0, 0):

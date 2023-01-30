@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ class VersionImmutableReferenceDiffTests: XCTestCase {
     // 3) tag is removed
     // 4) branch is removed
     // 5) tag is moved
-    
+
     func test_diff_1() throws {
         // Branch changes commit hash
         // setup
@@ -34,13 +34,13 @@ class VersionImmutableReferenceDiffTests: XCTestCase {
             .init(reference: .branch("main"), commit: "hash1"),
             .init(reference: .tag(1, 2, 3), commit: "hash2"),
         ]
-        
+
         // MUT
         let res = Version.diff(local: saved, incoming: [
             .init(reference: .branch("main"), commit: "hash3"),
             .init(reference: .tag(1, 2, 3), commit: "hash2")
         ])
-        
+
         // validate
         XCTAssertEqual(res.toAdd,
                        [.init(reference: .branch("main"), commit: "hash3")])
@@ -49,7 +49,7 @@ class VersionImmutableReferenceDiffTests: XCTestCase {
         XCTAssertEqual(res.toKeep,
                        [.init(reference: .tag(1, 2, 3), commit: "hash2")])
     }
-    
+
     func test_diff_2() throws {
         // New tag is incoming
         // setup
@@ -57,14 +57,14 @@ class VersionImmutableReferenceDiffTests: XCTestCase {
             .init(reference: .branch("main"), commit: "hash1"),
             .init(reference: .tag(1, 2, 3), commit: "hash2"),
         ]
-        
+
         // MUT
         let res = Version.diff(local: saved, incoming: [
             .init(reference: .branch("main"), commit: "hash1"),
             .init(reference: .tag(1, 2, 3), commit: "hash2"),
             .init(reference: .tag(2, 0, 0), commit: "hash4"),
         ])
-        
+
         // validate
         XCTAssertEqual(res.toAdd,
                        [.init(reference: .tag(2, 0, 0), commit: "hash4")])
@@ -73,7 +73,7 @@ class VersionImmutableReferenceDiffTests: XCTestCase {
                        [.init(reference: .branch("main"), commit: "hash1"),
                         .init(reference: .tag(1, 2, 3), commit: "hash2")])
     }
-    
+
     func test_diff_3() throws {
         // Tag was deleted upstream
         // setup
@@ -81,12 +81,12 @@ class VersionImmutableReferenceDiffTests: XCTestCase {
             .init(reference: .branch("main"), commit: "hash1"),
             .init(reference: .tag(1, 2, 3), commit: "hash2"),
         ]
-        
+
         // MUT
         let res = Version.diff(local: saved, incoming: [
             .init(reference: .branch("main"), commit: "hash1"),
         ])
-        
+
         // validate
         XCTAssertEqual(res.toAdd, [])
         XCTAssertEqual(res.toDelete,
@@ -94,7 +94,7 @@ class VersionImmutableReferenceDiffTests: XCTestCase {
         XCTAssertEqual(res.toKeep,
                        [.init(reference: .branch("main"), commit: "hash1")])
     }
-    
+
     func test_diff_4() throws {
         // Branch was deleted upstream
         // setup
@@ -102,12 +102,12 @@ class VersionImmutableReferenceDiffTests: XCTestCase {
             .init(reference: .branch("main"), commit: "hash1"),
             .init(reference: .tag(1, 2, 3), commit: "hash2"),
         ]
-        
+
         // MUT
         let res = Version.diff(local: saved, incoming: [
             .init(reference: .tag(1, 2, 3), commit: "hash2"),
         ])
-        
+
         // validate
         XCTAssertEqual(res.toAdd, [])
         XCTAssertEqual(res.toDelete,
@@ -115,7 +115,7 @@ class VersionImmutableReferenceDiffTests: XCTestCase {
         XCTAssertEqual(res.toKeep,
                        [.init(reference: .tag(1, 2, 3), commit: "hash2")])
     }
-    
+
     func test_diff_5() throws {
         // Tag was changed - retagging a release
         // setup
@@ -123,27 +123,27 @@ class VersionImmutableReferenceDiffTests: XCTestCase {
             .init(reference: .branch("main"), commit: "hash1"),
             .init(reference: .tag(1, 2, 3), commit: "hash2"),
         ]
-        
+
         // MUT
         let res = Version.diff(local: saved, incoming: [
             .init(reference: .branch("main"), commit: "hash1"),
             .init(reference: .tag(1, 2, 3), commit: "hash3"),
         ])
-        
+
         // validate
         XCTAssertEqual(res.toAdd, [.init(reference: .tag(1, 2, 3), commit: "hash3")])
         XCTAssertEqual(res.toDelete, [.init(reference: .tag(1, 2, 3), commit: "hash2")])
         XCTAssertEqual(res.toKeep,
                        [.init(reference: .branch("main"), commit: "hash1")])
     }
-    
+
 }
 
 
 class VersionDiffTests: AppTestCase {
     // Test [Version] based diff (higher level interface)
     // Just run an integration scenario, the details are covered in the test above
-    
+
     func test_diff_1() throws {
         // Branch changes commit hash
         // setup
@@ -162,7 +162,7 @@ class VersionDiffTests: AppTestCase {
             try .init(package: pkg, commit: "hash2", reference: .tag(1, 2, 3)),
             try .init(package: pkg, commit: "hash4", reference: .tag(2, 0, 0)),
         ])
-        
+
         // validate
         XCTAssertEqual(res.toAdd.map(\.immutableReference),
                        [.init(reference: .branch("main"), commit: "hash3"),
@@ -173,5 +173,5 @@ class VersionDiffTests: AppTestCase {
                        [.init(reference: .tag(1, 2, 3), commit: "hash2")])
         XCTAssertEqual(res.toKeep.map(\.id), [keptId])
     }
-    
+
 }

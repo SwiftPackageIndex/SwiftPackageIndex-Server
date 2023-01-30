@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import XCTest
 
 
 class ReferenceTests: XCTestCase {
-    
+
     func test_Codable() throws {
         do { // branch
             let ref = Reference.branch("foo")
@@ -33,7 +33,7 @@ class ReferenceTests: XCTestCase {
             XCTAssertEqual(decoded, .tag(.init(1, 2, 3)))
         }
     }
-    
+
     func test_isRelease() throws {
         XCTAssertTrue(Reference.tag(.init(1, 0, 0)).isRelease)
         XCTAssertFalse(Reference.tag(.init(1, 0, 0, "beta1")).isRelease)

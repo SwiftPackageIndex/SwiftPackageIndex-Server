@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,27 +25,27 @@ enum Score {
         var hasDocumentation: Bool
         var numberOfContributors: Int
     }
-    
+
     static func compute(_ candidate: Input) -> Int {
         var score = 0
-        
+
         // Is the package archived and no longer receiving updates?
         if candidate.isArchived == false { score += 20 }
-        
+
         // Is the license open-source and compatible with the App Store?
         switch candidate.licenseKind {
             case .compatibleWithAppStore: score += 10
             case .incompatibleWithAppStore: score += 3
             default: break;
         }
-        
+
         // Number of releases
         switch candidate.releaseCount {
             case  ..<5 :   break
             case 5..<20:   score += 10
             default    :   score += 20
         }
-        
+
         // Stars count
         switch candidate.likeCount {
             case      ..<25    :  break
@@ -94,7 +94,7 @@ enum Score {
             let defaultVersion = versions.latest(for: .defaultBranch),
             let repo = package.repository
         else { return 0 }
-        
+
         let hasDocumentation = [
             defaultVersion,
             versions.latest(for: .release),
@@ -105,7 +105,7 @@ enum Score {
             guard let authors = repo.authors else { return 0 }
             return authors.authors.count + authors.numberOfContributors
         }()
-        
+
         return Score.compute(
             .init(licenseKind: repo.license.licenseKind,
                   releaseCount: versions.releases.count,
@@ -127,4 +127,3 @@ private extension Array where Element == Version {
 
     var releases: Self { filter { $0.reference.isTag } }
 }
-

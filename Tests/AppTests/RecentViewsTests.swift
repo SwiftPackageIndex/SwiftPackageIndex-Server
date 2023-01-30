@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import XCTVapor
 
 
 class RecentViewsTests: AppTestCase {
-    
+
     func test_recentPackages() throws {
         // setup
         do {  // 1st package is eligible
@@ -50,15 +50,15 @@ class RecentViewsTests: AppTestCase {
         }
         // make sure to refresh the materialized view
         try RecentPackage.refresh(on: app.db).wait()
-        
+
         // MUT
         let res = try RecentPackage.fetch(on: app.db).wait()
-        
+
         // validate
         XCTAssertEqual(res.map(\.packageName), ["3", "1"])
         XCTAssertEqual(res.map(\.packageSummary), ["pkg 3", "pkg 1"])
     }
-    
+
     func test_recentReleases() throws {
         // setup
         do {  // 1st package is eligible
@@ -128,20 +128,20 @@ class RecentViewsTests: AppTestCase {
                         reference: .tag(.init(2, 0, 0)),
                         url: "5/release/2.0.0").save(on: app.db).wait()
         }
-        
+
         // make sure to refresh the materialized view
         try RecentRelease.refresh(on: app.db).wait()
-        
+
         // MUT
         let res = try RecentRelease.fetch(on: app.db).wait()
-        
+
         // validate
         XCTAssertEqual(res.map(\.packageName), ["5", "1"])
         XCTAssertEqual(res.map(\.version), ["2.0.0", "1.2.3"])
         XCTAssertEqual(res.map(\.packageSummary), ["pkg 5", "pkg 1"])
         XCTAssertEqual(res.map(\.releaseUrl), ["5/release/2.0.0", "1/release/1.2.3"])
     }
-    
+
     func test_recentReleases_Filter() throws {
         XCTAssertTrue(RecentRelease.Filter.minor == .init("minor"))
         XCTAssertTrue(RecentRelease.Filter.major == .init("major"))
@@ -149,7 +149,7 @@ class RecentViewsTests: AppTestCase {
         XCTAssertTrue(RecentRelease.Filter.all == [.init("minor"), .init("major"), .init("patch"), .init("pre")])
         XCTAssertTrue(RecentRelease.Filter.all == .init("nonsensical defaults to all"))
     }
-    
+
     func test_recentReleases_filter() throws {
         // List only major releases
         // setup
@@ -167,14 +167,14 @@ class RecentViewsTests: AppTestCase {
                                  releasedAt: Date(),
                                  releaseUrl: "release url")
         }
-        
+
         // MUT
         let all = RecentRelease.filterReleases(releases, by: .all)
         let majorOnly = RecentRelease.filterReleases(releases, by: .major)
         let minorOnly = RecentRelease.filterReleases(releases, by: .minor)
         let majorMinor = RecentRelease.filterReleases(releases, by: [.major, .minor])
         let pre = RecentRelease.filterReleases(releases, by: [.pre])
-        
+
         // validate
         XCTAssertEqual(
             all.map(\.version),
@@ -189,7 +189,7 @@ class RecentViewsTests: AppTestCase {
         XCTAssertEqual(
             pre.map(\.version), ["3.2.1-b1", "4.0.0-b1"])
     }
-    
+
     func test_recentPackages_dedupe_issue() throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/315
         // setup
@@ -208,14 +208,14 @@ class RecentViewsTests: AppTestCase {
                     packageName: "pkg-bar-updated").save(on: app.db).wait()
         // make sure to refresh the materialized view
         try RecentPackage.refresh(on: app.db).wait()
-        
+
         // MUT
         let res = try RecentPackage.fetch(on: app.db).wait()
-        
+
         // validate
         XCTAssertEqual(res.map(\.packageName), ["pkg-bar-updated"])
     }
-    
+
     func test_recentReleases_dedupe_issue() throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/315
         // setup
@@ -235,12 +235,12 @@ class RecentViewsTests: AppTestCase {
                     reference: .tag(.init(1, 0, 1))).save(on: app.db).wait()
         // make sure to refresh the materialized view
         try RecentRelease.refresh(on: app.db).wait()
-        
+
         // MUT
         let res = try RecentRelease.fetch(on: app.db).wait()
-        
+
         // validate
         XCTAssertEqual(res.map(\.packageName), ["pkg-bar-updated"])
     }
-    
+
 }

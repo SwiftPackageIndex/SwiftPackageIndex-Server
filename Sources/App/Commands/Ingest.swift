@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import Fluent
 
 struct IngestCommand: CommandAsync {
     let defaultLimit = 1
-    
+
     struct Signature: CommandSignature {
         @Option(name: "limit", short: "l")
         var limit: Int?
@@ -26,7 +26,7 @@ struct IngestCommand: CommandAsync {
         @Option(name: "id", help: "package id")
         var id: Package.Id?
     }
-    
+
     var help: String { "Run package ingestion (fetching repository metadata)" }
 
     enum Mode {

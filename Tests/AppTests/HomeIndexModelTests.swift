@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import XCTVapor
 
 
 class HomeIndexModelTests: AppTestCase {
-    
+
     func test_query() throws {
         // setup
         let pkgId = UUID()
@@ -33,10 +33,10 @@ class HomeIndexModelTests: AppTestCase {
                         reference: .tag(.init(1, 2, 3))).save(on: app.db).wait()
         try RecentPackage.refresh(on: app.db).wait()
         try RecentRelease.refresh(on: app.db).wait()
-        
+
         // MUT
         let m = try HomeIndex.Model.query(database: app.db).wait()
-        
+
         // validate
         let createdAt = try XCTUnwrap(pkg.createdAt)
         XCTAssertEqual(m.recentPackages, [
@@ -52,5 +52,5 @@ class HomeIndexModelTests: AppTestCase {
                   url: "/foo/1"),
         ])
     }
-    
+
 }

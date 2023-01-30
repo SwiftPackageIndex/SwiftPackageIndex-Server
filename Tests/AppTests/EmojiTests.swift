@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,16 +26,16 @@ class EmojiTests: XCTestCase {
             (":+1:", "👍"),
             (":invalid:", ":invalid:")
         ]
-        
+
         cases.forEach { test in
             XCTAssertEqual(test.shorthand.replaceShorthandEmojis(), test.result)
         }
     }
-    
+
     func test_emojiLoading() throws {
         let emojis = EmojiStorage.current.lookup
         XCTAssertEqual(emojis.count, 1848)
         XCTAssertEqual(emojis[":grinning:"], "😀")
     }
-    
+
 }

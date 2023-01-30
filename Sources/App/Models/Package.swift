@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,20 +20,20 @@ import SQLKit
 
 final class Package: Model, Content {
     static let schema = "packages"
-    
+
     typealias Id = UUID
-    
+
     // managed fields
-    
+
     @ID(key: .id)
     var id: Id?
-    
+
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
-    
+
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
-    
+
     // data fields
 
     @Field(key: "platform_compatibility")
@@ -41,26 +41,26 @@ final class Package: Model, Content {
 
     @OptionalEnum(key: "processing_stage")
     var processingStage: ProcessingStage?
-    
+
     @Field(key: "score")
     var score: Int
-    
+
     @Enum(key: "status")
     var status: Status
-    
+
     @Field(key: "url")
     var url: String
-    
+
     // relationships
-    
+
     @Children(for: \.$package)
     var repositories: [Repository]
-    
+
     @Children(for: \.$package)
     var versions: [Version]
-    
+
     init() { }
-    
+
     init(id: UUID? = nil,
          url: URL,
          score: Int = 0,

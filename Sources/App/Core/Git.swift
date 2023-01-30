@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ enum GitError: LocalizedError {
 }
 
 extension Git {
-    
+
     static func commitCount(at path: String) throws -> Int {
         let res = try Current.shell.run(command: .gitCommitCount, at: path)
         guard let count = Int(res) else {
@@ -32,7 +32,7 @@ extension Git {
         }
         return count
     }
-    
+
     static func firstCommitDate(at path: String) throws -> Date {
         let res = try Current.shell.run(command: .gitFirstCommitDate, at: path)
         guard let timestamp = TimeInterval(res) else {
@@ -40,7 +40,7 @@ extension Git {
         }
         return Date(timeIntervalSince1970: timestamp)
     }
-    
+
     static func lastCommitDate(at path: String) throws -> Date {
         let res = try Current.shell.run(command: .gitLastCommitDate, at: path)
         guard let timestamp = TimeInterval(res) else {
@@ -48,7 +48,7 @@ extension Git {
         }
         return Date(timeIntervalSince1970: timestamp)
     }
-    
+
     static func getTags(at path: String) throws -> [Reference] {
         let tags = try Current.shell.run(command: .gitListTags, at: path)
         return tags.split(separator: "\n")
@@ -56,7 +56,7 @@ extension Git {
             .compactMap { tag in SemanticVersion(tag).map { ($0, tag) } }
             .map { Reference.tag($0, $1) }
     }
-    
+
     static func showDate(_ commit: CommitHash, at path: String) throws -> Date {
         let res = try Current.shell.run(command: .gitShowDate(commit), at: path)
         guard let timestamp = TimeInterval(res) else {
@@ -64,7 +64,7 @@ extension Git {
         }
         return Date(timeIntervalSince1970: timestamp)
     }
-    
+
     static func revisionInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
         let separator = "-"
         let res = try Current.shell.run(command: .gitRevisionInfo(reference: reference,
@@ -76,7 +76,7 @@ extension Git {
         let date = Date(timeIntervalSince1970: timestamp)
         return .init(commit: hash, date: date)
     }
-    
+
     static func shortlog(at path: String) throws -> String {
         try Current.shell.run(command: .gitShortlog, at: path)
     }
@@ -86,5 +86,3 @@ extension Git {
         let date: Date
     }
 }
-
-

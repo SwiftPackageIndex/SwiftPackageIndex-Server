@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,17 +43,17 @@ extension DefaultStringInterpolation {
     mutating func appendInterpolation(date: Date, relativeTo referenceDate: Date) {
         appendInterpolation(Self.localizedString(for: date, relativeTo: referenceDate))
     }
-    
+
     mutating func appendInterpolation(inWords timeDifference: TimeInterval) {
         appendInterpolation(Self.distancePhrase(timeDifference))
     }
-    
+
     static func localizedString(for date: Date, relativeTo reference: Date) -> String {
         let delta = date.timeIntervalSince(reference)
         let phrase = Self.distancePhrase(delta)
         return delta >= 0 ? "in \(phrase)" : "\(phrase) ago"
     }
-    
+
     // Based on: https://apidock.com/rails/ActionView/Helpers/DateHelper/distance_of_time_in_words
     static func distancePhrase(_ delta: TimeInterval) -> String {
         let m = 60

@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ class SearchFilterTests: AppTestCase {
         do { // No colon
             XCTAssertNil(SearchFilter.parse(filterTerm: "a"))
         }
-        
+
         do { // Too many colons
             XCTAssertNil(SearchFilter.parse(filterTerm: "a:b:c"))
         }
@@ -68,22 +68,22 @@ class SearchFilterTests: AppTestCase {
         do { // No valid filter
             XCTAssertNil(SearchFilter.parse(filterTerm: "invalid:true"))
         }
-        
+
         do { // Valid filter
             XCTAssertTrue(SearchFilter.parse(filterTerm: "stars:5") is StarsSearchFilter)
         }
-        
+
     }
-    
+
     func test_separateTermsAndFilters() {
         let output = SearchFilter.split(terms: ["a", "b", "invalid:true", "stars:5"])
-        
+
         XCTAssertEqual(output.terms.sorted(), ["a", "b", "invalid:true"])
-        
+
         XCTAssertEqual(output.filters.count, 1)
         XCTAssertTrue(output.filters[0] is StarsSearchFilter)
     }
-    
+
     // MARK: Filters
 
     func test_authorFilter() throws {

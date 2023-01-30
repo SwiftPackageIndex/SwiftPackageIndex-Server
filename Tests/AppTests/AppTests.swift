@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import XCTest
 
 
 class AppTests: AppTestCase {
-    
+
     func test_Filemanager_checkoutsDirectory() throws {
         Current.fileManager = .live
         unsetenv("CHECKOUTS_DIR")
@@ -28,7 +28,7 @@ class AppTests: AppTestCase {
         setenv("CHECKOUTS_DIR", "/tmp/foo", 1)
         XCTAssertEqual(Current.fileManager.checkoutsDirectory(), "/tmp/foo")
     }
-    
+
     func test_migrations() throws {
         XCTAssertNoThrow(try app.autoRevert().wait())
         XCTAssertNoThrow(try app.autoMigrate().wait())

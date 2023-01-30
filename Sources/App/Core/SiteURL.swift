@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ enum Api: Resourceable {
     case search
     case version
     case versions(_ id: Parameter<UUID>, VersionsPathComponents)
-    
+
     var path: String {
         switch self {
             case let .packages(.value(owner), .value(repo), next):
@@ -53,7 +53,7 @@ enum Api: Resourceable {
                 return "search"
         }
     }
-    
+
     var pathComponents: [PathComponent] {
         switch self {
             case let .packages(.key, .key, remainder):
@@ -70,17 +70,17 @@ enum Api: Resourceable {
                 fatalError("pathComponents must not be called with a value parameter")
         }
     }
-    
+
     enum PackagesPathComponents: String, Resourceable {
         case badge
         case triggerBuilds = "trigger-builds"
     }
-    
+
     enum VersionsPathComponents: String, Resourceable {
         case builds
         case triggerBuild = "trigger-build"
     }
-    
+
 }
 
 
@@ -144,10 +144,10 @@ enum SiteURL: Resourceable {
 
             case .home:
                 return ""
-                
+
             case let .images(name):
                 return "images/\(name)"
-                
+
             case let .javascripts(name):
                 return "/\(name).js"
 
@@ -199,16 +199,16 @@ enum SiteURL: Resourceable {
                 return "try-in-a-playground"
         }
     }
-    
+
     var pathComponents: [PathComponent] {
         switch self {
             case .addAPackage, .faq, .home, .packageCollections, .privacy, .rssPackages, .rssReleases,
                     .search, .siteMap, .tryInPlayground, .buildMonitor:
                 return [.init(stringLiteral: path)]
-                
+
             case let .api(next):
                 return ["api"] + next.pathComponents
-                
+
             case .author:
                 return [":owner"]
 
@@ -226,7 +226,7 @@ enum SiteURL: Resourceable {
 
             case .package(.key, .key, .none):
                 return [":owner", ":repository"]
-                
+
             case let .package(k1, k2, .some(next)):
                 return Self.package(k1, k2, .none).pathComponents + next.pathComponents
 
@@ -261,7 +261,7 @@ enum SiteURL: Resourceable {
     static let absoluteURL = _absoluteURL
     static let relativeURL = _relativeURL
     #endif
-    
+
     static var apiBaseURL: String { absoluteURL("api") }
 
     enum PackagePathComponents: String, Resourceable {
@@ -290,11 +290,11 @@ extension Resourceable {
     func absoluteURL(anchor: String? = nil) -> String {
         "\(SiteURL.absoluteURL(path))" + (anchor.map { "#\($0)" } ?? "")
     }
-    
+
     func absoluteURL(parameters: [QueryParameter], encodeParameters: Bool = true) -> String {
         "\(SiteURL.absoluteURL(path))\(parameters.queryString(encoded: encodeParameters))"
     }
-    
+
     func relativeURL(anchor: String? = nil) -> String {
         "\(SiteURL.relativeURL(path))" + (anchor.map { "#\($0)" } ?? "")
     }
@@ -334,7 +334,7 @@ struct QueryParameter {
         let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         return "\(encodedKey)=\(encodedValue)"
     }
-    
+
     var unencodedQueryString: String {
         return "\(key)=\(value)"
     }

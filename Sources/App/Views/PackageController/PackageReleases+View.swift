@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@ import Vapor
 import Plot
 
 enum PackageReleases {
-    
+
     class View: TurboFrame {
-        
+
         let model: Model?
 
         init(model: Model?) {
@@ -33,14 +33,14 @@ enum PackageReleases {
         override func frameContent() -> Node<HTML.BodyContext> {
             guard let releases = model?.releases
             else { return .p("This package has no release notes.") }
-            
+
             return .group(
                 .forEach(releases.enumerated()) { (index, release) in
                     group(forRelease: release, isLast: index == releases.count - 1)
                 }
             )
         }
-        
+
         func group(forRelease release: Model.Release, isLast: Bool) -> Node<HTML.BodyContext> {
             .group(
                 .a(
@@ -53,5 +53,5 @@ enum PackageReleases {
             )
         }
     }
-    
+
 }

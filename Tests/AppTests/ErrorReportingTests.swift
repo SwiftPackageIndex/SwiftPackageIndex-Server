@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import XCTVapor
 
 
 class ErrorReportingTests: AppTestCase {
-    
+
     func test_recordError() async throws {
         let pkg = try await savePackageAsync(on: app.db, "1")
         try await recordError(database: app.db,
@@ -30,13 +30,13 @@ class ErrorReportingTests: AppTestCase {
             XCTAssertEqual(pkg.processingStage, .ingestion)
         }
     }
-    
+
     func test_Rollbar_createItem() async throws {
         Current.rollbarToken = { "token" }
         let client = MockClient { _, resp in resp.status = .ok }
         try await Rollbar.createItem(client: client, level: .critical, message: "Test critical")
     }
-    
+
     func test_Ingestor_error_reporting() async throws {
         // setup
         try await savePackagesAsync(on: app.db, ["1", "2"], processingStage: .reconciliation)
@@ -48,10 +48,10 @@ class ErrorReportingTests: AppTestCase {
             await reportedLevel.setValue(level)
             await reportedError.setValue(error as? AppError)
         }
-        
+
         // MUT
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
-        
+
         // validation
         await reportedLevel.withValue {
             XCTAssertEqual($0, .error)
@@ -60,7 +60,7 @@ class ErrorReportingTests: AppTestCase {
             XCTAssertEqual($0, AppError.invalidPackageUrl(nil, "foo"))
         }
     }
-    
+
     func test_Analyzer_error_reporting() async throws {
         // setup
         try await savePackagesAsync(on: app.db, ["1", "2"].asGithubUrls.asURLs,
@@ -72,20 +72,20 @@ class ErrorReportingTests: AppTestCase {
             // decode it as the manifest result - we use this to simulate errors
             return "invalid"
         }
-        
+
         let reportedLevel = ActorIsolated<AppError.Level?>(nil)
         let reportedError = ActorIsolated<Error?>(nil)
         Current.reportError = { _, level, error in
             await reportedLevel.setValue(level)
             await reportedError.setValue(error)
         }
-        
+
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
                                   mode: .limit(10))
-        
+
         // validation
         await reportedLevel.withValue {
             XCTAssertEqual($0, .error)
@@ -94,26 +94,26 @@ class ErrorReportingTests: AppTestCase {
             XCTAssertNotNil($0)
         }
     }
-    
+
     func test_invalidPackageCachePath() async throws {
         // setup
         try await savePackagesAsync(on: app.db, ["1", "2"], processingStage: .ingestion)
-        
+
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
                                   mode: .limit(10))
-        
+
         // validation
         let packages = try await Package.query(on: app.db).sort(\.$url).all()
         XCTAssertEqual(packages.map(\.status), [.invalidCachePath, .invalidCachePath])
     }
-    
+
     func test_AppError_Level_Comparable() throws {
         XCTAssert(AppError.Level.critical > .error)
         XCTAssert(AppError.Level.error <= .critical)
         XCTAssert(AppError.Level.error <= .error)
     }
-    
+
 }

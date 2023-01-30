@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ enum AppMetrics {
     static var apiSearchGetTotal: PromCounter<Int>? {
         counter("spi_api_search_get_total")
     }
-    
+
     static var apiSearchGetWithFilterTotal: PromCounter<Int>? {
         counter("spi_api_search_get_with_filter_total")
     }
@@ -70,7 +70,7 @@ enum AppMetrics {
     static var searchTermsCount: PromGauge<Int>? {
         gauge("spi_search_terms_count")
     }
-    
+
     static var searchFiltersCount: PromGauge<Int>? {
         gauge("spi_search_filters_count")
     }

@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import SQLKit
 
 struct RecentPackage: Decodable, Equatable {
     static let schema = "recent_packages"
-    
+
     // periphery:ignore
     var id: UUID
     var repositoryOwner: String
@@ -27,7 +27,7 @@ struct RecentPackage: Decodable, Equatable {
     var packageName: String
     var packageSummary: String?
     var createdAt: Date
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case repositoryOwner = "repository_owner"
@@ -45,8 +45,8 @@ extension RecentPackage {
         }
         return db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
     }
-    
-    
+
+
     static func fetch(on database: Database,
                       limit: Int = Constants.recentPackagesLimit) -> EventLoopFuture<[RecentPackage]> {
         guard let db = database as? SQLDatabase else {

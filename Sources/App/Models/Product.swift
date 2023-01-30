@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,39 +18,39 @@ import Vapor
 
 final class Product: Model, Content {
     static let schema = "products"
-    
+
     typealias Id = UUID
-    
+
     // managed fields
-    
+
     @ID(key: .id)
     var id: Id?
-    
+
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
-    
+
     // periphery:ignore
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
-    
+
     // reference fields
-    
+
     @Parent(key: "version_id")
     var version: Version
-    
+
     // data fields
-    
+
     @Field(key: "type")
     var type: ProductType?
-    
+
     @Field(key: "name")
     var name: String
 
     @Field(key: "targets")
     var targets: [String]
-    
+
     init() {}
-    
+
     init(id: Id? = nil,
          version: Version,
          type: ProductType,

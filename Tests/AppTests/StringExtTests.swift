@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,20 +33,20 @@ final class StringExtTests: XCTestCase {
             "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server".droppingGitExtension,
             "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"
         )
-        
+
         XCTAssertEqual(
             "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server.git".droppingGitExtension,
             "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"
         )
     }
-    
+
     func testDroppingGitHubPrefix() {
         XCTAssertEqual(
             "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server".droppingGithubComPrefix,
             "SwiftPackageIndex/SwiftPackageIndex-Server"
         )
     }
-    
+
     func testTrimming() {
         XCTAssertEqual("".trimmed, nil)
         XCTAssertEqual("  ".trimmed, nil)

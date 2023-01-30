@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 import Foundation
 
 extension SearchShow.Model {
-    
+
     private static func mockedWeightedKeywords(results: [Search.Result]) -> [WeightedKeyword] {
         let keywords = results.compactMap { $0.keywordResult?.keyword }
         return zip(keywords, 1...).map(WeightedKeyword.init)
@@ -28,7 +28,7 @@ extension SearchShow.Model {
                      query: "query",
                      response: .init(hasMoreResults: true, searchTerm: "query", searchFilters: [], results: results), weightedKeywords: mockedWeightedKeywords(results: results))
     }
-    
+
     static func mockWithFilter(results: [Search.Result] = .mock()) -> Self {
         return .init(page: 3,
                      query: "query license:mit",

@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import XCTest
 
 
 class ScoreTests: AppTestCase {
-    
+
     func test_compute_input() throws {
         XCTAssertEqual(Score.compute(.init(licenseKind: .none,
                                            releaseCount: 0,
@@ -156,7 +156,7 @@ class ScoreTests: AppTestCase {
                                            numberOfContributors: 20)),
                        132)
     }
-    
+
     func test_compute_package_versions() async throws {
         // setup
         let pkg = try await savePackageAsync(on: app.db, "1")

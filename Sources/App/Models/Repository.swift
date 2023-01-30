@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,45 +18,45 @@ import Vapor
 
 final class Repository: Model, Content {
     static let schema = "repositories"
-    
+
     typealias Id = UUID
-    
+
     // managed fields
-    
+
     @ID(key: .id)
     var id: Id?
-    
+
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
-    
+
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
-    
+
     // reference fields
-    
+
     @OptionalParent(key: "forked_from_id")  // TODO: remove or implement
     var forkedFrom: Repository?
-    
+
     @Parent(key: "package_id")
     var package: Package
-    
+
     // data fields
-    
+
     @Field(key: "authors")
     var authors: PackageAuthors?
-    
+
     @Field(key: "commit_count")
     var commitCount: Int
-    
+
     @Field(key: "default_branch")
     var defaultBranch: String?
-    
+
     @Field(key: "first_commit_date")
     var firstCommitDate: Date?
-    
+
     @Field(key: "forks")
     var forks: Int
-    
+
     @Field(key: "homepage_url")
     var homepageUrl: String?
 
@@ -121,9 +121,9 @@ final class Repository: Model, Content {
     var summary: String?
 
     // initializers
-    
+
     init() { }
-    
+
     init(id: Id? = nil,
          package: Package,
          authors: PackageAuthors? = nil,
@@ -184,7 +184,7 @@ final class Repository: Model, Content {
         self.releases = releases
         self.stars = stars
     }
-    
+
     init(packageId: Package.Id) {
         self.$package.id = packageId
     }

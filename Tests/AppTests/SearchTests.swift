@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import XCTVapor
 
 
 class SearchTests: AppTestCase {
-    
+
     func test_DBRecord_packageURL() throws {
         XCTAssertEqual(Search.DBRecord(matchType: .package,
                                        packageId: UUID(),
@@ -203,10 +203,10 @@ class SearchTests: AppTestCase {
         try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
         try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-        
+
         // MUT
         let res = try Search.fetch(app.db, ["bar"], page: 1, pageSize: 20).wait()
-        
+
         // validation
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
@@ -228,7 +228,7 @@ class SearchTests: AppTestCase {
                              ])
         )
     }
-    
+
     func test_fetch_multiple() throws {
         // Test search with multiple terms ("and")
         // setup
@@ -249,10 +249,10 @@ class SearchTests: AppTestCase {
         try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
         try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-        
+
         // MUT
         let res = try Search.fetch(app.db, ["owner", "bar"], page: 1, pageSize: 20).wait()
-        
+
         // validation
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
@@ -297,7 +297,7 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res.results.count, 1)
         XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["bar"])
     }
-    
+
     func test_quoting() throws {
         // Test searching for a `'`
         // setup
@@ -319,10 +319,10 @@ class SearchTests: AppTestCase {
         try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
         try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-        
+
         // MUT
         let res = try Search.fetch(app.db, ["'"], page: 1, pageSize: 20).wait()
-        
+
         // validation
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
@@ -344,7 +344,7 @@ class SearchTests: AppTestCase {
                              ])
         )
     }
-    
+
     func test_search_pagination() throws {
         // setup
         let packages = (0..<9).map { idx in
@@ -359,7 +359,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()
-        
+
         do {  // first page
             // MUT
             let res = try API.search(database: app.db,
@@ -500,16 +500,16 @@ class SearchTests: AppTestCase {
             try Version(package: p, packageName: "\($0)", reference: .branch("main")).save(on: app.db).wait()
         }
         try Search.refresh(on: app.db).wait()
-        
+
         // MUT
         let res = try Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).wait()
-        
+
         // validation
         XCTAssertEqual(res.results.count, 11)
         XCTAssertEqual(res.results.map(\.testDescription),
                        ["a:foobar", "p:9", "p:8", "p:7", "p:6", "p:5", "p:4", "p:3", "p:2", "p:1", "p:0"])
     }
-    
+
     func test_exact_name_match() throws {
         // Ensure exact name matches are boosted
         // setup
@@ -543,14 +543,14 @@ class SearchTests: AppTestCase {
         try Version(package: p3, packageName: "some name", reference: .branch("main"))
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-        
+
         // MUT
         let res = try Search.fetch(app.db, ["ink"], page: 1, pageSize: 20).wait()
-        
+
         XCTAssertEqual(res.results.map(\.package?.repositoryName),
                        ["1", "3", "2"])
     }
-    
+
     func test_exact_name_match_whitespace() throws {
         // Ensure exact name matches are boosted, for package name with whitespace
         // setup
@@ -584,10 +584,10 @@ class SearchTests: AppTestCase {
         try Version(package: p3, packageName: "some name", reference: .branch("main"))
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-        
+
         // MUT
         let res = try Search.fetch(app.db, ["foo", "bar"], page: 1, pageSize: 20).wait()
-        
+
         XCTAssertEqual(res.results.map(\.package?.repositoryName),
                        ["1", "3", "2"])
     }
@@ -655,7 +655,7 @@ class SearchTests: AppTestCase {
         try Version(package: p2, packageName: "foo2", reference: .branch("main"))
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-        
+
         // MUT
         let res = try Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).wait()
 
@@ -910,7 +910,7 @@ class SearchTests: AppTestCase {
                            hasDocs: false)!)
         ])
     }
-    
+
     func test_search_withNoTerms() throws {
         // Setup
         let p1 = Package(id: .id1, url: "1", score: 10)
@@ -935,13 +935,13 @@ class SearchTests: AppTestCase {
         try Version(package: p2, packageName: "p2", reference: .branch("main"))
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-        
+
         // MUT
         let res = try Search.fetch(app.db, ["stars:>15"], page: 1, pageSize: 20).wait()
         XCTAssertEqual(res.results.count, 1)
         XCTAssertEqual(res.results.compactMap(\.package).compactMap(\.packageName).sorted(), ["p1"])
     }
-    
+
     func test_search_withFilter_stars() throws {
         // Setup
         let p1 = Package(id: .id1, url: "1", score: 10)
@@ -964,38 +964,38 @@ class SearchTests: AppTestCase {
         try Version(package: p2, packageName: "p2", reference: .branch("main"))
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-        
+
         do { // Baseline
             let res = try Search.fetch(app.db, ["test"], page: 1, pageSize: 20).wait()
             XCTAssertEqual(res.results.count, 2)
             XCTAssertEqual(res.results.compactMap(\.package).compactMap(\.packageName).sorted(), ["p1", "p2"])
         }
-        
+
         do { // Greater Than
             let res = try Search.fetch(app.db, ["test", "stars:>25"], page: 1, pageSize: 20).wait()
             XCTAssertEqual(res.results.count, 1)
             XCTAssertEqual(res.results.first?.package?.packageName, "p1")
         }
-        
+
         do { // Less Than
             let res = try Search.fetch(app.db, ["test", "stars:<25"], page: 1, pageSize: 20).wait()
             XCTAssertEqual(res.results.count, 1)
             XCTAssertEqual(res.results.first?.package?.packageName, "p2")
         }
-        
+
         do { // Equal
             let res = try Search.fetch(app.db, ["test", "stars:50"], page: 1, pageSize: 20).wait()
             XCTAssertEqual(res.results.count, 1)
             XCTAssertEqual(res.results.first?.package?.packageName, "p1")
         }
-        
+
         do { // Not Equals
             let res = try Search.fetch(app.db, ["test", "stars:!50"], page: 1, pageSize: 20).wait()
             XCTAssertEqual(res.results.count, 1)
             XCTAssertEqual(res.results.first?.package?.packageName, "p2")
         }
     }
-    
+
     func test_onlyPackageResults_whenFiltersApplied() throws {
         do { // with filter
             let query = try XCTUnwrap(Search.query(app.db, ["a", "stars:500"], page: 1, pageSize: 5))
@@ -1004,7 +1004,7 @@ class SearchTests: AppTestCase {
             XCTAssertTrue(sql.contains(#"SELECT DISTINCT 'keyword' AS "match_type""#))
             XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
         }
-        
+
         do { // without filter
             let query = try XCTUnwrap(Search.query(app.db, ["a"], page: 1, pageSize: 5))
             let sql = renderSQL(query)
