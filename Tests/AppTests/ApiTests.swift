@@ -120,6 +120,7 @@ class ApiTests: AppTestCase {
                     let builds = try Build.query(on: app.db).all().wait()
                     XCTAssertEqual(builds.count, 1)
                     let b = try builds.first.unwrap()
+                    XCTAssertEqual(b.id, .id0)
                     XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
                     XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
                     XCTAssertEqual(b.logUrl, "log url")
@@ -157,6 +158,7 @@ class ApiTests: AppTestCase {
                     let builds = try Build.query(on: app.db).all().wait()
                     XCTAssertEqual(builds.count, 1)
                     let b = try builds.first.unwrap()
+                    XCTAssertEqual(b.id, .id0)
                     XCTAssertEqual(b.platform, .macosXcodebuild)
                     XCTAssertEqual(b.status, .ok)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
@@ -173,7 +175,7 @@ class ApiTests: AppTestCase {
 
         do {  // MUT - add another build to test Package.platformCompatibility
             let dto: API.PostCreateBuildDTO = .init(
-                buildId: .id0,
+                buildId: .id1,
                 platform: .ios,
                 resolvedDependencies: [.init(packageName: "foo",
                                              repositoryURL: "http://foo/bar")],
@@ -189,7 +191,7 @@ class ApiTests: AppTestCase {
                 afterResponse: { res in
                     // validation
                     let builds = try Build.query(on: app.db).all().wait()
-                    XCTAssertEqual(builds.count, 2)
+                    XCTAssertEqual(Set(builds.map(\.id)), Set([.id0, .id1]))
                     // additional ios build ok -> package is also ios compatible
                     let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
                     XCTAssertEqual(p.platformCompatibility, [.ios, .macos])
