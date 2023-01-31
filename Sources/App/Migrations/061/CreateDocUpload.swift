@@ -40,7 +40,7 @@ struct CreateDocUpload: AsyncMigration {
             .field("status", .string, .required)
 
         // constraints
-            .unique(on: "version_id")
+            .unique(on: "version_id") // automatically implies .unique(on: "build_id")
 
             .create()
     }

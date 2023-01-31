@@ -27,8 +27,8 @@ final class DocUploadTests: AppTestCase {
         let docUploadId = UUID()
         let v = try Version(id: versionId, package: pkg)
         try await v.save(on: app.db)
-        let b = try Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
-        try await b.save(on: app.db)
+        try await Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+            .save(on: app.db)
         let d = DocUpload(id: docUploadId,
                           buildId: buildId,
                           versionId: versionId,
@@ -55,8 +55,54 @@ final class DocUploadTests: AppTestCase {
         }
     }
 
-    func test_delete_cascade() throws {
-        XCTFail()
+    func test_delete_cascade_build() async throws {
+        // setup
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        let versionId = UUID()
+        let buildId = UUID()
+        let v = try Version(id: versionId, package: pkg)
+        try await v.save(on: app.db)
+        try await Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+            .save(on: app.db)
+        try await DocUpload(buildId: buildId, versionId: versionId, status: .ok)
+            .save(on: app.db)
+        try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
+        try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 1)
+        try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 1)
+
+        // MUT
+        try await Build.find(buildId, on: app.db)?
+            .delete(on: app.db)
+
+        // validate
+        try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
+        try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 0)
+        try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
+    }
+
+    func test_delete_cascade_version() async throws {
+        // setup
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        let versionId = UUID()
+        let buildId = UUID()
+        let v = try Version(id: versionId, package: pkg)
+        try await v.save(on: app.db)
+        try await Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+            .save(on: app.db)
+        try await DocUpload(buildId: buildId, versionId: versionId, status: .ok)
+            .save(on: app.db)
+        try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
+        try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 1)
+        try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 1)
+
+        // MUT
+        try await Version.find(versionId, on: app.db)?
+            .delete(on: app.db)
+
+        // validate
+        try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 0)
+        try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 0)
+        try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
     }
 
     func test_logUrl() throws {
