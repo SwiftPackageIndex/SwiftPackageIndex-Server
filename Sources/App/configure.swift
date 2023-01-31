@@ -273,6 +273,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 060 - update repository authors type
         app.migrations.add(UpdateRepositoryAuthorsType())
     }
+    do { // Migration 061 - create doc_uploads
+        app.migrations.add(CreateDocUpload())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
