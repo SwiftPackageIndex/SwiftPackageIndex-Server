@@ -16,5 +16,5 @@ public func XCTAssertEqualAsync<T>(_ expression1: @autoclosure () async throws -
 
 public func XCTAssertNoThrowAsync<T>(_ expression: @autoclosure () async throws -> T, _ message: @autoclosure () -> String = "", file: StaticString = #filePath, line: UInt = #line) async throws {
     let res = try await expression()
-    try XCTAssertNoThrow(res, message(), file: file, line: line)
+    XCTAssertNoThrow(res, message(), file: file, line: line)
 }

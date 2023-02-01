@@ -99,8 +99,24 @@ extension DocUpload {
     func attach(to build: Build, on database: Database) async throws {
         $build.id = try build.requireID()
         build.$docUpload.id = try requireID()
-        try await save(on: database)
-        try await build.save(on: database)
+        try await database.transaction {
+            try await self.save(on: $0)
+            try await build.save(on: $0)
+        }
+    }
+
+    /// Detach a ``DocUpload`` from its associated ``Build`` record and also delete it . Deletion by itself would fail, due to the foreign key constraint on the `builds` table.
+    ///   - database: ``Database`` to use for deletion
+    func detachAndDelete(on database: Database) async throws {
+        try await database.transaction { tx in
+            if self.$build.value == nil {
+                try await self.$build.load(on: tx)
+            }
+            // We need to reset builds.doc_upload_id to nil to prevent the FK constraint from blocking the delete
+            self.build.$docUpload.id = nil
+            try await self.build.save(on: tx)
+            try await self.delete(on: tx)
+        }
     }
 
 }

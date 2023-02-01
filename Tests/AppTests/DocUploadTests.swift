@@ -54,6 +54,37 @@ final class DocUploadTests: AppTestCase {
         }
     }
 
+    func test_detachAndDelete() async throws {
+        // Ensure deleting doc_uploads doesn't cascade into builds
+        // setup
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        let v = try Version(id: UUID(), package: pkg)
+        try await v.save(on: app.db)
+        let buildId = UUID()
+        let b = try Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        try await b.save(on: app.db)
+        let docUploadId = UUID()
+        try await DocUpload(id: docUploadId, status: .ok)
+            .attach(to: b, on: app.db)
+        try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
+        try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 1)
+        try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 1)
+
+        // MUT
+        try await DocUpload.find(docUploadId, on: app.db)?
+            .detachAndDelete(on: app.db)
+
+        // validate
+        try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
+        try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 1)
+        try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
+        do {  // Ensure b.doc_upload_id is reset
+            let b = try await XCTUnwrapAsync(try await Build.find(buildId, on: app.db))
+            XCTAssertNil(b.docUpload)
+            XCTAssertNil(b.$docUpload.id)
+        }
+    }
+
     func test_delete_cascade_build() async throws {
         // setup
         let pkg = try await savePackageAsync(on: app.db, "1")
@@ -100,31 +131,6 @@ final class DocUploadTests: AppTestCase {
         // validate
         try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 0)
         try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 0)
-        try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
-    }
-
-    func test_delete_cascade_doc_upload() async throws {
-        // Ensure deleting doc_uploads doesn't cascade into builds
-        // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
-        let v = try Version(id: UUID(), package: pkg)
-        try await v.save(on: app.db)
-        let b = try Build(id: UUID(), version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
-        try await b.save(on: app.db)
-        let docUploadId = UUID()
-        try await DocUpload(id: docUploadId, status: .ok)
-            .attach(to: b, on: app.db)
-        try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
-        try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 1)
-        try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 1)
-
-        // MUT
-        try await DocUpload.find(docUploadId, on: app.db)?
-            .delete(on: app.db)
-
-        // validate
-        try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
-        try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
     }
 
