@@ -36,7 +36,8 @@ extension SupportersShow {
         }
 
         override func content() -> Node<HTML.BodyContext> {
-            .group(
+            .div(
+                .class("supporters"),
                 .h2("Supporters"),
                 .p("This project is entirely funded by ..."),
                 model.corporateSupporters(),

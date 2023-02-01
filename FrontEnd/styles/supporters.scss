@@ -16,37 +16,74 @@
 // Loading indicator/spinner.
 // -------------------------------------------------------------------------
 
-.community-supporters {
-    ul {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        justify-content: center;
-        padding: 0;
+.supporters {
+    h3 {
+        text-align: center;
+    }
 
-        li {
-            list-style: none;
+    section {
+        ul {
+            margin: 60px 0;
+        }
 
-            > a {
-                display: flex;
-                align-items: center;
+        &.corporate {
+            ul {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                justify-content: space-between;
+                padding: 0;
 
-                &:not(:hover) {
-                    color: var(--page-text);
+                li {
+                    display: inline-flex;
+                    justify-content: center;
+                    list-style: none;
+
+                    > a {
+                        display: inline-flex;
+                        flex-direction: column;
+                        align-items: center;
+
+                        &:not(:hover) {
+                            color: var(--page-text);
+                        }
+                    }
                 }
             }
+        }
 
-            div {
-                > :not(:first-child) {
-                    font-size: 13px;
-                    color: var(--page-dimmed-text);
+        &.community {
+            ul {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                justify-content: center;
+                padding: 0;
+
+                li {
+                    list-style: none;
+
+                    > a {
+                        display: flex;
+                        align-items: center;
+
+                        &:not(:hover) {
+                            color: var(--page-text);
+                        }
+                    }
+
+                    div {
+                        > :not(:first-child) {
+                            font-size: 13px;
+                            color: var(--page-dimmed-text);
+                        }
+                    }
+
+                    img {
+                        margin: 15px;
+                        background-color: var(--page-background);
+                        border-radius: 50%;
+                        box-shadow: var(--avatar-shadow);
+                    }
                 }
-            }
-
-            img {
-                margin: 15px;
-                background-color: var(--page-background);
-                border-radius: 50%;
-                box-shadow: var(--avatar-shadow);
             }
         }
     }

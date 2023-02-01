@@ -16,14 +16,21 @@ import Plot
 
 enum SupportersShow {
     struct Model {
-
         func corporateSupporters() -> Node<HTML.BodyContext> {
-            .empty
+            .section(
+                .class("corporate"),
+                .h3("Corporate Supporters"),
+                .ul(
+                    .group(
+                        Supporters.corporate.shuffled().map(\.listNode)
+                    )
+                )
+            )
         }
 
         func communitySupporters() -> Node<HTML.BodyContext> {
             .section(
-                .class("community-supporters"),
+                .class("community"),
                 .h3("Community Supporters"),
                 .ul(
                     .group(
@@ -32,6 +39,28 @@ enum SupportersShow {
                 )
             )
         }
+    }
+}
+
+extension Supporters.Corporate {
+    var listNode: Node<HTML.ListContext> {
+        .li(
+            .a(
+                .href(url),
+                .picture(
+                    .source(
+                        .srcset(logo.darkModeUrl),
+                        .media("(prefers-color-scheme: dark)")
+                    ),
+                    .img(
+                        .alt("\(name) logo"),
+                        .src(logo.lightModeUrl),
+                        .width(300),
+                        .height(75)
+                    )
+                )
+            )
+        )
     }
 }
 
