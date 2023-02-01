@@ -82,25 +82,6 @@ final class DocUpload: Model, Content {
 }
 
 
-extension String {
-    static let replacements = [
-        // keep "$" first, so it doesn't replace the "$" in the following substitutions
-        ("$", "$2524"),
-        ("/", "$252F"),
-        ("[", "$255B"),
-        ("]", "$255D")
-    ]
-
-    var awsEncoded: String {
-        var result = self
-        for (key, value) in Self.replacements {
-            result = result.replacingOccurrences(of: key, with: value)
-        }
-        return result
-    }
-}
-
-
 extension DocUpload {
     enum Status: String, Codable, CustomStringConvertible {
         case ok
