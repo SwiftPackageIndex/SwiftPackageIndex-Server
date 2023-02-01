@@ -96,6 +96,8 @@ extension SiteURL {
                 return .hourly
             case .siteMap:
                 return .weekly
+            case .supporters:
+                return .weekly
             case .stylesheets:
                 return .weekly
             case .tryInPlayground:
