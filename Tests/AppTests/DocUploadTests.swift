@@ -27,16 +27,16 @@ final class DocUploadTests: AppTestCase {
         let docUploadId = UUID()
         let v = try Version(id: versionId, package: pkg)
         try await v.save(on: app.db)
-        try await Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
-            .save(on: app.db)
+        let b = try Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
         let d = DocUpload(id: docUploadId,
-                          buildId: buildId,
-                          versionId: versionId,
+                          build: b,
                           error: "error",
                           fileCount: 1,
                           logUrl: "logUrl",
                           mbSize: 2,
                           status: .ok)
+        try await d.save(on: app.db)
+        try await b.save(on: app.db)
 
         // MUT
         try await d.save(on: app.db)
@@ -48,6 +48,10 @@ final class DocUploadTests: AppTestCase {
             XCTAssertEqual(d.logUrl, "logUrl")
             XCTAssertEqual(d.mbSize, 2)
             XCTAssertEqual(d.status, .ok)
+            // check relationship
+            let b = try await XCTUnwrapAsync(try await Build.find(buildId, on: app.db))
+            try await b.$docUpload.load(on: app.db)
+            XCTAssertEqual(b.docUpload?.id, docUploadId)
         }
     }
 
@@ -58,10 +62,10 @@ final class DocUploadTests: AppTestCase {
         let buildId = UUID()
         let v = try Version(id: versionId, package: pkg)
         try await v.save(on: app.db)
-        try await Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        let b = try Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        try await DocUpload(build: b, status: .ok)
             .save(on: app.db)
-        try await DocUpload(buildId: buildId, versionId: versionId, status: .ok)
-            .save(on: app.db)
+        try await b.save(on: app.db)
         try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 1)
@@ -83,10 +87,9 @@ final class DocUploadTests: AppTestCase {
         let buildId = UUID()
         let v = try Version(id: versionId, package: pkg)
         try await v.save(on: app.db)
-        try await Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
-            .save(on: app.db)
-        try await DocUpload(buildId: buildId, versionId: versionId, status: .ok)
-            .save(on: app.db)
+        let b = try Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        try await b.save(on: app.db)
+        try await DocUpload(build: b, status: .ok).save(on: app.db)
         try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 1)
@@ -101,7 +104,7 @@ final class DocUploadTests: AppTestCase {
         try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
     }
 
-    func test_prevent_inconsistent_ids() async throws {
+    func test_unique_constraints() async throws {
         // setup
         let pkg = try await savePackageAsync(on: app.db, "1")
         let versionId1 = UUID()
@@ -116,15 +119,16 @@ final class DocUploadTests: AppTestCase {
 
         // MUT
         do {
-            // Construct and attempt to save DocUpload record with inconsistent build and version ids
-            try await DocUpload(buildId: buildId, versionId: versionId2, status: .ok)
-                .save(on: app.db)
             XCTFail("Saving bad doc upload record must fail")
         } catch {
             XCTAssertEqual("\(error)", "")
         }
 
         // validate
+    }
+
+    func test_cascade() async throws {
+        XCTFail("ensure deleting a doc_upload doesn't delete the build")
     }
 
 }

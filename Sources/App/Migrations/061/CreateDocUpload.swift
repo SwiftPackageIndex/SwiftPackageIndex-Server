@@ -16,34 +16,44 @@ import Fluent
 
 
 struct CreateDocUpload: AsyncMigration {
+    let versionIdDocUploadIdConstraint = "uq:builds.version_id+builds.doc_upload_id"
+    let docUploadIdConstraint = "uq:builds.doc_upload_id"
+
     func prepare(on database: Database) async throws {
-        try await database.schema("doc_uploads")
+        do {  // create doc_uploads table
+            try await database.schema("doc_uploads")
 
-        // managed fields
-            .id()
-            .field("created_at", .datetime)
-            .field("updated_at", .datetime)
+            // managed fields
+                .id()
+                .field("created_at", .datetime)
+                .field("updated_at", .datetime)
 
-        // reference fields
-            .field("build_id", .uuid,
-                   .references("builds", "id", onDelete: .cascade), .required)
-            .field("version_id", .uuid,
-                   .references("versions", "id", onDelete: .cascade), .required)
+            // data fields
+                .field("error", .string)
+                .field("file_count", .int)
+                .field("log_url", .string)
+                .field("mb_size", .int)
+                .field("status", .string, .required)
 
-        // data fields
-            .field("error", .string)
-            .field("file_count", .int)
-            .field("log_url", .string)
-            .field("mb_size", .int)
-            .field("status", .string, .required)
-
-        // constraints
-            .unique(on: "version_id") // automatically implies .unique(on: "build_id")
-
-            .create()
+                .create()
+        }
+        do {  // add reference field to builds table
+            try await database.schema("builds")
+                  .field("doc_upload_id", .uuid,
+                         .references("doc_uploads", "id", onDelete: .cascade))
+                  .unique(on: "version_id", "doc_upload_id",
+                          name: versionIdDocUploadIdConstraint)
+                  .unique(on: "doc_upload_id", name: docUploadIdConstraint)
+                  .update()
+        }
     }
 
     func revert(on database: Database) async throws {
+        try await database.schema("builds")
+            .deleteConstraint(name: docUploadIdConstraint)
+            .deleteConstraint(name: versionIdDocUploadIdConstraint)
+            .deleteField("doc_upload_id")
+            .update()
         try await database.schema("doc_uploads").delete()
     }
 }

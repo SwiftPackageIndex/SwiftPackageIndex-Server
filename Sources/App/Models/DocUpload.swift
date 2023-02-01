@@ -33,14 +33,6 @@ final class DocUpload: Model, Content {
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
 
-    // reference fields
-
-    @Parent(key: "build_id")
-    var build: Build
-
-    @Parent(key: "version_id")
-    var version: Version
-
     // data fields
 
     @Field(key: "error")
@@ -62,8 +54,7 @@ final class DocUpload: Model, Content {
 
     init(
         id: Id? = nil,
-        buildId: Build.Id,
-        versionId: Version.Id,
+        build: Build,
         error: String? = nil,
         fileCount: Int? = nil,
         logUrl: String? = nil,
@@ -71,8 +62,7 @@ final class DocUpload: Model, Content {
         status: Status
     ) {
         self.id = id
-        self.$build.id = buildId
-        self.$version.id = versionId
+        build.$docUpload.id = id
         self.error = error
         self.fileCount = fileCount
         self.logUrl = logUrl
