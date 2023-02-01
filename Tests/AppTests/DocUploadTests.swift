@@ -101,4 +101,30 @@ final class DocUploadTests: AppTestCase {
         try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
     }
 
+    func test_prevent_inconsistent_ids() async throws {
+        // setup
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        let versionId1 = UUID()
+        let v1 = try Version(id: versionId1, package: pkg)
+        try await v1.save(on: app.db)
+        let versionId2 = UUID()
+        let v2 = try Version(id: versionId2, package: pkg)
+        try await v2.save(on: app.db)
+        let buildId = UUID()
+        try await Build(id: buildId, version: v1, platform: .linux, status: .ok, swiftVersion: .v5_7)
+            .save(on: app.db)
+
+        // MUT
+        do {
+            // Construct and attempt to save DocUpload record with inconsistent build and version ids
+            try await DocUpload(buildId: buildId, versionId: versionId2, status: .ok)
+                .save(on: app.db)
+            XCTFail("Saving bad doc upload record must fail")
+        } catch {
+            XCTAssertEqual("\(error)", "")
+        }
+
+        // validate
+    }
+
 }
