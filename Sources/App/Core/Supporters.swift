@@ -44,5 +44,9 @@ enum Supporters {
         let login: String
         let name: String?
         let avatarUrl: String
+
+        var gitHubUrl: String {
+            "https://github.com/\(login)"
+        }
     }
 }

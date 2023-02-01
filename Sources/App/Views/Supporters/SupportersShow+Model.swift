@@ -12,7 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Plot
+
 enum SupportersShow {
     struct Model {
+
+        func corporateSupporters() -> Node<HTML.BodyContext> {
+            .empty
+        }
+
+        func communitySupporters() -> Node<HTML.BodyContext> {
+            .section(
+                .class("community-supporters"),
+                .h3("Community Supporters"),
+                .ul(
+                    .group(
+                        Supporters.community.shuffled().map(\.listNode)
+                    )
+                )
+            )
+        }
+    }
+}
+
+extension Supporters.Community {
+    var listNode: Node<HTML.ListContext> {
+        .li(
+            .a(
+                .href(gitHubUrl),
+                .img(
+                    .src(avatarUrl),
+                    .alt("Profile picture for \(name ?? login)"),
+                    .width(50),
+                    .height(50),
+                    .attribute(named: "loading", value: "lazy")
+                ),
+                .div(
+                    .unwrap(name, { .div(.text($0)) }),
+                    .div(.text(login))
+                )
+            )
+        )
     }
 }

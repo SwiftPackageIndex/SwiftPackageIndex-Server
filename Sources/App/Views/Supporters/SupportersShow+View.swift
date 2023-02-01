@@ -36,7 +36,12 @@ extension SupportersShow {
         }
 
         override func content() -> Node<HTML.BodyContext> {
-            .text("Supporters")
+            .group(
+                .h2("Supporters"),
+                .p("This project is entirely funded by ..."),
+                model.corporateSupporters(),
+                model.communitySupporters()
+            )
         }
 
         override func navMenuItems() -> [NavMenuItem] {
