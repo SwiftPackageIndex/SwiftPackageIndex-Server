@@ -14,6 +14,7 @@
 
 @testable import App
 
+import PostgresKit
 import XCTVapor
 
 
@@ -127,7 +128,8 @@ final class DocUploadTests: AppTestCase {
         try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
     }
 
-    func test_unique_constraints() async throws {
+    func test_unique_constraint_doc_upload_id() async throws {
+        // Ensure no two versions can reference the same doc_upload
         // setup
         let pkg = try await savePackageAsync(on: app.db, "1")
         let versionId1 = UUID()
@@ -136,18 +138,26 @@ final class DocUploadTests: AppTestCase {
         let versionId2 = UUID()
         let v2 = try Version(id: versionId2, package: pkg)
         try await v2.save(on: app.db)
-        let buildId = UUID()
-        try await Build(id: buildId, version: v1, platform: .linux, status: .ok, swiftVersion: .v5_7)
-            .save(on: app.db)
+        let buildId1 = UUID()
+        let b1 = try Build(id: buildId1, version: v1, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        try await b1.save(on: app.db)
+        let buildId2 = UUID()
+        let b2 = try Build(id: buildId2, version: v2, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        try await b2.save(on: app.db)
+        let docUploadId = UUID()
+        let docUpload = try DocUpload(id: docUploadId, status: .ok)
+        try await docUpload.attach(to: b1, on: app.db)
 
         // MUT
         do {
-            XCTFail("Implement: Saving bad doc upload record must fail")
+            try await docUpload.attach(to: b2, on: app.db)
+            XCTFail("Attaching same doc_upload to another build must fail.")
+        } catch let error as PostgresError where error.code == .uniqueViolation {
+            // validate
+            XCTAssert(error.description.contains(#"duplicate key value violates unique constraint "uq:builds.doc_upload_id""#), "was: \(error)")
         } catch {
-            XCTAssertEqual("\(error)", "")
+            XCTFail("unexpected error: \(error)")
         }
-
-        // validate
     }
 
 }
