@@ -23,24 +23,7 @@ import Ink
 class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_HomeIndexView() throws {
-        HomeIndex.Model.currentSponsors = [ .init(sponsorName: "Sample Sponsor", logoSource: "/images/logo.svg", darkLogoSource: "/images/logo.svg", body: "Sponsored links tell everyone about a thing that you can use to do another thing to do!", url: "https://example.com/sponsored/link") ]
-
-        CommunitySponsors.sponsors = [
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
-            CommunitySponsor(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg")
-        ]
+        Supporters.mock()
 
         let page = { HomeIndex.View(path: "/", model: .mock).document() }
 
