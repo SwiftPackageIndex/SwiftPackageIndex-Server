@@ -29,11 +29,6 @@ extension HomeIndex {
             SponsoredLink(sponsorName: "Emerge Tools", logoSource: "/images/sponsors/emerge.png", darkLogoSource: "/images/sponsors/emerge~dark.png", body: "Monitor app size, improve startup time, and prevent performance regressions.", url: "https://www.emergetools.com/?utm_source=spi&utm_medium=sponsor&utm_campaign=emerge")
         ]
 
-        static var twitterSpaceLinks = TwitterSpaceLinks(
-            previousUrl: "https://blog.swiftpackageindex.com/posts/swift-package-indexing-episode-13/",
-            nextUrl: "https://twitter.com/i/spaces/1rmGPklbanXKN"
-        )
-
         struct Release: Equatable {
             var packageName: String
             var version: String
@@ -47,11 +42,6 @@ extension HomeIndex {
             let darkLogoSource: String
             let body: String
             let url: String
-        }
-
-        struct TwitterSpaceLinks {
-            let previousUrl: String
-            let nextUrl: String
         }
     }
 }
