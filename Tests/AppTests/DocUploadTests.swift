@@ -19,7 +19,7 @@ import XCTVapor
 
 final class DocUploadTests: AppTestCase {
 
-    func test_save() async throws {
+    func test_attach() async throws {
         // setup
         let pkg = try await savePackageAsync(on: app.db, "1")
         let versionId = UUID()
@@ -30,17 +30,14 @@ final class DocUploadTests: AppTestCase {
         let b = try Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
         try await b.save(on: app.db)
         let d = try DocUpload(id: docUploadId,
-                              build: b,
                               error: "error",
                               fileCount: 1,
                               logUrl: "logUrl",
                               mbSize: 2,
                               status: .ok)
-        try await d.save(on: app.db)
-        try await b.save(on: app.db)
 
         // MUT
-        try await d.save(on: app.db)
+        try await d.attach(to: b, on: app.db)
 
         do { // validate
             let d = try await XCTUnwrapAsync(try await DocUpload.find(docUploadId, on: app.db))
@@ -59,15 +56,14 @@ final class DocUploadTests: AppTestCase {
     func test_delete_cascade_build() async throws {
         // setup
         let pkg = try await savePackageAsync(on: app.db, "1")
-        let versionId = UUID()
         let buildId = UUID()
-        let v = try Version(id: versionId, package: pkg)
+        let v = try Version(id: UUID(), package: pkg)
         try await v.save(on: app.db)
         let b = try Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
         try await b.save(on: app.db)
-        try await DocUpload(build: b, status: .ok)
-            .save(on: app.db)
-        try await b.save(on: app.db)
+        try await DocUpload(id: UUID(), status: .ok)
+            .attach(to: b, on: app.db)
+
         try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 1)
@@ -86,12 +82,12 @@ final class DocUploadTests: AppTestCase {
         // setup
         let pkg = try await savePackageAsync(on: app.db, "1")
         let versionId = UUID()
-        let buildId = UUID()
         let v = try Version(id: versionId, package: pkg)
         try await v.save(on: app.db)
-        let b = try Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        let b = try Build(id: UUID(), version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
         try await b.save(on: app.db)
-        try await DocUpload(build: b, status: .ok).save(on: app.db)
+        try await DocUpload(id: UUID(), status: .ok)
+            .attach(to: b, on: app.db)
         try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 1)

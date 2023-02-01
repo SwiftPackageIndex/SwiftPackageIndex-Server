@@ -59,7 +59,6 @@ final class DocUpload: Model, Content {
 
     init(
         id: Id? = nil,
-        build: Build,
         error: String? = nil,
         fileCount: Int? = nil,
         logUrl: String? = nil,
@@ -67,9 +66,6 @@ final class DocUpload: Model, Content {
         status: Status
     ) throws {
         self.id = id
-        self.$build.id = try build.requireID()
-        // FIXME: make this an `attach` method
-        build.$docUpload.id = id
         self.error = error
         self.fileCount = fileCount
         self.logUrl = logUrl
@@ -91,4 +87,20 @@ extension DocUpload {
             }
         }
     }
+}
+
+
+extension DocUpload {
+
+    /// Attach a ``DocUpload`` to a ``Build``, ensuring the relationship is saved on both sides. This will save changes on the ``Build`` parameter as well.
+    /// - Parameters:
+    ///   - build: ``Build`` to attach
+    ///   - database: ``Database`` to use for saving
+    func attach(to build: Build, on database: Database) async throws {
+        $build.id = try build.requireID()
+        build.$docUpload.id = try requireID()
+        try await save(on: database)
+        try await build.save(on: database)
+    }
+
 }
