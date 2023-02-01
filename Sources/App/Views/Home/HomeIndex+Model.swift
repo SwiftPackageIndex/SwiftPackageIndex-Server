@@ -24,24 +24,11 @@ extension HomeIndex {
         var recentPackages: [DatedLink]
         var recentReleases: [Release]
 
-        static var currentSponsors = [
-            SponsoredLink(sponsorName: "Stream", logoSource: "/images/sponsors/stream.svg", darkLogoSource: "/images/sponsors/stream~dark.svg", body: "Build reliable, real-time, in-app chat and messaging in less time.", url: "https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat"),
-            SponsoredLink(sponsorName: "Emerge Tools", logoSource: "/images/sponsors/emerge.png", darkLogoSource: "/images/sponsors/emerge~dark.png", body: "Monitor app size, improve startup time, and prevent performance regressions.", url: "https://www.emergetools.com/?utm_source=spi&utm_medium=sponsor&utm_campaign=emerge")
-        ]
-
         struct Release: Equatable {
             var packageName: String
             var version: String
             var date: String
             var url: String
-        }
-
-        struct SponsoredLink {
-            let sponsorName: String
-            let logoSource: String
-            let darkLogoSource: String
-            let body: String
-            let url: String
         }
     }
 }

@@ -98,14 +98,14 @@ enum HomeIndex {
                             .text(". Please consider "),
                             .a(
                                 .href(ExternalURL.projectSponsorship),
-                                "joining \(CommunitySponsors.sponsors.count) other sponsors"
+                                "joining \(Supporters.community.count) other sponsors"
                             ),
                             .text(".")
                         ),
                         .p(
                             .div(
                                 .class("avatars"),
-                                .forEach(CommunitySponsors.sponsors.randomSample(count: numberOfCommunitySponsors), { sponsor in
+                                .forEach(Supporters.community.randomSample(count: numberOfCommunitySponsors), { sponsor in
                                         .a(
                                             .href(ExternalURL.projectSponsorship),
                                             .img(
@@ -119,34 +119,14 @@ enum HomeIndex {
                             .small(
                                 .a(
                                     .href(ExternalURL.projectSponsorship),
-                                    .text("&hellip; and \(CommunitySponsors.sponsors.count - numberOfCommunitySponsors) more.")
+                                    .text("&hellip; and \(Supporters.community.count - numberOfCommunitySponsors) more.")
                                 )
                             )
                         )
                     ),
-                    .forEach(Model.currentSponsors.shuffled(), { sponsoredLink in
-                            .group(
-                                .a(
-                                    .href(sponsoredLink.url),
-                                    .div(
-                                        .class("ccta"),
-                                        .picture(
-                                            .source(
-                                                .srcset(sponsoredLink.darkLogoSource),
-                                                .media("(prefers-color-scheme: dark)")
-                                            ),
-                                            .img(
-                                                .alt("\(sponsoredLink.sponsorName) logo"),
-                                                .src(sponsoredLink.logoSource)
-                                            )
-                                        ),
-                                        .p(
-                                            .text(sponsoredLink.body)
-                                        )
-                                    )
-                                )
-                            )
-                    }),
+                    .group(
+                        Supporters.corporate.shuffled().map(\.advertisementNode)
+                    ),
                     .small(
                         .text("Thanks so much to all of our generous sponsors for "),
                         .a(
@@ -162,5 +142,29 @@ enum HomeIndex {
         override func navMenuItems() -> [NavMenuItem] {
             [.addPackage, .blog, .faq]
         }
+    }
+}
+
+extension Supporters.Corporate {
+    var advertisementNode: Node<HTML.BodyContext> {
+        .a(
+            .href(url),
+            .div(
+                .class("ccta"),
+                .picture(
+                    .source(
+                        .srcset(logo.darkModeUrl),
+                        .media("(prefers-color-scheme: dark)")
+                    ),
+                    .img(
+                        .alt("\(name) logo"),
+                        .src(logo.lightModeUrl)
+                    )
+                ),
+                .p(
+                    .text(advertisingCopy)
+                )
+            )
+        )
     }
 }
