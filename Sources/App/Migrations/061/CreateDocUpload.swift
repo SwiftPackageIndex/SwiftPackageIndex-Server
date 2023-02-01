@@ -55,6 +55,9 @@ struct CreateDocUpload: AsyncMigration {
         try await database.schema("builds")
             .deleteConstraint(name: docUploadIdConstraint)
             .deleteConstraint(name: versionIdDocUploadIdConstraint)
+            .update()
+
+        try await database.schema("builds")
             .deleteField("doc_upload_id")
             .update()
         try await database.schema("doc_uploads").delete()

@@ -29,8 +29,9 @@ class AppTests: AppTestCase {
         XCTAssertEqual(Current.fileManager.checkoutsDirectory(), "/tmp/foo")
     }
 
-    func test_migrations() throws {
-        XCTAssertNoThrow(try app.autoRevert().wait())
-        XCTAssertNoThrow(try app.autoMigrate().wait())
+    func test_migrations() async throws {
+        try await XCTAssertNoThrowAsync(try await app.autoRevert())
+        try await XCTAssertNoThrowAsync(try await app.autoMigrate())
     }
+
 }
