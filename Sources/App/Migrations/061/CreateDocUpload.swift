@@ -28,6 +28,10 @@ struct CreateDocUpload: AsyncMigration {
                 .field("created_at", .datetime)
                 .field("updated_at", .datetime)
 
+            // reference fields
+                .field("build_id", .uuid,
+                       .references("builds", "id", onDelete: .cascade), .required)
+
             // data fields
                 .field("error", .string)
                 .field("file_count", .int)
@@ -39,8 +43,7 @@ struct CreateDocUpload: AsyncMigration {
         }
         do {  // add reference field to builds table
             try await database.schema("builds")
-                  .field("doc_upload_id", .uuid,
-                         .references("doc_uploads", "id", onDelete: .cascade))
+                  .field("doc_upload_id", .uuid, .references("doc_uploads", "id"))
                   .unique(on: "version_id", "doc_upload_id",
                           name: versionIdDocUploadIdConstraint)
                   .unique(on: "doc_upload_id", name: docUploadIdConstraint)

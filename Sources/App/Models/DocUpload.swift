@@ -33,6 +33,11 @@ final class DocUpload: Model, Content {
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
 
+    // reference fields
+
+    @Parent(key: "build_id")
+    var build: Build
+
     // data fields
 
     @Field(key: "error")
@@ -60,8 +65,10 @@ final class DocUpload: Model, Content {
         logUrl: String? = nil,
         mbSize: Int? = nil,
         status: Status
-    ) {
+    ) throws {
         self.id = id
+        self.$build.id = try build.requireID()
+        // FIXME: make this an `attach` method
         build.$docUpload.id = id
         self.error = error
         self.fileCount = fileCount

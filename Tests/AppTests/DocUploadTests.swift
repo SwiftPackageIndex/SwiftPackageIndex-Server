@@ -28,13 +28,14 @@ final class DocUploadTests: AppTestCase {
         let v = try Version(id: versionId, package: pkg)
         try await v.save(on: app.db)
         let b = try Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
-        let d = DocUpload(id: docUploadId,
-                          build: b,
-                          error: "error",
-                          fileCount: 1,
-                          logUrl: "logUrl",
-                          mbSize: 2,
-                          status: .ok)
+        try await b.save(on: app.db)
+        let d = try DocUpload(id: docUploadId,
+                              build: b,
+                              error: "error",
+                              fileCount: 1,
+                              logUrl: "logUrl",
+                              mbSize: 2,
+                              status: .ok)
         try await d.save(on: app.db)
         try await b.save(on: app.db)
 
@@ -63,6 +64,7 @@ final class DocUploadTests: AppTestCase {
         let v = try Version(id: versionId, package: pkg)
         try await v.save(on: app.db)
         let b = try Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        try await b.save(on: app.db)
         try await DocUpload(build: b, status: .ok)
             .save(on: app.db)
         try await b.save(on: app.db)
@@ -119,7 +121,7 @@ final class DocUploadTests: AppTestCase {
 
         // MUT
         do {
-            XCTFail("Saving bad doc upload record must fail")
+            XCTFail("Implement: Saving bad doc upload record must fail")
         } catch {
             XCTAssertEqual("\(error)", "")
         }
@@ -128,7 +130,7 @@ final class DocUploadTests: AppTestCase {
     }
 
     func test_cascade() async throws {
-        XCTFail("ensure deleting a doc_upload doesn't delete the build")
+        XCTFail("Implement: Ensure deleting a doc_upload doesn't delete the build")
     }
 
 }
