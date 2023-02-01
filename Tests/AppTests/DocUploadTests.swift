@@ -34,9 +34,7 @@ final class DocUploadTests: AppTestCase {
                           versionId: versionId,
                           error: "error",
                           fileCount: 1,
-                          logGroup: "group",
-                          logRegion: "region",
-                          logStream: "stream",
+                          logUrl: "logUrl",
                           mbSize: 2,
                           status: .ok)
 
@@ -47,9 +45,7 @@ final class DocUploadTests: AppTestCase {
             let d = try await XCTUnwrapAsync(try await DocUpload.find(docUploadId, on: app.db))
             XCTAssertEqual(d.error, "error")
             XCTAssertEqual(d.fileCount, 1)
-            XCTAssertEqual(d.logGroup, "group")
-            XCTAssertEqual(d.logRegion, "region")
-            XCTAssertEqual(d.logStream, "stream")
+            XCTAssertEqual(d.logUrl, "logUrl")
             XCTAssertEqual(d.mbSize, 2)
             XCTAssertEqual(d.status, .ok)
         }
@@ -103,10 +99,6 @@ final class DocUploadTests: AppTestCase {
         try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 0)
         try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 0)
         try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
-    }
-
-    func test_logUrl() throws {
-        XCTFail()
     }
 
 }

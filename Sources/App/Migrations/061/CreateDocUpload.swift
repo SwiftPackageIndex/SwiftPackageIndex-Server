@@ -33,9 +33,7 @@ struct CreateDocUpload: AsyncMigration {
         // data fields
             .field("error", .string)
             .field("file_count", .int)
-            .field("log_group", .string)
-            .field("log_region", .string)
-            .field("log_stream", .string)
+            .field("log_url", .string)
             .field("mb_size", .int)
             .field("status", .string, .required)
 

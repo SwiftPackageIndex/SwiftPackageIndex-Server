@@ -49,26 +49,14 @@ final class DocUpload: Model, Content {
     @Field(key: "file_count")
     var fileCount: Int?
 
-    @Field(key: "log_group")
-    var logGroup: String?
-
-    @Field(key: "log_region")
-    var logRegion: String?
-
-    @Field(key: "log_stream")
-    var logStream: String?
+    @Field(key: "log_url")
+    var logUrl: String?
 
     @Field(key: "mb_size")
     var mbSize: Int?
 
     @Field(key: "status")
     var status: Status
-
-    // FIXME: implement
-    var logUrl: String? {
-        // const link = `https://${process.env.AWS_REGION}.console.aws.amazon.com/cloudwatch/home?region=${process.env.AWS_REGION}#logsV2:log-groups/log-group/${process.env.AWS_LAMBDA_LOG_GROUP_NAME.replace(/\//g, '$252F')}/log-events/${process.env.AWS_LAMBDA_LOG_STREAM_NAME.replace('$', '$2524').replace('[', '$255B').replace(']', '$255D').replace(/\//g, '$252F')}`
-        nil
-    }
 
     init() { }
 
@@ -78,9 +66,7 @@ final class DocUpload: Model, Content {
         versionId: Version.Id,
         error: String? = nil,
         fileCount: Int? = nil,
-        logGroup: String? = nil,
-        logRegion: String? = nil,
-        logStream: String? = nil,
+        logUrl: String? = nil,
         mbSize: Int? = nil,
         status: Status
     ) {
@@ -89,11 +75,28 @@ final class DocUpload: Model, Content {
         self.$version.id = versionId
         self.error = error
         self.fileCount = fileCount
-        self.logGroup = logGroup
-        self.logRegion = logRegion
-        self.logStream = logStream
+        self.logUrl = logUrl
         self.mbSize = mbSize
         self.status = status
+    }
+}
+
+
+extension String {
+    static let replacements = [
+        // keep "$" first, so it doesn't replace the "$" in the following substitutions
+        ("$", "$2524"),
+        ("/", "$252F"),
+        ("[", "$255B"),
+        ("]", "$255D")
+    ]
+
+    var awsEncoded: String {
+        var result = self
+        for (key, value) in Self.replacements {
+            result = result.replacingOccurrences(of: key, with: value)
+        }
+        return result
     }
 }
 
