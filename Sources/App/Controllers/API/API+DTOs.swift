@@ -23,7 +23,7 @@ extension API {
         var swiftVersion: SwiftVersion
     }
 
-    struct PostCreateBuildDTO: Codable {
+    struct PostBuildReportDTO: Codable {
         var buildCommand: String?
         var buildId: UUID
         var docArchives: [DocArchive]?

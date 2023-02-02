@@ -21,7 +21,7 @@ extension API {
 
     enum BuildController {
         static func buildReport(req: Request) async throws -> HTTPStatus {
-            let dto = try req.content.decode(PostCreateBuildDTO.self)
+            let dto = try req.content.decode(PostBuildReportDTO.self)
             let version = try await App.Version
                 .find(req.parameters.get("id"), on: req.db)
                 .unwrap(or: Abort(.notFound))
