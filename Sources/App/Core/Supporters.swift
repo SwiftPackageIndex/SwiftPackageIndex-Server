@@ -32,7 +32,7 @@ enum Supporters {
         var name: String
         var logo: Logo
         var url: String
-        var advertisingCopy: String
+        var advertisingCopy: String?
 
         struct Logo {
             var lightModeUrl: String

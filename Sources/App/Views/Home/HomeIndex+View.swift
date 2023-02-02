@@ -163,9 +163,7 @@ extension Supporters.Corporate {
                         .src(logo.lightModeUrl)
                     )
                 ),
-                .p(
-                    .text(advertisingCopy)
-                )
+                .unwrap(advertisingCopy, { .p(.text($0)) })
             )
         )
     }
