@@ -45,10 +45,8 @@ struct CreateDocUpload: AsyncMigration {
         do {  // add constraints to builds table
             try await database.schema("builds")
                   .field("doc_upload_id", .uuid, .references("doc_uploads", "id"))
-
             // Ensure no doc_upload can be referenced from multiple builds (versions)
                   .unique(on: "doc_upload_id", name: docUploadIdConstraint)
-
                   .update()
             try await (database as! SQLDatabase).raw(
                 // Ensure there's only one doc_upload per version
