@@ -135,7 +135,7 @@ final class DocUploadTests: AppTestCase {
     }
 
     func test_unique_constraint_doc_upload_id_1() async throws {
-        // Ensure no two versions can reference the same doc_upload
+        // Ensure doc_upload cannot be attached to two different versions (via builds from two different versions)
         // setup
         let pkg = try await savePackageAsync(on: app.db, "1")
         let v1 = try Version(id: UUID(), package: pkg)
@@ -162,17 +162,14 @@ final class DocUploadTests: AppTestCase {
     }
 
     func test_unique_constraint_doc_upload_id_2() async throws {
-        // Ensure no single version can reference two doc_uploads
+        // Ensure doc_upload cannot be attached to same version more than once (via two builds from same version)
         // setup
         let pkg = try await savePackageAsync(on: app.db, "1")
-        let versionId = UUID()
-        let v = try Version(id: versionId, package: pkg)
+        let v = try Version(id: UUID(), package: pkg)
         try await v.save(on: app.db)
-        let buildId1 = UUID()
-        let b1 = try Build(id: buildId1, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        let b1 = try Build(id: UUID(), version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
         try await b1.save(on: app.db)
-        let buildId2 = UUID()
-        let b2 = try Build(id: buildId2, version: v, platform: .ios, status: .ok, swiftVersion: .v5_7)
+        let b2 = try Build(id: UUID(), version: v, platform: .ios, status: .ok, swiftVersion: .v5_7)
         try await b2.save(on: app.db)
         let docUpload = try DocUpload(id: UUID(), status: .ok)
         try await docUpload.attach(to: b1, on: app.db)
@@ -180,7 +177,7 @@ final class DocUploadTests: AppTestCase {
         // MUT
         do {
             try await docUpload.attach(to: b2, on: app.db)
-            XCTFail("Attaching to another build with the same version_id must fail.")
+            XCTFail("Attaching same doc_upload to another build must fail.")
         } catch let error as PostgresError where error.code == .uniqueViolation {
             // validate
             XCTAssert(error.description.contains(#"duplicate key value violates unique constraint "uq:builds.doc_upload_id""#), "was: \(error)")
