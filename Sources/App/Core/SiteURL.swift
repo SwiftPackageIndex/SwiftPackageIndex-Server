@@ -77,7 +77,10 @@ enum Api: Resourceable {
     }
 
     enum VersionsPathComponents: String, Resourceable {
+        @available(*, deprecated)
+        // TODO: remove builds endpoint once builder transition is complete
         case builds
+        case buildReport
         case triggerBuild = "trigger-build"
     }
 
