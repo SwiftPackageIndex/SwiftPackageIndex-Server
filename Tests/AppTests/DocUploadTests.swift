@@ -134,7 +134,31 @@ final class DocUploadTests: AppTestCase {
         try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
     }
 
-    func test_unique_constraint_doc_upload_id_1() async throws {
+    func test_unique_constraint_doc_uploads_build_id() async throws {
+        // Ensure different doc_uploads cannot be attached to the same build
+        // setup
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        let v = try Version(id: UUID(), package: pkg)
+        try await v.save(on: app.db)
+        let b = try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_7)
+        try await b.save(on: app.db)
+        try await DocUpload(id: UUID(), status: .ok)
+            .attach(to: b, on: app.db)
+
+        // MUT
+        do {
+            try await DocUpload(id: UUID(), status: .ok)
+                .attach(to: b, on: app.db)
+            XCTFail("Attaching another doc_upload to the same build must fail.")
+        } catch let error as PostgresError where error.code == .uniqueViolation {
+            // validate
+            XCTAssert(error.description.contains(#"duplicate key value violates unique constraint "uq:doc_uploads.build_id""#), "was: \(error)")
+        } catch {
+            XCTFail("unexpected error: \(error)")
+        }
+    }
+
+    func test_unique_constraint_builds_doc_upload_id_1() async throws {
         // Ensure doc_upload cannot be attached to two different versions (via builds from two different versions)
         // setup
         let pkg = try await savePackageAsync(on: app.db, "1")
@@ -161,7 +185,7 @@ final class DocUploadTests: AppTestCase {
         }
     }
 
-    func test_unique_constraint_doc_upload_id_2() async throws {
+    func test_unique_constraint_builds_doc_upload_id_2() async throws {
         // Ensure doc_upload cannot be attached to same version more than once (via two builds from same version)
         // setup
         let pkg = try await savePackageAsync(on: app.db, "1")
@@ -186,7 +210,7 @@ final class DocUploadTests: AppTestCase {
         }
     }
 
-    func test_unique_constraint_version_id_partial() async throws {
+    func test_unique_constraint_builds_version_id_partial() async throws {
         // Ensure no single version can reference two doc_uploads
         // setup
         let pkg = try await savePackageAsync(on: app.db, "1")
@@ -211,5 +235,4 @@ final class DocUploadTests: AppTestCase {
             XCTFail("unexpected error: \(error)")
         }
     }
-
 }
