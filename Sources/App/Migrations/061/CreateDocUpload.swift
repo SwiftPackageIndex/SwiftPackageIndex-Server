@@ -40,6 +40,9 @@ struct CreateDocUpload: AsyncMigration {
                 .field("mb_size", .int)
                 .field("status", .string, .required)
 
+            // constraints
+                .unique(on: "build_id")
+
                 .create()
         }
         do {  // add constraints to builds table
