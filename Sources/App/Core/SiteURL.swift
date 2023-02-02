@@ -81,7 +81,7 @@ enum Api: Resourceable {
     }
 
     enum BuildsPathComponents: String, Resourceable {
-        case docReport
+        case docReport = "doc-report"
     }
 
     enum PackagesPathComponents: String, Resourceable {
@@ -93,7 +93,7 @@ enum Api: Resourceable {
         @available(*, deprecated)
         // TODO: remove builds endpoint once builder transition is complete
         case builds
-        case buildReport
+        case buildReport = "build-report"
         case triggerBuild = "trigger-build"
     }
 

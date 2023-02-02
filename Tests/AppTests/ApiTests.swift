@@ -223,7 +223,7 @@ class ApiTests: AppTestCase {
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             try app.test(
                 .POST,
-                "api/versions/\(versionId)/buildReport",
+                "api/versions/\(versionId)/build-report",
                 headers: .bearerApplicationJSON("secr3t"),
                 body: body,
                 afterResponse: { res in
@@ -261,7 +261,7 @@ class ApiTests: AppTestCase {
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             try app.test(
                 .POST,
-                "api/versions/\(versionId)/buildReport",
+                "api/versions/\(versionId)/build-report",
                 headers: .bearerApplicationJSON("secr3t"),
                 body: body,
                 afterResponse: { res in
@@ -297,7 +297,7 @@ class ApiTests: AppTestCase {
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             try app.test(
                 .POST,
-                "api/versions/\(versionId)/buildReport",
+                "api/versions/\(versionId)/build-report",
                 headers: .bearerApplicationJSON("secr3t"),
                 body: body,
                 afterResponse: { res in
@@ -331,7 +331,7 @@ class ApiTests: AppTestCase {
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
         try app.test(
             .POST,
-            "api/versions/\(versionId)/buildReport",
+            "api/versions/\(versionId)/build-report",
             headers: .bearerApplicationJSON("secr3t"),
             body: body,
             afterResponse: { res in
@@ -361,7 +361,7 @@ class ApiTests: AppTestCase {
         // MUT - no auth header
         try app.test(
             .POST,
-            "api/versions/\(versionId)/buildReport",
+            "api/versions/\(versionId)/build-report",
             headers: .applicationJSON,
             body: body,
             afterResponse: { res in
@@ -374,7 +374,7 @@ class ApiTests: AppTestCase {
         // MUT - wrong token
         try app.test(
             .POST,
-            "api/versions/\(versionId)/buildReport",
+            "api/versions/\(versionId)/build-report",
             headers: .bearerApplicationJSON("wrong"),
             body: body,
             afterResponse: { res in
@@ -388,7 +388,7 @@ class ApiTests: AppTestCase {
         Current.builderToken = { nil }
         try app.test(
             .POST,
-            "api/versions/\(versionId)/buildReport",
+            "api/versions/\(versionId)/build-report",
             headers: .bearerApplicationJSON("secr3t"),
             body: body,
             afterResponse: { res in
@@ -418,7 +418,7 @@ class ApiTests: AppTestCase {
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             try await app.test(
                 .POST,
-                "api/builds/\(buildId)/docReport",
+                "api/builds/\(buildId)/doc-report",
                 headers: .bearerApplicationJSON("secr3t"),
                 body: body,
                 afterResponse: { res in
@@ -441,7 +441,7 @@ class ApiTests: AppTestCase {
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             try await app.test(
                 .POST,
-                "api/builds/\(buildId)/docReport",
+                "api/builds/\(buildId)/doc-report",
                 headers: .bearerApplicationJSON("secr3t"),
                 body: body,
                 afterResponse: { res in
@@ -466,7 +466,7 @@ class ApiTests: AppTestCase {
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             try await app.test(
                 .POST,
-                "api/builds/\(nonExistingBuildId)/docReport",
+                "api/builds/\(nonExistingBuildId)/doc-report",
                 headers: .bearerApplicationJSON("secr3t"),
                 body: body,
                 afterResponse: { res in
@@ -493,7 +493,7 @@ class ApiTests: AppTestCase {
         // MUT - no auth header
         try await app.test(
             .POST,
-            "api/builds/\(buildId)/docReport",
+            "api/builds/\(buildId)/doc-report",
             headers: .applicationJSON,
             body: body,
             afterResponse: { res in
@@ -506,7 +506,7 @@ class ApiTests: AppTestCase {
         // MUT - wrong token
         try await app.test(
             .POST,
-            "api/builds/\(buildId)/docReport",
+            "api/builds/\(buildId)/doc-report",
             headers: .bearerApplicationJSON("wrong"),
             body: body,
             afterResponse: { res in
@@ -520,7 +520,7 @@ class ApiTests: AppTestCase {
         Current.builderToken = { nil }
         try await app.test(
             .POST,
-            "api/builds/\(buildId)/docReport",
+            "api/builds/\(buildId)/doc-report",
             headers: .bearerApplicationJSON("secr3t"),
             body: body,
             afterResponse: { res in
