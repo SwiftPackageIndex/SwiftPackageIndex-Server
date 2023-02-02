@@ -459,6 +459,46 @@ class ApiTests: AppTestCase {
                 })
         }
 
+        do {  // send report again to same buildId
+            let dto: API.PostDocReportDTO = .init(status: .ok)
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try await app.test(
+                .POST,
+                "api/builds/\(buildId)/docReport",
+                headers: .bearerApplicationJSON("secr3t"),
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .noContent)
+                    let docUploads = try await DocUpload.query(on: app.db).all()
+                    XCTAssertEqual(docUploads.count, 1)
+                    let d = try docUploads.first.unwrap()
+                    XCTAssertEqual(d.status, .ok)
+                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+                })
+        }
+    }
+
+    func test_post_docReport_non_existing_build() async throws {
+        // setup
+        Current.builderToken = { "secr3t" }
+        let nonExistingBuildId = UUID()
+
+        do {  // send report to non-existing buildId
+            let dto: API.PostDocReportDTO = .init(status: .ok)
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try await app.test(
+                .POST,
+                "api/builds/\(nonExistingBuildId)/docReport",
+                headers: .bearerApplicationJSON("secr3t"),
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .notFound)
+                    let docUploads = try await DocUpload.query(on: app.db).all()
+                    XCTAssertEqual(docUploads.count, 0)
+                })
+        }
     }
 
     func test_post_build_trigger() throws {
