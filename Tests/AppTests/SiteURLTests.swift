@@ -107,6 +107,8 @@ class SiteURLTests: XCTestCase {
                            "api/versions/\(uuid.uuidString)/builds")
             XCTAssertEqual(SiteURL.api(.versions(.value(uuid), .buildReport)).path,
                            "api/versions/\(uuid.uuidString)/buildReport")
+            XCTAssertEqual(SiteURL.api(.versions(.value(uuid), .docReport)).path,
+                           "api/versions/\(uuid.uuidString)/docReport")
             XCTAssertEqual(SiteURL.api(.versions(.value(uuid), .triggerBuild)).path,
                            "api/versions/\(uuid.uuidString)/trigger-build")
         }

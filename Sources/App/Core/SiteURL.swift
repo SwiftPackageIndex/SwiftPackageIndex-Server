@@ -81,6 +81,7 @@ enum Api: Resourceable {
         // TODO: remove builds endpoint once builder transition is complete
         case builds
         case buildReport
+        case docReport
         case triggerBuild = "trigger-build"
     }
 

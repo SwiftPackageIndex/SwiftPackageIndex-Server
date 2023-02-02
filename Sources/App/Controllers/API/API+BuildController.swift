@@ -85,6 +85,10 @@ extension API {
             return .noContent
         }
 
+        static func docReport(req: Request) async throws -> HTTPStatus {
+            .noContent
+        }
+
         static func trigger(req: Request) throws -> EventLoopFuture<Build.TriggerResponse> {
             guard let id = req.parameters.get("id"),
                   let versionId = UUID(uuidString: id)
