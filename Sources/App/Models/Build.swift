@@ -36,6 +36,9 @@ final class Build: Model, Content {
 
     // reference fields
 
+    @OptionalParent(key: "doc_upload_id")
+    var docUpload: DocUpload?
+
     @Parent(key: "version_id")
     var version: Version
 
