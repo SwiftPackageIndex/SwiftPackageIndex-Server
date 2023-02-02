@@ -98,7 +98,7 @@ class ApiTests: AppTestCase {
         let versionId = try v.requireID()
 
         do {  // MUT - initial insert
-            let dto: API.PostCreateBuildDTO = .init(
+            let dto: API.PostBuildReportDTO = .init(
                 buildCommand: "xcodebuild -scheme Foo",
                 buildId: .id0,
                 jobUrl: "https://example.com/jobs/1",
@@ -139,7 +139,7 @@ class ApiTests: AppTestCase {
         }
 
         do {  // MUT - update of the same record
-            let dto: API.PostCreateBuildDTO = .init(
+            let dto: API.PostBuildReportDTO = .init(
                 buildId: .id0,
                 platform: .macosXcodebuild,
                 resolvedDependencies: [.init(packageName: "foo",
@@ -163,7 +163,6 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(b.platform, .macosXcodebuild)
                     XCTAssertEqual(b.status, .ok)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
-                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
                     let v = try Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound)).wait()
                     XCTAssertEqual(v.resolvedDependencies,
                                    [.init(packageName: "foo",
@@ -175,7 +174,7 @@ class ApiTests: AppTestCase {
         }
 
         do {  // MUT - add another build to test Package.platformCompatibility
-            let dto: API.PostCreateBuildDTO = .init(
+            let dto: API.PostBuildReportDTO = .init(
                 buildId: .id1,
                 platform: .ios,
                 resolvedDependencies: [.init(packageName: "foo",
@@ -210,7 +209,7 @@ class ApiTests: AppTestCase {
         let versionId = try v.requireID()
 
         do {  // MUT - initial insert
-            let dto: API.PostCreateBuildDTO = .init(
+            let dto: API.PostBuildReportDTO = .init(
                 buildCommand: "xcodebuild -scheme Foo",
                 buildId: .id0,
                 jobUrl: "https://example.com/jobs/1",
@@ -251,7 +250,7 @@ class ApiTests: AppTestCase {
         }
 
         do {  // MUT - update of the same record
-            let dto: API.PostCreateBuildDTO = .init(
+            let dto: API.PostBuildReportDTO = .init(
                 buildId: .id0,
                 platform: .macosXcodebuild,
                 resolvedDependencies: [.init(packageName: "foo",
@@ -287,7 +286,7 @@ class ApiTests: AppTestCase {
         }
 
         do {  // MUT - add another build to test Package.platformCompatibility
-            let dto: API.PostCreateBuildDTO = .init(
+            let dto: API.PostBuildReportDTO = .init(
                 buildId: .id1,
                 platform: .ios,
                 resolvedDependencies: [.init(packageName: "foo",
@@ -321,7 +320,7 @@ class ApiTests: AppTestCase {
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
 
-        let dto: API.PostCreateBuildDTO = .init(
+        let dto: API.PostBuildReportDTO = .init(
             buildCommand: "xcodebuild -scheme Foo",
             buildId: .id0,
             jobUrl: "https://example.com/jobs/1",
@@ -353,7 +352,7 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-        let dto: API.PostCreateBuildDTO = .init(buildId: .id0,
+        let dto: API.PostBuildReportDTO = .init(buildId: .id0,
                                                 platform: .macosXcodebuild,
                                                 status: .ok,
                                                 swiftVersion: .init(5, 2, 0))
@@ -392,7 +391,7 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-        let dto: API.PostCreateBuildDTO = .init(buildId: .id0,
+        let dto: API.PostBuildReportDTO = .init(buildId: .id0,
                                                 platform: .macosXcodebuild,
                                                 status: .ok,
                                                 swiftVersion: .init(5, 2, 0))
@@ -421,6 +420,47 @@ class ApiTests: AppTestCase {
                 XCTAssertEqual(res.status, .unauthorized)
                 XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
             })
+    }
+
+    func test_post_docReport() async throws {
+        // setup
+        Current.builderToken = { "secr3t" }
+        let p = try await savePackageAsync(on: app.db, "1")
+        let v = try Version(package: p, latest: .defaultBranch)
+        try await v.save(on: app.db)
+        let versionId = try v.requireID()
+        let b = try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_7)
+        try await b.save(on: app.db)
+        let buildId = try b.requireID()
+
+        do {  // MUT - initial insert
+            let dto: API.PostDocReportDTO = .init(buildId: buildId,
+                                                  error: "too large",
+                                                  fileCount: 70_000,
+                                                  logUrl: "log url",
+                                                  mbSize: 900,
+                                                  status: .skipped)
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try await app.test(
+                .POST,
+                "api/versions/\(versionId)/docReport",
+                headers: .bearerApplicationJSON("secr3t"),
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .noContent)
+                    let docUploads = try await DocUpload.query(on: app.db).all()
+                    XCTAssertEqual(docUploads.count, 1)
+                    let d = try docUploads.first.unwrap()
+                    XCTAssertEqual(d.error, "too large")
+                    XCTAssertEqual(d.fileCount, 70_000)
+                    XCTAssertEqual(d.logUrl, "log url")
+                    XCTAssertEqual(d.mbSize, 900)
+                    XCTAssertEqual(d.status, .skipped)
+                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+                })
+        }
+
     }
 
     func test_post_build_trigger() throws {

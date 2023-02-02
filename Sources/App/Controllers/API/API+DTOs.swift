@@ -35,4 +35,13 @@ extension API {
         var status: Build.Status
         var swiftVersion: SwiftVersion
     }
+
+    struct PostDocReportDTO: Codable {
+        var buildId: UUID
+        var error: String?
+        var fileCount: Int?
+        var logUrl: String?
+        var mbSize: Int?
+        var status: DocUpload.Status
+    }
 }

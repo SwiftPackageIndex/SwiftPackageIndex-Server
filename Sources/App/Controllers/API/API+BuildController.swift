@@ -86,7 +86,24 @@ extension API {
         }
 
         static func docReport(req: Request) async throws -> HTTPStatus {
-            .noContent
+            let dto = try req.content.decode(PostDocReportDTO.self)
+            let build = try await Build.find(dto.buildId, on: req.db)
+                .unwrap(or: Abort(.notFound))
+
+            let docUpload = DocUpload(id: UUID(),
+                                      error: dto.error,
+                                      fileCount: dto.fileCount,
+                                      logUrl: dto.logUrl,
+                                      mbSize: dto.mbSize,
+                                      status: dto.status)
+            do {
+                try await docUpload.attach(to: build, on: req.db)
+            } catch {
+                req.logger.critical("\(error)")
+                throw error
+            }
+
+            return .noContent
         }
 
         static func trigger(req: Request) throws -> EventLoopFuture<Build.TriggerResponse> {
