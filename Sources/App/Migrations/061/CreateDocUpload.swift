@@ -59,11 +59,9 @@ struct CreateDocUpload: AsyncMigration {
         try await (database as! SQLDatabase).raw(
             #"DROP INDEX "\#(raw: versionIdPartialConstraint)""#
         ).run()
-
         try await database.schema("builds")
             .deleteConstraint(name: docUploadIdConstraint)
             .update()
-
         try await database.schema("builds")
             .deleteField("doc_upload_id")
             .update()
