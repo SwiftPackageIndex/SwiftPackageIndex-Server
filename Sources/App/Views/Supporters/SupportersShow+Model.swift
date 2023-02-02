@@ -28,6 +28,18 @@ enum SupportersShow {
             )
         }
 
+        func infrastructureSupporters() -> Node<HTML.BodyContext> {
+            .section(
+                .class("infrastructure"),
+                .h3("Infrastructure Supporters"),
+                .ul(
+                    .group(
+                        Supporters.infrastructure.shuffled().map(\.listNode)
+                    )
+                )
+            )
+        }
+
         func communitySupporters() -> Node<HTML.BodyContext> {
             .section(
                 .class("community"),

@@ -26,6 +26,17 @@ enum Supporters {
               advertisingCopy: "Monitor app size, improve startup time, and prevent performance regressions.")
     ]
 
+    static var infrastructure: [Corporate] = [
+        .init(name: "MacStadium",
+              logo: .init(lightModeUrl: "/images/sponsors/macstadium.png",
+                          darkModeUrl: "/images/sponsors/macstadium~dark.png"),
+              url: "https://macstadium.com"),
+        .init(name: "Microsoft Azure",
+              logo: .init(lightModeUrl: "/images/sponsors/microsoft.png",
+                          darkModeUrl: "/images/sponsors/microsoft~dark.png"),
+              url: "https://azure.microsoft.com")
+    ]
+
     static var community: [Community] = .gitHubSponsors
 
     struct Corporate {

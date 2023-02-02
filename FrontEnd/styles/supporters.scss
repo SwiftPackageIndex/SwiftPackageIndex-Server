@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // -------------------------------------------------------------------------
-// Loading indicator/spinner.
+// Supporters page.
 // -------------------------------------------------------------------------
 
 .supporters {
@@ -38,7 +38,8 @@
             }
         }
 
-        &.corporate {
+        &.corporate,
+        &.infrastructure {
             ul {
                 grid-template-columns: 1fr 1fr;
 

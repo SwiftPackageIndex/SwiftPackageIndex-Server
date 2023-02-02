@@ -41,6 +41,7 @@ extension SupportersShow {
                 .h2("Supporters"),
                 .p("This project is entirely funded by ..."),
                 model.corporateSupporters(),
+                model.infrastructureSupporters(),
                 model.communitySupporters()
             )
         }
