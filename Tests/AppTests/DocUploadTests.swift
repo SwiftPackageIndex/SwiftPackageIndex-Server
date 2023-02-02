@@ -186,4 +186,30 @@ final class DocUploadTests: AppTestCase {
         }
     }
 
+    func test_unique_constraint_xxx() async throws {
+        // Ensure no single version can reference two doc_uploads
+        // setup
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        let v = try Version(id: UUID(), package: pkg)
+        try await v.save(on: app.db)
+        let b1 = try Build(id: UUID(), version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        try await b1.save(on: app.db)
+        let b2 = try Build(id: UUID(), version: v, platform: .ios, status: .ok, swiftVersion: .v5_7)
+        try await b2.save(on: app.db)
+        let docUpload1 = try DocUpload(id: UUID(), status: .ok)
+        try await docUpload1.attach(to: b1, on: app.db)
+        let docUpload2 = try DocUpload(id: UUID(), status: .ok)
+
+        // MUT
+        do {
+            try await docUpload2.attach(to: b2, on: app.db)
+            XCTFail("Attaching to build with a version_id that already has a doc_upload must fail.")
+        } catch let error as PostgresError where error.code == .uniqueViolation {
+            // validate
+            XCTAssert(error.description.contains(#"duplicate key value violates unique constraint "uq:builds.version_id+builds.doc_upload_id""#), "was: \(error)")
+        } catch {
+            XCTFail("unexpected error: \(error)")
+        }
+    }
+
 }
