@@ -105,6 +105,10 @@ class SiteURLTests: XCTestCase {
             let uuid = UUID()
             XCTAssertEqual(SiteURL.api(.versions(.value(uuid), .builds)).path,
                            "api/versions/\(uuid.uuidString)/builds")
+            XCTAssertEqual(SiteURL.api(.versions(.value(uuid), .buildReport)).path,
+                           "api/versions/\(uuid.uuidString)/build-report")
+            XCTAssertEqual(SiteURL.api(.builds(.value(uuid), .docReport)).path,
+                           "api/builds/\(uuid.uuidString)/doc-report")
             XCTAssertEqual(SiteURL.api(.versions(.value(uuid), .triggerBuild)).path,
                            "api/versions/\(uuid.uuidString)/trigger-build")
         }

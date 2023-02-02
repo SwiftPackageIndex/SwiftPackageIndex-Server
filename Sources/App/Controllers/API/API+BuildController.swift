@@ -21,7 +21,7 @@ extension API {
 
     enum BuildController {
         static func buildReport(req: Request) async throws -> HTTPStatus {
-            let dto = try req.content.decode(PostCreateBuildDTO.self)
+            let dto = try req.content.decode(PostBuildReportDTO.self)
             let version = try await App.Version
                 .find(req.parameters.get("id"), on: req.db)
                 .unwrap(or: Abort(.notFound))
@@ -80,6 +80,39 @@ extension API {
                 // is actually `versions.package_id` and therefore loaded
                 try await Package
                     .updatePlatformCompatibility(for: version.$package.id, on: req.db)
+            }
+
+            return .noContent
+        }
+
+        static func docReport(req: Request) async throws -> HTTPStatus {
+            let dto = try req.content.decode(PostDocReportDTO.self)
+            let buildId = try req.parameters.get("id")
+                .flatMap(UUID.init(uuidString:))
+                .unwrap(or: Abort(.badRequest))
+            let build = try await Build.find(buildId, on: req.db)
+                .unwrap(or: Abort(.notFound))
+
+            let docUpload = DocUpload(id: UUID(),
+                                      error: dto.error,
+                                      fileCount: dto.fileCount,
+                                      logUrl: dto.logUrl,
+                                      mbSize: dto.mbSize,
+                                      status: dto.status)
+            do {
+                try await docUpload.attach(to: build, on: req.db)
+            } catch let error as PostgresError where error.code == .uniqueViolation {
+                // Try and find the conflicting DocUpload via buildId
+                let existingDocUploads = try await DocUpload.query(on: req.db)
+                    .filter(\.$build.$id == buildId)
+                    .all()
+                for d in existingDocUploads {
+                    try await d.detachAndDelete(on: req.db)
+                }
+                try await docUpload.attach(to: build, on: req.db)
+            } catch {
+                req.logger.critical("\(error)")
+                throw error
             }
 
             return .noContent

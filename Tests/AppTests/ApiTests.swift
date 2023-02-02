@@ -88,7 +88,8 @@ class ApiTests: AppTestCase {
         })
     }
 
-    func test_post_buildReport() throws {
+    #warning("Deprecated, remove after builder has transitioned to new endpoint")
+    func test_post_builds() throws {
         // setup
         Current.builderToken = { "secr3t" }
         let p = try savePackage(on: app.db, "1")
@@ -97,7 +98,7 @@ class ApiTests: AppTestCase {
         let versionId = try v.requireID()
 
         do {  // MUT - initial insert
-            let dto: API.PostCreateBuildDTO = .init(
+            let dto: API.PostBuildReportDTO = .init(
                 buildCommand: "xcodebuild -scheme Foo",
                 buildId: .id0,
                 jobUrl: "https://example.com/jobs/1",
@@ -138,7 +139,7 @@ class ApiTests: AppTestCase {
         }
 
         do {  // MUT - update of the same record
-            let dto: API.PostCreateBuildDTO = .init(
+            let dto: API.PostBuildReportDTO = .init(
                 buildId: .id0,
                 platform: .macosXcodebuild,
                 resolvedDependencies: [.init(packageName: "foo",
@@ -162,7 +163,6 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(b.platform, .macosXcodebuild)
                     XCTAssertEqual(b.status, .ok)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
-                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
                     let v = try Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound)).wait()
                     XCTAssertEqual(v.resolvedDependencies,
                                    [.init(packageName: "foo",
@@ -174,7 +174,7 @@ class ApiTests: AppTestCase {
         }
 
         do {  // MUT - add another build to test Package.platformCompatibility
-            let dto: API.PostCreateBuildDTO = .init(
+            let dto: API.PostBuildReportDTO = .init(
                 buildId: .id1,
                 platform: .ios,
                 resolvedDependencies: [.init(packageName: "foo",
@@ -199,6 +199,119 @@ class ApiTests: AppTestCase {
         }
 
     }
+
+    func test_post_buildReport() throws {
+        // setup
+        Current.builderToken = { "secr3t" }
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, latest: .defaultBranch)
+        try v.save(on: app.db).wait()
+        let versionId = try v.requireID()
+
+        do {  // MUT - initial insert
+            let dto: API.PostBuildReportDTO = .init(
+                buildCommand: "xcodebuild -scheme Foo",
+                buildId: .id0,
+                jobUrl: "https://example.com/jobs/1",
+                logUrl: "log url",
+                platform: .macosXcodebuild,
+                resolvedDependencies: nil,
+                runnerId: "some-runner",
+                status: .failed,
+                swiftVersion: .init(5, 2, 0)
+            )
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try app.test(
+                .POST,
+                "api/versions/\(versionId)/build-report",
+                headers: .bearerApplicationJSON("secr3t"),
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .noContent)
+                    let builds = try Build.query(on: app.db).all().wait()
+                    XCTAssertEqual(builds.count, 1)
+                    let b = try builds.first.unwrap()
+                    XCTAssertEqual(b.id, .id0)
+                    XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
+                    XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
+                    XCTAssertEqual(b.logUrl, "log url")
+                    XCTAssertEqual(b.platform, .macosXcodebuild)
+                    XCTAssertEqual(b.runnerId, "some-runner")
+                    XCTAssertEqual(b.status, .failed)
+                    XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
+                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+                    let v = try Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound)).wait()
+                    XCTAssertEqual(v.resolvedDependencies, [])
+                    // build failed, hence no package platform compatibility yet
+                    let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
+                    XCTAssertEqual(p.platformCompatibility, [])
+                })
+        }
+
+        do {  // MUT - update of the same record
+            let dto: API.PostBuildReportDTO = .init(
+                buildId: .id0,
+                platform: .macosXcodebuild,
+                resolvedDependencies: [.init(packageName: "foo",
+                                             repositoryURL: "http://foo/bar")],
+                status: .ok,
+                swiftVersion: .init(5, 2, 0)
+            )
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try app.test(
+                .POST,
+                "api/versions/\(versionId)/build-report",
+                headers: .bearerApplicationJSON("secr3t"),
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .noContent)
+                    let builds = try Build.query(on: app.db).all().wait()
+                    XCTAssertEqual(builds.count, 1)
+                    let b = try builds.first.unwrap()
+                    XCTAssertEqual(b.id, .id0)
+                    XCTAssertEqual(b.platform, .macosXcodebuild)
+                    XCTAssertEqual(b.status, .ok)
+                    XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
+                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+                    let v = try Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound)).wait()
+                    XCTAssertEqual(v.resolvedDependencies,
+                                   [.init(packageName: "foo",
+                                          repositoryURL: "http://foo/bar")])
+                    // build ok now -> package is macos compatible
+                    let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
+                    XCTAssertEqual(p.platformCompatibility, [.macos])
+                })
+        }
+
+        do {  // MUT - add another build to test Package.platformCompatibility
+            let dto: API.PostBuildReportDTO = .init(
+                buildId: .id1,
+                platform: .ios,
+                resolvedDependencies: [.init(packageName: "foo",
+                                             repositoryURL: "http://foo/bar")],
+                status: .ok,
+                swiftVersion: .init(5, 2, 0)
+            )
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try app.test(
+                .POST,
+                "api/versions/\(versionId)/build-report",
+                headers: .bearerApplicationJSON("secr3t"),
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    let builds = try Build.query(on: app.db).all().wait()
+                    XCTAssertEqual(Set(builds.map(\.id)), Set([.id0, .id1]))
+                    // additional ios build ok -> package is also ios compatible
+                    let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
+                    XCTAssertEqual(p.platformCompatibility, [.ios, .macos])
+                })
+        }
+
+    }
+
     func test_post_buildReport_infrastructureError() throws {
         // setup
         Current.builderToken = { "secr3t" }
@@ -207,7 +320,7 @@ class ApiTests: AppTestCase {
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
 
-        let dto: API.PostCreateBuildDTO = .init(
+        let dto: API.PostBuildReportDTO = .init(
             buildCommand: "xcodebuild -scheme Foo",
             buildId: .id0,
             jobUrl: "https://example.com/jobs/1",
@@ -218,7 +331,7 @@ class ApiTests: AppTestCase {
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
         try app.test(
             .POST,
-            "api/versions/\(versionId)/builds",
+            "api/versions/\(versionId)/build-report",
             headers: .bearerApplicationJSON("secr3t"),
             body: body,
             afterResponse: { res in
@@ -239,7 +352,7 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-        let dto: API.PostCreateBuildDTO = .init(buildId: .id0,
+        let dto: API.PostBuildReportDTO = .init(buildId: .id0,
                                                 platform: .macosXcodebuild,
                                                 status: .ok,
                                                 swiftVersion: .init(5, 2, 0))
@@ -248,65 +361,174 @@ class ApiTests: AppTestCase {
         // MUT - no auth header
         try app.test(
             .POST,
-            "api/versions/\(versionId)/builds",
+            "api/versions/\(versionId)/build-report",
             headers: .applicationJSON,
             body: body,
             afterResponse: { res in
                 // validation
                 XCTAssertEqual(res.status, .unauthorized)
                 XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
-            })
+            }
+        )
 
         // MUT - wrong token
         try app.test(
             .POST,
-            "api/versions/\(versionId)/builds",
+            "api/versions/\(versionId)/build-report",
             headers: .bearerApplicationJSON("wrong"),
             body: body,
             afterResponse: { res in
                 // validation
                 XCTAssertEqual(res.status, .unauthorized)
                 XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
-            })
+            }
+        )
+
+        // MUT - without server token
+        Current.builderToken = { nil }
+        try app.test(
+            .POST,
+            "api/versions/\(versionId)/build-report",
+            headers: .bearerApplicationJSON("secr3t"),
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+            }
+        )
     }
 
-    func test_post_buildReport_unauthenticated_without_server_token() throws {
-        // Ensure we don't allow API requests when no token is configured server-side
+    func test_post_docReport() async throws {
         // setup
-        Current.builderToken = { nil }
-        let p = try savePackage(on: app.db, "1")
-        let v = try Version(package: p)
-        try v.save(on: app.db).wait()
-        let versionId = try XCTUnwrap(v.id)
-        let dto: API.PostCreateBuildDTO = .init(buildId: .id0,
-                                                platform: .macosXcodebuild,
-                                                status: .ok,
-                                                swiftVersion: .init(5, 2, 0))
+        Current.builderToken = { "secr3t" }
+        let p = try await savePackageAsync(on: app.db, "1")
+        let v = try Version(package: p, latest: .defaultBranch)
+        try await v.save(on: app.db)
+        let b = try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_7)
+        try await b.save(on: app.db)
+        let buildId = try b.requireID()
+
+        do {  // MUT - initial insert
+            let dto: API.PostDocReportDTO = .init(error: "too large",
+                                                  fileCount: 70_000,
+                                                  logUrl: "log url",
+                                                  mbSize: 900,
+                                                  status: .skipped)
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try await app.test(
+                .POST,
+                "api/builds/\(buildId)/doc-report",
+                headers: .bearerApplicationJSON("secr3t"),
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .noContent)
+                    let docUploads = try await DocUpload.query(on: app.db).all()
+                    XCTAssertEqual(docUploads.count, 1)
+                    let d = try docUploads.first.unwrap()
+                    XCTAssertEqual(d.error, "too large")
+                    XCTAssertEqual(d.fileCount, 70_000)
+                    XCTAssertEqual(d.logUrl, "log url")
+                    XCTAssertEqual(d.mbSize, 900)
+                    XCTAssertEqual(d.status, .skipped)
+                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+                })
+        }
+
+        do {  // send report again to same buildId
+            let dto: API.PostDocReportDTO = .init(status: .ok)
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try await app.test(
+                .POST,
+                "api/builds/\(buildId)/doc-report",
+                headers: .bearerApplicationJSON("secr3t"),
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .noContent)
+                    let docUploads = try await DocUpload.query(on: app.db).all()
+                    XCTAssertEqual(docUploads.count, 1)
+                    let d = try docUploads.first.unwrap()
+                    XCTAssertEqual(d.status, .ok)
+                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+                })
+        }
+    }
+
+    func test_post_docReport_non_existing_build() async throws {
+        // setup
+        Current.builderToken = { "secr3t" }
+        let nonExistingBuildId = UUID()
+
+        do {  // send report to non-existing buildId
+            let dto: API.PostDocReportDTO = .init(status: .ok)
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try await app.test(
+                .POST,
+                "api/builds/\(nonExistingBuildId)/doc-report",
+                headers: .bearerApplicationJSON("secr3t"),
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .notFound)
+                    let docUploads = try await DocUpload.query(on: app.db).all()
+                    XCTAssertEqual(docUploads.count, 0)
+                })
+        }
+    }
+
+    func test_post_docReport_unauthenticated() async throws {
+        // setup
+        Current.builderToken = { "secr3t" }
+        let p = try await savePackageAsync(on: app.db, "1")
+        let v = try Version(package: p, latest: .defaultBranch)
+        try await v.save(on: app.db)
+        let b = try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_7)
+        try await b.save(on: app.db)
+        let buildId = try b.requireID()
+        let dto: API.PostDocReportDTO = .init(status: .ok)
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
 
         // MUT - no auth header
-        try app.test(
+        try await app.test(
             .POST,
-            "api/versions/\(versionId)/builds",
+            "api/builds/\(buildId)/doc-report",
             headers: .applicationJSON,
             body: body,
             afterResponse: { res in
                 // validation
                 XCTAssertEqual(res.status, .unauthorized)
-                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
-            })
+                try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
+            }
+        )
 
-        // MUT - with auth header
-        try app.test(
+        // MUT - wrong token
+        try await app.test(
             .POST,
-            "api/versions/\(versionId)/builds",
-            headers: .bearerApplicationJSON("token"),
+            "api/builds/\(buildId)/doc-report",
+            headers: .bearerApplicationJSON("wrong"),
             body: body,
             afterResponse: { res in
                 // validation
                 XCTAssertEqual(res.status, .unauthorized)
-                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
-            })
+                try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
+            }
+        )
+
+        // MUT - without server token
+        Current.builderToken = { nil }
+        try await app.test(
+            .POST,
+            "api/builds/\(buildId)/doc-report",
+            headers: .bearerApplicationJSON("secr3t"),
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+                try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
+            }
+        )
     }
 
     func test_post_build_trigger() throws {

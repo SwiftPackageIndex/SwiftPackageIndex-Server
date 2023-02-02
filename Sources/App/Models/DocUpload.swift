@@ -64,7 +64,7 @@ final class DocUpload: Model, Content {
         logUrl: String? = nil,
         mbSize: Int? = nil,
         status: Status
-    ) throws {
+    ) {
         self.id = id
         self.error = error
         self.fileCount = fileCount
