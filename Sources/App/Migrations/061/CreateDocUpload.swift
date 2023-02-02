@@ -16,7 +16,6 @@ import Fluent
 
 
 struct CreateDocUpload: AsyncMigration {
-    let versionIdDocUploadIdConstraint = "uq:builds.version_id+builds.doc_upload_id"
     let docUploadIdConstraint = "uq:builds.doc_upload_id"
 
     func prepare(on database: Database) async throws {
@@ -44,8 +43,6 @@ struct CreateDocUpload: AsyncMigration {
         do {  // add reference field to builds table
             try await database.schema("builds")
                   .field("doc_upload_id", .uuid, .references("doc_uploads", "id"))
-                  .unique(on: "version_id", "doc_upload_id",
-                          name: versionIdDocUploadIdConstraint)
                   .unique(on: "doc_upload_id", name: docUploadIdConstraint)
                   .update()
         }
@@ -54,7 +51,6 @@ struct CreateDocUpload: AsyncMigration {
     func revert(on database: Database) async throws {
         try await database.schema("builds")
             .deleteConstraint(name: docUploadIdConstraint)
-            .deleteConstraint(name: versionIdDocUploadIdConstraint)
             .update()
 
         try await database.schema("builds")
