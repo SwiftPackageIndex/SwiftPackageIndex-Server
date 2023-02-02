@@ -13,10 +13,12 @@
 // limitations under the License.
 
 import Fluent
+import SQLKit
 
 
 struct CreateDocUpload: AsyncMigration {
     let docUploadIdConstraint = "uq:builds.doc_upload_id"
+    let versionIdPartialConstraint = "uq:builds.version_id+partial"
 
     func prepare(on database: Database) async throws {
         do {  // create doc_uploads table
@@ -40,15 +42,26 @@ struct CreateDocUpload: AsyncMigration {
 
                 .create()
         }
-        do {  // add reference field to builds table
+        do {  // add constraints to builds table
             try await database.schema("builds")
                   .field("doc_upload_id", .uuid, .references("doc_uploads", "id"))
+
+            // Ensure no doc_upload can be referenced from multiple builds (versions)
                   .unique(on: "doc_upload_id", name: docUploadIdConstraint)
+
                   .update()
+            try await (database as! SQLDatabase).raw(
+                // Ensure there's only one doc_upload per version
+                #"CREATE UNIQUE INDEX "\#(raw: versionIdPartialConstraint)" ON builds(version_id) WHERE doc_upload_id IS NOT NULL"#
+            ).run()
         }
     }
 
     func revert(on database: Database) async throws {
+        try await (database as! SQLDatabase).raw(
+            #"DROP INDEX "\#(raw: versionIdPartialConstraint)""#
+        ).run()
+
         try await database.schema("builds")
             .deleteConstraint(name: docUploadIdConstraint)
             .update()
