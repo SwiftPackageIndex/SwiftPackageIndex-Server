@@ -428,14 +428,12 @@ class ApiTests: AppTestCase {
         let p = try await savePackageAsync(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
-        let versionId = try v.requireID()
         let b = try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_7)
         try await b.save(on: app.db)
         let buildId = try b.requireID()
 
         do {  // MUT - initial insert
-            let dto: API.PostDocReportDTO = .init(buildId: buildId,
-                                                  error: "too large",
+            let dto: API.PostDocReportDTO = .init(error: "too large",
                                                   fileCount: 70_000,
                                                   logUrl: "log url",
                                                   mbSize: 900,
@@ -443,7 +441,7 @@ class ApiTests: AppTestCase {
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             try await app.test(
                 .POST,
-                "api/versions/\(versionId)/docReport",
+                "api/builds/\(buildId)/docReport",
                 headers: .bearerApplicationJSON("secr3t"),
                 body: body,
                 afterResponse: { res in

@@ -29,6 +29,7 @@ import Vapor
 
 
 enum Api: Resourceable {
+    case builds(_ id: Parameter<UUID>, BuildsPathComponents)
     case packages(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagesPathComponents)
     case packageCollections
     case search
@@ -37,6 +38,10 @@ enum Api: Resourceable {
 
     var path: String {
         switch self {
+            case let .builds(.value(id), next):
+                return "builds/\(id.uuidString)/\(next.path)"
+            case .builds(.key, _):
+                fatalError("path must not be called with a name parameter")
             case let .packages(.value(owner), .value(repo), next):
                 return "packages/\(owner)/\(repo)/\(next.path)"
             case .packages:
@@ -56,6 +61,10 @@ enum Api: Resourceable {
 
     var pathComponents: [PathComponent] {
         switch self {
+            case let .builds(.key, remainder):
+                return ["builds", ":id"] + remainder.pathComponents
+            case .builds(.value, _):
+                fatalError("pathComponents must not be called with a value parameter")
             case let .packages(.key, .key, remainder):
                 return ["packages", ":owner", ":repository"] + remainder.pathComponents
             case .packages:
@@ -71,6 +80,10 @@ enum Api: Resourceable {
         }
     }
 
+    enum BuildsPathComponents: String, Resourceable {
+        case docReport
+    }
+
     enum PackagesPathComponents: String, Resourceable {
         case badge
         case triggerBuilds = "trigger-builds"
@@ -81,7 +94,6 @@ enum Api: Resourceable {
         // TODO: remove builds endpoint once builder transition is complete
         case builds
         case buildReport
-        case docReport
         case triggerBuild = "trigger-build"
     }
 

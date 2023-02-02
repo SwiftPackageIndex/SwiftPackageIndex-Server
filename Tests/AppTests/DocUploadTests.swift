@@ -30,12 +30,12 @@ final class DocUploadTests: AppTestCase {
         try await v.save(on: app.db)
         let b = try Build(id: buildId, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
         try await b.save(on: app.db)
-        let d = try DocUpload(id: docUploadId,
-                              error: "error",
-                              fileCount: 1,
-                              logUrl: "logUrl",
-                              mbSize: 2,
-                              status: .ok)
+        let d = DocUpload(id: docUploadId,
+                          error: "error",
+                          fileCount: 1,
+                          logUrl: "logUrl",
+                          mbSize: 2,
+                          status: .ok)
 
         // MUT
         try await d.attach(to: b, on: app.db)
@@ -170,7 +170,7 @@ final class DocUploadTests: AppTestCase {
         try await b1.save(on: app.db)
         let b2 = try Build(id: UUID(), version: v2, platform: .linux, status: .ok, swiftVersion: .v5_7)
         try await b2.save(on: app.db)
-        let docUpload = try DocUpload(id: UUID(), status: .ok)
+        let docUpload = DocUpload(id: UUID(), status: .ok)
         try await docUpload.attach(to: b1, on: app.db)
 
         // MUT
@@ -195,7 +195,7 @@ final class DocUploadTests: AppTestCase {
         try await b1.save(on: app.db)
         let b2 = try Build(id: UUID(), version: v, platform: .ios, status: .ok, swiftVersion: .v5_7)
         try await b2.save(on: app.db)
-        let docUpload = try DocUpload(id: UUID(), status: .ok)
+        let docUpload = DocUpload(id: UUID(), status: .ok)
         try await docUpload.attach(to: b1, on: app.db)
 
         // MUT
@@ -220,9 +220,9 @@ final class DocUploadTests: AppTestCase {
         try await b1.save(on: app.db)
         let b2 = try Build(id: UUID(), version: v, platform: .ios, status: .ok, swiftVersion: .v5_7)
         try await b2.save(on: app.db)
-        let docUpload1 = try DocUpload(id: UUID(), status: .ok)
+        let docUpload1 = DocUpload(id: UUID(), status: .ok)
         try await docUpload1.attach(to: b1, on: app.db)
-        let docUpload2 = try DocUpload(id: UUID(), status: .ok)
+        let docUpload2 = DocUpload(id: UUID(), status: .ok)
 
         // MUT
         do {

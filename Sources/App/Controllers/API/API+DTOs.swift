@@ -37,7 +37,6 @@ extension API {
     }
 
     struct PostDocReportDTO: Codable {
-        var buildId: UUID
         var error: String?
         var fileCount: Int?
         var logUrl: String?

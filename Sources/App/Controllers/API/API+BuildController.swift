@@ -87,7 +87,7 @@ extension API {
 
         static func docReport(req: Request) async throws -> HTTPStatus {
             let dto = try req.content.decode(PostDocReportDTO.self)
-            let build = try await Build.find(dto.buildId, on: req.db)
+            let build = try await Build.find(req.parameters.get("id"), on: req.db)
                 .unwrap(or: Abort(.notFound))
 
             let docUpload = DocUpload(id: UUID(),
