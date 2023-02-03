@@ -79,12 +79,14 @@ extension DocUpload {
     enum Status: String, Codable, CustomStringConvertible {
         case ok
         case failed
+        case pending
         case skipped
 
         var description: String {
             switch self {
                 case .ok: return "Successful"
                 case .failed: return "Failed"
+                case .pending: return "Pending"
                 case .skipped: return "Skipped"
             }
         }
