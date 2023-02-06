@@ -15,8 +15,8 @@
 enum Supporters {
     static var corporate: [Corporate] = [
         .init(name: "Stream",
-              logo: .init(lightModeUrl: "/images/sponsors/stream.svg",
-                          darkModeUrl: "/images/sponsors/stream~dark.svg"),
+              logo: .init(lightModeUrl: "/images/sponsors/stream.png",
+                          darkModeUrl: "/images/sponsors/stream~dark.png"),
               url: "https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat",
               advertisingCopy: "Build reliable, real-time, in-app chat and messaging in less time."),
         .init(name: "Emerge Tools",
