@@ -408,11 +408,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/11362913?u=4af3d048fb1678f198a4c9fe9a246017bed75052&v=4"
         ),
         .init(
-            login: "mflknr",
-            name: "Marius Felkner",
-            avatarUrl: "https://avatars.githubusercontent.com/u/11645567?u=54066dd6578c7170742cb00acae0bdf56cfe9ca9&v=4"
-        ),
-        .init(
             login: "tristanbiesecker",
             name: "Tristan Biesecker",
             avatarUrl: "https://avatars.githubusercontent.com/u/12146879?u=1ae4c5828a3c133bd139a85da265a20e9f7a0f90&v=4"
@@ -491,11 +486,6 @@ extension Array<Supporters.Community> {
             login: "lovetodream",
             name: "Timo",
             avatarUrl: "https://avatars.githubusercontent.com/u/38291523?u=63d88ce12c130b67137e38c01a5501d0741bfbd7&v=4"
-        ),
-        .init(
-            login: "dotgrid",
-            name: "Paul Farnell",
-            avatarUrl: "https://avatars.githubusercontent.com/u/48354391?v=4"
         ),
         .init(
             login: "Fleuronic",
