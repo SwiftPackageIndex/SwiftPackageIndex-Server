@@ -16,6 +16,41 @@ import Plot
 
 enum SupportersShow {
     struct Model {
+        func preamble() -> Node<HTML.BodyContext> {
+            .section(
+                .class("preamble"),
+                .div(
+                    .p(
+                        .text("This project is funded entirely by the generous financial support of the Swift community. Thank you to "),
+                        .strong("everyone"),
+                        .text(" who supports this project. We couldn’t keep it running without you!")
+                    ),
+                    .p(
+                        .text("Please consider adding your support through "),
+                        .a(
+                            .href(ExternalURL.projectSponsorship),
+                            "our GitHub Sponsors page"
+                        ),
+                        .text(". Or, if you are interested in corporate sponsorship, please "),
+                        .a(
+                            .href("mailto:contact@swiftpackageindex.com"),
+                            "get in touch"
+                        ),
+                        .text(".")
+                    )
+                ),
+                .div(
+                    .div(
+                        .class("ghcta"),
+                        .a(
+                            .href(ExternalURL.projectSponsorship),
+                            .text("Please consider supporting the Swift Package Index through GitHub Sponsors.")
+                        )
+                    )
+                )
+            )
+        }
+
         func corporateSupporters() -> Node<HTML.BodyContext> {
             .section(
                 .class("corporate"),

@@ -39,24 +39,7 @@ extension SupportersShow {
             .div(
                 .class("supporters"),
                 .h2("Supporters"),
-                .p(
-                    .text("This project is funded entirely by the generous financial support of the Swift community. Thank you to "),
-                    .strong("everyone"),
-                    .text(" who supports this project. We couldn’t keep it running without you!")
-                ),
-                .p(
-                    .text("Please consider adding your support through "),
-                    .a(
-                        .href("https://github.com/sponsors/SwiftPackageIndex"),
-                        "our GitHub Sponsors page"
-                    ),
-                    .text(". Or, if you are interested in corporate sponsorship, please "),
-                    .a(
-                        .href("mailto:contact@swiftpackageindex.com"),
-                        "get in touch"
-                    ),
-                    .text(".")
-                ),
+                model.preamble(),
                 .hr(),
                 model.corporateSupporters(),
                 model.infrastructureSupporters(),
