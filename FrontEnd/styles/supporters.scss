@@ -36,6 +36,14 @@
                     align-items: center;
                 }
             }
+
+            @media screen and (max-width: $mobile-breakpoint) {
+                gap: 20px;
+
+                li {
+                    justify-content: center;
+                }
+            }
         }
 
         &.corporate,
@@ -98,16 +106,6 @@
             @media screen and (max-width: $mobile-breakpoint) {
                 ul {
                     grid-template-columns: 1fr 1fr;
-                }
-            }
-        }
-
-        @media screen and (max-width: $mobile-breakpoint) {
-            ul {
-                gap: 20px;
-
-                li {
-                    justify-content: center;
                 }
             }
         }
