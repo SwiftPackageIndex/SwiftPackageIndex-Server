@@ -149,6 +149,21 @@ extension Node where Context: HTML.BodyContext {
         )
     }
 
+    static func panelButton(cssClass: String? = nil, linkUrl: URLRepresentable, body: String, cta: String) -> Self {
+        .div(
+            .unwrap(cssClass, { .class("panel-button \($0)") },
+                    else: .class("panel-button")),
+            .a(
+                .href(linkUrl),
+                .p(.text(body)),
+                .div(
+                    .class("cta"),
+                    .text(cta)
+                )
+            )
+        )
+    }
+
     static func lastUpdatedTime(_ lastUpdated: Date) -> Self {
         .element(named: "time", nodes: [
             .attribute(named: "datetime",
