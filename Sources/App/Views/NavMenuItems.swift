@@ -15,7 +15,7 @@
 import Plot
 
 enum NavMenuItem {
-    case sponsorCTA
+    case supporters
     case addPackage
     case blog
     case faq
@@ -24,20 +24,11 @@ enum NavMenuItem {
 
     func listNode() -> Node<HTML.ListContext> {
         switch self {
-            case .sponsorCTA:
+            case .supporters:
                 return .li(
-                    .class("menu-scta"),
                     .a(
-                        .id("menu-scta"),
-                        .href(ExternalURL.projectSponsorship)
-                    ),
-                    .div(
-                        .id("menu-scta-help"),
-                        .p("The Swift Package Index is an open-source project entirely funded by community donations."),
-                        .p(
-                            .text("Please consider sponsoring this project. "),
-                            .strong("Thank you!")
-                        )
+                        .href(SiteURL.supporters.relativeURL()),
+                        "Support this Project"
                     )
                 )
             case .addPackage:

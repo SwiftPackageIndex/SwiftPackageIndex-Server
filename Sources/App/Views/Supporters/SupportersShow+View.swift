@@ -50,9 +50,5 @@ extension SupportersShow {
                 )
             )
         }
-
-        override func navMenuItems() -> [NavMenuItem] {
-            [.sponsorCTA, .addPackage, .blog, .faq]
-        }
     }
 }
