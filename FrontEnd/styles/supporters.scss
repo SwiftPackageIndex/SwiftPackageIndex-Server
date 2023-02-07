@@ -47,11 +47,13 @@
         }
 
         &.preamble {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 250px;
             gap: 30px;
+            justify-items: center;
 
             @media screen and (max-width: $mobile-breakpoint) {
-                flex-direction: column;
+                grid-template-columns: 1fr;
             }
         }
 
