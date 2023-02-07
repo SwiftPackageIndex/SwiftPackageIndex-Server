@@ -26,9 +26,10 @@ enum NavMenuItem {
         switch self {
             case .supporters:
                 return .li(
+                    .class("supporters"),
                     .a(
                         .href(SiteURL.supporters.relativeURL()),
-                        "Support this Project"
+                        "Supporters"
                     )
                 )
             case .addPackage:
