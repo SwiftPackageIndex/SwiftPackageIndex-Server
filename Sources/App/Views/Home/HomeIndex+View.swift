@@ -140,6 +140,10 @@ enum HomeIndex {
                 )
             )
         }
+
+        override func navMenuItems() -> [NavMenuItem] {
+            [.supporters, .addPackage, .blog, .faq]
+        }
     }
 }
 

@@ -63,6 +63,10 @@ extension SearchShow {
             )
         }
 
+        override func navMenuItems() -> [NavMenuItem] {
+            [.supporters, .addPackage, .blog, .faq]
+        }
+
         func resultsSection() -> Node<HTML.BodyContext> {
             .section(
                 .class("search-results"),
