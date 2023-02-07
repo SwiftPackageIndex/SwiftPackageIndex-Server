@@ -97,9 +97,7 @@ header {
         .inner {
             flex-direction: column;
         }
-    }
 
-    @media screen and (max-width: $mobile-breakpoint) {
         h1 {
             margin-bottom: 20px;
         }
