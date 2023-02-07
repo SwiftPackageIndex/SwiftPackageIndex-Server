@@ -15,8 +15,8 @@
 enum Supporters {
     static var corporate: [Corporate] = [
         .init(name: "Stream",
-              logo: .init(lightModeUrl: "/images/sponsors/stream.svg",
-                          darkModeUrl: "/images/sponsors/stream~dark.svg"),
+              logo: .init(lightModeUrl: "/images/sponsors/stream.png",
+                          darkModeUrl: "/images/sponsors/stream~dark.png"),
               url: "https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat",
               advertisingCopy: "Build reliable, real-time, in-app chat and messaging in less time."),
         .init(name: "Emerge Tools",
@@ -26,13 +26,24 @@ enum Supporters {
               advertisingCopy: "Monitor app size, improve startup time, and prevent performance regressions.")
     ]
 
+    static var infrastructure: [Corporate] = [
+        .init(name: "MacStadium",
+              logo: .init(lightModeUrl: "/images/sponsors/macstadium.png",
+                          darkModeUrl: "/images/sponsors/macstadium~dark.png"),
+              url: "https://macstadium.com"),
+        .init(name: "Microsoft Azure",
+              logo: .init(lightModeUrl: "/images/sponsors/microsoft.png",
+                          darkModeUrl: "/images/sponsors/microsoft~dark.png"),
+              url: "https://azure.microsoft.com")
+    ]
+
     static var community: [Community] = .gitHubSponsors
 
     struct Corporate {
         var name: String
         var logo: Logo
         var url: String
-        var advertisingCopy: String
+        var advertisingCopy: String?
 
         struct Logo {
             var lightModeUrl: String
@@ -44,5 +55,9 @@ enum Supporters {
         let login: String
         let name: String?
         let avatarUrl: String
+
+        var gitHubUrl: String {
+            "https://github.com/\(login)"
+        }
     }
 }

@@ -1,0 +1,135 @@
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// -------------------------------------------------------------------------
+// Supporters page.
+// -------------------------------------------------------------------------
+
+.supporters {
+    h3 {
+        text-align: center;
+    }
+
+    section {
+        ul {
+            display: grid;
+            margin: 60px 0;
+            padding: 0;
+
+            li {
+                display: flex;
+                list-style: none;
+
+                > a {
+                    display: flex;
+                    align-items: center;
+                }
+            }
+
+            @media screen and (max-width: $mobile-breakpoint) {
+                gap: 20px;
+
+                li {
+                    justify-content: center;
+                }
+            }
+        }
+
+        &.preamble {
+            display: grid;
+            grid-template-columns: 1fr 250px;
+            gap: 30px;
+            justify-items: center;
+
+            @media screen and (max-width: $mobile-breakpoint) {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        &.corporate,
+        &.infrastructure {
+            ul {
+                grid-template-columns: 1fr 1fr;
+
+                li {
+                    justify-content: center;
+                }
+            }
+
+            @media screen and (max-width: $mobile-breakpoint) {
+                ul {
+                    grid-template-columns: 1fr;
+                }
+            }
+        }
+
+        &.community {
+            ul {
+                grid-template-columns: 1fr 1fr 1fr;
+
+                li {
+                    a:not(:hover) {
+                        color: var(--page-text);
+                    }
+
+                    div > :not(:first-child) {
+                        font-size: 13px;
+                        color: var(--page-dimmed-text);
+                    }
+
+                    img {
+                        margin: 15px;
+                        background-color: var(--page-background);
+                        border-radius: 50%;
+                        box-shadow: var(--avatar-shadow);
+                    }
+
+                    @media screen and (max-width: $mobile-breakpoint) {
+                        img {
+                            margin: 0;
+                        }
+
+                        > a {
+                            flex-direction: column;
+                            gap: 10px;
+
+                            > div {
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                            }
+                        }
+                    }
+                }
+            }
+
+            @media screen and (max-width: $mobile-breakpoint) {
+                ul {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+        }
+    }
+
+    .thank-you {
+        margin-bottom: 50px;
+        padding-top: 50px;
+        font-weight: bold;
+        text-align: center;
+        background-position: center top;
+        background-repeat: no-repeat;
+        background-size: 50px;
+        background-image: var(--image-heart);
+    }
+}

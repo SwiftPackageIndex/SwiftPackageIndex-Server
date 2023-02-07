@@ -111,7 +111,9 @@ enum HomeIndex {
                                             .img(
                                                 .src(sponsor.avatarUrl),
                                                 .unwrap(sponsor.name, { .title($0) }),
-                                                .alt(sponsor.name ?? "Profile picture")
+                                                .alt("Profile picture for \(sponsor.name ?? sponsor.login)"),
+                                                .width(30),
+                                                .height(30)
                                             )
                                         )
                                 })
@@ -161,9 +163,7 @@ extension Supporters.Corporate {
                         .src(logo.lightModeUrl)
                     )
                 ),
-                .p(
-                    .text(advertisingCopy)
-                )
+                .unwrap(advertisingCopy, { .p(.text($0)) })
             )
         )
     }

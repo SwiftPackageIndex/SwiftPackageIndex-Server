@@ -146,6 +146,10 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.search.pathComponents, use: SearchController.show)
     }
 
+    do {  // Supporters
+        app.get(SiteURL.supporters.pathComponents, use: SupportersController.show)
+    }
+
     do {  // api
 
         // public routes

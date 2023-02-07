@@ -131,7 +131,6 @@ body.home {
 
             img {
                 justify-self: center;
-                width: 30px;
                 border-radius: 100%;
                 box-shadow: var(--avatar-shadow);
             }
@@ -156,7 +155,40 @@ body.home {
         }
 
         &:hover {
-            background-color: var(--ccta-background-hover);
+            background-color: var(--panel-background-hover);
         }
+    }
+}
+
+.ghcta {
+    max-width: 250px;
+    background-color: var(--panel-background);
+    transition: transform 0.2s ease;
+
+    a {
+        display: block;
+        padding: 55px 0 0;
+        color: var(--page-text);
+        background-position: center top 10px;
+        background-repeat: no-repeat;
+        background-size: 120px;
+        background-image: var(--image-ghcta-header);
+
+        p {
+            margin: 0;
+            padding: 10px;
+        }
+
+        .panel-button {
+            padding: 7px;
+            text-align: center;
+            color: white;
+            background-color: var(--ghcta-button-background);
+        }
+    }
+
+    &:hover {
+        box-shadow: var(--ghcta-panel-shadow);
+        transform: scale(1.025);
     }
 }

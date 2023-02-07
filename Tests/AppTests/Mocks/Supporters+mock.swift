@@ -19,12 +19,14 @@ import Foundation
 extension Supporters {
     static func mock() {
         corporate = .mock
+        infrastructure = .mock
         community = .mock
     }
 }
 
 extension Array<Supporters.Corporate> {
     static var mock: Self = [
+        .init(name: "Sample Sponsor", logo: .init(lightModeUrl: "/images/logo.svg", darkModeUrl: "/images/logo.svg"), url: "https://example.com/sponsored/link", advertisingCopy: "Sponsored links tell everyone about a thing that you can use to do another thing to do!"),
         .init(name: "Sample Sponsor", logo: .init(lightModeUrl: "/images/logo.svg", darkModeUrl: "/images/logo.svg"), url: "https://example.com/sponsored/link", advertisingCopy: "Sponsored links tell everyone about a thing that you can use to do another thing to do!")
     ]
 }
