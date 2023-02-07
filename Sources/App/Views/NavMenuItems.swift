@@ -15,29 +15,20 @@
 import Plot
 
 enum NavMenuItem {
-    case sponsorCTA
+    case supporters
     case addPackage
     case blog
     case faq
     case search
-    case searchLink
 
     func listNode() -> Node<HTML.ListContext> {
         switch self {
-            case .sponsorCTA:
+            case .supporters:
                 return .li(
-                    .class("menu-scta"),
                     .a(
-                        .id("menu-scta"),
-                        .href(ExternalURL.projectSponsorship)
-                    ),
-                    .div(
-                        .id("menu-scta-help"),
-                        .p("The Swift Package Index is an open-source project entirely funded by community donations."),
-                        .p(
-                            .text("Please consider sponsoring this project. "),
-                            .strong("Thank you!")
-                        )
+                        .class("supporters"),
+                        .href(SiteURL.supporters.relativeURL()),
+                        "Supporters"
                     )
                 )
             case .addPackage:
@@ -64,20 +55,7 @@ enum NavMenuItem {
             case .search:
                 return .li(
                     .class("search"),
-                    // The form inside the nav is shown only to desktop browsers through CSS.
-                    .searchForm(autofocus: false),
-                    // The link is shown only to mobile browsers only through CSS.
-                    .a(
-                        .href(SiteURL.search.relativeURL()),
-                        .title("Search")
-                    )
-                )
-            case .searchLink:
-                return .li(
-                    .a(
-                        .href(SiteURL.search.relativeURL()),
-                        .text("Package Search")
-                    )
+                    .searchForm(autofocus: false)
                 )
         }
     }

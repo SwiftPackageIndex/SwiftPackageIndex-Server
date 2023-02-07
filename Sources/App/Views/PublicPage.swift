@@ -228,7 +228,7 @@ class PublicPage {
     /// The items to be rendered in the site navigation menu.
     /// - Returns: An array of `NavMenuItem` items used in `header`.
     func navMenuItems() -> [NavMenuItem] {
-        [.sponsorCTA, .addPackage, .blog, .faq, .search]
+        [.supporters, .addPackage, .blog, .faq, .search]
     }
 
     func announcementBanner() -> Node<HTML.BodyContext> {
