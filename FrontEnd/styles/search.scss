@@ -109,26 +109,20 @@ section.search {
 
 // Search styles specific to the nav bar search form.
 
-nav > ul > li.search {
-    & > a {
-        display: none;
+nav > ul > li.search > form {
+    grid-template-columns: auto 30px;
+    max-width: 160px;
+
+    input[type='search'] {
+        padding: 5px;
+        font-size: 15px;
+
+        &::-webkit-search-cancel-button {
+            display: none;
+        }
     }
 
-    & > form {
-        grid-template-columns: auto 30px;
-        max-width: 160px;
-
-        input[type='search'] {
-            padding: 5px;
-            font-size: 15px;
-
-            &::-webkit-search-cancel-button {
-                display: none;
-            }
-        }
-
-        button {
-            background-size: 14px;
-        }
+    button {
+        background-size: 14px;
     }
 }

@@ -20,7 +20,7 @@ enum NavMenuItem {
     case blog
     case faq
     case search
-    
+
     func listNode() -> Node<HTML.ListContext> {
         switch self {
             case .supporters:
@@ -55,13 +55,7 @@ enum NavMenuItem {
             case .search:
                 return .li(
                     .class("search"),
-                    // The form inside the nav is shown only to desktop browsers through CSS.
-                    .searchForm(autofocus: false),
-                    // The link is shown only to mobile browsers only through CSS.
-                    .a(
-                        .href(SiteURL.search.relativeURL()),
-                        .text("Search")
-                    )
+                    .searchForm(autofocus: false)
                 )
         }
     }
