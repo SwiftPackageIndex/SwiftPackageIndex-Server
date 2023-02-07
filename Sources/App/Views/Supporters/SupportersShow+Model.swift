@@ -44,7 +44,11 @@ enum SupportersShow {
                         .class("ghcta"),
                         .a(
                             .href(ExternalURL.projectSponsorship),
-                            .text("Please consider supporting the Swift Package Index through GitHub Sponsors.")
+                            .p("Please consider supporting this project through GitHub Sponsors."),
+                            .div(
+                                .class("panel-button"),
+                                .text("Visit GitHub Sponsors")
+                            )
                         )
                     )
                 )

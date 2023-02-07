@@ -119,19 +119,4 @@
             }
         }
     }
-
-    .ghcta {
-        background-color: var(--ghcta-background);
-        border-bottom: 3px var(--ghcta-border) solid;
-
-        a {
-            display: block;
-            padding: 70px 10px 10px;
-            color: var(--ghcta-text);
-            background-position: center top 10px;
-            background-repeat: no-repeat;
-            background-size: 50%;
-            background-image: var(--image-ghcta-header);
-        }
-    }
 }

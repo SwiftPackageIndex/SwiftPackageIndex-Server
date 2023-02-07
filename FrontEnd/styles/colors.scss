@@ -62,6 +62,7 @@
     --link-highlight: var(--mid-red);
 
     --panel-background: var(--very-light-grey);
+    --panel-background-hover: var(--light-grey);
     --panel-border: var(--light-grey);
     --panel-shadow: 0 6px 10px 5px rgba(0, 0, 0, 10%);
     --panel-underlay-background: var(--black);
@@ -151,11 +152,9 @@
     --keyword-count-background: rgba(0, 0, 0, 10%);
 
     --ccta-background: var(--very-light-grey);
-    --ccta-background-hover: var(--light-grey);
 
-    --ghcta-background: var(--very-dark-grey);
-    --ghcta-border: var(--grey);
-    --ghcta-text: var(--white);
+    --ghcta-button-background: var(--pink);
+    --ghcta-panel-shadow: 0 3px 5px 5px rgba(0, 0, 0, 5%);
 
     --avatar-shadow: 0 2px 2px 3px rgba(0, 0, 0, 5%);
 }
@@ -191,6 +190,7 @@
         --page-background: var(--black);
 
         --panel-background: var(--very-dark-grey);
+        --panel-background-hover: var(--dark-grey);
         --panel-border: var(--dark-grey);
         --panel-underlay-opacity: 0.8;
 
@@ -262,6 +262,5 @@
         --keyword-count-background: rgba(255, 255, 255, 12.5%);
 
         --ccta-background: var(--very-dark-grey);
-        --ccta-background-hover: var(--dark-grey);
     }
 }
