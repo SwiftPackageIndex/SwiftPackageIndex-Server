@@ -26,7 +26,7 @@ enum SupportersShow {
                         .text(" who supports this project. We couldn’t keep it running without you!")
                     ),
                     .p(
-                        .text("Please consider adding your support through "),
+                        .text("You can add your support through "),
                         .a(
                             .href(ExternalURL.projectSponsorship),
                             "our GitHub Sponsors page"
