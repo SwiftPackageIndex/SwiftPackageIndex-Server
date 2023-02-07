@@ -132,22 +132,3 @@ nav > ul > li.search {
         }
     }
 }
-
-@media screen and (max-width: $mobile-breakpoint) {
-    nav > ul > li.search {
-        > a {
-            display: block;
-            width: 25px;
-            height: 25px;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-size: 20px;
-            background-image: var(--image-search);
-            border: none;
-        }
-
-        > form {
-            display: none;
-        }
-    }
-}

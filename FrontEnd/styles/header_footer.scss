@@ -57,7 +57,6 @@ footer {
 header {
     .inner {
         display: flex;
-        flex-direction: row;
         align-items: center;
         justify-content: space-between;
         padding: 20px 10px;
@@ -74,11 +73,23 @@ header {
         }
     }
 
-    nav a {
-        border-bottom: 1px var(--header-link-text) solid;
+    nav ul {
+        display: flex;
+        gap: 10px 0;
+        align-items: center;
 
-        &:hover {
-            border-color: var(--header-link-highlight);
+        a {
+            &.supporters {
+                padding-left: 24px;
+                background-position: left 5px center;
+                background-repeat: no-repeat;
+                background-size: 15px;
+                background-image: var(--image-heart);
+            }
+
+            &:hover {
+                border-color: var(--header-link-highlight);
+            }
         }
     }
 

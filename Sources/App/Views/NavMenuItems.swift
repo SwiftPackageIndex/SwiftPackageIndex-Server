@@ -26,8 +26,8 @@ enum NavMenuItem {
         switch self {
             case .supporters:
                 return .li(
-                    .class("supporters"),
                     .a(
+                        .class("supporters"),
                         .href(SiteURL.supporters.relativeURL()),
                         "Supporters"
                     )
@@ -61,7 +61,7 @@ enum NavMenuItem {
                     // The link is shown only to mobile browsers only through CSS.
                     .a(
                         .href(SiteURL.search.relativeURL()),
-                        .title("Search")
+                        .text("Search")
                     )
                 )
             case .searchLink:
