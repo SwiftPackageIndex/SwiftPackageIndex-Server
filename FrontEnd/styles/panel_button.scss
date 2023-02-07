@@ -33,7 +33,8 @@
         .cta {
             padding: 7px;
             text-align: center;
-            color: white;
+            color: var(--panel-button-text);
+            background-color: var(--panel-cta-background);
         }
     }
 
@@ -41,6 +42,10 @@
         box-shadow: var(--panel-button-shadow);
         transform: scale(1.025);
     }
+
+    // -------------------------------------------------------------------------
+    // Specific panel buttons.
+    // -------------------------------------------------------------------------
 
     &.ghcta {
         a {

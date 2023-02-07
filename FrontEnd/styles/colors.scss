@@ -153,8 +153,10 @@
 
     --panel-button-background: var(--very-light-grey);
     --panel-button-shadow: 0 3px 5px 5px rgba(0, 0, 0, 5%);
+    --panel-button-text: var(--white);
+    --panel-cta-background: var(--dark-grey);
 
-    --ccta-panel-cta-background: var(--very-light-grey);
+    --ccta-panel-cta-background: var(--mid-blue);
     --ghcta-panel-cta-background: var(--pink);
 
     --avatar-shadow: 0 2px 2px 3px rgba(0, 0, 0, 5%);
@@ -261,5 +263,8 @@
         --big-button-blue-border: var(--light-blue);
 
         --keyword-count-background: rgba(255, 255, 255, 12.5%);
+
+        --panel-button-background: var(--very-dark-grey);
+        --panel-cta-background: var(--dark-grey);
     }
 }
