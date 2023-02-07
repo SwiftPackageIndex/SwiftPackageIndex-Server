@@ -93,7 +93,7 @@ body.home {
 .ghcta {
     max-width: 250px;
     background-color: var(--panel-background);
-    transition: transform 0.2s ease;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
 
     a {
         display: block;
