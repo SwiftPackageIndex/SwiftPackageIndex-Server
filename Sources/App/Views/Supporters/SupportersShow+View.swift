@@ -43,7 +43,11 @@ extension SupportersShow {
                 .hr(),
                 model.corporateSupporters(),
                 model.infrastructureSupporters(),
-                model.communitySupporters()
+                model.communitySupporters(),
+                .div(
+                    .class("thank-you"),
+                    .text("Thank you!")
+                )
             )
         }
 

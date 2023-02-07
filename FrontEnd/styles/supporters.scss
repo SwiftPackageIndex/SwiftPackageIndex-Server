@@ -119,4 +119,15 @@
             }
         }
     }
+
+    .thank-you {
+        margin-bottom: 50px;
+        padding-top: 50px;
+        font-weight: bold;
+        text-align: center;
+        background-position: center top;
+        background-repeat: no-repeat;
+        background-size: 50px;
+        background-image: var(--image-heart);
+    }
 }
