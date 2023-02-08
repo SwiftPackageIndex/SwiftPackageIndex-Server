@@ -84,14 +84,6 @@ enum HomeIndex {
                                  bodyNode: sctaBodyNode()),
                     .group(
                         Supporters.corporate.shuffled().map(\.advertisementNode)
-                    ),
-                    .small(
-                        .text("Thanks so much to all of our generous sponsors for "),
-                        .a(
-                            .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/README.md#funding-and-sponsorship"),
-                            .text("supporting this project")
-                        ),
-                        .text(".")
                     )
                 )
             )
