@@ -132,7 +132,8 @@ extension Supporters.Corporate {
     var advertisementNode: Node<HTML.BodyContext> {
         .panelButton(cssClass: "ccta",
                      linkUrl: url,
-                     bodyNode: advertisingBodyNode)
+                     bodyNode: advertisingBodyNode,
+                     cta: "Visit \(name)")
     }
 
     var advertisingBodyNode: Node<HTML.BodyContext> {

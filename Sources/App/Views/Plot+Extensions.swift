@@ -149,11 +149,17 @@ extension Node where Context: HTML.BodyContext {
         )
     }
 
-    static func panelButton(cssClass: String? = nil, linkUrl: URLRepresentable, body: String) -> Self {
-        .panelButton(cssClass: cssClass, linkUrl: linkUrl, bodyNode: .text(body))
+    static func panelButton(cssClass: String? = nil,
+                            linkUrl: URLRepresentable,
+                            body: String,
+                            cta: String? = nil) -> Self {
+        .panelButton(cssClass: cssClass, linkUrl: linkUrl, bodyNode: .text(body), cta: cta)
     }
 
-    static func panelButton(cssClass: String? = nil, linkUrl: URLRepresentable, bodyNode: Node<HTML.BodyContext>) -> Self {
+    static func panelButton(cssClass: String? = nil,
+                            linkUrl: URLRepresentable,
+                            bodyNode: Node<HTML.BodyContext>,
+                            cta: String? = nil) -> Self {
         .div(
             .unwrap(cssClass, { .class("panel-button \($0)") },
                     else: .class("panel-button")),
@@ -162,7 +168,13 @@ extension Node where Context: HTML.BodyContext {
                 .div(
                     .class("body"),
                     bodyNode
-                )
+                ),
+                .unwrap(cta, { cta in
+                        .div(
+                            .class("cta"),
+                            .text("\(cta) &rarr;")
+                        )
+                })
             )
         )
     }
