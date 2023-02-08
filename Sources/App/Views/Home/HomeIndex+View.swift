@@ -60,7 +60,7 @@ enum HomeIndex {
                 .class("two-column"),
                 .section(
                     .panelButton(cssClass: "podcast",
-                                 linkUrl: "https://swiftpackageindexing.transistor.fm",
+                                 linkUrl: ExternalURL.podcast,
                                  bodyNode: podcastPanelBody(),
                                  cta: "Listen Now"),
                     .section(
