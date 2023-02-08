@@ -42,8 +42,7 @@ enum SupportersShow {
                 .div(
                     .panelButton(cssClass: "ghcta",
                                  linkUrl: ExternalURL.projectSponsorship,
-                                 body: "Please consider supporting this project through GitHub Sponsors.",
-                                 cta: "Visit GitHub Sponsors")
+                                 body: "Please consider supporting this project through GitHub Sponsors.")
                 )
             )
         }

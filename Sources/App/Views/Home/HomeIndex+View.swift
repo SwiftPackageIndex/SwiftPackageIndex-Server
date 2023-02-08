@@ -88,8 +88,7 @@ enum HomeIndex {
                     .class("supporter-ctas"),
                     .panelButton(cssClass: "scta",
                                  linkUrl: SiteURL.supporters.relativeURL(),
-                                 bodyNode: sctaBodyNode(),
-                                 cta: "Support this Project"),
+                                 bodyNode: sctaBodyNode()),
                     .group(
                         Supporters.corporate.shuffled().map(\.advertisementNode)
                     ),
@@ -133,8 +132,7 @@ extension Supporters.Corporate {
     var advertisementNode: Node<HTML.BodyContext> {
         .panelButton(cssClass: "ccta",
                      linkUrl: url,
-                     bodyNode: advertisingBodyNode,
-                     cta: "Visit \(name)")
+                     bodyNode: advertisingBodyNode)
     }
 
     var advertisingBodyNode: Node<HTML.BodyContext> {
