@@ -150,12 +150,19 @@ extension Node where Context: HTML.BodyContext {
     }
 
     static func panelButton(cssClass: String? = nil, linkUrl: URLRepresentable, body: String, cta: String) -> Self {
+        .panelButton(cssClass: cssClass, linkUrl: linkUrl, bodyNode: .text(body), cta: cta)
+    }
+
+    static func panelButton(cssClass: String? = nil, linkUrl: URLRepresentable, bodyNode: Node<HTML.BodyContext>, cta: String) -> Self {
         .div(
             .unwrap(cssClass, { .class("panel-button \($0)") },
                     else: .class("panel-button")),
             .a(
                 .href(linkUrl),
-                .p(.text(body)),
+                .div(
+                    .class("body"),
+                    bodyNode
+                ),
                 .div(
                     .class("cta"),
                     .text(cta)

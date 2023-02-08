@@ -156,8 +156,10 @@
     --panel-button-text: var(--white);
     --panel-cta-background: var(--dark-grey);
 
-    --ccta-panel-cta-background: var(--mid-blue);
-    --ghcta-panel-cta-background: var(--pink);
+    --scta-avatar-gradient: linear-gradient(rgba(241, 241, 241, 0%) 0, rgba(241, 241, 241, 0%) 50%, rgba(241, 241, 241, 100%) 100%);
+    --scta-panel-accent: var(--light-grey);
+    --ccta-panel-accent: var(--mid-blue);
+    --ghcta-panel-accent: var(--pink);
 
     --avatar-shadow: 0 2px 2px 3px rgba(0, 0, 0, 5%);
 }
