@@ -13,8 +13,14 @@
 // limitations under the License.
 
 // -------------------------------------------------------------------------
-// Site home page, including the display of search results.
+// Site home page.
 // -------------------------------------------------------------------------
+
+body.home {
+    .two-column {
+        grid-template-columns: 4fr 2fr;
+    }
+}
 
 // Recent packages.
 
