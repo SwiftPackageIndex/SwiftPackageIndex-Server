@@ -59,17 +59,10 @@ enum HomeIndex {
             .section(
                 .class("two-column"),
                 .section(
-                    .section(
-                        .class("podcast"),
-                        .p(
-                            .text("Join Dave and Sven biweekly for a chat about ongoing Swift Package Index development and a selection of package recommendations on our "),
-                            .a(
-                                .href("https://swiftpackageindexing.transistor.fm"),
-                                "Swift Package Indexing podcast"
-                            ),
-                            .text(".")
-                        )
-                    ),
+                    .panelButton(cssClass: "podcast",
+                                 linkUrl: "https://swiftpackageindexing.transistor.fm",
+                                 bodyNode: podcastPanelBody(),
+                                 cta: "Listen Now"),
                     .section(
                         .class("recent"),
                         .div(
@@ -102,6 +95,10 @@ enum HomeIndex {
                     )
                 )
             )
+        }
+
+        func podcastPanelBody() -> Node<HTML.BodyContext> {
+            .text("Join Dave and Sven every two weeks for a chat about ongoing Swift Package Index development and a selection of package recommendations on the Swift Package Indexing podcast.")
         }
 
         func sctaBodyNode() -> Node<HTML.BodyContext> {

@@ -17,7 +17,6 @@
 // -------------------------------------------------------------------------
 
 .panel-button {
-    max-width: 250px;
     transition: box-shadow 0.15s ease, transform 0.15s ease;
 
     a {
@@ -54,7 +53,7 @@
             content: '';
             position: absolute;
             top: -20px;
-            right: -10px;
+            right: -5px;
             display: block;
             width: 40px;
             height: 35px;
@@ -114,5 +113,30 @@
             background-size: 120px;
             background-image: var(--image-ghcta-header);
         }
+    }
+
+    &.podcast {
+        --panel-accent: var(--podcast-panel-accent);
+        --panel-button-background: var(--podcast-panel-background);
+        position: relative;
+        margin-top: 20px;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -5px;
+            display: block;
+            width: 40px;
+            height: 40px;
+            background-repeat: no-repeat;
+            background-size: 100%;
+            background-image: var(--image-podcast);
+        }
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+        max-width: 300px;
+        margin: 0 auto;
     }
 }

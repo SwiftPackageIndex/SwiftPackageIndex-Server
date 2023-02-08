@@ -68,9 +68,6 @@
     --panel-underlay-background: var(--black);
     --panel-underlay-opacity: 0.5;
 
-    --podcast-panel-background: var(--very-light-blue);
-    --podcast-panel-border: var(--light-blue);
-
     --green-text: var(--light-green);
     --orange-text: var(--orange);
     --red-text: var(--mid-red);
@@ -160,6 +157,8 @@
     --scta-panel-accent: var(--pink);
     --ccta-panel-accent: var(--mid-blue);
     --ghcta-panel-accent: var(--pink);
+    --podcast-panel-accent: var(--light-blue);
+    --podcast-panel-background: var(--very-light-blue);
 
     --avatar-shadow: 0 2px 2px 3px rgba(0, 0, 0, 5%);
 }
