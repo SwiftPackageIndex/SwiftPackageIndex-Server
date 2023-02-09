@@ -40,16 +40,10 @@ enum SupportersShow {
                     )
                 ),
                 .div(
-                    .class("ghcta"),
-                    .a(
-                        .href(ExternalURL.projectSponsorship),
-                        .p("Please consider supporting this project through GitHub Sponsors."),
-                        .div(
-                            .class("panel-button"),
-                            .text("Visit GitHub Sponsors")
-                        )
-                    )
-                    
+                    .panelButton(cssClass: "ghcta",
+                                 linkUrl: ExternalURL.projectSponsorship,
+                                 body: "Please consider supporting this project through GitHub Sponsors.",
+                                 cta: "Visit GitHub Sponsors")
                 )
             )
         }

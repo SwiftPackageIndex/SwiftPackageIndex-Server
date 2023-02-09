@@ -21,8 +21,6 @@ enum HomeIndex {
 
         let model: Model
 
-        let numberOfCommunitySponsors = 14
-
         init(path: String, model: Model) {
             self.model = model
             super.init(path: path)
@@ -61,17 +59,10 @@ enum HomeIndex {
             .section(
                 .class("two-column"),
                 .section(
-                    .section(
-                        .class("podcast"),
-                        .p(
-                            .text("Join Dave and Sven biweekly for a chat about ongoing Swift Package Index development and a selection of package recommendations on our "),
-                            .a(
-                                .href("https://swiftpackageindexing.transistor.fm"),
-                                "Swift Package Indexing podcast"
-                            ),
-                            .text(".")
-                        )
-                    ),
+                    .panelButton(cssClass: "podcast",
+                                 linkUrl: ExternalURL.podcast,
+                                 bodyNode: podcastPanelBody(),
+                                 cta: "Listen Now"),
                     .section(
                         .class("recent"),
                         .div(
@@ -87,56 +78,35 @@ enum HomeIndex {
                     )
                 ),
                 .section(
-                    .div(
-                        .class("scta"),
-                        .p(
-                            .text("This project wouldn't be possible without "),
-                            .a(
-                                .href(ExternalURL.projectSponsorship),
-                                .text("community support")
-                            ),
-                            .text(". Please consider "),
-                            .a(
-                                .href(ExternalURL.projectSponsorship),
-                                "joining \(Supporters.community.count) other sponsors"
-                            ),
-                            .text(".")
-                        ),
-                        .p(
-                            .div(
-                                .class("avatars"),
-                                .forEach(Supporters.community.randomSample(count: numberOfCommunitySponsors), { sponsor in
-                                        .a(
-                                            .href(ExternalURL.projectSponsorship),
-                                            .img(
-                                                .src(sponsor.avatarUrl),
-                                                .unwrap(sponsor.name, { .title($0) }),
-                                                .alt("Profile picture for \(sponsor.name ?? sponsor.login)"),
-                                                .width(30),
-                                                .height(30)
-                                            )
-                                        )
-                                })
-                            ),
-                            .small(
-                                .a(
-                                    .href(ExternalURL.projectSponsorship),
-                                    .text("&hellip; and \(Supporters.community.count - numberOfCommunitySponsors) more.")
-                                )
-                            )
-                        )
-                    ),
+                    .class("supporter-ctas"),
+                    .panelButton(cssClass: "scta",
+                                 linkUrl: SiteURL.supporters.relativeURL(),
+                                 bodyNode: sctaBodyNode()),
                     .group(
                         Supporters.corporate.shuffled().map(\.advertisementNode)
-                    ),
-                    .small(
-                        .text("Thanks so much to all of our generous sponsors for "),
-                        .a(
-                            .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/README.md#funding-and-sponsorship"),
-                            .text("supporting this project")
-                        ),
-                        .text(".")
                     )
+                )
+            )
+        }
+
+        func podcastPanelBody() -> Node<HTML.BodyContext> {
+            .text("Join Dave and Sven every two weeks for a chat about ongoing Swift Package Index development and a selection of package recommendations on the Swift Package Indexing podcast.")
+        }
+
+        func sctaBodyNode() -> Node<HTML.BodyContext> {
+            .group(
+                .text("Join the companies and individuals that make running this site possible."),
+                .div(
+                    .class("avatars"),
+                    .forEach(Supporters.community.randomSample(count: 27), { sponsor in
+                            .img(
+                                .src(sponsor.avatarUrl),
+                                .unwrap(sponsor.name, { .title($0) }),
+                                .alt("Profile picture for \(sponsor.name ?? sponsor.login)"),
+                                .width(20),
+                                .height(20)
+                            )
+                    })
                 )
             )
         }
@@ -149,22 +119,25 @@ enum HomeIndex {
 
 extension Supporters.Corporate {
     var advertisementNode: Node<HTML.BodyContext> {
-        .a(
-            .href(url),
-            .div(
-                .class("ccta"),
-                .picture(
-                    .source(
-                        .srcset(logo.darkModeUrl),
-                        .media("(prefers-color-scheme: dark)")
-                    ),
-                    .img(
-                        .alt("\(name) logo"),
-                        .src(logo.lightModeUrl)
-                    )
+        .panelButton(cssClass: "ccta",
+                     linkUrl: url,
+                     bodyNode: advertisingBodyNode,
+                     cta: "Visit \(name)")
+    }
+
+    var advertisingBodyNode: Node<HTML.BodyContext> {
+        .group(
+            .picture(
+                .source(
+                    .srcset(logo.darkModeUrl),
+                    .media("(prefers-color-scheme: dark)")
                 ),
-                .unwrap(advertisingCopy, { .p(.text($0)) })
-            )
+                .img(
+                    .alt("\(name) logo"),
+                    .src(logo.lightModeUrl)
+                )
+            ),
+            .unwrap(advertisingCopy, { .text($0) })
         )
     }
 }

@@ -68,9 +68,6 @@
     --panel-underlay-background: var(--black);
     --panel-underlay-opacity: 0.5;
 
-    --podcast-panel-background: var(--very-light-blue);
-    --podcast-panel-border: var(--light-blue);
-
     --green-text: var(--light-green);
     --orange-text: var(--orange);
     --red-text: var(--mid-red);
@@ -151,10 +148,17 @@
 
     --keyword-count-background: rgba(0, 0, 0, 10%);
 
-    --ccta-background: var(--very-light-grey);
+    --panel-button-background: var(--very-light-grey);
+    --panel-button-shadow: 0 3px 5px 5px rgba(0, 0, 0, 5%);
+    --panel-button-text: var(--white);
+    --panel-accent: var(--dark-grey);
 
-    --ghcta-button-background: var(--pink);
-    --ghcta-panel-shadow: 0 3px 5px 5px rgba(0, 0, 0, 5%);
+    --scta-avatar-gradient: linear-gradient(rgba(241, 241, 241, 0%) 0, rgba(241, 241, 241, 0%) 50%, rgba(241, 241, 241, 100%) 100%);
+    --scta-panel-accent: var(--pink);
+    --ccta-panel-accent: var(--mid-blue);
+    --ghcta-panel-accent: var(--pink);
+    --podcast-panel-accent: var(--light-blue);
+    --podcast-panel-background: var(--very-light-blue);
 
     --avatar-shadow: 0 2px 2px 3px rgba(0, 0, 0, 5%);
 }
@@ -261,6 +265,9 @@
 
         --keyword-count-background: rgba(255, 255, 255, 12.5%);
 
-        --ccta-background: var(--very-dark-grey);
+        --panel-button-background: var(--very-dark-grey);
+        --panel-cta-background: var(--dark-grey);
+
+        --scta-avatar-gradient: linear-gradient(rgba(25, 25, 35, 0%) 0, rgba(25, 25, 35, 0%) 50%, rgba(25, 25, 35, 100%) 100%);
     }
 }

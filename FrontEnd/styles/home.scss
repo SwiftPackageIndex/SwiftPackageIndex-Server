@@ -13,8 +13,14 @@
 // limitations under the License.
 
 // -------------------------------------------------------------------------
-// Site home page, including the display of search results.
+// Site home page.
 // -------------------------------------------------------------------------
+
+body.home {
+    .two-column {
+        grid-template-columns: 4fr 2fr;
+    }
+}
 
 // Recent packages.
 
@@ -22,6 +28,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
+    margin-top: 25px;
 
     h3 {
         margin: 5px 0;
@@ -47,33 +54,8 @@
     }
 }
 
-// Podcast CTA.
-
-.podcast {
-    position: relative;
-    margin: 20px 0 60px;
-    padding: 15px;
-    background-color: var(--podcast-panel-background);
-    border-bottom: 3px var(--podcast-panel-border) solid;
-
-    &::before {
-        content: '';
-        position: absolute;
-        top: -20px;
-        left: -20px;
-        display: block;
-        width: 40px;
-        height: 40px;
-        background-repeat: no-repeat;
-        background-size: 100%;
-        background-image: var(--image-podcast);
-    }
-
-    p {
-        margin: 0;
-    }
-
-    @media screen and (max-width: $mobile-breakpoint) {
-        margin-left: 20px;
-    }
+.supporter-ctas {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }

@@ -20,6 +20,7 @@ enum ExternalURL: URLRepresentable {
     case projectGitHub
     case projectSponsorship
     case raiseNewIssue
+    case podcast
     case addNewPackage(_ owner: String, _ repository: String)
 
 
@@ -35,6 +36,8 @@ enum ExternalURL: URLRepresentable {
                 return "https://github.com/sponsors/SwiftPackageIndex"
             case .raiseNewIssue:
                 return "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose"
+            case .podcast:
+                return "https://swiftpackageindexing.transistor.fm"
             case let .addNewPackage(owner, repository):
                 return "https://github.com/SwiftPackageIndex/PackageList/issues/new?labels=Add+Package&template=add_package.yml&title=Add+\(repository)&list=https%3A%2F%2Fgithub.com%2F\(owner)%2F\(repository).git"
         }
