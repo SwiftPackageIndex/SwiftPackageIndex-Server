@@ -65,6 +65,10 @@
                 li {
                     justify-content: center;
                 }
+
+                &.solo {
+                    grid-template-columns: 1fr;
+                }
             }
 
             @media screen and (max-width: $mobile-breakpoint) {

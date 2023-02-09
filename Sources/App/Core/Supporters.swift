@@ -13,6 +13,11 @@
 // limitations under the License.
 
 enum Supporters {
+    static var primary: Corporate = .init(name: "Apple",
+                                          logo: .init(lightModeUrl: "/images/sponsors/apple.svg",
+                                                      darkModeUrl: "/images/sponsors/apple~dark.svg"),
+                                          url: "http://apple.com")
+
     static var corporate: [Corporate] = [
         .init(name: "Stream",
               logo: .init(lightModeUrl: "/images/sponsors/stream.png",
