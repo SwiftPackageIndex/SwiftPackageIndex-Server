@@ -103,8 +103,8 @@ extension Supporters.Corporate {
                     .img(
                         .alt("\(name) logo"),
                         .src(logo.lightModeUrl),
-                        .width(300),
-                        .height(75)
+                        .width(logo.width),
+                        .height(logo.height)
                     )
                 )
             )

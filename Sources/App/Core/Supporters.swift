@@ -15,7 +15,8 @@
 enum Supporters {
     static var primary: Corporate = .init(name: "Apple",
                                           logo: .init(lightModeUrl: "/images/sponsors/apple.svg",
-                                                      darkModeUrl: "/images/sponsors/apple~dark.svg"),
+                                                      darkModeUrl: "/images/sponsors/apple~dark.svg",
+                                                      width: 100, height: 123),
                                           url: "http://apple.com")
 
     static var corporate: [Corporate] = [
@@ -53,6 +54,8 @@ enum Supporters {
         struct Logo {
             var lightModeUrl: String
             var darkModeUrl: String
+            var width: Int = 300
+            var height: Int = 75
         }
     }
 
