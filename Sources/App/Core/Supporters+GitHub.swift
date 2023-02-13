@@ -328,11 +328,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/4258823?v=4"
         ),
         .init(
-            login: "leofirespotter",
-            name: "Leo Liberman",
-            avatarUrl: "https://avatars.githubusercontent.com/u/4295007?u=706f9311903b12c42366a9bd09dfe2f10b8df9aa&v=4"
-        ),
-        .init(
             login: "objcio",
             name: "objc.io",
             avatarUrl: "https://avatars.githubusercontent.com/u/4409139?v=4"
@@ -440,7 +435,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "roz0n",
             name: "Arnold Rozon",
-            avatarUrl: "https://avatars.githubusercontent.com/u/16907089?u=58c29bc8fbe3092512f93764e01b352b4bd78571&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/16907089?u=79dd6d2d23ccd1dc50b28d5e802c5cd400e12b7a&v=4"
         ),
         .init(
             login: "emin-grbo",
