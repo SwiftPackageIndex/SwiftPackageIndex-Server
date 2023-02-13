@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent.git",
       "state" : {
-        "revision" : "2da106f46b093885f77fa03e3c719ab5bb8cfab4",
-        "version" : "4.6.0"
+        "revision" : "4db22cc7797b3a687de65e32e11108cf92fb32da",
+        "version" : "4.7.0"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-kit.git",
       "state" : {
-        "revision" : "be7912ee4991bcc8a5390fac0424d1d08221dcc6",
-        "version" : "1.36.1"
+        "revision" : "10f32130a0f7e29de8def48edf69564c36cf3b74",
+        "version" : "1.38.0"
       }
     },
     {
@@ -284,8 +284,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-http2.git",
       "state" : {
-        "revision" : "b408ca74bf24d13310da685bc340f149567c4ae2",
-        "version" : "1.24.0"
+        "revision" : "22757ac305f3d44d2b99ba541193ff1d64e77d00",
+        "version" : "1.24.1"
       }
     },
     {
@@ -401,8 +401,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "16b23a295fa322eb957af98037f86791449de60f",
-        "version" : "0.8.1"
+        "revision" : "ace21305e0dd3a9e749aef79fef14be79a3b4669",
+        "version" : "0.8.2"
       }
     },
     {
