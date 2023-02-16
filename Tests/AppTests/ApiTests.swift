@@ -432,12 +432,14 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(d.logUrl, "log url")
                     XCTAssertEqual(d.mbSize, 900)
                     XCTAssertEqual(d.status, .skipped)
-                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
                 })
         }
 
         do {  // send report again to same buildId
-            let dto: API.PostDocReportDTO = .init(status: .ok)
+            let dto: API.PostDocReportDTO = .init(
+                docArchives: [.init(name: "foo", title: "Foo")],
+                status: .ok
+            )
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             try await app.test(
                 .POST,
@@ -451,7 +453,32 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(docUploads.count, 1)
                     let d = try docUploads.first.unwrap()
                     XCTAssertEqual(d.status, .ok)
-                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+                    try await d.$build.load(on: app.db)
+                    try await d.build.$version.load(on: app.db)
+                    XCTAssertEqual(d.build.version.docArchives,
+                                   [.init(name: "foo", title: "Foo")])
+                })
+        }
+
+        do {  // make sure a .pending report without docArchives does not reset them
+            let dto: API.PostDocReportDTO = .init(docArchives: nil, status: .pending)
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try await app.test(
+                .POST,
+                "api/builds/\(buildId)/doc-report",
+                headers: .bearerApplicationJSON("secr3t"),
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .noContent)
+                    let docUploads = try await DocUpload.query(on: app.db).all()
+                    XCTAssertEqual(docUploads.count, 1)
+                    let d = try docUploads.first.unwrap()
+                    XCTAssertEqual(d.status, .pending)
+                    try await d.$build.load(on: app.db)
+                    try await d.build.$version.load(on: app.db)
+                    XCTAssertEqual(d.build.version.docArchives,
+                                   [.init(name: "foo", title: "Foo")])
                 })
         }
     }

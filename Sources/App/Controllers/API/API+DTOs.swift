@@ -26,7 +26,6 @@ extension API {
     struct PostBuildReportDTO: Codable {
         var buildCommand: String?
         var buildId: UUID
-        var docArchives: [DocArchive]?
         var jobUrl: String?
         var logUrl: String?
         var platform: Build.Platform
@@ -37,6 +36,7 @@ extension API {
     }
 
     struct PostDocReportDTO: Codable {
+        var docArchives: [DocArchive]?
         var error: String?
         var fileCount: Int?
         var logUrl: String?

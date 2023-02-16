@@ -65,16 +65,10 @@ extension API {
             }
 
             do {  // update version and package
-                var needsSave = false
                 if let dependencies = dto.resolvedDependencies {
                     version.resolvedDependencies = dependencies
-                    needsSave = true
+                    try await version.save(on: req.db)
                 }
-                if let docArchives = dto.docArchives {
-                    version.docArchives = docArchives
-                    needsSave = true
-                }
-                if needsSave { try await version.save(on: req.db) }
 
                 // it's ok to reach through $package to get its id, because `$package.id`
                 // is actually `versions.package_id` and therefore loaded
@@ -93,6 +87,7 @@ extension API {
             let build = try await Build.find(buildId, on: req.db)
                 .unwrap(or: Abort(.notFound))
 
+            // Upsert build.docUpload
             let docUpload = DocUpload(id: UUID(),
                                       error: dto.error,
                                       fileCount: dto.fileCount,
@@ -113,6 +108,14 @@ extension API {
             } catch {
                 req.logger.critical("\(error)")
                 throw error
+            }
+
+            // Update build.version.docArchives
+            if let docArchives = dto.docArchives {
+                try await App.Version.query(on: req.db)
+                .set(\.$docArchives, to: docArchives)
+                    .filter(\.$id == build.$version.id)
+                    .update()
             }
 
             return .noContent
