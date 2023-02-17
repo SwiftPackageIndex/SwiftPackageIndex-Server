@@ -168,8 +168,6 @@ func routes(_ app: Application) throws {
 
         // protected routes
         app.group(User.TokenAuthenticator(), User.guardMiddleware()) { protected in
-            protected.on(.POST, SiteURL.api(.versions(.key, .builds)).pathComponents,
-                         use: API.BuildController.buildReport)
             protected.on(.POST, SiteURL.api(.versions(.key, .buildReport)).pathComponents,
                          use: API.BuildController.buildReport)
             protected.on(.POST, SiteURL.api(.builds(.key, .docReport)).pathComponents,
