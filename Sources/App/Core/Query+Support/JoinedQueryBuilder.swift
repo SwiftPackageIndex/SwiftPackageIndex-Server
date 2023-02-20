@@ -86,7 +86,7 @@ struct JoinedQueryBuilder<J: ModelInitializable> {
         return self
     }
 
-    @discardableResult func join<Foreign, Local, Value>(_ foreign: Foreign.Type, on filter: JoinFilter<Foreign, Local, Value>, method: DatabaseQuery.Join.Method = .inner) -> Self where Foreign : Schema, Local : Schema, Value : Decodable, Value : Encodable {
+    @discardableResult func join<Foreign>(_ foreign: Foreign.Type, on filter: ComplexJoinFilter, method: DatabaseQuery.Join.Method = .inner) -> Self where Foreign : Schema {
         queryBuilder.join(foreign, on: filter, method: method)
         return self
     }
