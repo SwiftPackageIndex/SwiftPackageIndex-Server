@@ -124,7 +124,7 @@ extension Supporters.Corporate {
         .panelButton(cssClass: "ccta",
                      linkUrl: url,
                      bodyNode: advertisingBodyNode,
-                     cta: "Visit \(name),",
+                     cta: "Visit \(name)",
                      analyticsEvent: "Home - Sponsor CTA (\(name))")
     }
 
