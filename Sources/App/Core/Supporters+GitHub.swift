@@ -423,11 +423,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/15193942?u=f789c13c13098bf6f7e96aca9116d6d8dbf1a73b&v=4"
         ),
         .init(
-            login: "loopwerk",
-            name: "Loopwerk",
-            avatarUrl: "https://avatars.githubusercontent.com/u/16154378?v=4"
-        ),
-        .init(
             login: "xavierLowmiller",
             name: "Xaver Lohmüller",
             avatarUrl: "https://avatars.githubusercontent.com/u/16212751?v=4"
@@ -471,6 +466,11 @@ extension Array<Supporters.Community> {
             login: "pointfreeco",
             name: "Point-Free",
             avatarUrl: "https://avatars.githubusercontent.com/u/29466629?v=4"
+        ),
+        .init(
+            login: "akashsoni01",
+            name: "Akash Soni",
+            avatarUrl: "https://avatars.githubusercontent.com/u/33283321?u=f83cc448a6440ee452f3659c8fdd902644e7a258&v=4"
         ),
         .init(
             login: "alexandersandberg",
