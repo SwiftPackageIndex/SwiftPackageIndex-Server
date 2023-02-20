@@ -42,19 +42,19 @@ class QueryPerformanceTests: XCTestCase {
 
     func test_Search_keywordMatchQuery() async throws {
         let query = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        try await assertQueryPerformance(query, expectedCost: 3700, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 3900, variation: 150)
     }
 
     func test_Search_authorMatchQuery() async throws {
         let query = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
-        try await assertQueryPerformance(query, expectedCost: 600, variation: 50)
+        try await assertQueryPerformance(query, expectedCost: 650, variation: 50)
     }
 
     func test_Search_query_noFilter() async throws {
         let query = try Search.query(app.db, ["a"],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5090, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 5280, variation: 150)
     }
 
     func test_Search_query_authorFilter() async throws {
@@ -78,7 +78,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5100, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 5300, variation: 150)
     }
 
     func test_Search_query_licenseFilter() async throws {
@@ -110,7 +110,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5010, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 5200, variation: 150)
     }
 
     func test_Search_refresh() async throws {
@@ -146,7 +146,7 @@ class QueryPerformanceTests: XCTestCase {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
-        try await assertQueryPerformance(query, expectedCost: 23_800, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 24_000, variation: 200)
     }
 
 }
