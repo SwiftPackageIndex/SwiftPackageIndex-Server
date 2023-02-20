@@ -69,8 +69,8 @@
       <div class="inner">
         <section class="two-column">
           <section>
-            <div class="panel-button podcast">
-              <a href="https://swiftpackageindexing.transistor.fm">
+            <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Podcast CTA" class="panel-button podcast">
+              <a data-action="click->panel-button#click" href="https://swiftpackageindexing.transistor.fm">
                 <div class="body">Join Dave and Sven every two weeks for a chat about ongoing Swift Package Index development and a selection of package recommendations on the Swift Package Indexing podcast.</div>
                 <div class="cta">Listen Now &rarr;</div>
               </a>
@@ -149,8 +149,8 @@
             </section>
           </section>
           <section class="supporter-ctas">
-            <div class="panel-button scta">
-              <a href="/supporters">
+            <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Supporters CTA" class="panel-button scta">
+              <a data-action="click->panel-button#click" href="/supporters">
                 <div class="body">Join the companies and individuals that make running this site possible.
                   <div class="avatars">
                     <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
@@ -171,8 +171,8 @@
                 </div>
               </a>
             </div>
-            <div class="panel-button ccta">
-              <a href="https://example.com/sponsored/link">
+            <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Sponsor CTA (Sample Sponsor)" class="panel-button ccta">
+              <a data-action="click->panel-button#click" href="https://example.com/sponsored/link">
                 <div class="body">
                   <picture>
                     <source srcset="/images/logo.svg" media="(prefers-color-scheme: dark)"/>
@@ -182,8 +182,8 @@
                 <div class="cta">Visit Sample Sponsor &rarr;</div>
               </a>
             </div>
-            <div class="panel-button ccta">
-              <a href="https://example.com/sponsored/link">
+            <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Sponsor CTA (Sample Sponsor)" class="panel-button ccta">
+              <a data-action="click->panel-button#click" href="https://example.com/sponsored/link">
                 <div class="body">
                   <picture>
                     <source srcset="/images/logo.svg" media="(prefers-color-scheme: dark)"/>

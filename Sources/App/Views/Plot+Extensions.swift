@@ -152,18 +152,29 @@ extension Node where Context: HTML.BodyContext {
     static func panelButton(cssClass: String? = nil,
                             linkUrl: URLRepresentable,
                             body: String,
-                            cta: String? = nil) -> Self {
-        .panelButton(cssClass: cssClass, linkUrl: linkUrl, bodyNode: .text(body), cta: cta)
+                            cta: String? = nil,
+                            analyticsEvent: String? = nil) -> Self {
+        .panelButton(cssClass: cssClass, linkUrl: linkUrl, bodyNode: .text(body), cta: cta, analyticsEvent: analyticsEvent)
     }
 
     static func panelButton(cssClass: String? = nil,
                             linkUrl: URLRepresentable,
                             bodyNode: Node<HTML.BodyContext>,
-                            cta: String? = nil) -> Self {
+                            cta: String? = nil,
+                            analyticsEvent: String? = nil) -> Self {
         .div(
+            .unwrap(analyticsEvent, { analyticsEvent in
+                    .group(
+                        .data(named: "controller", value: "panel-button"),
+                        .data(named: "panel-button-analytics-event-value", value: analyticsEvent)
+                    )
+            }),
             .unwrap(cssClass, { .class("panel-button \($0)") },
                     else: .class("panel-button")),
             .a(
+                .unwrap(analyticsEvent, { _ in
+                        .data(named: "action", value: "click->panel-button#click")
+                }),
                 .href(linkUrl),
                 .div(
                     .class("body"),
