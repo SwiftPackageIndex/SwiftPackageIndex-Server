@@ -21,9 +21,9 @@ struct Joined<M: Model, R: Model>: ModelInitializable {
 
 
 extension Joined {
-    static func query<V: Codable>(
+    static func query(
         on database: Database,
-        join joinFilter: JoinFilter<R, M, V>,
+        join joinFilter: ComplexJoinFilter,
         method: DatabaseQuery.Join.Method = .inner) -> JoinedQueryBuilder<Joined> {
             .init(queryBuilder: M.query(on: database)
                     .join(R.self, on: joinFilter, method: method))
