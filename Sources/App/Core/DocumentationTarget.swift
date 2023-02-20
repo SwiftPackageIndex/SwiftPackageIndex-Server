@@ -27,10 +27,9 @@ enum DocumentationTarget: Equatable {
     ///   - repository: Repository name
     /// - Returns: DocumentationTarget or nil
     static func query(on database: Database, owner: String, repository: String) async throws -> Self? {
-        let results = try await Joined3<Version, Package, Repository>
+        let results = try await Joined<Version, Repository>
             .query(on: database,
-                   join: \Version.$package.$id == \Package.$id, method: .inner,
-                   join: \Package.$id == \Repository.$package.$id, method: .inner)
+                   join: \Version.$package.$id == \Repository.$package.$id, method: .inner)
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .filter(Repository.self, \.$name, .custom("ilike"), repository)
             .group(.or) {
