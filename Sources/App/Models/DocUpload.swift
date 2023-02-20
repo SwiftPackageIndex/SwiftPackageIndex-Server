@@ -81,6 +81,7 @@ extension DocUpload {
         case failed
         case pending
         case skipped
+        case uploading
 
         var description: String {
             switch self {
@@ -88,6 +89,7 @@ extension DocUpload {
                 case .failed: return "Failed"
                 case .pending: return "Pending"
                 case .skipped: return "Skipped"
+                case .uploading: return "Uploading"
             }
         }
     }
