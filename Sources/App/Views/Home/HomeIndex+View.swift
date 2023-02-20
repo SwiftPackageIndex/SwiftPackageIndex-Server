@@ -62,7 +62,8 @@ enum HomeIndex {
                     .panelButton(cssClass: "podcast",
                                  linkUrl: ExternalURL.podcast,
                                  bodyNode: podcastPanelBody(),
-                                 cta: "Listen Now"),
+                                 cta: "Listen Now",
+                                 analyticsEvent: "Home - Podcast CTA"),
                     .section(
                         .class("recent"),
                         .div(
@@ -81,7 +82,8 @@ enum HomeIndex {
                     .class("supporter-ctas"),
                     .panelButton(cssClass: "scta",
                                  linkUrl: SiteURL.supporters.relativeURL(),
-                                 bodyNode: sctaBodyNode()),
+                                 bodyNode: sctaBodyNode(),
+                                 analyticsEvent: "Home - Supporters CTA"),
                     .group(
                         Supporters.corporate.shuffled().map(\.advertisementNode)
                     )
@@ -122,7 +124,8 @@ extension Supporters.Corporate {
         .panelButton(cssClass: "ccta",
                      linkUrl: url,
                      bodyNode: advertisingBodyNode,
-                     cta: "Visit \(name)")
+                     cta: "Visit \(name),",
+                     analyticsEvent: "Home - Sponsor CTA (\(name))")
     }
 
     var advertisingBodyNode: Node<HTML.BodyContext> {
