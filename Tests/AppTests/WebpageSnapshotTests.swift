@@ -421,6 +421,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
     func test_DocCTemplate() throws {
         let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
         let doccHtml = try String(contentsOfFile: doccTemplatePath)
+        let archive = DocArchive(name: "archive1", title: "Archive1")
         let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
                                                                  repositoryOwnerName: "Owner Name",
                                                                  repositoryName: "package",
@@ -429,13 +430,12 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  referenceLatest: .release,
                                                                  referenceKind: .release,
                                                                  availableArchives: [
-                                                                    .init(name: "Archive1",
-                                                                          isCurrent: true)
+                                                                    .init(archive: archive, isCurrent: true)
                                                                  ],
                                                                  availableVersions: [
                                                                     .init(kind: .defaultBranch,
                                                                           reference: "main",
-                                                                          docArchives: ["Archive1"],
+                                                                          docArchives: [archive],
                                                                           isLatestStable: false),
                                                                  ],
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
@@ -447,6 +447,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
     func test_DocCTemplate_outdatedStableVersion() throws {
         let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
         let doccHtml = try String(contentsOfFile: doccTemplatePath)
+        let archive = DocArchive(name: "archive1", title: "Archive1")
         let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
                                                                  repositoryOwnerName: "Owner Name",
                                                                  repositoryName: "package",
@@ -455,17 +456,16 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  referenceLatest: nil,
                                                                  referenceKind: .release,
                                                                  availableArchives: [
-                                                                    .init(name: "Archive1",
-                                                                          isCurrent: true)
+                                                                    .init(archive: archive, isCurrent: true)
                                                                  ],
                                                                  availableVersions: [
                                                                     .init(kind: .defaultBranch,
                                                                           reference: "main",
-                                                                          docArchives: ["Archive1"],
+                                                                          docArchives: [archive],
                                                                           isLatestStable: false),
                                                                     .init(kind: .preRelease,
                                                                           reference: "2.0.0",
-                                                                          docArchives: ["Archive1"],
+                                                                          docArchives: [archive],
                                                                           isLatestStable: true)
                                                                  ],
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
@@ -477,6 +477,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
     func test_DocCTemplate_multipleVersions() throws {
         let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
         let doccHtml = try String(contentsOfFile: doccTemplatePath)
+        let archive1 = DocArchive(name: "archive1", title: "Archive1")
+        let archive2 = DocArchive(name: "archive2", title: "Archive2")
         let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
                                                                  repositoryOwnerName: "Owner Name",
                                                                  repositoryName: "package",
@@ -485,23 +487,21 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  referenceLatest: .defaultBranch,
                                                                  referenceKind: .defaultBranch,
                                                                  availableArchives: [
-                                                                    .init(name: "Archive1",
-                                                                          isCurrent: true),
-                                                                    .init(name: "Archive2",
-                                                                          isCurrent: false)
+                                                                    .init(archive: archive1, isCurrent: true),
+                                                                    .init(archive: archive2, isCurrent: false),
                                                                  ],
                                                                  availableVersions: [
                                                                     .init(kind: .defaultBranch,
                                                                           reference: "main",
-                                                                          docArchives: ["Archive1", "Archive2"],
+                                                                          docArchives: [archive1, archive2],
                                                                           isLatestStable: false),
                                                                     .init(kind: .preRelease,
                                                                           reference: "1.0.0-beta1",
-                                                                          docArchives: ["Archive1", "Archive2"],
+                                                                          docArchives: [archive1, archive2],
                                                                           isLatestStable: false),
                                                                     .init(kind: .release,
                                                                           reference: "1.0.1",
-                                                                          docArchives: ["Archive1", "Archive2"],
+                                                                          docArchives: [archive1, archive2],
                                                                           isLatestStable: true)
                                                                  ],
                                                                  updatedAt: Date(timeIntervalSince1970: 0),

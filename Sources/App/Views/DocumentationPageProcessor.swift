@@ -30,14 +30,17 @@ struct DocumentationPageProcessor {
     let updatedAt: Date
 
     struct AvailableArchive {
-        let name: String
+        let archive: DocArchive
         let isCurrent: Bool
+
+        var name: String { archive.name }
+        var title: String { archive.title }
     }
 
     struct AvailableDocumentationVersion {
         let kind: Version.Kind
         let reference: String
-        let docArchives: [String]
+        let docArchives: [DocArchive]
         let isLatestStable: Bool
     }
 
@@ -129,7 +132,7 @@ struct DocumentationPageProcessor {
 
         if availableArchives.count > 1,
            let currentArchive = availableArchives.first(where: { $0.isCurrent }) {
-            breadcrumbs.append(Breadcrumb(title: currentArchive.name, choices: [
+            breadcrumbs.append(Breadcrumb(title: currentArchive.title, choices: [
                 .forEach(availableArchives, { archive in
                         .li(
                             .if(archive.isCurrent, .class("current")),
@@ -143,7 +146,7 @@ struct DocumentationPageProcessor {
                                         fragment: .documentation
                                     )
                                 ),
-                                .text(archive.name)
+                                .text(archive.title)
                             )
                         )
                 })
@@ -179,7 +182,7 @@ struct DocumentationPageProcessor {
                                                             owner: repositoryOwner,
                                                             repository: repositoryName,
                                                             documentation: .internal(reference: latestStable.reference,
-                                                                                     archive: docArchive),
+                                                                                     archive: docArchive.name),
                                                             fragment: .documentation
                                                         )
                                                     ),
