@@ -276,6 +276,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 061 - create doc_uploads
         app.migrations.add(CreateDocUpload())
     }
+    do { // Migration 062 - create doc_uploads
+        app.migrations.add(UpdateSearchExtendTSVector())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
