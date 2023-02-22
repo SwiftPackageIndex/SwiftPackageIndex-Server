@@ -34,6 +34,7 @@ struct DocumentationPageProcessor {
         let isCurrent: Bool
 
         var name: String { archive.name }
+        var title: String { archive.title }
     }
 
     struct AvailableDocumentationVersion {
@@ -131,7 +132,7 @@ struct DocumentationPageProcessor {
 
         if availableArchives.count > 1,
            let currentArchive = availableArchives.first(where: { $0.isCurrent }) {
-            breadcrumbs.append(Breadcrumb(title: currentArchive.name, choices: [
+            breadcrumbs.append(Breadcrumb(title: currentArchive.title, choices: [
                 .forEach(availableArchives, { archive in
                         .li(
                             .if(archive.isCurrent, .class("current")),
@@ -145,7 +146,7 @@ struct DocumentationPageProcessor {
                                         fragment: .documentation
                                     )
                                 ),
-                                .text(archive.name)
+                                .text(archive.title)
                             )
                         )
                 })
