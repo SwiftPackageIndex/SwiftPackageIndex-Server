@@ -221,8 +221,8 @@ enum PackageController {
                              isLatestStable: isLatesStable)
             }
 
-        let availableArchives: [DocumentationPageProcessor.AvailableArchive] = documentation.docArchives.map { archiveName in
-                .init(name: archiveName, isCurrent: archiveName.lowercased() == archive)
+        let availableArchives: [DocumentationPageProcessor.AvailableArchive] = documentation.docArchives.map {
+            .init(archive: $0, isCurrent: $0.name == archive)
         }
 
         // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.

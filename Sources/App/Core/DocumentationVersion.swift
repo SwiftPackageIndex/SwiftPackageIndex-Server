@@ -22,7 +22,7 @@ struct DocumentationVersion: Equatable {
     var reference: Reference
     var ownerName: String
     var packageName: String
-    var docArchives: [String]
+    var docArchives: [DocArchive]
     var latest: Version.Kind?
     var updatedAt: Date
 
@@ -46,7 +46,7 @@ struct DocumentationVersion: Equatable {
                     .init(reference: result.model.reference,
                           ownerName: result.relation2?.ownerName ?? owner,
                           packageName: result.model.packageName ?? repository,
-                          docArchives: (result.model.docArchives ?? []).map(\.title),
+                          docArchives: result.model.docArchives ?? [],
                           latest: result.model.latest,
                           updatedAt: result.model.publishedAt ?? result.model.commitDate)
             }

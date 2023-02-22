@@ -30,14 +30,16 @@ struct DocumentationPageProcessor {
     let updatedAt: Date
 
     struct AvailableArchive {
-        let name: String
+        let archive: DocArchive
         let isCurrent: Bool
+
+        var name: String { archive.name }
     }
 
     struct AvailableDocumentationVersion {
         let kind: Version.Kind
         let reference: String
-        let docArchives: [String]
+        let docArchives: [DocArchive]
         let isLatestStable: Bool
     }
 
@@ -179,7 +181,7 @@ struct DocumentationPageProcessor {
                                                             owner: repositoryOwner,
                                                             repository: repositoryName,
                                                             documentation: .internal(reference: latestStable.reference,
-                                                                                     archive: docArchive),
+                                                                                     archive: docArchive.name),
                                                             fragment: .documentation
                                                         )
                                                     ),
