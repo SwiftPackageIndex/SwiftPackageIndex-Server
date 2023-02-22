@@ -727,8 +727,41 @@ class SearchTests: AppTestCase {
         // MUT
         let res = try Search.fetch(app.db, ["ping"], page: 1, pageSize: 20).wait()
 
+        // validate
         XCTAssertEqual(res.results.map(\.package?.repositoryName),
                        ["3", "1", "2"])
+    }
+
+    func test_repo_word_match() throws {
+        // Ensure the repository name is part of word matching
+        // See also https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2263
+        // We have two packages that both match the search term "syntax". This test
+        // ensures the one where the match is only in the repository name gets still
+        // ranked first due to its higher score.
+        let p1 = Package(id: UUID(), url: "foo/bar", score: 10)
+        let p2 = Package(id: UUID(), url: "foo/swift-syntax", score: 20)
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "bar",
+                       owner: "foo",
+                       summary: "syntax").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       name: "swift-syntax",
+                       owner: "foo").save(on: app.db).wait()
+        try Version(package: p1, packageName: "Bar", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "SwiftSyntax", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        // MUT
+        let res = try Search.fetch(app.db, ["syntax"], page: 1, pageSize: 20).wait()
+
+        // validate
+        XCTAssertEqual(res.results.map(\.package?.repositoryName),
+                       ["swift-syntax", "bar"])
     }
 
     func test_sanitize() throws {
