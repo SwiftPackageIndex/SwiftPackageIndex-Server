@@ -79,6 +79,11 @@ func _resetDb(_ app: Application) async throws {
 }
 
 
+func fixtureString(for fixture: String) throws -> String {
+    String(decoding: try fixtureData(for: fixture), as: UTF8.self)
+}
+
+
 func fixtureData(for fixture: String) throws -> Data {
     try Data(contentsOf: fixtureUrl(for: fixture))
 }
