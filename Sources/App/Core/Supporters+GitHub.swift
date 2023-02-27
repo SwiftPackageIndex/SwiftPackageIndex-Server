@@ -108,11 +108,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/157243?v=4"
         ),
         .init(
-            login: "samsymons",
-            name: "Sam Symons",
-            avatarUrl: "https://avatars.githubusercontent.com/u/183774?u=f30f655ab3ddba4bf1ceff3aaf8669e1101e53c0&v=4"
-        ),
-        .init(
             login: "plusadd",
             name: nil,
             avatarUrl: "https://avatars.githubusercontent.com/u/187675?u=c1780a7bd4d210abaefcee5f0fdf841a883bd815&v=4"
@@ -221,11 +216,6 @@ extension Array<Supporters.Community> {
             login: "TimTr",
             name: "Tim Triemstra",
             avatarUrl: "https://avatars.githubusercontent.com/u/923721?u=862992293d005a514df60ae4ab50101336e2717e&v=4"
-        ),
-        .init(
-            login: "onevcat",
-            name: "Wei Wang",
-            avatarUrl: "https://avatars.githubusercontent.com/u/1019875?u=34477b070af505986e26066dfa6a5d2d64f319b6&v=4"
         ),
         .init(
             login: "peterssand",
@@ -386,11 +376,6 @@ extension Array<Supporters.Community> {
             login: "Tprezioso",
             name: "Thomas Prezioso Jr.",
             avatarUrl: "https://avatars.githubusercontent.com/u/9522197?u=5077d8ddad9b1f2694c3af75d3dc5f2ca52406b9&v=4"
-        ),
-        .init(
-            login: "TekEffekt",
-            name: "Kyle Zawacki",
-            avatarUrl: "https://avatars.githubusercontent.com/u/9993442?u=208f39b88bc630bc7d0dc7f906a9ec4aed9ed37a&v=4"
         ),
         .init(
             login: "MaximBazarov",
