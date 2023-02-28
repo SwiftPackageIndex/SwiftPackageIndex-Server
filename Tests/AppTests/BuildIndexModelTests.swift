@@ -70,13 +70,13 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let stable: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok, generatedDocs: true),
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok, generatedDocs: false),
-            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok, docStatus: .ok),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, docStatus: nil),
         ]
         let latest: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed, generatedDocs: false),
-            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed, docStatus: nil),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, docStatus: nil),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
                                           ownerName: "Foo",
@@ -121,13 +121,13 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let stable: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok, generatedDocs: false),
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok, generatedDocs: false),
-            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, docStatus: nil),
         ]
         let latest: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed, generatedDocs: false),
-            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, generatedDocs: false),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed, docStatus: nil),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok, docStatus: nil),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
                                           ownerName: "Foo",
@@ -169,13 +169,13 @@ class BuildIndexModelTests: AppTestCase {
 
     func test_BuildCell() throws {
         let id = UUID()
-        XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok, generatedDocs: false).node.render(), """
+        XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok, docStatus: nil).node.render(), """
             <div class="succeeded"><a href="/builds/\(id.uuidString)">Succeeded</a></div>
             """)
-        XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok, generatedDocs: true).node.render(), """
+        XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok, docStatus: .ok).node.render(), """
             <div class="succeeded"><a href="/builds/\(id.uuidString)">Succeeded</a><span class="generated-docs" title="If successful, this build generated package documentation."></span></div>
             """)
-        XCTAssertEqual(BuildCell("1.2.3", .release, id, .failed, generatedDocs: false).node.render(), """
+        XCTAssertEqual(BuildCell("1.2.3", .release, id, .failed, docStatus: nil).node.render(), """
             <div class="failed"><a href="/builds/\(id.uuidString)">Failed</a></div>
             """)
         XCTAssertEqual(BuildCell("1.2.3", .release).node.render(), """
@@ -187,9 +187,9 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let bi = BuildItem(index: .init(swiftVersion: .v5_7, platform: .ios),
-                           values: [.init("1.2.3", .release, id, .ok, generatedDocs: false),
+                           values: [.init("1.2.3", .release, id, .ok, docStatus: nil),
                                     .init("2.0.0-b1", .preRelease),
-                                    .init("develop", .defaultBranch, id, .failed, generatedDocs: false)])
+                                    .init("develop", .defaultBranch, id, .failed, docStatus: nil)])
 
         // MUT - altogether now
         let node = bi.node
@@ -220,7 +220,7 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let bi = BuildItem(index: .init(swiftVersion: .v5_7, platform: .ios),
-                           values: [ .init("main", .defaultBranch, id, .ok, generatedDocs: true) ])
+                           values: [ .init("main", .defaultBranch, id, .ok, docStatus: .ok) ])
 
         // MUT
         let node = bi.node

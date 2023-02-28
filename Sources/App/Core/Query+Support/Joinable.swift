@@ -17,6 +17,7 @@ import FluentKit
 
 protocol Joinable: Schema {}
 
+extension DocUpload: Joinable {}
 extension Package: Joinable {}
 extension Repository: Joinable {}
 extension Version: Joinable {}

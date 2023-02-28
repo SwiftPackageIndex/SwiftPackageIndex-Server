@@ -88,7 +88,7 @@ extension API {
                 .unwrap(or: Abort(.notFound))
 
             // Upsert build.docUpload
-            let docUpload = DocUpload(id: UUID(),
+            let docUpload = DocUpload(id: .init(),
                                       error: dto.error,
                                       fileCount: dto.fileCount,
                                       logUrl: dto.logUrl,
