@@ -91,7 +91,7 @@ extension BuildIndex.Model {
         var docStatus: DocUpload.Status?
 
         var isCompleted: Bool { status.isCompleted }
-        var isDocBuild: Bool {  docStatus != nil }
+        var isDocBuild: Bool { docStatus != nil }
 
         init(id: App.Build.Id,
              swiftVersion: App.SwiftVersion,
