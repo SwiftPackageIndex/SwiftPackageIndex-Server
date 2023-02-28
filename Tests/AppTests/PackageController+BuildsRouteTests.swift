@@ -19,7 +19,7 @@ import XCTest
 
 class PackageController_BuildsRouteTests: AppTestCase {
 
-    typealias BuildDetails = (id: Build.Id, reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status)
+    typealias BuildDetails = (id: Build.Id, reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status, docStatus: DocUpload.Status?)
 
     func test_BuildInfo_query() async throws {
         // setup
@@ -30,10 +30,10 @@ class PackageController_BuildsRouteTests: AppTestCase {
                                  name: "bar",
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
-                (.id0, .branch("main"), .ios, .v5_5, .ok),
-                (.id1, .branch("main"), .tvos, .v5_4, .failed),
-                (.id2, .tag(1, 2, 3), .ios, .v5_5, .ok),
-                (.id3, .tag(2, 0, 0, "b1"), .ios, .v5_5, .failed),
+                (.id0, .branch("main"), .ios, .v5_5, .ok, .ok),
+                (.id1, .branch("main"), .tvos, .v5_4, .failed, nil),
+                (.id2, .tag(1, 2, 3), .ios, .v5_5, .ok, nil),
+                (.id3, .tag(2, 0, 0, "b1"), .ios, .v5_5, .failed, nil),
             ]
             for b in builds {
                 let v = try App.Version(package: pkg,
@@ -41,8 +41,12 @@ class PackageController_BuildsRouteTests: AppTestCase {
                                         packageName: "p1",
                                         reference: b.reference)
                 try await v.save(on: app.db)
-                try await Build(id: b.id, version: v, platform: b.platform, status: b.status, swiftVersion: b.swiftVersion)
-                    .save(on: app.db)
+                let build = try Build(id: b.id, version: v, platform: b.platform, status: b.status, swiftVersion: b.swiftVersion)
+                try await build.save(on: app.db)
+                if let docStatus = b.docStatus {
+                    let d = DocUpload(id: .init(), status: docStatus)
+                    try await d.attach(to: build, on: app.db)
+                }
             }
         }
         do { // unrelated package and build
@@ -52,7 +56,7 @@ class PackageController_BuildsRouteTests: AppTestCase {
                                  name: "bar2",
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
-                (.id4, .branch("develop"), .ios, .v5_7, .ok),
+                (.id4, .branch("develop"), .ios, .v5_7, .ok, nil),
             ]
             for b in builds {
                 let v = try App.Version(package: pkg,
@@ -72,7 +76,7 @@ class PackageController_BuildsRouteTests: AppTestCase {
         XCTAssertEqual(
             builds.sorted { $0.buildId.uuidString < $1.buildId.uuidString },
             [
-                .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v5_5, platform: .ios, status: .ok),
+                .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v5_5, platform: .ios, status: .ok, docStatus: .ok),
                 .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id1, swiftVersion: .v5_4, platform: .tvos, status: .failed),
                 .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id2, swiftVersion: .v5_5, platform: .ios, status: .ok),
                 .init(versionKind: .preRelease, reference: .tag(2, 0, 0, "b1"), buildId: .id3, swiftVersion: .v5_5, platform: .ios, status: .failed),

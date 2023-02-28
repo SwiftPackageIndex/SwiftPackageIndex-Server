@@ -52,13 +52,11 @@ extension PackageController {
             var swiftVersion: SwiftVersion
             var platform: Build.Platform
             var status: Build.Status
+            var docStatus: DocUpload.Status?
 
             static func query(on database: Database, owner: String, repository: String) async throws -> [BuildInfo] {
-                try await Joined4<Build, Version, Package, Repository>
-                    .query(on: database)
-                    .filter(Version.self, \Version.$latest != nil)
-                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-                    .filter(Repository.self, \.$name, .custom("ilike"), repository)
+                try await Joined5<Build, Version, Package, Repository, DocUpload>
+                    .query(on: database, owner: owner, repository: repository)
                     .field(\.$id)
                     .field(\.$swiftVersion)
                     .field(\.$platform)
@@ -66,6 +64,7 @@ extension PackageController {
                     .field(Version.self, \.$latest)
                     .field(Version.self, \.$packageName)
                     .field(Version.self, \.$reference)
+                    .field(DocUpload.self, \.$status)
                     .all()
                     .compactMap { res -> BuildInfo? in
                         let build = res.build
@@ -78,7 +77,8 @@ extension PackageController {
                                              buildId: build.requireID(),
                                              swiftVersion: build.swiftVersion,
                                              platform: build.platform,
-                                             status: build.status)
+                                             status: build.status,
+                                             docStatus: res.docUpload?.status)
                     }
             }
         }
