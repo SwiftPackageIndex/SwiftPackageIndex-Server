@@ -15,6 +15,7 @@
 
 extension [Version] {
     var defaultBranchVersion: Version? { filter { $0.latest == .defaultBranch}.first }
+    var preReleaseVersion: Version? { filter { $0.latest == .preRelease}.first }
     var releaseVersion: Version? { filter { $0.latest == .release}.first }
 
     func documentationTarget() -> DocumentationTarget? {
@@ -26,6 +27,11 @@ extension [Version] {
 
         // Ideal case is that we have a stable release documentation.
         if let version = releaseVersion,
+           let archive = version.docArchives?.first?.name {
+            return .internal(reference: "\(version.reference)", archive: archive)
+        }
+
+        if let version = preReleaseVersion,
            let archive = version.docArchives?.first?.name {
             return .internal(reference: "\(version.reference)", archive: archive)
         }
