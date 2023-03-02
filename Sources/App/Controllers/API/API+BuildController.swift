@@ -88,23 +88,22 @@ extension API {
                 .unwrap(or: Abort(.notFound))
 
             // Upsert build.docUpload
-            let docUpload = DocUpload(id: .init(),
-                                      error: dto.error,
-                                      fileCount: dto.fileCount,
-                                      logUrl: dto.logUrl,
-                                      mbSize: dto.mbSize,
-                                      status: dto.status)
             do {
-                try await docUpload.attach(to: build, on: req.db)
+                try await DocUpload(dto: dto).attach(to: build, on: req.db)
             } catch let error as PostgresError where error.code == .uniqueViolation {
-                // Try and find the conflicting DocUpload via buildId
-                let existingDocUploads = try await DocUpload.query(on: req.db)
-                    .filter(\.$build.$id == buildId)
-                    .all()
-                for d in existingDocUploads {
-                    try await d.detachAndDelete(on: req.db)
+                // Find the conflicting DocUpload via the version_id. The doc upload could have
+                // moved to a different build, which is why we filter via the version.
+                // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2280
+                try await req.db.transaction { tx in
+                    let existingDocUploads = try await DocUpload.query(on: tx)
+                        .join(Build.self, on: \Build.$id == \DocUpload.$build.$id)
+                        .filter(Build.self, \.$version.$id == build.$version.id)
+                        .all()
+                    for d in existingDocUploads {
+                        try await d.detachAndDelete(on: tx)
+                    }
+                    try await DocUpload(dto: dto).attach(to: build, on: tx)
                 }
-                try await docUpload.attach(to: build, on: req.db)
             } catch {
                 req.logger.critical("\(error)")
                 throw error
@@ -138,4 +137,18 @@ extension API {
         }
     }
 
+}
+
+
+private extension DocUpload {
+    convenience init(dto: API.PostDocReportDTO) {
+        self.init(
+            id: .init(),
+            error: dto.error,
+            fileCount: dto.fileCount,
+            logUrl: dto.logUrl,
+            mbSize: dto.mbSize,
+            status: dto.status
+        )
+    }
 }

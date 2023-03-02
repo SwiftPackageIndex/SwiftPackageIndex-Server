@@ -371,6 +371,56 @@ class ApiTests: AppTestCase {
         }
     }
 
+    func test_post_docReport_override() async throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2280
+        // Ensure a subsequent doc report on a different build does not trip over a UK violation
+        // setup
+        Current.builderToken = { "secr3t" }
+        let p = try await savePackageAsync(on: app.db, "1")
+        let v = try Version(package: p, latest: .defaultBranch)
+        try await v.save(on: app.db)
+        let b1 = try Build(id: .id0, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        try await b1.save(on: app.db)
+        let b2 = try Build(id: .id1, version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_7)
+        try await b2.save(on: app.db)
+
+        do {  // initial insert
+            let dto = API.PostDocReportDTO(status: .pending)
+            try await app.test(
+                .POST,
+                "api/builds/\(b1.id!)/doc-report",
+                headers: .bearerApplicationJSON("secr3t"),
+                body: .init(data: try JSONEncoder().encode(dto)),
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .noContent)
+                    let docUploads = try await DocUpload.query(on: app.db).all()
+                    XCTAssertEqual(docUploads.count, 1)
+                    let d = try await DocUpload.query(on: app.db).first()
+                    XCTAssertEqual(d?.$build.id, b1.id)
+                    XCTAssertEqual(d?.status, .pending)
+                })
+        }
+
+        do {  // MUT - override
+            let dto = API.PostDocReportDTO(status: .ok)
+            try await app.test(
+                .POST,
+                "api/builds/\(b2.id!)/doc-report",
+                headers: .bearerApplicationJSON("secr3t"),
+                body: .init(data: try JSONEncoder().encode(dto)),
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .noContent)
+                    let docUploads = try await DocUpload.query(on: app.db).all()
+                    XCTAssertEqual(docUploads.count, 1)
+                    let d = try await DocUpload.query(on: app.db).first()
+                    XCTAssertEqual(d?.$build.id, b2.id)
+                    XCTAssertEqual(d?.status, .ok)
+                })
+        }
+    }
+
     func test_post_docReport_non_existing_build() async throws {
         // setup
         Current.builderToken = { "secr3t" }
