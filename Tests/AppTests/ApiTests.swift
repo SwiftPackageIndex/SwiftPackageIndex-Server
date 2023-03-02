@@ -379,18 +379,16 @@ class ApiTests: AppTestCase {
         let p = try await savePackageAsync(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
-        let b1 = try Build(version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        let b1 = try Build(id: .id0, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
         try await b1.save(on: app.db)
-        let b1Id = try b1.requireID()
-        let b2 = try Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_7)
+        let b2 = try Build(id: .id1, version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_7)
         try await b2.save(on: app.db)
-        let b2Id = try b2.requireID()
 
         do {  // initial insert
             let dto = API.PostDocReportDTO(status: .pending)
             try await app.test(
                 .POST,
-                "api/builds/\(b1Id)/doc-report",
+                "api/builds/\(b1.id!)/doc-report",
                 headers: .bearerApplicationJSON("secr3t"),
                 body: .init(data: try JSONEncoder().encode(dto)),
                 afterResponse: { res in
@@ -405,7 +403,7 @@ class ApiTests: AppTestCase {
             let dto = API.PostDocReportDTO(status: .pending)
             try await app.test(
                 .POST,
-                "api/builds/\(b2Id)/doc-report",
+                "api/builds/\(b2.id!)/doc-report",
                 headers: .bearerApplicationJSON("secr3t"),
                 body: .init(data: try JSONEncoder().encode(dto)),
                 afterResponse: { res in
