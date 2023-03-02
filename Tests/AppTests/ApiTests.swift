@@ -396,11 +396,14 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(res.status, .noContent)
                     let docUploads = try await DocUpload.query(on: app.db).all()
                     XCTAssertEqual(docUploads.count, 1)
+                    let d = try await DocUpload.query(on: app.db).first()
+                    XCTAssertEqual(d?.$build.id, b1.id)
+                    XCTAssertEqual(d?.status, .pending)
                 })
         }
 
         do {  // MUT - override
-            let dto = API.PostDocReportDTO(status: .pending)
+            let dto = API.PostDocReportDTO(status: .ok)
             try await app.test(
                 .POST,
                 "api/builds/\(b2.id!)/doc-report",
@@ -411,6 +414,9 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(res.status, .noContent)
                     let docUploads = try await DocUpload.query(on: app.db).all()
                     XCTAssertEqual(docUploads.count, 1)
+                    let d = try await DocUpload.query(on: app.db).first()
+                    XCTAssertEqual(d?.$build.id, b2.id)
+                    XCTAssertEqual(d?.status, .ok)
                 })
         }
     }
