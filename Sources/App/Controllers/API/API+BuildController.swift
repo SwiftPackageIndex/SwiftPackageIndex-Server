@@ -89,8 +89,7 @@ extension API {
 
             // Upsert build.docUpload
             do {
-                try await DocUpload(id: .init(), dto: dto)
-                    .attach(to: build, on: req.db)
+                try await DocUpload(dto: dto).attach(to: build, on: req.db)
             } catch let error as PostgresError where error.code == .uniqueViolation {
                 // Find the conflicting DocUpload via the version_id. The doc upload could have
                 // moved to a different build, which is why we filter via the version.
@@ -106,8 +105,7 @@ extension API {
                     for d in existingDocUploads {
                         try await d.detachAndDelete(on: tx)
                     }
-                    try await DocUpload(id: .init(), dto: dto)
-                        .attach(to: build, on: tx)
+                    try await DocUpload(dto: dto).attach(to: build, on: tx)
                 }
             } catch {
                 req.logger.critical("\(error)")
@@ -146,9 +144,9 @@ extension API {
 
 
 private extension DocUpload {
-    convenience init(id: DocUpload.Id?, dto: API.PostDocReportDTO) {
+    convenience init(dto: API.PostDocReportDTO) {
         self.init(
-            id: id,
+            id: .init(),
             error: dto.error,
             fileCount: dto.fileCount,
             logUrl: dto.logUrl,
