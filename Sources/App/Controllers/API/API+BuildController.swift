@@ -95,12 +95,9 @@ extension API {
                 // moved to a different build, which is why we filter via the version.
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2280
                 try await req.db.transaction { tx in
-                    if build.$version.value == nil {
-                        try await build.$version.load(on: tx)
-                    }
                     let existingDocUploads = try await DocUpload.query(on: tx)
                         .join(Build.self, on: \Build.$id == \DocUpload.$build.$id)
-                        .filter(Build.self, \.$version.$id == build.version.requireID())
+                        .filter(Build.self, \.$version.$id == build.$version.id)
                         .all()
                     for d in existingDocUploads {
                         try await d.detachAndDelete(on: tx)
