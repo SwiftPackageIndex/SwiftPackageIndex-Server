@@ -71,6 +71,9 @@ build:
     telegram() {
       curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?parse_mode=Markdown" -d chat_id=${TELEGRAM_CHAT_ID} -d text="$1"
     }
+    discord() {
+      curl -s -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data '{"content": "'"$1"'"}' $DISCORD_WEBHOOK
+    }
     get_version() {
         url=$1
         set +e  # don't fail if curl sends garbage to jq
@@ -101,6 +104,7 @@ build:
 
     echo Deploying VERSION $VERSION with SITE_URL: ${SITE_URL} ...
     telegram "🚧 deploying version $VERSION [↗]($CI_JOB_URL) ..."
+    discord "🚧 deploying version $VERSION [↗]($CI_JOB_URL) ..."
 
     retries=3
     until env VERSION=$VERSION \
@@ -142,6 +146,7 @@ build:
     if [[ "$DEPLOYED_VERSION" == "$VERSION" && "${COUNT[0]}" == "${COUNT[1]}" ]]; then
       post_annotation "✅ deployed version $VERSION"
       telegram "✅ deployed version $VERSION [↗]($CI_JOB_URL)"
+      discord "✅ deployed version $VERSION [↗]($CI_JOB_URL)"
       retries=5
       until rollbar succeeded ; do
         sleep 5
@@ -150,6 +155,7 @@ build:
       done
     else
       telegram "🛑 failed to deploy version $VERSION [↗]($CI_JOB_URL)"
+      discord "🛑 failed to deploy version $VERSION [↗]($CI_JOB_URL)"
       retries=5
       until rollbar failed ; do
         sleep 5
