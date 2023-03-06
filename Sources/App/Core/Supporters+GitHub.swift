@@ -93,11 +93,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/118883?u=7fcbd7356369770046a3b1ca96e84eafd8d4282f&v=4"
         ),
         .init(
-            login: "neonichu",
-            name: "Boris Bügling",
-            avatarUrl: "https://avatars.githubusercontent.com/u/118992?u=544f64efa9cbdbf2adaa9c205b1a1394832c2d84&v=4"
-        ),
-        .init(
             login: "rayfix",
             name: "Ray Fix",
             avatarUrl: "https://avatars.githubusercontent.com/u/137963?v=4"
@@ -156,6 +151,11 @@ extension Array<Supporters.Community> {
             login: "csjones",
             name: "Chris",
             avatarUrl: "https://avatars.githubusercontent.com/u/637026?u=95adf59c4fab9321e9f7caacf711eea283d27e91&v=4"
+        ),
+        .init(
+            login: "qmoya",
+            name: "Quico Moya",
+            avatarUrl: "https://avatars.githubusercontent.com/u/653000?u=42aa57fce8f6e0423320c2db2e299470ed19932a&v=4"
         ),
         .init(
             login: "mackoj",
@@ -383,19 +383,9 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/11208417?u=caf85feb05c65e4f264e8ec95bdef416b7c4bfdb&v=4"
         ),
         .init(
-            login: "ptrkstr",
-            name: nil,
-            avatarUrl: "https://avatars.githubusercontent.com/u/11362913?u=4af3d048fb1678f198a4c9fe9a246017bed75052&v=4"
-        ),
-        .init(
             login: "tristanbiesecker",
             name: "Tristan Biesecker",
             avatarUrl: "https://avatars.githubusercontent.com/u/12146879?u=1ae4c5828a3c133bd139a85da265a20e9f7a0f90&v=4"
-        ),
-        .init(
-            login: "Kilo-Loco",
-            name: "Kyle Lee",
-            avatarUrl: "https://avatars.githubusercontent.com/u/13292981?u=bf0e3376ca03669afa3b155046e8b4e09c783a85&v=4"
         ),
         .init(
             login: "marcosgriselli",
@@ -411,11 +401,6 @@ extension Array<Supporters.Community> {
             login: "xavierLowmiller",
             name: "Xaver Lohmüller",
             avatarUrl: "https://avatars.githubusercontent.com/u/16212751?v=4"
-        ),
-        .init(
-            login: "roz0n",
-            name: "Arnold Rozon",
-            avatarUrl: "https://avatars.githubusercontent.com/u/16907089?u=79dd6d2d23ccd1dc50b28d5e802c5cd400e12b7a&v=4"
         ),
         .init(
             login: "emin-grbo",
