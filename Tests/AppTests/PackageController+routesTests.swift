@@ -229,6 +229,16 @@ class PackageController_routesTests: AppTestCase {
         )
     }
 
+    func test_awsDocumentationURL_issue2287() throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2287
+        // reference with / needs to be escaped
+        Current.awsDocsBucket = { "docs-bucket" }
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(owner: "linhay", repository: "SectionKit", reference: "feature/2.0.0", fragment: .documentation, path: "sectionui").string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/linhay/sectionkit/feature.2.0.0/documentation/sectionui"
+        )
+    }
+
     func test_defaultDocumentation() throws {
         // setup
         Current.fetchDocumentation = { _, uri in

@@ -404,7 +404,7 @@ extension PackageController {
         }
 
         let baseURLHost = "\(bucket).s3-website.us-east-2.amazonaws.com"
-        let baseURLPath = "\(owner.lowercased())/\(repository.lowercased())/\(reference.lowercased())"
+        let baseURLPath = "\(owner.lowercased())/\(repository.lowercased())/\(reference.pathEncoded.lowercased())"
         let baseURL = "http://\(baseURLHost)/\(baseURLPath)"
 
         switch fragment {
@@ -430,4 +430,13 @@ private extension HTTPHeaders {
 
 extension PackageController.Fragment: CustomStringConvertible {
     var description: String { rawValue }
+}
+
+
+private extension String {
+    // Keep in sync with https://github.com/SwiftPackageIndex/DocUploader/blob/main/Sources/DocUploadBundle/String%2Bext.swift
+    // We should pull this out into a shared module perhaps but it's a lot of fiddling for just a single method.
+    var pathEncoded: Self {
+        replacingOccurrences(of: "/", with: ".")
+    }
 }
