@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
-import XCTest
+import SemanticVersion
 
 
 class ReferenceTests: XCTestCase {
@@ -55,6 +57,21 @@ class ReferenceTests: XCTestCase {
         XCTAssertEqual(Reference.tag(.init(1, 2, 3, "b1", "test")).versionKind, .preRelease)
         XCTAssertEqual(Reference.branch("main").versionKind, .defaultBranch)
         XCTAssertEqual(Reference.branch("").versionKind, .defaultBranch)
+    }
+
+    func test_pathEncoded() throws {
+        XCTAssertEqual(Reference.branch("foo").pathEncoded, "foo")
+        XCTAssertEqual(Reference.branch("foo/bar").pathEncoded, "foo-bar")
+        XCTAssertEqual(Reference.branch("foo-bar").pathEncoded, "foo-bar")
+        XCTAssertEqual(Reference.tag(.init("1.2.3")!).pathEncoded, "1.2.3")
+        do {
+            let s = try XCTUnwrap(SemanticVersion(1, 2, 3, "foo/bar"))
+            XCTAssertEqual(Reference.tag(s).pathEncoded, "1.2.3-foo-bar")
+        }
+        do {
+            let s = try XCTUnwrap(SemanticVersion(1, 2, 3, "foo/bar", "bar/baz"))
+            XCTAssertEqual(Reference.tag(s).pathEncoded, "1.2.3-foo-bar+bar-baz")
+        }
     }
 
 }

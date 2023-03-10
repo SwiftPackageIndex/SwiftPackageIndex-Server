@@ -66,10 +66,13 @@ enum DocumentationTarget: Equatable {
                    join: \Package.$id == \Repository.$package.$id, method: .inner)
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .filter(Repository.self, \.$name, .custom("ilike"), repository)
-            .filter(\Version.$reference == reference)
             .filter(\Version.$docArchives != nil)
             .field(Version.self, \.$docArchives)
-            .first()
+            .field(Version.self, \.$reference)
+            .all()
+        // we need to filter client side to support pathEncoded reference equality
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2287
+            .first(where: { $0.model.reference.pathEncoded == reference.pathEncoded })
             .flatMap { $0.model.docArchives?.first?.name }
 
         return archive.map {

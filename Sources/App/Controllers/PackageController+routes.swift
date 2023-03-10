@@ -404,7 +404,7 @@ extension PackageController {
         }
 
         let baseURLHost = "\(bucket).s3-website.us-east-2.amazonaws.com"
-        let baseURLPath = "\(owner.lowercased())/\(repository.lowercased())/\(reference.lowercased())"
+        let baseURLPath = "\(owner.lowercased())/\(repository.lowercased())/\(reference.pathEncoded.lowercased())"
         let baseURL = "http://\(baseURLHost)/\(baseURLPath)"
 
         switch fragment {

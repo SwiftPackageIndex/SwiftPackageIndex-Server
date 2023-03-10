@@ -229,6 +229,16 @@ class PackageController_routesTests: AppTestCase {
         )
     }
 
+    func test_awsDocumentationURL_issue2287() throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2287
+        // reference with / needs to be escaped
+        Current.awsDocsBucket = { "docs-bucket" }
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(owner: "linhay", repository: "SectionKit", reference: "feature/2.0.0", fragment: .documentation, path: "sectionui").string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/linhay/sectionkit/feature-2.0.0/documentation/sectionui"
+        )
+    }
+
     func test_defaultDocumentation() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
@@ -526,6 +536,51 @@ class PackageController_routesTests: AppTestCase {
             XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
             XCTAssertEqual($0.body.asString(),
                            "/apple/swift-nio/main/data/documentation/niocore.json")
+        }
+    }
+
+    func test_documentation_issue_2287() async throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2287
+        // Ensure references are path encoded
+        // setup
+        Current.fetchDocumentation = { _, uri in
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok, body: .init(string: "<p>\(uri.path)</p>"))
+        }
+        let pkg = try savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "0123456789",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "docs", title: "Docs")],
+                          latest: .defaultBranch,
+                          packageName: "pkg",
+                          reference: .branch("feature/1.2.3"))
+        .save(on: app.db)
+
+        // MUT
+
+        // test default path
+        try app.test(.GET, "/owner/package/documentation") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/feature-1.2.3/documentation/docs")
+        }
+
+        // test reference root path
+        try app.test(.GET, "/owner/package/feature-1.2.3/documentation") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/feature-1.2.3/documentation/docs")
+        }
+
+        // test path a/b
+        try app.test(.GET, "/owner/package/feature-1.2.3/documentation/a/b") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            XCTAssertTrue(
+                $0.body.asString().contains("<p>/owner/package/feature-1.2.3/documentation/a/b</p>"),
+                "was: \($0.body.asString())"
+            )
         }
     }
 

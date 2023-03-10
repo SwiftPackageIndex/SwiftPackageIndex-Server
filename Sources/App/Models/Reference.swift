@@ -74,6 +74,8 @@ enum Reference: Equatable, Hashable {
                 return semVer.isPreRelease ? .preRelease : .release
         }
     }
+
+    var pathEncoded: String { "\(self)".pathEncoded }
 }
 
 
