@@ -431,12 +431,3 @@ private extension HTTPHeaders {
 extension PackageController.Fragment: CustomStringConvertible {
     var description: String { rawValue }
 }
-
-
-private extension String {
-    // Keep in sync with https://github.com/SwiftPackageIndex/DocUploader/blob/main/Sources/DocUploadBundle/String%2Bext.swift
-    // We should pull this out into a shared module perhaps but it's a lot of fiddling for just a single method.
-    var pathEncoded: Self {
-        replacingOccurrences(of: "/", with: ".")
-    }
-}
