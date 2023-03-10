@@ -16,7 +16,7 @@ import Foundation
 import SemanticVersion
 
 
-enum Reference: Hashable {
+enum Reference: Equatable, Hashable {
     case branch(String)
     case tag(SemanticVersion, _ tagName: String)
 
@@ -74,32 +74,8 @@ enum Reference: Hashable {
                 return semVer.isPreRelease ? .preRelease : .release
         }
     }
-}
 
-
-extension Reference: Equatable {
-    static func ==(lhs: Self, rhs: Self) -> Bool {
-        switch (lhs, rhs) {
-            case let (.branch(lhs), .branch(rhs)):
-                return lhs.pathEncoded == rhs.pathEncoded
-            case let (.tag(lhsVersion, lhsTagName), .tag(rhsVersion, rhsTagName)):
-                return lhsVersion == rhsVersion && lhsTagName == rhsTagName
-            case (.branch, .tag), (.tag, .branch):
-                return false
-        }
-    }
-
-    static func ==(lhs: Self, rhs: String) -> Bool {
-        switch lhs {
-            case .branch(_):
-                return lhs == .branch(rhs)
-            case .tag:
-                guard let semver = SemanticVersion(rhs) else { return false }
-                return lhs == .tag(semver)
-        }
-    }
-
-    static func !=(lhs: Self, rhs: String) -> Bool { !(lhs == rhs) }
+    var pathEncoded: String { "\(self)".pathEncoded }
 }
 
 

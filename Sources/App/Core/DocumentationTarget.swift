@@ -72,7 +72,7 @@ enum DocumentationTarget: Equatable {
             .all()
         // we need to filter client side to support pathEncoded reference equality
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2287
-            .first(where: { $0.model.reference == reference })
+            .first(where: { $0.model.reference.pathEncoded == reference.pathEncoded })
             .flatMap { $0.model.docArchives?.first?.name }
 
         return archive.map {

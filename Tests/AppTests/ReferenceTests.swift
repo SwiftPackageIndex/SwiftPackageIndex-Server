@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
-import XCTest
+import SemanticVersion
 
 
 class ReferenceTests: XCTestCase {
@@ -32,30 +34,6 @@ class ReferenceTests: XCTestCase {
             let decoded = try JSONDecoder().decode(Reference.self, from: json)
             XCTAssertEqual(decoded, .tag(.init(1, 2, 3)))
         }
-    }
-
-    func test_Equatable() throws {
-        // setup
-        let b1 = Reference.branch("b/1")
-        let b2 = Reference.branch("b/2")
-        let b1dash = Reference.branch("b-1")
-        let b2dash = Reference.branch("b-2")
-        let t1 = Reference.tag(.init("1.0.0")!)
-        let t2 = Reference.tag(.init("2.0.0")!)
-
-        XCTAssertTrue(b1 == b1)
-        XCTAssertTrue(b1 != b2)
-        XCTAssertTrue(t1 == t1)
-        XCTAssertTrue(t1 != t2)
-        XCTAssertTrue(t1 != b1)
-
-        XCTAssertTrue(b1 == b1dash)
-        XCTAssertTrue(b1 != b2dash)
-
-        XCTAssertTrue(b1 == "b/1")
-        XCTAssertTrue(b1 == "b-1")
-        XCTAssertTrue(b2 != "b/1")
-        XCTAssertTrue(b2 != "b-1")
     }
 
     func test_isRelease() throws {
@@ -79,6 +57,21 @@ class ReferenceTests: XCTestCase {
         XCTAssertEqual(Reference.tag(.init(1, 2, 3, "b1", "test")).versionKind, .preRelease)
         XCTAssertEqual(Reference.branch("main").versionKind, .defaultBranch)
         XCTAssertEqual(Reference.branch("").versionKind, .defaultBranch)
+    }
+
+    func test_pathEncoded() throws {
+        XCTAssertEqual(Reference.branch("foo").pathEncoded, "foo")
+        XCTAssertEqual(Reference.branch("foo/bar").pathEncoded, "foo-bar")
+        XCTAssertEqual(Reference.branch("foo-bar").pathEncoded, "foo-bar")
+        XCTAssertEqual(Reference.tag(.init("1.2.3")!).pathEncoded, "1.2.3")
+        do {
+            let s = try XCTUnwrap(SemanticVersion(1, 2, 3, "foo/bar"))
+            XCTAssertEqual(Reference.tag(s).pathEncoded, "1.2.3-foo-bar")
+        }
+        do {
+            let s = try XCTUnwrap(SemanticVersion(1, 2, 3, "foo/bar", "bar/baz"))
+            XCTAssertEqual(Reference.tag(s).pathEncoded, "1.2.3-foo-bar+bar-baz")
+        }
     }
 
 }
