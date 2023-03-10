@@ -34,6 +34,30 @@ class ReferenceTests: XCTestCase {
         }
     }
 
+    func test_Equatable() throws {
+        // setup
+        let b1 = Reference.branch("b/1")
+        let b2 = Reference.branch("b/2")
+        let b1dash = Reference.branch("b-1")
+        let b2dash = Reference.branch("b-2")
+        let t1 = Reference.tag(.init("1.0.0")!)
+        let t2 = Reference.tag(.init("2.0.0")!)
+
+        XCTAssertTrue(b1 == b1)
+        XCTAssertTrue(b1 != b2)
+        XCTAssertTrue(t1 == t1)
+        XCTAssertTrue(t1 != t2)
+        XCTAssertTrue(t1 != b1)
+
+        XCTAssertTrue(b1 == b1dash)
+        XCTAssertTrue(b1 != b2dash)
+
+        XCTAssertTrue(b1 == "b/1")
+        XCTAssertTrue(b1 == "b-1")
+        XCTAssertTrue(b2 != "b/1")
+        XCTAssertTrue(b2 != "b-1")
+    }
+
     func test_isRelease() throws {
         XCTAssertTrue(Reference.tag(.init(1, 0, 0)).isRelease)
         XCTAssertFalse(Reference.tag(.init(1, 0, 0, "beta1")).isRelease)

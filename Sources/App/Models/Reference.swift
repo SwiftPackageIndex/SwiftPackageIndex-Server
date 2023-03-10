@@ -98,6 +98,8 @@ extension Reference: Equatable {
                 return lhs == .tag(semver)
         }
     }
+
+    static func !=(lhs: Self, rhs: String) -> Bool { !(lhs == rhs) }
 }
 
 
