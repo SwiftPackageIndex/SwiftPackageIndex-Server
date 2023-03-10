@@ -235,7 +235,7 @@ class PackageController_routesTests: AppTestCase {
         Current.awsDocsBucket = { "docs-bucket" }
         XCTAssertEqual(
             try PackageController.awsDocumentationURL(owner: "linhay", repository: "SectionKit", reference: "feature/2.0.0", fragment: .documentation, path: "sectionui").string,
-            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/linhay/sectionkit/feature.2.0.0/documentation/sectionui"
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/linhay/sectionkit/feature-2.0.0/documentation/sectionui"
         )
     }
 
