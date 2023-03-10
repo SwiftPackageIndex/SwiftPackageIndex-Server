@@ -56,7 +56,7 @@ struct DocumentationVersion: Equatable {
 
 extension Array where Element == DocumentationVersion {
     subscript(reference reference: String) -> Element? {
-        first { "\($0.reference)".pathEncoded == reference.pathEncoded }
+        first { $0.reference == reference }
     }
 
     func latestMajorVersions() -> Self {
