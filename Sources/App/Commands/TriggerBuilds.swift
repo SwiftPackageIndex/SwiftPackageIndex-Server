@@ -18,7 +18,7 @@ import SQLKit
 import Vapor
 
 
-struct TriggerBuildsCommand: CommandAsync {
+struct TriggerBuildsCommand: AsyncCommand {
     let defaultLimit = 1
 
     struct Signature: CommandSignature {
@@ -49,7 +49,7 @@ struct TriggerBuildsCommand: CommandAsync {
         case triggerInfo(Version.Id, BuildPair)
     }
 
-    func run(using context: CommandContext, signature: Signature) async {
+    func run(using context: CommandContext, signature: Signature) async throws {
         let logger = Logger(component: "trigger-builds")
 
         Self.resetMetrics()

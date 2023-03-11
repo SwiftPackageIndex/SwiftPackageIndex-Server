@@ -16,7 +16,7 @@ import Vapor
 import Fluent
 
 
-struct IngestCommand: CommandAsync {
+struct IngestCommand: AsyncCommand {
     let defaultLimit = 1
 
     struct Signature: CommandSignature {
@@ -34,7 +34,7 @@ struct IngestCommand: CommandAsync {
         case limit(Int)
     }
 
-    func run(using context: CommandContext, signature: Signature) async {
+    func run(using context: CommandContext, signature: Signature) async throws {
         let limit = signature.limit ?? defaultLimit
 
         let client = context.application.client
