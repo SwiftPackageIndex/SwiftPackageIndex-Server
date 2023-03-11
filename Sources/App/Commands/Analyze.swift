@@ -21,7 +21,7 @@ import Vapor
 
 enum Analyze {
 
-    struct Command: CommandAsync {
+    struct Command: AsyncCommand {
         let defaultLimit = 1
 
         struct Signature: CommandSignature {
@@ -38,7 +38,7 @@ enum Analyze {
             case limit(Int)
         }
 
-        func run(using context: CommandContext, signature: Signature) async {
+        func run(using context: CommandContext, signature: Signature) async throws {
             let limit = signature.limit ?? defaultLimit
 
             let client = context.application.client
