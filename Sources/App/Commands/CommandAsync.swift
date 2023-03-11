@@ -1,30 +1,18 @@
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import Vapor
-
-
-@available(*, deprecated)
-protocol CommandAsync: Command {
-    // Specifically avoid marking this function `throws` to ensure all
-    // errors are handled. Otherwise errors thrown would escape and
-    // leave the task dangling.
-    // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/1493
-    func run(using context: CommandContext, signature: Signature) async
-}
-
-
-extension CommandAsync {
-    @available(*, deprecated)
-    func run(using context: CommandContext, signature: Signature) throws {
-        let group = DispatchGroup()
-        group.enter()
-
-        Task {
-            defer { group.leave() }
-            await run(using: context, signature: signature)
-        }
-
-        group.wait()
-    }
-}
 
 
 // Credit: https://theswiftdev.com/running-and-testing-async-vapor-commands/
