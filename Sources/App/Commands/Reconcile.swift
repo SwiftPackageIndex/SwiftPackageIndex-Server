@@ -16,12 +16,12 @@ import Fluent
 import Vapor
 
 
-struct ReconcileCommand: CommandAsync {
+struct ReconcileCommand: AsyncCommand {
     struct Signature: CommandSignature { }
 
     var help: String { "Reconcile package list with server" }
 
-    func run(using context: CommandContext, signature: Signature) async {
+    func run(using context: CommandContext, signature: Signature) async throws {
         let logger = Logger(component: "reconcile")
 
         logger.info("Reconciling ...")

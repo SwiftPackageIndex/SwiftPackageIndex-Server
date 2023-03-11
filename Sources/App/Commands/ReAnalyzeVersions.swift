@@ -18,7 +18,7 @@ import Fluent
 
 enum ReAnalyzeVersions {
 
-    struct Command: CommandAsync {
+    struct Command: AsyncCommand {
         let defaultBatchSize = 10
         let defaultLimit = 1
 
@@ -41,7 +41,7 @@ enum ReAnalyzeVersions {
 
         var help: String { "Run version re-analysis" }
 
-        func run(using context: CommandContext, signature: Signature) async {
+        func run(using context: CommandContext, signature: Signature) async throws {
             let limit = signature.limit ?? defaultLimit
 
             let client = context.application.client
