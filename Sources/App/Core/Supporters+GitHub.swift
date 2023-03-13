@@ -103,11 +103,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/157243?v=4"
         ),
         .init(
-            login: "plusadd",
-            name: nil,
-            avatarUrl: "https://avatars.githubusercontent.com/u/187675?u=c1780a7bd4d210abaefcee5f0fdf841a883bd815&v=4"
-        ),
-        .init(
             login: "twostraws",
             name: "Paul Hudson",
             avatarUrl: "https://avatars.githubusercontent.com/u/190200?u=c394311c13273de9e59d56c3eb82d55e71d4081d&v=4"
@@ -118,11 +113,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/222564?u=00277f32dd48021c85b093b7172f613c5c94b31e&v=4"
         ),
         .init(
-            login: "chnbz",
-            name: "Cihan",
-            avatarUrl: "https://avatars.githubusercontent.com/u/228203?u=70726bbd971683209cb3e2773112cab36f103250&v=4"
-        ),
-        .init(
             login: "massimobio",
             name: "Massimo Biolcati",
             avatarUrl: "https://avatars.githubusercontent.com/u/240599?v=4"
@@ -131,11 +121,6 @@ extension Array<Supporters.Community> {
             login: "rhysforyou",
             name: "Rhys Powell",
             avatarUrl: "https://avatars.githubusercontent.com/u/320910?u=97385e139caf352d502dfaca85a8db46f6e47ef6&v=4"
-        ),
-        .init(
-            login: "odrobnik",
-            name: "Oliver Drobnik",
-            avatarUrl: "https://avatars.githubusercontent.com/u/333270?v=4"
         ),
         .init(
             login: "InteractiveLogic",
@@ -248,11 +233,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/1888355?u=ad57f4522c12230428c401223f21b902cef4f6e5&v=4"
         ),
         .init(
-            login: "ChrisMash",
-            name: "Chris Mash",
-            avatarUrl: "https://avatars.githubusercontent.com/u/2419640?v=4"
-        ),
-        .init(
             login: "davdroman",
             name: "David Roman",
             avatarUrl: "https://avatars.githubusercontent.com/u/2538074?u=251e2687ed55a7cf5c2811f34ed7bfdd10e12b42&v=4"
@@ -323,11 +303,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/4409139?v=4"
         ),
         .init(
-            login: "chrisjrex",
-            name: "Christopher Rex",
-            avatarUrl: "https://avatars.githubusercontent.com/u/4457170?v=4"
-        ),
-        .init(
             login: "Vkt0r",
             name: "Victor Sigler",
             avatarUrl: "https://avatars.githubusercontent.com/u/4573453?u=ecc5faaa658a54d2c705c24c891d870a3993cce7&v=4"
@@ -361,11 +336,6 @@ extension Array<Supporters.Community> {
             login: "omaralbeik",
             name: "Omar Albeik",
             avatarUrl: "https://avatars.githubusercontent.com/u/8127757?u=3efffbcf80bb1a7b5bf3549f793361b75e60016a&v=4"
-        ),
-        .init(
-            login: "hassila",
-            name: "Joakim Hassila",
-            avatarUrl: "https://avatars.githubusercontent.com/u/8501048?u=0b4161d646a78badc952ed14fd0ac9f25a7d5a20&v=4"
         ),
         .init(
             login: "adam-fowler",
