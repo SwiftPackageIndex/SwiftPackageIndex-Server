@@ -203,8 +203,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "f623901b4bcc97f59c36704f81583f169b228e51",
-        "version" : "0.13.0"
+        "revision" : "870133b7b2387df136ad301ec67b2e864b51dda1",
+        "version" : "0.14.0"
       }
     },
     {
@@ -383,8 +383,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "08397d41d7c7c726dc6667af6b9db13d408201ff",
-        "version" : "4.70.0"
+        "revision" : "bac0fe31e3b186537eb750d44fae048681e2b773",
+        "version" : "4.74.0"
       }
     },
     {
@@ -392,8 +392,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/websocket-kit.git",
       "state" : {
-        "revision" : "2d9d2188a08eef4a869d368daab21b3c08510991",
-        "version" : "2.6.1"
+        "revision" : "2b8885974e8d9f522e787805000553f4f7cce8a0",
+        "version" : "2.7.0"
       }
     },
     {
@@ -401,8 +401,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "62041e6016a30f56952f5d7d3f12a3fd7029e1cd",
-        "version" : "0.8.3"
+        "revision" : "ab8c9f45843694dd16be4297e6d44c0634fd9913",
+        "version" : "0.8.4"
       }
     },
     {
