@@ -5,10 +5,12 @@ requests:
     url: ${base_url}/AudioKit/AudioKit/documentation
     validation:
       status: 200
-  /Blackjacx/SHSearchBar/documentation:
-    url: ${base_url}/Blackjacx/SHSearchBar/documentation
-    validation:
-      status: 200
+  # Package requests docs with default platform macOS but is iOS only
+  # Change proposed: https://github.com/Blackjacx/SHSearchBar/pull/59
+  # /Blackjacx/SHSearchBar/documentation:
+  #   url: ${base_url}/Blackjacx/SHSearchBar/documentation
+  #   validation:
+  #     status: 200
   /ChimeHQ/ConcurrencyPlus/documentation:
     url: ${base_url}/ChimeHQ/ConcurrencyPlus/documentation
     validation:
@@ -181,10 +183,12 @@ requests:
     url: ${base_url}/apple/swift-syntax/documentation
     validation:
       status: 200
-  /calimarkus/JDStatusBarNotification/documentation:
-    url: ${base_url}/calimarkus/JDStatusBarNotification/documentation
-    validation:
-      status: 200
+  # Error while generating docs: No documentation archive found
+  # Needs further investigation
+  # /calimarkus/JDStatusBarNotification/documentation:
+  #   url: ${base_url}/calimarkus/JDStatusBarNotification/documentation
+  #   validation:
+  #     status: 200
   /crelies/AdvancedList/documentation:
     url: ${base_url}/crelies/AdvancedList/documentation
     validation:
@@ -209,10 +213,12 @@ requests:
     url: ${base_url}/jpsim/Yams/documentation
     validation:
       status: 200
-  /kingslay/KSPlayer/documentation:
-    url: ${base_url}/kingslay/KSPlayer/documentation
-    validation:
-      status: 200
+  # 'KSPlayer' does not contain any documentable symbols or a DocC catalog and will not produce documentation
+  # Needs further investigation
+  # /kingslay/KSPlayer/documentation:
+  #   url: ${base_url}/kingslay/KSPlayer/documentation
+  #   validation:
+  #     status: 200
   /krzyzanowskim/CryptoSwift/documentation:
     url: ${base_url}/krzyzanowskim/CryptoSwift/documentation
     validation:
