@@ -23,6 +23,7 @@ enum Variant: String, LosslessStringConvertible {
 
     case all
     case active
+    case docs
 
     init(_ string: String) {
         self = Variant(rawValue: string) ?? .active
@@ -48,36 +49,52 @@ struct CreateRestfileCommand: Command {
 
 
 func createRestfile(on database: SQLDatabase, variant: Variant) -> EventLoopFuture<Void> {
+    let mode: String
     let query: SQLQueryString
     switch variant {
         case .active:
+            mode = "random"
             query = """
-                    (
-                    select '/' || repository_owner || '/' || repository_name as url
-                      from recent_packages
-                    union
-                    select '/' || repository_owner || '/' || repository_name as url
-                      from recent_releases
-                    union
-                    select '/' || r.owner || '/' || r.name as url
-                      from packages p
-                      join repositories r on r.package_id = p.id
-                      where score > 50
-                    )
-                    order by url
+                (
+                select '/' || repository_owner || '/' || repository_name as url
+                  from recent_packages
+                union
+                select '/' || repository_owner || '/' || repository_name as url
+                  from recent_releases
+                union
+                select '/' || r.owner || '/' || r.name as url
+                  from packages p
+                  join repositories r on r.package_id = p.id
+                  where score > 50
+                )
+                order by url
                 """
         case .all:
+            mode = "random"
             query = """
-                    select '/' || owner || '/' || name as url
-                      from repositories
-                      order by url
+                select '/' || owner || '/' || name as url
+                  from repositories
+                  order by url
+                """
+        case .docs:
+            mode = "sequential"
+            query = """
+                select distinct '/' || owner || '/' || name || '/documentation' as url
+                from packages p
+                join repositories r on r.package_id = p.id
+                join versions v on v.package_id = p.id
+                where
+                v.spi_manifest::text like '%documentation_targets%'
+                and v.latest is not null
+                and (stars >= 200 or owner in ('apple', 'swift-server', 'vapor', 'vapor-community', 'GetStream'))
+                order by url
                 """
     }
     struct Record: Decodable {
         var url: String
     }
-    print("# auto-generated via `vapor run create-restfile \(variant.rawValue)`")
-    print("mode: random")
+    print("# auto-generated via `Run create-restfile \(variant.rawValue)`")
+    print("mode: \(mode)")
     print("requests:")
     return database.raw(query)
         .all(decoding: Record.self)

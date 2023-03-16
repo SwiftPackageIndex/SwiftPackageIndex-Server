@@ -198,7 +198,20 @@ smoke-test:
     - spi-server-deploy
   script: |
     rester() {
-      docker run --rm -t -e base_url="$SITE_URL" -v $PWD:/host -w /host finestructure/rester:0.7.2 "$1"
+      docker run --rm -t -e base_url="$SITE_URL" -v $PWD:/host -w /host finestructure/rester:0.8.1 "$1"
     }
     echo Testing with SITE_URL: ${SITE_URL}
     rester restfiles/smoke-test.restfile
+
+doc-test:
+  rules:
+    - if: '$ENV == "prod" && $CI_PIPELINE_SOURCE == "schedule"'
+  stage: smoke-test
+  tags:
+    - spi-server-deploy
+  script: |
+    rester() {
+      docker run --rm -t -e base_url="$SITE_URL" -v $PWD:/host -w /host finestructure/rester:0.8.1 "$1"
+    }
+    echo Testing with SITE_URL: ${SITE_URL}
+    rester restfiles/doc-test.restfile

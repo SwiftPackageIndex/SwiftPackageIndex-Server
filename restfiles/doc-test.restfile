@@ -1,0 +1,325 @@
+# auto-generated via `Run create-restfile docs`
+mode: sequential
+requests:
+  /AudioKit/AudioKit/documentation:
+    url: ${base_url}/AudioKit/AudioKit/documentation
+    validation:
+      status: 200
+  # Package requests docs with default platform macOS but is iOS only
+  # Change proposed: https://github.com/Blackjacx/SHSearchBar/pull/59
+  # /Blackjacx/SHSearchBar/documentation:
+  #   url: ${base_url}/Blackjacx/SHSearchBar/documentation
+  #   validation:
+  #     status: 200
+  /ChimeHQ/ConcurrencyPlus/documentation:
+    url: ${base_url}/ChimeHQ/ConcurrencyPlus/documentation
+    validation:
+      status: 200
+  /ChimeHQ/Neon/documentation:
+    url: ${base_url}/ChimeHQ/Neon/documentation
+    validation:
+      status: 200
+  /CoreOffice/XMLCoder/documentation:
+    url: ${base_url}/CoreOffice/XMLCoder/documentation
+    validation:
+      status: 200
+  /FlineDev/HandySwift/documentation:
+    url: ${base_url}/FlineDev/HandySwift/documentation
+    validation:
+      status: 200
+  /GetStream/effects-library/documentation:
+    url: ${base_url}/GetStream/effects-library/documentation
+    validation:
+      status: 200
+  /GetStream/stream-chat-swift/documentation:
+    url: ${base_url}/GetStream/stream-chat-swift/documentation
+    validation:
+      status: 200
+  /GetStream/stream-chat-swiftui/documentation:
+    url: ${base_url}/GetStream/stream-chat-swiftui/documentation
+    validation:
+      status: 200
+  /GetStream/stream-chat-vapor-swift/documentation:
+    url: ${base_url}/GetStream/stream-chat-vapor-swift/documentation
+    validation:
+      status: 200
+  /Lighter-swift/Lighter/documentation:
+    url: ${base_url}/Lighter-swift/Lighter/documentation
+    validation:
+      status: 200
+  /MarcoEidinger/SwiftPlantUML/documentation:
+    url: ${base_url}/MarcoEidinger/SwiftPlantUML/documentation
+    validation:
+      status: 200
+  /MarkCodable/MarkCodable/documentation:
+    url: ${base_url}/MarkCodable/MarkCodable/documentation
+    validation:
+      status: 200
+  /MessageKit/MessageKit/documentation:
+    url: ${base_url}/MessageKit/MessageKit/documentation
+    validation:
+      status: 200
+  /RevenueCat/purchases-ios/documentation:
+    url: ${base_url}/RevenueCat/purchases-ios/documentation
+    validation:
+      status: 200
+  /airbnb/epoxy-ios/documentation:
+    url: ${base_url}/airbnb/epoxy-ios/documentation
+    validation:
+      status: 200
+  /airbnb/lottie-ios/documentation:
+    url: ${base_url}/airbnb/lottie-ios/documentation
+    validation:
+      status: 200
+  /apple/swift-argument-parser/documentation:
+    url: ${base_url}/apple/swift-argument-parser/documentation
+    validation:
+      status: 200
+  /apple/swift-asn1/documentation:
+    url: ${base_url}/apple/swift-asn1/documentation
+    validation:
+      status: 200
+  /apple/swift-atomics/documentation:
+    url: ${base_url}/apple/swift-atomics/documentation
+    validation:
+      status: 200
+  /apple/swift-cassandra-client/documentation:
+    url: ${base_url}/apple/swift-cassandra-client/documentation
+    validation:
+      status: 200
+  /apple/swift-certificates/documentation:
+    url: ${base_url}/apple/swift-certificates/documentation
+    validation:
+      status: 200
+  /apple/swift-cluster-membership/documentation:
+    url: ${base_url}/apple/swift-cluster-membership/documentation
+    validation:
+      status: 200
+  /apple/swift-collections/documentation:
+    url: ${base_url}/apple/swift-collections/documentation
+    validation:
+      status: 200
+  /apple/swift-distributed-actors/documentation:
+    url: ${base_url}/apple/swift-distributed-actors/documentation
+    validation:
+      status: 200
+  /apple/swift-distributed-tracing-baggage-core/documentation:
+    url: ${base_url}/apple/swift-distributed-tracing-baggage-core/documentation
+    validation:
+      status: 200
+  /apple/swift-distributed-tracing-baggage/documentation:
+    url: ${base_url}/apple/swift-distributed-tracing-baggage/documentation
+    validation:
+      status: 200
+  /apple/swift-distributed-tracing/documentation:
+    url: ${base_url}/apple/swift-distributed-tracing/documentation
+    validation:
+      status: 200
+  /apple/swift-docc-plugin/documentation:
+    url: ${base_url}/apple/swift-docc-plugin/documentation
+    validation:
+      status: 200
+  /apple/swift-docc/documentation:
+    url: ${base_url}/apple/swift-docc/documentation
+    validation:
+      status: 200
+  /apple/swift-http-structured-headers/documentation:
+    url: ${base_url}/apple/swift-http-structured-headers/documentation
+    validation:
+      status: 200
+  /apple/swift-log/documentation:
+    url: ${base_url}/apple/swift-log/documentation
+    validation:
+      status: 200
+  /apple/swift-markdown/documentation:
+    url: ${base_url}/apple/swift-markdown/documentation
+    validation:
+      status: 200
+  /apple/swift-metrics-extras/documentation:
+    url: ${base_url}/apple/swift-metrics-extras/documentation
+    validation:
+      status: 200
+  /apple/swift-metrics/documentation:
+    url: ${base_url}/apple/swift-metrics/documentation
+    validation:
+      status: 200
+  /apple/swift-nio-extras/documentation:
+    url: ${base_url}/apple/swift-nio-extras/documentation
+    validation:
+      status: 200
+  /apple/swift-nio-http2/documentation:
+    url: ${base_url}/apple/swift-nio-http2/documentation
+    validation:
+      status: 200
+  /apple/swift-nio-ssh/documentation:
+    url: ${base_url}/apple/swift-nio-ssh/documentation
+    validation:
+      status: 200
+  /apple/swift-nio-ssl/documentation:
+    url: ${base_url}/apple/swift-nio-ssl/documentation
+    validation:
+      status: 200
+  /apple/swift-nio-transport-services/documentation:
+    url: ${base_url}/apple/swift-nio-transport-services/documentation
+    validation:
+      status: 200
+  /apple/swift-nio/documentation:
+    url: ${base_url}/apple/swift-nio/documentation
+    validation:
+      status: 200
+  /apple/swift-protobuf/documentation:
+    url: ${base_url}/apple/swift-protobuf/documentation
+    validation:
+      status: 200
+  /apple/swift-service-discovery/documentation:
+    url: ${base_url}/apple/swift-service-discovery/documentation
+    validation:
+      status: 200
+  /apple/swift-statsd-client/documentation:
+    url: ${base_url}/apple/swift-statsd-client/documentation
+    validation:
+      status: 200
+  /apple/swift-syntax/documentation:
+    url: ${base_url}/apple/swift-syntax/documentation
+    validation:
+      status: 200
+  # Error while generating docs: No documentation archive found
+  # Needs further investigation
+  # /calimarkus/JDStatusBarNotification/documentation:
+  #   url: ${base_url}/calimarkus/JDStatusBarNotification/documentation
+  #   validation:
+  #     status: 200
+  /crelies/AdvancedList/documentation:
+    url: ${base_url}/crelies/AdvancedList/documentation
+    validation:
+      status: 200
+  /gonzalezreal/swift-markdown-ui/documentation:
+    url: ${base_url}/gonzalezreal/swift-markdown-ui/documentation
+    validation:
+      status: 200
+  /groue/GRDB.swift/documentation:
+    url: ${base_url}/groue/GRDB.swift/documentation
+    validation:
+      status: 200
+  /grpc/grpc-swift/documentation:
+    url: ${base_url}/grpc/grpc-swift/documentation
+    validation:
+      status: 200
+  /immobiliare/RealHTTP/documentation:
+    url: ${base_url}/immobiliare/RealHTTP/documentation
+    validation:
+      status: 200
+  /jpsim/Yams/documentation:
+    url: ${base_url}/jpsim/Yams/documentation
+    validation:
+      status: 200
+  # 'KSPlayer' does not contain any documentable symbols or a DocC catalog and will not produce documentation
+  # Needs further investigation
+  # /kingslay/KSPlayer/documentation:
+  #   url: ${base_url}/kingslay/KSPlayer/documentation
+  #   validation:
+  #     status: 200
+  /krzyzanowskim/CryptoSwift/documentation:
+    url: ${base_url}/krzyzanowskim/CryptoSwift/documentation
+    validation:
+      status: 200
+  /liuliu/dflat/documentation:
+    url: ${base_url}/liuliu/dflat/documentation
+    validation:
+      status: 200
+  /lorenzofiamingo/swiftui-cached-async-image/documentation:
+    url: ${base_url}/lorenzofiamingo/swiftui-cached-async-image/documentation
+    validation:
+      status: 200
+  /maxxfrazer/FocusEntity/documentation:
+    url: ${base_url}/maxxfrazer/FocusEntity/documentation
+    validation:
+      status: 200
+  /maxxfrazer/RealityUI/documentation:
+    url: ${base_url}/maxxfrazer/RealityUI/documentation
+    validation:
+      status: 200
+  /mchakravarty/CodeEditorView/documentation:
+    url: ${base_url}/mchakravarty/CodeEditorView/documentation
+    validation:
+      status: 200
+  /mecid/SwiftUICharts/documentation:
+    url: ${base_url}/mecid/SwiftUICharts/documentation
+    validation:
+      status: 200
+  /mergesort/Boutique/documentation:
+    url: ${base_url}/mergesort/Boutique/documentation
+    validation:
+      status: 200
+  /omaralbeik/Drops/documentation:
+    url: ${base_url}/omaralbeik/Drops/documentation
+    validation:
+      status: 200
+  /onevcat/Kingfisher/documentation:
+    url: ${base_url}/onevcat/Kingfisher/documentation
+    validation:
+      status: 200
+  /parse-community/Parse-Swift/documentation:
+    url: ${base_url}/parse-community/Parse-Swift/documentation
+    validation:
+      status: 200
+  /pointfreeco/swift-case-paths/documentation:
+    url: ${base_url}/pointfreeco/swift-case-paths/documentation
+    validation:
+      status: 200
+  /pointfreeco/swift-composable-architecture/documentation:
+    url: ${base_url}/pointfreeco/swift-composable-architecture/documentation
+    validation:
+      status: 200
+  /pointfreeco/swift-url-routing/documentation:
+    url: ${base_url}/pointfreeco/swift-url-routing/documentation
+    validation:
+      status: 200
+  /richardtop/CalendarKit/documentation:
+    url: ${base_url}/richardtop/CalendarKit/documentation
+    validation:
+      status: 200
+  /simonbs/KeyboardToolbar/documentation:
+    url: ${base_url}/simonbs/KeyboardToolbar/documentation
+    validation:
+      status: 200
+  /simonbs/Runestone/documentation:
+    url: ${base_url}/simonbs/Runestone/documentation
+    validation:
+      status: 200
+  /sindresorhus/Defaults/documentation:
+    url: ${base_url}/sindresorhus/Defaults/documentation
+    validation:
+      status: 200
+  /sindresorhus/KeyboardShortcuts/documentation:
+    url: ${base_url}/sindresorhus/KeyboardShortcuts/documentation
+    validation:
+      status: 200
+  /swift-server-community/APNSwift/documentation:
+    url: ${base_url}/swift-server-community/APNSwift/documentation
+    validation:
+      status: 200
+  /swift-server/async-http-client/documentation:
+    url: ${base_url}/swift-server/async-http-client/documentation
+    validation:
+      status: 200
+  /swift-server/swift-aws-lambda-runtime/documentation:
+    url: ${base_url}/swift-server/swift-aws-lambda-runtime/documentation
+    validation:
+      status: 200
+  /swift-server/swift-backtrace/documentation:
+    url: ${base_url}/swift-server/swift-backtrace/documentation
+    validation:
+      status: 200
+  /swift-server/swift-service-lifecycle/documentation:
+    url: ${base_url}/swift-server/swift-service-lifecycle/documentation
+    validation:
+      status: 200
+  /swiftwasm/JavaScriptKit/documentation:
+    url: ${base_url}/swiftwasm/JavaScriptKit/documentation
+    validation:
+      status: 200
+  /vapor-community/HTMLKit/documentation:
+    url: ${base_url}/vapor-community/HTMLKit/documentation
+    validation:
+      status: 200
