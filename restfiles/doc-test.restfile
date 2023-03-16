@@ -271,10 +271,6 @@ requests:
     url: ${base_url}/pointfreeco/swift-composable-architecture/documentation
     validation:
       status: 200
-  /pointfreeco/swift-parsing/documentation:
-    url: ${base_url}/pointfreeco/swift-parsing/documentation
-    validation:
-      status: 200
   /pointfreeco/swift-url-routing/documentation:
     url: ${base_url}/pointfreeco/swift-url-routing/documentation
     validation:
@@ -325,9 +321,5 @@ requests:
       status: 200
   /vapor-community/HTMLKit/documentation:
     url: ${base_url}/vapor-community/HTMLKit/documentation
-    validation:
-      status: 200
-  /vapor/postgres-nio/documentation:
-    url: ${base_url}/vapor/postgres-nio/documentation
     validation:
       status: 200

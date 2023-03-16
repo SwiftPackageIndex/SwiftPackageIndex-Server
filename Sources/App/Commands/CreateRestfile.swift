@@ -85,6 +85,7 @@ func createRestfile(on database: SQLDatabase, variant: Variant) -> EventLoopFutu
                 join versions v on v.package_id = p.id
                 where
                 v.spi_manifest::text like '%documentation_targets%'
+                and v.latest is not null
                 and (stars >= 200 or owner in ('apple', 'swift-server', 'vapor', 'vapor-community', 'GetStream'))
                 order by url
                 """
