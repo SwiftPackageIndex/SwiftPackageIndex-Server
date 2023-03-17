@@ -182,7 +182,7 @@ deploy dev: # DEV: auto-deploy main
 
 deploy dev (ad hoc): # DEV: deploy any revision manually
   rules:
-    - if: '$ENV == "dev"'
+    - if: $ENV == "dev" && $CI_PIPELINE_SOURCE != "schedule"
       when: manual
   tags:
     - spi-d1
