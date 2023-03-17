@@ -193,6 +193,7 @@ smoke-test:
     - if: '$ENV == "prod" && $CI_COMMIT_TAG != null'
     - if: '$ENV == "prod" && $CI_PIPELINE_SOURCE == "schedule"'
     - if: '$ENV == "dev"'
+  when: always
   stage: smoke-test
   tags:
     - spi-server-deploy
@@ -208,6 +209,7 @@ doc-test:
     - if: $ENV == "prod" && $CI_PIPELINE_SOURCE == "schedule"
     - if: $ENV == "dev"
       when: manual
+  when: always
   stage: smoke-test
   tags:
     - spi-server-deploy
