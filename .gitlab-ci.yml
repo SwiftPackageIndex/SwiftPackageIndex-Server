@@ -206,8 +206,6 @@ smoke-test:
 doc-test:
   rules:
     - if: $ENV == "prod" && $CI_PIPELINE_SOURCE == "schedule"
-    - if: $ENV == "dev"
-      when: manual
   stage: smoke-test
   tags:
     - spi-server-deploy
