@@ -34,7 +34,7 @@ stages:
 # The PROD projects registry already has a build history, so we keep pushing to it.
 build:
   rules:
-    - if: $ENV == "prod"
+    - if: $ENV == "prod" && $CI_PIPELINE_SOURCE != "schedule"
   stage: build
   tags:
     - spi-server-deploy
