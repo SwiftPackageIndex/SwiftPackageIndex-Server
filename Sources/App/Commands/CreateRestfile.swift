@@ -103,7 +103,7 @@ func createRestfile(on database: SQLDatabase, variant: Variant) -> EventLoopFutu
                 \(r.url):
                   url: ${base_url}\(r.url)
                   validation:
-                    status: 200
+                    status: .regex((2|3)\\d\\d)
               """)
         }.transform(to: ())
 }
