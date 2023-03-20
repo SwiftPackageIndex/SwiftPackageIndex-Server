@@ -84,4 +84,19 @@ class ShellOutCommandExtensionTests: XCTestCase {
         XCTAssertEqual(ShellOutCommand.gitListTags.string, "git tag")
     }
 
+    func test_quoting() throws {
+        XCTAssertEqual(
+            ShellOutCommand.gitReset(to: "foo ; rm *", hard: false).string,
+            "git reset origin/'foo ; rm *'"
+        )
+        XCTAssertEqual(
+            ShellOutCommand.gitRevisionInfo(reference: .branch("foo ; rm *")).string,
+            #"git log -n1 --format=format:"%H-%ct" 'foo ; rm *'"#
+        )
+        XCTAssertEqual(
+            ShellOutCommand.gitShowDate("foo ; rm *").string,
+            #"git show -s --format=%ct 'foo ; rm *'"#
+        )
+    }
+
 }
