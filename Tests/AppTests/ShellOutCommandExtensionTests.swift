@@ -20,14 +20,6 @@ import ShellOut
 
 class ShellOutCommandExtensionTests: XCTestCase {
 
-    func test_sanitizeInput() throws {
-        XCTAssertEqual(ShellOutCommand.sanitizeInput("a\"bc"), "abc")
-        XCTAssertEqual(ShellOutCommand.sanitizeInput("a\\bc"), "abc")
-        XCTAssertEqual(ShellOutCommand.sanitizeInput("a\nbc"), "abc")
-        XCTAssertEqual(ShellOutCommand.sanitizeInput("a\rbc"), "abc")
-        XCTAssertEqual(ShellOutCommand.sanitizeInput("abc"), "abc")
-    }
-
     func test_gitClean() throws {
         XCTAssertEqual(ShellOutCommand.gitClean.string, "git clean -fdx")
     }

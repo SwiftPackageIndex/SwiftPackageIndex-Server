@@ -23,49 +23,55 @@ import ShellOut
 extension ShellOutCommand {
 
     static var gitClean: Self {
-        .init(string: "git clean -fdx")
+        .init(command: .git, arguments: ["clean", "-fdx"])
     }
 
     static var gitCommitCount: Self {
-        .init(string: "git rev-list --count HEAD")
+        .init(command: .git, arguments: ["rev-list", "--count", "HEAD"])
     }
 
     static var gitFetchAndPruneTags: Self {
-        .init(string: "git fetch --tags --prune-tags --prune")
+        .init(command: .git, arguments: ["fetch", "--tags", "--prune-tags", "--prune"])
     }
 
     static var gitFirstCommitDate: Self {
-        .init(string: #"git log --max-parents=0 -n1 --format=format:"%ct""#)
+        .init(command: .git, arguments: ["log", "--max-parents=0", "-n1", #"--format=format:"%ct""#.verbatim])
     }
 
     static var gitLastCommitDate: Self {
-        .init(string: #"git log -n1 --format=format:"%ct""#)
+        .init(command: .git, arguments: ["log", "-n1", #"--format=format:"%ct""#.verbatim])
     }
 
     static func gitReset(hard: Bool) -> Self {
-        .init(string: "git reset\(hard ? " --hard" : "")")
+        hard
+        ? .init(command: .git, arguments: ["reset", "--hard"])
+        : .init(command: .git, arguments: ["reset"])
     }
 
     static func gitReset(to branch: String, hard: Bool) -> Self {
-        .init(string: #"git reset "origin/\#(branch)"\#(hard ? " --hard" : "")"#)
+        hard
+        ? .init(command: .git, arguments: ["reset", "origin/\(branch.quoted)".verbatim, "--hard"])
+        : .init(command: .git, arguments: ["reset", "origin/\(branch.quoted)".verbatim])
+
     }
 
     static func gitRevisionInfo(reference: Reference, separator: String = "-") -> Self {
-        let safe = sanitizeInput("\(reference)")
-        return .init(string: #"git log -n1 --format=format:"%H\#(separator)%ct" "\#(safe)""#)
+        .init(command: .git, arguments: ["log", "-n1",
+                                         #"--format=format:"%H\#(separator.quoted)%ct"#.verbatim,
+                                         "\(reference)".quoted])
+
     }
 
     static func gitShowDate(_ commit: CommitHash) -> Self {
-        let safe = sanitizeInput("\(commit)")
-        return .init(string: #"git show -s --format=%ct "\#(safe)""#)
+        .init(command: .git, arguments: ["show", "-s", "--format=%ct", commit.quoted])
     }
 
     static var gitListTags: Self {
-        .init(string: "git tag")
+        .init(command: .git, arguments: ["tag"])
     }
 
     static var gitShortlog: Self {
-        .init(string: "git shortlog -sn HEAD")
+        .init(command: .git, arguments: ["shortlog", "-sn", "HEAD"])
     }
 
 }
@@ -75,28 +81,12 @@ extension ShellOutCommand {
 
 extension ShellOutCommand {
     static var swiftDumpPackage: Self {
-        .init(string: "swift package dump-package")
+        .init(command: .swift, arguments: ["package", "dump-package"])
     }
 }
 
 
-// MARK: Helper
-
-extension ShellOutCommand {
-
-    /// Sanitize input strings not controlled by us. Ensure commands that use input strings
-    /// properly quote the commands:
-    ///   let safe = sanitizeInput(input)
-    /// and then use the result in quoted commands only:
-    ///   Current.shell.run(#"ls -l "\(safe)""#)
-    /// - Parameter input: user input string
-    /// - Returns: sanitized string
-    static func sanitizeInput(_ input: String) -> String {
-        let bannedCharacters = CharacterSet.init(charactersIn: "\"\\")
-            .union(CharacterSet.newlines)
-            .union(CharacterSet.decomposables)
-            .union(CharacterSet.illegalCharacters)
-        return String(input.unicodeScalars.filter { !bannedCharacters.contains($0) })
-    }
-
+extension SafeString {
+    static let git = "git".unchecked
+    static let swift = "swift".unchecked
 }
