@@ -308,19 +308,9 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/4573453?u=ecc5faaa658a54d2c705c24c891d870a3993cce7&v=4"
         ),
         .init(
-            login: "azalan",
-            name: "Arpad Zalan",
-            avatarUrl: "https://avatars.githubusercontent.com/u/5535925?v=4"
-        ),
-        .init(
             login: "skarol",
             name: "Karolina Samorek",
             avatarUrl: "https://avatars.githubusercontent.com/u/5767416?u=5b1f75e68c1f993b5013091c33b1cd283221ae53&v=4"
-        ),
-        .init(
-            login: "ScottRobbins",
-            name: "Scott Robbins",
-            avatarUrl: "https://avatars.githubusercontent.com/u/6894359?u=f30a5959b161ebb09ec81a74bb4b66ff080fe9e8&v=4"
         ),
         .init(
             login: "schrismartin",
@@ -336,6 +326,11 @@ extension Array<Supporters.Community> {
             login: "omaralbeik",
             name: "Omar Albeik",
             avatarUrl: "https://avatars.githubusercontent.com/u/8127757?u=3efffbcf80bb1a7b5bf3549f793361b75e60016a&v=4"
+        ),
+        .init(
+            login: "m-housh",
+            name: "Michael Housh",
+            avatarUrl: "https://avatars.githubusercontent.com/u/9305678?u=1841e370010489f2caccdde4d2c4761bc4f83ff6&v=4"
         ),
         .init(
             login: "adam-fowler",
@@ -408,19 +403,9 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/29466629?v=4"
         ),
         .init(
-            login: "akashsoni01",
-            name: "Akash Soni",
-            avatarUrl: "https://avatars.githubusercontent.com/u/33283321?u=f83cc448a6440ee452f3659c8fdd902644e7a258&v=4"
-        ),
-        .init(
             login: "alexandersandberg",
             name: "Alexander Sandberg",
             avatarUrl: "https://avatars.githubusercontent.com/u/35671299?u=2f44069a09e1088091ef0cef4d410fbdbd5ad663&v=4"
-        ),
-        .init(
-            login: "lovetodream",
-            name: "Timo",
-            avatarUrl: "https://avatars.githubusercontent.com/u/38291523?u=63d88ce12c130b67137e38c01a5501d0741bfbd7&v=4"
         ),
         .init(
             login: "Fleuronic",
