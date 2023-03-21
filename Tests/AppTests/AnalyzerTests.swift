@@ -588,7 +588,7 @@ class AnalyzerTests: AppTestCase {
 
         // validation
         XCTAssertEqual(commands.value, [
-            "git checkout \"0.4.2\" --quiet",
+            "git checkout 0.4.2 --quiet",
             "swift package dump-package"
         ])
         XCTAssertEqual(info.packageManifest.name, "SPI-Server")
