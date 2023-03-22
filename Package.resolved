@@ -138,10 +138,18 @@
     {
       "identity" : "shellout",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/JohnSundell/ShellOut.git",
+      "location" : "https://github.com/SwiftPackageIndex/ShellOut.git",
       "state" : {
-        "revision" : "e1577acf2b6e90086d01a6d5e2b8efdaae033568",
-        "version" : "2.3.0"
+        "revision" : "db112a2104eae7fa8412ea80210d0f60b89a377e"
+      }
+    },
+    {
+      "identity" : "shellquote",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftPackageIndex/ShellQuote",
+      "state" : {
+        "revision" : "5f555550c30ef43d64b36b40c2c291a95d62580c",
+        "version" : "1.0.2"
       }
     },
     {

@@ -79,8 +79,8 @@ class AnalyzerTests: AppTestCase {
         }
         Current.shell.run = { cmd, path in
             let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!, with: ".")
-            try commands.withValue {
-                $0.append(try .init(command: cmd, path: trimmedPath).unwrap())
+            commands.withValue {
+                $0.append(.init(command: cmd, path: trimmedPath)!)
             }
             if cmd.string.starts(with: "git clone") {
                 firstDirCloned.setValue(true)
@@ -396,8 +396,8 @@ class AnalyzerTests: AppTestCase {
 
         let commands = QueueIsolated<[Command]>([])
         Current.shell.run = { cmd, path in
-            try commands.withValue {
-                $0.append(try .init(command: cmd, path: path).unwrap())
+            commands.withValue {
+                $0.append(.init(command: cmd, path: path)!)
             }
 
             if let result = mockResults[cmd] { return result }
@@ -588,7 +588,7 @@ class AnalyzerTests: AppTestCase {
 
         // validation
         XCTAssertEqual(commands.value, [
-            "git checkout \"0.4.2\" --quiet",
+            "git checkout 0.4.2 --quiet",
             "swift package dump-package"
         ])
         XCTAssertEqual(info.packageManifest.name, "SPI-Server")
@@ -1165,7 +1165,7 @@ private struct Command: CustomStringConvertible {
                 self.kind = .getTags
             case .gitReset(hard: true):
                 self.kind = .reset
-            case _ where command.string.starts(with: #"git reset "origin"#):
+            case _ where command.string.starts(with: "git reset origin"):
                 let branch = String(command.string.split(separator: " ")[2])
                     .trimmingCharacters(in: quotes)
                 self.kind = .resetToBranch(branch)
@@ -1180,6 +1180,7 @@ private struct Command: CustomStringConvertible {
             case .swiftDumpPackage:
                 self.kind = .dumpPackage
             default:
+                print("unmatched command: \(command.string)")
                 return nil
         }
     }

@@ -20,14 +20,6 @@ import ShellOut
 
 class ShellOutCommandExtensionTests: XCTestCase {
 
-    func test_sanitizeInput() throws {
-        XCTAssertEqual(ShellOutCommand.sanitizeInput("a\"bc"), "abc")
-        XCTAssertEqual(ShellOutCommand.sanitizeInput("a\\bc"), "abc")
-        XCTAssertEqual(ShellOutCommand.sanitizeInput("a\nbc"), "abc")
-        XCTAssertEqual(ShellOutCommand.sanitizeInput("a\rbc"), "abc")
-        XCTAssertEqual(ShellOutCommand.sanitizeInput("abc"), "abc")
-    }
-
     func test_gitClean() throws {
         XCTAssertEqual(ShellOutCommand.gitClean.string, "git clean -fdx")
     }
@@ -59,9 +51,9 @@ class ShellOutCommandExtensionTests: XCTestCase {
 
     func test_gitReset_branch() throws {
         XCTAssertEqual(ShellOutCommand.gitReset(to: "foo", hard: true).string,
-                       #"git reset "origin/foo" --hard"#)
+                       "git reset origin/foo --hard")
         XCTAssertEqual(ShellOutCommand.gitReset(to: "foo", hard: false).string,
-                       #"git reset "origin/foo""#)
+                       "git reset origin/foo")
     }
 
     func test_gitRevisionInfo() throws {
@@ -69,27 +61,42 @@ class ShellOutCommandExtensionTests: XCTestCase {
         XCTAssertEqual(
             ShellOutCommand
                 .gitRevisionInfo(reference: .tag(1, 2, 3), separator: dash).string,
-            #"git log -n1 --format=format:"%H\#(dash)%ct" "1.2.3""#
+            #"git log -n1 --format=format:"%H\#(dash)%ct" 1.2.3"#
         )
         XCTAssertEqual(
             ShellOutCommand
                 .gitRevisionInfo(reference: .branch("foo"), separator: dash).string,
-            #"git log -n1 --format=format:"%H\#(dash)%ct" "foo""#
+            #"git log -n1 --format=format:"%H\#(dash)%ct" foo"#
         )
         XCTAssertEqual(
             ShellOutCommand
                 .gitRevisionInfo(reference: .branch("ba\nd"), separator: dash).string,
-            #"git log -n1 --format=format:"%H\#(dash)%ct" "bad""#
+            "git log -n1 --format=format:\"%H\(dash)%ct\" 'ba\nd'"
         )
     }
 
     func test_gitShowDate() throws {
         XCTAssertEqual(ShellOutCommand.gitShowDate("abc").string,
-                       #"git show -s --format=%ct "abc""#)
+                       #"git show -s --format=%ct abc"#)
     }
 
     func test_gitListTags() throws {
         XCTAssertEqual(ShellOutCommand.gitListTags.string, "git tag")
+    }
+
+    func test_quoting() throws {
+        XCTAssertEqual(
+            ShellOutCommand.gitReset(to: "foo ; rm *", hard: false).string,
+            "git reset origin/'foo ; rm *'"
+        )
+        XCTAssertEqual(
+            ShellOutCommand.gitRevisionInfo(reference: .branch("foo ; rm *")).string,
+            #"git log -n1 --format=format:"%H-%ct" 'foo ; rm *'"#
+        )
+        XCTAssertEqual(
+            ShellOutCommand.gitShowDate("foo ; rm *").string,
+            #"git show -s --format=%ct 'foo ; rm *'"#
+        )
     }
 
 }

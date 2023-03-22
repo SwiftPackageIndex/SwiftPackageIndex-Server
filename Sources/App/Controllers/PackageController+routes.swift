@@ -32,7 +32,7 @@ enum PackageController {
             throw Abort.redirect(to: SiteURL.package(.value(owner),
                                                      .value(repository.droppingGitExtension),
                                                      .none).absoluteURL(),
-                                 type: .permanent)
+                                 redirectType: .permanent)
         }
 
         switch try await ShowModel(db: req.db, owner: owner, repository: repository) {

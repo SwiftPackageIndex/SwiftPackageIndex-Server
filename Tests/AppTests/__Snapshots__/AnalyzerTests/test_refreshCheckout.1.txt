@@ -1,8 +1,8 @@
 ▿ 7 elements
-  - "rm \"-f\" \".../github.com-foo-1/.git/HEAD.lock\""
-  - "rm \"-f\" \".../github.com-foo-1/.git/index.lock\""
+  - "rm -f .../github.com-foo-1/.git/HEAD.lock"
+  - "rm -f .../github.com-foo-1/.git/index.lock"
   - "git reset --hard"
   - "git clean -fdx"
   - "git fetch --tags --prune-tags --prune"
-  - "git checkout \"main\" --quiet"
-  - "git reset \"origin/main\" --hard"
+  - "git checkout main --quiet"
+  - "git reset origin/main --hard"
