@@ -17,13 +17,19 @@ import Foundation
 
 struct Platform: Codable, Equatable {
     enum Name: String, Codable, Equatable, CaseIterable {
+        // Keep aligned with https://github.com/apple/swift-package-manager/blob/main/Sources/PackageDescription/SupportedPlatforms.swift
+        case android
         case custom
         case driverkit
         case ios
-        case macos
+        case linux
         case maccatalyst
-        case watchos
+        case macos
+        case openbsd
         case tvos
+        case wasi
+        case watchos
+        case windows
     }
     var name: Name
     var version: String
@@ -49,18 +55,28 @@ extension Platform {
 extension Platform: CustomStringConvertible {
     var description: String {
         switch name {
+            case .android:
+                return "Android \(version)"
             case .custom:
                 return "Custom \(version)"
             case .driverkit:
                 return "DriverKit \(version)"
             case .ios:
                 return "iOS \(version)"
+            case .linux:
+                return "Linux \(version)"
             case .macos, .maccatalyst:
                 return "macOS \(version)"
-            case .watchos:
-                return "watchOS \(version)"
+            case .openbsd:
+                return "OpenBSD \(version)"
             case .tvos:
                 return "tvOS \(version)"
+            case .wasi:
+                return "WASI \(version)"
+            case .watchos:
+                return "watchOS \(version)"
+            case .windows:
+                return "Windows \(version)"
         }
     }
 }

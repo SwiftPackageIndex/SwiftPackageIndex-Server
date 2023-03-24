@@ -678,21 +678,6 @@ class AnalyzerTests: AppTestCase {
                        ["foo"])
     }
 
-    func test_updateVersion_reportUnknownPlatforms() throws {
-        // Ensure we report encountering unhandled platforms
-        // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/51
-
-        // Asserting that the platform name cases agree is the only thing we need to do.
-        // - Platform.version is a String on both sides
-        // - Swift Versions map to SemVar and so there is no conceivable way at this time
-        //   to write an incompatible Swift Version
-        // The only possible issue could be adding a new platform to Manifest.Platform
-        // and forgetting to add it to Platform (the model). This test will fail in
-        // that case.
-        XCTAssertEqual(Manifest.Platform.Name.allCases.map(\.rawValue).sorted(),
-                       Platform.Name.allCases.map(\.rawValue).sorted())
-    }
-
     func test_createProducts() throws {
         // setup
         let p = Package(id: UUID(), url: "1")

@@ -30,21 +30,24 @@ import Foundation
 //    cLanguageStandard: CLanguageStandard? = nil,
 //    cxxLanguageStandard: CXXLanguageStandard? = nil
 //)
-//
-// For valid platform values, refer to
-// https://github.com/apple/swift-package-manager/blob/main/Sources/PackageDescription/SupportedPlatforms.swift
 
 
 struct Manifest: Decodable, Equatable {
     struct Platform: Decodable, Equatable {
         enum Name: String, Decodable, Equatable, CaseIterable {
+            // Keep aligned with https://github.com/apple/swift-package-manager/blob/main/Sources/PackageDescription/SupportedPlatforms.swift
+            case android      // from 5.2
             case custom       // from 5.6
             case driverkit    // from 5.5
-            case macos
-            case maccatalyst  // from 5.5
             case ios
+            case linux
+            case maccatalyst  // from 5.5
+            case macos
+            case openbsd      // from 5.8
             case tvos
+            case wasi         // from 5.3
             case watchos
+            case windows      // from 5.2
         }
         var platformName: Name
         var version: String

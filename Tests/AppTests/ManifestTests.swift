@@ -179,8 +179,8 @@ class ManifestTests: XCTestCase {
     func test_platform_list() throws {
         // Test to ensure the platforms listed in the DTO struct Manifest.Platform.Name
         // do not accidentally diverge from those in the db entity's Platform.Name
-        XCTAssertEqual(Set(Manifest.Platform.Name.allCases.map(\.rawValue)),
-                       Set(Platform.Name.allCases.map(\.rawValue)))
+        XCTAssertEqual(Manifest.Platform.Name.allCases.map(\.rawValue).sorted(),
+                       Platform.Name.allCases.map(\.rawValue).sorted())
     }
 
     func test_decode_plugin_products() throws {
