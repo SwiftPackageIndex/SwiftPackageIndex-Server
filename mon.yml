@@ -20,7 +20,7 @@ services:
 
   grafana:
     # https://github.com/grafana/grafana/releases
-    image: grafana/grafana:9.4.3
+    image: grafana/grafana:9.4.7
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: 'false'
@@ -71,7 +71,7 @@ services:
 
   prometheus:
     # https://github.com/prometheus/prometheus/releases
-    image: prom/prometheus:v2.42.0
+    image: prom/prometheus:v2.43.0
     volumes:
       - prometheus_data:/prometheus
     command: --config.file=/prometheus.yml
