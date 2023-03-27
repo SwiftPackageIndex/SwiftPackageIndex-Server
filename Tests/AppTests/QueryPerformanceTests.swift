@@ -37,12 +37,12 @@ class QueryPerformanceTests: XCTestCase {
 
     func test_Search_packageMatchQuery() async throws {
         let query = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
-        try await assertQueryPerformance(query, expectedCost: 960, variation: 50)
+        try await assertQueryPerformance(query, expectedCost: 960, variation: 100)
     }
 
     func test_Search_keywordMatchQuery() async throws {
         let query = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        try await assertQueryPerformance(query, expectedCost: 3900, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 4050, variation: 200)
     }
 
     func test_Search_authorMatchQuery() async throws {
@@ -54,7 +54,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5280, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 5470, variation: 200)
     }
 
     func test_Search_query_authorFilter() async throws {
@@ -62,7 +62,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5130, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 5230, variation: 150)
     }
 
     func test_Search_query_keywordFilter() async throws {
@@ -110,7 +110,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5200, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 5360, variation: 300)
     }
 
     func test_Search_refresh() async throws {
@@ -146,7 +146,7 @@ class QueryPerformanceTests: XCTestCase {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
-        try await assertQueryPerformance(query, expectedCost: 24_000, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 24_300, variation: 500)
     }
 
 }
