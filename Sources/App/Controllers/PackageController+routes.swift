@@ -213,12 +213,12 @@ enum PackageController {
                 // There are versions in `documentationVersions` that have a nil `latest`, but given
                 // the filtering above they can be assumed to be release versions for display.
                 let versionKind = version.latest ?? .release
-                let isLatesStable = version.latest == .release
+                let isLatestStable = version.latest == .release
 
                 return .init(kind: versionKind,
                              reference: "\(version.reference)",
                              docArchives: version.docArchives,
-                             isLatestStable: isLatesStable)
+                             isLatestStable: isLatestStable)
             }
 
         let availableArchives: [DocumentationPageProcessor.AvailableArchive] = documentation.docArchives.map {
