@@ -226,17 +226,17 @@ class PackageController_ShowRouteTests: AppTestCase {
 
         let builds = [
             // ios - failed
+            makeBuild(.failed, .ios, .v5_6),
             makeBuild(.failed, .ios, .v5_5),
-            makeBuild(.failed, .ios, .v5_4),
             // macos - failed
-            makeBuild(.failed, .macosSpm, .v5_5),
-            makeBuild(.failed, .macosXcodebuild, .v5_4),
+            makeBuild(.failed, .macosSpm, .v5_6),
+            makeBuild(.failed, .macosXcodebuild, .v5_5),
             // tvos - no data - unknown
             // watchos - ok
-            makeBuild(.failed, .watchos, .v5_5),
-            makeBuild(.ok, .watchos, .v5_4),
+            makeBuild(.failed, .watchos, .v5_6),
+            makeBuild(.ok, .watchos, .v5_5),
             // unrelated build
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_5, platform: .ios, status: .ok),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_6, platform: .ios, status: .ok),
         ]
 
         // MUT
@@ -261,17 +261,17 @@ class PackageController_ShowRouteTests: AppTestCase {
         }
 
         let builds = [
-            // 5.4 - failed
-            makeBuild(.failed, .ios, .v5_4),
-            makeBuild(.failed, .macosXcodebuild, .v5_4),
-            // 5.5 - no data - unknown
-            // 5.6 - ok
-            makeBuild(.ok, .macosXcodebuild, .v5_6),
+            // 5.5 - failed
+            makeBuild(.failed, .ios, .v5_5),
+            makeBuild(.failed, .macosXcodebuild, .v5_5),
+            // 5.6 - no data - unknown
             // 5.7 - ok
-            makeBuild(.failed, .ios, .v5_7),
             makeBuild(.ok, .macosXcodebuild, .v5_7),
+            // 5.8 - ok
+            makeBuild(.failed, .ios, .v5_8),
+            makeBuild(.ok, .macosXcodebuild, .v5_8),
             // unrelated release version build (we're testing defaultBranch builds)
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_7, platform: .ios, status: .failed),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_8, platform: .ios, status: .failed),
         ]
 
         // MUT
@@ -280,10 +280,10 @@ class PackageController_ShowRouteTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.v5_4, .init(parameter: .v5_4, status: .incompatible))
-        XCTAssertEqual(res?.results.v5_5, .init(parameter: .v5_5, status: .unknown))
-        XCTAssertEqual(res?.results.v5_6, .init(parameter: .v5_6, status: .compatible))
+        XCTAssertEqual(res?.results.v5_5, .init(parameter: .v5_5, status: .incompatible))
+        XCTAssertEqual(res?.results.v5_6, .init(parameter: .v5_6, status: .unknown))
         XCTAssertEqual(res?.results.v5_7, .init(parameter: .v5_7, status: .compatible))
+        XCTAssertEqual(res?.results.v5_8, .init(parameter: .v5_8, status: .compatible))
     }
 
     func test_platformBuildInfo() throws {
@@ -313,8 +313,8 @@ class PackageController_ShowRouteTests: AppTestCase {
     func test_swiftVersionBuildInfo() throws {
         // setup
         let builds: [PackageController.BuildsRoute.BuildInfo] = [
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_6, platform: .macosSpm, status: .ok),
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v5_5, platform: .ios, status: .failed)
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_7, platform: .macosSpm, status: .ok),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v5_6, platform: .ios, status: .failed)
         ]
 
         // MUT
@@ -322,14 +322,14 @@ class PackageController_ShowRouteTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res?.stable?.results.v5_4,
-                       .init(parameter: .v5_4, status: .unknown))
         XCTAssertEqual(res?.stable?.results.v5_5,
-                       .init(parameter: .v5_5, status: .incompatible))
+                       .init(parameter: .v5_5, status: .unknown))
         XCTAssertEqual(res?.stable?.results.v5_6,
-                       .init(parameter: .v5_6, status: .compatible))
+                       .init(parameter: .v5_6, status: .incompatible))
         XCTAssertEqual(res?.stable?.results.v5_7,
-                       .init(parameter: .v5_7, status: .unknown))
+                       .init(parameter: .v5_7, status: .compatible))
+        XCTAssertEqual(res?.stable?.results.v5_8,
+                       .init(parameter: .v5_8, status: .unknown))
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
     }
@@ -343,10 +343,10 @@ class PackageController_ShowRouteTests: AppTestCase {
                                  name: "bar",
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
-                (.branch("main"), .ios, .v5_6, .ok),
-                (.branch("main"), .tvos, .v5_5, .failed),
-                (.tag(1, 2, 3), .ios, .v5_6, .ok),
-                (.tag(2, 0, 0, "b1"), .ios, .v5_6, .failed),
+                (.branch("main"), .ios, .v5_7, .ok),
+                (.branch("main"), .tvos, .v5_6, .failed),
+                (.tag(1, 2, 3), .ios, .v5_7, .ok),
+                (.tag(2, 0, 0, "b1"), .ios, .v5_7, .failed),
             ]
             for b in builds {
                 let v = try App.Version(package: pkg,
@@ -365,7 +365,7 @@ class PackageController_ShowRouteTests: AppTestCase {
                                  name: "bar2",
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
-                (.branch("develop"), .ios, .v5_4, .ok),
+                (.branch("develop"), .ios, .v5_5, .ok),
             ]
             for b in builds {
                 let v = try App.Version(package: pkg,
@@ -391,9 +391,9 @@ class PackageController_ShowRouteTests: AppTestCase {
         XCTAssertEqual(res.platform?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res.platform?.beta?.referenceName, "2.0.0-b1")
         XCTAssertEqual(res.swiftVersion?.latest?.referenceName, "main")
-        XCTAssertEqual(res.swiftVersion?.latest?.results.v5_6.status, .compatible)
-        XCTAssertEqual(res.swiftVersion?.latest?.results.v5_5.status, .incompatible)
-        XCTAssertEqual(res.swiftVersion?.latest?.results.v5_4.status, .unknown)
+        XCTAssertEqual(res.swiftVersion?.latest?.results.v5_7.status, .compatible)
+        XCTAssertEqual(res.swiftVersion?.latest?.results.v5_6.status, .incompatible)
+        XCTAssertEqual(res.swiftVersion?.latest?.results.v5_5.status, .unknown)
         XCTAssertEqual(res.swiftVersion?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res.swiftVersion?.beta?.referenceName, "2.0.0-b1")
     }
