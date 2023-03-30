@@ -30,6 +30,14 @@ extension String {
         return self
     }
 
+    func removingSuffix(_ suffix: String) -> String {
+        if self.hasSuffix(suffix) {
+            return String(self.dropLast(suffix.count))
+        }
+        return self
+    }
+
+
     var trimmed: String? {
         let trimmedString = trimmingCharacters(in: .whitespaces)
         if trimmedString.isEmpty { return nil }
