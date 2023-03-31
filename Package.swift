@@ -69,12 +69,11 @@ let package = Package(
 )
 
 #if swift(>=5.8)
-// FIXME: switch back to release version
 package.dependencies.append(
-    .package(url: "https://github.com/pointfreeco/swift-parsing.git", branch: "swift-5-8")
+    .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0")
 )
 #else
 package.dependencies.append(
-    .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.7.1")
+    .package(url: "https://github.com/pointfreeco/swift-parsing.git", exact: "0.11.0")
 )
 #endif
