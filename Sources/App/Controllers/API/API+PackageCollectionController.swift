@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Fluent
+import PackageCollectionsModel
 import Vapor
 
 
