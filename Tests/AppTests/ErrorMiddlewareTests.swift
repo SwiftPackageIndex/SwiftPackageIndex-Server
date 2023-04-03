@@ -59,15 +59,15 @@ class ErrorMiddlewareTests: AppTestCase {
         })
     }
 
-    func test_404_alert() throws {
+    func test_404_alert() async throws {
         // Test to ensure 404s do *not* trigger a Rollbar alert
-        var errorReported = false
-        Current.reportError = { _, level, error in
-            errorReported = true
+        let errorReported = ActorIsolated(false)
+        Current.reportError = { _, _, _ in
+            await errorReported.setValue(true)
         }
 
-        try app.test(.GET, "404", afterResponse: { response in
-            XCTAssertFalse(errorReported)
+        try await app.test(.GET, "404", afterResponse: { response in
+            try await XCTAssertEqualAsync(await errorReported.value, false)
         })
     }
 
