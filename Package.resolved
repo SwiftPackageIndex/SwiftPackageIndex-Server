@@ -82,15 +82,6 @@
       }
     },
     {
-      "identity" : "ohhauth",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/handya/OhhAuth.git",
-      "state" : {
-        "revision" : "fd789421370c71f811045b53b7ee14413e24b901",
-        "version" : "1.4.0"
-      }
-    },
-    {
       "identity" : "plot",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/JohnSundell/Plot.git",
@@ -418,8 +409,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/jpsim/Yams.git",
       "state" : {
-        "revision" : "9ff1cc9327586db4e0c8f46f064b6a82ec1566fa",
-        "version" : "4.0.6"
+        "revision" : "f47ba4838c30dbd59998a4e4c87ab620ff959e8a",
+        "version" : "5.0.5"
       }
     }
   ],
