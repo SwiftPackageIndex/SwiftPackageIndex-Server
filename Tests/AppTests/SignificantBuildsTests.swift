@@ -22,24 +22,24 @@ class SignificantBuildsTests: XCTestCase {
     func test_swiftVersionCompatibility() throws {
         // setup
         let sb = SignificantBuilds(buildInfo: [
-            (.v5_6, .linux, .ok),
-            (.v5_5, .macosSpm, .ok),
-            (.v5_4, .ios, .failed)
+            (.v5_7, .linux, .ok),
+            (.v5_6, .macosSpm, .ok),
+            (.v5_5, .ios, .failed)
         ])
 
         // MUT
         let res = try XCTUnwrap(sb.swiftVersionCompatibility().values)
 
         // validate
-        XCTAssertEqual(res.sorted(), [.v5_5, .v5_6])
+        XCTAssertEqual(res.sorted(), [.v5_6, .v5_7])
     }
 
     func test_swiftVersionCompatibility_allPending() throws {
         // setup
         let sb = SignificantBuilds(buildInfo: [
-            (.v5_6, .linux, .triggered),
-            (.v5_5, .macosSpm, .triggered),
-            (.v5_4, .ios, .triggered)
+            (.v5_7, .linux, .triggered),
+            (.v5_6, .macosSpm, .triggered),
+            (.v5_5, .ios, .triggered)
         ])
 
         // MUT
@@ -52,24 +52,24 @@ class SignificantBuildsTests: XCTestCase {
     func test_swiftVersionCompatibility_partialPending() throws {
         // setup
         let sb = SignificantBuilds(buildInfo: [
-            (.v5_6, .linux, .ok),
-            (.v5_5, .macosSpm, .failed),
-            (.v5_4, .ios, .triggered)
+            (.v5_7, .linux, .ok),
+            (.v5_6, .macosSpm, .failed),
+            (.v5_5, .ios, .triggered)
         ])
 
         // MUT
         let res = try XCTUnwrap(sb.swiftVersionCompatibility().values)
 
         // validate
-        XCTAssertEqual(res.sorted(), [ .v5_6 ])
+        XCTAssertEqual(res.sorted(), [ .v5_7 ])
     }
 
     func test_platformCompatibility() throws {
         // setup
         let sb = SignificantBuilds(buildInfo: [
-            (.v5_6, .linux, .ok),
-            (.v5_5, .macosSpm, .ok),
-            (.v5_4, .ios, .failed)
+            (.v5_7, .linux, .ok),
+            (.v5_6, .macosSpm, .ok),
+            (.v5_5, .ios, .failed)
         ])
 
         // MUT
@@ -82,9 +82,9 @@ class SignificantBuildsTests: XCTestCase {
     func test_platformCompatibility_allPending() throws {
         // setup
         let sb = SignificantBuilds(buildInfo: [
-            (.v5_6, .linux, .triggered),
-            (.v5_5, .macosSpm, .triggered),
-            (.v5_4, .ios, .triggered)
+            (.v5_7, .linux, .triggered),
+            (.v5_6, .macosSpm, .triggered),
+            (.v5_5, .ios, .triggered)
         ])
 
         // MUT
@@ -97,9 +97,9 @@ class SignificantBuildsTests: XCTestCase {
     func test_platformCompatibility_partialPending() throws {
         // setup
         let sb = SignificantBuilds(buildInfo: [
-            (.v5_6, .linux, .ok),
-            (.v5_5, .macosSpm, .failed),
-            (.v5_4, .ios, .triggered)
+            (.v5_7, .linux, .ok),
+            (.v5_6, .macosSpm, .failed),
+            (.v5_5, .ios, .triggered)
         ])
 
         // MUT

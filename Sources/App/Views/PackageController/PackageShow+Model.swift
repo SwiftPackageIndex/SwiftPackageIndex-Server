@@ -654,27 +654,6 @@ extension PackageShow.Model {
 
 // MARK: - General helpers
 
-extension Platform {
-    var ordinal: Int {
-        switch name {
-            case .ios:
-                return 0
-            case .macos:
-                return 1
-            case .watchos:
-                return 2
-            case .tvos:
-                return 3
-            case .custom:
-                return 4
-            case .driverkit:
-                return 6
-            case .maccatalyst:
-                return 5
-        }
-    }
-}
-
 extension License.Kind {
     var cssClass: String {
         switch self {

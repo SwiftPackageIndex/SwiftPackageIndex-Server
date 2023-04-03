@@ -727,9 +727,9 @@ class PackageCollectionTests: AppTestCase {
         }
         // ...then append three successful ones
         builds.append(contentsOf: [
+            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_7),
             .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_6),
             .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_5),
-            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_4),
         ])
         // MUT
         let res = [PackageCollection.Compatibility].init(builds: builds)
@@ -738,7 +738,7 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.map(\.platform).sorted(),
                        [.init(name: "ios"), .init(name: "ios"), .init(name: "ios")])
         XCTAssertEqual(res.map(\.swiftVersion).sorted(),
-                       ["5.4", "5.5", "5.6"])
+                       ["\(SwiftVersion.v5_5)", "\(SwiftVersion.v5_6)", "\(SwiftVersion.v5_7)"])
     }
 
     func test_authorLabel() throws {

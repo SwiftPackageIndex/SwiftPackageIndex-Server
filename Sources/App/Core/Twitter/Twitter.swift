@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Fluent
-import OhhAuth
 import Vapor
 
 

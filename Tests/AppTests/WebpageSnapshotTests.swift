@@ -31,7 +31,6 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
 
     func test_PackageShowView() throws {
-
         // Work-around to set the local time zone for time sensitive
         // tests. Sets the explicit default time zone to UTC for the duration
         // of this test.
@@ -189,10 +188,10 @@ class WebpageSnapshotTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         do {
             let compatible = PackageShow.Model.SwiftVersionResults(
-                status5_4: .compatible,
                 status5_5: .compatible,
                 status5_6: .compatible,
-                status5_7: .compatible
+                status5_7: .compatible,
+                status5_8: .compatible
             )
             model.swiftVersionBuildInfo = .init(
                 stable: .init(referenceName: "5.2.5", results: compatible),
