@@ -168,7 +168,7 @@ env VERSION=... docker-compose -f app.yml up -d server
 
 Sometimes you need to run tests or even the server on the target platform, Linux. The best way to do that is to build and run in a Linux container.
 
-The trickiest part of this is to ensure the test or app container can connect to the database, which is also running in docker. To do so, requires the following setup:
+The trickiest part of this is to ensure the test or app container can connect to the database, which is also running in docker. To do so requires the following setup:
 
 - in your `.env` file - `development` or `testing`, depending on whether you are running the server or the tests, set `DATABASE_HOST` to `host.docker.internal`
 - on macOS, that's all you need to to. On Linux, you need to tell your `docker run` command to make the host accessible on the network via `--add-host=host.docker.internal:host-gateway`. (This works on macOS as well but is redundant.)
