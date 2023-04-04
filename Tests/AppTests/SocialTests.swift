@@ -192,9 +192,9 @@ class SocialTests: AppTestCase {
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
         }
-        var posted = 0
-        Current.twitterPost = { _, _ in posted += 1 }
-        Current.mastodonPost = { _, _ in posted += 1 }
+        let posted = ActorIsolated(0)
+        Current.twitterPost = { _, _ in await posted.increment() }
+        Current.mastodonPost = { _, _ in await posted.increment() }
 
         // MUT
         try await Social.postToFirehose(client: app.client,
@@ -202,7 +202,7 @@ class SocialTests: AppTestCase {
                                         versions: versions)
 
         // validate
-        XCTAssertEqual(posted, 4)
+        try await XCTAssertEqualAsync(await posted.value, 4)
     }
 
     func test_postToFirehose_only_latest() async throws {
@@ -224,14 +224,14 @@ class SocialTests: AppTestCase {
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
         }
-        var posted = 0
+        let posted = ActorIsolated(0)
         Current.twitterPost = { _, msg in
             XCTAssertTrue(msg.contains("v2.0.0"))
-            posted += 1
+            await posted.increment()
         }
         Current.mastodonPost = { _, msg in
             XCTAssertTrue(msg.contains("v2.0.0"))
-            posted += 1
+            await posted.increment()
         }
 
         // MUT
@@ -240,7 +240,7 @@ class SocialTests: AppTestCase {
                                          versions: versions)
 
         // validate
-        XCTAssertEqual(posted, 2)
+        try await XCTAssertEqualAsync(await posted.value, 2)
     }
 
 }
