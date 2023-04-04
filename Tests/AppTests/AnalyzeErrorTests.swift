@@ -152,7 +152,6 @@ final class AnalyzeErrorTests: AppTestCase {
     }
 
     func test_analyze_updateRepository_invalidPackageCachePath() async throws {
-        throw XCTSkip()
         // setup
         let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
         // This may look weird but its currently the only way to actually create an
