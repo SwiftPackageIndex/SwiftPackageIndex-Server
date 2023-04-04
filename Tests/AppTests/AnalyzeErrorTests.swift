@@ -235,7 +235,6 @@ final class AnalyzeErrorTests: AppTestCase {
         try await reportedErrors.withValue { errors in
             XCTAssertEqual(errors.count, 1)
             let error = try errors.first.unwrap().localizedDescription
-            print(error)
             XCTAssertTrue(
                 error.contains(
                 #"""
