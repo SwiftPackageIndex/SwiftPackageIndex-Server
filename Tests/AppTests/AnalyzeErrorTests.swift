@@ -113,7 +113,6 @@ final class AnalyzeErrorTests: AppTestCase {
     }
 
     func test_analyze_refreshCheckout_failed() async throws {
-        throw XCTSkip()
         // setup
         Current.shell.run = { cmd, path in
             switch cmd {
