@@ -28,10 +28,11 @@ enum BuildRunner: String, CustomStringConvertible {
     case mac0 = "pMpxem39" // Retired on 30th March 2022
     case mac1 = "DVohN7oe" // Retired on 30th March 2022
     case mac2 = "eFGZxpyH" // Retired on 30th March 2022
-    case mac3 = "DMJah_V-"
+    case mac3 = "DMJah_V-" // Retired on 5th April 2023
     case mac4 = "1hFCVExo"
 //    case mac5 = "ogLoW6xX" // New runner ID because of fresh Ventura installation.
     case mac5 = "o86TiJKT"
+    case mac6 = "TDmZkXJmx"
 
     var description: String {
         switch self {
@@ -43,6 +44,7 @@ enum BuildRunner: String, CustomStringConvertible {
             case .mac3: return "Mac 3"
             case .mac4: return "Mac 4"
             case .mac5: return "Mac 5"
+            case .mac6: return "Mac 6"
         }
     }
 }
