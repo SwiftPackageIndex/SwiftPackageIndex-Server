@@ -20,6 +20,12 @@ import Fluent
 import ShellOut
 
 
+#if swift(>=5.8.1)
+// https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2324
+#warning("Try to re-enable TSAN")
+#endif
+
+
 // Test analysis error handling.
 //
 // This suite of tests ensures that errors in batch analysis do not impact processing
@@ -32,7 +38,7 @@ final class AnalyzeErrorTests: AppTestCase {
     let badPackageID: Package.Id = .id0
     let goodPackageID: Package.Id = .id1
 
-    let reportedErrors = ActorIsolated<[Error]>([])
+    let reportedErrors = ActorIsolated<[String]>([])
     let tweets = ActorIsolated<[String]>([])
 
     static var defaultShellRun: (ShellOutCommand, String) throws -> String = { cmd, path in
@@ -102,7 +108,7 @@ final class AnalyzeErrorTests: AppTestCase {
         }
 
         Current.reportError = { _, _, error in
-            await self.reportedErrors.withValue { $0.append(error) }
+            await self.reportedErrors.withValue { $0.append(error.localizedDescription) }
         }
 
         Current.shell.run = Self.defaultShellRun
@@ -137,7 +143,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try await defaultValidation()
         try await reportedErrors.withValue { errors in
             XCTAssertEqual(errors.count, 1)
-            let error = try errors.first.unwrap().localizedDescription
+            let error = try errors.first.unwrap()
             XCTAssertTrue(
                 error.contains(
                 #"""
@@ -169,7 +175,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try await defaultValidation()
         try await reportedErrors.withValue { errors in
             XCTAssertEqual(errors.count, 1)
-            let error = try errors.first.unwrap().localizedDescription
+            let error = try errors.first.unwrap()
             XCTAssertTrue(
                 error.contains(
                 #"""
@@ -203,7 +209,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try await defaultValidation()
         try await reportedErrors.withValue { errors in
             XCTAssertEqual(errors.count, 1)
-            let error = try errors.first.unwrap().localizedDescription
+            let error = try errors.first.unwrap()
             XCTAssertTrue(
                 error.contains(
                 #"""
@@ -234,8 +240,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try await defaultValidation()
         try await reportedErrors.withValue { errors in
             XCTAssertEqual(errors.count, 1)
-            let error = try errors.first.unwrap().localizedDescription
-            print(error)
+            let error = try errors.first.unwrap()
             XCTAssertTrue(
                 error.contains(
                 #"""
