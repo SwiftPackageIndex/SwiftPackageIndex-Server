@@ -749,6 +749,64 @@ class PackageController_routesTests: AppTestCase {
         XCTAssertEqual(latestMajorRerefences, ["1.1.2", "2.1.1", "3.0.0"])
     }
 
+    func test_issue_2288() async throws {
+        // Ensures default branch updates don't introduce a "documentation gap"
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
+
+        // setup
+        let pkg = try savePackage(on: app.db, "bar".asGithubUrl.url, processingStage: .ingestion)
+        try await Repository(package: pkg, defaultBranch: "main", name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "0123456789",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "docs", title: "Docs")],
+                          latest: .defaultBranch,
+                          packageName: "pkg",
+                          reference: .branch("main"))
+        .save(on: app.db)
+        Current.fileManager.fileExists = { path in
+            if path.hasSuffix("Package.resolved") { return false }
+            return true
+        }
+        Current.git = .init(
+            commitCount: { _ in 2 },
+            firstCommitDate: { _ in .t0 },
+            lastCommitDate: { _ in .t1 },
+            getTags: { _ in [] },
+            showDate: { _,_ in fatalError("unused") },
+            revisionInfo: { ref, _ in
+                if ref == .branch("main") { return .init(commit: "new-commit", date: .t1) }
+                fatalError("revisionInfo: \(ref)")
+            },
+            shortlog: { _ in "2\tauthor" }
+        )
+        Current.shell.run = { cmd, _ in
+            if cmd.string == "swift package dump-package" { return .mockManifest }
+            return ""
+        }
+
+        // Ensure documentation is resolved
+        try app.test(.GET, "/owner/package/documentation") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/main/documentation/docs")
+        }
+
+        // Run analyze to detect a new default branch version
+        try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+
+        // Confirm that analysis has picked up the new version
+        try await XCTAssertEqualAsync(try await Version.query(on: app.db).all().map(\.commit),
+                                      ["new-commit"])
+
+
+        // Ensure documentation is still being resolved
+        try app.test(.GET, "/owner/package/documentation") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/main/documentation/docs")
+        }
+    }
+
 }
 
 
@@ -758,4 +816,22 @@ private extension HTTPHeaders {
     var location: String? {
         self.first(name: .location)
     }
+}
+
+private extension String {
+    static let mockManifest = #"""
+                    {
+                      "name": "bar",
+                      "products": [
+                        {
+                          "name": "p1",
+                          "targets": ["t1"],
+                          "type": {
+                            "executable": null
+                          }
+                        }
+                      ],
+                      "targets": [{"name": "t1", "type": "executable"}]
+                    }
+                    """#
 }
