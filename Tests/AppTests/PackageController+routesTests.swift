@@ -241,9 +241,6 @@ class PackageController_routesTests: AppTestCase {
 
     func test_defaultDocumentation() throws {
         // setup
-        Current.fetchDocumentation = { _, uri in
-                .init(status: .notFound)
-        }
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db).wait()
@@ -295,9 +292,6 @@ class PackageController_routesTests: AppTestCase {
 
     func test_documentationRoot_redirect() throws {
         // setup
-        Current.fetchDocumentation = { _, uri in
-                .init(status: .notFound)
-        }
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db).wait()
@@ -329,9 +323,6 @@ class PackageController_routesTests: AppTestCase {
 
     func test_documentationRoot_noRedirect() throws {
         // setup
-        Current.fetchDocumentation = { _, uri in
-                .init(status: .notFound)
-        }
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db).wait()
@@ -586,9 +577,6 @@ class PackageController_routesTests: AppTestCase {
 
     func test_defaultTutorial() throws {
         // setup
-        Current.fetchDocumentation = { _, uri in
-                .init(status: .notFound)
-        }
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db).wait()
