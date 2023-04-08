@@ -508,11 +508,19 @@ extension Analyze {
     /// - Returns: future
     static func applyVersionDelta(on transaction: Database,
                                   delta: VersionDelta) async throws {
+        // Preserve existing default branch doc archives to prevent a documentation gap
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
+        if let oldDefaultBranchDocArchives = delta.toDelete.first(where: { $0.isBranch })?.docArchives,
+           let newDefaultBranch = delta.toAdd.first(where: { $0.isBranch} ) {
+            newDefaultBranch.docArchives = oldDefaultBranchDocArchives
+        }
+
         try await delta.toDelete.delete(on: transaction)
         delta.toDelete.forEach {
             AppMetrics.analyzeVersionsDeletedCount?
                 .inc(1, .versionLabels(reference: $0.reference))
         }
+
         try await delta.toAdd.create(on: transaction)
         delta.toAdd.forEach {
             AppMetrics.analyzeVersionsAddedCount?

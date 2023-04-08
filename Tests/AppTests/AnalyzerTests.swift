@@ -561,6 +561,54 @@ class AnalyzerTests: AppTestCase {
                         nil, nil])
     }
 
+    func test_applyVersionDelta() async throws {
+        // Ensure the existing default doc archives are preserved when replacing the default branch version
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
+        // setup
+        let pkg = Package(id: .id0, url: "1")
+        try await pkg.save(on: app.db)
+        let oldMain = try Version(package: pkg, commit: "1", docArchives: [.init(name: "foo", title: "Foo")], reference: .branch("main"))
+        try await oldMain.save(on: app.db)
+        let newMain = try Version(package: pkg, commit: "2", reference: .branch("main"))
+
+        // MUT
+        try await Analyze.applyVersionDelta(on: app.db, delta: .init(
+            toAdd: [newMain],
+            toDelete: [oldMain],
+            toKeep: []
+        ))
+
+        do {  // validate
+            try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
+            let v = try await XCTUnwrapAsync(await Version.query(on: app.db).first())
+            XCTAssertEqual(v.docArchives, [.init(name: "foo", title: "Foo")])
+        }
+    }
+
+    func test_applyVersionDelta_newRelease() async throws {
+        // Ensure the existing default doc archives aren't copied over to a new release
+        // setup
+        let pkg = Package(id: .id0, url: "1")
+        try await pkg.save(on: app.db)
+        let main = try Version(package: pkg, commit: "1", docArchives: [.init(name: "foo", title: "Foo")], reference: .branch("main"))
+        try await main.save(on: app.db)
+        let newTag = try Version(package: pkg, commit: "2", reference: .branch("main"))
+
+        // MUT
+        try await Analyze.applyVersionDelta(on: app.db, delta: .init(
+            toAdd: [newTag],
+            toDelete: [],
+            toKeep: [main]
+        ))
+
+        do {  // validate
+            try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 2)
+            let versions = try await XCTUnwrapAsync(await Version.query(on: app.db).sort(\.$commit).all())
+            XCTAssertEqual(versions[0].docArchives, [.init(name: "foo", title: "Foo")])
+            XCTAssertEqual(versions[1].docArchives, nil)
+        }
+    }
+
     func test_getPackageInfo() async throws {
         // Tests getPackageInfo(package:version:)
         // setup
