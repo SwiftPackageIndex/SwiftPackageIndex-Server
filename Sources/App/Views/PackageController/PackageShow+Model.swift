@@ -269,12 +269,10 @@ extension PackageShow.Model {
     }
 
     func starsListItem() -> Node<HTML.ListContext> {
-        guard let stars = stars,
-              let str = NumberFormatter.spiDefault.string(from: stars)
-        else { return .empty }
+        guard let stars = stars else { return .empty }
         return .li(
             .class("stars"),
-            .text("\(str) stars")
+            .text("\(pluralizedCount: stars, singular: "star")")
         )
     }
 
