@@ -159,7 +159,7 @@ extension Node where Context: HTML.BodyContext {
 
     static func panelButton(cssClass: String? = nil,
                             linkUrl: URLRepresentable,
-                            bodyNode: Node<HTML.BodyContext>,
+                            bodyNode: Node<HTML.AnchorContext>,
                             cta: String? = nil,
                             analyticsEvent: String? = nil) -> Self {
         .div(
