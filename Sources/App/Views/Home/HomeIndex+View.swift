@@ -91,11 +91,11 @@ enum HomeIndex {
             )
         }
 
-        func podcastPanelBody() -> Node<HTML.BodyContext> {
+        func podcastPanelBody() -> Node<HTML.AnchorContext> {
             .text("Join Dave and Sven every two weeks for a chat about ongoing Swift Package Index development and a selection of package recommendations on the Swift Package Indexing podcast.")
         }
 
-        func sctaBodyNode() -> Node<HTML.BodyContext> {
+        func sctaBodyNode() -> Node<HTML.AnchorContext> {
             .group(
                 .text("Join the companies and individuals that make running this site possible."),
                 .div(
@@ -128,7 +128,7 @@ extension Supporters.Corporate {
                      analyticsEvent: "Home - Sponsor CTA (\(name))")
     }
 
-    var advertisingBodyNode: Node<HTML.BodyContext> {
+    var advertisingBodyNode: Node<HTML.AnchorContext> {
         .group(
             .picture(
                 .source(

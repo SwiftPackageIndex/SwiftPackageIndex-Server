@@ -116,7 +116,7 @@ extension BuildMonitorIndex {
 }
 
 private extension Reference {
-    func referenceNode(kind: Version.Kind?) -> Node<HTML.BodyContext> {
+    func referenceNode(kind: Version.Kind?) -> Node<HTML.AnchorContext> {
         switch self {
             case let .branch(branchName):
                 return .span(

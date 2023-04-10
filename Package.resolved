@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/JohnSundell/Ink.git",
       "state" : {
-        "revision" : "77c3d8953374a9cf5418ef0bd7108524999de85a",
-        "version" : "0.5.1"
+        "revision" : "bcc9f219900a62c4210e6db726035d7f03ae757b",
+        "version" : "0.6.0"
       }
     },
     {
@@ -86,8 +86,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/JohnSundell/Plot.git",
       "state" : {
-        "revision" : "caaef5f8bc437297339cbf060ac7a33497ef33d5",
-        "version" : "0.12.0"
+        "revision" : "4237057acdaaea5def56d350815e37fa8311d1fd",
+        "version" : "0.13.0"
       }
     },
     {
@@ -148,8 +148,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SPIManifest",
       "state" : {
-        "revision" : "7330310cb54faaa7edf36df878e1c32c3ba86ffc",
-        "version" : "0.17.0"
+        "revision" : "48dba5341529d50a8433859163e75fbb4357ac13",
+        "version" : "0.17.2"
       }
     },
     {
