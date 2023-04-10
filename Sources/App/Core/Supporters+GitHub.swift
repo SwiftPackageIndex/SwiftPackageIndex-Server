@@ -230,7 +230,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "muukii",
             name: "Hiroshi Kimura",
-            avatarUrl: "https://avatars.githubusercontent.com/u/1888355?u=ad57f4522c12230428c401223f21b902cef4f6e5&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/1888355?u=822f7d560eb6654e1c4f137b993be203cbcceac7&v=4"
         ),
         .init(
             login: "davdroman",
@@ -411,6 +411,11 @@ extension Array<Supporters.Community> {
             login: "alexandersandberg",
             name: "Alexander Sandberg",
             avatarUrl: "https://avatars.githubusercontent.com/u/35671299?u=2f44069a09e1088091ef0cef4d410fbdbd5ad663&v=4"
+        ),
+        .init(
+            login: "dotgrid",
+            name: "Paul Farnell",
+            avatarUrl: "https://avatars.githubusercontent.com/u/48354391?v=4"
         ),
         .init(
             login: "Fleuronic",
