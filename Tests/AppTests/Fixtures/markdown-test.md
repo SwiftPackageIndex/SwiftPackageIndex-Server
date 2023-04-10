@@ -60,19 +60,3 @@ class SyntaxHighlighter {
 [link with title](http://nodeca.github.io/pica/demo/ "title text!")
 
 Autoconverted link https://github.com/nodeca/pica
-
-## Emoji
-
-😂 :+1: :octocat:
-
-## Task List
-
-- [ ] One
-- [x] Two
-
-## Tables
-
-First Header | Second Header
------------- | -------------
-Content cell 1 | Content cell 2
-Content column 1 | Content column 2
