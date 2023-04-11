@@ -1,4 +1,4 @@
-// swift-tools-version:5.7
+// swift-tools-version:5.8
 
 // Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
@@ -31,6 +31,7 @@ let package = Package(
         .package(url: "https://github.com/SwiftPackageIndex/ShellOut.git",
                  revision: "db112a2104eae7fa8412ea80210d0f60b89a377e"),
         .package(url: "https://github.com/apple/swift-package-manager.git", branch: "release/5.8"),
+        .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0-rc"),
@@ -65,13 +66,3 @@ let package = Package(
     ],
     swiftLanguageVersions: [.v5]
 )
-
-#if swift(>=5.8)
-package.dependencies.append(
-    .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0")
-)
-#else
-package.dependencies.append(
-    .package(url: "https://github.com/pointfreeco/swift-parsing.git", exact: "0.11.0")
-)
-#endif
