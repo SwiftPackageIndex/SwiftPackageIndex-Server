@@ -16,4 +16,4 @@ Once downloaded and installed, click **“Try in a Playground”** from any pack
 
 ### Trying packages on older macOS versions
 
-The latest version of “Swift Package Index Playgrounds” requires macOS 13 or newer. If you are still on an earlier version of macOS, <a href="https://spi-playgrounds-updates.swiftpackageindex.com/releases/SPI-Playgrounds-1.0.1.app.zip">version 1.0.1 of the app is still available for download</a>.
+The latest version of “Swift Package Index Playgrounds” requires macOS 13 or newer. If you are on an earlier version of macOS, <a href="https://spi-playgrounds-updates.swiftpackageindex.com/releases/SPI-Playgrounds-1.0.1.app.zip">version 1.0.1 of the app is still available for download</a>.
