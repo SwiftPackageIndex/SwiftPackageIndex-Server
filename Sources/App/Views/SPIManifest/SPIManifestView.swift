@@ -15,30 +15,26 @@
 import Plot
 
 
-enum SPIManifest {
-    
-    class View: PublicPage {
-        
-        override func pageTitle() -> String? {
-            "SPI Manifest"
-        }
-        
-        override func pageDescription() -> String? {
+class SPIManifestView: PublicPage {
+
+    override func pageTitle() -> String? {
+        "SPI Manifest"
+    }
+
+    override func pageDescription() -> String? {
             """
             The SPI Manifest allows package authors to configure how their packages
             are indexed.
             """
-        }
+    }
 
-        override func content() -> Node<HTML.BodyContext> {
-            .group(
-                .h2(
-                    .class("trimmed"),
-                    .text("SPI Manifest")
-                )
+    override func content() -> Node<HTML.BodyContext> {
+        .group(
+            .h2(
+                .class("trimmed"),
+                .text("SPI Manifest")
             )
-        }
-
+        )
     }
 
 }
