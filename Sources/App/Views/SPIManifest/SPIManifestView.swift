@@ -89,10 +89,15 @@ class SPIManifestView: PublicPage {
 
         let input = try req.content.decode(Input.self)
         do {
-            let spiManifest = try SPIManifest.Manifest(yml: input.manifest)
+            _ = try SPIManifest.Manifest(yml: input.manifest)
             return req.redirect(to: SiteURL.spiManifest.relativeURL(parameters: [
                 QueryParameter(key: "manifest", value: input.manifest),
                 QueryParameter(key: "status", value: "all ok"),
+            ]))
+        } catch let error as DecodingError {
+            return req.redirect(to: SiteURL.spiManifest.relativeURL(parameters: [
+                QueryParameter(key: "manifest", value: input.manifest),
+                QueryParameter(key: "status", value: "\(error)"),
             ]))
         } catch {
             return req.redirect(to: SiteURL.spiManifest.relativeURL(parameters: [
