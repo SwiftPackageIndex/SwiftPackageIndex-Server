@@ -33,8 +33,30 @@ class SPIManifestView: PublicPage {
             .h2(
                 .class("trimmed"),
                 .text("SPI Manifest")
+            ),
+            .label(.for(manifestElementID), .p("Sample .spi.yml to test:")),
+            .textarea(
+                .id(manifestElementID),
+                .name(manifestElementID),
+                .rows(15),
+                .cols(60),
+                .text(placeholderManifest)
+            ),
+            .form(
+                .id("manifestForm"),
+                .action(SiteURL.spiManifest.relativeURL()),
+                .input(.type(.submit), .attribute(named: "formmethod", value: "post"))
             )
         )
     }
 
 }
+
+
+private let manifestElementID = "manifest"
+private let placeholderManifest = """
+version: 1
+builder:
+  configs:
+    - documentation_targets: [Target1, Target2]
+"""
