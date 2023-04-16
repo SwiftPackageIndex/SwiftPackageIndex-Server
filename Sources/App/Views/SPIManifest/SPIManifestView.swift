@@ -53,7 +53,7 @@ class SPIManifestView: PublicPage {
             .label(.for(manifestElementID), .p("Sample .spi.yml to test:")),
             .form(
                 .id("manifestValidationForm"),
-                .action(SiteURL.spiManifest.relativeURL()),
+                .action(SiteURL.validateSpiManifest.relativeURL()),
                 .textarea(
                     .id(manifestElementID),
                     .name(manifestElementID),
@@ -77,7 +77,7 @@ class SPIManifestView: PublicPage {
             }),
             .form(
                 .id("manifestResetForm"),
-                .action(SiteURL.spiManifest.relativeURL()),
+                .action(SiteURL.validateSpiManifest.relativeURL()),
                 .input(.type(.submit), .value("Reset"))
             )
         )
@@ -91,17 +91,17 @@ class SPIManifestView: PublicPage {
         let input = try req.content.decode(Input.self)
         do {
             _ = try SPIManifest.Manifest(yml: input.manifest)
-            return req.redirect(to: SiteURL.spiManifest.relativeURL(parameters: [
+            return req.redirect(to: SiteURL.validateSpiManifest.relativeURL(parameters: [
                 QueryParameter(key: "manifest", value: input.manifest),
                 QueryParameter(key: "status", value: "all ok"),
             ]))
         } catch let error as DecodingError {
-            return req.redirect(to: SiteURL.spiManifest.relativeURL(parameters: [
+            return req.redirect(to: SiteURL.validateSpiManifest.relativeURL(parameters: [
                 QueryParameter(key: "manifest", value: input.manifest),
                 QueryParameter(key: "status", value: "\(error)"),
             ]))
         } catch {
-            return req.redirect(to: SiteURL.spiManifest.relativeURL(parameters: [
+            return req.redirect(to: SiteURL.validateSpiManifest.relativeURL(parameters: [
                 QueryParameter(key: "manifest", value: input.manifest),
                 QueryParameter(key: "status", value: error.localizedDescription),
             ]))
