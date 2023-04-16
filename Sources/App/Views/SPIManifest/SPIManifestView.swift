@@ -27,13 +27,9 @@ class SPIManifestView: PublicPage {
     var validation: Validation = .init(manifest: placeholderManifest)
 
     init(req: Request) {
-        print("init(req:)")
         super.init(path: req.url.path)
         if let validation = try? req.query.decode(Validation.self) {
-            print("validation:", validation)
             self.validation = validation
-        } else {
-            print("validation is nil")
         }
     }
 
@@ -56,7 +52,7 @@ class SPIManifestView: PublicPage {
             ),
             .label(.for(manifestElementID), .p("Sample .spi.yml to test:")),
             .form(
-                .id("manifestForm"),
+                .id("manifestValidationForm"),
                 .action(SiteURL.spiManifest.relativeURL()),
                 .textarea(
                     .id(manifestElementID),
@@ -78,7 +74,12 @@ class SPIManifestView: PublicPage {
                             .text(status)
                         )
                     )
-            })
+            }),
+            .form(
+                .id("manifestResetForm"),
+                .action(SiteURL.spiManifest.relativeURL()),
+                .input(.type(.submit), .value("Reset"))
+            )
         )
     }
 
