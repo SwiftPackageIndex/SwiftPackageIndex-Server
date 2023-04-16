@@ -152,7 +152,8 @@ func routes(_ app: Application) throws {
 
     do {  // spi.yml validation page
         app.get(SiteURL.spiManifest.pathComponents,
-                use: { SPIManifestView(path: $0.url.path).document() })
+                use: { SPIManifestView(req: $0).document() })
+        app.post(SiteURL.spiManifest.pathComponents, use: SPIManifestView.checkManifest(req:))
     }
 
     do {  // api

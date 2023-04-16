@@ -13,9 +13,29 @@
 // limitations under the License.
 
 import Plot
+import SPIManifest
+import Vapor
 
 
 class SPIManifestView: PublicPage {
+
+    struct Validation: Content {
+        var manifest: String
+        var status: String?
+    }
+
+    var validation: Validation = .init(manifest: placeholderManifest)
+
+    init(req: Request) {
+        print("init(req:)")
+        super.init(path: req.url.path)
+        if let validation = try? req.query.decode(Validation.self) {
+            print("validation:", validation)
+            self.validation = validation
+        } else {
+            print("validation is nil")
+        }
+    }
 
     override func pageTitle() -> String? {
         "SPI Manifest"
@@ -35,19 +55,51 @@ class SPIManifestView: PublicPage {
                 .text("SPI Manifest")
             ),
             .label(.for(manifestElementID), .p("Sample .spi.yml to test:")),
-            .textarea(
-                .id(manifestElementID),
-                .name(manifestElementID),
-                .rows(15),
-                .cols(60),
-                .text(placeholderManifest)
-            ),
             .form(
                 .id("manifestForm"),
                 .action(SiteURL.spiManifest.relativeURL()),
+                .textarea(
+                    .id(manifestElementID),
+                    .name(manifestElementID),
+                    .rows(15),
+                    .cols(60),
+                    .text(self.validation.manifest)
+                ),
+                .br(),
                 .input(.type(.submit), .attribute(named: "formmethod", value: "post"))
-            )
+            ),
+            .unwrap(self.validation.status, { status in
+                    .group(
+                        .br(),
+                        .textarea(
+                            .id("status"),
+                            .rows(5),
+                            .cols(60),
+                            .text(status)
+                        )
+                    )
+            })
         )
+    }
+
+    static func checkManifest(req: Request) throws -> Response {
+        struct Input: Content {
+            var manifest: String
+        }
+
+        let input = try req.content.decode(Input.self)
+        do {
+            let spiManifest = try SPIManifest.Manifest(yml: input.manifest)
+            return req.redirect(to: SiteURL.spiManifest.relativeURL(parameters: [
+                QueryParameter(key: "manifest", value: input.manifest),
+                QueryParameter(key: "status", value: "all ok"),
+            ]))
+        } catch {
+            return req.redirect(to: SiteURL.spiManifest.relativeURL(parameters: [
+                QueryParameter(key: "manifest", value: input.manifest),
+                QueryParameter(key: "status", value: error.localizedDescription),
+            ]))
+        }
     }
 
 }
