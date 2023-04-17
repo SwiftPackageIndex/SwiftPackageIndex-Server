@@ -167,6 +167,14 @@ enum MaintainerInfoIndex {
                         "SPIManifest package documentation"
                     ),
                     " for more details."
+                ),
+                .p(
+                    "You can use our ",
+                    .a(
+                        .href(SiteURL.validateSPIManifest.relativeURL()),
+                        .text("online manifest validation helper")
+                    ),
+                    " to validate your ", .code(".spi.yml"), "file."
                 )
             )
         }
