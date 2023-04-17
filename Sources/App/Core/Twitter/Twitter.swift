@@ -32,16 +32,16 @@ enum Twitter {
             throw Social.Error.missingCredentials
         }
 
-        let signature = OhhAuth.calculateSignature(
-            url: URL(string: apiUrl)!,
-            method: "POST",
-            parameter: [:],
-            consumerCredentials: credentials.apiKey,
-            userCredentials: credentials.accessToken
-        )
-
         let response = try await client.post(URI(string: apiUrl)) { req in
             try req.content.encode([ "text" : tweet ])
+
+            let signature = OhhAuth.calculateSignature(
+                url: URL(string: apiUrl)!,
+                method: "POST",
+                parameter: [:],
+                consumerCredentials: credentials.apiKey,
+                userCredentials: credentials.accessToken
+            )
 
             var headers: HTTPHeaders = .init()
             headers.add(name: "Authorization", value: signature)
