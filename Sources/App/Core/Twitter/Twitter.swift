@@ -14,7 +14,6 @@
 
 import Fluent
 import Vapor
-import AsyncHTTPClient
 
 
 enum Twitter {
