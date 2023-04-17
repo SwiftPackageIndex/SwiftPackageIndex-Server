@@ -36,13 +36,13 @@ enum ValidateSPIManifest {
         }
 
         override func pageTitle() -> String? {
-            "SPI Manifest"
+            "SPI Manifest Validation"
         }
 
         override func pageDescription() -> String? {
             """
             The SPI Manifest allows package authors to configure how their packages
-            are indexed.
+            are indexed. Validate your manifests on this page.
             """
         }
 
@@ -50,21 +50,37 @@ enum ValidateSPIManifest {
             .group(
                 .h2(
                     .class("trimmed"),
-                    .text("SPI Manifest")
+                    .text("Swift Package Index manifest validation")
                 ),
-                .label(.for(manifestElementID), .p("Sample .spi.yml to test:")),
+                .p(
+                    "Swift Package Index manifests, or ", .code(".spi.yml"), " ",
+                    "files, allow package authors to configure how their packages are indexed. ",
+                    "You can find out more about the syntax in the ",
+                    .a(
+                        .href(SiteURL.package(.value("SwiftPackageIndex"), .value("SPIManifest"), .documentation).relativeURL()),
+                        .text("“SPIManifest” documentation")
+                    ),
+                    "."
+                ),
+                .p(
+                    .label(
+                        .for(manifestElementID),
+                        .p("Contents of your ", .code(".spi.yml"), " file:")
+                    )
+                ),
                 .form(
                     .id("manifestValidationForm"),
                     .action(SiteURL.validateSPIManifest.relativeURL()),
                     .textarea(
                         .id(manifestElementID),
                         .name(manifestElementID),
+                        .autofocus(true),
                         .rows(15),
                         .cols(60),
                         .text(self.validation.manifest)
                     ),
                     .br(),
-                    .input(.type(.submit), .attribute(named: "formmethod", value: "post"))
+                    .button(.attribute(named: "formmethod", value: "post"), .text("Submit"))
                 ),
                 .unwrap(self.validation.status, { status in
                         .group(
@@ -73,14 +89,16 @@ enum ValidateSPIManifest {
                                 .id("status"),
                                 .rows(5),
                                 .cols(60),
+                                .readonly(true),
                                 .text(status)
                             )
                         )
                 }),
+                .br(),
                 .form(
                     .id("manifestResetForm"),
                     .action(SiteURL.validateSPIManifest.relativeURL()),
-                    .input(.type(.submit), .value("Reset"))
+                    .button(.text("Reset"))
                 )
             )
         }
@@ -97,7 +115,7 @@ enum ValidateSPIManifest {
             _ = try SPIManifest.Manifest(yml: input.manifest)
             return req.redirect(to: SiteURL.validateSPIManifest.relativeURL(parameters: [
                 QueryParameter(key: "manifest", value: input.manifest),
-                QueryParameter(key: "status", value: "all ok"),
+                QueryParameter(key: "status", value: "✅ manifest is valid"),
             ]))
         } catch let error as DecodingError {
             return req.redirect(to: SiteURL.validateSPIManifest.relativeURL(parameters: [
