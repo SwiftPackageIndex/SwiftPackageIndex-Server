@@ -55,13 +55,3 @@ enum Twitter {
     }
 
 }
-
-
-private extension String {
-    func urlEncodedString() -> String {
-        var allowedCharacterSet: CharacterSet = .urlQueryAllowed
-        allowedCharacterSet.remove(charactersIn: "\n:#/?@!$&'()*+,;=")
-        allowedCharacterSet.insert(charactersIn: "[]")
-        return self.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) ?? ""
-    }
-}
