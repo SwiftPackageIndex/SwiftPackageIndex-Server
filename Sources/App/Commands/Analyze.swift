@@ -263,10 +263,9 @@ extension Analyze {
                                                     withIntermediateDirectories: false,
                                                     attributes: nil)
         } catch {
-            let msg = "Failed to create checkouts directory: \(error.localizedDescription)"
-            try await Current.reportError(client,
-                                          .critical,
-                                          AppError.genericError(nil, msg))
+            let error = AppError.genericError(nil, "Failed to create checkouts directory: \(error.localizedDescription)")
+            logger.report(error: error)
+            try await Current.reportError(client, .critical, error)
             return
         }
     }
