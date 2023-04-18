@@ -18,7 +18,7 @@ import Vapor
 
 enum Twitter {
 
-    private static let apiUrl: String = "https://api.twitter.com/1.1/statuses/update.json"
+    private static let apiUrl: String = "https://api.twitter.com/2/tweets"
     static let tweetMaxLength = 260  // exactly 280 is rejected, plus leave some room for unicode accounting oddities
 
     struct Credentials {
@@ -30,32 +30,27 @@ enum Twitter {
         guard let credentials = Current.twitterCredentials() else {
             throw Social.Error.missingCredentials
         }
-        let url: URL = URL(string: "\(apiUrl)?status=\(tweet.urlEncodedString())")!
-        let signature = OhhAuth.calculateSignature(
-            url: url,
-            method: "POST",
-            parameter: [:],
-            consumerCredentials: credentials.apiKey,
-            userCredentials: credentials.accessToken
-        )
 
-        var headers: HTTPHeaders = .init()
-        headers.add(name: "Authorization", value: signature)
-        headers.add(name: "Content-Type", value: "application/x-www-form-urlencoded")
-        let response = try await client.post(URI(string: url.absoluteString), headers: headers)
+        let response = try await client.post(URI(string: apiUrl)) { req in
+            try req.content.encode([ "text" : tweet ])
+
+            let signature = OhhAuth.calculateSignature(
+                url: URL(string: apiUrl)!,
+                method: "POST",
+                parameter: [:],
+                consumerCredentials: credentials.apiKey,
+                userCredentials: credentials.accessToken
+            )
+
+            var headers: HTTPHeaders = .init()
+            headers.add(name: "Authorization", value: signature)
+            headers.add(name: "Content-Type", value: "application/json")
+            req.headers = headers
+        }
+
         guard response.status == .ok else {
             throw Social.Error.requestFailed(response.status, response.body?.asString() ?? "")
         }
     }
 
-}
-
-
-private extension String {
-    func urlEncodedString() -> String {
-        var allowedCharacterSet: CharacterSet = .urlQueryAllowed
-        allowedCharacterSet.remove(charactersIn: "\n:#/?@!$&'()*+,;=")
-        allowedCharacterSet.insert(charactersIn: "[]")
-        return self.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) ?? ""
-    }
 }
