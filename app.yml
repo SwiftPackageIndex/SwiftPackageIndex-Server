@@ -117,8 +117,6 @@ services:
     depends_on:
       - migrate
     entrypoint: ["/bin/bash"]
-    environment:
-      LOG_LEVEL: debug
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run analyze --env ${ENV} --limit ${ANALYZE_LIMIT:-25}; sleep ${ANALYZE_SLEEP:-20}; done"
     ]
