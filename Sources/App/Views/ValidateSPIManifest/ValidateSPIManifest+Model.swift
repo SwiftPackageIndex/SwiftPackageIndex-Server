@@ -19,7 +19,7 @@ enum ValidateSPIManifest {
         var manifest: String = Self.placeholderManifest
         var validationResult: ValidationResult?
 
-        static private let placeholderManifest = """
+        static let placeholderManifest = """
             version: 1
             builder:
               configs:

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en"><!--Version: test--><!--DB Id: db-id-->
+  <head>
+    <meta name="robots" content="noindex"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8"/>
+    <meta property="og:site_name" content="The Swift Package Index"/>
+    <link rel="canonical" href="http://localhost:8080/"/>
+    <meta name="twitter:url" content="http://localhost:8080/"/>
+    <meta property="og:url" content="http://localhost:8080/"/>
+    <title>Validate a Swift Package Index manifest &ndash; Swift Package Index</title>
+    <meta name="twitter:title" content="Validate a Swift Package Index manifest &ndash; Swift Package Index"/>
+    <meta property="og:title" content="Validate a Swift Package Index manifest &ndash; Swift Package Index"/>
+    <meta name="description" content="The SPI Manifest allows package authors to configure how their packages
+are indexed. Validate your manifests on this page."/>
+    <meta name="twitter:description" content="The SPI Manifest allows package authors to configure how their packages
+are indexed. Validate your manifests on this page."/>
+    <meta property="og:description" content="The SPI Manifest allows package authors to configure how their packages
+are indexed. Validate your manifests on this page."/>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
+    <meta property="og:image" content="http://localhost:8080/images/logo.png"/>
+    <link rel="shortcut icon" href="/images/logo-small.png" type="image/png"/>
+    <link rel="stylesheet" href="/main.css?test" data-turbolinks-track="reload"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recently Added" href="http://localhost:8080/packages.rss"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Releases" href="http://localhost:8080/releases.rss"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major Releases" href="http://localhost:8080/releases.rss?major=true"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major & Minor Releases" href="http://localhost:8080/releases.rss?major=true&minor=true"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
+    <script src="/main.js?test" data-turbolinks-track="reload" defer></script>
+  </head>
+  <body>
+    <div class="staging">Staging / Development</div>
+    <header>
+      <div class="inner">
+        <a href="/">
+          <h1>
+            <img alt="The Swift Package Index logo." src="/images/logo.svg"/>Swift Package Index
+          </h1>
+        </a>
+        <nav>
+          <ul>
+            <li>
+              <a class="supporters" href="/supporters">Supporters</a>
+            </li>
+            <li>
+              <a href="/add-a-package">Add a Package</a>
+            </li>
+            <li>
+              <a href="https://blog.swiftpackageindex.com">Blog</a>
+            </li>
+            <li>
+              <a href="/faq">FAQ</a>
+            </li>
+            <li class="search">
+              <form action="/search">
+                <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autocomplete="off" data-gramm="false" data-focus="false"/>
+                <button type="submit">
+                  <div title="Search"></div>
+                </button>
+              </form>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="inner">
+        <h2 class="trimmed">Validate a Swift Package Index manifest</h2>
+        <p>Swift Package Index manifest, or 
+          <code>.spi.yml</code> files, allow package authors to configure settings that control how the Swift Package Index checks platform and Swift version compatibility, builds package documentation, and displays package metadata. 
+          <a href="/SwiftPackageIndex/SPIManifest/documentation">Learn more about the capabilities and syntax of this file</a>.
+        </p>
+        <turbo-frame id="validate-manifest">
+          <form action="/validate-spi-manifest" method="post">
+            <label>
+              <p>Enter the contents of a 
+                <code>.spi.yml</code> file for validation:
+              </p>
+              <textarea name="manifest" autofocus rows="15">version: 1
+builder:
+  configs:
+    - documentation_targets: [Target1, Target2]</textarea>
+            </label>
+            <button type="submit">Validate</button>
+          </form>
+          <div class="result valid">Validation message.</div>
+        </turbo-frame>
+      </div>
+    </main>
+    <footer>
+      <div class="inner">
+        <nav>
+          <ul>
+            <li>
+              <a href="https://blog.swiftpackageindex.com">Blog</a>
+            </li>
+            <li>
+              <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">GitHub</a>
+            </li>
+            <li>
+              <a href="/privacy">Privacy and Cookies</a>
+            </li>
+            <li>
+              <a href="https://swiftpackageindex.statuspage.io">Uptime and System Status</a>
+            </li>
+            <li>
+              <a href="/build-monitor">Build System Monitor</a>
+            </li>
+            <li>
+              <a href="https://twitter.com/swiftpackages">Twitter</a>
+            </li>
+          </ul>
+          <small>The Swift Package Index is entirely funded by community sponsorship. Thank you to 
+            <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship">all our sponsors for their generosity</a>.
+          </small>
+          <small>The Swift Package Index is operated by SPI Operations Limited, a company registered in the UK with company number 13466692.</small>
+          <a rel="me" href="https://mas.to/@SwiftPackageIndex"></a>
+          <a rel="me" href="https://mas.to/@SwiftPackageUpdates"></a>
+        </nav>
+      </div>
+    </footer>
+    <div class="staging">Staging / Development</div>
+  </body>
+</html>
