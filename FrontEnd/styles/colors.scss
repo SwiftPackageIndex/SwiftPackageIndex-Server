@@ -128,6 +128,11 @@
 
     --error-background: var(--light-red);
     --error-text: var(--mid-red);
+    --error-border: var(--mid-red);
+
+    --success-background: var(--very-light-green);
+    --success-text: var(--mid-green);
+    --success-border: var(--mid-green);
 
     --code-snippet-background: var(--very-light-grey);
     --code-snippet-text: var(--black);
@@ -247,7 +252,7 @@
         --package-list-selectedbackground: var(--dark-blue);
 
         --error-background: var(--dark-red);
-        --error-text: var(--mid-red);
+        --success-background: var(--very-dark-green);
 
         --code-snippet-background: var(--very-dark-grey);
         --code-snippet-text: var(--white);

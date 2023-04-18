@@ -17,26 +17,19 @@ import SPIManifest
 import Vapor
 
 
-enum ValidateSPIManifest {
-
-    struct Validation: Content {
-        var manifest: String
-        var status: String?
-    }
+extension ValidateSPIManifest {
 
     class View: PublicPage {
 
-        var validation: Validation = .init(manifest: placeholderManifest)
+        let model: Model
 
-        init(req: Request) {
-            super.init(path: req.url.path)
-            if let validation = try? req.query.decode(Validation.self) {
-                self.validation = validation
-            }
+        init(path: String, model: Model) {
+            self.model = model
+            super.init(path: path)
         }
 
         override func pageTitle() -> String? {
-            "SPI Manifest Validation"
+            "Validate a Swift Package Index manifest"
         }
 
         override func pageDescription() -> String? {
@@ -50,93 +43,45 @@ enum ValidateSPIManifest {
             .group(
                 .h2(
                     .class("trimmed"),
-                    .text("Swift Package Index manifest validation")
+                    .text("Validate a Swift Package Index manifest")
                 ),
                 .p(
-                    "Swift Package Index manifests, or ", .code(".spi.yml"), " ",
-                    "files, allow package authors to configure how their packages are indexed. ",
-                    "You can find out more about the syntax in the ",
+                    "Swift Package Index manifest, or ", .code(".spi.yml"), " files, allow package authors to ",
+                    "configure settings that control how the Swift Package Index checks platform and Swift ",
+                    "version compatibility, builds package documentation, and displays package metadata. ",
                     .a(
                         .href(SiteURL.package(.value("SwiftPackageIndex"), .value("SPIManifest"), .documentation).relativeURL()),
-                        .text("“SPIManifest” documentation")
+                        .text("Learn more about the capabilities and syntax of this file")
                     ),
                     "."
                 ),
-                .p(
-                    .label(
-                        .for(manifestElementID),
-                        .p("Contents of your ", .code(".spi.yml"), " file:")
-                    )
-                ),
-                .form(
-                    .id("manifestValidationForm"),
-                    .action(SiteURL.validateSPIManifest.relativeURL()),
-                    .textarea(
-                        .id(manifestElementID),
-                        .name(manifestElementID),
-                        .autofocus(true),
-                        .rows(15),
-                        .cols(60),
-                        .text(self.validation.manifest)
-                    ),
-                    .br(),
-                    .button(.attribute(named: "formmethod", value: "post"), .text("Submit"))
-                ),
-                .unwrap(self.validation.status, { status in
-                        .group(
-                            .br(),
-                            .textarea(
-                                .id("status"),
-                                .rows(5),
-                                .cols(60),
-                                .readonly(true),
-                                .text(status)
-                            )
-                        )
-                }),
-                .br(),
-                .form(
-                    .id("manifestResetForm"),
-                    .action(SiteURL.validateSPIManifest.relativeURL()),
-                    .button(.text("Reset"))
+                .turboFrame(id: "validate-manifest",
+                            .form(
+                                .action(SiteURL.validateSPIManifest.relativeURL()),
+                                .method(.post),
+                                .label(
+                                    .p("Enter the contents of a ", .code(".spi.yml"), " file for validation:"),
+                                    .textarea(
+                                        .name("manifest"),
+                                        .autofocus(true),
+                                        .rows(15),
+                                        .text(model.manifest)
+                                    )
+                                ),
+                                .button(
+                                    .type(.submit),
+                                    .text("Validate")
+                                )
+                            ),
+                            .unwrap(model.validationResult, { result in
+                                    .div(
+                                        .class("result \(result.cssClass)"),
+                                        .text(result.message)
+                                    )
+                            })
                 )
             )
         }
 
     }
-
-    static func validateManifest(req: Request) throws -> Response {
-        struct Input: Content {
-            var manifest: String
-        }
-
-        let input = try req.content.decode(Input.self)
-        do {
-            _ = try SPIManifest.Manifest(yml: input.manifest)
-            return req.redirect(to: SiteURL.validateSPIManifest.relativeURL(parameters: [
-                QueryParameter(key: "manifest", value: input.manifest),
-                QueryParameter(key: "status", value: "✅ manifest is valid"),
-            ]))
-        } catch let error as DecodingError {
-            return req.redirect(to: SiteURL.validateSPIManifest.relativeURL(parameters: [
-                QueryParameter(key: "manifest", value: input.manifest),
-                QueryParameter(key: "status", value: "\(error)"),
-            ]))
-        } catch {
-            return req.redirect(to: SiteURL.validateSPIManifest.relativeURL(parameters: [
-                QueryParameter(key: "manifest", value: input.manifest),
-                QueryParameter(key: "status", value: error.localizedDescription),
-            ]))
-        }
-    }
-
 }
-
-
-private let manifestElementID = "manifest"
-private let placeholderManifest = """
-version: 1
-builder:
-  configs:
-    - documentation_targets: [Target1, Target2]
-"""
