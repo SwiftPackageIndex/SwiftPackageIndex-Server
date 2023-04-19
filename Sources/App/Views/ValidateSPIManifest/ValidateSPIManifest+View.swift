@@ -76,12 +76,29 @@ extension ValidateSPIManifest {
                             .unwrap(model.validationResult, { result in
                                     .div(
                                         .class("result \(result.cssClass)"),
-                                        .text(result.message)
+                                        result.asHTML()
                                     )
                             })
                 )
             )
         }
 
+    }
+}
+
+
+extension ValidateSPIManifest.ValidationResult {
+    func asHTML() -> Node<HTML.BodyContext> {
+        switch self {
+            case .valid(let manifest):
+                var out = ""
+                dump(manifest, to: &out)
+                return .group(
+                    .text("Manifest is valid!"),
+                    .pre(.text(out))
+                )
+            case .invalid(let string):
+                return .text(string)
+        }
     }
 }

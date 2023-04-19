@@ -38,12 +38,11 @@ enum ValidateSPIManifestController {
 
     static func validationResult(manifest: String) -> ValidateSPIManifest.ValidationResult {
         do {
-            _ = try SPIManifest.Manifest(yml: manifest)
-            return .init(isValid: true, message: "Manifest is valid!")
+            return .valid(try SPIManifest.Manifest(yml: manifest))
         } catch let error as DecodingError {
-            return .init(isValid: false, message: "\(error)")
+            return .invalid("\(error)")
         } catch {
-            return .init(isValid: false, message: error.localizedDescription)
+            return .invalid(error.localizedDescription)
         }
     }
 }

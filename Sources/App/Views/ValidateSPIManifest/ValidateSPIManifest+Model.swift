@@ -13,10 +13,12 @@
 // limitations under the License.
 
 import Plot
+import SPIManifest
+
 
 enum ValidateSPIManifest {
     struct Model {
-        var manifest: String = Self.placeholderManifest
+        var manifest = Self.placeholderManifest
         var validationResult: ValidationResult?
 
         static let placeholderManifest = """
@@ -27,12 +29,17 @@ enum ValidateSPIManifest {
             """
     }
 
-    struct ValidationResult {
-        var isValid: Bool
-        var message: String
+    enum ValidationResult {
+        case valid(SPIManifest.Manifest)
+        case invalid(String)
 
         var cssClass: String {
-            isValid ? "valid" : "invalid"
+            switch self {
+                case .valid:
+                    return "valid"
+                case .invalid:
+                    return "invalid"
+            }
         }
     }
 }
