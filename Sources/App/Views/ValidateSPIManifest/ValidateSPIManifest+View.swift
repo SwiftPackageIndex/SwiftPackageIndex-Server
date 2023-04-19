@@ -95,7 +95,7 @@ extension ValidateSPIManifest.ValidationResult {
                 var out = ""
                 customDump(manifest, to: &out)
                 return .group(
-                    .text("Manifest is valid!"),
+                    .text("Manifest is valid! This is how we parsed it:"),
                     .pre(.text(out))
                 )
             case .invalid(let string):
