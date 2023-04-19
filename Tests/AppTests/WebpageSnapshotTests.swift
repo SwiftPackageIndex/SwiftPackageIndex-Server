@@ -523,8 +523,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_ValidateSPIManifest_show() throws {
         let manifest = try SPIManifest.Manifest(yml: ValidateSPIManifest.Model.placeholderManifest)
-        let model = ValidateSPIManifest.Model(manifest: ValidateSPIManifest.Model.placeholderManifest,
-                                              validationResult: .valid(manifest))
+        let model = ValidateSPIManifest.Model(validationResult: .valid(manifest))
         let page = { ValidateSPIManifest.View(path: "", model: model).document() }
 
         assertSnapshot(matching: page, as: .html)
