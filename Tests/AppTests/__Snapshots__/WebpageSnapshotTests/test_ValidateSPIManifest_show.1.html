@@ -85,25 +85,27 @@ builder:
             <button type="submit">Validate</button>
           </form>
           <div class="result valid">Manifest is valid!
-            <pre>▿ SPIManifest.Manifest
-  - version: 1
-  - metadata: nil
-  ▿ builder: Optional(SPIManifest.Manifest.Builder(configs: [SPIManifest.Manifest.Builder.BuildConfig(platform: nil, swiftVersion: nil, image: nil, scheme: nil, target: nil, documentationTargets: Optional(["Target1", "Target2"]), customDocumentationParameters: nil)]))
-    ▿ some: SPIManifest.Manifest.Builder
-      ▿ configs: 1 element
-        ▿ SPIManifest.Manifest.Builder.BuildConfig
-          - platform: nil
-          - swiftVersion: nil
-          - image: nil
-          - scheme: nil
-          - target: nil
-          ▿ documentationTargets: Optional(["Target1", "Target2"])
-            ▿ some: 2 elements
-              - "Target1"
-              - "Target2"
-          - customDocumentationParameters: nil
-  - externalLinks: nil
-</pre>
+            <pre>Manifest(
+  version: 1,
+  metadata: nil,
+  builder: Manifest.Builder(
+    configs: [
+      [0]: Manifest.Builder.BuildConfig(
+        platform: nil,
+        swiftVersion: nil,
+        image: nil,
+        scheme: nil,
+        target: nil,
+        documentationTargets: [
+          [0]: "Target1",
+          [1]: "Target2"
+        ],
+        customDocumentationParameters: nil
+      )
+    ]
+  ),
+  externalLinks: nil
+)</pre>
           </div>
         </turbo-frame>
       </div>

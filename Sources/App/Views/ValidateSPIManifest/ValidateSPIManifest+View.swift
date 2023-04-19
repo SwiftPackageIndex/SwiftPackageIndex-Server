@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CustomDump
 import Plot
 import SPIManifest
 import Vapor
@@ -92,7 +93,7 @@ extension ValidateSPIManifest.ValidationResult {
         switch self {
             case .valid(let manifest):
                 var out = ""
-                dump(manifest, to: &out)
+                customDump(manifest, to: &out)
                 return .group(
                     .text("Manifest is valid!"),
                     .pre(.text(out))

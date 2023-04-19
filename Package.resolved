@@ -225,6 +225,15 @@
       }
     },
     {
+      "identity" : "swift-custom-dump",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-custom-dump.git",
+      "state" : {
+        "revision" : "84b30e1af72e0ffe6dfbfe39d53b8173caacf224",
+        "version" : "0.10.2"
+      }
+    },
+    {
       "identity" : "swift-driver",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-driver.git",
