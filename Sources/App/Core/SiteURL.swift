@@ -126,6 +126,7 @@ enum SiteURL: Resourceable {
     case stylesheets(String)
     case supporters
     case tryInPlayground
+    case validateSPIManifest
 
     var path: String {
         switch self {
@@ -214,13 +215,16 @@ enum SiteURL: Resourceable {
 
             case .tryInPlayground:
                 return "try-in-a-playground"
+
+            case .validateSPIManifest:
+                return "validate-spi-manifest"
         }
     }
 
     var pathComponents: [PathComponent] {
         switch self {
-            case .addAPackage, .faq, .home, .packageCollections, .privacy, .rssPackages, .rssReleases,
-                    .search, .siteMap, .supporters, .tryInPlayground, .buildMonitor:
+            case .addAPackage, .buildMonitor, .faq, .home, .packageCollections, .privacy, .rssPackages,
+                    .rssReleases, .search, .siteMap, .supporters, .tryInPlayground, .validateSPIManifest:
                 return [.init(stringLiteral: path)]
 
             case let .api(next):

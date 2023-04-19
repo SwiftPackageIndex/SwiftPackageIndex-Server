@@ -150,6 +150,11 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.supporters.pathComponents, use: SupportersController.show)
     }
 
+    do {  // spi.yml validation page
+        app.get(SiteURL.validateSPIManifest.pathComponents, use: ValidateSPIManifestController.show)
+        app.post(SiteURL.validateSPIManifest.pathComponents, use: ValidateSPIManifestController.validate)
+    }
+
     do {  // api
 
         // public routes

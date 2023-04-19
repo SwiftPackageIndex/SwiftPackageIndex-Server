@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
+import Ink
+import Plot
+import SPIManifest
 import SnapshotTesting
 import Vapor
-import XCTest
-import Plot
-import Ink
+
 
 class WebpageSnapshotTests: SnapshotTestCase {
 
@@ -514,6 +517,14 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
         let model = SupportersShow.Model()
         let page = { SupportersShow.View(path: "", model: model).document() }
+
+        assertSnapshot(matching: page, as: .html)
+    }
+
+    func test_ValidateSPIManifest_show() throws {
+        let manifest = try SPIManifest.Manifest(yml: ValidateSPIManifest.Model.placeholderManifest)
+        let model = ValidateSPIManifest.Model(validationResult: .valid(manifest))
+        let page = { ValidateSPIManifest.View(path: "", model: model).document() }
 
         assertSnapshot(matching: page, as: .html)
     }
