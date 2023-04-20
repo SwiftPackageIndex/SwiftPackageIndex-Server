@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Fluent
-import PostgresNIO
+import PostgresKit
 import Vapor
 
 
@@ -40,7 +40,16 @@ func updatePackages(client: Client,
                                         stage: stage)
             }
         }
-        return await group.results()
+
+        let results = await group.results()
+
+        for res in results {
+            if case let .failure(error) = res {
+                Current.logger()?.report(error: error)
+            }
+        }
+
+        return results
     }
 
     Current.logger()?.debug("updateStatus ops: \(updates.count)")
@@ -67,11 +76,13 @@ func updatePackage(client: Client,
                 Current.logger()?.report(error: error)
             }
 
-        case .failure(let error) where error as? PostgresNIO.PostgresError != nil:
+        case let .failure(error) where error is PostgresError:
             // Escalate database errors to critical
+            Current.logger()?.critical("\(error)")
             try await recordError(database: database, error: error, stage: stage)
 
-        case .failure(let error):
+        case let .failure(error):
+            Current.logger()?.report(error: error)
             try await recordError(database: database, error: error, stage: stage)
     }
 }
@@ -87,14 +98,6 @@ func recordError(database: Database,
             .set(\.$processingStage, to: stage)
             .set(\.$status, to: status)
             .update()
-    }
-
-    switch error as? AppError {
-        case .noValidVersions:
-            // don't log, too common and unimportant
-            break
-        default:
-            database.logger.error("\(stage) error: \(error.localizedDescription)")
     }
 
     guard let error = error as? AppError else { return }

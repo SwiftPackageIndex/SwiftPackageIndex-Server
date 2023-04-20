@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Vapor
 import Fluent
+import PostgresKit
+import Vapor
 
 
 struct IngestCommand: AsyncCommand {
@@ -119,10 +120,10 @@ func ingest(client: Client,
     // introduce any extra latency. Should check if we could make them batch, though.)
     let metadata = await fetchMetadata(client: client, packages: packages)
     let updates = await updateRepositories(on: database, metadata: metadata)
-    return try await updatePackages(client: client,
-                                    database: database,
-                                    results: updates,
-                                    stage: .ingestion)
+    try await updatePackages(client: client,
+                             database: database,
+                             results: updates,
+                             stage: .ingestion)
 }
 
 

@@ -167,7 +167,7 @@ class PipelineTests: AppTestCase {
         }
 
         // MUT - second stage
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         do { // validate
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
@@ -180,7 +180,6 @@ class PipelineTests: AppTestCase {
         // MUT - third stage
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         do { // validate
@@ -206,7 +205,7 @@ class PipelineTests: AppTestCase {
         }
 
         // MUT - ingest again
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         do {  // validate - only new package moves to .ingestion stage
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
@@ -220,7 +219,6 @@ class PipelineTests: AppTestCase {
         let lastAnalysis = Current.date()
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         do {  // validate - only new package moves to .ingestion stage
@@ -236,7 +234,7 @@ class PipelineTests: AppTestCase {
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
 
         // MUT - ingest yet again
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         do {  // validate - now all three packages should have been updated
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
@@ -249,7 +247,6 @@ class PipelineTests: AppTestCase {
         // MUT - re-run analysis to complete the sequence
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         do {  // validate - only new package moves to .ingestion stage

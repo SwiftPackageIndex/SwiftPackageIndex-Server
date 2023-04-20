@@ -32,7 +32,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
 
         // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // validate
         let repos = try await Repository.query(on: app.db).all()
@@ -266,7 +266,6 @@ class IngestorTests: AppTestCase {
         // MUT
         try await updatePackages(client: app.client,
                                  database: app.db,
-                                 logger: app.logger,
                                  results: results,
                                  stage: .ingestion)
 
@@ -292,7 +291,6 @@ class IngestorTests: AppTestCase {
         // MUT
         try await updatePackages(client: app.client,
                                  database: app.db,
-                                 logger: app.logger,
                                  results: results,
                                  stage: .ingestion)
 
@@ -312,7 +310,7 @@ class IngestorTests: AppTestCase {
         try await packages.save(on: app.db)
 
         // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(testUrls.count))
+        try await ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
 
         // validate
         let repos = try await Repository.query(on: app.db).all()
@@ -336,7 +334,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
 
         // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // validate
         let repos = try await Repository.query(on: app.db).all()
@@ -382,17 +380,12 @@ class IngestorTests: AppTestCase {
                 stars: 0,
                 summary: "desc")
         }
-        var reportedLevel: AppError.Level? = nil
-        var reportedError: String? = nil
-        Current.reportError = { _, level, error in
-            // Errors seen here go to Rollbar
-            reportedLevel = level
-            reportedError = error.localizedDescription
-        }
+        let logHandler = CapturingLogger()
+        Current.setLogger(.init(label: "test", factory: { _ in logHandler }))
         let lastUpdate = Date()
 
         // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // validate repositories (single element pointing to the ingested package)
         let repos = try await Repository.query(on: app.db).all()
@@ -415,9 +408,11 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(reconciled.status, .new)
         XCTAssertEqual(reconciled.processingStage, .reconciliation)
         XCTAssert(reconciled.updatedAt! < lastUpdate)
-        // ... and an error report has been triggered
-        XCTAssertEqual(reportedLevel, .critical)
-        XCTAssert(reportedError?.contains("duplicate key value violates unique constraint") ?? false)
+        // ... and an error has been logged
+        logHandler.logs.withValue {
+            XCTAssertEqual($0, [.init(level: .critical,
+                                      message: #"server: duplicate key value violates unique constraint "idx_repositories_owner_name" (_bt_check_unique)"#)])
+        }
     }
 
     func test_issue_761_no_license() async throws {

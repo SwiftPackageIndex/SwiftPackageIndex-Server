@@ -31,40 +31,27 @@ class ErrorReportingTests: AppTestCase {
         }
     }
 
-    func test_Rollbar_createItem() async throws {
-        Current.rollbarToken = { "token" }
-        let client = MockClient { _, resp in resp.status = .ok }
-        try await Rollbar.createItem(client: client, level: .critical, message: "Test critical")
-    }
 
     func test_Ingestor_error_reporting() async throws {
         // setup
-        try await savePackagesAsync(on: app.db, ["1", "2"], processingStage: .reconciliation)
+        try await Package(url: "1", processingStage: .reconciliation).save(on: app.db)
         Current.fetchMetadata = { _, _ in throw AppError.invalidPackageUrl(nil, "foo") }
 
-        let reportedLevel = ActorIsolated<AppError.Level?>(nil)
-        let reportedError = ActorIsolated<AppError?>(nil)
-        Current.reportError = { _, level, error in
-            await reportedLevel.setValue(level)
-            await reportedError.setValue(error as? AppError)
-        }
+        let logHandler = CapturingLogger()
+        Current.setLogger(.init(label: "test", factory: { _ in logHandler }))
 
         // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // validation
-        await reportedLevel.withValue {
-            XCTAssertEqual($0, .error)
-        }
-        await reportedError.withValue {
-            XCTAssertEqual($0, AppError.invalidPackageUrl(nil, "foo"))
+        logHandler.logs.withValue {
+            XCTAssertEqual($0, [.init(level: .warning, message: "Invalid packge URL: foo (id: nil)")])
         }
     }
 
     func test_Analyzer_error_reporting() async throws {
         // setup
-        try await savePackagesAsync(on: app.db, ["1", "2"].asGithubUrls.asURLs,
-                                    processingStage: .ingestion)
+        try await Package(id: .id1, url: "1".asGithubUrl.url, processingStage: .ingestion).save(on: app.db)
         Current.fileManager.fileExists = { _ in true }
         Current.shell.run = { cmd, path in
             if cmd.string == "git tag" { return "1.0.0" }
@@ -73,25 +60,19 @@ class ErrorReportingTests: AppTestCase {
             return "invalid"
         }
 
-        let reportedLevel = ActorIsolated<AppError.Level?>(nil)
-        let reportedError = ActorIsolated<Error?>(nil)
-        Current.reportError = { _, level, error in
-            await reportedLevel.setValue(level)
-            await reportedError.setValue(error)
-        }
+        let logHandler = CapturingLogger()
+        Current.setLogger(.init(label: "test", factory: { _ in logHandler }))
 
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validation
-        await reportedLevel.withValue {
-            XCTAssertEqual($0, .error)
-        }
-        await reportedError.withValue {
-            XCTAssertNotNil($0)
+        logHandler.logs.withValue {
+            XCTAssertEqual(
+                $0,
+                [.init(level: .warning, message: "Error: updateRepository: no repository (id: \(UUID.id1))")])
         }
     }
 
@@ -102,7 +83,6 @@ class ErrorReportingTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validation

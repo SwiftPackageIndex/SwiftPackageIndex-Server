@@ -59,12 +59,11 @@ class TwitterTests: AppTestCase {
         }
         // run first two processing steps
         try await reconcile(client: app.client, database: app.db)
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // MUT - analyze, triggering the tweet
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
         do {
             let msg = try XCTUnwrap(message)
@@ -75,12 +74,11 @@ class TwitterTests: AppTestCase {
         message = nil
         try await reconcile(client: app.client, database: app.db)
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // MUT - analyze, triggering tweets if any
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validate - there are no new tweets to send
@@ -90,12 +88,11 @@ class TwitterTests: AppTestCase {
         tag = .tag(2, 0, 0)
         // fast forward our clock by the deadtime interval again (*2) and re-ingest
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime * 2) }
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // MUT - analyze again
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validate

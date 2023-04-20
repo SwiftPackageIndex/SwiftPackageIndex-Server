@@ -70,7 +70,6 @@ class ReAnalyzeVersionsTests: AppTestCase {
             // run initial analysis and assert initial state for versions
             try await Analyze.analyze(client: app.client,
                                       database: app.db,
-                                      logger: app.logger,
                                       mode: .limit(10))
             let versions = try await Version.query(on: app.db)
                 .with(\.$targets)
@@ -109,7 +108,6 @@ class ReAnalyzeVersionsTests: AppTestCase {
         do {  // assert running analysis again does not update existing versions
             try await Analyze.analyze(client: app.client,
                                       database: app.db,
-                                      logger: app.logger,
                                       mode: .limit(10))
             let versions = try await Version.query(on: app.db)
                 .with(\.$targets)
@@ -123,7 +121,6 @@ class ReAnalyzeVersionsTests: AppTestCase {
         // MUT
         try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
                                                       database: app.db,
-                                                      logger: app.logger,
                                                       before: Current.date(),
                                                       refreshCheckouts: false,
                                                       limit: 10)
@@ -202,7 +199,6 @@ class ReAnalyzeVersionsTests: AppTestCase {
         }
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
         try setAllVersionsUpdatedAt(app.db, updatedAt: .t0)
         do {
@@ -214,7 +210,6 @@ class ReAnalyzeVersionsTests: AppTestCase {
         // MUT
         try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
                                                       database: app.db,
-                                                      logger: app.logger,
                                                       before: Current.date(),
                                                       refreshCheckouts: false,
                                                       limit: 10)

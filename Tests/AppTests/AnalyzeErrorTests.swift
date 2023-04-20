@@ -38,7 +38,7 @@ final class AnalyzeErrorTests: AppTestCase {
     let badPackageID: Package.Id = .id0
     let goodPackageID: Package.Id = .id1
 
-    let reportedErrors = ActorIsolated<[String]>([])
+    let logHandler = CapturingLogger()
     let tweets = ActorIsolated<[String]>([])
 
     static var defaultShellRun: (ShellOutCommand, String) throws -> String = { cmd, path in
@@ -60,10 +60,10 @@ final class AnalyzeErrorTests: AppTestCase {
     override func setUp() async throws {
         try await super.setUp()
 
-        await reportedErrors.setValue([])
         await tweets.setValue([])
+        Current.setLogger(.init(label: "test", factory: { _ in logHandler }))
 
-        // Silence logging
+        // Silence app logging
         app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
 
         let pkgs = [
@@ -107,10 +107,6 @@ final class AnalyzeErrorTests: AppTestCase {
             """
         }
 
-        Current.reportError = { _, _, error in
-            await self.reportedErrors.withValue { $0.append(error.localizedDescription) }
-        }
-
         Current.shell.run = Self.defaultShellRun
 
         Current.twitterPost = { client, message in
@@ -136,16 +132,15 @@ final class AnalyzeErrorTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validate
         try await defaultValidation()
-        try await reportedErrors.withValue { errors in
-            XCTAssertEqual(errors.count, 1)
-            let error = try errors.first.unwrap()
+        try logHandler.logs.withValue { logs in
+            XCTAssertEqual(logs.count, 1)
+            let error = try logs.first.unwrap()
             XCTAssertTrue(
-                error.contains(
+                error.message.contains(
                 #"""
                 Analysis failed: refreshCheckout failed: Shell command failed:
                 command: "git clone https://github.com/foo/1
@@ -168,16 +163,15 @@ final class AnalyzeErrorTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validate
         try await defaultValidation()
-        try await reportedErrors.withValue { errors in
-            XCTAssertEqual(errors.count, 1)
-            let error = try errors.first.unwrap()
+        try logHandler.logs.withValue { logs in
+            XCTAssertEqual(logs.count, 1)
+            let error = try logs.first.unwrap()
             XCTAssertTrue(
-                error.contains(
+                error.message.contains(
                 #"""
                 Invalid packge cache path: foo/1
                 """#
@@ -202,16 +196,15 @@ final class AnalyzeErrorTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validate
         try await defaultValidation()
-        try await reportedErrors.withValue { errors in
-            XCTAssertEqual(errors.count, 1)
-            let error = try errors.first.unwrap()
+        try logHandler.logs.withValue { logs in
+            XCTAssertEqual(logs.count, 1)
+            let error = try logs.first.unwrap()
             XCTAssertTrue(
-                error.contains(
+                error.message.contains(
                 #"""
                 No valid version found for package 'https://github.com/foo/1'
                 """#
@@ -233,16 +226,15 @@ final class AnalyzeErrorTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validate
         try await defaultValidation()
-        try await reportedErrors.withValue { errors in
-            XCTAssertEqual(errors.count, 1)
-            let error = try errors.first.unwrap()
+        try logHandler.logs.withValue { logs in
+            XCTAssertEqual(logs.count, 1)
+            let error = try logs.first.unwrap()
             XCTAssertTrue(
-                error.contains(
+                error.message.contains(
                 #"""
                 No valid version found for package 'https://github.com/foo/1'
                 """#

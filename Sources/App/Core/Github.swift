@@ -150,10 +150,12 @@ extension Github {
         }
 
         guard !isRateLimited(response) else {
+            Current.logger()?.critical("rate limited while fetching resource \(T.self)")
             throw Error.requestFailed(.tooManyRequests)
         }
 
         guard response.status == .ok else {
+            Current.logger()?.warning("fetchResource request failed with status \(response.status)")
             throw Error.requestFailed(response.status)
         }
 
@@ -161,10 +163,10 @@ extension Github {
     }
 
     static func fetchMetadata(client: Client, owner: String, repository: String) async throws -> Metadata {
-        struct Response: Decodable, Equatable {
-            var data: Metadata
+        struct Response<T: Decodable & Equatable>: Decodable, Equatable {
+            var data: T
         }
-        return try await fetchResource(Response.self,
+        return try await fetchResource(Response<Metadata>.self,
                                        client: client,
                                        query: Metadata.query(owner: owner, repository: repository))
         .data

@@ -151,7 +151,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validation
@@ -298,7 +297,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validate versions
@@ -348,7 +346,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // assert packages have been updated
@@ -413,7 +410,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validation (not in detail, this is just to ensure command count is as expected)
@@ -443,7 +439,7 @@ class AnalyzerTests: AppTestCase {
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
         // MUT
-        _ = try Analyze.refreshCheckout(logger: app.logger, package: jpr)
+        _ = try Analyze.refreshCheckout(package: jpr)
 
         // validate
         assertSnapshot(matching: commands.value, as: .dump)
@@ -497,7 +493,6 @@ class AnalyzerTests: AppTestCase {
 
         // MUT
         let delta = try await Analyze.diffVersions(client: app.client,
-                                                   logger: app.logger,
                                                    transaction: app.db,
                                                    package: pkg)
 
@@ -784,7 +779,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await updatePackages(client: app.client,
                                  database: app.db,
-                                 logger: app.logger,
                                  results: results,
                                  stage: .analysis)
 
@@ -846,7 +840,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validation
@@ -881,7 +874,7 @@ class AnalyzerTests: AppTestCase {
         // MUT
         let res = pkgs.map { pkg in
             Result {
-                try Analyze.refreshCheckout(logger: self.app.logger, package: pkg)
+                try Analyze.refreshCheckout(package: pkg)
             }
         }
 
@@ -918,7 +911,7 @@ class AnalyzerTests: AppTestCase {
         // MUT
         let res = pkgs.map { pkg in
             Result {
-                try Analyze.refreshCheckout(logger: self.app.logger, package: pkg)
+                try Analyze.refreshCheckout(package: pkg)
             }
         }
 
@@ -1012,7 +1005,7 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        _ = try Analyze.refreshCheckout(logger: app.logger, package: pkg)
+        _ = try Analyze.refreshCheckout(package: pkg)
 
         // validate
         assertSnapshot(matching: commands.value, as: .dump)
@@ -1104,7 +1097,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validate

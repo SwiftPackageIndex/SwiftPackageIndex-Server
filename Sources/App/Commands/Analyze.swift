@@ -172,12 +172,8 @@ extension Analyze {
                                               package: pkg)
                         }
                     }
-                    do {
-                        try result.get()
-                    } catch {
-                        Current.logger()?.report(error: error)
-                        throw error
-                    }
+
+                    try result.get()
 
                     return pkg
                 }
