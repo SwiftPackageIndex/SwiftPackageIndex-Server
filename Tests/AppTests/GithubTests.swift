@@ -248,8 +248,6 @@ class GithubTests: AppTestCase {
             resp.status = .forbidden
             resp.headers.add(name: "X-RateLimit-Remaining", value: "0")
         }
-        let logHandler = CapturingLogger()
-        Current.setLogger(.init(label: "test", factory: { _ in logHandler }))
 
         // MUT
         do {
@@ -257,7 +255,7 @@ class GithubTests: AppTestCase {
             XCTFail("expected error to be thrown")
         } catch {
             // validation
-            logHandler.logs.withValue { logs in
+            logger.logs.withValue { logs in
                 XCTAssertEqual(logs, [
                     .init(level: .critical, message: "rate limited while fetching resource Response<Metadata>")
                 ])

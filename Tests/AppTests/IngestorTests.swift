@@ -380,8 +380,6 @@ class IngestorTests: AppTestCase {
                 stars: 0,
                 summary: "desc")
         }
-        let logHandler = CapturingLogger()
-        Current.setLogger(.init(label: "test", factory: { _ in logHandler }))
         let lastUpdate = Date()
 
         // MUT
@@ -409,7 +407,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(reconciled.processingStage, .reconciliation)
         XCTAssert(reconciled.updatedAt! < lastUpdate)
         // ... and an error has been logged
-        logHandler.logs.withValue {
+        logger.logs.withValue {
             XCTAssertEqual($0, [.init(level: .critical,
                                       message: #"server: duplicate key value violates unique constraint "idx_repositories_owner_name" (_bt_check_unique)"#)])
         }

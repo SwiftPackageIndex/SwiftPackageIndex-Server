@@ -38,7 +38,6 @@ final class AnalyzeErrorTests: AppTestCase {
     let badPackageID: Package.Id = .id0
     let goodPackageID: Package.Id = .id1
 
-    let logHandler = CapturingLogger()
     let tweets = ActorIsolated<[String]>([])
 
     static var defaultShellRun: (ShellOutCommand, String) throws -> String = { cmd, path in
@@ -61,10 +60,6 @@ final class AnalyzeErrorTests: AppTestCase {
         try await super.setUp()
 
         await tweets.setValue([])
-        Current.setLogger(.init(label: "test", factory: { _ in logHandler }))
-
-        // Silence app logging
-        app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
 
         let pkgs = [
             Package(id: badPackageID,
@@ -136,7 +131,7 @@ final class AnalyzeErrorTests: AppTestCase {
 
         // validate
         try await defaultValidation()
-        try logHandler.logs.withValue { logs in
+        try logger.logs.withValue { logs in
             XCTAssertEqual(logs.count, 1)
             let error = try logs.first.unwrap()
             XCTAssertTrue(
@@ -167,7 +162,7 @@ final class AnalyzeErrorTests: AppTestCase {
 
         // validate
         try await defaultValidation()
-        try logHandler.logs.withValue { logs in
+        try logger.logs.withValue { logs in
             XCTAssertEqual(logs.count, 1)
             let error = try logs.first.unwrap()
             XCTAssertTrue(
@@ -200,7 +195,7 @@ final class AnalyzeErrorTests: AppTestCase {
 
         // validate
         try await defaultValidation()
-        try logHandler.logs.withValue { logs in
+        try logger.logs.withValue { logs in
             XCTAssertEqual(logs.count, 1)
             let error = try logs.first.unwrap()
             XCTAssertTrue(
@@ -230,7 +225,7 @@ final class AnalyzeErrorTests: AppTestCase {
 
         // validate
         try await defaultValidation()
-        try logHandler.logs.withValue { logs in
+        try logger.logs.withValue { logs in
             XCTAssertEqual(logs.count, 1)
             let error = try logs.first.unwrap()
             XCTAssertTrue(

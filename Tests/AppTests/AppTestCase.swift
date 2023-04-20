@@ -18,6 +18,7 @@ import XCTVapor
 
 class AppTestCase: XCTestCase {
     var app: Application!
+    let logger = CapturingLogger()
 
     func future<T>(_ value: T) -> EventLoopFuture<T> {
         app.eventLoopGroup.next().future(value)
@@ -26,6 +27,11 @@ class AppTestCase: XCTestCase {
     override func setUp() async throws {
         try await super.setUp()
         app = try await setup(.testing)
+
+        Current.setLogger(.init(label: "test", factory: { _ in logger }))
+
+        // Silence app logging
+        app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
     }
 
     override func tearDown() async throws {

@@ -37,14 +37,11 @@ class ErrorReportingTests: AppTestCase {
         try await Package(url: "1", processingStage: .reconciliation).save(on: app.db)
         Current.fetchMetadata = { _, _ in throw AppError.invalidPackageUrl(nil, "foo") }
 
-        let logHandler = CapturingLogger()
-        Current.setLogger(.init(label: "test", factory: { _ in logHandler }))
-
         // MUT
         try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // validation
-        logHandler.logs.withValue {
+        logger.logs.withValue {
             XCTAssertEqual($0, [.init(level: .warning, message: "Invalid packge URL: foo (id: nil)")])
         }
     }
@@ -60,16 +57,13 @@ class ErrorReportingTests: AppTestCase {
             return "invalid"
         }
 
-        let logHandler = CapturingLogger()
-        Current.setLogger(.init(label: "test", factory: { _ in logHandler }))
-
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   mode: .limit(10))
 
         // validation
-        logHandler.logs.withValue {
+        logger.logs.withValue {
             XCTAssertEqual(
                 $0,
                 [.init(level: .warning, message: "Error: updateRepository: no repository (id: \(UUID.id1))")])
