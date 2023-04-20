@@ -39,24 +39,22 @@ struct IngestCommand: AsyncCommand {
 
         let client = context.application.client
         let db = context.application.db
-        let logger = Logger(component: "ingest")
+        Current.setLogger(Logger(component: "ingest"))
 
         Self.resetMetrics()
 
         let mode = signature.id.map(Mode.id) ?? .limit(limit)
 
         do {
-            try await ingest(client: client, database: db, logger: logger, mode: mode)
+            try await ingest(client: client, database: db, mode: mode)
         } catch {
-            logger.error("\(error.localizedDescription)")
+            Current.logger()?.error("\(error.localizedDescription)")
         }
 
         do {
-            try await AppMetrics.push(client: client,
-                                      logger: logger,
-                                      jobName: "ingest")
+            try await AppMetrics.push(client: client, jobName: "ingest")
         } catch {
-            logger.warning("\(error.localizedDescription)")
+            Current.logger()?.warning("\(error.localizedDescription)")
         }
     }
 }
@@ -74,30 +72,26 @@ extension IngestCommand {
 /// - Parameters:
 ///   - client: `Client` object
 ///   - database: `Database` object
-///   - logger: `Logger` object
 ///   - mode: process a single `Package.Id` or a `limit` number of packages
 /// - Returns: future
 func ingest(client: Client,
             database: Database,
-            logger: Logger,
             mode: IngestCommand.Mode) async throws {
     let start = DispatchTime.now().uptimeNanoseconds
     defer { AppMetrics.ingestDurationSeconds?.time(since: start) }
 
     switch mode {
         case .id(let id):
-            logger.info("Ingesting (id: \(id)) ...")
+            Current.logger()?.info("Ingesting (id: \(id)) ...")
             let pkg = try await Package.fetchCandidate(database, id: id).get()
             try await ingest(client: client,
                              database: database,
-                             logger: logger,
                              packages: [pkg])
         case .limit(let limit):
-            logger.info("Ingesting (limit: \(limit)) ...")
+            Current.logger()?.info("Ingesting (limit: \(limit)) ...")
             let packages = try await Package.fetchCandidates(database, for: .ingestion, limit: limit).get()
             try await ingest(client: client,
                              database: database,
-                             logger: logger,
                              packages: packages)
     }
 }
@@ -107,14 +101,12 @@ func ingest(client: Client,
 /// - Parameters:
 ///   - client: `Client` object
 ///   - database: `Database` object
-///   - logger: `Logger` object
 ///   - packages: packages to be ingested
 /// - Returns: future
 func ingest(client: Client,
             database: Database,
-            logger: Logger,
             packages: [Joined<Package, Repository>]) async throws {
-    logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
+    Current.logger()?.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
     // TODO: simplify the types in this chain by running the batches "vertically" instead of "horizontally"
     // i.e. instead of [package, data1, data2, ...] -> updatePackages(...)
@@ -129,7 +121,6 @@ func ingest(client: Client,
     let updates = await updateRepositories(on: database, metadata: metadata)
     return try await updatePackages(client: client,
                                     database: database,
-                                    logger: logger,
                                     results: updates,
                                     stage: .ingestion)
 }

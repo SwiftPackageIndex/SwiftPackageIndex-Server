@@ -69,7 +69,6 @@ extension Gitlab.Builder {
     }
 
     static func triggerBuild(client: Client,
-                             logger: Logger,
                              buildId: Build.Id,
                              cloneURL: String,
                              platform: Build.Platform,
@@ -108,11 +107,11 @@ extension Gitlab.Builder {
                     status: response.status,
                     webUrl: try response.content.decode(Response.self).webUrl
                 )
-                logger.info("Triggered build: \(res.webUrl)")
+                Current.logger()?.info("Triggered build: \(res.webUrl)")
                 return res
             } catch {
                 let body = response.body?.asString() ?? "nil"
-                logger.error("Trigger failed: \(cloneURL) @ \(reference), \(platform) / \(swiftVersion), \(versionID), status: \(response.status), body: \(body)")
+                Current.logger()?.error("Trigger failed: \(cloneURL) @ \(reference), \(platform) / \(swiftVersion), \(versionID), status: \(response.status), body: \(body)")
                 return .init(status: response.status, webUrl: nil)
             }
         }

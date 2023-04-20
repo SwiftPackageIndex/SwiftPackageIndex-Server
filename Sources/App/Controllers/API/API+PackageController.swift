@@ -63,7 +63,6 @@ extension API {
                 .flatMapEach(on: req.eventLoop) { versionId -> EventLoopFuture<HTTPStatus> in
                     Build.trigger(database: req.db,
                                   client: req.client,
-                                  logger: req.logger,
                                   buildId: .init(),
                                   platform: dto.platform,
                                   swiftVersion: dto.swiftVersion,
@@ -88,13 +87,11 @@ extension API {
                 case .ingest:
                     try await ingest(client: req.application.client,
                                      database: req.application.db,
-                                     logger: req.application.logger,
                                      mode: .limit(limit))
                     return .init(status: "ok", rows: limit)
                 case .analyze:
                     try await Analyze.analyze(client: req.application.client,
                                               database: req.application.db,
-                                              logger: req.application.logger,
                                               mode: .limit(limit))
                     return .init(status: "ok", rows: limit)
                 case .none:

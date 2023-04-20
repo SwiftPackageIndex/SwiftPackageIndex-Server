@@ -43,7 +43,7 @@ enum Analyze {
 
             let client = context.application.client
             let db = context.application.db
-            let logger = Logger(component: "analyze")
+            Current.setLogger(Logger(component: "analyze"))
 
             Analyze.resetMetrics()
 
@@ -52,24 +52,21 @@ enum Analyze {
             do {
                 try await analyze(client: client,
                                   database: db,
-                                  logger: logger,
                                   mode: mode)
             } catch {
-                logger.error("\(error.localizedDescription)")
+                Current.logger()?.error("\(error.localizedDescription)")
             }
 
             do {
                 try Analyze.trimCheckouts()
             } catch {
-                logger.error("\(error.localizedDescription)")
+                Current.logger()?.error("\(error.localizedDescription)")
             }
 
             do {
-                try await AppMetrics.push(client: client,
-                                          logger: logger,
-                                          jobName: "analyze")
+                try await AppMetrics.push(client: client, jobName: "analyze")
             } catch {
-                logger.warning("\(error.localizedDescription)")
+                Current.logger()?.warning("\(error.localizedDescription)")
             }
         }
     }
@@ -116,32 +113,28 @@ extension Analyze {
     /// - Parameters:
     ///   - client: `Client` object
     ///   - database: `Database` object
-    ///   - logger: `Logger` object
     ///   - threadPool: `NIOThreadPool` (for running shell commands)
     ///   - mode: process a single `Package.Id` or a `limit` number of packages
     /// - Returns: future
     static func analyze(client: Client,
                         database: Database,
-                        logger: Logger,
                         mode: Analyze.Command.Mode) async throws {
         let start = DispatchTime.now().uptimeNanoseconds
         defer { AppMetrics.analyzeDurationSeconds?.time(since: start) }
 
         switch mode {
             case .id(let id):
-                logger.info("Analyzing (id: \(id)) ...")
+                Current.logger()?.info("Analyzing (id: \(id)) ...")
                 let pkg = try await Package.fetchCandidate(database, id: id).get()
                 try await analyze(client: client,
                                   database: database,
-                                  logger: logger,
                                   packages: [pkg])
 
             case .limit(let limit):
-                logger.info("Analyzing (limit: \(limit)) ...")
+                Current.logger()?.info("Analyzing (limit: \(limit)) ...")
                 let packages = try await Package.fetchCandidates(database, for: .analysis, limit: limit).get()
                 try await analyze(client: client,
                                   database: database,
-                                  logger: logger,
                                   packages: packages)
         }
     }
@@ -151,20 +144,18 @@ extension Analyze {
     /// - Parameters:
     ///   - client: `Client` object
     ///   - database: `Database` object
-    ///   - logger: `Logger` object
     ///   - packages: packages to be analysed
     /// - Returns: future
     static func analyze(client: Client,
                         database: Database,
-                        logger: Logger,
                         packages: [Joined<Package, Repository>]) async throws {
         AppMetrics.analyzeCandidatesCount?.set(packages.count)
 
         // get or create directory
         let checkoutDir = Current.fileManager.checkoutsDirectory()
-        logger.info("Checkout directory: \(checkoutDir)")
+        Current.logger()?.info("Checkout directory: \(checkoutDir)")
         if !Current.fileManager.fileExists(atPath: checkoutDir) {
-            try await createCheckoutsDirectory(client: client, logger: logger, path: checkoutDir)
+            try await createCheckoutsDirectory(client: client, path: checkoutDir)
         }
 
         let packageResults = await withThrowingTaskGroup(
@@ -178,11 +169,15 @@ extension Analyze {
                         await Result {
                             try await analyze(client: client,
                                               transaction: tx,
-                                              logger: logger,
                                               package: pkg)
                         }
                     }
-                    try result.get()
+                    do {
+                        try result.get()
+                    } catch {
+                        Current.logger()?.report(error: error)
+                        throw error
+                    }
 
                     return pkg
                 }
@@ -193,7 +188,6 @@ extension Analyze {
 
         try await updatePackages(client: client,
                                  database: database,
-                                 logger: logger,
                                  results: packageResults,
                                  stage: .analysis)
 
@@ -207,13 +201,11 @@ extension Analyze {
 
     static func analyze(client: Client,
                         transaction: Database,
-                        logger: Logger,
                         package: Joined<Package, Repository>) async throws {
-        try refreshCheckout(logger: logger, package: package)
+        try refreshCheckout(package: package)
         try await updateRepository(on: transaction, package: package)
 
         let versionDelta = try await diffVersions(client: client,
-                                                  logger: logger,
                                                   transaction: transaction,
                                                   package: package)
 
@@ -248,37 +240,32 @@ extension Analyze {
         updateScore(package: package, versions: versions)
 
         await onNewVersions(client: client,
-                            logger: logger,
                             package: package,
                             versions: newVersions)
     }
 
 
     static func createCheckoutsDirectory(client: Client,
-                                         logger: Logger,
                                          path: String) async throws {
-        logger.info("Creating checkouts directory at path: \(path)")
+        Current.logger()?.info("Creating checkouts directory at path: \(path)")
         do {
             try Current.fileManager.createDirectory(atPath: path,
                                                     withIntermediateDirectories: false,
                                                     attributes: nil)
         } catch {
             let error = AppError.genericError(nil, "Failed to create checkouts directory: \(error.localizedDescription)")
-            logger.report(error: error)
-            try await Current.reportError(client, .critical, error)
-            return
+            Current.logger()?.report(error: error)
         }
     }
 
 
     /// Run `git clone` for a given url in a given directory.
     /// - Parameters:
-    ///   - logger: `Logger` object
     ///   - cacheDir: checkout directory
     ///   - url: url to clone from
     /// - Throws: Shell errors
-    static func clone(logger: Logger, cacheDir: String, url: String) throws {
-        logger.info("cloning \(url) to \(cacheDir)")
+    static func clone(cacheDir: String, url: String) throws {
+        Current.logger()?.info("cloning \(url) to \(cacheDir)")
         try Current.shell.run(command: .gitClone(url: URL(string: url)!, to: cacheDir),
                               at: Current.fileManager.checkoutsDirectory())
     }
@@ -286,18 +273,17 @@ extension Analyze {
 
     /// Run `git fetch` and a set of supporting git commands (in order to allow the fetch to succeed more reliably).
     /// - Parameters:
-    ///   - logger: `Logger` object
     ///   - cacheDir: checkout directory
     ///   - branch: branch to check out
     ///   - url: url to fetch from
     /// - Throws: Shell errors
-    static func fetch(logger: Logger, cacheDir: String, branch: String, url: String) throws {
-        logger.info("pulling \(url) in \(cacheDir)")
+    static func fetch(cacheDir: String, branch: String, url: String) throws {
+        Current.logger()?.info("pulling \(url) in \(cacheDir)")
         // clean up stray lock files that might have remained from aborted commands
         try ["HEAD.lock", "index.lock"].forEach { fileName in
             let filePath = cacheDir + "/.git/\(fileName)"
             if Current.fileManager.fileExists(atPath: filePath) {
-                logger.info("Removing stale \(fileName) at path: \(filePath)")
+                Current.logger()?.info("Removing stale \(fileName) at path: \(filePath)")
                 try Current.shell.run(command: .removeFile(from: filePath))
             }
         }
@@ -313,31 +299,29 @@ extension Analyze {
 
     /// Refresh git checkout (working copy) for a given package.
     /// - Parameters:
-    ///   - logger: `Logger` object
     ///   - package: `Package` to refresh
-    static func refreshCheckout(logger: Logger, package: Joined<Package, Repository>) throws {
+    static func refreshCheckout(package: Joined<Package, Repository>) throws {
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
         do {
             guard Current.fileManager.fileExists(atPath: cacheDir) else {
-                try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
+                try clone(cacheDir: cacheDir, url: package.model.url)
                 return
             }
 
             // attempt to fetch - if anything goes wrong we delete the directory
             // and fall back to cloning
             do {
-                try fetch(logger: logger,
-                          cacheDir: cacheDir,
+                try fetch(cacheDir: cacheDir,
                           branch: package.repository?.defaultBranch ?? "master",
                           url: package.model.url)
             } catch {
-                logger.info("fetch failed: \(error.localizedDescription)")
-                logger.info("removing directory")
+                Current.logger()?.info("fetch failed: \(error.localizedDescription)")
+                Current.logger()?.info("removing directory")
                 try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
-                try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
+                try clone(cacheDir: cacheDir, url: package.model.url)
             }
         } catch {
             throw AppError.analysisError(package.model.id, "refreshCheckout failed: \(error.localizedDescription)")
@@ -370,12 +354,10 @@ extension Analyze {
     /// Find new, outdated, and unchanged versions for a given `Package`, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
     /// - Parameters:
     ///   - client: `Client` object (for Rollbar error reporting)
-    ///   - logger: `Logger` object
     ///   - transaction: database transaction
     ///   - package: `Package` to reconcile
     /// - Returns: future with array of pair of new, outdated, and unchanged `Version`s
     static func diffVersions(client: Client,
-                             logger: Logger,
                              transaction: Database,
                              package: Joined<Package, Repository>) async throws -> VersionDelta {
         guard let pkgId = package.model.id else {
@@ -385,7 +367,7 @@ extension Analyze {
         let existing = try await Version.query(on: transaction)
             .filter(\.$package.$id == pkgId)
             .all()
-        let incoming = try await getIncomingVersions(client: client, logger: logger, package: package)
+        let incoming = try await getIncomingVersions(client: client, package: package)
 
         let throttled = throttle(
             latestExistingVersion: existing.latestBranchVersion,
@@ -395,7 +377,7 @@ extension Analyze {
         let newDiff = Version.diff(local: existing, incoming: throttled)
         let delta = origDiff.toAdd.count - newDiff.toAdd.count
         if delta > 0 {
-            logger.info("throttled \(delta) incoming revisions")
+            Current.logger()?.info("throttled \(delta) incoming revisions")
             AppMetrics.buildThrottleCount?.inc(delta)
         }
         return newDiff
@@ -405,11 +387,9 @@ extension Analyze {
     /// Get incoming versions (from git repository)
     /// - Parameters:
     ///   - client: `Client` object (for Rollbar error reporting)
-    ///   - logger: `Logger` object
     ///   - package: `Package` to reconcile
     /// - Returns: future with incoming `Version`s
     static func getIncomingVersions(client: Client,
-                                    logger: Logger,
                                     package: Joined<Package, Repository>) async throws -> [Version] {
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
@@ -426,8 +406,7 @@ extension Analyze {
             tags = try Current.git.getTags(cacheDir)
         } catch {
             let appError = AppError.genericError(pkgId, "Git.tag failed: \(error.localizedDescription)")
-            logger.report(error: appError)
-            try? await Current.reportError(client, .error, appError)
+            Current.logger()?.report(error: appError)
             tags = []
         }
 
@@ -732,12 +711,10 @@ extension Analyze {
     /// transaction could potentially be rolled back in case an error occurs before all versions are processed and saved.
     /// - Parameters:
     ///   - client: `Client` object for http requests
-    ///   - logger: `Logger` object
     ///   - transaction: `Database` object representing the current transaction
     ///   - package: package to update
     ///   - versions: array of new `Versions`s
     static func onNewVersions(client: Client,
-                              logger: Logger,
                               package: Joined<Package, Repository>,
                               versions: [Version]) async {
         do {
@@ -745,7 +722,7 @@ extension Analyze {
                                             package: package,
                                             versions: versions)
         } catch {
-            logger.warning("Social.postToFirehose failed: \(error.localizedDescription)")
+            Current.logger()?.warning("Social.postToFirehose failed: \(error.localizedDescription)")
         }
     }
 

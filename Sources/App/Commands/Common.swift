@@ -29,7 +29,6 @@ import Vapor
 ///   - stage: Processing stage
 func updatePackages(client: Client,
                     database: Database,
-                    logger: Logger,
                     results: [Result<Joined<Package, Repository>, Error>],
                     stage: Package.ProcessingStage) async throws {
     let updates = await withThrowingTaskGroup(of: Void.self) { group in
@@ -37,7 +36,6 @@ func updatePackages(client: Client,
             group.addTask {
                 try await updatePackage(client: client,
                                         database: database,
-                                        logger: logger,
                                         result: result,
                                         stage: stage)
             }
@@ -45,13 +43,12 @@ func updatePackages(client: Client,
         return await group.results()
     }
 
-    logger.debug("updateStatus ops: \(updates.count)")
+    Current.logger()?.debug("updateStatus ops: \(updates.count)")
 }
 
 
 func updatePackage(client: Client,
                    database: Database,
-                   logger: Logger,
                    result: Result<Joined<Package, Repository>, Error>,
                    stage: Package.ProcessingStage) async throws {
     switch result {
@@ -67,17 +64,14 @@ func updatePackage(client: Client,
             do {
                 try await pkg.update(on: database)
             } catch {
-                logger.report(error: error)
-                try await Current.reportError(client, .critical, error)
+                Current.logger()?.report(error: error)
             }
 
         case .failure(let error) where error as? PostgresNIO.PostgresError != nil:
             // Escalate database errors to critical
-            try? await Current.reportError(client, .critical, error)
             try await recordError(database: database, error: error, stage: stage)
 
         case .failure(let error):
-            try? await Current.reportError(client, .error, error)
             try await recordError(database: database, error: error, stage: stage)
     }
 }
