@@ -50,7 +50,7 @@ struct AppEnvironment {
     var gitlabPipelineLimit: () -> Int
     var hideStagingBanner: () -> Bool
     var loadSPIManifest: (String) -> SPIManifest.Manifest?
-    var logger: () -> Logger?
+    var logger: () -> Logger
     var mastodonCredentials: () -> Mastodon.Credentials?
     var mastodonPost: (_ client: Client, _ post: String) async throws -> Void
     var metricsPushGatewayUrl: () -> String?
@@ -86,7 +86,7 @@ extension AppEnvironment {
 
 
 extension AppEnvironment {
-    static var logger: Logger?
+    static var logger: Logger!
 
     static let live = AppEnvironment(
         allowBuildTriggers: {

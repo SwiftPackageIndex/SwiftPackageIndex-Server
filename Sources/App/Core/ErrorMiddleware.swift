@@ -32,9 +32,9 @@ final class ErrorMiddleware: AsyncMiddleware {
                 Task.detached {
                     try await Current.reportError(req.client, .critical, error)
                 }
-                Current.logger()?.critical("\(error): \(req.url)")
+                Current.logger().critical("\(error): \(req.url)")
             } else {
-                Current.logger()?.error("\(error): \(req.url)")
+                Current.logger().error("\(error): \(req.url)")
             }
 
             return ErrorPage.View(path: req.url.path, error: error)
