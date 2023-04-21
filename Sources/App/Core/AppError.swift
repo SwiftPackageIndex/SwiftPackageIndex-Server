@@ -72,20 +72,3 @@ enum AppError: LocalizedError {
         case debug
     }
 }
-
-
-extension AppError.Level: Comparable {
-    static func < (lhs: AppError.Level, rhs: AppError.Level) -> Bool {
-        allCases.firstIndex(of: lhs)! > allCases.firstIndex(of: rhs)!
-    }
-}
-
-
-extension AppError {
-    static func report(_ client: Client, _ level: Level, _ error: Error) async throws {
-        guard level >= Current.rollbarLogLevel() else { return }
-        try await Rollbar.createItem(client: client,
-                                     level: .init(level: level),
-                                     message: error.localizedDescription)
-    }
-}

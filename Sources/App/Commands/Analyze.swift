@@ -44,6 +44,7 @@ enum Analyze {
             let client = context.application.client
             let db = context.application.db
             let logger = Logger(component: "analyze")
+            Current.setLogger(logger)
 
             Analyze.resetMetrics()
 
@@ -265,8 +266,6 @@ extension Analyze {
         } catch {
             let error = AppError.genericError(nil, "Failed to create checkouts directory: \(error.localizedDescription)")
             logger.report(error: error)
-            try await Current.reportError(client, .critical, error)
-            return
         }
     }
 
@@ -427,7 +426,6 @@ extension Analyze {
         } catch {
             let appError = AppError.genericError(pkgId, "Git.tag failed: \(error.localizedDescription)")
             logger.report(error: appError)
-            try? await Current.reportError(client, .error, appError)
             tags = []
         }
 

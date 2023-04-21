@@ -50,14 +50,11 @@ struct AppEnvironment {
     var gitlabPipelineLimit: () -> Int
     var hideStagingBanner: () -> Bool
     var loadSPIManifest: (String) -> SPIManifest.Manifest?
-    var logger: () -> Logger?
+    var logger: () -> Logger
     var mastodonCredentials: () -> Mastodon.Credentials?
     var mastodonPost: (_ client: Client, _ post: String) async throws -> Void
     var metricsPushGatewayUrl: () -> String?
     var random: (_ range: ClosedRange<Double>) -> Double
-    var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) async throws -> Void
-    var rollbarToken: () -> String?
-    var rollbarLogLevel: () -> AppError.Level
     var setLogger: (Logger) -> Void
     var shell: Shell
     var siteURL: () -> String
@@ -83,7 +80,7 @@ extension AppEnvironment {
 
 
 extension AppEnvironment {
-    static var logger: Logger?
+    static var logger: Logger!
 
     static let live = AppEnvironment(
         allowBuildTriggers: {
@@ -167,12 +164,6 @@ extension AppEnvironment {
         mastodonPost: Mastodon.post(client:message:),
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         random: Double.random,
-        reportError: AppError.report,
-        rollbarToken: { Environment.get("ROLLBAR_TOKEN") },
-        rollbarLogLevel: {
-            Environment
-                .get("ROLLBAR_LOG_LEVEL")
-                .flatMap(AppError.Level.init(rawValue:)) ?? .critical },
         setLogger: { logger in Self.logger = logger },
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },

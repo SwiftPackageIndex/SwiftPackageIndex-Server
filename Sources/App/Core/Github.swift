@@ -105,15 +105,12 @@ extension Github {
         let response = try await client.get(uri, headers: headers(with: token))
 
         guard !isRateLimited(response) else {
-            try await Current.reportError(
-                client,
-                .critical,
-                AppError.metadataRequestFailed(nil, .tooManyRequests, uri)
-            )
+            Current.logger().critical("rate limited while fetching resource \(T.self)")
             throw Error.requestFailed(.tooManyRequests)
         }
 
         guard response.status == .ok else {
+            Current.logger().warning("fetchResource request failed with status \(response.status)")
             throw Error.requestFailed(response.status)
         }
 
@@ -155,17 +152,12 @@ extension Github {
         }
 
         guard !isRateLimited(response) else {
-            try await Current.reportError(
-                client,
-                .critical,
-                AppError.metadataRequestFailed(nil,
-                                               .tooManyRequests,
-                                               Self.graphQLApiUri)
-            )
+            Current.logger().critical("rate limited while fetching resource \(T.self)")
             throw Error.requestFailed(.tooManyRequests)
         }
 
         guard response.status == .ok else {
+            Current.logger().warning("fetchResource request failed with status \(response.status)")
             throw Error.requestFailed(response.status)
         }
 
@@ -173,10 +165,10 @@ extension Github {
     }
 
     static func fetchMetadata(client: Client, owner: String, repository: String) async throws -> Metadata {
-        struct Response: Decodable, Equatable {
-            var data: Metadata
+        struct Response<T: Decodable & Equatable>: Decodable, Equatable {
+            var data: T
         }
-        return try await fetchResource(Response.self,
+        return try await fetchResource(Response<Metadata>.self,
                                        client: client,
                                        query: Metadata.query(owner: owner, repository: repository))
         .data

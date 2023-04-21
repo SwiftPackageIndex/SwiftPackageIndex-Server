@@ -38,7 +38,6 @@ final class AnalyzeErrorTests: AppTestCase {
     let badPackageID: Package.Id = .id0
     let goodPackageID: Package.Id = .id1
 
-    let reportedErrors = ActorIsolated<[String]>([])
     let tweets = ActorIsolated<[String]>([])
 
     static var defaultShellRun: (ShellOutCommand, String) throws -> String = { cmd, path in
@@ -60,11 +59,7 @@ final class AnalyzeErrorTests: AppTestCase {
     override func setUp() async throws {
         try await super.setUp()
 
-        await reportedErrors.setValue([])
         await tweets.setValue([])
-
-        // Silence logging
-        app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
 
         let pkgs = [
             Package(id: badPackageID,
@@ -107,10 +102,6 @@ final class AnalyzeErrorTests: AppTestCase {
             """
         }
 
-        Current.reportError = { _, _, error in
-            await self.reportedErrors.withValue { $0.append(error.localizedDescription) }
-        }
-
         Current.shell.run = Self.defaultShellRun
 
         Current.twitterPost = { client, message in
@@ -141,17 +132,17 @@ final class AnalyzeErrorTests: AppTestCase {
 
         // validate
         try await defaultValidation()
-        try await reportedErrors.withValue { errors in
-            XCTAssertEqual(errors.count, 1)
-            let error = try errors.first.unwrap()
+        try logger.logs.withValue { logs in
+            XCTAssertEqual(logs.count, 1)
+            let error = try logs.first.unwrap()
             XCTAssertTrue(
-                error.contains(
+                error.message.contains(
                 #"""
                 Analysis failed: refreshCheckout failed: Shell command failed:
                 command: "git clone https://github.com/foo/1
                 """#
                 ),
-                "was: \(error)"
+                "was: \(error.message)"
             )
         }
     }
@@ -173,16 +164,16 @@ final class AnalyzeErrorTests: AppTestCase {
 
         // validate
         try await defaultValidation()
-        try await reportedErrors.withValue { errors in
-            XCTAssertEqual(errors.count, 1)
-            let error = try errors.first.unwrap()
+        try logger.logs.withValue { logs in
+            XCTAssertEqual(logs.count, 1)
+            let error = try logs.first.unwrap()
             XCTAssertTrue(
-                error.contains(
+                error.message.contains(
                 #"""
                 Invalid packge cache path: foo/1
                 """#
                 ),
-                "was: \(error)"
+                "was: \(error.message)"
             )
         }
     }
@@ -207,16 +198,16 @@ final class AnalyzeErrorTests: AppTestCase {
 
         // validate
         try await defaultValidation()
-        try await reportedErrors.withValue { errors in
-            XCTAssertEqual(errors.count, 1)
-            let error = try errors.first.unwrap()
+        try logger.logs.withValue { logs in
+            XCTAssertEqual(logs.count, 1)
+            let error = try logs.first.unwrap()
             XCTAssertTrue(
-                error.contains(
+                error.message.contains(
                 #"""
                 No valid version found for package 'https://github.com/foo/1'
                 """#
                 ),
-                "was: \(error)"
+                "was: \(error.message)"
             )
         }
     }
@@ -238,16 +229,16 @@ final class AnalyzeErrorTests: AppTestCase {
 
         // validate
         try await defaultValidation()
-        try await reportedErrors.withValue { errors in
-            XCTAssertEqual(errors.count, 1)
-            let error = try errors.first.unwrap()
+        try logger.logs.withValue { logs in
+            XCTAssertEqual(logs.count, 1)
+            let error = try logs.first.unwrap()
             XCTAssertTrue(
-                error.contains(
+                error.message.contains(
                 #"""
                 No valid version found for package 'https://github.com/foo/1'
                 """#
                 ),
-                "was: \(error)"
+                "was: \(error.message)"
             )
         }
     }
