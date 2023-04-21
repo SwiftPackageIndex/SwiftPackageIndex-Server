@@ -44,6 +44,7 @@ enum Analyze {
             let client = context.application.client
             let db = context.application.db
             let logger = Logger(component: "analyze")
+            Current.setLogger(logger)
 
             Analyze.resetMetrics()
 

@@ -55,7 +55,7 @@ extension AppEnvironment {
             gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
             hideStagingBanner: { false },
             loadSPIManifest: { _ in nil },
-            logger: { nil },
+            logger: { logger },
             mastodonCredentials: { nil },
             mastodonPost: { _, _ in },
             metricsPushGatewayUrl: { "http://pushgateway:9091" },
@@ -63,7 +63,7 @@ extension AppEnvironment {
             reportError: { _, _, _ in },
             rollbarToken: { nil },
             rollbarLogLevel: { .critical },
-            setLogger: { _ in },
+            setLogger: { logger in Self.logger = logger },
             shell: .mock,
             siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
             triggerBuild: { _, _, _, _, _, _, _, _ in
