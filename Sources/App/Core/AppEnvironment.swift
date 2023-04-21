@@ -55,8 +55,11 @@ struct AppEnvironment {
     var mastodonPost: (_ client: Client, _ post: String) async throws -> Void
     var metricsPushGatewayUrl: () -> String?
     var random: (_ range: ClosedRange<Double>) -> Double
+    @available(*, deprecated)
     var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) async throws -> Void
+    @available(*, deprecated)
     var rollbarToken: () -> String?
+    @available(*, deprecated)
     var rollbarLogLevel: () -> AppError.Level
     var setLogger: (Logger) -> Void
     var shell: Shell
