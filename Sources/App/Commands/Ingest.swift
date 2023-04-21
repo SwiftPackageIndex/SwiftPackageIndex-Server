@@ -133,7 +133,11 @@ func ingest(client: Client,
                         AppMetrics.ingestMetadataFailureCount?.inc()
                 }
 
-                await updatePackage(client: client, database: database, logger: logger, result: result, stage: .ingestion)
+                do {
+                    try await updatePackage(client: client, database: database, logger: logger, result: result, stage: .ingestion)
+                } catch {
+                    logger.report(error: error)
+                }
             }
         }
     }
