@@ -336,13 +336,6 @@ class IngestorTests: AppTestCase {
                 stars: 0,
                 summary: "desc")
         }
-        var reportedLevel: AppError.Level? = nil
-        var reportedError: String? = nil
-        Current.reportError = { _, level, error in
-            // Errors seen here go to Rollbar
-            reportedLevel = level
-            reportedError = error.localizedDescription
-        }
         let lastUpdate = Date()
 
         // MUT
@@ -369,9 +362,11 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(reconciled.status, .new)
         XCTAssertEqual(reconciled.processingStage, .reconciliation)
         XCTAssert(reconciled.updatedAt! < lastUpdate)
-        // ... and an error report has been triggered
-        XCTAssertEqual(reportedLevel, .critical)
-        XCTAssert(reportedError?.contains("duplicate key value violates unique constraint") ?? false)
+        // ... and an error has been logged
+        logger.logs.withValue {
+            XCTAssertEqual($0, [.init(level: .critical,
+                                      message: #"server: duplicate key value violates unique constraint "idx_repositories_owner_name" (_bt_check_unique)"#)])
+        }
     }
 
     func test_issue_761_no_license() async throws {
