@@ -68,18 +68,15 @@ func updatePackage(client: Client,
                 try await pkg.update(on: database)
             } catch {
                 Current.logger().report(error: error)
-                try await Current.reportError(client, .critical, error)
             }
 
-        case .failure(let error) where error is PostgresError:
+        case let .failure(error) where error is PostgresError:
             // Escalate database errors to critical
             Current.logger().critical("\(error)")
-            try? await Current.reportError(client, .critical, error)
             try await recordError(database: database, error: error, stage: stage)
 
-        case .failure(let error):
+        case let .failure(error):
             Current.logger().report(error: error)
-            try? await Current.reportError(client, .error, error)
             try await recordError(database: database, error: error, stage: stage)
     }
 }

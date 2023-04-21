@@ -59,35 +59,4 @@ class ErrorMiddlewareTests: AppTestCase {
         })
     }
 
-    func test_404_alert() async throws {
-        // Test to ensure 404s do *not* trigger a Rollbar alert
-        let errorReported = ActorIsolated(false)
-        Current.reportError = { _, _, _ in
-            await errorReported.setValue(true)
-        }
-
-        try await app.test(.GET, "404", afterResponse: { response in
-            try await XCTAssertEqualAsync(await errorReported.value, false)
-        })
-    }
-
-    func test_500_alert() async throws {
-        // Test to ensure 500s *do* trigger a Rollbar alert
-        let reportedLevel = ActorIsolated<AppError.Level?>(nil)
-        let reportedError = ActorIsolated<String?>(nil)
-        Current.reportError = { _, level, error in
-            await reportedLevel.setValue(level)
-            await reportedError.setValue(error.localizedDescription)
-        }
-
-        try await app.test(.GET, "500", afterResponse: { response in
-            await reportedLevel.withValue {
-                XCTAssertEqual($0, .critical)
-            }
-            let errorMessage = try await reportedError.value.unwrap()
-            XCTAssert(errorMessage.contains("Abort.500: Internal Server Error"),
-                      "error was: \(errorMessage)")
-        })
-    }
-
 }

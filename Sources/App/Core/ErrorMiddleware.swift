@@ -29,9 +29,6 @@ final class ErrorMiddleware: AsyncMiddleware {
             let isCritical = (statusCode >= 500)
 
             if isCritical {
-                Task.detached {
-                    try await Current.reportError(req.client, .critical, error)
-                }
                 Current.logger().critical("\(error): \(req.url)")
             } else {
                 Current.logger().error("\(error): \(req.url)")

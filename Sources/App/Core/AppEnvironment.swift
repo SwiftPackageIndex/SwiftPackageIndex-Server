@@ -55,12 +55,6 @@ struct AppEnvironment {
     var mastodonPost: (_ client: Client, _ post: String) async throws -> Void
     var metricsPushGatewayUrl: () -> String?
     var random: (_ range: ClosedRange<Double>) -> Double
-    @available(*, deprecated)
-    var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) async throws -> Void
-    @available(*, deprecated)
-    var rollbarToken: () -> String?
-    @available(*, deprecated)
-    var rollbarLogLevel: () -> AppError.Level
     var setLogger: (Logger) -> Void
     var shell: Shell
     var siteURL: () -> String
@@ -170,12 +164,6 @@ extension AppEnvironment {
         mastodonPost: Mastodon.post(client:message:),
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         random: Double.random,
-        reportError: AppError.report,
-        rollbarToken: { Environment.get("ROLLBAR_TOKEN") },
-        rollbarLogLevel: {
-            Environment
-                .get("ROLLBAR_LOG_LEVEL")
-                .flatMap(AppError.Level.init(rawValue:)) ?? .critical },
         setLogger: { logger in Self.logger = logger },
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },

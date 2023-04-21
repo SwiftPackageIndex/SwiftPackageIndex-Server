@@ -105,15 +105,12 @@ extension Github {
         let response = try await client.get(uri, headers: headers(with: token))
 
         guard !isRateLimited(response) else {
-            try await Current.reportError(
-                client,
-                .critical,
-                AppError.metadataRequestFailed(nil, .tooManyRequests, uri)
-            )
+            Current.logger().critical("rate limited while fetching resource \(T.self)")
             throw Error.requestFailed(.tooManyRequests)
         }
 
         guard response.status == .ok else {
+            Current.logger().warning("fetchResource request failed with status \(response.status)")
             throw Error.requestFailed(response.status)
         }
 
