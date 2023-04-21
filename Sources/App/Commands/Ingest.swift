@@ -88,17 +88,17 @@ func ingest(client: Client,
         case .id(let id):
             logger.info("Ingesting (id: \(id)) ...")
             let pkg = try await Package.fetchCandidate(database, id: id).get()
-            try await ingest(client: client,
-                             database: database,
-                             logger: logger,
-                             packages: [pkg])
+            await ingest(client: client,
+                         database: database,
+                         logger: logger,
+                         packages: [pkg])
         case .limit(let limit):
             logger.info("Ingesting (limit: \(limit)) ...")
             let packages = try await Package.fetchCandidates(database, for: .ingestion, limit: limit).get()
-            try await ingest(client: client,
-                             database: database,
-                             logger: logger,
-                             packages: packages)
+            await ingest(client: client,
+                         database: database,
+                         logger: logger,
+                         packages: packages)
     }
 }
 
@@ -113,87 +113,38 @@ func ingest(client: Client,
 func ingest(client: Client,
             database: Database,
             logger: Logger,
-            packages: [Joined<Package, Repository>]) async throws {
+            packages: [Joined<Package, Repository>]) async {
     logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
-    // TODO: simplify the types in this chain by running the batches "vertically" instead of "horizontally"
-    // i.e. instead of [package, data1, data2, ...] -> updatePackages(...)
-    // run
-    // let data1 = ...
-    // let data2 = ...
-    // updatePackage(...)
-    // i.e. loop through each package end-to-end instead of building a wide tuple.
-    // (I'm pretty sure none of the db queries are actually batch queries, so we wouldn't
-    // introduce any extra latency. Should check if we could make them batch, though.)
-    let metadata = await fetchMetadata(client: client, packages: packages)
-    let updates = await updateRepositories(on: database, metadata: metadata)
-    return try await updatePackages(client: client,
-                                    database: database,
-                                    logger: logger,
-                                    results: updates,
-                                    stage: .ingestion)
-}
 
-
-/// Fetch package metadata from hosting provider for a set of packages.
-/// - Parameters:
-///   - client: `Client` object to make HTTP requests.
-///   - packages: packages to ingest
-/// - Returns: results future
-func fetchMetadata(
-    client: Client, packages: [Joined<Package, Repository>]
-) async -> [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>] {
-    await withThrowingTaskGroup(
-        of: (Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?).self,
-        returning: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>].self
-    ) { group in
+    await withTaskGroup(of: Void.self) { group in
         for pkg in packages {
             group.addTask {
-                async let metadata = try await Current.fetchMetadata(client, pkg.model.url)
-                async let license = await Current.fetchLicense(client, pkg.model.url)
-                async let readme = await Current.fetchReadme(client, pkg.model.url)
-                return try await (pkg, metadata, license, readme)
+                let result = await Result {
+                    let (metadata, license, readme) = try await fetchMetadata(client: client, package: pkg)
+                    try await insertOrUpdateRepository(on: database, for: pkg, metadata: metadata, licenseInfo: license, readmeInfo: readme)
+                    return pkg
+                }
+
+                switch result {
+                    case .success:
+                        AppMetrics.ingestMetadataSuccessCount?.inc()
+                    case .failure:
+                        AppMetrics.ingestMetadataFailureCount?.inc()
+                }
+
+                await updatePackage(client: client, database: database, logger: logger, result: result, stage: .ingestion)
             }
         }
-
-        return await group.results()
     }
 }
 
 
-/// Update `Repository`s with metadata.
-/// - Parameters:
-///   - database: `Database` object
-///   - metadata: result tuples of `(Package, Metadata)`
-/// - Returns: results future
-func updateRepositories(
-    on database: Database,
-    metadata: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>]
-) async -> [Result<Joined<Package, Repository>, Error>] {
-    await withThrowingTaskGroup(
-        of: Joined<Package, Repository>.self,
-        returning: [Result<Joined<Package, Repository>, Error>].self
-    ) { group in
-        for result in metadata {
-            group.addTask {
-                switch result {
-                    case let .success((pkg, metadata, licenseInfo, readmeInfo)):
-                        AppMetrics.ingestMetadataSuccessCount?.inc()
-                        try await insertOrUpdateRepository(on: database,
-                                                           for: pkg,
-                                                           metadata: metadata,
-                                                           licenseInfo: licenseInfo,
-                                                           readmeInfo: readmeInfo)
-                        return pkg
-                    case let .failure(error):
-                        AppMetrics.ingestMetadataFailureCount?.inc()
-                        throw error
-                }
-            }
-        }
-
-        return await group.results()
-    }
+func fetchMetadata(client: Client, package: Joined<Package, Repository>) async throws -> (Github.Metadata, Github.License?, Github.Readme?) {
+    async let metadata = try await Current.fetchMetadata(client, package.model.url)
+    async let license = await Current.fetchLicense(client, package.model.url)
+    async let readme = await Current.fetchReadme(client, package.model.url)
+    return try await (metadata, license, readme)
 }
 
 

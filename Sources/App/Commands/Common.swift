@@ -35,11 +35,11 @@ func updatePackages(client: Client,
     let updates = await withThrowingTaskGroup(of: Void.self) { group in
         for result in results {
             group.addTask {
-                try await updatePackage(client: client,
-                                        database: database,
-                                        logger: logger,
-                                        result: result,
-                                        stage: stage)
+                await updatePackage(client: client,
+                                    database: database,
+                                    logger: logger,
+                                    result: result,
+                                    stage: stage)
             }
         }
         return await group.results()
@@ -53,7 +53,7 @@ func updatePackage(client: Client,
                    database: Database,
                    logger: Logger,
                    result: Result<Joined<Package, Repository>, Error>,
-                   stage: Package.ProcessingStage) async throws {
+                   stage: Package.ProcessingStage) async {
     switch result {
         case .success(let res):
             let pkg = res.package
@@ -68,17 +68,17 @@ func updatePackage(client: Client,
                 try await pkg.update(on: database)
             } catch {
                 logger.report(error: error)
-                try await Current.reportError(client, .critical, error)
+                try? await Current.reportError(client, .critical, error)
             }
 
         case .failure(let error) where error as? PostgresNIO.PostgresError != nil:
             // Escalate database errors to critical
             try? await Current.reportError(client, .critical, error)
-            try await recordError(database: database, error: error, stage: stage)
+            try? await recordError(database: database, error: error, stage: stage)
 
         case .failure(let error):
             try? await Current.reportError(client, .error, error)
-            try await recordError(database: database, error: error, stage: stage)
+            try? await recordError(database: database, error: error, stage: stage)
     }
 }
 
