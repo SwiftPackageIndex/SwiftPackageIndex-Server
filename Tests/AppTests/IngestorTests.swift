@@ -55,8 +55,8 @@ class IngestorTests: AppTestCase {
         }
     }
 
-    func test_fetchMetadata() async throws {
-        // Test completion of all fetches despite early error
+    func test_ingest_continue_on_error() async throws {
+        // Test completion of ingestion despite early error
         // setup
         enum TestError: Error, Equatable {
             case badRequest
@@ -73,116 +73,78 @@ class IngestorTests: AppTestCase {
         Current.fetchLicense = { _, _ in Github.License(htmlUrl: "license") }
 
         // MUT
-        let res = await fetchMetadata(client: app.client, packages: packages)
+        await ingest(client: app.client, database: app.db, logger: app.logger, packages: packages)
 
-        // validate success
-        // validate package
-        XCTAssertEqual(
-            try res.filter(\.isSuccess).map { try $0.get().0.package.url },
-            ["https://github.com/foo/2"]
-        )
-        // validate metadata
-        XCTAssertEqual(
-            try res
-                .filter(\.isSuccess)
-                .map { try $0.get().1.repository?.name },
-            ["2"]
-        )
-        // validate license
-        XCTAssertEqual(
-            try res
-                .filter(\.isSuccess)
-                .map { try $0.get().2?.htmlUrl },
-            ["license"]
-        )
-        // validate error
-        XCTAssertEqual(res.filter(\.isFailure).count, 1)
-        switch res.filter(\.isFailure).first {
-            case let .some(.failure(error)):
-                XCTAssertEqual(error as? TestError, .badRequest)
-            case .success, .none:
-                XCTFail("expected error")
-        }
-    }
-
-    func test_insertOrUpdateRepository() async throws {
-        let pkg = try await savePackageAsync(on: app.db, "https://github.com/foo/bar")
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
-        do {  // test insert
-            try await insertOrUpdateRepository(on: app.db,
-                                               for: jpr,
-                                               metadata: .mock(for: pkg.url),
-                                               licenseInfo: .init(htmlUrl: ""),
-                                               readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
-            let repos = try await Repository.query(on: app.db).all()
-            XCTAssertEqual(repos.map(\.summary), [.some("This is package https://github.com/foo/bar")])
-        }
-        do {  // test update - run the same package again, with different metadata
-            var md = Github.Metadata.mock(for: pkg.url)
-            md.repository?.description = "New description"
-            try await insertOrUpdateRepository(on: app.db,
-                                               for: jpr,
-                                               metadata: md,
-                                               licenseInfo: .init(htmlUrl: ""),
-                                               readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
-            let repos = try await Repository.query(on: app.db).all().get()
-            XCTAssertEqual(repos.map(\.summary), [.some("New description")])
-        }
-    }
-
-    func test_updateRepositories() async throws {
-        // setup
-        let pkg = try await savePackageAsync(on: app.db, "2")
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
-        let metadata: [Result<(Joined<Package, Repository>,
-                               Github.Metadata, Github.License?,
-                               Github.Readme?),
-                       Error>] = [
-                        .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
-                        .success((jpr,
-                                  .init(defaultBranch: "main",
-                                        forks: 1,
-                                        homepageUrl: "https://swiftpackageindex.com/Alamofire/Alamofire",
-                                        isInOrganization: true,
-                                        issuesClosedAtDates: [
-                                            Date(timeIntervalSince1970: 0),
-                                            Date(timeIntervalSince1970: 2),
-                                            Date(timeIntervalSince1970: 1),
-                                        ],
-                                        license: .mit,
-                                        openIssues: 1,
-                                        openPullRequests: 2,
-                                        owner: "foo",
-                                        pullRequestsClosedAtDates: [
-                                            Date(timeIntervalSince1970: 1),
-                                            Date(timeIntervalSince1970: 3),
-                                            Date(timeIntervalSince1970: 2),
-                                        ],
-                                        releases: [
-                                            .init(description: "a release",
-                                                  descriptionHTML: "<p>a release</p>",
-                                                  isDraft: false,
-                                                  publishedAt: Date(timeIntervalSince1970: 5),
-                                                  tagName: "1.2.3",
-                                                  url: "https://example.com/1.2.3")
-                                        ],
-                                        repositoryTopics: ["foo", "bar", "Bar", "baz"],
-                                        name: "bar",
-                                        stars: 2,
-                                        summary: "package desc"),
-                                  licenseInfo: .init(htmlUrl: "license url"),
-                                  readmeInfo: .init(downloadUrl: "readme url", htmlUrl: "readme html url")))
-                       ]
-
-        // MUT
-        let res = await updateRepositories(on: app.db, metadata: metadata)
-
-        // validate
-        XCTAssertEqual(res.map(\.isSuccess), [false, true])
+        // validate the second package's license is updated
         let repo = try await Repository.query(on: app.db)
-            .filter(\.$package.$id == pkg.requireID())
+            .filter(\.$name == "2")
             .first()
             .unwrap()
+        XCTAssertEqual(repo.licenseUrl, "license")
+    }
+
+    func test_insertOrUpdateRepository_insert() async throws {
+        let pkg = try await savePackageAsync(on: app.db, "https://github.com/foo/bar")
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+
+        // MUT
+        try await insertOrUpdateRepository(on: app.db,
+                                           for: jpr,
+                                           metadata: .mock(for: pkg.url),
+                                           licenseInfo: .init(htmlUrl: ""),
+                                           readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
+
+        // validate
+        try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
+        let repo = try await Repository.query(on: app.db).first().unwrap()
+        XCTAssertEqual(repo.summary, "This is package https://github.com/foo/bar")
+    }
+
+    func test_insertOrUpdateRepository_update() async throws {
+        let pkg = try await savePackageAsync(on: app.db, "https://github.com/foo/bar")
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let md: Github.Metadata = .init(defaultBranch: "main",
+                                            forks: 1,
+                                            homepageUrl: "https://swiftpackageindex.com/Alamofire/Alamofire",
+                                            isInOrganization: true,
+                                            issuesClosedAtDates: [
+                                                Date(timeIntervalSince1970: 0),
+                                                Date(timeIntervalSince1970: 2),
+                                                Date(timeIntervalSince1970: 1),
+                                            ],
+                                            license: .mit,
+                                            openIssues: 1,
+                                            openPullRequests: 2,
+                                            owner: "foo",
+                                            pullRequestsClosedAtDates: [
+                                                Date(timeIntervalSince1970: 1),
+                                                Date(timeIntervalSince1970: 3),
+                                                Date(timeIntervalSince1970: 2),
+                                            ],
+                                            releases: [
+                                                .init(description: "a release",
+                                                      descriptionHTML: "<p>a release</p>",
+                                                      isDraft: false,
+                                                      publishedAt: Date(timeIntervalSince1970: 5),
+                                                      tagName: "1.2.3",
+                                                      url: "https://example.com/1.2.3")
+                                            ],
+                                            repositoryTopics: ["foo", "bar", "Bar", "baz"],
+                                            name: "bar",
+                                            stars: 2,
+                                            summary: "package desc")
+
+        // MUT
+        try await insertOrUpdateRepository(on: app.db,
+                                           for: jpr,
+                                           metadata: md,
+                                           licenseInfo: .init(htmlUrl: "license url"),
+                                           readmeInfo: .init(downloadUrl: "readme url",
+                                                             htmlUrl: "readme html url"))
+
+        // validate
+        try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
+        let repo = try await Repository.query(on: app.db).first().unwrap()
         XCTAssertEqual(repo.defaultBranch, "main")
         XCTAssertEqual(repo.forks, 1)
         XCTAssertEqual(repo.homepageUrl, "https://swiftpackageindex.com/Alamofire/Alamofire")
@@ -216,13 +178,7 @@ class IngestorTests: AppTestCase {
         // setup
         let pkg = try await savePackageAsync(on: app.db, "2")
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
-        let metadata: [Result<(Joined<Package, Repository>,
-                               Github.Metadata, Github.License?,
-                               Github.Readme?),
-                       Error>] = [
-                        .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
-                        .success((jpr,
-                                  .init(defaultBranch: "main",
+        let md: Github.Metadata = .init(defaultBranch: "main",
                                         forks: 1,
                                         homepageUrl: "  ",
                                         isInOrganization: true,
@@ -236,20 +192,18 @@ class IngestorTests: AppTestCase {
                                         repositoryTopics: ["foo", "bar", "Bar", "baz"],
                                         name: "bar",
                                         stars: 2,
-                                        summary: "package desc"),
-                                  licenseInfo: .init(htmlUrl: "license url"),
-                                  readmeInfo: .init(downloadUrl: "readme url", htmlUrl: "readme html url")))
-                       ]
+                                        summary: "package desc")
 
         // MUT
-        let res = await updateRepositories(on: app.db, metadata: metadata)
+        try await insertOrUpdateRepository(on: app.db,
+                                           for: jpr,
+                                           metadata: md,
+                                           licenseInfo: .init(htmlUrl: "license url"),
+                                           readmeInfo: .init(downloadUrl: "readme url",
+                                                             htmlUrl: "readme html url"))
 
         // validate
-        XCTAssertEqual(res.map(\.isSuccess), [false, true])
-        let repo = try await Repository.query(on: app.db)
-            .filter(\.$package.$id == pkg.requireID())
-            .first()
-            .unwrap()
+        let repo = try await Repository.query(on: app.db).first().unwrap()
         XCTAssertNil(repo.homepageUrl)
     }
 
@@ -423,8 +377,11 @@ class IngestorTests: AppTestCase {
     func test_issue_761_no_license() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup
-        let packages = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1"])
-            .map(Joined<Package, Repository>.init(model:))
+        let pkg = try await {
+            let p = Package(url: "https://github.com/foo/1")
+            try await p.save(on: app.db)
+            return Joined<Package, Repository>(model: p)
+        }()
         // use mock for metadata request which we're not interested in ...
         Current.fetchMetadata = { _, _ in Github.Metadata() }
         // and live fetch request for fetchLicense, whose behaviour we want to test ...
@@ -434,11 +391,9 @@ class IngestorTests: AppTestCase {
         let client = MockClient { _, resp in resp.status = .notFound }
 
         // MUT
-        let res = await fetchMetadata(client: client, packages: packages)
+        let (_, license, _) = try await fetchMetadata(client: client, package: pkg)
 
         // validate
-        XCTAssertEqual(res.map(\.isSuccess), [true], "future must be in success state")
-        let license = try XCTUnwrap(res.first?.get()).2
         XCTAssertEqual(license, nil)
     }
 }
