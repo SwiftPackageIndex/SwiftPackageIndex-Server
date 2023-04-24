@@ -122,8 +122,3 @@ extension Product: Equatable {
         lhs.id == rhs.id
     }
 }
-
-
-// PostgresKit.PostgresJSONBCodable is a workaround for https://github.com/vapor/postgres-kit/issues/207
-import PostgresKit
-extension ProductType: PostgresJSONBCodable { }
