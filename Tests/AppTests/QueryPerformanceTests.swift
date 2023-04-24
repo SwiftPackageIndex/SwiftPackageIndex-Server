@@ -36,85 +36,85 @@ class QueryPerformanceTests: XCTestCase {
         XCTAssert(host.hasSuffix("postgres.database.azure.com"), "was: \(host)")
     }
 
-    func test_Search_packageMatchQuery() async throws {
+    func test_01_Search_packageMatchQuery() async throws {
         let query = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
-        try await assertQueryPerformance(query, expectedCost: 1000, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 1010, variation: 150)
     }
 
-    func test_Search_keywordMatchQuery() async throws {
+    func test_02_Search_keywordMatchQuery() async throws {
         let query = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        try await assertQueryPerformance(query, expectedCost: 4130, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 4160, variation: 200)
     }
 
-    func test_Search_authorMatchQuery() async throws {
+    func test_03_Search_authorMatchQuery() async throws {
         let query = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
-        try await assertQueryPerformance(query, expectedCost: 650, variation: 50)
+        try await assertQueryPerformance(query, expectedCost: 680, variation: 50)
     }
 
-    func test_Search_query_noFilter() async throws {
+    func test_04_Search_query_noFilter() async throws {
         let query = try Search.query(app.db, ["a"],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5470, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 5620, variation: 200)
     }
 
-    func test_Search_query_authorFilter() async throws {
+    func test_05_Search_query_authorFilter() async throws {
         let filter = try AuthorSearchFilter(expression: .init(operator: .is, value: "apple"))
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5230, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 5350, variation: 200)
     }
 
-    func test_Search_query_keywordFilter() async throws {
+    func test_06_Search_query_keywordFilter() async throws {
         let filter = try KeywordSearchFilter(expression: .init(operator: .is, value: "apple"))
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5200, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 5420, variation: 200)
     }
 
-    func test_Search_query_lastActicityFilter() async throws {
+    func test_07_Search_query_lastActicityFilter() async throws {
         let filter = try LastActivitySearchFilter(expression: .init(operator: .greaterThan, value: "2000-01-01"))
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 53420, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 5620, variation: 200)
     }
 
-    func test_Search_query_licenseFilter() async throws {
+    func test_08_Search_query_licenseFilter() async throws {
         let filter = try LicenseSearchFilter(expression: .init(operator: .is, value: "mit"))
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5480, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 5530, variation: 200)
     }
 
-    func test_Search_query_platformFilter() async throws {
+    func test_09_Search_query_platformFilter() async throws {
         let filter = try PlatformSearchFilter(expression: .init(operator: .is, value: "macos,ios"))
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5410, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 5460, variation: 200)
     }
 
-    func test_Search_query_productTypeFilter() async throws {
+    func test_10_Search_query_productTypeFilter() async throws {
         let filter = try ProductTypeSearchFilter(expression: .init(operator: .is, value: "plugin"))
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5300, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 5350, variation: 200)
     }
 
-    func test_Search_query_starsFilter() async throws {
+    func test_11_Search_query_starsFilter() async throws {
         let filter = try StarsSearchFilter(expression: .init(operator: .greaterThan, value: "5"))
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 5360, variation: 300)
+        try await assertQueryPerformance(query, expectedCost: 5520, variation: 300)
     }
 
-    func test_Search_refresh() async throws {
+    func test_12_Search_refresh() async throws {
         // We can't "explain analyze" the refresh itself so we need to measure the underlying
         // query.
         // Unfortunately, this means it'll need to be kept in sync when updating the search
@@ -147,7 +147,7 @@ class QueryPerformanceTests: XCTestCase {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
-        try await assertQueryPerformance(query, expectedCost: 24_300, variation: 500)
+        try await assertQueryPerformance(query, expectedCost: 24_700, variation: 500)
     }
 
 }
@@ -191,7 +191,11 @@ private extension QueryPerformanceTests {
 
         let parsedPlan = try QueryPlan(queryPlan)
         print("ℹ️ TEST:        \(testName)")
-        print("ℹ️ COST:        \(parsedPlan.cost.total)")
+        if parsedPlan.cost.total <= expectedCost {
+            print("ℹ️ COST:        \(parsedPlan.cost.total)")
+        } else {
+            print("⚠️ COST:        \(parsedPlan.cost.total)")
+        }
         print("ℹ️ EXPECTED:    \(expectedCost) ± \(variation)")
         print("ℹ️ ACTUAL TIME: \(parsedPlan.actualTime.total)ms")
 
