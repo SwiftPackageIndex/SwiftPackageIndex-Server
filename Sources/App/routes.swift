@@ -17,6 +17,7 @@ import Metrics
 import Plot
 import Prometheus
 import Vapor
+import VaporToOpenAPI
 
 
 func routes(_ app: Application) throws {
@@ -25,33 +26,33 @@ func routes(_ app: Application) throws {
             HomeIndex.Model.query(database: req.db).map {
                 HomeIndex.View(path: req.url.path, model: $0).document()
             }
-        }
+        }.excludeFromOpenAPI()
     }
 
     do {  // static pages
         app.get(SiteURL.addAPackage.pathComponents) { req in
             MarkdownPage(path: req.url.path, "add-a-package.md").document()
-        }
+        }.excludeFromOpenAPI()
 
         app.get(SiteURL.docs(.builds).pathComponents) { req in
             MarkdownPage(path: req.url.path, "docs/builds.md").document()
-        }
+        }.excludeFromOpenAPI()
 
         app.get(SiteURL.faq.pathComponents) { req in
             MarkdownPage(path: req.url.path, "faq.md").document()
-        }
+        }.excludeFromOpenAPI()
 
         app.get(SiteURL.packageCollections.pathComponents) { req in
             MarkdownPage(path: req.url.path, "package-collections.md").document()
-        }
+        }.excludeFromOpenAPI()
 
         app.get(SiteURL.privacy.pathComponents) { req in
             MarkdownPage(path: req.url.path, "privacy.md").document()
-        }
+        }.excludeFromOpenAPI()
 
         app.get(SiteURL.tryInPlayground.pathComponents) { req in
             MarkdownPage(path: req.url.path, "try-package.md").document()
-        }
+        }.excludeFromOpenAPI()
     }
 
     do {  // package pages
@@ -59,100 +60,115 @@ func routes(_ app: Application) throws {
             // default handlers (no ref)
             app.get(":owner", ":repository", "documentation") {
                 try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", "documentation", "**") {
                 try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", "tutorials", "**") {
                 try await PackageController.defaultDocumentation(req: $0, fragment: .tutorials)
-            }
+            }.excludeFromOpenAPI()
 
             // targeted handlers (with ref)
             app.get(":owner", ":repository", ":reference", "documentation") {
                 try await PackageController.documentation(req: $0)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
                 try await PackageController.documentation(req: $0, fragment: .documentation)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") {
                 try await PackageController.documentation(req: $0, fragment: .documentation)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", .fragment(.faviconIco)) {
                 try await PackageController.documentation(req: $0, fragment: .faviconIco)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", .fragment(.faviconSvg)) {
                 try await PackageController.documentation(req: $0, fragment: .faviconSvg)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", "css", "**") {
                 try await PackageController.documentation(req: $0, fragment: .css)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", "data", "**") {
                 try await PackageController.documentation(req: $0, fragment: .data)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", "images", "**") {
                 try await PackageController.documentation(req: $0, fragment: .images)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", "img", "**") {
                 try await PackageController.documentation(req: $0, fragment: .img)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", "index", "**") {
                 try await PackageController.documentation(req: $0, fragment: .index)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", "js", "**") {
                 try await PackageController.documentation(req: $0, fragment: .js)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", .fragment(.themeSettings)) {
                 try await PackageController.documentation(req: $0, fragment: .themeSettings)
-            }
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", "tutorials", "**") {
                 try await PackageController.documentation(req: $0, fragment: .tutorials)
-            }
+            }.excludeFromOpenAPI()
         }
 
         app.get(SiteURL.package(.key, .key, .none).pathComponents,
-                use: PackageController.show)
+                use: PackageController.show).excludeFromOpenAPI()
         app.get(SiteURL.package(.key, .key, .readme).pathComponents,
-                use: PackageController.readme)
+                use: PackageController.readme).excludeFromOpenAPI()
         app.get(SiteURL.package(.key, .key, .releases).pathComponents,
-                use: PackageController.releases)
+                use: PackageController.releases).excludeFromOpenAPI()
         app.get(SiteURL.package(.key, .key, .builds).pathComponents,
-                use: PackageController.builds)
+                use: PackageController.builds).excludeFromOpenAPI()
         app.get(SiteURL.package(.key, .key, .maintainerInfo).pathComponents,
-                use: PackageController.maintainerInfo)
+                use: PackageController.maintainerInfo).excludeFromOpenAPI()
     }
 
     do {  // package collection page
         app.get(SiteURL.packageCollection(.key).pathComponents,
-                use: PackageCollectionController.generate)
+                use: PackageCollectionController.generate).excludeFromOpenAPI()
     }
 
     do {  // author page
-        app.get(SiteURL.author(.key).pathComponents, use: AuthorController.show)
+        app.get(SiteURL.author(.key).pathComponents, use: AuthorController.show).excludeFromOpenAPI()
     }
 
     do {  // keyword page
-        app.get(SiteURL.keywords(.key).pathComponents, use: KeywordController.show)
+        app.get(SiteURL.keywords(.key).pathComponents, use: KeywordController.show).excludeFromOpenAPI()
     }
 
     do { // Build monitor page
-        app.get(SiteURL.buildMonitor.pathComponents, use: BuildMonitorController.index)
+        app.get(SiteURL.buildMonitor.pathComponents, use: BuildMonitorController.index).excludeFromOpenAPI()
     }
 
     do {  // build details page
-        app.get(SiteURL.builds(.key).pathComponents, use: BuildController.show)
+        app.get(SiteURL.builds(.key).pathComponents, use: BuildController.show).excludeFromOpenAPI()
     }
 
     do {  // search page
-        app.get(SiteURL.search.pathComponents, use: SearchController.show)
+        app.get(SiteURL.search.pathComponents, use: SearchController.show).excludeFromOpenAPI()
     }
 
     do {  // Supporters
-        app.get(SiteURL.supporters.pathComponents, use: SupportersController.show)
+        app.get(SiteURL.supporters.pathComponents, use: SupportersController.show).excludeFromOpenAPI()
+
     }
 
     do {  // spi.yml validation page
         app.get(SiteURL.validateSPIManifest.pathComponents, use: ValidateSPIManifestController.show)
+            .excludeFromOpenAPI()
         app.post(SiteURL.validateSPIManifest.pathComponents, use: ValidateSPIManifestController.validate)
+            .excludeFromOpenAPI()
+    }
+
+    do {  // OpenAPI spec
+        app.get("openapi", "openapi.json") { req in
+            req.application.routes.openAPI(
+                info: InfoObject(
+                    title: "Swift Package Index API",
+                    description: "Swift Package Index API",
+                    version: "0.1.1"
+                )
+            )
+        }.excludeFromOpenAPI()
     }
 
     do {  // api
@@ -161,6 +177,9 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.api(.version).pathComponents) { req in
             API.Version(version: appVersion ?? "Unknown")
         }
+//        .openAPI(
+//            summary: "Version", description: "Site version", responseType: .application(.json)
+//        )
 
         app.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
         app.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
@@ -185,7 +204,7 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.rssPackages.pathComponents) { req in
             RSSFeed.recentPackages(on: req.db, limit: Constants.rssFeedMaxItemCount)
                 .map { $0.rss }
-        }
+        }.excludeFromOpenAPI()
 
         app.get(SiteURL.rssReleases.pathComponents) { req -> EventLoopFuture<RSS> in
             var filter: RecentRelease.Filter = []
@@ -199,12 +218,12 @@ func routes(_ app: Application) throws {
                                           limit: Constants.rssFeedMaxItemCount,
                                           filter: filter)
                 .map { $0.rss }
-        }
+        }.excludeFromOpenAPI()
 
         app.get(SiteURL.siteMap.pathComponents) { req in
             SiteMap.fetchPackages(req.db)
                 .map(SiteURL.siteMap)
-        }
+        }.excludeFromOpenAPI()
     }
 
     do {  // Metrics
@@ -212,7 +231,7 @@ func routes(_ app: Application) throws {
             let promise = req.eventLoop.makePromise(of: String.self)
             try MetricsSystem.prometheus().collect(into: promise)
             return promise.futureResult
-        }
+        }.excludeFromOpenAPI()
     }
 }
 

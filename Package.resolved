@@ -369,6 +369,15 @@
       }
     },
     {
+      "identity" : "swiftopenapi",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dankinsoid/SwiftOpenAPI.git",
+      "state" : {
+        "revision" : "6508e1cac8d48cc4f14c4006458b01ce32937058",
+        "version" : "2.10.0"
+      }
+    },
+    {
       "identity" : "swiftprometheus",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/MrLotU/SwiftPrometheus.git",
@@ -393,6 +402,15 @@
       "state" : {
         "revision" : "f4b00a5350238fe896d865d96d64f12fcbbeda95",
         "version" : "4.76.0"
+      }
+    },
+    {
+      "identity" : "vaportoopenapi",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dankinsoid/VaporToOpenAPI.git",
+      "state" : {
+        "revision" : "3cbf529232a7f1daa599896c7a95669b78f92ea1",
+        "version" : "3.12.1"
       }
     },
     {
