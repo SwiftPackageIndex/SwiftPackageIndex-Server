@@ -177,8 +177,6 @@ func routes(_ app: Application) throws {
                          use: API.BuildController.buildReport)
             protected.on(.POST, SiteURL.api(.builds(.key, .docReport)).pathComponents,
                          use: API.BuildController.docReport)
-            protected.post(SiteURL.api(.versions(.key, .triggerBuild)).pathComponents,
-                           use: API.BuildController.trigger)
             protected.post(SiteURL.api(.packages(.key, .key, .triggerBuilds)).pathComponents,
                            use: API.PackageController.triggerBuilds)
         }
