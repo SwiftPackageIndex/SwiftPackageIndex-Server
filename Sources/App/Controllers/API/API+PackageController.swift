@@ -50,32 +50,6 @@ extension API {
                 .transform(to: .ok)
         }
 
-        static func triggerBuilds(req: Request) throws -> EventLoopFuture<HTTPStatus> {
-            guard
-                let owner = req.parameters.get("owner"),
-                let repository = req.parameters.get("repository")
-            else {
-                return req.eventLoop.future(error: Abort(.notFound))
-            }
-            let dto = try req.content.decode(PostBuildTriggerDTO.self)
-            return TriggerBuildRoute
-                .query(on: req.db, owner: owner, repository: repository)
-                .flatMapEach(on: req.eventLoop) { versionId -> EventLoopFuture<HTTPStatus> in
-                    Build.trigger(database: req.db,
-                                  client: req.client,
-                                  logger: req.logger,
-                                  buildId: .init(),
-                                  platform: dto.platform,
-                                  swiftVersion: dto.swiftVersion,
-                                  versionId: versionId)
-                    .map(\.status)
-                }
-                .map { statuses -> HTTPStatus in
-                    statuses.allSatisfy { $0 == .created || $0 == .ok }
-                    ? .ok : .badRequest
-                }
-        }
-
         static func run(req: Request) async throws -> Command.Response {
             let cmd = req.parameters.get("command")
                 .flatMap(Command.init(rawValue:))

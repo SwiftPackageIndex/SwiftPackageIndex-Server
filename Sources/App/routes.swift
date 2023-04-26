@@ -177,8 +177,6 @@ func routes(_ app: Application) throws {
                          use: API.BuildController.buildReport)
             protected.on(.POST, SiteURL.api(.builds(.key, .docReport)).pathComponents,
                          use: API.BuildController.docReport)
-            protected.post(SiteURL.api(.packages(.key, .key, .triggerBuilds)).pathComponents,
-                           use: API.PackageController.triggerBuilds)
         }
 
         // sas: 2020-05-19: shut down public API until we have an auth mechanism
