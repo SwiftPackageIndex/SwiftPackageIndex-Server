@@ -179,14 +179,6 @@ func routes(_ app: Application) throws {
                          use: API.BuildController.docReport)
         }
 
-        // sas: 2020-05-19: shut down public API until we have an auth mechanism
-        //  api.get("packages", use: API.PackageController.index)
-        //  api.get("packages", ":id", use: API.PackageController.get)
-        //  api.post("packages", use: API.PackageController.create)
-        //  api.put("packages", ":id", use: API.PackageController.replace)
-        //  api.delete("packages", ":id", use: API.PackageController.delete)
-        //
-        //  api.get("packages", "run", ":command", use: API.PackageController.run)
     }
 
     do {  // RSS + Sitemap

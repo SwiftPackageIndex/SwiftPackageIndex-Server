@@ -18,63 +18,7 @@ import Vapor
 
 extension API {
 
-    // periphery:ignore
     enum PackageController {
-
-        static func index(req: Request) throws -> EventLoopFuture<[Package]> {
-            return Package.query(on: req.db).all()
-        }
-
-        static func create(req: Request) throws -> EventLoopFuture<Package> {
-            let pkg = try req.content.decode(Package.self)
-            return pkg.save(on: req.db).map { pkg }
-        }
-
-        static func get(req: Request) throws -> EventLoopFuture<Package> {
-            return Package.find(req.parameters.get("id"), on: req.db)
-                .unwrap(or: Abort(.notFound))
-        }
-
-        static func replace(req: Request) throws -> EventLoopFuture<HTTPStatus> {
-            let pkg = try req.content.decode(Package.self)
-            return Package.find(req.parameters.get("id"), on: req.db)
-                .unwrap(or: Abort(.notFound))
-                .flatMap { _ in pkg.save(on: req.db) }
-                .transform(to: .ok)
-        }
-
-        static func delete(req: Request) throws -> EventLoopFuture<HTTPStatus> {
-            return Package.find(req.parameters.get("id"), on: req.db)
-                .unwrap(or: Abort(.notFound))
-                .flatMap { $0.delete(on: req.db) }
-                .transform(to: .ok)
-        }
-
-        static func run(req: Request) async throws -> Command.Response {
-            let cmd = req.parameters.get("command")
-                .flatMap(Command.init(rawValue:))
-            let limit = req.query[Int.self, at: "limit"] ?? 10
-            switch cmd {
-                case .reconcile:
-                    try await reconcile(client: req.client, database: req.db)
-                    let rowCount = try await Package.query(on: req.db).count()
-                    return .init(status: "ok", rows: rowCount)
-                case .ingest:
-                    try await ingest(client: req.application.client,
-                                     database: req.application.db,
-                                     logger: req.application.logger,
-                                     mode: .limit(limit))
-                    return .init(status: "ok", rows: limit)
-                case .analyze:
-                    try await Analyze.analyze(client: req.application.client,
-                                              database: req.application.db,
-                                              logger: req.application.logger,
-                                              mode: .limit(limit))
-                    return .init(status: "ok", rows: limit)
-                case .none:
-                    throw Abort(.notFound)
-            }
-        }
 
         static func badge(req: Request) throws -> EventLoopFuture<Badge> {
             guard
