@@ -90,7 +90,6 @@ enum Api: Resourceable {
 
     enum VersionsPathComponents: String, Resourceable {
         case buildReport = "build-report"
-        case triggerBuild = "trigger-build"
     }
 
 }
