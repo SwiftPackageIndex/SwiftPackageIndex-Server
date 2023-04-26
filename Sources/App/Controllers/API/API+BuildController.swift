@@ -119,22 +119,6 @@ extension API {
 
             return .noContent
         }
-
-        static func trigger(req: Request) throws -> EventLoopFuture<Build.TriggerResponse> {
-            guard let id = req.parameters.get("id"),
-                  let versionId = UUID(uuidString: id)
-            else {
-                return req.eventLoop.future(error: Abort(.badRequest))
-            }
-            let dto = try req.content.decode(PostBuildTriggerDTO.self)
-            return Build.trigger(database: req.db,
-                                 client: req.client,
-                                 logger: req.logger,
-                                 buildId: .init(),
-                                 platform: dto.platform,
-                                 swiftVersion: dto.swiftVersion,
-                                 versionId: versionId)
-        }
     }
 
 }

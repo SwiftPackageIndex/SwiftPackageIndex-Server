@@ -13,8 +13,8 @@
 # limitations under the License.
 
 variables:
-    base_url: http://localhost:8080/api
-    # base_url: https://staging.swiftpackageindex.com/api
+    # base_url: http://localhost:8080/api
+    base_url: https://staging.swiftpackageindex.com/api
 
 requests:
 

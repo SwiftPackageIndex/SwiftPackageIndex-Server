@@ -177,20 +177,8 @@ func routes(_ app: Application) throws {
                          use: API.BuildController.buildReport)
             protected.on(.POST, SiteURL.api(.builds(.key, .docReport)).pathComponents,
                          use: API.BuildController.docReport)
-            protected.post(SiteURL.api(.versions(.key, .triggerBuild)).pathComponents,
-                           use: API.BuildController.trigger)
-            protected.post(SiteURL.api(.packages(.key, .key, .triggerBuilds)).pathComponents,
-                           use: API.PackageController.triggerBuilds)
         }
 
-        // sas: 2020-05-19: shut down public API until we have an auth mechanism
-        //  api.get("packages", use: API.PackageController.index)
-        //  api.get("packages", ":id", use: API.PackageController.get)
-        //  api.post("packages", use: API.PackageController.create)
-        //  api.put("packages", ":id", use: API.PackageController.replace)
-        //  api.delete("packages", ":id", use: API.PackageController.delete)
-        //
-        //  api.get("packages", "run", ":command", use: API.PackageController.run)
     }
 
     do {  // RSS + Sitemap
