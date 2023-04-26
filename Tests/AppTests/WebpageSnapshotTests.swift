@@ -424,6 +424,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
         let doccHtml = try String(contentsOfFile: doccTemplatePath)
         let archive = DocArchive(name: "archive1", title: "Archive1")
+#warning("Fix up the canonicalUrl in the snapshot test.")
         let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
                                                                  repositoryOwnerName: "Owner Name",
                                                                  repositoryName: "package",
@@ -431,6 +432,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  reference: "main",
                                                                  referenceLatest: .release,
                                                                  referenceKind: .release,
+                                                                 canonicalUrl: "TODO: Fix this up",
                                                                  availableArchives: [
                                                                     .init(archive: archive, isCurrent: true)
                                                                  ],
@@ -450,6 +452,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
         let doccHtml = try String(contentsOfFile: doccTemplatePath)
         let archive = DocArchive(name: "archive1", title: "Archive1")
+#warning("Fix up the canonicalUrl in the snapshot test.")
         let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
                                                                  repositoryOwnerName: "Owner Name",
                                                                  repositoryName: "package",
@@ -457,6 +460,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  reference: "1.1.0",
                                                                  referenceLatest: nil,
                                                                  referenceKind: .release,
+                                                                 canonicalUrl: "TODO: Fix this up",
                                                                  availableArchives: [
                                                                     .init(archive: archive, isCurrent: true)
                                                                  ],
@@ -481,6 +485,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         let doccHtml = try String(contentsOfFile: doccTemplatePath)
         let archive1 = DocArchive(name: "archive1", title: "Archive1")
         let archive2 = DocArchive(name: "archive2", title: "Archive2")
+#warning("Fix up the canonicalUrl in the snapshot test.")
         let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
                                                                  repositoryOwnerName: "Owner Name",
                                                                  repositoryName: "package",
@@ -488,6 +493,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  reference: "main",
                                                                  referenceLatest: .defaultBranch,
                                                                  referenceKind: .defaultBranch,
+                                                                 canonicalUrl: "TODO: Fix this up",
                                                                  availableArchives: [
                                                                     .init(archive: archive1, isCurrent: true),
                                                                     .init(archive: archive2, isCurrent: false),

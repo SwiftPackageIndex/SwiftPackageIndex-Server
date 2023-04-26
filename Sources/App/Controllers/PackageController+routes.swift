@@ -158,6 +158,10 @@ enum PackageController {
 
         let awsResponse = try await awsResponse(client: req.client, owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
 
+        // Navigation events within Vue pages include a `.json` extension on the path, fresh page loads do not.
+#warning("Look into this. It's related to canonical URLs when navigating between pages, but may no longer be necessary.")
+        let normalisedPath = path.removingSuffix(".json")
+
         switch fragment {
             case .documentation, .tutorials:
                 let documentationVersions = try await DocumentationVersion
@@ -169,6 +173,7 @@ enum PackageController {
                     awsResponse: awsResponse,
                     documentationVersions: documentationVersions,
                     fragment: fragment,
+                    path: normalisedPath,
                     owner: owner,
                     reference: reference,
                     repository: repository
@@ -192,6 +197,7 @@ enum PackageController {
                                       awsResponse: ClientResponse,
                                       documentationVersions: [DocumentationVersion],
                                       fragment: Fragment,
+                                      path: String,
                                       owner: String,
                                       reference: String,
                                       repository: String) async throws -> Response {
@@ -225,6 +231,16 @@ enum PackageController {
             .init(archive: $0, isCurrent: $0.name == archive)
         }
 
+        let canonicalUrl = documentationVersions
+            .first(where: { $0.canonicalTarget != nil})
+            .map { version -> String in
+                guard let target = version.canonicalTarget else { return "" }
+                return SiteURL.relativeURL(owner: owner,
+                                           repository: repository,
+                                           documentation: target,
+                                           fragment: .documentation)
+            }
+
         // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
         guard let body = awsResponse.body,
               let processor = DocumentationPageProcessor(repositoryOwner: owner,
@@ -234,6 +250,7 @@ enum PackageController {
                                                          reference: reference,
                                                          referenceLatest: documentation.latest,
                                                          referenceKind: documentation.reference.versionKind,
+                                                         canonicalUrl: canonicalUrl,
                                                          availableArchives: availableArchives,
                                                          availableVersions: availableDocumentationVersions,
                                                          updatedAt: documentation.updatedAt,

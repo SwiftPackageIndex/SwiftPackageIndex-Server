@@ -25,9 +25,10 @@ struct DocumentationVersion: Equatable {
     var docArchives: [DocArchive]
     var latest: Version.Kind?
     var updatedAt: Date
+    var canonicalTarget: DocumentationTarget?
 
     static func query(on database: Database, owner: String, repository: String) async throws -> [Self] {
-        try await Joined3<Version, Package, Repository>
+        let results = try await Joined3<Version, Package, Repository>
             .query(on: database,
                    join: \Version.$package.$id == \Package.$id, method: .inner,
                    join: \Package.$id == \Repository.$package.$id, method: .inner)
@@ -40,16 +41,35 @@ struct DocumentationVersion: Equatable {
             .field(Version.self, \.$docArchives)
             .field(Version.self, \.$commitDate)
             .field(Version.self, \.$publishedAt)
+            .field(Version.self, \.$spiManifest)
             .field(Repository.self, \.$ownerName)
             .all()
-            .map { result in
-                    .init(reference: result.model.reference,
-                          ownerName: result.relation2?.ownerName ?? owner,
-                          packageName: result.model.packageName ?? repository,
-                          docArchives: result.model.docArchives ?? [],
-                          latest: result.model.latest,
-                          updatedAt: result.model.publishedAt ?? result.model.commitDate)
-            }
+
+        // Filter out non `latest` versions that are fetched by the query as there
+        // may be old major versions we want to keep in the navigation menu.
+        let versions = results.map {$0.model }.filter { $0.latest != nil }
+        let canonicalVersion = versions.canonicalDocumentationVersion()
+
+        let docVersions = results.map { result in
+            let canonicanTarget: DocumentationTarget? = {
+                guard let canonicalVersion else { return nil }
+                if result.model.id == canonicalVersion.id {
+                    return versions.documentationTarget()
+                } else {
+                    return nil
+                }
+            }()
+
+            return DocumentationVersion(reference: result.model.reference,
+                                 ownerName: result.relation2?.ownerName ?? owner,
+                                 packageName: result.model.packageName ?? repository,
+                                 docArchives: result.model.docArchives ?? [],
+                                 latest: result.model.latest,
+                                 updatedAt: result.model.publishedAt ?? result.model.commitDate,
+                                 canonicalTarget: canonicanTarget)
+        }
+
+        return docVersions
     }
 }
 
