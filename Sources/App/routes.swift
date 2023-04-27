@@ -244,6 +244,19 @@ func routes(_ app: Application) throws {
 
             protected.on(.POST, SiteURL.api(.builds(.key, .docReport)).pathComponents,
                          use: API.BuildController.docReport)
+            .openAPI(
+                summary: "/api/builds/{id}/doc-report",
+                description: "Send a documentation generation report.",
+                body: API.PostDocReportDTO.example,
+                responseType: .application(.json),
+                errorDescriptions: [
+                    400: "Bad request",
+                    404: "Not found",
+                    409: "Conflict",
+                    500: "Internal server error"
+                ],
+                auth: .bearer()
+            )
         }
         
     }

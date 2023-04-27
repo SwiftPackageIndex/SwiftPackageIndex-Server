@@ -144,3 +144,13 @@ extension API.PostBuildReportDTO: WithExample {
     }
 }
 
+extension API.PostDocReportDTO: WithExample {
+    static var example: Self {
+        .init(docArchives: [.init(name: "linkedlist", title: "LinkedList")],
+              error: nil,
+              fileCount: 2639,
+              logUrl: "https://us-east-2.console.aws.amazon.com/logs/123456678",
+              mbSize: 23,
+              status: .ok)
+    }
+}
