@@ -69,3 +69,61 @@ extension SignificantBuilds: WithExample {
         ])
     }
 }
+
+
+// MARK: - Package collection types
+
+import PackageCollectionsModel
+
+
+
+extension API.PostPackageCollectionOwnerDTO: WithExample {
+    static var example: Self {
+        .init(owner: "mona")
+    }
+}
+
+extension PackageCollectionModel.V1.Collection: WithExample {
+    public static var example: Self {
+        .init(name: "Packages by mona",
+              overview: "A collection of packages authored by mona from the Swift Package Index",
+              keywords: nil, packages: [
+                .init(url: URL(string: "https://github.com/mona/LinkedList.git")!,
+                      summary: "An example package",
+                      keywords: nil,
+                      versions: [],
+                      readmeURL: URL(string: "https://github.com/mona/LinkedList/blob/main/README.md")!,
+                      license: .init(name: "MIT",
+                                     url: URL(string: "https://github.com/mona/LinkedList/blob/main/LICENSE")!))
+              ],
+              formatVersion: .v1_0,
+              revision: nil,
+              generatedBy: .init(name: "mona"))
+    }
+}
+
+extension PackageCollectionModel.V1.Signature.Certificate: WithExample {
+    public static var example: Self {
+        .init(subject: .init(userID: "V676TFACYJ",
+                             commonName: "Swift Package Collection: SPI Operations Limited",
+                             organizationalUnit: "V676TFACYJ",
+                             organization: "SPI Operations Limited"),
+              issuer: .init(userID: nil,
+                            commonName: "Apple Worldwide Developer Relations Certification Authority",
+                            organizationalUnit: "G3",
+                            organization: "Apple Inc."))
+    }
+}
+
+extension PackageCollectionModel.V1.Signature: WithExample {
+    public static var example: Self {
+        .init(signature: "ewogICJhbGciIDogIlJ...<snip>...WD1pXXPrkvVJlv4w", certificate: .example)
+    }
+}
+
+extension SignedCollection: WithExample {
+    public static var example: Self {
+        .init(collection: .example, signature: .example)
+    }
+}
+

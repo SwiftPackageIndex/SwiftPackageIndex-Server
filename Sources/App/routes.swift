@@ -211,6 +211,15 @@ func routes(_ app: Application) throws {
         if Environment.current == .development {
             app.post(SiteURL.api(.packageCollections).pathComponents,
                      use: API.PackageCollectionController.generate)
+            .openAPI(
+                summary: "package-collections",
+                description: "Generate a signed package collection.",
+                body: API.PostPackageCollectionOwnerDTO.example,
+                response: SignedCollection.example,
+                responseType: .application(.json),
+                errorDescriptions: [
+                    400: "Bad request"
+                ])
         }
         
         // protected routes
