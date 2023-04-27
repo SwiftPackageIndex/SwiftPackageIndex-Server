@@ -23,20 +23,17 @@ extension API {
             var type: BadgeType
         }
 
-        static func badge(req: Request) throws -> EventLoopFuture<Badge> {
+        static func badge(req: Request) async throws -> Badge {
             guard
                 let owner = req.parameters.get("owner"),
                 let repository = req.parameters.get("repository")
             else {
-                return req.eventLoop.future(error: Abort(.notFound))
+                throw Abort(.notFound)
             }
             let query = try req.query.decode(Query.self)
 
-            return BadgeRoute
-                .query(on: req.db, owner: owner, repository: repository)
-                .map {
-                    Badge(significantBuilds: $0, badgeType: query.type)
-                }
+            let significantBuilds = try await BadgeRoute.query(on: req.db, owner: owner, repository: repository)
+            return Badge(significantBuilds: significantBuilds, badgeType: query.type)
         }
 
     }
@@ -59,8 +56,8 @@ extension API.PackageController {
 
 extension API.PackageController {
     enum BadgeRoute {
-        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<SignificantBuilds> {
-            Joined4<Build, Version, Package, Repository>
+        static func query(on database: Database, owner: String, repository: String) async throws -> SignificantBuilds {
+            let buildInfo = try await Joined4<Build, Version, Package, Repository>
                 .query(on: database)
                 .filter(Version.self, \Version.$latest != nil)
                 .filter(Repository.self, \.$owner, .custom("ilike"), owner)
@@ -69,10 +66,10 @@ extension API.PackageController {
                 .field(\.$status)
                 .field(\.$swiftVersion)
                 .all()
-                .mapEach {
+                .map {
                     ($0.build.swiftVersion, $0.build.platform, $0.build.status)
                 }
-                .map(SignificantBuilds.init(buildInfo:))
+            return SignificantBuilds.init(buildInfo: buildInfo)
         }
     }
 }
