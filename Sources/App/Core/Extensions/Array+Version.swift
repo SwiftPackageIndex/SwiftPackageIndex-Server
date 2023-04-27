@@ -18,56 +18,36 @@ extension [Version] {
     var preReleaseVersion: Version? { filter { $0.latest == .preRelease}.first }
     var releaseVersion: Version? { filter { $0.latest == .release}.first }
 
-    private func defaultDocumentationVersionAndTarget() -> (version: Version, docTarget: DocumentationTarget)? {
+    func canonicalDocumentationTarget() -> DocumentationTarget? {
         // External documentation links have priority over generated documentation.
-        if let version = defaultBranchVersion,
-           let spiManifest = defaultBranchVersion?.spiManifest,
+        if let spiManifest = defaultBranchVersion?.spiManifest,
            let documentation = spiManifest.externalLinks?.documentation {
-            return (version: version,
-                    docTarget: .external(url: documentation))
+            return .external(url: documentation)
         }
 
         // Ideal case is that we have a stable release documentation.
         if let version = releaseVersion,
            let archive = version.docArchives?.first?.name {
-            return (version: version,
-                    docTarget: .internal(reference: "\(version.reference)", archive: archive))
+            return .internal(reference: "\(version.reference)", archive: archive)
         }
 
         // Then a pre-release is second best.
         if let version = preReleaseVersion,
            let archive = version.docArchives?.first?.name {
-            return (version: version,
-                    docTarget: .internal(reference: "\(version.reference)", archive: archive))
+            return .internal(reference: "\(version.reference)", archive: archive)
         }
 
         // Finally, fallback to the default branch documentation.
         if let version = defaultBranchVersion,
            let archive = version.docArchives?.first?.name {
-            return (version: version,
-                    docTarget: .internal(reference: "\(version.reference)", archive: archive))
+            return .internal(reference: "\(version.reference)", archive: archive)
         }
 
         // There is no default dodcumentation.
         return nil
     }
 
-    func documentationTarget() -> DocumentationTarget? {
-        defaultDocumentationVersionAndTarget()?.docTarget
-    }
-
-    func canonicalDocumentationVersion() -> Version? {
-        switch defaultDocumentationVersionAndTarget() {
-            case .some((_, .external)), .some((_, .universal)):
-                return nil
-            case let .some((version, .internal)):
-                return version
-            case .none:
-                return nil
-        }
-    }
-
-    func hasDocumentation() -> Bool { documentationTarget() != nil }
+    func hasDocumentation() -> Bool { canonicalDocumentationTarget() != nil }
 }
 
 

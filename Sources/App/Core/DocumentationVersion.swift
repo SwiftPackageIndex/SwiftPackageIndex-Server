@@ -39,10 +39,12 @@ struct DocumentationVersionMetadata {
             .field(Repository.self, \.$ownerName)
             .all()
 
-        // Filter out non `latest` versions that are fetched by the query as there
-        // may be old major versions we want to keep in the navigation menu.
-        let versions = results.map {$0.model }.filter { $0.latest != nil }
-        let canonicalDocumentationTarget = versions.documentationTarget()
+        // This query returns `Version` objects that have nil `latest` properties as we show documentation
+        // for major package versions that are *not* latest anything. There's no need to filter these records
+        // out as they are never selected by `canonicalDocumentationTarget` but it's worth being aware that
+        // this is normal and expected.
+        let versions = results.map {$0.model }
+        let canonicalDocumentationTarget = versions.canonicalDocumentationTarget()
 
         let documentationVersions = results.map { result -> DocumentationVersion in
                 .init(reference: result.model.reference,
