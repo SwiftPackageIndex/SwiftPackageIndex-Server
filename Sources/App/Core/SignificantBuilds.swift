@@ -13,8 +13,8 @@
 // limitations under the License.
 
 
-struct SignificantBuilds {
-    struct BuildInfo: Equatable {
+struct SignificantBuilds: Codable {
+    struct BuildInfo: Codable, Equatable {
         var swiftVersion: SwiftVersion
         var platform: Build.Platform
         var status: Build.Status

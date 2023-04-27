@@ -3,8 +3,22 @@ import Foundation
 import VaporToOpenAPI
 
 
+// MARK: - External types
+
 extension Date: WithExample {
     public static var example: Self { .init(rfc1123: "Sat, 25 Apr 2020 10:55:00 UTC")! }
+}
+
+
+// MARK: - Internal types
+
+extension Badge: WithExample {
+    static var example: Self { .init(significantBuilds: .example, badgeType: .platforms)}
+}
+
+
+extension API.PackageController.Query: WithExample {
+    static var example: Self { .init(type: .platforms) }
 }
 
 
@@ -44,5 +58,14 @@ extension Search.Response: WithExample {
 extension SearchFilter.ViewModel: WithExample {
     static var example: Self {
         .init(key: "author", operator: "is", value: "mona")
+    }
+}
+
+
+extension SignificantBuilds: WithExample {
+    static var example: Self {
+        .init(buildInfo: [
+            (.v5_8, Build.Platform.ios, .ok)
+        ])
     }
 }

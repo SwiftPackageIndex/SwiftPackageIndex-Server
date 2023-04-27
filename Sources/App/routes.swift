@@ -179,7 +179,7 @@ func routes(_ app: Application) throws {
         }
         .openAPI(
             summary: "version",
-            description: "Site version",
+            description: "Get the site's version.",
             response: API.Version(version: "1.2.3"),
             responseType: .application(.json)
         )
@@ -187,7 +187,7 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
             .openAPI(
                 summary: "search",
-                description: "Package search",
+                description: "Execute a search.",
                 query: API.SearchController.Query.example,
                 response: Search.Response.example,
                 responseType: .application(.json),
@@ -198,6 +198,15 @@ func routes(_ app: Application) throws {
         
         app.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
                 use: API.PackageController.badge)
+        .openAPI(
+            summary: "packages/{owner}/{repository}/badge",
+            description: "Get shields.io badge for the given repository.",
+            query: API.PackageController.Query.example,
+            response: Badge.example,
+            responseType: .application(.json),
+            errorDescriptions: [
+                400: "Bad request"
+            ])
         
         if Environment.current == .development {
             app.post(SiteURL.api(.packageCollections).pathComponents,
