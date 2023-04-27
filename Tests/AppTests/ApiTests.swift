@@ -528,40 +528,37 @@ class ApiTests: AppTestCase {
         XCTAssertEqual(Set(versionIds), [.id0])
     }
 
-    func test_BadgeRoute_query() throws {
+    func test_BadgeRoute_query() async throws {
         // setup
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .release, reference: .tag(.init(1, 2, 3)))
-        try v.save(on: app.db).wait()
-        try Repository(package: p,
-                       defaultBranch: "main",
-                       license: .mit,
-                       name: "repo",
-                       owner: "owner").save(on: app.db).wait()
+        try await v.save(on: app.db)
+        try await Repository(package: p,
+                             defaultBranch: "main",
+                             license: .mit,
+                             name: "repo",
+                             owner: "owner").save(on: app.db)
         // add builds
-        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        try await Build(version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
             .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_6)
+        try await Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_6)
             .save(on: app.db)
-            .wait()
         do { // save decoy
             let p = try savePackage(on: app.db, "2")
             let v = try Version(package: p, latest: .release, reference: .tag(.init(2, 0, 0)))
-            try v.save(on: app.db).wait()
-            try Repository(package: p,
-                           defaultBranch: "main",
-                           license: .mit,
-                           name: "decoy",
-                           owner: "owner").save(on: app.db).wait()
-            try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_5)
+            try await v.save(on: app.db)
+            try await Repository(package: p,
+                                 defaultBranch: "main",
+                                 license: .mit,
+                                 name: "decoy",
+                                 owner: "owner").save(on: app.db)
+            try await Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_5)
                 .save(on: app.db)
-                .wait()
         }
-
+        
         // MUT
-        let sb = try API.PackageController.BadgeRoute.query(on: app.db, owner: "owner", repository: "repo").wait()
-
+        let sb = try await API.PackageController.BadgeRoute.query(on: app.db, owner: "owner", repository: "repo")
+        
         // validate
         XCTAssertEqual(sb.builds.sorted(), [
             .init(.v5_6, .macosSpm, .ok),
