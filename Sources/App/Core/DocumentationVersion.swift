@@ -17,17 +17,11 @@ import Foundation
 import Fluent
 import SemanticVersion
 
-
-struct DocumentationVersion: Equatable {
-    var reference: Reference
-    var ownerName: String
-    var packageName: String
-    var docArchives: [DocArchive]
-    var latest: Version.Kind?
-    var updatedAt: Date
+struct DocumentationVersionMetadata {
     var canonicalTarget: DocumentationTarget?
+    var versions: [DocumentationVersion]
 
-    static func query(on database: Database, owner: String, repository: String) async throws -> [Self] {
+    static func query(on database: Database, owner: String, repository: String) async throws -> Self {
         let results = try await Joined3<Version, Package, Repository>
             .query(on: database,
                    join: \Version.$package.$id == \Package.$id, method: .inner,
@@ -48,31 +42,30 @@ struct DocumentationVersion: Equatable {
         // Filter out non `latest` versions that are fetched by the query as there
         // may be old major versions we want to keep in the navigation menu.
         let versions = results.map {$0.model }.filter { $0.latest != nil }
-        let canonicalVersion = versions.canonicalDocumentationVersion()
+        let canonicalDocumentationTarget = versions.documentationTarget()
 
-        let docVersions = results.map { result in
-            let canonicanTarget: DocumentationTarget? = {
-                guard let canonicalVersion else { return nil }
-                if result.model.id == canonicalVersion.id {
-                    return versions.documentationTarget()
-                } else {
-                    return nil
-                }
-            }()
-
-            return DocumentationVersion(reference: result.model.reference,
-                                 ownerName: result.relation2?.ownerName ?? owner,
-                                 packageName: result.model.packageName ?? repository,
-                                 docArchives: result.model.docArchives ?? [],
-                                 latest: result.model.latest,
-                                 updatedAt: result.model.publishedAt ?? result.model.commitDate,
-                                 canonicalTarget: canonicanTarget)
+        let documentationVersions = results.map { result -> DocumentationVersion in
+                .init(reference: result.model.reference,
+                      ownerName: result.relation2?.ownerName ?? owner,
+                      packageName: result.model.packageName ?? repository,
+                      docArchives: result.model.docArchives ?? [],
+                      latest: result.model.latest,
+                      updatedAt: result.model.publishedAt ?? result.model.commitDate)
         }
 
-        return docVersions
+        return .init(canonicalTarget: canonicalDocumentationTarget,
+                     versions: documentationVersions)
     }
 }
 
+struct DocumentationVersion: Equatable {
+    var reference: Reference
+    var ownerName: String
+    var packageName: String
+    var docArchives: [DocArchive]
+    var latest: Version.Kind?
+    var updatedAt: Date
+}
 
 extension Array where Element == DocumentationVersion {
     subscript(reference reference: String) -> Element? {

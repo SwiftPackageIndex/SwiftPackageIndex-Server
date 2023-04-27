@@ -164,14 +164,14 @@ enum PackageController {
 
         switch fragment {
             case .documentation, .tutorials:
-                let documentationVersions = try await DocumentationVersion
+                let documentationVersionMetadata = try await DocumentationVersionMetadata
                     .query(on: req.db, owner: owner, repository: repository)
 
                 return try await documentationResponse(
                     req: req,
                     archive: archive,
                     awsResponse: awsResponse,
-                    documentationVersions: documentationVersions,
+                    documentationVersionMetadata: documentationVersionMetadata,
                     fragment: fragment,
                     path: normalisedPath,
                     owner: owner,
@@ -195,23 +195,23 @@ enum PackageController {
     static func documentationResponse(req: Request,
                                       archive: String?,
                                       awsResponse: ClientResponse,
-                                      documentationVersions: [DocumentationVersion],
+                                      documentationVersionMetadata: DocumentationVersionMetadata,
                                       fragment: Fragment,
                                       path: String,
                                       owner: String,
                                       reference: String,
                                       repository: String) async throws -> Response {
 
-        guard let documentation = documentationVersions[reference: reference]
+        guard let documentation = documentationVersionMetadata.versions[reference: reference]
         else {
             // If there's no match for this reference with a docArchive, we're done!
             throw Abort(.notFound, reason: "No docArchives for this reference")
         }
 
         let availableDocumentationVersions: [DocumentationPageProcessor.AvailableDocumentationVersion] = ([
-            documentationVersions.first { $0.latest == .defaultBranch },
-            documentationVersions.first { $0.latest == .preRelease }
-        ] + documentationVersions.latestMajorVersions())
+            documentationVersionMetadata.versions.first { $0.latest == .defaultBranch },
+            documentationVersionMetadata.versions.first { $0.latest == .preRelease }
+        ] + documentationVersionMetadata.versions.latestMajorVersions())
             .compactMap { version in
                 guard let version = version
                 else { return nil }
@@ -231,15 +231,14 @@ enum PackageController {
             .init(archive: $0, isCurrent: $0.name == archive)
         }
 
-        let canonicalUrl = documentationVersions
-            .first(where: { $0.canonicalTarget != nil})
-            .map { version -> String in
-                guard let target = version.canonicalTarget else { return "" }
-                return SiteURL.relativeURL(owner: owner,
-                                           repository: repository,
-                                           documentation: target,
-                                           fragment: .documentation)
-            }
+        let canonicalUrl: String? = {
+            guard let canonicalTarget = documentationVersionMetadata.canonicalTarget else { return nil }
+            return SiteURL.relativeURL(owner: owner,
+                                       repository: repository,
+                                       documentation: canonicalTarget,
+                                       fragment: .documentation)
+        }()
+
 
         // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
         guard let body = awsResponse.body,
