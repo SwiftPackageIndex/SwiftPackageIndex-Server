@@ -23,7 +23,7 @@ class SearchShowModelTests: XCTestCase {
 
         // MUT
         let model = SearchShow.Model(
-            page: 1, query: "query key:value",
+            query: .init(query: "query key:value", page: 1),
             response: .init(hasMoreResults: false,
                             searchTerm: "query",
                             searchFilters: [
@@ -50,8 +50,7 @@ class SearchShowModelTests: XCTestCase {
             let query = #"'>"></script><svg/onload=confirm(42)>"#
             // MUT
             let model = SearchShow.Model(
-                page: 1,
-                query: query,
+                query: .init(query: query, page: 1),
                 response: .init(hasMoreResults: false, searchTerm: query, searchFilters: [], results: []),
                 weightedKeywords: []
             )
@@ -70,8 +69,7 @@ class SearchShowModelTests: XCTestCase {
             let query = "test'two"
             // MUT
             let model = SearchShow.Model(
-                page: 1,
-                query: query,
+                query: .init(query: query, page: 1),
                 response: .init(hasMoreResults: false, searchTerm: query, searchFilters: [], results: []),
                 weightedKeywords: []
             )
@@ -83,10 +81,12 @@ class SearchShowModelTests: XCTestCase {
 
     func test_SearchShow_Model_authorResults() throws {
         let results: [Search.Result] = .mock()
-        let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false,
-                                                                              searchTerm: "query",
-                                                                              searchFilters: [],
-                                                                              results: results), weightedKeywords: [])
+        let model = SearchShow.Model(query: .init(query: "query", page: 1),
+                                     response: .init(hasMoreResults: false,
+                                                     searchTerm: "query",
+                                                     searchFilters: [],
+                                                     results: results),
+                                     weightedKeywords: [])
 
         // MUT
         let authorResult = model.authorResults.first!
@@ -96,10 +96,12 @@ class SearchShowModelTests: XCTestCase {
 
     func test_SearchShow_Model_keywordResults() throws {
         let results: [Search.Result] = .mock()
-        let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false,
-                                                                              searchTerm: "query",
-                                                                              searchFilters: [],
-                                                                              results: results), weightedKeywords: [])
+        let model = SearchShow.Model(query: .init(query: "query", page:1 ),
+                                     response: .init(hasMoreResults: false,
+                                                     searchTerm: "query",
+                                                     searchFilters: [],
+                                                     results: results),
+                                     weightedKeywords: [])
 
         // MUT
         let keywordResult = model.keywordResults.first!
@@ -109,10 +111,12 @@ class SearchShowModelTests: XCTestCase {
 
     func test_SearchShow_Model_packageResults() throws {
         let results: [Search.Result] = .mock()
-        let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false,
-                                                                              searchTerm: "query",
-                                                                              searchFilters: [],
-                                                                              results: results), weightedKeywords: [])
+        let model = SearchShow.Model(query: .init(query: "query", page: 1),
+                                     response: .init(hasMoreResults: false,
+                                                     searchTerm: "query",
+                                                     searchFilters: [],
+                                                     results: results),
+                                     weightedKeywords: [])
 
         // MUT
         let packageResult = model.packageResults.first!
@@ -127,10 +131,12 @@ class SearchShowModelTests: XCTestCase {
 
     func test_SearchShow_Model_matchingKeywords() throws {
         let results: [Search.Result] = .mock()
-        let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false,
-                                                                              searchTerm: "query",
-                                                                              searchFilters: [],
-                                                                              results: results), weightedKeywords: [])
+        let model = SearchShow.Model(query: .init(query: "query", page: 1),
+                                     response: .init(hasMoreResults: false,
+                                                     searchTerm: "query",
+                                                     searchFilters: [],
+                                                     results: results),
+                                     weightedKeywords: [])
 
         // MUT
         let matchingKeywords = model.matchingKeywords(packageKeywords: ["keyword2", "keyword4", "keyword5"])

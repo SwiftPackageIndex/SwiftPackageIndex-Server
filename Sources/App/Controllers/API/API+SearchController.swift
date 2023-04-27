@@ -18,14 +18,20 @@ import Vapor
 
 extension API {
     struct SearchController {
-        static func get(req: Request) throws -> EventLoopFuture<Search.Response> {
-            let query = req.query[String.self, at: "query"] ?? ""
-            let page = req.query[Int.self, at: "page"] ?? 1
+        struct Query: Codable {
+            var query: String? = Self.defaultQuery
+            var page: Int? = Self.defaultPage
+
+            static let defaultQuery = ""
+            static let defaultPage = 1
+        }
+
+        static func get(req: Request) async throws -> Search.Response {
+            let query = try req.query.decode(Query.self)
             AppMetrics.apiSearchGetTotal?.inc()
-            return search(database: req.db,
-                          query: query,
-                          page: page,
-                          pageSize: Constants.resultsPageSize)
+            return try await search(database: req.db,
+                                    query: query,
+                                    pageSize: Constants.resultsPageSize)
         }
     }
 }
@@ -33,16 +39,19 @@ extension API {
 
 extension API {
     static func search(database: Database,
-                       query: String,
-                       page: Int,
-                       pageSize: Int) -> EventLoopFuture<Search.Response> {
-        let terms = query.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
+                       query: SearchController.Query,
+                       pageSize: Int) async throws -> Search.Response {
+        let queryString = query.query ?? SearchController.Query.defaultQuery
+        let terms = queryString.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
         guard !terms.isEmpty else {
-            return database.eventLoop.future(.init(hasMoreResults: false,
-                                                   searchTerm: query,
-                                                   searchFilters: [],
-                                                   results: []))
+            return .init(hasMoreResults: false,
+                         searchTerm: queryString,
+                         searchFilters: [],
+                         results: [])
         }
-        return Search.fetch(database, terms, page: page, pageSize: pageSize)
+        return try await Search.fetch(database,
+                                      terms,
+                                      page: query.page ?? SearchController.Query.defaultPage,
+                                      pageSize: pageSize).get()
     }
 }
