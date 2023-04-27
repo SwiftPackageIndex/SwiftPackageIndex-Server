@@ -73,19 +73,3 @@ extension API.PackageController {
         }
     }
 }
-
-
-extension API.PackageController {
-    enum TriggerBuildRoute {
-        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<[Version.Id]> {
-            Joined3<Package, Repository, Version>
-                .query(on: database)
-                .filter(Version.self, \.$latest != nil)
-                .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-                .filter(Repository.self, \.$name, .custom("ilike"), repository)
-                .field(Version.self, \.$id)
-                .all()
-                .flatMapEachThrowing { try $0.version.requireID() }
-        }
-    }
-}
