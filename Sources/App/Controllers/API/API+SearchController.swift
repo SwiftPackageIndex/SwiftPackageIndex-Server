@@ -18,13 +18,19 @@ import Vapor
 
 extension API {
     struct SearchController {
+        struct Query: Codable {
+            var query: String = ""
+            var page: Int? = Self.defaultPage
+
+            static let defaultPage = 1
+        }
+
         static func get(req: Request) throws -> EventLoopFuture<Search.Response> {
-            let query = req.query[String.self, at: "query"] ?? ""
-            let page = req.query[Int.self, at: "page"] ?? 1
+            let query = try req.query.decode(Query.self)
             AppMetrics.apiSearchGetTotal?.inc()
             return search(database: req.db,
-                          query: query,
-                          page: page,
+                          query: query.query,
+                          page: query.page ?? Query.defaultPage,
                           pageSize: Constants.resultsPageSize)
         }
     }
