@@ -8,6 +8,11 @@ extension Date: WithExample {
 }
 
 
+extension API.SearchController.Query: WithExample {
+    static var example: Self { .init(query: "LinkedList") }
+}
+
+
 extension Search.Result: WithExample {
     static var example: Self {
         .package(
@@ -22,6 +27,16 @@ extension Search.Result: WithExample {
                   keywords: [],
                   hasDocs: true)!
         )
+    }
+}
+
+
+extension Search.Response: WithExample {
+    static var example: Self {
+        .init(hasMoreResults: false,
+              searchTerm: "LinkedList",
+              searchFilters: [.example],
+              results: [.example])
     }
 }
 
