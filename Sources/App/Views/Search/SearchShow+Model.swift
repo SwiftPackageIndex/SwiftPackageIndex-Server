@@ -26,7 +26,7 @@ enum SearchShow {
                       response: Search.Response,
                       weightedKeywords: [WeightedKeyword]) {
             self.page = query.page ?? API.SearchController.Query.defaultPage
-            self.query = query.query.sanitized()
+            self.query = (query.query ?? API.SearchController.Query.defaultQuery).sanitized()
             self.term = response.searchTerm.sanitized()
             self.filters = response.searchFilters
             self.response = Model.Response(response: response)

@@ -19,9 +19,10 @@ import Vapor
 extension API {
     struct SearchController {
         struct Query: Codable {
-            var query: String = ""
+            var query: String? = Self.defaultQuery
             var page: Int? = Self.defaultPage
 
+            static let defaultQuery = ""
             static let defaultPage = 1
         }
 
@@ -40,10 +41,11 @@ extension API {
     static func search(database: Database,
                        query: SearchController.Query,
                        pageSize: Int) async throws -> Search.Response {
-        let terms = query.query.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
+        let queryString = query.query ?? SearchController.Query.defaultQuery
+        let terms = queryString.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
         guard !terms.isEmpty else {
             return .init(hasMoreResults: false,
-                         searchTerm: query.query,
+                         searchTerm: queryString,
                          searchFilters: [],
                          results: [])
         }
