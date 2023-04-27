@@ -19,6 +19,9 @@ import Vapor
 extension API {
 
     enum PackageController {
+        struct Query: Codable {
+            var type: BadgeType
+        }
 
         static func badge(req: Request) throws -> EventLoopFuture<Badge> {
             guard
@@ -27,18 +30,12 @@ extension API {
             else {
                 return req.eventLoop.future(error: Abort(.notFound))
             }
-            guard
-                let badgeType = req.query[String.self, at: "type"]
-                    .flatMap(BadgeType.init(rawValue:))
-            else {
-                return req.eventLoop.future(error: Abort(.badRequest,
-                                                         reason: "missing or invalid type parameter"))
-            }
+            let query = try req.query.decode(Query.self)
 
             return BadgeRoute
                 .query(on: req.db, owner: owner, repository: repository)
                 .map {
-                    Badge(significantBuilds: $0, badgeType: badgeType)
+                    Badge(significantBuilds: $0, badgeType: query.type)
                 }
         }
 

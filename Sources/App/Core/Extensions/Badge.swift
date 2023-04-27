@@ -59,7 +59,7 @@ struct Badge: Content, Equatable {
 }
 
 
-enum BadgeType: String {
+enum BadgeType: String, Codable {
     case platforms
     case swiftVersions = "swift-versions"
 }
