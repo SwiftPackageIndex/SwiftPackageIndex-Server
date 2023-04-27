@@ -15,6 +15,7 @@
 import Fluent
 import SQLKit
 import Vapor
+import VaporToOpenAPI
 
 
 enum Search {
@@ -64,11 +65,19 @@ enum Search {
         }
     }
 
-    struct Response: Content, Equatable {
+    struct Response: Content, Equatable, WithExample {
         var hasMoreResults: Bool
         var searchTerm: String
         var searchFilters: [SearchFilter.ViewModel]
         var results: [Search.Result]
+
+        static let example: Self = .init(
+            hasMoreResults: false,
+            searchTerm: "LinkedList",
+            searchFilters: [.example],
+            results: [.example]
+        )
+
     }
 
     struct DBRecord: Content, Equatable {

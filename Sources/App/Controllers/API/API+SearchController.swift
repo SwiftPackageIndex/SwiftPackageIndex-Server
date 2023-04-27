@@ -14,16 +14,19 @@
 
 import Fluent
 import Vapor
+import VaporToOpenAPI
 
 
 extension API {
     struct SearchController {
-        struct Query: Codable {
+        struct Query: Codable, WithExample {
             var query: String? = Self.defaultQuery
             var page: Int? = Self.defaultPage
 
             static let defaultQuery = ""
             static let defaultPage = 1
+
+            static let example: Self = .init(query: "networking")
         }
 
         static func get(req: Request) async throws -> Search.Response {

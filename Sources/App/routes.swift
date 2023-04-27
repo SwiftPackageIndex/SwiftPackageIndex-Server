@@ -172,24 +172,38 @@ func routes(_ app: Application) throws {
     }
 
     do {  // api
-
+        
         // public routes
         app.get(SiteURL.api(.version).pathComponents) { req in
             API.Version(version: appVersion ?? "Unknown")
         }
-//        .openAPI(
-//            summary: "Version", description: "Site version", responseType: .application(.json)
-//        )
-
+        .openAPI(
+            summary: "version",
+            description: "Site version",
+            response: API.Version(version: "1.2.3"),
+            responseType: .application(.json)
+        )
+        
         app.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
+            .openAPI(
+                summary: "search",
+                description: "Package search",
+                query: API.SearchController.Query.example,
+                response: Search.Response.example,
+                responseType: .application(.json),
+                errorDescriptions: [
+                    400: "Bad request"
+                ]
+            )
+        
         app.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
                 use: API.PackageController.badge)
-
+        
         if Environment.current == .development {
             app.post(SiteURL.api(.packageCollections).pathComponents,
                      use: API.PackageCollectionController.generate)
         }
-
+        
         // protected routes
         app.group(User.TokenAuthenticator(), User.guardMiddleware()) { protected in
             protected.on(.POST, SiteURL.api(.versions(.key, .buildReport)).pathComponents,
@@ -197,7 +211,7 @@ func routes(_ app: Application) throws {
             protected.on(.POST, SiteURL.api(.builds(.key, .docReport)).pathComponents,
                          use: API.BuildController.docReport)
         }
-
+        
     }
 
     do {  // RSS + Sitemap
