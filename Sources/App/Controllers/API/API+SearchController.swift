@@ -25,13 +25,12 @@ extension API {
             static let defaultPage = 1
         }
 
-        static func get(req: Request) throws -> EventLoopFuture<Search.Response> {
+        static func get(req: Request) async throws -> Search.Response {
             let query = try req.query.decode(Query.self)
             AppMetrics.apiSearchGetTotal?.inc()
-            return search(database: req.db,
-                          query: query.query,
-                          page: query.page ?? Query.defaultPage,
-                          pageSize: Constants.resultsPageSize)
+            return try await search(database: req.db,
+                                    query: query,
+                                    pageSize: Constants.resultsPageSize)
         }
     }
 }
@@ -39,16 +38,18 @@ extension API {
 
 extension API {
     static func search(database: Database,
-                       query: String,
-                       page: Int,
-                       pageSize: Int) -> EventLoopFuture<Search.Response> {
-        let terms = query.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
+                       query: SearchController.Query,
+                       pageSize: Int) async throws -> Search.Response {
+        let terms = query.query.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
         guard !terms.isEmpty else {
-            return database.eventLoop.future(.init(hasMoreResults: false,
-                                                   searchTerm: query,
-                                                   searchFilters: [],
-                                                   results: []))
+            return .init(hasMoreResults: false,
+                         searchTerm: query.query,
+                         searchFilters: [],
+                         results: [])
         }
-        return Search.fetch(database, terms, page: page, pageSize: pageSize)
+        return try await Search.fetch(database,
+                                      terms,
+                                      page: query.page ?? SearchController.Query.defaultPage,
+                                      pageSize: pageSize).get()
     }
 }

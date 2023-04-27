@@ -24,14 +24,12 @@ extension SearchShow.Model {
     }
 
     static func mock(results: [Search.Result] = .mock()) -> Self {
-        return .init(page: 3,
-                     query: "query",
+        return .init(query: .init(query: "query", page: 3),
                      response: .init(hasMoreResults: true, searchTerm: "query", searchFilters: [], results: results), weightedKeywords: mockedWeightedKeywords(results: results))
     }
 
     static func mockWithFilter(results: [Search.Result] = .mock()) -> Self {
-        return .init(page: 3,
-                     query: "query license:mit",
+        return .init(query: .init(query: "query license:mit", page: 3),
                      response: .init(hasMoreResults: true,
                                      searchTerm: "query",
                                      searchFilters: [
@@ -41,8 +39,7 @@ extension SearchShow.Model {
     }
 
     static func mockWithXSS() -> Self {
-        .init(page: 3,
-              query: #"'>"></script><svg/onload=confirm('XSS')>"#,
+        .init(query: .init(query: #"'>"></script><svg/onload=confirm('XSS')>"#, page: 3),
               response: .init(hasMoreResults: false,
                               searchTerm: #"'>"></script><svg/onload=confirm('XSS')>"#,
                               searchFilters: [],

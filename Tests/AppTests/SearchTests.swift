@@ -345,27 +345,24 @@ class SearchTests: AppTestCase {
         )
     }
 
-    func test_search_pagination() throws {
+    func test_search_pagination() async throws {
         // setup
         let packages = (0..<9).map { idx in
             Package(url: "\(idx)".url, score: 15 - idx)
         }
-        try packages.save(on: app.db).wait()
-        try packages.map { try Repository(package: $0, defaultBranch: "default",
-                                          name: $0.url, owner: "foobar") }
+        try await packages.save(on: app.db)
+        try await packages.map { try Repository(package: $0, defaultBranch: "default",
+                                                name: $0.url, owner: "foobar") }
             .save(on: app.db)
-            .wait()
-        try packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
+        try await packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
             .save(on: app.db)
-            .wait()
-        try Search.refresh(on: app.db).wait()
+        try await Search.refresh(on: app.db).get()
 
         do {  // first page
             // MUT
-            let res = try API.search(database: app.db,
-                                     query: "foo",
-                                     page: 1,
-                                     pageSize: 3).wait()
+            let res = try await API.search(database: app.db,
+                                           query: .init(query: "foo", page: 1),
+                                           pageSize: 3)
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
@@ -375,10 +372,9 @@ class SearchTests: AppTestCase {
 
         do {  // second page
             // MUT
-            let res = try API.search(database: app.db,
-                                     query: "foo",
-                                     page: 2,
-                                     pageSize: 3).wait()
+            let res = try await API.search(database: app.db,
+                                           query: .init(query: "foo", page: 2),
+                                           pageSize: 3)
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
@@ -388,10 +384,9 @@ class SearchTests: AppTestCase {
 
         do {  // third page
             // MUT
-            let res = try API.search(database: app.db,
-                                     query: "foo",
-                                     page: 3,
-                                     pageSize: 3).wait()
+            let res = try await API.search(database: app.db,
+                                           query: .init(query: "foo", page: 3),
+                                           pageSize: 3)
 
             // validate
             XCTAssertFalse(res.hasMoreResults)
@@ -400,31 +395,28 @@ class SearchTests: AppTestCase {
         }
     }
 
-    func test_search_pagination_with_author_keyword_results() throws {
+    func test_search_pagination_with_author_keyword_results() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1198
         // setup
         let packages = (0..<9).map { idx in
             Package(url: "\(idx)".url, score: 15 - idx)
         }
-        try packages.save(on: app.db).wait()
-        try packages.map { try Repository(package: $0,
-                                          defaultBranch: "default",
-                                          keywords: ["foo"],
-                                          name: $0.url,
-                                          owner: "foobar") }
+        try await packages.save(on: app.db)
+        try await packages.map { try Repository(package: $0,
+                                                defaultBranch: "default",
+                                                keywords: ["foo"],
+                                                name: $0.url,
+                                                owner: "foobar") }
             .save(on: app.db)
-            .wait()
-        try packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
+        try await packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
             .save(on: app.db)
-            .wait()
-        try Search.refresh(on: app.db).wait()
+        try await Search.refresh(on: app.db).get()
 
         do {  // first page
             // MUT
-            let res = try API.search(database: app.db,
-                                     query: "foo",
-                                     page: 1,
-                                     pageSize: 3).wait()
+            let res = try await API.search(database: app.db,
+                                           query: .init(query: "foo", page: 1),
+                                           pageSize: 3)
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
@@ -434,10 +426,9 @@ class SearchTests: AppTestCase {
 
         do {  // second page
             // MUT
-            let res = try API.search(database: app.db,
-                                     query: "foo",
-                                     page: 2,
-                                     pageSize: 3).wait()
+            let res = try await API.search(database: app.db,
+                                           query: .init(query: "foo", page: 2),
+                                           pageSize: 3)
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
@@ -446,28 +437,27 @@ class SearchTests: AppTestCase {
         }
     }
 
-    func test_search_pagination_invalid_input() throws {
+    func test_search_pagination_invalid_input() async throws {
         // Test invalid pagination inputs
         // setup
         let packages = (0..<9).map { idx in
             Package(url: "\(idx)".url, score: 15 - idx)
         }
-        try packages.save(on: app.db).wait()
-        try packages.map { try Repository(package: $0, defaultBranch: "default",
-                                          name: $0.url, owner: "foobar") }
-            .save(on: app.db)
-            .wait()
-        try packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
-            .save(on: app.db)
-            .wait()
-        try Search.refresh(on: app.db).wait()
+        try await packages.save(on: app.db)
+        try await packages.map { try Repository(package: $0, defaultBranch: "default",
+                                                name: $0.url, owner: "foobar") }
+        .save(on: app.db)
 
+        try await packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
+            .save(on: app.db)
+
+        try await Search.refresh(on: app.db).get()
+        
         do {  // page out of bounds (too large)
-            // MUT
-            let res = try API.search(database: app.db,
-                                     query: "foo",
-                                     page: 4,
-                                     pageSize: 3).wait()
+              // MUT
+            let res = try await API.search(database: app.db,
+                                           query: .init(query: "foo", page: 4),
+                                           pageSize: 3)
 
             // validate
             XCTAssertFalse(res.hasMoreResults)
@@ -476,11 +466,10 @@ class SearchTests: AppTestCase {
         }
 
         do {  // page out of bounds (too small - will be clamped to page 1)
-            // MUT
-            let res = try API.search(database: app.db,
-                                     query: "foo",
-                                     page: 0,
-                                     pageSize: 3).wait()
+              // MUT
+            let res = try await API.search(database: app.db,
+                                           query: .init(query: "foo", page: 0),
+                                           pageSize: 3)
             XCTAssertTrue(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
                            ["a:foobar", "p:0", "p:1", "p:2"])

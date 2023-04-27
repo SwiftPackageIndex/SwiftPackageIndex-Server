@@ -22,9 +22,11 @@ enum SearchShow {
         var response: Response
         var weightedKeywords: [WeightedKeyword]
 
-        internal init(page: Int, query: String, response: Search.Response, weightedKeywords: [WeightedKeyword]) {
-            self.page = page
-            self.query = query.sanitized()
+        internal init(query: API.SearchController.Query,
+                      response: Search.Response,
+                      weightedKeywords: [WeightedKeyword]) {
+            self.page = query.page ?? API.SearchController.Query.defaultPage
+            self.query = query.query.sanitized()
             self.term = response.searchTerm.sanitized()
             self.filters = response.searchFilters
             self.response = Model.Response(response: response)

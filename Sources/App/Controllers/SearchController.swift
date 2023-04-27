@@ -20,22 +20,20 @@ import Vapor
 enum SearchController {
 
     static func show(req: Request) async throws -> HTML {
-        let query = req.query[String.self, at: "query"] ?? ""
-        let page = req.query[Int.self, at: "page"] ?? 1
+        let query = try req.query.decode(API.SearchController.Query.self)
 
         let response = try await API.search(database: req.db,
-                          query: query,
-                          page: page,
-                          pageSize: Constants.resultsPageSize).get()
+                                            query: query,
+                                            pageSize: Constants.resultsPageSize)
 
         let matchedKeywords = response.results.compactMap { $0.keywordResult?.keyword }
 
         // We're only displaying the keyword sidebar on the first search page.
-        let weightedKeywords = (page == 1)
+        let weightedKeywords = (query.page == 1)
         ? try await WeightedKeyword.query(on: req.db, keywords: matchedKeywords)
         : []
 
-        let model = SearchShow.Model.init(page: page, query: query, response: response, weightedKeywords: weightedKeywords)
+        let model = SearchShow.Model(query: query, response: response, weightedKeywords: weightedKeywords)
         return SearchShow.View.init(path: req.url.string, model: model).document()
     }
 
