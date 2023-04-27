@@ -76,10 +76,15 @@ extension SignificantBuilds: WithExample {
 import PackageCollectionsModel
 
 
-
 extension API.PostPackageCollectionOwnerDTO: WithExample {
     static var example: Self {
         .init(owner: "mona")
+    }
+}
+
+extension API.PostPackageCollectionPackageUrlsDTO: WithExample {
+    static var example: Self {
+        .init(packageUrls: ["https://github.com/mona/LinkedList.git"])
     }
 }
 
