@@ -178,7 +178,7 @@ func routes(_ app: Application) throws {
             API.Version(version: appVersion ?? "Unknown")
         }
         .openAPI(
-            summary: "version",
+            summary: "/api/version",
             description: "Get the site's version.",
             response: API.Version(version: "1.2.3"),
             responseType: .application(.json)
@@ -186,7 +186,7 @@ func routes(_ app: Application) throws {
         
         app.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
             .openAPI(
-                summary: "search",
+                summary: "/api/search",
                 description: "Execute a search.",
                 query: API.SearchController.Query.example,
                 response: Search.Response.example,
@@ -199,7 +199,7 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
                 use: API.PackageController.badge)
         .openAPI(
-            summary: "packages/{owner}/{repository}/badge",
+            summary: "/api/packages/{owner}/{repository}/badge",
             description: "Get shields.io badge for the given repository.",
             query: API.PackageController.Query.example,
             response: Badge.example,
@@ -212,7 +212,7 @@ func routes(_ app: Application) throws {
             app.post(SiteURL.api(.packageCollections).pathComponents,
                      use: API.PackageCollectionController.generate)
             .openAPI(
-                summary: "package-collections",
+                summary: "/api/package-collections",
                 description: "Generate a signed package collection.",
                 body: API.PostPackageCollectionOwnerDTO.example,
                 // TODO: fix/improve API or fix the annotation. We accept two different post body types but the annotation doesn't allow us to express that.
@@ -228,6 +228,20 @@ func routes(_ app: Application) throws {
         app.group(User.TokenAuthenticator(), User.guardMiddleware()) { protected in
             protected.on(.POST, SiteURL.api(.versions(.key, .buildReport)).pathComponents,
                          use: API.BuildController.buildReport)
+            .openAPI(
+                summary: "/api/versions/{id}/build-report",
+                description: "Send a build report.",
+                body: API.PostBuildReportDTO.example,
+                responseType: .application(.json),
+                errorDescriptions: [
+                    400: "Bad request",
+                    404: "Not found",
+                    409: "Conflict",
+                    500: "Internal server error"
+                ],
+                auth: .bearer()
+            )
+
             protected.on(.POST, SiteURL.api(.builds(.key, .docReport)).pathComponents,
                          use: API.BuildController.docReport)
         }

@@ -132,3 +132,15 @@ extension SignedCollection: WithExample {
     }
 }
 
+
+// MARK: - Build/doc reporting types
+
+extension API.PostBuildReportDTO: WithExample {
+    static var example: Self {
+        .init(buildId: .example,
+              platform: .ios,
+              status: .ok,
+              swiftVersion: .v5_8)
+    }
+}
+
