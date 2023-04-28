@@ -17,13 +17,13 @@ import Plot
 
 extension PackageShow.Model {
 
-    struct History: Equatable {
+    struct History: Codable, Equatable {
         var since: String
         var commitCount: Link
         var releaseCount: Link
     }
 
-    struct Activity: Equatable {
+    struct Activity: Codable, Equatable {
         var openIssuesCount: Int
         var openIssues: Link?
         var openPullRequests: Link?
@@ -31,13 +31,13 @@ extension PackageShow.Model {
         var lastPullRequestClosedAt: String?
     }
 
-    struct ProductCounts: Equatable {
+    struct ProductCounts: Codable, Equatable {
         var libraries: Int
         var executables: Int
         var plugins: Int
     }
 
-    struct ReleaseInfo: Equatable {
+    struct ReleaseInfo: Codable, Equatable {
         var stable: DatedLink?
         var beta: DatedLink?
         var latest: DatedLink?
@@ -55,7 +55,7 @@ extension PackageShow.Model {
         var latest: Version?
     }
 
-    struct BuildInfo<T: Equatable>: Equatable {
+    struct BuildInfo<T: Codable & Equatable>: Codable, Equatable {
         var stable: NamedBuildResults<T>?
         var beta: NamedBuildResults<T>?
         var latest: NamedBuildResults<T>?
@@ -71,7 +71,7 @@ extension PackageShow.Model {
         }
     }
 
-    enum PlatformCompatibility: BuildResultParameter {
+    enum PlatformCompatibility: Codable, BuildResultParameter {
         case ios
         case linux
         case macos
@@ -105,7 +105,7 @@ extension PackageShow.Model {
         }
     }
 
-    struct Reference: Equatable {
+    struct Reference: Codable, Equatable {
         var name: String
         var kind: App.Version.Kind
 
@@ -125,7 +125,7 @@ extension PackageShow.Model {
         }
     }
 
-    struct BuildStatusRow<T: Equatable>: Equatable {
+    struct BuildStatusRow<T: Codable & Equatable>: Codable, Equatable {
         var references: [Reference]
         var results: T
 
@@ -149,12 +149,12 @@ extension PackageShow.Model {
         }
     }
 
-    struct NamedBuildResults<T: Equatable>: Equatable {
+    struct NamedBuildResults<T: Codable & Equatable>: Codable, Equatable {
         var referenceName: String
         var results: T
     }
 
-    struct SwiftVersionResults: Equatable {
+    struct SwiftVersionResults: Codable, Equatable {
         var v5_5: BuildResult<SwiftVersion>
         var v5_6: BuildResult<SwiftVersion>
         var v5_7: BuildResult<SwiftVersion>
@@ -173,7 +173,7 @@ extension PackageShow.Model {
         var cells: [BuildResult<SwiftVersion>] { [v5_8, v5_7, v5_6, v5_5 ] }
     }
 
-    struct PlatformResults: Equatable {
+    struct PlatformResults: Codable, Equatable {
         var ios: BuildResult<PlatformCompatibility>
         var linux: BuildResult<PlatformCompatibility>
         var macos: BuildResult<PlatformCompatibility>
@@ -195,7 +195,7 @@ extension PackageShow.Model {
         var cells: [BuildResult<PlatformCompatibility>] { [ios, macos, watchos, tvos, linux] }
     }
 
-    enum BuildStatus: String, Equatable {
+    enum BuildStatus: String, Codable, Equatable {
         case compatible
         case incompatible
         case unknown
@@ -205,7 +205,7 @@ extension PackageShow.Model {
         }
     }
 
-    struct BuildResult<T: BuildResultParameter>: Equatable {
+    struct BuildResult<T: Codable & BuildResultParameter>: Codable, Equatable {
         var parameter: T
         var status: BuildStatus
 

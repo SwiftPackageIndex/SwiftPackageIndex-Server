@@ -19,7 +19,21 @@ import Vapor
 extension API {
 
     enum PackageController {
-        
+
+        static func get(req: Request) async throws -> PackageShow.Model {
+            guard
+                let owner = req.parameters.get("owner"),
+                let repository = req.parameters.get("repository")
+            else {
+                throw Abort(.notFound)
+            }
+
+            // FIXME: rather than reach into App.PackageController.ShowRoute, factor out this method somewhere and use a slightly different data model rather than the view model (which has pre-rendered "stringly" dates, for instance)
+            return try await App.PackageController.ShowRoute.query(on: req.db,
+                                                                   owner: owner,
+                                                                   repository: repository).model
+        }
+
         struct BadgeQuery: Codable {
             var type: BadgeType
         }

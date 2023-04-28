@@ -19,14 +19,14 @@ import DependencyResolution
 import SPIManifest
 
 
-enum AuthorMetadata : Equatable {
+enum AuthorMetadata : Codable, Equatable {
     case fromSPIManifest(String)
     case fromGitRepository(PackageAuthors)
 }
 
 extension PackageShow {
 
-    struct Model: Equatable {
+    struct Model: Codable, Content, Equatable {
         var packageId: Package.Id
         var repositoryOwner: String
         var repositoryOwnerName: String
