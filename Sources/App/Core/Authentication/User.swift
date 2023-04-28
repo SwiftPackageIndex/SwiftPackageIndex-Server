@@ -13,21 +13,32 @@
 // limitations under the License.
 
 import Vapor
+import VaporToOpenAPI
 
 
 struct User: Authenticatable {
     var name: String
+}
 
+
+extension User {
     static var builder: Self { .init(name: "builder") }
 
-    struct TokenAuthenticator: BearerAuthenticator {
+    struct BuilderAuthenticator: BearerAuthenticator {
         func authenticate(bearer: BearerAuthorization, for request: Request) -> EventLoopFuture<Void> {
-            if
-                let builderToken = Current.builderToken(),
-                bearer.token == builderToken {
+            if let builderToken = Current.builderToken(),
+               bearer.token == builderToken {
                 request.auth.login(User.builder)
             }
             return request.eventLoop.makeSucceededFuture(())
         }
+    }
+}
+
+
+extension AuthSchemeObject {
+    static var builderBearer: Self {
+        .bearer(id: "builder_token",
+               description: "Builder token used for build result reporting.")
     }
 }

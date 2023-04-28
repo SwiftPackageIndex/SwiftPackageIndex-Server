@@ -225,7 +225,7 @@ func routes(_ app: Application) throws {
         }
         
         // protected routes
-        app.group(User.TokenAuthenticator(), User.guardMiddleware()) { protected in
+        app.group(User.BuilderAuthenticator(), User.guardMiddleware()) { protected in
             protected.on(.POST, SiteURL.api(.versions(.key, .buildReport)).pathComponents,
                          use: API.BuildController.buildReport)
             .openAPI(
@@ -239,7 +239,7 @@ func routes(_ app: Application) throws {
                     409: "Conflict",
                     500: "Internal server error"
                 ],
-                auth: .bearer()
+                auth: .builderBearer
             )
 
             protected.on(.POST, SiteURL.api(.builds(.key, .docReport)).pathComponents,
@@ -255,7 +255,7 @@ func routes(_ app: Application) throws {
                     409: "Conflict",
                     500: "Internal server error"
                 ],
-                auth: .bearer()
+                auth: .builderBearer
             )
         }
         
