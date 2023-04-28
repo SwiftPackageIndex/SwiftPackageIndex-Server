@@ -52,4 +52,17 @@ final class RoutesTests: AppTestCase {
         }
     }
 
+    func test_openapi() async throws {
+        try app.test(.GET, "openapi/openapi.json") {
+            XCTAssertEqual($0.status, .ok)
+            struct Response: Codable, Equatable {
+                var info: Info
+                struct Info: Codable, Equatable {
+                    var title: String
+                }
+            }
+            XCTAssertEqualJSON($0.body.asString(), Response(info: .init(title: "Swift Package Index API")))
+        }
+    }
+
 }
