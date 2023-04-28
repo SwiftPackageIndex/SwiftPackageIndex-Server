@@ -24,33 +24,34 @@ extension API {
         static func generate(req: Request) throws -> EventLoopFuture<SignedCollection> {
             AppMetrics.apiPackageCollectionGetTotal?.inc()
 
-            // First try decoding "owner" type DTO
-            if let dto = try? req.content.decode(PostPackageCollectionOwnerDTO.self) {
-                return SignedCollection.generate(
-                    db: req.db,
-                    filterBy: .author(dto.owner),
-                    authorName: dto.authorName ?? "Swift Package Index",
-                    collectionName: dto.collectionName ?? dto.owner,
-                    keywords: dto.keywords,
-                    overview: dto.overview,
-                    revision: dto.revision
-                )
-            }
+            let dto = try req.content.decode(PostPackageCollectionDTO.self)
 
-            // Then try if it's "packageURLs" based
-            let dto = try req.content.decode(PostPackageCollectionPackageUrlsDTO.self)
-            guard dto.packageUrls.count <= 20 else {
-                throw Abort(.badRequest)
+            switch dto.selection {
+                case let .author(author):
+                    return SignedCollection.generate(
+                        db: req.db,
+                        filterBy: .author(author),
+                        authorName: dto.authorName ?? "Swift Package Index",
+                        collectionName: dto.collectionName ?? author,
+                        keywords: dto.keywords,
+                        overview: dto.overview,
+                        revision: dto.revision
+                    )
+                case let .packageURLs(packageURLs):
+                    // Then try if it's "packageURLs" based
+                    guard packageURLs.count <= 20 else {
+                        throw Abort(.badRequest)
+                    }
+                    return SignedCollection.generate(
+                        db: req.db,
+                        filterBy: .urls(packageURLs),
+                        authorName: dto.authorName ?? "Swift Package Index",
+                        collectionName: dto.collectionName ?? "Package List",
+                        keywords: dto.keywords,
+                        overview: dto.overview,
+                        revision: dto.revision
+                    )
             }
-            return SignedCollection.generate(
-                db: req.db,
-                filterBy: .urls(dto.packageUrls),
-                authorName: dto.authorName ?? "Swift Package Index",
-                collectionName: dto.collectionName ?? "Package List",
-                keywords: dto.keywords,
-                overview: dto.overview,
-                revision: dto.revision
-            )
         }
 
     }
@@ -62,19 +63,13 @@ extension SignedCollection: Content {}
 
 
 extension API {
+    struct PostPackageCollectionDTO: Codable {
+        enum Selection: Codable {
+            case author(String)
+            case packageURLs([String])
+        }
 
-    struct PostPackageCollectionOwnerDTO: Codable {
-        var owner: String
-
-        var authorName: String?
-        var keywords: [String]?
-        var collectionName: String?
-        var overview: String?
-        var revision: Int?
-    }
-
-    struct PostPackageCollectionPackageUrlsDTO: Codable {
-        var packageUrls: [String]
+        var selection: Selection
 
         var authorName: String?
         var keywords: [String]?
@@ -82,5 +77,4 @@ extension API {
         var overview: String?
         var revision: Int?
     }
-
 }
