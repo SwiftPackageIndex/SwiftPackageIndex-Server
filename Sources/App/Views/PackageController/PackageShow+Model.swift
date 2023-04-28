@@ -20,8 +20,8 @@ import SPIManifest
 
 
 enum AuthorMetadata : Equatable {
-    case fromSPIManifest(String?)
-    case fromGitRepository(PackageAuthors?)
+    case fromSPIManifest(String)
+    case fromGitRepository(PackageAuthors)
 }
 
 extension PackageShow {
@@ -280,8 +280,7 @@ extension PackageShow.Model {
         guard let authors else { return .empty }
 
         switch authors {
-            case .fromSPIManifest(let spiymlAuthors) :
-                guard var spiymlAuthors else { return .empty }
+            case .fromSPIManifest(var spiymlAuthors) :
                 if spiymlAuthors.count > 200 {
                     spiymlAuthors = String(spiymlAuthors.prefix(200)) + "&hellip;"
                 }
@@ -292,7 +291,7 @@ extension PackageShow.Model {
                 )
 
             case .fromGitRepository(let repositoryAuthors) :
-                guard let repositoryAuthors, repositoryAuthors.hasAuthors else { return .empty }
+                guard repositoryAuthors.hasAuthors else { return .empty }
                 var nodes = repositoryAuthors.authors.map { author -> Node<HTML.BodyContext> in
                     return .text(author.name)
                 }

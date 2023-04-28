@@ -22,8 +22,10 @@ extension PackageController.PackageResult {
            let metadata = spiManifest.metadata,
            let authors = metadata.authors {
             return AuthorMetadata.fromSPIManifest(authors)
+        } else if let authors = repository.authors {
+            return AuthorMetadata.fromGitRepository(authors)
         } else {
-            return AuthorMetadata.fromGitRepository(repository.authors)
+            return nil
         }
     }
 
