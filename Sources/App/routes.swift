@@ -201,7 +201,7 @@ func routes(_ app: Application) throws {
         .openAPI(
             summary: "/api/packages/{owner}/{repository}/badge",
             description: "Get shields.io badge for the given repository.",
-            query: API.PackageController.Query.example,
+            query: API.PackageController.BadgeQuery.example,
             response: Badge.example,
             responseType: .application(.json),
             errorDescriptions: [
