@@ -1,0 +1,6 @@
+requests:
+  version:
+    url: ${base_url}/api/version
+    validation:
+      status: .regex((2|3)\d\d)
+    log: json

@@ -1,0 +1,8 @@
+requests:
+  version:
+    url: ${base_url}/api/search
+    query:
+      query: 'networking platform:ios'
+    validation:
+      status: .regex((2|3)\d\d)
+    log: json

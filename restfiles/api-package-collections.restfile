@@ -1,0 +1,10 @@
+requests:
+  version:
+    url: ${base_url}/api/package-collections
+    method: POST
+    body:
+      json:
+        owner: apple
+    validation:
+      status: .regex((2|3)\d\d)
+    log: json

@@ -1,0 +1,8 @@
+requests:
+  version:
+    url: ${base_url}/api/packages/apple/swift-argument-parser/badge
+    query:
+      type: platforms
+    validation:
+      status: .regex((2|3)\d\d)
+    log: json
