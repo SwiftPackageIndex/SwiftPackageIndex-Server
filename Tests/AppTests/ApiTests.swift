@@ -622,11 +622,15 @@ class ApiTests: AppTestCase {
                 {
                   "revision": 3,
                   "authorName": "author",
-                  "owner": "foo",
                   "keywords": [
                     "a",
                     "b"
                   ],
+                  "selection": {
+                    "author": {
+                      "_0": "foo"
+                    }
+                  },
                   "collectionName": "my collection",
                   "overview": "my overview"
                 }
@@ -698,9 +702,13 @@ class ApiTests: AppTestCase {
                     "a",
                     "b"
                   ],
-                  "packageUrls": [
-                    "1"
-                  ],
+                  "selection": {
+                    "packageURLs": {
+                      "_0": [
+                        "1"
+                      ]
+                    }
+                  },
                   "collectionName": "my collection",
                   "overview": "my overview"
                 }
@@ -720,9 +728,9 @@ class ApiTests: AppTestCase {
     }
 
     func test_package_collection_packageURLs_limit() throws {
-        let dto = API.PostPackageCollectionPackageUrlsDTO(
+        let dto = API.PostPackageCollectionDTO(
             // request 21 urls - this should raise a 400
-            packageUrls: (0...20).map(String.init)
+            selection: .packageURLs((0...20).map(String.init))
         )
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
 

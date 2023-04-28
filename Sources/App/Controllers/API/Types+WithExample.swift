@@ -76,15 +76,12 @@ extension SignificantBuilds: WithExample {
 import PackageCollectionsModel
 
 
-extension API.PostPackageCollectionOwnerDTO: WithExample {
+extension API.PostPackageCollectionDTO: WithExample {
     static var example: Self {
-        .init(owner: "mona")
-    }
-}
-
-extension API.PostPackageCollectionPackageUrlsDTO: WithExample {
-    static var example: Self {
-        .init(packageUrls: ["https://github.com/mona/LinkedList.git"])
+        .init(selection: .packageURLs(["https://github.com/mona/LinkedList.git"]),
+              collectionName: "LinkedList collection",
+              overview: "This is a package collection created for demonstration purposes.",
+              revision: 3)
     }
 }
 

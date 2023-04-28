@@ -214,9 +214,7 @@ func routes(_ app: Application) throws {
             .openAPI(
                 summary: "/api/package-collections",
                 description: "Generate a signed package collection.",
-                body: API.PostPackageCollectionOwnerDTO.example,
-                // TODO: fix/improve API or fix the annotation. We accept two different post body types but the annotation doesn't allow us to express that.
-                //  body: API.PostPackageCollectionPackageUrlsDTO.example,
+                body: API.PostPackageCollectionDTO.example,
                 response: SignedCollection.example,
                 responseType: .application(.json),
                 errorDescriptions: [
