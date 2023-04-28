@@ -37,7 +37,7 @@ extension User {
 
 
 extension AuthSchemeObject {
-    static var builderBearer: Self {
+    static var builderBearerToken: Self {
         .bearer(id: "builder_token",
                description: "Builder token used for build result reporting.")
     }

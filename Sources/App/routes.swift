@@ -225,38 +225,38 @@ func routes(_ app: Application) throws {
         }
         
         // protected routes
-        app.group(User.BuilderAuthenticator(), User.guardMiddleware()) { protected in
-            protected.on(.POST, SiteURL.api(.versions(.key, .buildReport)).pathComponents,
-                         use: API.BuildController.buildReport)
-            .openAPI(
-                summary: "/api/versions/{id}/build-report",
-                description: "Send a build report.",
-                body: API.PostBuildReportDTO.example,
-                responseType: .application(.json),
-                errorDescriptions: [
-                    400: "Bad request",
-                    404: "Not found",
-                    409: "Conflict",
-                    500: "Internal server error"
-                ],
-                auth: .builderBearer
-            )
+        app.group(User.BuilderAuthenticator(), User.guardMiddleware()) {
+            $0.groupedOpenAPI(auth: .builderBearerToken).group(tags: []) { protected in
+                protected.on(.POST, SiteURL.api(.versions(.key, .buildReport)).pathComponents,
+                             use: API.BuildController.buildReport)
+                .openAPI(
+                    summary: "/api/versions/{id}/build-report",
+                    description: "Send a build report.",
+                    body: API.PostBuildReportDTO.example,
+                    responseType: .application(.json),
+                    errorDescriptions: [
+                        400: "Bad request",
+                        404: "Not found",
+                        409: "Conflict",
+                        500: "Internal server error"
+                    ]
+                )
 
-            protected.on(.POST, SiteURL.api(.builds(.key, .docReport)).pathComponents,
-                         use: API.BuildController.docReport)
-            .openAPI(
-                summary: "/api/builds/{id}/doc-report",
-                description: "Send a documentation generation report.",
-                body: API.PostDocReportDTO.example,
-                responseType: .application(.json),
-                errorDescriptions: [
-                    400: "Bad request",
-                    404: "Not found",
-                    409: "Conflict",
-                    500: "Internal server error"
-                ],
-                auth: .builderBearer
-            )
+                protected.on(.POST, SiteURL.api(.builds(.key, .docReport)).pathComponents,
+                             use: API.BuildController.docReport)
+                .openAPI(
+                    summary: "/api/builds/{id}/doc-report",
+                    description: "Send a documentation generation report.",
+                    body: API.PostDocReportDTO.example,
+                    responseType: .application(.json),
+                    errorDescriptions: [
+                        400: "Bad request",
+                        404: "Not found",
+                        409: "Conflict",
+                        500: "Internal server error"
+                    ]
+                )
+            }
         }
         
     }
