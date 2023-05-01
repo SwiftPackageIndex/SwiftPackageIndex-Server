@@ -113,11 +113,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/222564?u=00277f32dd48021c85b093b7172f613c5c94b31e&v=4"
         ),
         .init(
-            login: "massimobio",
-            name: "Massimo Biolcati",
-            avatarUrl: "https://avatars.githubusercontent.com/u/240599?v=4"
-        ),
-        .init(
             login: "rhysforyou",
             name: "Rhys Powell",
             avatarUrl: "https://avatars.githubusercontent.com/u/320910?u=97385e139caf352d502dfaca85a8db46f6e47ef6&v=4"
@@ -198,6 +193,11 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/856919?u=191c3a7883c794c5ab824e0b10dccb2abd045c90&v=4"
         ),
         .init(
+            login: "wadetregaskis",
+            name: "Wade Tregaskis",
+            avatarUrl: "https://avatars.githubusercontent.com/u/863283?v=4"
+        ),
+        .init(
             login: "TimTr",
             name: "Tim Triemstra",
             avatarUrl: "https://avatars.githubusercontent.com/u/923721?u=862992293d005a514df60ae4ab50101336e2717e&v=4"
@@ -271,11 +271,6 @@ extension Array<Supporters.Community> {
             login: "gaige",
             name: "Gaige B Paulsen",
             avatarUrl: "https://avatars.githubusercontent.com/u/3351751?u=c27bedf869c3dbf75fe6e8857169d68b12e0678e&v=4"
-        ),
-        .init(
-            login: "Mordil",
-            name: "Nathan Harris",
-            avatarUrl: "https://avatars.githubusercontent.com/u/3506776?u=48101ab271f57ccb3de67e4ac7d2dc52ec79c19b&v=4"
         ),
         .init(
             login: "SilverPineSoftware",
@@ -441,6 +436,11 @@ extension Array<Supporters.Community> {
             login: "sparrowcode",
             name: "Sparrow Code",
             avatarUrl: "https://avatars.githubusercontent.com/u/98487302?v=4"
+        ),
+        .init(
+            login: "alexandresantosal91",
+            name: "Alexandre Santos",
+            avatarUrl: "https://avatars.githubusercontent.com/u/122564125?u=aa4097f85322bffdb57c687b09458f2026a31567&v=4"
         ),
     ]
 }
