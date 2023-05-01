@@ -46,7 +46,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         try await Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db)
 
         // MUT
-        let record = try await PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
+        let record = try await PackageController.ShowRoute.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
 
         // validate
         XCTAssertEqual(
@@ -73,7 +73,7 @@ class PackageController_ShowRouteTests: AppTestCase {
                              owner: "foo").create(on: app.db)
 
         // MUT
-        let record = try await PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
+        let record = try await PackageController.ShowRoute.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
 
         // validate
         XCTAssertEqual(
@@ -90,7 +90,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         Current.date = { .spiBirthday }
         do {  // all inputs set to non-nil values
             // setup
-            let record = PackageController.History.Record(
+            let record = PackageController.ShowRoute.History.Record(
                 url: "url",
                 defaultBranch: "main",
                 firstCommitDate: .t0,
@@ -113,7 +113,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         }
         do {  // test nil inputs
             XCTAssertNil(
-                PackageController.History.Record(
+                PackageController.ShowRoute.History.Record(
                     url: "url",
                     defaultBranch: nil,
                     firstCommitDate: .t0,
@@ -122,7 +122,7 @@ class PackageController_ShowRouteTests: AppTestCase {
                 ).historyModel()
             )
             XCTAssertNil(
-                PackageController.History.Record(
+                PackageController.ShowRoute.History.Record(
                     url: "url",
                     defaultBranch: "main",
                     firstCommitDate: nil,
@@ -162,7 +162,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         }
 
         // MUT
-        let res = try await PackageController.ProductCount.query(on: app.db, owner: "foo", repository: "bar")
+        let res = try await PackageController.ShowRoute.ProductCount.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
         XCTAssertEqual(res.filter(\.isExecutable).count, 1)
@@ -240,7 +240,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         ]
 
         // MUT
-        let res = PackageController.BuildInfo
+        let res = PackageController.ShowRoute.BuildInfo
             .platformBuildResults(builds: builds, kind: .defaultBranch)
 
         // validate
@@ -275,7 +275,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         ]
 
         // MUT
-        let res = PackageController.BuildInfo
+        let res = PackageController.ShowRoute.BuildInfo
             .swiftVersionBuildResults(builds: builds, kind: .defaultBranch)
 
         // validate
@@ -294,7 +294,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         ]
 
         // MUT
-        let res = PackageController.BuildInfo.platformBuildInfo(builds: builds)
+        let res = PackageController.ShowRoute.BuildInfo.platformBuildInfo(builds: builds)
 
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
@@ -318,7 +318,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         ]
 
         // MUT
-        let res = PackageController.BuildInfo.swiftVersionBuildInfo(builds: builds)
+        let res = PackageController.ShowRoute.BuildInfo.swiftVersionBuildInfo(builds: builds)
 
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
@@ -379,7 +379,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         }
 
         // MUT
-        let res = try await PackageController.BuildInfo.query(on: app.db, owner: "foo", repository: "bar")
+        let res = try await PackageController.ShowRoute.BuildInfo.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
         // just test reference names and some details for `latest`
