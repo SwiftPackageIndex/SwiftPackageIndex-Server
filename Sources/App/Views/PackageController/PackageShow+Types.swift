@@ -154,48 +154,6 @@ extension PackageShow.Model {
         var results: T
     }
 
-    @available(*, deprecated)
-    enum BuildStatus: String, Codable, Equatable {
-        case compatible
-        case incompatible
-        case unknown
-
-        var cssClass: String {
-            self.rawValue
-        }
-    }
-
-    @available(*, deprecated)
-    struct BuildResult<T: Codable & BuildResultParameter>: Codable, Equatable {
-        var parameter: T
-        var status: BuildStatus
-
-        var headerNode: Node<HTML.BodyContext> {
-            .div(
-                .text(parameter.displayName),
-                .unwrap(parameter.note) { .small(.text("(\($0))")) }
-            )
-        }
-
-        var cellNode: Node<HTML.BodyContext> {
-            .div(
-                .class("\(status.cssClass)"),
-                .title(title)
-            )
-        }
-
-        var title: String {
-            switch status {
-                case .compatible:
-                    return "Built successfully with \(parameter.longDisplayName)"
-                case .incompatible:
-                    return "Build failed with \(parameter.longDisplayName)"
-                case .unknown:
-                    return "No build information available for \(parameter.longDisplayName)"
-            }
-        }
-    }
-
 }
 
 
