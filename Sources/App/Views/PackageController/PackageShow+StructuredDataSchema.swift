@@ -138,6 +138,7 @@ extension PackageShow {
 
 
 extension PackageShow {
+    @available(*, deprecated)
     static func releaseInfo(packageUrl: String,
                             defaultBranchVersion: DefaultVersion?,
                             releaseVersion: ReleaseVersion?,

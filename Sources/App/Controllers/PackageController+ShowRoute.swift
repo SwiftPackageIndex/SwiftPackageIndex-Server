@@ -178,11 +178,11 @@ extension PackageController {
                 // ... and report the status
                 return
                     .init(referenceName: referenceName,
-                          results: .init(iosStatus: ios.buildStatus,
-                                         linuxStatus: linux.buildStatus,
-                                         macosStatus: macos.buildStatus,
-                                         tvosStatus: tvos.buildStatus,
-                                         watchosStatus: watchos.buildStatus)
+                          results: .init(iosStatus: ios._buildStatus,
+                                         linuxStatus: linux._buildStatus,
+                                         macosStatus: macos._buildStatus,
+                                         tvosStatus: tvos._buildStatus,
+                                         watchosStatus: watchos._buildStatus)
                     )
             }
 
@@ -215,10 +215,10 @@ extension PackageController {
                 // ... and report the status
                 return
                     .init(referenceName: referenceName,
-                          results: .init(status5_5: v5_5.buildStatus,
-                                         status5_6: v5_6.buildStatus,
-                                         status5_7: v5_7.buildStatus,
-                                         status5_8: v5_8.buildStatus)
+                          results: .init(status5_5: v5_5._buildStatus,
+                                         status5_6: v5_6._buildStatus,
+                                         status5_7: v5_7._buildStatus,
+                                         status5_8: v5_8._buildStatus)
                     )
             }
         }
@@ -231,7 +231,17 @@ extension PackageController {
 // Ideally these would be declared "private" but we need access from tests
 
 extension Array where Element == PackageController.BuildsRoute.BuildInfo {
-    var buildStatus: PackageShow.Model.BuildStatus {
+    @available(*, deprecated)
+    var _buildStatus: PackageShow.Model.BuildStatus {
+        guard !isEmpty else { return .unknown }
+        if anySucceeded {
+            return .compatible
+        } else {
+            return anyPending ? .unknown : .incompatible
+        }
+    }
+
+    var buildStatus: API.PackageController.GetRoute.Model.BuildStatus {
         guard !isEmpty else { return .unknown }
         if anySucceeded {
             return .compatible

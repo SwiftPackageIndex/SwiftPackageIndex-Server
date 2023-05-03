@@ -17,7 +17,8 @@ import Foundation
 
 extension PackageController.PackageResult {
 
-    func authors() -> AuthorMetadata? {
+    @available(*, deprecated)
+    func _authors() -> AuthorMetadata? {
         if let spiManifest = defaultBranchVersion.spiManifest,
            let metadata = spiManifest.metadata,
            let authors = metadata.authors {
@@ -29,7 +30,8 @@ extension PackageController.PackageResult {
         }
     }
 
-    func activity() -> PackageShow.Model.Activity? {
+    @available(*, deprecated)
+    func _activity() -> PackageShow.Model.Activity? {
         guard repository.lastPullRequestClosedAt != nil else { return nil }
 
         let openIssues = Link(label: repository.openIssues.labeled("open issue"),
