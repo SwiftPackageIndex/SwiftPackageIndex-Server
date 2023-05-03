@@ -154,47 +154,7 @@ extension PackageShow.Model {
         var results: T
     }
 
-    struct SwiftVersionResults: Codable, Equatable {
-        var v5_5: BuildResult<SwiftVersion>
-        var v5_6: BuildResult<SwiftVersion>
-        var v5_7: BuildResult<SwiftVersion>
-        var v5_8: BuildResult<SwiftVersion>
-
-        init(status5_5: BuildStatus,
-             status5_6: BuildStatus,
-             status5_7: BuildStatus,
-             status5_8: BuildStatus) {
-            self.v5_5 = .init(parameter: .v5_5, status: status5_5)
-            self.v5_6 = .init(parameter: .v5_6, status: status5_6)
-            self.v5_7 = .init(parameter: .v5_7, status: status5_7)
-            self.v5_8 = .init(parameter: .v5_8, status: status5_8)
-        }
-
-        var cells: [BuildResult<SwiftVersion>] { [v5_8, v5_7, v5_6, v5_5 ] }
-    }
-
-    struct PlatformResults: Codable, Equatable {
-        var ios: BuildResult<PlatformCompatibility>
-        var linux: BuildResult<PlatformCompatibility>
-        var macos: BuildResult<PlatformCompatibility>
-        var tvos: BuildResult<PlatformCompatibility>
-        var watchos: BuildResult<PlatformCompatibility>
-
-        init(iosStatus: BuildStatus,
-             linuxStatus: BuildStatus,
-             macosStatus: BuildStatus,
-             tvosStatus: BuildStatus,
-             watchosStatus: BuildStatus) {
-            self.ios = .init(parameter: .ios, status: iosStatus)
-            self.linux = .init(parameter: .linux, status: linuxStatus)
-            self.macos = .init(parameter: .macos, status: macosStatus)
-            self.tvos = .init(parameter: .tvos, status: tvosStatus)
-            self.watchos = .init(parameter: .watchos, status: watchosStatus)
-        }
-
-        var cells: [BuildResult<PlatformCompatibility>] { [ios, macos, watchos, tvos, linux] }
-    }
-
+    @available(*, deprecated)
     enum BuildStatus: String, Codable, Equatable {
         case compatible
         case incompatible
@@ -205,6 +165,7 @@ extension PackageShow.Model {
         }
     }
 
+    @available(*, deprecated)
     struct BuildResult<T: Codable & BuildResultParameter>: Codable, Equatable {
         var parameter: T
         var status: BuildStatus

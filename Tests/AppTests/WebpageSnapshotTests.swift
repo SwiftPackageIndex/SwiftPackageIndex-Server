@@ -190,7 +190,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         // Test display when all three significant version collapse to a single row
         var model = PackageShow.Model.mock
         do {
-            let compatible = PackageShow.Model.SwiftVersionResults(
+            let compatible = API.PackageController.GetRoute.Model.SwiftVersionResults(
                 status5_5: .compatible,
                 status5_6: .compatible,
                 status5_7: .compatible,
@@ -203,7 +203,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
             )
         }
         do {
-            let compatible = PackageShow.Model.PlatformResults(
+            let compatible = API.PackageController.GetRoute.Model.PlatformResults(
                 iosStatus: .compatible,
                 linuxStatus: .compatible,
                 macosStatus: .compatible,

@@ -34,8 +34,8 @@ extension PackageShow {
         var activity: Activity?
         var authors: AuthorMetadata?
         var keywords: [String]?
-        var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
-        var platformBuildInfo: BuildInfo<PlatformResults>?
+        var swiftVersionBuildInfo: BuildInfo<API.PackageController.GetRoute.Model.SwiftVersionResults>?
+        var platformBuildInfo: BuildInfo<API.PackageController.GetRoute.Model.PlatformResults>?
         var history: History?
         var license: License
         var licenseUrl: String?
@@ -61,8 +61,8 @@ extension PackageShow {
                       activity: Activity? = nil,
                       authors: AuthorMetadata? = nil,
                       keywords: [String]? = nil,
-                      swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil,
-                      platformBuildInfo: BuildInfo<PlatformResults>? = nil,
+                      swiftVersionBuildInfo: BuildInfo<API.PackageController.GetRoute.Model.SwiftVersionResults>? = nil,
+                      platformBuildInfo: BuildInfo<API.PackageController.GetRoute.Model.PlatformResults>? = nil,
                       history: History? = nil,
                       license: License,
                       licenseUrl: String? = nil,
@@ -111,8 +111,8 @@ extension PackageShow {
         init?(result: PackageController.PackageResult,
               history: History?,
               productCounts: ProductCounts,
-              swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?,
-              platformBuildInfo: BuildInfo<PlatformResults>?,
+              swiftVersionBuildInfo: BuildInfo<API.PackageController.GetRoute.Model.SwiftVersionResults>?,
+              platformBuildInfo: BuildInfo<API.PackageController.GetRoute.Model.PlatformResults>?,
               weightedKeywords: [WeightedKeyword] = []) {
             // we consider certain attributes as essential and return nil (raising .notFound)
             let repository = result.repository
@@ -628,7 +628,7 @@ extension PackageShow.Model {
     }
 
     func compatibilityListItem<T>(_ labelParagraphNode: Node<HTML.BodyContext>,
-                                  cells: [BuildResult<T>]) -> Node<HTML.ListContext> {
+                                  cells: [API.PackageController.GetRoute.Model.BuildResult<T>]) -> Node<HTML.ListContext> {
         return .li(
             .class("row"),
             .div(
@@ -658,5 +658,40 @@ extension License.Kind {
             case .incompatibleWithAppStore, .other: return "incompatible_license"
             case .compatibleWithAppStore: return "compatible_license"
         }
+    }
+}
+
+
+extension API.PackageController.GetRoute.Model.BuildResult {
+    var headerNode: Node<HTML.BodyContext> {
+        .div(
+            .text(parameter.displayName),
+            .unwrap(parameter.note) { .small(.text("(\($0))")) }
+        )
+    }
+
+    var cellNode: Node<HTML.BodyContext> {
+        .div(
+            .class("\(status.cssClass)"),
+            .title(title)
+        )
+    }
+
+    var title: String {
+        switch status {
+            case .compatible:
+                return "Built successfully with \(parameter.longDisplayName)"
+            case .incompatible:
+                return "Build failed with \(parameter.longDisplayName)"
+            case .unknown:
+                return "No build information available for \(parameter.longDisplayName)"
+        }
+    }
+}
+
+
+extension API.PackageController.GetRoute.Model.BuildStatus {
+    var cssClass: String {
+        self.rawValue
     }
 }

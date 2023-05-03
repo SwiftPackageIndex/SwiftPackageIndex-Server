@@ -444,7 +444,7 @@ class PackageShowModelTests: SnapshotTestCase {
 
 // local typealiases / references to make tests more readable
 fileprivate typealias BuildInfo = PackageShow.Model.BuildInfo
-fileprivate typealias BuildResults = PackageShow.Model.SwiftVersionResults
+fileprivate typealias BuildResults = API.PackageController.GetRoute.Model.SwiftVersionResults
 
 
 private extension PackageShow.Model.ProductCounts {

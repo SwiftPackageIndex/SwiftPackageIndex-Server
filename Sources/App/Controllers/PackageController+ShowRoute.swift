@@ -132,8 +132,8 @@ extension PackageController {
         struct BuildInfo: Equatable {
             typealias ModelBuildInfo = PackageShow.Model.BuildInfo
             typealias NamedBuildResults = PackageShow.Model.NamedBuildResults
-            typealias PlatformResults = PackageShow.Model.PlatformResults
-            typealias SwiftVersionResults = PackageShow.Model.SwiftVersionResults
+            typealias PlatformResults = API.PackageController.GetRoute.Model.PlatformResults
+            typealias SwiftVersionResults = API.PackageController.GetRoute.Model.SwiftVersionResults
 
             var platform: ModelBuildInfo<PlatformResults>?
             var swiftVersion: ModelBuildInfo<SwiftVersionResults>?
@@ -178,11 +178,11 @@ extension PackageController {
                 // ... and report the status
                 return
                     .init(referenceName: referenceName,
-                          results: .init(iosStatus: ios._buildStatus,
-                                         linuxStatus: linux._buildStatus,
-                                         macosStatus: macos._buildStatus,
-                                         tvosStatus: tvos._buildStatus,
-                                         watchosStatus: watchos._buildStatus)
+                          results: .init(iosStatus: ios.buildStatus,
+                                         linuxStatus: linux.buildStatus,
+                                         macosStatus: macos.buildStatus,
+                                         tvosStatus: tvos.buildStatus,
+                                         watchosStatus: watchos.buildStatus)
                     )
             }
 
@@ -215,10 +215,10 @@ extension PackageController {
                 // ... and report the status
                 return
                     .init(referenceName: referenceName,
-                          results: .init(status5_5: v5_5._buildStatus,
-                                         status5_6: v5_6._buildStatus,
-                                         status5_7: v5_7._buildStatus,
-                                         status5_8: v5_8._buildStatus)
+                          results: .init(status5_5: v5_5.buildStatus,
+                                         status5_6: v5_6.buildStatus,
+                                         status5_7: v5_7.buildStatus,
+                                         status5_8: v5_8.buildStatus)
                     )
             }
         }
