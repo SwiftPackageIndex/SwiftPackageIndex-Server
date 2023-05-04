@@ -17,6 +17,7 @@
 import Vapor
 import XCTest
 
+#warning("rename")
 class PackageController_ShowRouteTests: AppTestCase {
 
     typealias BuildDetails = (reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status)

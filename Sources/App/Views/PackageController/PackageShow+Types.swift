@@ -22,6 +22,7 @@ protocol BuildResultParameter: Equatable {
 }
 
 
+#warning("move these types into PackageShow?")
 extension API.PackageController.GetRoute.Model {
     struct Reference: Codable, Equatable {
         var name: String
