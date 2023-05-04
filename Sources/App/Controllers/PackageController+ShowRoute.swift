@@ -49,22 +49,6 @@ extension Array where Element == PackageController.BuildsRoute.BuildInfo {
 
 
 extension Build.Platform {
-    @available(*, deprecated)
-    func _isCompatible(with other: PackageShow._Model.PlatformCompatibility) -> Bool {
-        switch self {
-            case .ios:
-                return other == .ios
-            case .macosSpm, .macosXcodebuild:
-                return other == .macos
-            case .tvos:
-                return other == .tvos
-            case .watchos:
-                return other == .watchos
-            case .linux:
-                return other == .linux
-        }
-    }
-
     func isCompatible(with other: API.PackageController.GetRoute.Model.PlatformCompatibility) -> Bool {
         switch self {
             case .ios:
