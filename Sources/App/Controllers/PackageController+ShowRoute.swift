@@ -21,16 +21,6 @@ extension PackageController {
 
     enum ShowRoute {
 
-        enum ProductCount {
-            static func query(on database: Database, owner: String, repository: String) async throws -> [ProductType] {
-                try await Joined4<Package, Repository, Version, Product>
-                    .query(on: database, owner: owner, repository: repository)
-                    .field(Product.self, \.$type)
-                    .all()
-                    .compactMap(\.product.type)
-            }
-        }
-
         struct BuildInfo: Equatable {
             typealias ModelBuildInfo = API.PackageController.GetRoute.Model.BuildInfo
             typealias NamedBuildResults = API.PackageController.GetRoute.Model.NamedBuildResults

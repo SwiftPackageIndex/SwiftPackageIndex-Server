@@ -162,7 +162,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         }
 
         // MUT
-        let res = try await PackageController.ShowRoute.ProductCount.query(on: app.db, owner: "foo", repository: "bar")
+        let res = try await API.PackageController.GetRoute.ProductCount.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
         XCTAssertEqual(res.filter(\.isExecutable).count, 1)
