@@ -22,8 +22,7 @@ protocol BuildResultParameter: Equatable {
 }
 
 
-#warning("move these types into PackageShow?")
-extension API.PackageController.GetRoute.Model {
+extension PackageShow {
     struct Reference: Codable, Equatable {
         var name: String
         var kind: App.Version.Kind
@@ -53,7 +52,7 @@ extension API.PackageController.GetRoute.Model {
             self.results = results
         }
 
-        init(namedResult: NamedBuildResults<T>, kind: App.Version.Kind) {
+        init(namedResult: API.PackageController.GetRoute.Model.NamedBuildResults<T>, kind: App.Version.Kind) {
             self.references = [.init(name: namedResult.referenceName, kind: kind)]
             self.results = namedResult.results
         }

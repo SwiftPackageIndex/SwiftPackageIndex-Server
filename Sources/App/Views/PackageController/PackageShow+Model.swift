@@ -422,7 +422,7 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
-    static func groupBuildInfo<T>(_ buildInfo: BuildInfo<T>) -> [BuildStatusRow<T>] {
+    static func groupBuildInfo<T>(_ buildInfo: BuildInfo<T>) -> [PackageShow.BuildStatusRow<T>] {
         let allKeyPaths: [KeyPath<BuildInfo<T>, NamedBuildResults<T>?>] = [\.stable, \.beta, \.latest]
         var availableKeyPaths = allKeyPaths
         let groups = allKeyPaths.map { kp -> [KeyPath<BuildInfo<T>, NamedBuildResults<T>?>] in
@@ -431,10 +431,10 @@ extension API.PackageController.GetRoute.Model {
             availableKeyPaths.removeAll(where: { group.contains($0) })
             return group
         }
-        let rows = groups.compactMap { keyPaths -> BuildStatusRow<T>? in
+        let rows = groups.compactMap { keyPaths -> PackageShow.BuildStatusRow<T>? in
             guard let first = keyPaths.first,
                   let results = buildInfo[keyPath: first]?.results else { return nil }
-            let references = keyPaths.compactMap { kp -> Reference? in
+            let references = keyPaths.compactMap { kp -> PackageShow.Reference? in
                 guard let name = buildInfo[keyPath: kp]?.referenceName else { return nil }
                 switch kp {
                     case \.stable:
