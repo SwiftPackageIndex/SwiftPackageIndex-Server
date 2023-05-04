@@ -28,10 +28,9 @@ extension API {
                 throw Abort(.notFound)
             }
 
-            // FIXME: rather than reach into App.PackageController.ShowRoute, factor out this method somewhere and use a slightly different data model rather than the view model (which has pre-rendered "stringly" dates, for instance)
-            return try await App.PackageController.ShowRoute.query(on: req.db,
-                                                                   owner: owner,
-                                                                   repository: repository).model
+            return try await API.PackageController.GetRoute.query(on: req.db,
+                                                                  owner: owner,
+                                                                  repository: repository).model
         }
 
         struct BadgeQuery: Codable {
