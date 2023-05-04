@@ -19,6 +19,8 @@ import DependencyResolution
 import SPIManifest
 
 
+#warning("rename file and/or move extensions elsewhere, probably some view related extension on GetRoute.Model")
+
 #warning("move to GetRoute?")
 enum AuthorMetadata : Codable, Equatable {
     case fromSPIManifest(String)
@@ -397,41 +399,6 @@ extension API.PackageController.GetRoute.Model {
                                eventName: "Copy SPM Manifest Code Snippet Button",
                                valueToCopy: link.url)
         )
-    }
-
-    @available(*, deprecated)
-    static func packageDependencyCodeSnippet(ref: App.Reference, packageURL: String) -> String {
-        switch ref {
-            case let .branch(branch):
-                return ".package(url: &quot;\(packageURL)&quot;, branch: &quot;\(branch)&quot;)"
-
-            case let .tag(version, _):
-                return ".package(url: &quot;\(packageURL)&quot;, from: &quot;\(version)&quot;)"
-        }
-    }
-
-    @available(*, deprecated)
-    static func packageDependencyCodeSnippets(packageURL: String,
-                                              defaultBranchReference: App.Reference?,
-                                              releaseReference: App.Reference?,
-                                              preReleaseReference: App.Reference?) -> [App.Version.Kind: Link] {
-        var snippets = [App.Version.Kind: Link]()
-        if let ref = defaultBranchReference {
-            snippets[.defaultBranch] = Link(label: "\(ref)",
-                                            url: packageDependencyCodeSnippet(ref: ref,
-                                                                              packageURL: packageURL))
-        }
-        if let ref = releaseReference {
-            snippets[.release] = Link(label: "\(ref)",
-                                      url: packageDependencyCodeSnippet(ref: ref,
-                                                                        packageURL: packageURL))
-        }
-        if let ref = preReleaseReference {
-            snippets[.preRelease] = Link(label: "\(ref)",
-                                         url: packageDependencyCodeSnippet(ref: ref,
-                                                                           packageURL: packageURL))
-        }
-        return snippets
     }
 
     func packageDependencyCodeSnippet(for release: App.Version.Kind) -> Link? {
