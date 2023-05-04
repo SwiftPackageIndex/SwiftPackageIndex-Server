@@ -15,6 +15,7 @@
 import Foundation
 
 
+#warning("remove file")
 extension PackageController.PackageResult {
 
     @available(*, deprecated)
@@ -28,23 +29,6 @@ extension PackageController.PackageResult {
         } else {
             return nil
         }
-    }
-
-    @available(*, deprecated)
-    func _activity() -> PackageShow._Model.Activity? {
-        guard repository.lastPullRequestClosedAt != nil else { return nil }
-
-        let openIssues = Link(label: repository.openIssues.labeled("open issue"),
-                              url: package.url.droppingGitExtension + "/issues")
-        let openPRs = Link(label: repository.openPullRequests.labeled("open pull request"),
-                           url: package.url.droppingGitExtension + "/pulls")
-        let lastIssueClosed = repository.lastIssueClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
-        let lastPRClosed = repository.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
-        return .init(openIssuesCount: repository.openIssues,
-                     openIssues: openIssues,
-                     openPullRequests: openPRs,
-                     lastIssueClosedAt: lastIssueClosed,
-                     lastPullRequestClosedAt: lastPRClosed)
     }
 
 }
