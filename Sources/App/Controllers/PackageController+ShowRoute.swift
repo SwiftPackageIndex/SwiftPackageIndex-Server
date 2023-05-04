@@ -21,49 +21,6 @@ extension PackageController {
 
     enum ShowRoute {
 
-        /// Assembles individual queries and transforms them into model structs.
-        /// - Parameters:
-        ///   - database: `Database`
-        ///   - owner: repository owner
-        ///   - repository: repository name
-        /// - Returns: model structs
-        static func query(on database: Database, owner: String, repository: String) async throws -> (model: API.PackageController.GetRoute.Model, schema: PackageShow.PackageSchema) {
-            let packageResult = try await PackageResult.query(on: database,
-                                                              owner: owner,
-                                                              repository: repository)
-            async let weightedKeywords = WeightedKeyword.query(
-                on: database, keywords: packageResult.repository.keywords
-            )
-            async let historyRecord = API.PackageController.GetRoute.History.query(on: database,
-                                                                                   owner: owner,
-                                                                                   repository: repository)
-            async let productTypes = API.PackageController.GetRoute.ProductCount.query(on: database,
-                                                                                       owner: owner,
-                                                                                       repository: repository)
-            async let buildInfo = API.PackageController.GetRoute.BuildInfo.query(on: database,
-                                                                                 owner: owner,
-                                                                                 repository: repository)
-
-            guard
-                let model = try await API.PackageController.GetRoute.Model(
-                    result: packageResult,
-                    history: historyRecord?.historyModel(),
-                    productCounts: .init(
-                        libraries: productTypes.filter(\.isLibrary).count,
-                        executables: productTypes.filter(\.isExecutable).count,
-                        plugins: productTypes.filter(\.isPlugin).count),
-                    swiftVersionBuildInfo: buildInfo.swiftVersion,
-                    platformBuildInfo: buildInfo.platform,
-                    weightedKeywords: weightedKeywords
-                ),
-                let schema = PackageShow.PackageSchema(result: packageResult)
-            else {
-                throw Abort(.notFound)
-            }
-
-            return (model, schema)
-        }
-
         enum History {
             struct Record: Codable, Equatable {
                 var url: String

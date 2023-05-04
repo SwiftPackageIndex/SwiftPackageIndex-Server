@@ -356,13 +356,13 @@ enum PackageController {
 extension PackageController {
 
     enum ShowModel {
-        case packageAvailable(API.PackageController.GetRoute.Model, PackageShow.PackageSchema)
+        case packageAvailable(API.PackageController.GetRoute.Model, API.PackageController.GetRoute.PackageSchema)
         case packageMissing(MissingPackage.Model)
         case packageDoesNotExist
 
         init(db: Database, owner: String, repository: String) async throws {
             do {
-                let (model, schema) = try await ShowRoute
+                let (model, schema) = try await API.PackageController.GetRoute
                     .query(on: db, owner: owner, repository: repository)
                 self = .packageAvailable(model, schema)
             } catch let error as AbortError where error.status == .notFound {

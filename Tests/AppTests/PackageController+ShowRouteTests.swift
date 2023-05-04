@@ -407,7 +407,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
         // MUT
-        let (model, schema) = try await PackageController.ShowRoute.query(on: app.db, owner: "foo", repository: "bar")
+        let (model, schema) = try await API.PackageController.GetRoute.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
         XCTAssertEqual(model.repositoryName, "bar")
