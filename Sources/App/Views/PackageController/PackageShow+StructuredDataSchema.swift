@@ -142,7 +142,7 @@ extension PackageShow {
     static func releaseInfo(packageUrl: String,
                             defaultBranchVersion: DefaultVersion?,
                             releaseVersion: ReleaseVersion?,
-                            preReleaseVersion: PreReleaseVersion?) -> PackageShow.Model.ReleaseInfo {
+                            preReleaseVersion: PreReleaseVersion?) -> PackageShow._Model.ReleaseInfo {
         let links = [releaseVersion?.model, preReleaseVersion?.model, defaultBranchVersion?.model]
             .map { version -> DatedLink? in
                 guard let version = version else { return nil }

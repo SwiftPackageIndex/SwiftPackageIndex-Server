@@ -31,7 +31,7 @@ extension PackageController.PackageResult {
     }
 
     @available(*, deprecated)
-    func _activity() -> PackageShow.Model.Activity? {
+    func _activity() -> PackageShow._Model.Activity? {
         guard repository.lastPullRequestClosedAt != nil else { return nil }
 
         let openIssues = Link(label: repository.openIssues.labeled("open issue"),

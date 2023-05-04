@@ -26,7 +26,8 @@ enum AuthorMetadata : Codable, Equatable {
 
 extension PackageShow {
 
-    struct Model: Codable, Content, Equatable {
+    @available(*, deprecated)
+    struct _Model: Codable, Content, Equatable {
         var packageId: Package.Id
         var repositoryOwner: String
         var repositoryOwnerName: String
@@ -152,11 +153,7 @@ extension PackageShow {
                 hasBinaryTargets: result.defaultBranchVersion.hasBinaryTargets,
                 homepageUrl: repository.homepageUrl,
                 hasDocumentation: result.hasDocumentation(),
-                dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
-                    packageURL: result.package.url,
-                    defaultBranchReference: result.defaultBranchVersion.model.reference,
-                    releaseReference: result.releaseVersion?.model.reference,
-                    preReleaseReference: result.preReleaseVersion?.model.reference),
+                dependencyCodeSnippets: [:],
                 weightedKeywords: weightedKeywords
             )
 
@@ -165,7 +162,7 @@ extension PackageShow {
 
 }
 
-extension PackageShow.Model {
+extension API.PackageController.GetRoute.Model {
     var gitHubOwnerUrl: String {
         "https://github.com/\(repositoryOwner)"
     }
@@ -175,12 +172,12 @@ extension PackageShow.Model {
     }
 }
 
-extension PackageShow.Model {
+extension API.PackageController.GetRoute.Model {
     static func makeModelVersion(packageUrl: String, version: App.Version) -> Version? {
         guard let link = makeLink(packageUrl: packageUrl, version: version) else { return nil }
-        return PackageShow.Model.Version(link: link,
-                                         swiftVersions: version.swiftVersions.map(\.description),
-                                         platforms: version.supportedPlatforms)
+        return Self.Version(link: link,
+                            swiftVersions: version.swiftVersions.map(\.description),
+                            platforms: version.supportedPlatforms)
     }
 
     static func languagePlatformInfo(packageUrl: String,
@@ -198,7 +195,7 @@ extension PackageShow.Model {
 }
 
 
-extension PackageShow.Model {
+extension API.PackageController.GetRoute.Model {
     func licenseListItem() -> Node<HTML.ListContext> {
         let licenseDescription: Node<HTML.BodyContext> = {
             switch license.licenseKind {
@@ -538,6 +535,7 @@ extension PackageShow.Model {
         )
     }
 
+    @available(*, deprecated)
     static func packageDependencyCodeSnippet(ref: App.Reference, packageURL: String) -> String {
         switch ref {
             case let .branch(branch):
@@ -548,6 +546,7 @@ extension PackageShow.Model {
         }
     }
 
+    @available(*, deprecated)
     static func packageDependencyCodeSnippets(packageURL: String,
                                               defaultBranchReference: App.Reference?,
                                               releaseReference: App.Reference?,
@@ -569,6 +568,27 @@ extension PackageShow.Model {
                                                                            packageURL: packageURL))
         }
         return snippets
+    }
+
+    func packageDependencyCodeSnippet(for release: App.Version.Kind) -> Link? {
+        Self.packageDependencyCodeSnippet(for: release,
+                                          releaseReferences: releaseReferences,
+                                          packageURL: url)
+    }
+
+    static func packageDependencyCodeSnippet(for release: App.Version.Kind,
+                                             releaseReferences: [App.Version.Kind: App.Reference],
+                                             packageURL: String) -> Link? {
+        guard let ref = releaseReferences[release] else { return nil }
+        switch ref {
+            case let .branch(branch):
+                return Link(label: "\(ref)",
+                            url: ".package(url: &quot;\(packageURL)&quot;, branch: &quot;\(branch)&quot;)")
+
+            case let .tag(version, _):
+                return Link(label: "\(ref)",
+                            url: ".package(url: &quot;\(packageURL)&quot;, from: &quot;\(version)&quot;)")
+        }
     }
 
     static func groupBuildInfo<T>(_ buildInfo: BuildInfo<T>) -> [BuildStatusRow<T>] {

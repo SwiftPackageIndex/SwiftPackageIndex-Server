@@ -35,12 +35,12 @@ class PackageShowModelTests: SnapshotTestCase {
         let pr = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
 
         // MUT
-        let m = PackageShow.Model(result: pr,
-                                  history: nil,
-                                  productCounts: .mock,
-                                  swiftVersionBuildInfo: nil,
-                                  platformBuildInfo: nil,
-                                  weightedKeywords: [])
+        let m = API.PackageController.GetRoute.Model(result: pr,
+                                                     history: nil,
+                                                     productCounts: .mock,
+                                                     swiftVersionBuildInfo: nil,
+                                                     platformBuildInfo: nil,
+                                                     weightedKeywords: [])
 
         // validate
         XCTAssertNotNil(m)
@@ -56,12 +56,12 @@ class PackageShowModelTests: SnapshotTestCase {
         let packageResult = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
 
         // MUT
-        let model = try XCTUnwrap(PackageShow.Model(result: packageResult,
-                                                    history: nil,
-                                                    productCounts: .mock,
-                                                    swiftVersionBuildInfo: nil,
-                                                    platformBuildInfo: nil,
-                                                    weightedKeywords: []))
+        let model = try XCTUnwrap(API.PackageController.GetRoute.Model(result: packageResult,
+                                                                       history: nil,
+                                                                       productCounts: .mock,
+                                                                       swiftVersionBuildInfo: nil,
+                                                                       platformBuildInfo: nil,
+                                                                       weightedKeywords: []))
 
         // validate
         XCTAssertEqual(model.hasDocumentation, true)
@@ -80,32 +80,32 @@ class PackageShowModelTests: SnapshotTestCase {
         let packageResult = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
 
         // MUT
-        let model = try XCTUnwrap(PackageShow.Model(result: packageResult,
-                                                    history: nil,
-                                                    productCounts: .mock,
-                                                    swiftVersionBuildInfo: nil,
-                                                    platformBuildInfo: nil,
-                                                    weightedKeywords: []))
+        let model = try XCTUnwrap(API.PackageController.GetRoute.Model(result: packageResult,
+                                                                       history: nil,
+                                                                       productCounts: .mock,
+                                                                       swiftVersionBuildInfo: nil,
+                                                                       platformBuildInfo: nil,
+                                                                       weightedKeywords: []))
 
         // validate
         XCTAssertEqual(model.hasDocumentation, true)
     }
 
     func test_gitHubOwnerUrl() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.repositoryOwner = "owner"
         XCTAssertEqual(model.gitHubOwnerUrl, "https://github.com/owner")
     }
 
     func test_gitHubRepositoryUrl() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.repositoryOwner = "owner"
         model.repositoryName = "repository"
         XCTAssertEqual(model.gitHubRepositoryUrl, "https://github.com/owner/repository")
     }
 
     func test_history() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.history = .init(
             since: "7 months",
             commitCount: .init(label: "12 commits", url: "https://example.com/commits.html"),
@@ -117,7 +117,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_binary_targets() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.hasBinaryTargets = true
         model.licenseUrl = "<license-url-here>"
 
@@ -126,7 +126,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_binary_targets_no_license() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.hasBinaryTargets = true
         model.licenseUrl = nil
 
@@ -135,7 +135,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_history_archived_package() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.history = .init(
             since: "7 months",
             commitCount: .init(label: "12 commits", url: "https://example.com/commits.html"),
@@ -148,7 +148,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_archived_warning_line_for_active_package() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.isArchived = false
 
         let renderedHistory = model.archivedListItem().render(indentedBy: .spaces(2))
@@ -156,7 +156,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_archived_warning_line_for_archived_package() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.isArchived = true
 
         let renderedHistory = model.archivedListItem().render(indentedBy: .spaces(2))
@@ -164,7 +164,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_activity_variants__missing_open_issue() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.activity?.openIssues = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
@@ -172,7 +172,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_activity_variants__missing_open_PRs() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.activity?.openPullRequests = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
@@ -180,7 +180,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_activity_variants__missing_open_issues_and_PRs() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.activity?.openIssues = nil
         model.activity?.openPullRequests = nil
 
@@ -189,7 +189,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_activity_variants__missing_last_closed_issue() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.activity?.lastIssueClosedAt = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
@@ -197,7 +197,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_activity_variants__missing_last_closed_PR() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.activity?.lastPullRequestClosedAt = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
@@ -205,7 +205,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_activity_variants__missing_last_closed_issue_and_PR() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.activity?.lastIssueClosedAt = nil
         model.activity?.lastPullRequestClosedAt = nil
 
@@ -214,7 +214,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_activity_variants__missing_everything() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.activity?.openIssues = nil
         model.activity?.openPullRequests = nil
         model.activity?.lastIssueClosedAt = nil
@@ -224,24 +224,24 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_dependenciesPhrase_with_dependencies() throws {
-        let model = PackageShow.Model.mock
+        let model = API.PackageController.GetRoute.Model.mock
         XCTAssertEqual(model.dependenciesPhrase(), "This package depends on 2 other packages.")
     }
 
     func test_dependenciesPhrase_no_dependencies() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.dependencies = []
         XCTAssertEqual(model.dependenciesPhrase(), "This package has no package dependencies.")
     }
 
     func test_dependenciesPhrase_nil_dependencies() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.dependencies = nil
         XCTAssertEqual(model.dependenciesPhrase(), nil)
     }
 
     func test_stars_formatting() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.stars = 999
         XCTAssertEqual(model.starsListItem().render(), "<li class=\"stars\">999 stars</li>")
         model.stars = 1_000
@@ -251,7 +251,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_num_libraries_formatting() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.productCounts?.libraries = 0
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">No libraries</li>")
         model.productCounts?.libraries = 1
@@ -261,7 +261,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_num_executables_formatting() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.productCounts?.executables = 0
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">No executables</li>")
         model.productCounts?.executables = 1
@@ -271,7 +271,7 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_authorMetadata() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
 
         model.authors = AuthorMetadata.fromGitRepository(PackageAuthors(authors: [
             Author(name: "Author One"),
@@ -314,7 +314,7 @@ class PackageShowModelTests: SnapshotTestCase {
                                                            results: result3))!
 
             // MUT
-            let res = PackageShow.Model.groupBuildInfo(buildInfo)
+            let res = API.PackageController.GetRoute.Model.groupBuildInfo(buildInfo)
 
             // validate
             XCTAssertEqual(res, [
@@ -333,7 +333,7 @@ class PackageShowModelTests: SnapshotTestCase {
                                                            results: result1))!
 
             // MUT
-            let res = PackageShow.Model.groupBuildInfo(buildInfo)
+            let res = API.PackageController.GetRoute.Model.groupBuildInfo(buildInfo)
 
             // validate
             XCTAssertEqual(res, [
@@ -378,7 +378,7 @@ class PackageShowModelTests: SnapshotTestCase {
                                                repository: "bar")
 
         // MUT
-        let lpInfo = PackageShow.Model
+        let lpInfo = API.PackageController.GetRoute.Model
             .languagePlatformInfo(packageUrl: "1",
                                   defaultBranchVersion: pr.defaultBranchVersion,
                                   releaseVersion: pr.releaseVersion,
@@ -401,53 +401,49 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_packageDependencyCodeSnippet() {
+        let releaseRefs: [App.Version.Kind: App.Reference] = [
+            .release: .tag(5, 5, 0),
+            .preRelease: .tag(6, 0, 0, "b1"),
+            .defaultBranch: .branch("main")
+        ]
         XCTAssertEqual(
-            PackageShow.Model.packageDependencyCodeSnippet(
-                ref: .tag(.init("6.0.0-b1")!),
+            API.PackageController.GetRoute.Model.packageDependencyCodeSnippet(
+                for: .preRelease,
+                releaseReferences: releaseRefs,
                 packageURL: "https://github.com/Alamofire/Alamofire.git"
             ),
-            ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;6.0.0-b1&quot;)")
-        XCTAssertEqual(
-            PackageShow.Model.packageDependencyCodeSnippet(
-                ref: .tag(.init("5.5.0")!),
-                packageURL: "https://github.com/Alamofire/Alamofire.git"
-            ),
-            ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.5.0&quot;)"
+            .init(label: "6.0.0-b1",
+                  url: ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;6.0.0-b1&quot;)")
         )
         XCTAssertEqual(
-            PackageShow.Model.packageDependencyCodeSnippet(
-                ref: .branch("main"),
+            API.PackageController.GetRoute.Model.packageDependencyCodeSnippet(
+                for: .release,
+                releaseReferences: releaseRefs,
                 packageURL: "https://github.com/Alamofire/Alamofire.git"
             ),
-            ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, branch: &quot;main&quot;)"
+            .init(label: "5.5.0",
+                  url: ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.5.0&quot;)")
+        )
+        XCTAssertEqual(
+            API.PackageController.GetRoute.Model.packageDependencyCodeSnippet(
+                for: .defaultBranch,
+                releaseReferences: releaseRefs,
+                packageURL: "https://github.com/Alamofire/Alamofire.git"
+            ),
+            .init(label: "main",
+                  url: ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, branch: &quot;main&quot;)")
         )
     }
 
-    func test_packageDependencyCodeSnippets() {
-        XCTAssertEqual(
-            PackageShow.Model.packageDependencyCodeSnippets(
-                packageURL: "https://github.com/Alamofire/Alamofire.git",
-                defaultBranchReference: .branch("main"),
-                releaseReference: .tag(1, 2, 3),
-                preReleaseReference: nil
-            ),
-            [
-                .defaultBranch: .init(label: "main",
-                                      url:".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, branch: &quot;main&quot;)"),
-                .release: .init(label: "1.2.3",
-                                url: ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;1.2.3&quot;)")
-            ]
-        )
-    }
 }
 
 
 // local typealiases / references to make tests more readable
-fileprivate typealias BuildInfo = PackageShow.Model.BuildInfo
+fileprivate typealias BuildInfo = API.PackageController.GetRoute.Model.BuildInfo
 fileprivate typealias BuildResults = API.PackageController.GetRoute.Model.SwiftVersionResults
 
 
-private extension PackageShow.Model.ProductCounts {
+private extension API.PackageController.GetRoute.Model.ProductCounts {
     static var mock: Self {
         .init(libraries: 0, executables: 0, plugins: 0)
     }

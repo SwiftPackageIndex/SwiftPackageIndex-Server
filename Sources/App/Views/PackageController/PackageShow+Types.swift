@@ -15,7 +15,7 @@
 import Plot
 
 
-extension PackageShow.Model {
+extension PackageShow._Model {
 
     struct History: Codable, Equatable {
         var since: String
@@ -60,9 +60,9 @@ extension PackageShow.Model {
         var beta: NamedBuildResults<T>?
         var latest: NamedBuildResults<T>?
 
-        init?(stable: PackageShow.Model.NamedBuildResults<T>? = nil,
-              beta: PackageShow.Model.NamedBuildResults<T>? = nil,
-              latest: PackageShow.Model.NamedBuildResults<T>? = nil) {
+        init?(stable: PackageShow._Model.NamedBuildResults<T>? = nil,
+              beta: PackageShow._Model.NamedBuildResults<T>? = nil,
+              latest: PackageShow._Model.NamedBuildResults<T>? = nil) {
             // require at least one result to be non-nil
             guard stable != nil || beta != nil || latest != nil else { return nil }
             self.stable = stable
@@ -161,4 +161,51 @@ protocol BuildResultParameter: Equatable {
     var displayName: String { get }
     var longDisplayName: String { get }
     var note: String? { get }
+}
+
+
+extension API.PackageController.GetRoute.Model {
+    struct Reference: Codable, Equatable {
+        var name: String
+        var kind: App.Version.Kind
+
+        var node: Node<HTML.BodyContext> {
+            .span(
+                .class(cssClass),
+                .text(name)
+            )
+        }
+
+        var cssClass: String {
+            switch kind {
+                case .defaultBranch: return "branch"
+                case .preRelease: return "beta"
+                case .release: return "stable"
+            }
+        }
+    }
+
+    struct BuildStatusRow<T: Codable & Equatable>: Codable, Equatable {
+        var references: [Reference]
+        var results: T
+
+        init(references: [Reference], results: T) {
+            self.references = references
+            self.results = results
+        }
+
+        init(namedResult: NamedBuildResults<T>, kind: App.Version.Kind) {
+            self.references = [.init(name: namedResult.referenceName, kind: kind)]
+            self.results = namedResult.results
+        }
+
+        var labelParagraphNode: Node<HTML.BodyContext> {
+            guard !references.isEmpty else { return .empty }
+            return .p(
+                .group(
+                    listPhrase(nodes: references.map(\.node))
+                )
+            )
+        }
+    }
 }

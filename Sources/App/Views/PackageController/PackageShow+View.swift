@@ -20,10 +20,10 @@ enum PackageShow {
 
     class View: PublicPage {
 
-        let model: Model
+        let model: API.PackageController.GetRoute.Model
         let packageSchema: PackageSchema?
 
-        init(path: String, model: Model, packageSchema: PackageSchema?) {
+        init(path: String, model: API.PackageController.GetRoute.Model, packageSchema: PackageSchema?) {
             self.model = model
             self.packageSchema = packageSchema
             super.init(path: path)
@@ -93,13 +93,13 @@ enum PackageShow {
                         .h4("When working with an Xcode project:"),
                         model.xcodeprojDependencyForm(packageUrl: model.url),
                         .h4("When working with a Swift Package Manager manifest:"),
-                        .unwrap(model.dependencyCodeSnippets[.release], {
+                        .unwrap(model.packageDependencyCodeSnippet(for: .release), {
                             model.spmDependencyForm(link: $0, cssClass: "stable")
                         }),
-                        .unwrap(model.dependencyCodeSnippets[.preRelease], {
+                        .unwrap(model.packageDependencyCodeSnippet(for: .preRelease), {
                             model.spmDependencyForm(link: $0, cssClass: "beta")
                         }),
-                        .unwrap(model.dependencyCodeSnippets[.defaultBranch], {
+                        .unwrap(model.packageDependencyCodeSnippet(for: .defaultBranch), {
                             model.spmDependencyForm(link: $0, cssClass: "branch")
                         })
                     )

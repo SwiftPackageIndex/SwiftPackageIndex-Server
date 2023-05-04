@@ -20,7 +20,7 @@ extension API {
 
     enum PackageController {
 
-        static func get(req: Request) async throws -> PackageShow.Model {
+        static func get(req: Request) async throws -> API.PackageController.GetRoute.Model {
             guard
                 let owner = req.parameters.get("owner"),
                 let repository = req.parameters.get("repository")

@@ -243,6 +243,7 @@ extension API.PackageController.GetRoute {
         var homepageUrl: String?
         var hasDocumentation: Bool = false
         var weightedKeywords: [WeightedKeyword]
+        var releaseReferences: [App.Version.Kind: App.Reference]
 
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
@@ -268,7 +269,10 @@ extension API.PackageController.GetRoute {
                       hasBinaryTargets: Bool = false,
                       homepageUrl: String? = nil,
                       hasDocumentation: Bool = false,
-                      weightedKeywords: [WeightedKeyword] = []) {
+                      weightedKeywords: [WeightedKeyword] = [],
+                      defaultBranchReference: App.Reference,
+                      releaseReference: App.Reference?,
+                      preReleaseReference: App.Reference?) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
             self.repositoryOwnerName = repositoryOwnerName
@@ -294,6 +298,16 @@ extension API.PackageController.GetRoute {
             self.homepageUrl = homepageUrl
             self.hasDocumentation = hasDocumentation
             self.weightedKeywords = weightedKeywords
+            self.releaseReferences = {
+                var refs = [App.Version.Kind.defaultBranch: defaultBranchReference]
+                if let ref = releaseReference {
+                    refs[.release] = ref
+                }
+                if let ref = preReleaseReference {
+                    refs[.preRelease] = ref
+                }
+                return refs
+            }()
         }
 
         init?(result: API.PackageController.PackageResult,
@@ -340,7 +354,10 @@ extension API.PackageController.GetRoute {
                 hasBinaryTargets: result.defaultBranchVersion.hasBinaryTargets,
                 homepageUrl: repository.homepageUrl,
                 hasDocumentation: result.hasDocumentation(),
-                weightedKeywords: weightedKeywords
+                weightedKeywords: weightedKeywords,
+                defaultBranchReference: result.defaultBranchVersion.reference,
+                releaseReference: result.releaseVersion?.reference,
+                preReleaseReference: result.preReleaseVersion?.reference
             )
 
         }
@@ -373,6 +390,18 @@ extension API.PackageController.GetRoute.Model {
         var stable: DatedLink?
         var beta: DatedLink?
         var latest: DatedLink?
+    }
+
+    struct Version: Equatable {
+        var link: Link
+        var swiftVersions: [String]
+        var platforms: [Platform]
+    }
+
+    struct LanguagePlatformInfo: Equatable {
+        var stable: Version?
+        var beta: Version?
+        var latest: Version?
     }
 
     struct BuildInfo<T: Codable & Equatable>: Codable, Equatable {

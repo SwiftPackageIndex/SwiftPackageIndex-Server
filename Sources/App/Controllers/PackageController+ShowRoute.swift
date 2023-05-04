@@ -27,25 +27,25 @@ extension PackageController {
         ///   - owner: repository owner
         ///   - repository: repository name
         /// - Returns: model structs
-        static func query(on database: Database, owner: String, repository: String) async throws -> (model: PackageShow.Model, schema: PackageShow.PackageSchema) {
+        static func query(on database: Database, owner: String, repository: String) async throws -> (model: API.PackageController.GetRoute.Model, schema: PackageShow.PackageSchema) {
             let packageResult = try await PackageResult.query(on: database,
                                                               owner: owner,
                                                               repository: repository)
             async let weightedKeywords = WeightedKeyword.query(
                 on: database, keywords: packageResult.repository.keywords
             )
-            async let historyRecord = History.query(on: database,
-                                                    owner: owner,
-                                                    repository: repository)
-            async let productTypes = ProductCount.query(on: database,
-                                                        owner: owner,
-                                                        repository: repository)
-            async let buildInfo = BuildInfo.query(on: database,
-                                                  owner: owner,
-                                                  repository: repository)
+            async let historyRecord = API.PackageController.GetRoute.History.query(on: database,
+                                                                                   owner: owner,
+                                                                                   repository: repository)
+            async let productTypes = API.PackageController.GetRoute.ProductCount.query(on: database,
+                                                                                       owner: owner,
+                                                                                       repository: repository)
+            async let buildInfo = API.PackageController.GetRoute.BuildInfo.query(on: database,
+                                                                                 owner: owner,
+                                                                                 repository: repository)
 
             guard
-                let model = try await PackageShow.Model(
+                let model = try await API.PackageController.GetRoute.Model(
                     result: packageResult,
                     history: historyRecord?.historyModel(),
                     productCounts: .init(
@@ -80,7 +80,7 @@ extension PackageController {
                     case releaseCount = "release_count"
                 }
 
-                func historyModel() -> PackageShow.Model.History? {
+                func historyModel() -> PackageShow._Model.History? {
                     guard let defaultBranch = defaultBranch,
                           let firstCommitDate = firstCommitDate else {
                         return nil
@@ -130,8 +130,8 @@ extension PackageController {
         }
 
         struct BuildInfo: Equatable {
-            typealias ModelBuildInfo = PackageShow.Model.BuildInfo
-            typealias NamedBuildResults = PackageShow.Model.NamedBuildResults
+            typealias ModelBuildInfo = API.PackageController.GetRoute.Model.BuildInfo
+            typealias NamedBuildResults = API.PackageController.GetRoute.Model.NamedBuildResults
             typealias PlatformResults = API.PackageController.GetRoute.Model.PlatformResults
             typealias SwiftVersionResults = API.PackageController.GetRoute.Model.SwiftVersionResults
 
@@ -259,7 +259,23 @@ extension Array where Element == PackageController.BuildsRoute.BuildInfo {
 
 
 extension Build.Platform {
-    func isCompatible(with other: PackageShow.Model.PlatformCompatibility) -> Bool {
+    @available(*, deprecated)
+    func _isCompatible(with other: PackageShow._Model.PlatformCompatibility) -> Bool {
+        switch self {
+            case .ios:
+                return other == .ios
+            case .macosSpm, .macosXcodebuild:
+                return other == .macos
+            case .tvos:
+                return other == .tvos
+            case .watchos:
+                return other == .watchos
+            case .linux:
+                return other == .linux
+        }
+    }
+
+    func isCompatible(with other: API.PackageController.GetRoute.Model.PlatformCompatibility) -> Bool {
         switch self {
             case .ios:
                 return other == .ios
