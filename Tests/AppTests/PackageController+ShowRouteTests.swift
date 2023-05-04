@@ -46,7 +46,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         try await Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db)
 
         // MUT
-        let record = try await PackageController.ShowRoute.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
+        let record = try await API.PackageController.GetRoute.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
 
         // validate
         XCTAssertEqual(
@@ -73,7 +73,7 @@ class PackageController_ShowRouteTests: AppTestCase {
                              owner: "foo").create(on: app.db)
 
         // MUT
-        let record = try await PackageController.ShowRoute.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
+        let record = try await API.PackageController.GetRoute.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
 
         // validate
         XCTAssertEqual(
@@ -90,7 +90,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         Current.date = { .spiBirthday }
         do {  // all inputs set to non-nil values
             // setup
-            let record = PackageController.ShowRoute.History.Record(
+            let record = API.PackageController.GetRoute.History.Record(
                 url: "url",
                 defaultBranch: "main",
                 firstCommitDate: .t0,
@@ -113,7 +113,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         }
         do {  // test nil inputs
             XCTAssertNil(
-                PackageController.ShowRoute.History.Record(
+                API.PackageController.GetRoute.History.Record(
                     url: "url",
                     defaultBranch: nil,
                     firstCommitDate: .t0,
@@ -122,7 +122,7 @@ class PackageController_ShowRouteTests: AppTestCase {
                 ).historyModel()
             )
             XCTAssertNil(
-                PackageController.ShowRoute.History.Record(
+                API.PackageController.GetRoute.History.Record(
                     url: "url",
                     defaultBranch: "main",
                     firstCommitDate: nil,
