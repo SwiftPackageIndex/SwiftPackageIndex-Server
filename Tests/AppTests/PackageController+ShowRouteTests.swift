@@ -240,7 +240,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         ]
 
         // MUT
-        let res = PackageController.ShowRoute.BuildInfo
+        let res = API.PackageController.GetRoute.BuildInfo
             .platformBuildResults(builds: builds, kind: .defaultBranch)
 
         // validate
@@ -275,7 +275,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         ]
 
         // MUT
-        let res = PackageController.ShowRoute.BuildInfo
+        let res = API.PackageController.GetRoute.BuildInfo
             .swiftVersionBuildResults(builds: builds, kind: .defaultBranch)
 
         // validate
@@ -294,7 +294,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         ]
 
         // MUT
-        let res = PackageController.ShowRoute.BuildInfo.platformBuildInfo(builds: builds)
+        let res = API.PackageController.GetRoute.BuildInfo.platformBuildInfo(builds: builds)
 
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
@@ -318,7 +318,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         ]
 
         // MUT
-        let res = PackageController.ShowRoute.BuildInfo.swiftVersionBuildInfo(builds: builds)
+        let res = API.PackageController.GetRoute.BuildInfo.swiftVersionBuildInfo(builds: builds)
 
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
@@ -379,7 +379,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         }
 
         // MUT
-        let res = try await PackageController.ShowRoute.BuildInfo.query(on: app.db, owner: "foo", repository: "bar")
+        let res = try await API.PackageController.GetRoute.BuildInfo.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
         // just test reference names and some details for `latest`
