@@ -182,12 +182,12 @@ private extension QueryPerformanceTests {
                                 lineNumber: UInt = #line,
                                 testName: String = #function) async throws {
         let explain = SQLExplain(query)
-        var result = [String]()
+        let result = QueueIsolated<[String]>([])
         try await (app.db as! SQLDatabase).execute(sql: explain) { row in
             let res = (try? row.decode(column: "QUERY PLAN", as: String.self)) ?? "-"
-            result.append(res)
+            result.withValue { $0.append(res) }
         }
-        let queryPlan = result.joined(separator: "\n")
+        let queryPlan = result.value.joined(separator: "\n")
 
         let parsedPlan = try QueryPlan(queryPlan)
         print("ℹ️ TEST:        \(testName)")
