@@ -19,7 +19,6 @@ import Vapor
 
 
 extension API.PackageController {
-    typealias PackageResult = Joined5<Package, Repository, DefaultVersion, ReleaseVersion, PreReleaseVersion>
 
     enum GetRoute {
 
@@ -226,39 +225,6 @@ extension API.PackageController {
             }
         }
 
-    }
-
-}
-
-
-extension API.PackageController.PackageResult {
-
-    func authors() -> AuthorMetadata? {
-        if let spiManifest = defaultBranchVersion.spiManifest,
-           let metadata = spiManifest.metadata,
-           let authors = metadata.authors {
-            return AuthorMetadata.fromSPIManifest(authors)
-        } else if let authors = repository.authors {
-            return AuthorMetadata.fromGitRepository(authors)
-        } else {
-            return nil
-        }
-    }
-
-    func activity() -> API.PackageController.GetRoute.Model.Activity? {
-        guard repository.lastPullRequestClosedAt != nil else { return nil }
-
-        let openIssues = Link(label: repository.openIssues.labeled("open issue"),
-                              url: package.url.droppingGitExtension + "/issues")
-        let openPRs = Link(label: repository.openPullRequests.labeled("open pull request"),
-                           url: package.url.droppingGitExtension + "/pulls")
-        let lastIssueClosed = repository.lastIssueClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
-        let lastPRClosed = repository.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
-        return .init(openIssuesCount: repository.openIssues,
-                     openIssues: openIssues,
-                     openPullRequests: openPRs,
-                     lastIssueClosedAt: lastIssueClosed,
-                     lastPullRequestClosedAt: lastPRClosed)
     }
 
 }
