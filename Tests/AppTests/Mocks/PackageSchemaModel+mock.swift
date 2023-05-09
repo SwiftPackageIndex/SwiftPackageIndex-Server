@@ -17,7 +17,7 @@
 import Foundation
 
 
-extension API.PackageController.GetRoute.PackageSchema {
+extension API.PackageSchema {
     static var mock: Self {
         .init(
             repositoryOwner: "Owner",

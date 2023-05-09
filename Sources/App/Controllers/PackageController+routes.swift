@@ -356,7 +356,7 @@ enum PackageController {
 extension PackageController {
 
     enum ShowModel {
-        case packageAvailable(API.PackageController.GetRoute.Model, API.PackageController.GetRoute.PackageSchema)
+        case packageAvailable(API.PackageController.GetRoute.Model, API.PackageSchema)
         case packageMissing(MissingPackage.Model)
         case packageDoesNotExist
 

@@ -18,7 +18,7 @@ import XCTVapor
 class PackageShowSchemaTests: SnapshotTestCase {
 
     func test_schema_initialiser() throws {
-        let schema = API.PackageController.GetRoute.PackageSchema(
+        let schema = API.PackageSchema(
             repositoryOwner: "Owner",
             repositoryName: "Name",
             organisationName: "OrganisationName",

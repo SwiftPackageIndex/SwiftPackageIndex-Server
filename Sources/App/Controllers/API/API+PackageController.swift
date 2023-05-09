@@ -20,7 +20,7 @@ extension API {
 
     enum PackageController {
 
-        static func get(req: Request) async throws -> API.PackageController.GetRoute.Model {
+        static func get(req: Request) async throws -> GetRoute.Model {
             guard
                 let owner = req.parameters.get("owner"),
                 let repository = req.parameters.get("repository")
@@ -28,9 +28,7 @@ extension API {
                 throw Abort(.notFound)
             }
 
-            return try await API.PackageController.GetRoute.query(on: req.db,
-                                                                  owner: owner,
-                                                                  repository: repository).model
+            return try await GetRoute.query(on: req.db, owner: owner, repository: repository).model
         }
 
         struct BadgeQuery: Codable {
@@ -52,20 +50,6 @@ extension API {
 
     }
 
-}
-
-
-extension API.PackageController {
-    enum Command: String {
-        case reconcile
-        case ingest
-        case analyze
-
-        struct Response: Content {
-            var status: String
-            var rows: Int
-        }
-    }
 }
 
 

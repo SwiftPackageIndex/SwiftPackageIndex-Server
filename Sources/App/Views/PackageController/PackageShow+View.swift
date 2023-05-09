@@ -21,10 +21,10 @@ enum PackageShow {
     class View: PublicPage {
 
         let model: API.PackageController.GetRoute.Model
-        let packageSchema: API.PackageController.GetRoute.PackageSchema?
+        let packageSchema: API.PackageSchema?
 
         init(path: String, model: API.PackageController.GetRoute.Model,
-             packageSchema: API.PackageController.GetRoute.PackageSchema?) {
+             packageSchema: API.PackageSchema?) {
             self.model = model
             self.packageSchema = packageSchema
             super.init(path: path)
