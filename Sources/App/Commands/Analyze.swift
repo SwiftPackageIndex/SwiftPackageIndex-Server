@@ -174,17 +174,7 @@ extension Analyze {
         ) { group in
             for pkg in packages {
                 group.addTask {
-                    let result = try await database.transaction { tx in
-                        // Wrap in a Result to avoid throwing out of the transaction, causing a roll-back
-                        await Result {
-                            try await analyze(client: client,
-                                              transaction: tx,
-                                              logger: logger,
-                                              package: pkg)
-                        }
-                    }
-                    try result.get()
-
+                    try await analyze(client: client, database: database, logger: logger, package: pkg)
                     return pkg
                 }
             }
@@ -207,51 +197,47 @@ extension Analyze {
 
 
     static func analyze(client: Client,
-                        transaction: Database,
+                        database: Database,
                         logger: Logger,
                         package: Joined<Package, Repository>) async throws {
         try refreshCheckout(logger: logger, package: package)
-        try await updateRepository(on: transaction, package: package)
 
-        let versionDelta = try await diffVersions(client: client,
-                                                  logger: logger,
-                                                  transaction: transaction,
-                                                  package: package)
+        let result = try await database.transaction { tx in
+            // Wrap in a Result to avoid throwing out of the transaction, causing a roll-back
+            await Result {
+                try await updateRepository(on: tx, package: package)
 
-        try await applyVersionDelta(on: transaction, delta: versionDelta)
+                let versionDelta = try await diffVersions(client: client, logger: logger, transaction: tx,
+                                                          package: package)
 
-        let newVersions = versionDelta.toAdd
+                try await applyVersionDelta(on: tx, delta: versionDelta)
 
-        mergeReleaseInfo(package: package, into: newVersions)
+                let newVersions = versionDelta.toAdd
 
-        let versionsPkgInfo = newVersions.compactMap { version -> (Version, PackageInfo)? in
-            guard let pkgInfo = try? getPackageInfo(package: package, version: version) else { return nil }
-            return (version, pkgInfo)
+                mergeReleaseInfo(package: package, into: newVersions)
+
+                let versionsPkgInfo = newVersions.compactMap { version -> (Version, PackageInfo)? in
+                    guard let pkgInfo = try? getPackageInfo(package: package, version: version) else { return nil }
+                    return (version, pkgInfo)
+                }
+                if !newVersions.isEmpty && versionsPkgInfo.isEmpty {
+                    throw AppError.noValidVersions(package.model.id, package.model.url)
+                }
+
+                for (version, pkgInfo) in versionsPkgInfo {
+                    try await updateVersion(on: tx, version: version, packageInfo: pkgInfo).get()
+                    try await recreateProducts(on: tx, version: version, manifest: pkgInfo.packageManifest)
+                    try await recreateTargets(on: tx, version: version, manifest: pkgInfo.packageManifest)
+                }
+
+                let versions = try await updateLatestVersions(on: tx, package: package)
+
+                updateScore(package: package, versions: versions)
+
+                await onNewVersions(client: client, logger: logger, package: package, versions: newVersions)
+            }
         }
-        if !newVersions.isEmpty && versionsPkgInfo.isEmpty {
-            throw AppError.noValidVersions(package.model.id, package.model.url)
-        }
-
-        for (version, pkgInfo) in versionsPkgInfo {
-            try await updateVersion(on: transaction,
-                                    version: version,
-                                    packageInfo: pkgInfo).get()
-            try await recreateProducts(on: transaction,
-                                       version: version,
-                                       manifest: pkgInfo.packageManifest)
-            try await recreateTargets(on: transaction,
-                                      version: version,
-                                      manifest: pkgInfo.packageManifest)
-        }
-
-        let versions = try await updateLatestVersions(on: transaction, package: package)
-
-        updateScore(package: package, versions: versions)
-
-        await onNewVersions(client: client,
-                            logger: logger,
-                            package: package,
-                            versions: newVersions)
+        try result.get()
     }
 
 
