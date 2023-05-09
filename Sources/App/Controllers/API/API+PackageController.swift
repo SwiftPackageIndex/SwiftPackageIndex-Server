@@ -72,3 +72,16 @@ extension API.PackageController {
         }
     }
 }
+
+
+extension API.PackageController {
+    enum ProductCount {
+        static func query(on database: Database, owner: String, repository: String) async throws -> [ProductType] {
+            try await Joined4<Package, Repository, Version, Product>
+                .query(on: database, owner: owner, repository: repository)
+                .field(Product.self, \.$type)
+                .all()
+                .compactMap(\.product.type)
+        }
+    }
+}
