@@ -1206,7 +1206,7 @@ private struct Command: CustomStringConvertible {
                 self.kind = .shortlog
             case _ where command.string.starts(with: #"git show -s --format=%ct"#):
                 self.kind = .showDate
-            case _ where command.string.starts(with: #"git log -n1 --format=format:"%H\#(separator)%ct""#):
+            case _ where command.string.starts(with: #"env GNUTLS_CPUID_OVERRIDE=0x1 git log -n1 --format=format:"%H\#(separator)%ct""#):
                 let ref = String(command.string.split(separator: " ").last!)
                     .trimmingCharacters(in: quotes)
                 self.kind = .revisionInfo(ref)
