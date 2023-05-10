@@ -56,9 +56,13 @@ extension ShellOutCommand {
     }
 
     static func gitRevisionInfo(reference: Reference, separator: String = "-") -> Self {
-        .init(command: .git, arguments: ["log", "-n1",
-                                         #"--format=format:"%H\#(separator.quoted)%ct""#.verbatim,
-                                         "\(reference)".quoted])
+        .init(command: .env,
+              arguments: [
+                "GNUTLS_CPUID_OVERRIDE=0x1".verbatim,
+                "git", "log", "-n1",
+                #"--format=format:"%H\#(separator.quoted)%ct""#.verbatim,
+                "\(reference)".quoted
+              ])
 
     }
 
@@ -87,6 +91,7 @@ extension ShellOutCommand {
 
 
 extension SafeString {
+    static let env = "env".unchecked
     static let git = "git".unchecked
     static let swift = "swift".unchecked
 }
