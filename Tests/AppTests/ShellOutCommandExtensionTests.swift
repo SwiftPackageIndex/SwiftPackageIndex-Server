@@ -61,17 +61,17 @@ class ShellOutCommandExtensionTests: XCTestCase {
         XCTAssertEqual(
             ShellOutCommand
                 .gitRevisionInfo(reference: .tag(1, 2, 3), separator: dash).string,
-            #"env GNUTLS_CPUID_OVERRIDE=0x1 git log -n1 --format=format:"%H\#(dash)%ct" 1.2.3"#
+            #"git log -n1 --format=format:"%H\#(dash)%ct" 1.2.3"#
         )
         XCTAssertEqual(
             ShellOutCommand
                 .gitRevisionInfo(reference: .branch("foo"), separator: dash).string,
-            #"env GNUTLS_CPUID_OVERRIDE=0x1 git log -n1 --format=format:"%H\#(dash)%ct" foo"#
+            #"git log -n1 --format=format:"%H\#(dash)%ct" foo"#
         )
         XCTAssertEqual(
             ShellOutCommand
                 .gitRevisionInfo(reference: .branch("ba\nd"), separator: dash).string,
-            "env GNUTLS_CPUID_OVERRIDE=0x1 git log -n1 --format=format:\"%H\(dash)%ct\" 'ba\nd'"
+            "git log -n1 --format=format:\"%H\(dash)%ct\" 'ba\nd'"
         )
     }
 
@@ -91,7 +91,7 @@ class ShellOutCommandExtensionTests: XCTestCase {
         )
         XCTAssertEqual(
             ShellOutCommand.gitRevisionInfo(reference: .branch("foo ; rm *")).string,
-            #"env GNUTLS_CPUID_OVERRIDE=0x1 git log -n1 --format=format:"%H-%ct" 'foo ; rm *'"#
+            #"git log -n1 --format=format:"%H-%ct" 'foo ; rm *'"#
         )
         XCTAssertEqual(
             ShellOutCommand.gitShowDate("foo ; rm *").string,
