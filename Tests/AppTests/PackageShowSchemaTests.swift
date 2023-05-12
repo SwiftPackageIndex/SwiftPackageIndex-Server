@@ -15,6 +15,8 @@
 @testable import App
 import XCTVapor
 
+
+#warning("rename")
 class PackageShowSchemaTests: SnapshotTestCase {
 
     func test_schema_initialiser() throws {

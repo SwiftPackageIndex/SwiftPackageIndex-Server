@@ -19,6 +19,7 @@ import SnapshotTesting
 import SPIManifest
 
 
+#warning("rename")
 class PackageShowModelTests: SnapshotTestCase {
     typealias PackageResult = PackageController.PackageResult
 

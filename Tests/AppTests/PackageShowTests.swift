@@ -17,6 +17,7 @@
 import XCTest
 
 
+#warning("rename")
 class PackageShowTests: AppTestCase {
 
     typealias PackageResult = PackageController.PackageResult
