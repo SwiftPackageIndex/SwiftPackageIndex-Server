@@ -19,8 +19,6 @@ import DependencyResolution
 import SPIManifest
 
 
-#warning("rename file and/or move extensions elsewhere, probably some view related extension on GetRoute.Model")
-
 extension API.PackageController.GetRoute.Model {
     var gitHubOwnerUrl: String {
         "https://github.com/\(repositoryOwner)"
@@ -30,6 +28,7 @@ extension API.PackageController.GetRoute.Model {
         "https://github.com/\(repositoryOwner)/\(repositoryName)"
     }
 }
+
 
 extension API.PackageController.GetRoute.Model {
     static func makeModelVersion(packageUrl: String, version: App.Version) -> Version? {
@@ -497,7 +496,7 @@ extension API.PackageController.GetRoute.Model {
 
 // MARK: - General helpers
 
-extension License.Kind {
+private extension License.Kind {
     var cssClass: String {
         switch self {
             case .none: return "no-license"
@@ -508,7 +507,7 @@ extension License.Kind {
 }
 
 
-extension API.PackageController.GetRoute.Model.BuildResult where T: BuildResultParameter {
+private extension API.PackageController.GetRoute.Model.BuildResult where T: BuildResultParameter {
     var headerNode: Node<HTML.BodyContext> {
         .div(
             .text(parameter.displayName),
@@ -536,7 +535,7 @@ extension API.PackageController.GetRoute.Model.BuildResult where T: BuildResultP
 }
 
 
-extension API.PackageController.GetRoute.Model.BuildStatus {
+private extension API.PackageController.GetRoute.Model.BuildStatus {
     var cssClass: String {
         self.rawValue
     }
