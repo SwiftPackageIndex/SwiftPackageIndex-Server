@@ -17,8 +17,8 @@
 import Vapor
 import XCTest
 
-#warning("rename")
-class PackageController_ShowRouteTests: AppTestCase {
+
+class API_PackageControllerTests: AppTestCase {
 
     typealias BuildDetails = (reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status)
 
@@ -168,53 +168,6 @@ class PackageController_ShowRouteTests: AppTestCase {
         // validate
         XCTAssertEqual(res.filter(\.isExecutable).count, 1)
         XCTAssertEqual(res.filter(\.isLibrary).count, 2)
-    }
-
-    func test_buildStatus() throws {
-        // Test build status aggregation, in particular see
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/666
-        // setup
-        // MUT & verification
-        XCTAssertEqual([mkBuildInfo(.ok), mkBuildInfo(.failed)].buildStatus, .compatible)
-        XCTAssertEqual([mkBuildInfo(.triggered), mkBuildInfo(.triggered)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuildInfo(.failed), mkBuildInfo(.triggered)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuildInfo(.ok), mkBuildInfo(.triggered)].buildStatus, .compatible)
-    }
-
-    func test_noneSucceeded() throws {
-        XCTAssertTrue([mkBuildInfo(.failed), mkBuildInfo(.failed)].noneSucceeded)
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.failed)].noneSucceeded)
-    }
-
-    func test_anySucceeded() throws {
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.failed)].anySucceeded)
-        XCTAssertFalse([mkBuildInfo(.failed), mkBuildInfo(.failed)].anySucceeded)
-    }
-
-    func test_nonePending() throws {
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.failed)].nonePending)
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.triggered)].nonePending)
-        // timeouts will not be retried - therefore they are not pending
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.timeout)].nonePending)
-        // infrastructure errors _will_ be retried - they are pending
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.infrastructureError)].nonePending)
-    }
-
-    func test_anyPending() throws {
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.failed)].anyPending)
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.triggered)].anyPending)
-        // timeouts will not be retried - therefore they are not pending
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.timeout)].nonePending)
-        // infrastructure errors _will_ be retried - they are pending
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.infrastructureError)].nonePending)
-    }
-
-    func test_Platform_isCompatible() throws {
-        XCTAssertTrue(Build.Platform.ios.isCompatible(with: .ios))
-        XCTAssertFalse(Build.Platform.ios.isCompatible(with: .macos))
-
-        XCTAssertTrue(Build.Platform.macosSpm.isCompatible(with: .macos))
-        XCTAssertTrue(Build.Platform.macosXcodebuild.isCompatible(with: .macos))
     }
 
     func test_platformBuildResults() throws {
@@ -399,8 +352,8 @@ class PackageController_ShowRouteTests: AppTestCase {
         XCTAssertEqual(res.swiftVersion?.beta?.referenceName, "2.0.0-b1")
     }
 
-    func test_ShowRoute_query() async throws {
-        // ensure ShowRoute.query is wired up correctly (detailed tests are elsewhere)
+    func test_GetRoute_query() async throws {
+        // ensure GetRoute.query is wired up correctly (detailed tests are elsewhere)
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "bar", owner: "foo")
@@ -415,9 +368,4 @@ class PackageController_ShowRouteTests: AppTestCase {
         XCTAssertEqual(schema.name, "bar")
     }
 
-}
-
-
-private func mkBuildInfo(_ status: Build.Status) -> PackageController.BuildsRoute.BuildInfo {
-    .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v5_5, platform: .ios, status: status)
 }
