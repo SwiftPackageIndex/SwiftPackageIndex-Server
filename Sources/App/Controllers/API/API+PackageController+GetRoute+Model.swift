@@ -166,6 +166,11 @@ extension API.PackageController.GetRoute {
 
 
 extension API.PackageController.GetRoute.Model {
+    enum AuthorMetadata : Codable, Equatable {
+        case fromSPIManifest(String)
+        case fromGitRepository(PackageAuthors)
+    }
+
     struct History: Codable, Equatable {
         var since: String
         var commitCount: Link

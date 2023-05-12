@@ -21,13 +21,6 @@ import SPIManifest
 
 #warning("rename file and/or move extensions elsewhere, probably some view related extension on GetRoute.Model")
 
-#warning("move to GetRoute?")
-enum AuthorMetadata : Codable, Equatable {
-    case fromSPIManifest(String)
-    case fromGitRepository(PackageAuthors)
-}
-
-
 extension API.PackageController.GetRoute.Model {
     var gitHubOwnerUrl: String {
         "https://github.com/\(repositoryOwner)"

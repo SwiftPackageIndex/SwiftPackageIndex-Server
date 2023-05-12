@@ -20,13 +20,13 @@ extension API.PackageController {
 
 extension API.PackageController.PackageResult {
 
-    func authors() -> AuthorMetadata? {
+    func authors() -> API.PackageController.GetRoute.Model.AuthorMetadata? {
         if let spiManifest = defaultBranchVersion.spiManifest,
            let metadata = spiManifest.metadata,
            let authors = metadata.authors {
-            return AuthorMetadata.fromSPIManifest(authors)
+            return .fromSPIManifest(authors)
         } else if let authors = repository.authors {
-            return AuthorMetadata.fromGitRepository(authors)
+            return .fromGitRepository(authors)
         } else {
             return nil
         }

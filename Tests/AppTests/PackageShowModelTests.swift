@@ -273,13 +273,14 @@ class PackageShowModelTests: SnapshotTestCase {
     func test_authorMetadata() throws {
         var model = API.PackageController.GetRoute.Model.mock
 
-        model.authors = AuthorMetadata.fromGitRepository(PackageAuthors(authors: [
+        model.authors = API.PackageController.GetRoute.Model.AuthorMetadata .fromGitRepository(PackageAuthors(authors: [
             Author(name: "Author One"),
             Author(name: "Author Two")
         ], numberOfContributors: 5))
         XCTAssertEqual(model.authorsListItem().render(), "<li class=\"authors\">Written by Author One, Author Two, and 5 other contributors.</li>")
 
-        model.authors = AuthorMetadata.fromSPIManifest("By Author One, Author Two, and more!")
+        model.authors = API.PackageController.GetRoute.Model.AuthorMetadata
+            .fromSPIManifest("By Author One, Author Two, and more!")
         XCTAssertEqual(model.authorsListItem().render(), "<li class=\"authors\">By Author One, Author Two, and more!</li>")
     }
 
