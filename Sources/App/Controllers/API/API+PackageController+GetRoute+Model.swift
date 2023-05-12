@@ -220,41 +220,12 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
-    enum PlatformCompatibility: Codable, BuildResultParameter {
+    enum PlatformCompatibility: Codable {
         case ios
         case linux
         case macos
         case tvos
         case watchos
-
-        var displayName: String {
-            switch self {
-                case .ios:
-                    return "iOS"
-                case .linux:
-                    return "Linux"
-                case .macos:
-                    return "macOS"
-                case .tvos:
-                    return "tvOS"
-                case .watchos:
-                    return "watchOS"
-            }
-        }
-
-#warning("move/deprecate")
-        var longDisplayName: String {
-            switch self {
-                case .macos, .ios, .linux, .tvos, .watchos:
-                    return displayName
-            }
-        }
-
-#warning("move/deprecate")
-        @available(*, deprecated)
-        var note: String? {
-            nil
-        }
     }
 
     struct NamedBuildResults<T: Codable & Equatable>: Codable, Equatable {
@@ -309,7 +280,7 @@ extension API.PackageController.GetRoute.Model {
         case unknown
     }
 
-    struct BuildResult<T: Codable & BuildResultParameter>: Codable, Equatable {
+    struct BuildResult<T: Codable & Equatable>: Codable, Equatable {
         var parameter: T
         var status: BuildStatus
     }

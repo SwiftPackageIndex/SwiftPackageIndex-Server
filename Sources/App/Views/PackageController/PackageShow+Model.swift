@@ -478,8 +478,10 @@ extension API.PackageController.GetRoute.Model {
         )
     }
 
-    func compatibilityListItem<T>(_ labelParagraphNode: Node<HTML.BodyContext>,
-                                  cells: [API.PackageController.GetRoute.Model.BuildResult<T>]) -> Node<HTML.ListContext> {
+    func compatibilityListItem<T: BuildResultParameter>(
+        _ labelParagraphNode: Node<HTML.BodyContext>,
+        cells: [API.PackageController.GetRoute.Model.BuildResult<T>]
+    ) -> Node<HTML.ListContext> {
         return .li(
             .class("row"),
             .div(
@@ -513,7 +515,7 @@ extension License.Kind {
 }
 
 
-extension API.PackageController.GetRoute.Model.BuildResult {
+extension API.PackageController.GetRoute.Model.BuildResult where T: BuildResultParameter {
     var headerNode: Node<HTML.BodyContext> {
         .div(
             .text(parameter.displayName),
