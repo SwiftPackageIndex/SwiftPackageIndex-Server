@@ -16,8 +16,7 @@
 import XCTVapor
 
 
-#warning("rename")
-class PackageShowSchemaTests: SnapshotTestCase {
+class API_PackageSchemaTests: SnapshotTestCase {
 
     func test_schema_initialiser() throws {
         let schema = API.PackageSchema(
