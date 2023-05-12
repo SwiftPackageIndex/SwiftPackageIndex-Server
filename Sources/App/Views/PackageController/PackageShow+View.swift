@@ -16,7 +16,8 @@ import Ink
 import Vapor
 import Plot
 
-enum PackageShow {
+
+extension PackageShow {
 
     class View: PublicPage {
 

@@ -15,7 +15,7 @@
 import Plot
 
 
-extension PackageShow {
+enum PackageShow {
     struct Reference: Codable, Equatable {
         var name: String
         var kind: App.Version.Kind
