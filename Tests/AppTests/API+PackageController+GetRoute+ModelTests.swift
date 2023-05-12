@@ -19,8 +19,7 @@ import SnapshotTesting
 import SPIManifest
 
 
-#warning("rename")
-class PackageShowModelTests: SnapshotTestCase {
+class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     typealias PackageResult = PackageController.PackageResult
 
     func test_init_no_packageName() async throws {
