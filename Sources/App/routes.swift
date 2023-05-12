@@ -209,8 +209,8 @@ func routes(_ app: Application) throws {
             ])
 
         // api token protected routes
-        do {  // FIXME: protect routes with API token
-
+#warning("protect routes with API token")
+        do {
             app.get("api", "packages", ":owner", ":repository", use: API.PackageController.get)
 
             if Environment.current == .development {

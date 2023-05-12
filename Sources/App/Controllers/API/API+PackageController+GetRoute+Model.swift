@@ -172,6 +172,7 @@ extension API.PackageController.GetRoute.Model {
     }
 
     struct History: Codable, Equatable {
+#warning("make date-based")
         var since: String
         var commitCount: Link
         var releaseCount: Link
@@ -181,8 +182,9 @@ extension API.PackageController.GetRoute.Model {
         var openIssuesCount: Int
         var openIssues: Link?
         var openPullRequests: Link?
-        var lastIssueClosedAt: String?
-        var lastPullRequestClosedAt: String?
+#warning("make date-based")
+        var lastIssueClosedAt: String?        // <-
+        var lastPullRequestClosedAt: String?  // <-
     }
 
     struct ProductCounts: Codable, Equatable {
@@ -192,9 +194,10 @@ extension API.PackageController.GetRoute.Model {
     }
 
     struct ReleaseInfo: Codable, Equatable {
-        var stable: DatedLink?
-        var beta: DatedLink?
-        var latest: DatedLink?
+#warning("make date-based")
+        var stable: DatedLink?  // <-
+        var beta: DatedLink?    // <-
+        var latest: DatedLink?  // <-
     }
 
     struct Version: Equatable {
