@@ -470,7 +470,7 @@ extension API.PackageController.GetRoute.Model {
         )
     }
 
-    func compatibilityListItem<T: BuildResultParameter>(
+    func compatibilityListItem<T: BuildResultPresentable>(
         _ labelParagraphNode: Node<HTML.BodyContext>,
         cells: [API.PackageController.GetRoute.Model.BuildResult<T>]
     ) -> Node<HTML.ListContext> {
@@ -507,7 +507,7 @@ private extension License.Kind {
 }
 
 
-private extension API.PackageController.GetRoute.Model.BuildResult where T: BuildResultParameter {
+private extension API.PackageController.GetRoute.Model.BuildResult where T: BuildResultPresentable {
     var headerNode: Node<HTML.BodyContext> {
         .div(
             .text(parameter.displayName),

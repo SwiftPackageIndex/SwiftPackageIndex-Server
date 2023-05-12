@@ -15,15 +15,6 @@
 import Plot
 
 
-#warning("rename to BuildResultPresentable")
-#warning("move to better location")
-protocol BuildResultParameter: Equatable {
-    var displayName: String { get }
-    var longDisplayName: String { get }
-    var note: String? { get }
-}
-
-
 extension PackageShow {
     struct Reference: Codable, Equatable {
         var name: String

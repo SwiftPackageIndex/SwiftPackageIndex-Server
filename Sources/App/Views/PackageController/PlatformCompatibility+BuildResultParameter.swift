@@ -13,7 +13,7 @@
 // limitations under the License.
 
 
-extension API.PackageController.GetRoute.Model.PlatformCompatibility: BuildResultParameter {
+extension API.PackageController.GetRoute.Model.PlatformCompatibility: BuildResultPresentable {
     var displayName: String {
         switch self {
             case .ios:
