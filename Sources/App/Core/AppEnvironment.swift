@@ -24,8 +24,9 @@ import FoundationNetworking
 struct AppEnvironment {
     var allowBuildTriggers: () -> Bool
     var allowTwitterPosts: () -> Bool
-    var awsDocsBucket: () -> String?
+    var apiTokens: () -> Set<String>
     var appVersion: () -> String?
+    var awsDocsBucket: () -> String?
     var builderToken: () -> String?
     var buildTriggerAllowList: () -> [Package.Id]
     var buildTriggerDownscaling: () -> Double
@@ -76,6 +77,8 @@ extension AppEnvironment {
         guard buildTriggerLatestSwiftVersionDownscaling() < 1 else { return true }
         return random(0...1) < Current.buildTriggerLatestSwiftVersionDownscaling()
     }
+
+    func isValidAPIToken(_ token: String) -> Bool { apiTokens().contains(token) }
 }
 
 
@@ -93,8 +96,14 @@ extension AppEnvironment {
                 .flatMap(\.asBool)
                 ?? Constants.defaultAllowTwitterPosts
         },
-        awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
+        apiTokens: {
+            Environment.get("API_TOKENS")
+                .map { Data($0.utf8) }
+                .flatMap { try? JSONDecoder().decode([String].self, from: $0) }
+                .map { Set($0) } ?? .init()
+        },
         appVersion: { App.appVersion },
+        awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerAllowList: {
             Environment.get("BUILD_TRIGGER_ALLOW_LIST")

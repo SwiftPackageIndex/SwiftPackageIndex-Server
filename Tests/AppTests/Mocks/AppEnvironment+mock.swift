@@ -24,8 +24,9 @@ extension AppEnvironment {
         .init(
             allowBuildTriggers: { true },
             allowTwitterPosts: { true },
-            awsDocsBucket: { "awsDocsBucket" },
+            apiTokens: { .init() },
             appVersion: { "test" },
+            awsDocsBucket: { "awsDocsBucket" },
             builderToken: { nil },
             buildTriggerAllowList: { [] },
             buildTriggerDownscaling: { 1.0 },
