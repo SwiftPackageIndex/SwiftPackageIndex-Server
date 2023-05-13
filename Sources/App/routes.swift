@@ -211,9 +211,10 @@ func routes(_ app: Application) throws {
         // api token protected routes
 #warning("protect routes with API token")
         do {
-            app.get("api", "packages", ":owner", ":repository", use: API.PackageController.get)
-
             if Environment.current == .development {
+#warning("add openAPI")
+                app.get("api", "packages", ":owner", ":repository", use: API.PackageController.get)
+
                 app.post(SiteURL.api(.packageCollections).pathComponents,
                          use: API.PackageCollectionController.generate)
                 .openAPI(
