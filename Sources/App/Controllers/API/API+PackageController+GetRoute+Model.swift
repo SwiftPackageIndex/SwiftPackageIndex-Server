@@ -257,6 +257,7 @@ extension API.PackageController.GetRoute.Model {
             self.v5_8 = .init(parameter: .v5_8, status: status5_8)
         }
 
+#warning("move to View")
         var cells: [BuildResult<SwiftVersion>] { [v5_8, v5_7, v5_6, v5_5 ] }
     }
 
@@ -279,6 +280,7 @@ extension API.PackageController.GetRoute.Model {
             self.watchos = .init(parameter: .watchos, status: watchosStatus)
         }
 
+#warning("move to View")
         var cells: [BuildResult<PlatformCompatibility>] { [ios, macos, watchos, tvos, linux] }
     }
 

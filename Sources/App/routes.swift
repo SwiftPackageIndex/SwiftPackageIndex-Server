@@ -205,27 +205,40 @@ func routes(_ app: Application) throws {
             response: Badge.example,
             responseType: .application(.json),
             errorDescriptions: [
-                400: "Bad request"
+                400: "Bad request",
+                404: "Not found"
             ])
 
         // api token protected routes
-#warning("protect routes with API token")
-        do {
-            if Environment.current == .development {
-#warning("add openAPI")
-                app.get("api", "packages", ":owner", ":repository", use: API.PackageController.get)
+        app.group(User.APIAuthenticator(), User.guardMiddleware()) {
+            $0.groupedOpenAPI(auth: .apiBearerToken).group(tags: []) { protected in
+                if Environment.current == .development {
+                    protected.get("api", "packages", ":owner", ":repository", use: API.PackageController.get)
+                        .openAPI(
+                            summary: "/api/packages/{owner}/{repository}",
+                            description: "Get package details.",
+                            response: API.PackageController.GetRoute.Model.example,
+                            responseType: .application(.json),
+                            errorDescriptions: [
+                                400: "Bad request",
+                                401: "Unauthorized",
+                                404: "Not found"
+                            ]
+                        )
 
-                app.post(SiteURL.api(.packageCollections).pathComponents,
-                         use: API.PackageCollectionController.generate)
-                .openAPI(
-                    summary: "/api/package-collections",
-                    description: "Generate a signed package collection.",
-                    body: API.PostPackageCollectionDTO.example,
-                    response: SignedCollection.example,
-                    responseType: .application(.json),
-                    errorDescriptions: [
-                        400: "Bad request"
-                    ])
+                    protected.post(SiteURL.api(.packageCollections).pathComponents,
+                                   use: API.PackageCollectionController.generate)
+                    .openAPI(
+                        summary: "/api/package-collections",
+                        description: "Generate a signed package collection.",
+                        body: API.PostPackageCollectionDTO.example,
+                        response: SignedCollection.example,
+                        responseType: .application(.json),
+                        errorDescriptions: [
+                            400: "Bad request",
+                            401: "Unauthorized"
+                        ])
+                }
             }
         }
 

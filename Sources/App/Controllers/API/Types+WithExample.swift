@@ -130,6 +130,110 @@ extension SignedCollection: WithExample {
 }
 
 
+// MARK: - Package API
+
+extension API.PackageController.GetRoute.Model.Activity: WithExample {
+    static var example: Self {
+        .init(
+            openIssuesCount: 2,
+            openIssues: .init(label: "2 open issues",
+                              url: "https://github.com/mona/LinkedList/issues"),
+            openPullRequests: .init(label: "1 open pull request",
+                                    url: "https://github.com/mona/LinkedList/pulls"),
+            lastIssueClosedAt: "2 days ago",
+            lastPullRequestClosedAt: "6 days ago"
+        )
+    }
+}
+
+
+extension API.PackageController.GetRoute.Model.History: WithExample {
+    static var example: Self {
+        .init(
+            since: "over 3 years",
+            commitCount: .init(label: "433 commits",
+                               url: "https://github.com/mona/LinkedList/commits/main"),
+            releaseCount: .init(label: "5 releases",
+                                url: "https://github.com/mona/LinkedList/releases")
+        )
+    }
+}
+
+
+extension API.PackageController.GetRoute.Model: WithExample {
+    static var example: Self {
+        .init(packageId: .example,
+              repositoryOwner: "mona",
+              repositoryOwnerName: "Mona",
+              repositoryName: "LinkedList",
+              activity: .example,
+              authors: .fromSPIManifest("Mona"),
+              swiftVersionBuildInfo: .init(
+                stable: .init(
+                    referenceName: "1.2.3",
+                    results: .init(status5_5: .incompatible,
+                                   status5_6: .incompatible,
+                                   status5_7: .unknown,
+                                   status5_8: .compatible)),
+                beta: .init(
+                    referenceName: "2.0.0-b1",
+                    results: .init(status5_5: .incompatible,
+                                   status5_6: .incompatible,
+                                   status5_7: .unknown,
+                                   status5_8: .compatible)),
+                latest: .init(
+                    referenceName: "main",
+                    results: .init(status5_5: .incompatible,
+                                   status5_6: .incompatible,
+                                   status5_7: .unknown,
+                                   status5_8: .compatible))
+              ),
+              platformBuildInfo: .init(
+                stable: .init(
+                    referenceName: "1.2.3",
+                    results: .init(iosStatus: .compatible,
+                                   linuxStatus: .unknown,
+                                   macosStatus: .unknown,
+                                   tvosStatus: .unknown,
+                                   watchosStatus: .unknown)),
+                beta: .init(
+                    referenceName: "2.0.0-b1",
+                    results: .init(iosStatus: .compatible,
+                                   linuxStatus: .unknown,
+                                   macosStatus: .unknown,
+                                   tvosStatus: .unknown,
+                                   watchosStatus: .unknown)),
+                latest: .init(
+                    referenceName: "main",
+                    results: .init(iosStatus: .compatible,
+                                   linuxStatus: .compatible,
+                                   macosStatus: .compatible,
+                                   tvosStatus: .compatible,
+                                   watchosStatus: .compatible))
+              ),
+              history: .example,
+              license: .mit,
+              productCounts: .init(libraries: 1, executables: 0, plugins: 0),
+              releases: .init(
+                stable: .init(date: "5 days ago",
+                              link: .init(label: "1.2.3",
+                                          url: "https://github.com/mona/LinkedList/releases/tag/1.2.3")),
+                latest: .init(date: "5 days ago",
+                              link: .init(label: "main",
+                                          url: "https://github.com/mona/LinkedList/tree/main"))),
+              dependencies: nil,
+              stars: 123,
+              summary: "An example package",
+              title: "LinkedList",
+              url: "https://github.com/mona/LinkedList.git",
+              isArchived: false,
+              defaultBranchReference: .branch("main"),
+              releaseReference: .tag(1, 2, 3, "1.2.3"),
+              preReleaseReference: nil)
+    }
+}
+
+
 // MARK: - Build/doc reporting types
 
 extension API.PostBuildReportDTO: WithExample {

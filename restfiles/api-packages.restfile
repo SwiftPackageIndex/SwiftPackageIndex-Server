@@ -1,0 +1,11 @@
+requests:
+  version:
+    url: ${base_url}/api/packages/alamofire/alamofire
+    headers:
+      Authorization: Bearer ${api_token}
+    validation:
+      status: .regex((2|3)\d\d)
+      json:
+        repositoryOwner: Alamofire
+        repositoryName: Alamofire
+    log: json
