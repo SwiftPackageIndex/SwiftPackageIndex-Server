@@ -158,10 +158,6 @@ enum PackageController {
 
         let awsResponse = try await awsResponse(client: req.client, owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
 
-        // Navigation events within Vue pages include a `.json` extension on the path, fresh page loads do not.
-#warning("Look into this. It's related to canonical URLs when navigating between pages, but may no longer be necessary.")
-        let normalisedPath = path.removingSuffix(".json")
-
         switch fragment {
             case .documentation, .tutorials:
                 let documentationMetadata = try await DocumentationMetadata
@@ -173,7 +169,7 @@ enum PackageController {
                     awsResponse: awsResponse,
                     documentationMetadata: documentationMetadata,
                     fragment: fragment,
-                    path: normalisedPath,
+                    path: path,
                     owner: owner,
                     reference: reference,
                     repository: repository
