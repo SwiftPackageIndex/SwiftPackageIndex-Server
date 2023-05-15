@@ -1,5 +1,5 @@
 requests:
-  version:
+  packages:
     url: ${base_url}/api/packages/alamofire/alamofire
     headers:
       Authorization: Bearer ${api_token}
