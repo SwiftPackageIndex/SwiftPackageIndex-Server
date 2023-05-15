@@ -17,7 +17,6 @@
 import Foundation
 
 
-#warning("rename")
 extension API.PackageController.GetRoute.Model {
     static var mock: Self {
         .init(
