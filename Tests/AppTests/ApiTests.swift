@@ -742,7 +742,6 @@ class ApiTests: AppTestCase {
     }
 
     func test_package_collections_unauthorized() throws {
-        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         // setup
         Current.apiTokens = { Set(["api-token"]) }
 
