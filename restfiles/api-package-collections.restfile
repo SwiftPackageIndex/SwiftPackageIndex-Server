@@ -1,5 +1,5 @@
 requests:
-  version:
+  package-collections:
     url: ${base_url}/api/package-collections
     method: POST
     body:

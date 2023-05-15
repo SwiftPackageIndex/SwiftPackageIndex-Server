@@ -553,10 +553,6 @@ class ApiTests: AppTestCase {
         try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 5, 2))
             .save(on: app.db)
             .wait()
-        try p.$versions.load(on: app.db).wait()
-        try p.versions.forEach {
-            try $0.$builds.load(on: app.db).wait()
-        }
 
         // MUT - swift versions
         try app.test(
@@ -596,10 +592,11 @@ class ApiTests: AppTestCase {
 
     }
 
-    func test_package_collection_owner() throws {
+    func test_package_collections_owner() throws {
         try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         // setup
         Current.date = { .t0 }
+        Current.apiTokens = { Set(["api-token"]) }
         let p1 = Package(id: .id1, url: "1")
         try p1.save(on: app.db).wait()
         try Repository(package: p1,
@@ -636,9 +633,8 @@ class ApiTests: AppTestCase {
                 }
                 """)
 
-            try app.test(.POST,
-                         "api/package-collections",
-                         headers: .applicationJSON,
+            try app.test(.POST, "api/package-collections",
+                         headers: .bearerApplicationJSON("api-token"),
                          body: body,
                          afterResponse: { res in
                 // validation
@@ -651,12 +647,12 @@ class ApiTests: AppTestCase {
         }
     }
 
-
-    func test_package_collection_packageURLs() throws {
+    func test_package_collections_packageURLs() throws {
         try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         // setup
         let refDate = Date(timeIntervalSince1970: 0)
         Current.date = { refDate }
+        Current.apiTokens = { Set(["api-token"]) }
         let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
                          url: "1")
         try p1.save(on: app.db).wait()
@@ -716,7 +712,7 @@ class ApiTests: AppTestCase {
 
             try app.test(.POST,
                          "api/package-collections",
-                         headers: .applicationJSON,
+                         headers: .bearerApplicationJSON("api-token"),
                          body: body,
                          afterResponse: { res in
                             // validation
@@ -727,7 +723,8 @@ class ApiTests: AppTestCase {
         }
     }
 
-    func test_package_collection_packageURLs_limit() throws {
+    func test_package_collections_packageURLs_limit() throws {
+        Current.apiTokens = { Set(["api-token"]) }
         let dto = API.PostPackageCollectionDTO(
             // request 21 urls - this should raise a 400
             selection: .packageURLs((0...20).map(String.init))
@@ -736,12 +733,98 @@ class ApiTests: AppTestCase {
 
         try app.test(.POST,
                      "api/package-collections",
-                     headers: .applicationJSON,
+                     headers: .bearerApplicationJSON("api-token"),
                      body: body,
                      afterResponse: { res in
                         // validation
                         XCTAssertEqual(res.status, .badRequest)
                      })
+    }
+
+    func test_package_collections_unauthorized() throws {
+        // setup
+        Current.apiTokens = { Set(["api-token"]) }
+
+        do {  // MUT - happy path
+            let body: ByteBuffer = .init(string: """
+                {
+                  "revision": 3,
+                  "authorName": "author",
+                  "keywords": [
+                    "a",
+                    "b"
+                  ],
+                  "selection": {
+                    "author": {
+                      "_0": "foo"
+                    }
+                  },
+                  "collectionName": "my collection",
+                  "overview": "my overview"
+                }
+                """)
+
+            try app.test(.POST, "api/package-collections",
+                         headers: .bearerApplicationJSON("bad token"),
+                         body: body,
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+            })
+        }
+    }
+
+    func test_packages_get() async throws {
+        // setup
+        Current.apiTokens = { Set(["api-token"]) }
+        let owner = "owner"
+        let repo = "repo"
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, latest: .defaultBranch, reference: .branch("main"))
+        try await v.save(on: app.db)
+        try await Repository(package: p,
+                             defaultBranch: "main",
+                             license: .mit,
+                             name: repo,
+                             owner: owner).save(on: app.db)
+
+        do {  // MUT - happy path
+            try app.test(.GET, "api/packages/owner/repo",
+                         headers: .bearerApplicationJSON("api-token"),
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                let model = try res.content.decode(API.PackageController.GetRoute.Model.self)
+                XCTAssertEqual(model.repositoryOwner, "owner")
+            })
+        }
+
+        do {  // MUT - unauthorized (no token provided)
+            try app.test(.GET, "api/packages/owner/repo",
+                         headers: .applicationJSON,
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+            })
+        }
+
+        do {  // MUT - unauthorized (wrong token provided)
+            try app.test(.GET, "api/packages/owner/repo",
+                         headers: .bearerApplicationJSON("bad token"),
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+            })
+        }
+
+        do {  // MUT - package not found
+            try app.test(.GET, "api/packages/unknown/package",
+                         headers: .bearerApplicationJSON("api-token"),
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .notFound)
+            })
+        }
     }
 
 }

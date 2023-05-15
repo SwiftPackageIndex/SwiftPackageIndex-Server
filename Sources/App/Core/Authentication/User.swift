@@ -22,23 +22,39 @@ struct User: Authenticatable {
 
 
 extension User {
+    static var api: Self { .init(name: "api") }
+
+    struct APIAuthenticator: AsyncBearerAuthenticator {
+        func authenticate(bearer: BearerAuthorization, for request: Request) async throws {
+            if Current.isValidAPIToken(bearer.token) {
+                request.auth.login(User.api)
+            }
+        }
+    }
+}
+
+
+extension User {
     static var builder: Self { .init(name: "builder") }
 
-    struct BuilderAuthenticator: BearerAuthenticator {
-        func authenticate(bearer: BearerAuthorization, for request: Request) -> EventLoopFuture<Void> {
+    struct BuilderAuthenticator: AsyncBearerAuthenticator {
+        func authenticate(bearer: BearerAuthorization, for request: Request) async throws {
             if let builderToken = Current.builderToken(),
                bearer.token == builderToken {
                 request.auth.login(User.builder)
             }
-            return request.eventLoop.makeSucceededFuture(())
         }
     }
 }
 
 
 extension AuthSchemeObject {
+    static var apiBearerToken: Self {
+        .bearer(id: "api_token",
+               description: "Token used for API access.")
+    }
     static var builderBearerToken: Self {
         .bearer(id: "builder_token",
-               description: "Builder token used for build result reporting.")
+               description: "Token used for build result reporting.")
     }
 }
