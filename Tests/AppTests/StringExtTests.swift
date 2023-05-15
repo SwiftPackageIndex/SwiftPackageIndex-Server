@@ -53,4 +53,14 @@ final class StringExtTests: XCTestCase {
         XCTAssertEqual(" string ".trimmed, "string")
         XCTAssertEqual("string".trimmed, "string")
     }
+
+    func test_removingSuffix() throws {
+        XCTAssertEqual("".removingSuffix(""), "")
+        XCTAssertEqual("".removingSuffix("bob"), "")
+        XCTAssertEqual("bob".removingSuffix("bob"), "")
+        XCTAssertEqual("bobby and bob".removingSuffix("bob"), "bobby and ")
+        XCTAssertEqual("bobby and bob ".removingSuffix("bob"), "bobby and bob ")
+        XCTAssertEqual("Bobby and Bob".removingSuffix("bob"), "Bobby and ")
+        XCTAssertEqual("bobby and bob".removingSuffix("Bob"), "bobby and ")
+    }
 }
