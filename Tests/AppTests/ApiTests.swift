@@ -553,10 +553,6 @@ class ApiTests: AppTestCase {
         try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 5, 2))
             .save(on: app.db)
             .wait()
-        try p.$versions.load(on: app.db).wait()
-        try p.versions.forEach {
-            try $0.$builds.load(on: app.db).wait()
-        }
 
         // MUT - swift versions
         try app.test(
@@ -742,6 +738,59 @@ class ApiTests: AppTestCase {
                         // validation
                         XCTAssertEqual(res.status, .badRequest)
                      })
+    }
+
+    func test_packages_get() async throws {
+        // setup
+        Current.apiTokens = { Set(["api-token"]) }
+        let owner = "owner"
+        let repo = "repo"
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, latest: .defaultBranch, reference: .branch("main"))
+        try await v.save(on: app.db)
+        try await Repository(package: p,
+                             defaultBranch: "main",
+                             license: .mit,
+                             name: repo,
+                             owner: owner).save(on: app.db)
+
+        do {  // MUT - happy path
+            try app.test(.GET, "api/packages/owner/repo",
+                         headers: .bearerApplicationJSON("api-token"),
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                let model = try res.content.decode(API.PackageController.GetRoute.Model.self)
+                XCTAssertEqual(model.repositoryOwner, "owner")
+            })
+        }
+
+        do {  // MUT - unauthorized (no token provided)
+            try app.test(.GET, "api/packages/owner/repo",
+                         headers: .applicationJSON,
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+            })
+        }
+
+        do {  // MUT - unauthorized (wrong token provided)
+            try app.test(.GET, "api/packages/owner/repo",
+                         headers: .bearerApplicationJSON("bad token"),
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+            })
+        }
+
+        do {  // MUT - package not found
+            try app.test(.GET, "api/packages/unknown/package",
+                         headers: .bearerApplicationJSON("api-token"),
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .notFound)
+            })
+        }
     }
 
 }
