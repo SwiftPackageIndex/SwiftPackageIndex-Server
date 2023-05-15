@@ -83,6 +83,12 @@ extension AppEnvironment {
 
 
 extension AppEnvironment {
+    static let _apiTokens = {
+        Environment.get("API_TOKENS")
+            .map { Data($0.utf8) }
+            .flatMap { try? JSONDecoder().decode([String].self, from: $0) }
+            .map { Set($0) } ?? .init()
+    }()
     static var logger: Logger!
 
     static let live = AppEnvironment(
@@ -96,12 +102,7 @@ extension AppEnvironment {
                 .flatMap(\.asBool)
                 ?? Constants.defaultAllowTwitterPosts
         },
-        apiTokens: {
-            Environment.get("API_TOKENS")
-                .map { Data($0.utf8) }
-                .flatMap { try? JSONDecoder().decode([String].self, from: $0) }
-                .map { Set($0) } ?? .init()
-        },
+        apiTokens: { _apiTokens },
         appVersion: { App.appVersion },
         awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
         builderToken: { Environment.get("BUILDER_TOKEN") },
