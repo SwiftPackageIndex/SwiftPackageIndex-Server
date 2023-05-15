@@ -56,15 +56,19 @@ public func configure(_ app: Application) throws -> String {
         throw Abort(.internalServerError)
     }
 
-    let tlsConfig: TLSConfiguration? = Environment.get("DATABASE_USE_TLS")
-        .flatMap(\.asBool)
-        .flatMap { $0 ? .clientDefault : nil }
-    app.databases.use(.postgres(hostname: host,
-                                port: port,
-                                username: username,
-                                password: password,
-                                database: database,
-                                tlsConfiguration: tlsConfig,
+    let tlsConfig: PostgresConnection.Configuration.TLS = try {
+        if Environment.get("DATABASE_USE_TLS").flatMap(\.asBool) == .some(true) {
+            return .prefer(try .init(configuration: .clientDefault))
+        }
+        return .disable
+    }()
+    let config = SQLPostgresConfiguration(hostname: host,
+                                          port: port,
+                                          username: username,
+                                          password: password,
+                                          database: database,
+                                          tls: tlsConfig)
+    app.databases.use(.postgres(configuration: config,
                                 maxConnectionsPerEventLoop: maxConnectionsPerEventLoop,
                                 // Set sqlLogLevel to .info to log SQL queries with the default log level.
                                 sqlLogLevel: .debug),
