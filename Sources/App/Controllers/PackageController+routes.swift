@@ -164,7 +164,7 @@ enum PackageController {
 
         switch fragment {
             case .documentation, .tutorials:
-                let documentationMetadata = try await DocumentationVersionMetadata
+                let documentationMetadata = try await DocumentationMetadata
                     .query(on: req.db, owner: owner, repository: repository)
 
                 return try await documentationResponse(
@@ -195,7 +195,7 @@ enum PackageController {
     static func documentationResponse(req: Request,
                                       archive: String?,
                                       awsResponse: ClientResponse,
-                                      documentationMetadata: DocumentationVersionMetadata,
+                                      documentationMetadata: DocumentationMetadata,
                                       fragment: Fragment,
                                       path: String,
                                       owner: String,
