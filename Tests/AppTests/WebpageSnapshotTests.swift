@@ -431,7 +431,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  reference: "main",
                                                                  referenceLatest: .release,
                                                                  referenceKind: .release,
-                                                                 canonicalUrl: "https://example.com/owner/repo/canonical-ref",
+                                                                 canonicalUrl: nil,
                                                                  availableArchives: [
                                                                     .init(archive: archive, isCurrent: true)
                                                                  ],
