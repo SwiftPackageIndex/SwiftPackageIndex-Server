@@ -233,10 +233,11 @@ enum PackageController {
 
         let canonicalUrl: String? = {
             guard let canonicalTarget = documentationVersionMetadata.canonicalTarget else { return nil }
-            return SiteURL.relativeURL(owner: owner,
-                                       repository: repository,
-                                       documentation: canonicalTarget,
-                                       fragment: .documentation)
+            return Self.canonicalDocumentationUrl(from: "\(req.url)",
+                                                  owner: owner,
+                                                  repository: repository,
+                                                  fromReference: reference,
+                                                  toTarget: canonicalTarget)
         }()
 
 
@@ -434,6 +435,21 @@ extension PackageController {
     }
 }
 
+extension PackageController {
+    static func canonicalDocumentationUrl(from url: String,
+                                          owner: String,
+                                          repository: String,
+                                          fromReference: String,
+                                          toTarget target: DocumentationTarget) -> String? {
+        let urlPrefix = "/\(owner)/\(repository)/\(fromReference)/"
+        if case let .internal(canonicalReference, _) = target,
+           url.lowercased().hasPrefix(urlPrefix.lowercased()) {
+            return "/\(owner)/\(repository)/\(canonicalReference)/\(url.dropFirst(urlPrefix.count))"
+        } else {
+            return nil
+        }
+    }
+}
 
 private extension HTTPHeaders {
     func replacingOrAdding(name: Name, value: String) -> Self {
