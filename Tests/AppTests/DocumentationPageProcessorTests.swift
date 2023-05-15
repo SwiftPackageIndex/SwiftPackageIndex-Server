@@ -30,7 +30,6 @@ final class DocumentationPageProcessorTests: AppTestCase {
             .init(archive: coreArchive, isCurrent: false),
             .init(archive: signerArchive, isCurrent: true)
         ]
-#warning("Fix up the canonicalUrl in this test.")
         let processor = try XCTUnwrap(
             DocumentationPageProcessor(
                 repositoryOwner: "owner",
@@ -40,7 +39,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
                 reference: "main",
                 referenceLatest: .release,
                 referenceKind: .release,
-                canonicalUrl: "TODO: Fix this up",
+                canonicalUrl: "https://example.com/owner/repo/canonical-ref",
                 availableArchives: archives,
                 availableVersions: [
                     .init(
