@@ -15,10 +15,11 @@
 @testable import App
 import XCTVapor
 
-class PackageShowSchemaTests: SnapshotTestCase {
+
+class API_PackageSchemaTests: SnapshotTestCase {
 
     func test_schema_initialiser() throws {
-        let schema = PackageShow.PackageSchema(
+        let schema = API.PackageSchema(
             repositoryOwner: "Owner",
             repositoryName: "Name",
             organisationName: "OrganisationName",

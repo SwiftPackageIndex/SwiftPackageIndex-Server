@@ -14,12 +14,12 @@
 
 // Common types used across view models
 
-struct Link: Equatable {
+struct Link: Codable, Equatable {
     var label: String
     var url: String
 }
 
-struct DatedLink: Equatable {
+struct DatedLink: Codable, Equatable {
     var date: String
     var link: Link
 }

@@ -17,8 +17,8 @@
 import Foundation
 
 
-extension PackageShow.PackageSchema {
-    static var mock: PackageShow.PackageSchema {
+extension API.PackageSchema {
+    static var mock: Self {
         .init(
             repositoryOwner: "Owner",
             repositoryName: "Name",

@@ -12,8 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extension SwiftVersion: BuildResultPresentable {
-    var displayName: String { "\(major).\(minor)" }
-    var longDisplayName: String { "Swift \(displayName)" }
+
+extension API.PackageController.GetRoute.Model.PlatformCompatibility: BuildResultPresentable {
+    var displayName: String {
+        switch self {
+            case .ios:
+                return "iOS"
+            case .linux:
+                return "Linux"
+            case .macos:
+                return "macOS"
+            case .tvos:
+                return "tvOS"
+            case .watchos:
+                return "watchOS"
+        }
+    }
+
+    var longDisplayName: String {
+        switch self {
+            case .macos, .ios, .linux, .tvos, .watchos:
+                return displayName
+        }
+    }
+
     var note: String? { nil }
 }

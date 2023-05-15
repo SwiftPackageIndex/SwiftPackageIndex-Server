@@ -17,7 +17,7 @@ extension Badge: WithExample {
 }
 
 
-extension API.PackageController.Query: WithExample {
+extension API.PackageController.BadgeQuery: WithExample {
     static var example: Self { .init(type: .platforms) }
 }
 

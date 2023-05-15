@@ -19,153 +19,7 @@ import DependencyResolution
 import SPIManifest
 
 
-enum AuthorMetadata : Equatable {
-    case fromSPIManifest(String)
-    case fromGitRepository(PackageAuthors)
-}
-
-extension PackageShow {
-
-    struct Model: Equatable {
-        var packageId: Package.Id
-        var repositoryOwner: String
-        var repositoryOwnerName: String
-        var repositoryName: String
-        var activity: Activity?
-        var authors: AuthorMetadata?
-        var keywords: [String]?
-        var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
-        var platformBuildInfo: BuildInfo<PlatformResults>?
-        var history: History?
-        var license: License
-        var licenseUrl: String?
-        var productCounts: ProductCounts?
-        var releases: ReleaseInfo
-        var dependencies: [ResolvedDependency]?
-        var stars: Int?
-        var summary: String?
-        var title: String
-        var url: String
-        var score: Int?
-        var isArchived: Bool
-        var hasBinaryTargets: Bool
-        var homepageUrl: String?
-        var hasDocumentation: Bool = false
-        var dependencyCodeSnippets: [App.Version.Kind: Link]
-        var weightedKeywords: [WeightedKeyword]
-
-        internal init(packageId: Package.Id,
-                      repositoryOwner: String,
-                      repositoryOwnerName: String,
-                      repositoryName: String,
-                      activity: Activity? = nil,
-                      authors: AuthorMetadata? = nil,
-                      keywords: [String]? = nil,
-                      swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil,
-                      platformBuildInfo: BuildInfo<PlatformResults>? = nil,
-                      history: History? = nil,
-                      license: License,
-                      licenseUrl: String? = nil,
-                      productCounts: ProductCounts? = nil,
-                      releases: ReleaseInfo,
-                      dependencies: [ResolvedDependency]?,
-                      stars: Int? = nil,
-                      summary: String?,
-                      title: String,
-                      url: String,
-                      score: Int? = nil,
-                      isArchived: Bool,
-                      hasBinaryTargets: Bool = false,
-                      homepageUrl: String? = nil,
-                      hasDocumentation: Bool = false,
-                      dependencyCodeSnippets: [App.Version.Kind: Link],
-                      weightedKeywords: [WeightedKeyword] = []) {
-            self.packageId = packageId
-            self.repositoryOwner = repositoryOwner
-            self.repositoryOwnerName = repositoryOwnerName
-            self.repositoryName = repositoryName
-            self.activity = activity
-            self.authors = authors
-            self.keywords = keywords
-            self.swiftVersionBuildInfo = swiftVersionBuildInfo
-            self.platformBuildInfo = platformBuildInfo
-            self.history = history
-            self.license = license
-            self.licenseUrl = licenseUrl
-            self.productCounts = productCounts
-            self.releases = releases
-            self.dependencies = dependencies
-            self.stars = stars
-            self.summary = summary
-            self.title = title
-            self.url = url
-            self.score = score
-            self.isArchived = isArchived
-            self.hasBinaryTargets = hasBinaryTargets
-            self.homepageUrl = homepageUrl
-            self.hasDocumentation = hasDocumentation
-            self.dependencyCodeSnippets = dependencyCodeSnippets
-            self.weightedKeywords = weightedKeywords
-        }
-
-        init?(result: PackageController.PackageResult,
-              history: History?,
-              productCounts: ProductCounts,
-              swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?,
-              platformBuildInfo: BuildInfo<PlatformResults>?,
-              weightedKeywords: [WeightedKeyword] = []) {
-            // we consider certain attributes as essential and return nil (raising .notFound)
-            let repository = result.repository
-            guard
-                let repositoryOwner = repository.owner,
-                let repositoryOwnerName = repository.ownerDisplayName,
-                let repositoryName = repository.name,
-                let packageId = result.package.id
-            else { return nil }
-
-            self.init(
-                packageId: packageId,
-                repositoryOwner: repositoryOwner,
-                repositoryOwnerName: repositoryOwnerName,
-                repositoryName: repositoryName,
-                activity: result.activity(),
-                authors: result.authors(),
-                keywords: repository.keywords,
-                swiftVersionBuildInfo: swiftVersionBuildInfo,
-                platformBuildInfo: platformBuildInfo,
-                history: history,
-                license: repository.license,
-                licenseUrl: repository.licenseUrl,
-                productCounts: productCounts,
-                releases: PackageShow.releaseInfo(
-                    packageUrl: result.package.url,
-                    defaultBranchVersion: result.defaultBranchVersion,
-                    releaseVersion: result.releaseVersion,
-                    preReleaseVersion: result.preReleaseVersion),
-                dependencies: result.defaultBranchVersion.resolvedDependencies,
-                stars: repository.stars,
-                summary: repository.summary,
-                title: result.defaultBranchVersion.packageName ?? repositoryName,
-                url: result.package.url,
-                score: result.package.score,
-                isArchived: repository.isArchived,
-                hasBinaryTargets: result.defaultBranchVersion.hasBinaryTargets,
-                homepageUrl: repository.homepageUrl,
-                hasDocumentation: result.hasDocumentation(),
-                dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
-                    packageURL: result.package.url,
-                    defaultBranchReference: result.defaultBranchVersion.model.reference,
-                    releaseReference: result.releaseVersion?.model.reference,
-                    preReleaseReference: result.preReleaseVersion?.model.reference),
-                weightedKeywords: weightedKeywords
-            )
-
-        }
-    }
-
-}
-
-extension PackageShow.Model {
+extension API.PackageController.GetRoute.Model {
     var gitHubOwnerUrl: String {
         "https://github.com/\(repositoryOwner)"
     }
@@ -175,12 +29,13 @@ extension PackageShow.Model {
     }
 }
 
-extension PackageShow.Model {
+
+extension API.PackageController.GetRoute.Model {
     static func makeModelVersion(packageUrl: String, version: App.Version) -> Version? {
         guard let link = makeLink(packageUrl: packageUrl, version: version) else { return nil }
-        return PackageShow.Model.Version(link: link,
-                                         swiftVersions: version.swiftVersions.map(\.description),
-                                         platforms: version.supportedPlatforms)
+        return Self.Version(link: link,
+                            swiftVersions: version.swiftVersions.map(\.description),
+                            platforms: version.supportedPlatforms)
     }
 
     static func languagePlatformInfo(packageUrl: String,
@@ -198,7 +53,7 @@ extension PackageShow.Model {
 }
 
 
-extension PackageShow.Model {
+extension API.PackageController.GetRoute.Model {
     func licenseListItem() -> Node<HTML.ListContext> {
         let licenseDescription: Node<HTML.BodyContext> = {
             switch license.licenseKind {
@@ -538,40 +393,28 @@ extension PackageShow.Model {
         )
     }
 
-    static func packageDependencyCodeSnippet(ref: App.Reference, packageURL: String) -> String {
+    func packageDependencyCodeSnippet(for release: App.Version.Kind) -> Link? {
+        Self.packageDependencyCodeSnippet(for: release,
+                                          releaseReferences: releaseReferences,
+                                          packageURL: url)
+    }
+
+    static func packageDependencyCodeSnippet(for release: App.Version.Kind,
+                                             releaseReferences: [App.Version.Kind: App.Reference],
+                                             packageURL: String) -> Link? {
+        guard let ref = releaseReferences[release] else { return nil }
         switch ref {
             case let .branch(branch):
-                return ".package(url: &quot;\(packageURL)&quot;, branch: &quot;\(branch)&quot;)"
+                return Link(label: "\(ref)",
+                            url: ".package(url: &quot;\(packageURL)&quot;, branch: &quot;\(branch)&quot;)")
 
             case let .tag(version, _):
-                return ".package(url: &quot;\(packageURL)&quot;, from: &quot;\(version)&quot;)"
+                return Link(label: "\(ref)",
+                            url: ".package(url: &quot;\(packageURL)&quot;, from: &quot;\(version)&quot;)")
         }
     }
 
-    static func packageDependencyCodeSnippets(packageURL: String,
-                                              defaultBranchReference: App.Reference?,
-                                              releaseReference: App.Reference?,
-                                              preReleaseReference: App.Reference?) -> [App.Version.Kind: Link] {
-        var snippets = [App.Version.Kind: Link]()
-        if let ref = defaultBranchReference {
-            snippets[.defaultBranch] = Link(label: "\(ref)",
-                                            url: packageDependencyCodeSnippet(ref: ref,
-                                                                              packageURL: packageURL))
-        }
-        if let ref = releaseReference {
-            snippets[.release] = Link(label: "\(ref)",
-                                      url: packageDependencyCodeSnippet(ref: ref,
-                                                                        packageURL: packageURL))
-        }
-        if let ref = preReleaseReference {
-            snippets[.preRelease] = Link(label: "\(ref)",
-                                         url: packageDependencyCodeSnippet(ref: ref,
-                                                                           packageURL: packageURL))
-        }
-        return snippets
-    }
-
-    static func groupBuildInfo<T>(_ buildInfo: BuildInfo<T>) -> [BuildStatusRow<T>] {
+    static func groupBuildInfo<T>(_ buildInfo: BuildInfo<T>) -> [PackageShow.BuildStatusRow<T>] {
         let allKeyPaths: [KeyPath<BuildInfo<T>, NamedBuildResults<T>?>] = [\.stable, \.beta, \.latest]
         var availableKeyPaths = allKeyPaths
         let groups = allKeyPaths.map { kp -> [KeyPath<BuildInfo<T>, NamedBuildResults<T>?>] in
@@ -580,10 +423,10 @@ extension PackageShow.Model {
             availableKeyPaths.removeAll(where: { group.contains($0) })
             return group
         }
-        let rows = groups.compactMap { keyPaths -> BuildStatusRow<T>? in
+        let rows = groups.compactMap { keyPaths -> PackageShow.BuildStatusRow<T>? in
             guard let first = keyPaths.first,
                   let results = buildInfo[keyPath: first]?.results else { return nil }
-            let references = keyPaths.compactMap { kp -> Reference? in
+            let references = keyPaths.compactMap { kp -> PackageShow.Reference? in
                 guard let name = buildInfo[keyPath: kp]?.referenceName else { return nil }
                 switch kp {
                     case \.stable:
@@ -627,8 +470,10 @@ extension PackageShow.Model {
         )
     }
 
-    func compatibilityListItem<T>(_ labelParagraphNode: Node<HTML.BodyContext>,
-                                  cells: [BuildResult<T>]) -> Node<HTML.ListContext> {
+    func compatibilityListItem<T: BuildResultPresentable>(
+        _ labelParagraphNode: Node<HTML.BodyContext>,
+        cells: [API.PackageController.GetRoute.Model.BuildResult<T>]
+    ) -> Node<HTML.ListContext> {
         return .li(
             .class("row"),
             .div(
@@ -651,12 +496,47 @@ extension PackageShow.Model {
 
 // MARK: - General helpers
 
-extension License.Kind {
+private extension License.Kind {
     var cssClass: String {
         switch self {
             case .none: return "no-license"
             case .incompatibleWithAppStore, .other: return "incompatible_license"
             case .compatibleWithAppStore: return "compatible_license"
         }
+    }
+}
+
+
+private extension API.PackageController.GetRoute.Model.BuildResult where T: BuildResultPresentable {
+    var headerNode: Node<HTML.BodyContext> {
+        .div(
+            .text(parameter.displayName),
+            .unwrap(parameter.note) { .small(.text("(\($0))")) }
+        )
+    }
+
+    var cellNode: Node<HTML.BodyContext> {
+        .div(
+            .class("\(status.cssClass)"),
+            .title(title)
+        )
+    }
+
+    var title: String {
+        switch status {
+            case .compatible:
+                return "Built successfully with \(parameter.longDisplayName)"
+            case .incompatible:
+                return "Build failed with \(parameter.longDisplayName)"
+            case .unknown:
+                return "No build information available for \(parameter.longDisplayName)"
+        }
+    }
+}
+
+
+private extension API.PackageController.GetRoute.Model.BuildStatus {
+    var cssClass: String {
+        self.rawValue
     }
 }

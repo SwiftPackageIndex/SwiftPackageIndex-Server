@@ -201,28 +201,35 @@ func routes(_ app: Application) throws {
         .openAPI(
             summary: "/api/packages/{owner}/{repository}/badge",
             description: "Get shields.io badge for the given repository.",
-            query: API.PackageController.Query.example,
+            query: API.PackageController.BadgeQuery.example,
             response: Badge.example,
             responseType: .application(.json),
             errorDescriptions: [
                 400: "Bad request"
             ])
-        
-        if Environment.current == .development {
-            app.post(SiteURL.api(.packageCollections).pathComponents,
-                     use: API.PackageCollectionController.generate)
-            .openAPI(
-                summary: "/api/package-collections",
-                description: "Generate a signed package collection.",
-                body: API.PostPackageCollectionDTO.example,
-                response: SignedCollection.example,
-                responseType: .application(.json),
-                errorDescriptions: [
-                    400: "Bad request"
-                ])
+
+        // api token protected routes
+#warning("protect routes with API token")
+        do {
+            if Environment.current == .development {
+#warning("add openAPI")
+                app.get("api", "packages", ":owner", ":repository", use: API.PackageController.get)
+
+                app.post(SiteURL.api(.packageCollections).pathComponents,
+                         use: API.PackageCollectionController.generate)
+                .openAPI(
+                    summary: "/api/package-collections",
+                    description: "Generate a signed package collection.",
+                    body: API.PostPackageCollectionDTO.example,
+                    response: SignedCollection.example,
+                    responseType: .application(.json),
+                    errorDescriptions: [
+                        400: "Bad request"
+                    ])
+            }
         }
-        
-        // protected routes
+
+        // builder token protected routes
         app.group(User.BuilderAuthenticator(), User.guardMiddleware()) {
             $0.groupedOpenAPI(auth: .builderBearerToken).group(tags: []) { protected in
                 protected.on(.POST, SiteURL.api(.versions(.key, .buildReport)).pathComponents,

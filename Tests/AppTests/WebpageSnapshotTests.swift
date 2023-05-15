@@ -44,7 +44,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
             NSTimeZone.default = oldDefault
         }
 
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.homepageUrl = "https://swiftpackageindex.com/"
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
@@ -52,7 +52,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
 
     func test_PackageShowView_binary_targets() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.homepageUrl = "https://swiftpackageindex.com/"
         model.hasBinaryTargets = true
 
@@ -73,7 +73,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
             NSTimeZone.default = oldDefault
         }
 
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         let keywordsWithCounts = [("tag1", 1),
                                   ("tag2", 10),
                                   ("tag3", 100),
@@ -100,7 +100,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
             NSTimeZone.default = oldDefault
         }
 
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         let keywordsWithCounts = [("tag1", 1), ("tag2", 10), ("tag3", 100), ("tag4", 1000), ("tag5", 1234),
                                   ("tag6", 1250), ("tag7", 1249), ("tag8", 1251), ("tag9", 12345),
 
@@ -123,7 +123,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
 
     func test_PackageShowView_emoji_summary() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.summary = ":package: Nothing but Cache. :octocat:"
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
@@ -132,7 +132,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
 
     func test_PackageShowView_open_source_license() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.license = .mit
         model.licenseUrl = "https://example.com/license.html"
 
@@ -141,7 +141,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
 
     func test_PackageShowView_app_store_incompatible_license() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.license = .gpl_3_0
         model.licenseUrl = "https://example.com/license.html"
 
@@ -150,7 +150,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
 
     func test_PackageShowView_other_license() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.license = .other
         model.licenseUrl = "https://example.com/license.html"
 
@@ -159,7 +159,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
 
     func test_PackageShowView_no_license() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.license = .none
         model.licenseUrl = nil
 
@@ -170,7 +170,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
     func test_PackageShowView_no_authors_activity() throws {
         // Test to ensure we don't display empty bullet points when there is
         // no author or activity info
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.authors = nil
         model.activity = nil
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
@@ -179,7 +179,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
 
     func test_PackageShowView_with_documentation_link() throws {
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.hasDocumentation = true
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
@@ -188,9 +188,9 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_PackageShowView_single_row_tables() throws {
         // Test display when all three significant version collapse to a single row
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         do {
-            let compatible = PackageShow.Model.SwiftVersionResults(
+            let compatible = API.PackageController.GetRoute.Model.SwiftVersionResults(
                 status5_5: .compatible,
                 status5_6: .compatible,
                 status5_7: .compatible,
@@ -203,7 +203,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
             )
         }
         do {
-            let compatible = PackageShow.Model.PlatformResults(
+            let compatible = API.PackageController.GetRoute.Model.PlatformResults(
                 iosStatus: .compatible,
                 linuxStatus: .compatible,
                 macosStatus: .compatible,
@@ -223,7 +223,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_PackageShowView_no_builds() throws {
         // Test display when there are no builds
-        var model = PackageShow.Model.mock
+        var model = API.PackageController.GetRoute.Model.mock
         model.swiftVersionBuildInfo = .init(stable: nil, beta: nil, latest: nil)
         model.platformBuildInfo = .init(stable: nil, beta: nil, latest: nil)
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }

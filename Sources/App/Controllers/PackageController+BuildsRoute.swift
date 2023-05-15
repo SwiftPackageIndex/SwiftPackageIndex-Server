@@ -17,6 +17,7 @@ import Vapor
 
 
 extension PackageController {
+    // TODO: move to API.PackageController
     enum BuildsRoute {
         struct PackageInfo: Equatable {
             var packageName: String?

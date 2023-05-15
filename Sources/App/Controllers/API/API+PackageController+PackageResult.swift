@@ -12,24 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+
+extension API.PackageController {
+    typealias PackageResult = Joined5<Package, Repository, DefaultVersion, ReleaseVersion, PreReleaseVersion>
+}
 
 
-extension PackageController.PackageResult {
+extension API.PackageController.PackageResult {
 
-    func authors() -> AuthorMetadata? {
+    func authors() -> API.PackageController.GetRoute.Model.AuthorMetadata? {
         if let spiManifest = defaultBranchVersion.spiManifest,
            let metadata = spiManifest.metadata,
            let authors = metadata.authors {
-            return AuthorMetadata.fromSPIManifest(authors)
+            return .fromSPIManifest(authors)
         } else if let authors = repository.authors {
-            return AuthorMetadata.fromGitRepository(authors)
+            return .fromGitRepository(authors)
         } else {
             return nil
         }
     }
 
-    func activity() -> PackageShow.Model.Activity? {
+    func activity() -> API.PackageController.GetRoute.Model.Activity? {
         guard repository.lastPullRequestClosedAt != nil else { return nil }
 
         let openIssues = Link(label: repository.openIssues.labeled("open issue"),

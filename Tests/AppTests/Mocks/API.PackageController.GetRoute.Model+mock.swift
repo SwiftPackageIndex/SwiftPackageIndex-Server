@@ -17,8 +17,8 @@
 import Foundation
 
 
-extension PackageShow.Model {
-    static var mock: PackageShow.Model {
+extension API.PackageController.GetRoute.Model {
+    static var mock: Self {
         .init(
             packageId: UUID("cafecafe-cafe-cafe-cafe-cafecafecafe")!,
             repositoryOwner: "Alamo",
@@ -108,12 +108,9 @@ extension PackageShow.Model {
             url: "https://github.com/Alamofire/Alamofire.git",
             score: 10,
             isArchived: false,
-            dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
-                packageURL: "https://github.com/Alamofire/Alamofire.git",
-                defaultBranchReference: .branch("main"),
-                releaseReference: .tag(5, 2, 0),
-                preReleaseReference: .tag(5, 3, 0, "beta.1")
-            )
+            defaultBranchReference: .branch("main"),
+            releaseReference: .tag(5, 2, 0),
+            preReleaseReference: .tag(5, 3, 0, "beta.1")
         )
     }
 }

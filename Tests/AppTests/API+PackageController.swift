@@ -17,7 +17,8 @@
 import Vapor
 import XCTest
 
-class PackageController_ShowRouteTests: AppTestCase {
+
+class API_PackageControllerTests: AppTestCase {
 
     typealias BuildDetails = (reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status)
 
@@ -46,7 +47,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         try await Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db)
 
         // MUT
-        let record = try await PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
+        let record = try await API.PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
 
         // validate
         XCTAssertEqual(
@@ -73,7 +74,7 @@ class PackageController_ShowRouteTests: AppTestCase {
                              owner: "foo").create(on: app.db)
 
         // MUT
-        let record = try await PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
+        let record = try await API.PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
 
         // validate
         XCTAssertEqual(
@@ -90,7 +91,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         Current.date = { .spiBirthday }
         do {  // all inputs set to non-nil values
             // setup
-            let record = PackageController.History.Record(
+            let record = API.PackageController.History.Record(
                 url: "url",
                 defaultBranch: "main",
                 firstCommitDate: .t0,
@@ -113,7 +114,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         }
         do {  // test nil inputs
             XCTAssertNil(
-                PackageController.History.Record(
+                API.PackageController.History.Record(
                     url: "url",
                     defaultBranch: nil,
                     firstCommitDate: .t0,
@@ -122,7 +123,7 @@ class PackageController_ShowRouteTests: AppTestCase {
                 ).historyModel()
             )
             XCTAssertNil(
-                PackageController.History.Record(
+                API.PackageController.History.Record(
                     url: "url",
                     defaultBranch: "main",
                     firstCommitDate: nil,
@@ -162,58 +163,11 @@ class PackageController_ShowRouteTests: AppTestCase {
         }
 
         // MUT
-        let res = try await PackageController.ProductCount.query(on: app.db, owner: "foo", repository: "bar")
+        let res = try await API.PackageController.ProductCount.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
         XCTAssertEqual(res.filter(\.isExecutable).count, 1)
         XCTAssertEqual(res.filter(\.isLibrary).count, 2)
-    }
-
-    func test_buildStatus() throws {
-        // Test build status aggregation, in particular see
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/666
-        // setup
-        // MUT & verification
-        XCTAssertEqual([mkBuildInfo(.ok), mkBuildInfo(.failed)].buildStatus, .compatible)
-        XCTAssertEqual([mkBuildInfo(.triggered), mkBuildInfo(.triggered)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuildInfo(.failed), mkBuildInfo(.triggered)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuildInfo(.ok), mkBuildInfo(.triggered)].buildStatus, .compatible)
-    }
-
-    func test_noneSucceeded() throws {
-        XCTAssertTrue([mkBuildInfo(.failed), mkBuildInfo(.failed)].noneSucceeded)
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.failed)].noneSucceeded)
-    }
-
-    func test_anySucceeded() throws {
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.failed)].anySucceeded)
-        XCTAssertFalse([mkBuildInfo(.failed), mkBuildInfo(.failed)].anySucceeded)
-    }
-
-    func test_nonePending() throws {
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.failed)].nonePending)
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.triggered)].nonePending)
-        // timeouts will not be retried - therefore they are not pending
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.timeout)].nonePending)
-        // infrastructure errors _will_ be retried - they are pending
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.infrastructureError)].nonePending)
-    }
-
-    func test_anyPending() throws {
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.failed)].anyPending)
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.triggered)].anyPending)
-        // timeouts will not be retried - therefore they are not pending
-        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.timeout)].nonePending)
-        // infrastructure errors _will_ be retried - they are pending
-        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.infrastructureError)].nonePending)
-    }
-
-    func test_Platform_isCompatible() throws {
-        XCTAssertTrue(Build.Platform.ios.isCompatible(with: .ios))
-        XCTAssertFalse(Build.Platform.ios.isCompatible(with: .macos))
-
-        XCTAssertTrue(Build.Platform.macosSpm.isCompatible(with: .macos))
-        XCTAssertTrue(Build.Platform.macosXcodebuild.isCompatible(with: .macos))
     }
 
     func test_platformBuildResults() throws {
@@ -240,7 +194,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         ]
 
         // MUT
-        let res = PackageController.BuildInfo
+        let res = API.PackageController.BuildInfo
             .platformBuildResults(builds: builds, kind: .defaultBranch)
 
         // validate
@@ -275,7 +229,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         ]
 
         // MUT
-        let res = PackageController.BuildInfo
+        let res = API.PackageController.BuildInfo
             .swiftVersionBuildResults(builds: builds, kind: .defaultBranch)
 
         // validate
@@ -294,7 +248,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         ]
 
         // MUT
-        let res = PackageController.BuildInfo.platformBuildInfo(builds: builds)
+        let res = API.PackageController.BuildInfo.platformBuildInfo(builds: builds)
 
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
@@ -318,7 +272,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         ]
 
         // MUT
-        let res = PackageController.BuildInfo.swiftVersionBuildInfo(builds: builds)
+        let res = API.PackageController.BuildInfo.swiftVersionBuildInfo(builds: builds)
 
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
@@ -379,7 +333,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         }
 
         // MUT
-        let res = try await PackageController.BuildInfo.query(on: app.db, owner: "foo", repository: "bar")
+        let res = try await API.PackageController.BuildInfo.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
         // just test reference names and some details for `latest`
@@ -398,8 +352,8 @@ class PackageController_ShowRouteTests: AppTestCase {
         XCTAssertEqual(res.swiftVersion?.beta?.referenceName, "2.0.0-b1")
     }
 
-    func test_ShowRoute_query() async throws {
-        // ensure ShowRoute.query is wired up correctly (detailed tests are elsewhere)
+    func test_GetRoute_query() async throws {
+        // ensure GetRoute.query is wired up correctly (detailed tests are elsewhere)
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "bar", owner: "foo")
@@ -407,16 +361,11 @@ class PackageController_ShowRouteTests: AppTestCase {
         try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
         // MUT
-        let (model, schema) = try await PackageController.ShowRoute.query(on: app.db, owner: "foo", repository: "bar")
+        let (model, schema) = try await API.PackageController.GetRoute.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
         XCTAssertEqual(model.repositoryName, "bar")
         XCTAssertEqual(schema.name, "bar")
     }
 
-}
-
-
-private func mkBuildInfo(_ status: Build.Status) -> PackageController.BuildsRoute.BuildInfo {
-    .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v5_5, platform: .ios, status: status)
 }

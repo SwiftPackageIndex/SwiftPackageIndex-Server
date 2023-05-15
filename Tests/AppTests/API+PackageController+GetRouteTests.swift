@@ -17,7 +17,7 @@
 import XCTest
 
 
-class PackageShowTests: AppTestCase {
+class API_PackageController_GetRouteTests: AppTestCase {
 
     typealias PackageResult = PackageController.PackageResult
 
@@ -54,7 +54,7 @@ class PackageShowTests: AppTestCase {
                                                repository: "bar")
 
         // MUT
-        let info = PackageShow.releaseInfo(
+        let info = API.PackageController.GetRoute.releaseInfo(
             packageUrl: "1",
             defaultBranchVersion: pr.defaultBranchVersion,
             releaseVersion: pr.releaseVersion,
@@ -95,7 +95,7 @@ class PackageShowTests: AppTestCase {
                                                repository: "bar")
 
         // MUT
-        let info = PackageShow.releaseInfo(
+        let info = API.PackageController.GetRoute.releaseInfo(
             packageUrl: "1",
             defaultBranchVersion: pr.defaultBranchVersion,
             releaseVersion: pr.releaseVersion,

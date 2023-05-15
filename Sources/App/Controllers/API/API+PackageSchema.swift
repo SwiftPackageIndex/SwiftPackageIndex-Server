@@ -14,7 +14,8 @@
 
 import Foundation
 
-extension PackageShow {
+
+extension API {
 
     struct PackageSchema: Encodable {
         enum CodingKeys: String, CodingKey {
@@ -82,7 +83,7 @@ extension PackageShow {
                 organisationName: repository.ownerName,
                 summary: repository.summary,
                 licenseUrl: repository.licenseUrl,
-                version: PackageShow.releaseInfo(
+                version: API.PackageController.GetRoute.releaseInfo(
                     packageUrl: package.url,
                     defaultBranchVersion: result.defaultBranchVersion,
                     releaseVersion: result.releaseVersion,
@@ -134,23 +135,5 @@ extension PackageShow {
             self.url = url
         }
     }
-}
 
-
-extension PackageShow {
-    static func releaseInfo(packageUrl: String,
-                            defaultBranchVersion: DefaultVersion?,
-                            releaseVersion: ReleaseVersion?,
-                            preReleaseVersion: PreReleaseVersion?) -> PackageShow.Model.ReleaseInfo {
-        let links = [releaseVersion?.model, preReleaseVersion?.model, defaultBranchVersion?.model]
-            .map { version -> DatedLink? in
-                guard let version = version else { return nil }
-                return makeDatedLink(packageUrl: packageUrl,
-                                     version: version,
-                                     keyPath: \.commitDate)
-            }
-        return .init(stable: links[0],
-                     beta: links[1],
-                     latest: links[2])
-    }
 }

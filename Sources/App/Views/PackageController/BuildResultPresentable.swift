@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extension SwiftVersion: BuildResultPresentable {
-    var displayName: String { "\(major).\(minor)" }
-    var longDisplayName: String { "Swift \(displayName)" }
-    var note: String? { nil }
+
+protocol BuildResultPresentable: Equatable {
+    var displayName: String { get }
+    var longDisplayName: String { get }
+    var note: String? { get }
 }

@@ -19,7 +19,19 @@ import Vapor
 extension API {
 
     enum PackageController {
-        struct Query: Codable {
+
+        static func get(req: Request) async throws -> GetRoute.Model {
+            guard
+                let owner = req.parameters.get("owner"),
+                let repository = req.parameters.get("repository")
+            else {
+                throw Abort(.notFound)
+            }
+
+            return try await GetRoute.query(on: req.db, owner: owner, repository: repository).model
+        }
+
+        struct BadgeQuery: Codable {
             var type: BadgeType
         }
 
@@ -30,27 +42,14 @@ extension API {
             else {
                 throw Abort(.notFound)
             }
-            let query = try req.query.decode(Query.self)
+            let query = try req.query.decode(BadgeQuery.self)
 
             let significantBuilds = try await BadgeRoute.query(on: req.db, owner: owner, repository: repository)
             return Badge(significantBuilds: significantBuilds, badgeType: query.type)
         }
 
     }
-}
 
-
-extension API.PackageController {
-    enum Command: String {
-        case reconcile
-        case ingest
-        case analyze
-
-        struct Response: Content {
-            var status: String
-            var rows: Int
-        }
-    }
 }
 
 
@@ -70,6 +69,19 @@ extension API.PackageController {
                     ($0.build.swiftVersion, $0.build.platform, $0.build.status)
                 }
             return SignificantBuilds.init(buildInfo: buildInfo)
+        }
+    }
+}
+
+
+extension API.PackageController {
+    enum ProductCount {
+        static func query(on database: Database, owner: String, repository: String) async throws -> [ProductType] {
+            try await Joined4<Package, Repository, Version, Product>
+                .query(on: database, owner: owner, repository: repository)
+                .field(Product.self, \.$type)
+                .all()
+                .compactMap(\.product.type)
         }
     }
 }
