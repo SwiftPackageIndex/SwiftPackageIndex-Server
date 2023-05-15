@@ -17,7 +17,7 @@ import Foundation
 import Fluent
 import SemanticVersion
 
-struct DocumentationVersionMetadata {
+struct DocumentationMetadata {
     var canonicalTarget: DocumentationTarget?
     var versions: [DocumentationVersion]
 

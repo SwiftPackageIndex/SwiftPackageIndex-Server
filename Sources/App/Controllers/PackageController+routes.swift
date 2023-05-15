@@ -164,14 +164,14 @@ enum PackageController {
 
         switch fragment {
             case .documentation, .tutorials:
-                let documentationVersionMetadata = try await DocumentationVersionMetadata
+                let documentationMetadata = try await DocumentationVersionMetadata
                     .query(on: req.db, owner: owner, repository: repository)
 
                 return try await documentationResponse(
                     req: req,
                     archive: archive,
                     awsResponse: awsResponse,
-                    documentationVersionMetadata: documentationVersionMetadata,
+                    documentationMetadata: documentationMetadata,
                     fragment: fragment,
                     path: normalisedPath,
                     owner: owner,
@@ -195,23 +195,23 @@ enum PackageController {
     static func documentationResponse(req: Request,
                                       archive: String?,
                                       awsResponse: ClientResponse,
-                                      documentationVersionMetadata: DocumentationVersionMetadata,
+                                      documentationMetadata: DocumentationVersionMetadata,
                                       fragment: Fragment,
                                       path: String,
                                       owner: String,
                                       reference: String,
                                       repository: String) async throws -> Response {
 
-        guard let documentation = documentationVersionMetadata.versions[reference: reference]
+        guard let documentation = documentationMetadata.versions[reference: reference]
         else {
             // If there's no match for this reference with a docArchive, we're done!
             throw Abort(.notFound, reason: "No docArchives for this reference")
         }
 
         let availableDocumentationVersions: [DocumentationPageProcessor.AvailableDocumentationVersion] = ([
-            documentationVersionMetadata.versions.first { $0.latest == .defaultBranch },
-            documentationVersionMetadata.versions.first { $0.latest == .preRelease }
-        ] + documentationVersionMetadata.versions.latestMajorVersions())
+            documentationMetadata.versions.first { $0.latest == .defaultBranch },
+            documentationMetadata.versions.first { $0.latest == .preRelease }
+        ] + documentationMetadata.versions.latestMajorVersions())
             .compactMap { version in
                 guard let version = version
                 else { return nil }
@@ -232,7 +232,7 @@ enum PackageController {
         }
 
         let canonicalUrl: String? = {
-            guard let canonicalTarget = documentationVersionMetadata.canonicalTarget else { return nil }
+            guard let canonicalTarget = documentationMetadata.canonicalTarget else { return nil }
             return Self.canonicalDocumentationUrl(from: "\(req.url)",
                                                   owner: owner,
                                                   repository: repository,
