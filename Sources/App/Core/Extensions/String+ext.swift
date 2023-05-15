@@ -31,7 +31,7 @@ extension String {
     }
 
     func removingSuffix(_ suffix: String) -> String {
-        if self.hasSuffix(suffix) {
+        if lowercased().hasSuffix(suffix.lowercased()) {
             return String(self.dropLast(suffix.count))
         }
         return self
