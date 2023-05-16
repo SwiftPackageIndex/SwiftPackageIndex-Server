@@ -217,7 +217,9 @@ final class RepositoryTests: AppTestCase {
             try Repository(id: UUID(), package: p2, name: "bar", owner: "foo").save(on: app.db).wait()
         ) {
             XCTAssert($0.localizedDescription.contains(
-                        #"duplicate key value violates unique constraint "idx_repositories_owner_name""#))
+                #"duplicate key value violates unique constraint "idx_repositories_owner_name""#),
+                      "was: \($0.localizedDescription)"
+            )
             XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
         }
 
@@ -226,7 +228,9 @@ final class RepositoryTests: AppTestCase {
             try Repository(id: UUID(), package: p2, name: "Bar", owner: "foo").save(on: app.db).wait()
         ) {
             XCTAssert($0.localizedDescription.contains(
-                        #"duplicate key value violates unique constraint "idx_repositories_owner_name""#))
+                #"duplicate key value violates unique constraint "idx_repositories_owner_name""#),
+                      "was: \($0.localizedDescription)"
+            )
             XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
         }
 
@@ -235,7 +239,9 @@ final class RepositoryTests: AppTestCase {
             try Repository(id: UUID(), package: p2, name: "bar", owner: "Foo").save(on: app.db).wait()
         ) {
             XCTAssert($0.localizedDescription.contains(
-                        #"duplicate key value violates unique constraint "idx_repositories_owner_name""#))
+                #"duplicate key value violates unique constraint "idx_repositories_owner_name""#),
+                      "was: \($0.localizedDescription)"
+            )
             XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
         }
     }
