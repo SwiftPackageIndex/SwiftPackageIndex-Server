@@ -39,6 +39,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
                 reference: "main",
                 referenceLatest: .release,
                 referenceKind: .release,
+                canonicalUrl: "https://example.com/owner/repo/canonical-ref",
                 availableArchives: archives,
                 availableVersions: [
                     .init(

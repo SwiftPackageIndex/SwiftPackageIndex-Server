@@ -49,7 +49,7 @@ enum DocumentationTarget: Equatable {
 
         return results
             .map(\.model)
-            .documentationTarget()
+            .canonicalDocumentationTarget()
     }
 
     /// Fetch DocumentationTarget for a specific reference. This returns an `internal` DocumentationTarget by definition, because `external` targets have no notion of references.

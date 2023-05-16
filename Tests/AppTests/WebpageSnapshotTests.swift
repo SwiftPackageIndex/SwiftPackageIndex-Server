@@ -431,6 +431,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  reference: "main",
                                                                  referenceLatest: .release,
                                                                  referenceKind: .release,
+                                                                 canonicalUrl: nil,
                                                                  availableArchives: [
                                                                     .init(archive: archive, isCurrent: true)
                                                                  ],
@@ -457,6 +458,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  reference: "1.1.0",
                                                                  referenceLatest: nil,
                                                                  referenceKind: .release,
+                                                                 canonicalUrl: "https://example.com/owner/repo/canonical-ref",
                                                                  availableArchives: [
                                                                     .init(archive: archive, isCurrent: true)
                                                                  ],
@@ -488,6 +490,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  reference: "main",
                                                                  referenceLatest: .defaultBranch,
                                                                  referenceKind: .defaultBranch,
+                                                                 canonicalUrl: "https://example.com/owner/repo/canonical-ref",
                                                                  availableArchives: [
                                                                     .init(archive: archive1, isCurrent: true),
                                                                     .init(archive: archive2, isCurrent: false),

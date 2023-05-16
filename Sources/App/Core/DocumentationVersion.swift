@@ -17,17 +17,12 @@ import Foundation
 import Fluent
 import SemanticVersion
 
+struct DocumentationMetadata {
+    var canonicalTarget: DocumentationTarget?
+    var versions: [DocumentationVersion]
 
-struct DocumentationVersion: Equatable {
-    var reference: Reference
-    var ownerName: String
-    var packageName: String
-    var docArchives: [DocArchive]
-    var latest: Version.Kind?
-    var updatedAt: Date
-
-    static func query(on database: Database, owner: String, repository: String) async throws -> [Self] {
-        try await Joined3<Version, Package, Repository>
+    static func query(on database: Database, owner: String, repository: String) async throws -> Self {
+        let results = try await Joined3<Version, Package, Repository>
             .query(on: database,
                    join: \Version.$package.$id == \Package.$id, method: .inner,
                    join: \Package.$id == \Repository.$package.$id, method: .inner)
@@ -40,19 +35,39 @@ struct DocumentationVersion: Equatable {
             .field(Version.self, \.$docArchives)
             .field(Version.self, \.$commitDate)
             .field(Version.self, \.$publishedAt)
+            .field(Version.self, \.$spiManifest)
             .field(Repository.self, \.$ownerName)
             .all()
-            .map { result in
-                    .init(reference: result.model.reference,
-                          ownerName: result.relation2?.ownerName ?? owner,
-                          packageName: result.model.packageName ?? repository,
-                          docArchives: result.model.docArchives ?? [],
-                          latest: result.model.latest,
-                          updatedAt: result.model.publishedAt ?? result.model.commitDate)
-            }
+
+        // This query returns `Version` objects that have nil `latest` properties as we show documentation
+        // for major package versions that are *not* latest anything. There's no need to filter these records
+        // out as they are never selected by `canonicalDocumentationTarget` but it's worth being aware that
+        // this is normal and expected.
+        let versions = results.map {$0.model }
+        let canonicalDocumentationTarget = versions.canonicalDocumentationTarget()
+
+        let documentationVersions = results.map { result -> DocumentationVersion in
+                .init(reference: result.model.reference,
+                      ownerName: result.relation2?.ownerName ?? owner,
+                      packageName: result.model.packageName ?? repository,
+                      docArchives: result.model.docArchives ?? [],
+                      latest: result.model.latest,
+                      updatedAt: result.model.publishedAt ?? result.model.commitDate)
+        }
+
+        return .init(canonicalTarget: canonicalDocumentationTarget,
+                     versions: documentationVersions)
     }
 }
 
+struct DocumentationVersion: Equatable {
+    var reference: Reference
+    var ownerName: String
+    var packageName: String
+    var docArchives: [DocArchive]
+    var latest: Version.Kind?
+    var updatedAt: Date
+}
 
 extension Array where Element == DocumentationVersion {
     subscript(reference reference: String) -> Element? {

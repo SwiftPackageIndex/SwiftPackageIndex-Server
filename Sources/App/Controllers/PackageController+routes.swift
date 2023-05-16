@@ -160,15 +160,16 @@ enum PackageController {
 
         switch fragment {
             case .documentation, .tutorials:
-                let documentationVersions = try await DocumentationVersion
+                let documentationMetadata = try await DocumentationMetadata
                     .query(on: req.db, owner: owner, repository: repository)
 
                 return try await documentationResponse(
                     req: req,
                     archive: archive,
                     awsResponse: awsResponse,
-                    documentationVersions: documentationVersions,
+                    documentationMetadata: documentationMetadata,
                     fragment: fragment,
+                    path: path,
                     owner: owner,
                     reference: reference,
                     repository: repository
@@ -190,22 +191,23 @@ enum PackageController {
     static func documentationResponse(req: Request,
                                       archive: String?,
                                       awsResponse: ClientResponse,
-                                      documentationVersions: [DocumentationVersion],
+                                      documentationMetadata: DocumentationMetadata,
                                       fragment: Fragment,
+                                      path: String,
                                       owner: String,
                                       reference: String,
                                       repository: String) async throws -> Response {
 
-        guard let documentation = documentationVersions[reference: reference]
+        guard let documentation = documentationMetadata.versions[reference: reference]
         else {
             // If there's no match for this reference with a docArchive, we're done!
             throw Abort(.notFound, reason: "No docArchives for this reference")
         }
 
         let availableDocumentationVersions: [DocumentationPageProcessor.AvailableDocumentationVersion] = ([
-            documentationVersions.first { $0.latest == .defaultBranch },
-            documentationVersions.first { $0.latest == .preRelease }
-        ] + documentationVersions.latestMajorVersions())
+            documentationMetadata.versions.first { $0.latest == .defaultBranch },
+            documentationMetadata.versions.first { $0.latest == .preRelease }
+        ] + documentationMetadata.versions.latestMajorVersions())
             .compactMap { version in
                 guard let version = version
                 else { return nil }
@@ -213,17 +215,27 @@ enum PackageController {
                 // There are versions in `documentationVersions` that have a nil `latest`, but given
                 // the filtering above they can be assumed to be release versions for display.
                 let versionKind = version.latest ?? .release
-                let isLatesStable = version.latest == .release
+                let isLatestStable = version.latest == .release
 
                 return .init(kind: versionKind,
                              reference: "\(version.reference)",
                              docArchives: version.docArchives,
-                             isLatestStable: isLatesStable)
+                             isLatestStable: isLatestStable)
             }
 
         let availableArchives: [DocumentationPageProcessor.AvailableArchive] = documentation.docArchives.map {
             .init(archive: $0, isCurrent: $0.name == archive)
         }
+
+        let canonicalUrl: String? = {
+            guard let canonicalTarget = documentationMetadata.canonicalTarget else { return nil }
+            return Self.canonicalDocumentationUrl(from: "\(req.url)",
+                                                  owner: owner,
+                                                  repository: repository,
+                                                  fromReference: reference,
+                                                  toTarget: canonicalTarget)
+        }()
+
 
         // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
         guard let body = awsResponse.body,
@@ -234,6 +246,7 @@ enum PackageController {
                                                          reference: reference,
                                                          referenceLatest: documentation.latest,
                                                          referenceKind: documentation.reference.versionKind,
+                                                         canonicalUrl: canonicalUrl,
                                                          availableArchives: availableArchives,
                                                          availableVersions: availableDocumentationVersions,
                                                          updatedAt: documentation.updatedAt,
@@ -418,6 +431,21 @@ extension PackageController {
     }
 }
 
+extension PackageController {
+    static func canonicalDocumentationUrl(from url: String,
+                                          owner: String,
+                                          repository: String,
+                                          fromReference: String,
+                                          toTarget target: DocumentationTarget) -> String? {
+        let urlPrefix = "/\(owner)/\(repository)/\(fromReference)/"
+        if case let .internal(canonicalReference, _) = target,
+           url.lowercased().hasPrefix(urlPrefix.lowercased()) {
+            return "/\(owner)/\(repository)/\(canonicalReference)/\(url.dropFirst(urlPrefix.count))"
+        } else {
+            return nil
+        }
+    }
+}
 
 private extension HTTPHeaders {
     func replacingOrAdding(name: Name, value: String) -> Self {

@@ -18,7 +18,7 @@ extension [Version] {
     var preReleaseVersion: Version? { filter { $0.latest == .preRelease}.first }
     var releaseVersion: Version? { filter { $0.latest == .release}.first }
 
-    func documentationTarget() -> DocumentationTarget? {
+    func canonicalDocumentationTarget() -> DocumentationTarget? {
         // External documentation links have priority over generated documentation.
         if let spiManifest = defaultBranchVersion?.spiManifest,
            let documentation = spiManifest.externalLinks?.documentation {
@@ -31,12 +31,13 @@ extension [Version] {
             return .internal(reference: "\(version.reference)", archive: archive)
         }
 
+        // Then a pre-release is second best.
         if let version = preReleaseVersion,
            let archive = version.docArchives?.first?.name {
             return .internal(reference: "\(version.reference)", archive: archive)
         }
 
-        // Fallback is default branch documentation.
+        // Finally, fallback to the default branch documentation.
         if let version = defaultBranchVersion,
            let archive = version.docArchives?.first?.name {
             return .internal(reference: "\(version.reference)", archive: archive)
@@ -46,7 +47,7 @@ extension [Version] {
         return nil
     }
 
-    func hasDocumentation() -> Bool { documentationTarget() != nil }
+    func hasDocumentation() -> Bool { canonicalDocumentationTarget() != nil }
 }
 
 

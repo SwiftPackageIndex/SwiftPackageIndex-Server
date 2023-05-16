@@ -133,7 +133,7 @@ class ArrayExtensionTests: XCTestCase {
             [
                 Version(id: .id0, latest: .release),
                 Version(id: .id1, latest: .defaultBranch, spiManifest: .withExternalDocLink("link")),
-            ].documentationTarget(),
+            ].canonicalDocumentationTarget(),
             .external(url: "link")
         )
 
@@ -144,7 +144,7 @@ class ArrayExtensionTests: XCTestCase {
                 Version(id: .id1, latest: .defaultBranch,
                         spiManifest: .withExternalDocLink("link"),
                         docArchives: [.init(name: "foo", title: "Foo")]),
-            ].documentationTarget(),
+            ].canonicalDocumentationTarget(),
             .external(url: "link")
         )
 
@@ -155,7 +155,7 @@ class ArrayExtensionTests: XCTestCase {
                         docArchives: [.init(name: "foo", title: "Foo")]),
                 Version(id: .id1, latest: .defaultBranch,
                         spiManifest: .withExternalDocLink("link")),
-            ].documentationTarget(),
+            ].canonicalDocumentationTarget(),
             .external(url: "link")
         )
     }
@@ -166,7 +166,7 @@ class ArrayExtensionTests: XCTestCase {
             [
                 Version(id: .id0, latest: .release, reference: .tag(1, 2, 3),
                         docArchives: [.init(name: "foo", title: "Foo")]),
-            ].documentationTarget(),
+            ].canonicalDocumentationTarget(),
             .internal(reference: "1.2.3", archive: "foo")
         )
 
@@ -176,7 +176,7 @@ class ArrayExtensionTests: XCTestCase {
                 Version(id: .id0, latest: .release, reference: .tag(1, 2, 3)),
                 Version(id: .id0, latest: .defaultBranch, reference: .branch("main"),
                         docArchives: [.init(name: "foo", title: "Foo")]),
-            ].documentationTarget(),
+            ].canonicalDocumentationTarget(),
             .internal(reference: "main", archive: "foo")
         )
 
@@ -184,7 +184,7 @@ class ArrayExtensionTests: XCTestCase {
         XCTAssertEqual(
             [
                 Version(id: .id0, latest: .release, reference: .tag(1, 2, 3)),
-            ].documentationTarget(),
+            ].canonicalDocumentationTarget(),
             nil
         )
 
@@ -193,12 +193,12 @@ class ArrayExtensionTests: XCTestCase {
             [
                 Version(id: .id0, latest: .release, reference: .tag(1, 2, 3)),
                 Version(id: .id0, latest: .defaultBranch, reference: .branch("main")),
-            ].documentationTarget(),
+            ].canonicalDocumentationTarget(),
             nil
         )
 
         // Or simply no versions in array at all
-        XCTAssertEqual([Version]().documentationTarget(), nil)
+        XCTAssertEqual([Version]().canonicalDocumentationTarget(), nil)
     }
 
 }

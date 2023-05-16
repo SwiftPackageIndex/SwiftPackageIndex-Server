@@ -25,6 +25,7 @@ struct DocumentationPageProcessor {
     let reference: String
     let referenceLatest: Version.Kind?
     let referenceKind: Version.Kind
+    let canonicalUrl: String?
     let availableArchives: [AvailableArchive]
     let availableVersions: [AvailableDocumentationVersion]
     let updatedAt: Date
@@ -51,6 +52,7 @@ struct DocumentationPageProcessor {
           reference: String,
           referenceLatest: Version.Kind?,
           referenceKind: Version.Kind,
+          canonicalUrl: String?,
           availableArchives: [AvailableArchive],
           availableVersions: [AvailableDocumentationVersion],
           updatedAt: Date,
@@ -62,6 +64,7 @@ struct DocumentationPageProcessor {
         self.reference = reference
         self.referenceLatest = referenceLatest
         self.referenceKind = referenceKind
+        self.canonicalUrl = canonicalUrl
         self.availableArchives = availableArchives
         self.availableVersions = availableVersions
         self.updatedAt = updatedAt
@@ -69,6 +72,14 @@ struct DocumentationPageProcessor {
         do {
             document = try SwiftSoup.parse(rawHtml)
             try document.head()?.append(self.stylesheetLink)
+            if let canonicalUrl = self.canonicalUrl {
+                try document.head()?.append(
+                    Plot.Node.link(
+                        .rel(.canonical),
+                        .href(canonicalUrl)
+                    ).render()
+                )
+            }
             try document.body()?.prepend(self.header)
             try document.body()?.append(self.footer)
             if let analyticsScript = self.analyticsScript {
