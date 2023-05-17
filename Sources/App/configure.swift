@@ -66,6 +66,9 @@ public func configure(_ app: Application) throws -> String {
                                 database: database,
                                 tlsConfiguration: tlsConfig,
                                 maxConnectionsPerEventLoop: maxConnectionsPerEventLoop,
+                                // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2227
+                                // for details why we've changed this from the default of 10s.
+                                connectionPoolTimeout: .seconds(20),
                                 // Set sqlLogLevel to .info to log SQL queries with the default log level.
                                 sqlLogLevel: .debug),
                       as: .psql)
