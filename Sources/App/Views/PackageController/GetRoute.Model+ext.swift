@@ -453,7 +453,7 @@ extension API.PackageController.GetRoute.Model {
             .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
             .ul(
                 .class("matrix compatibility"),
-                .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.cells) }
+                .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.all) }
             )
         )
     }
@@ -465,7 +465,7 @@ extension API.PackageController.GetRoute.Model {
             .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
             .ul(
                 .class("matrix compatibility"),
-                .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.cells) }
+                .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.all) }
             )
         )
     }
