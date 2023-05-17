@@ -22,10 +22,6 @@ struct Link: Codable, Equatable {
     var url: String
 }
 
-struct DatedLink: Codable, Equatable {
-    var date: String
-    var link: Link
-}
 
 struct DateLink: Codable, Equatable {
     var date: Date

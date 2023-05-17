@@ -21,7 +21,7 @@ import Plot
 extension HomeIndex {
     struct Model {
         var stats: Stats?
-        var recentPackages: [DatedLink]
+        var recentPackages: [DateLink]
         var recentReleases: [Release]
 
         struct Release: Equatable {
@@ -59,7 +59,7 @@ extension HomeIndex.Model {
                         .href(datedLink.link.url),
                         .text(datedLink.link.label)
                     ),
-                    .small(.text("Added \(datedLink.date)"))
+                    .small(.text("Added \(datedLink.date.relative)"))
                 )
             }
         )

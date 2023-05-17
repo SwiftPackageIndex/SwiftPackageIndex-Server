@@ -41,7 +41,7 @@ class HomeIndexModelTests: AppTestCase {
         let createdAt = try XCTUnwrap(pkg.createdAt)
         XCTAssertEqual(m.recentPackages, [
             .init(
-                date: "\(date: createdAt, relativeTo: Current.date())",
+                date: createdAt,
                 link: .init(label: "Package", url: "/foo/1")
             )
         ])
