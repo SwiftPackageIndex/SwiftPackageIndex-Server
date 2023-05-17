@@ -19,7 +19,7 @@ extension Array where Element == BuildMonitorIndex.Model {
     static var mock: [BuildMonitorIndex.Model] {
         [
             .init(buildId: .id0,
-                  createdAt: Current.date().addingHours(-1),
+                  createdAt: Current.date().adding(hours: -1),
                   packageName: "Leftpad",
                   repositoryOwnerName: "Dave Verwer",
                   platform: .macosXcodebuild,
@@ -29,7 +29,7 @@ extension Array where Element == BuildMonitorIndex.Model {
                   status: .ok,
                   runner: .mac0),
             .init(buildId: .id1,
-                  createdAt: Current.date().addingHours(-2),
+                  createdAt: Current.date().adding(hours: -2),
                   packageName: "Rester",
                   repositoryOwnerName: "Sven A. Schmidt",
                   platform: .linux,
@@ -39,7 +39,7 @@ extension Array where Element == BuildMonitorIndex.Model {
                   status: .failed,
                   runner: .linux1),
             .init(buildId: .id2,
-                  createdAt: Current.date().addingHours(-3),
+                  createdAt: Current.date().adding(hours: -3),
                   packageName: "AccessibilitySnapshotColorBlindness",
                   repositoryOwnerName: "James Sherlock",
                   platform: .linux,

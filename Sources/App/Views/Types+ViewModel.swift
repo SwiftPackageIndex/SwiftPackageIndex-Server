@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
+
 // Common types used across view models
 
 struct Link: Codable, Equatable {
@@ -19,7 +22,8 @@ struct Link: Codable, Equatable {
     var url: String
 }
 
-struct DatedLink: Codable, Equatable {
-    var date: String
+
+struct DateLink: Codable, Equatable {
+    var date: Date
     var link: Link
 }

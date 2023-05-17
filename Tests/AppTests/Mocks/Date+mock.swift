@@ -26,11 +26,7 @@ extension Date {
 
 
 extension Date {
-    func addingDays(_ value: Int) -> Date {
-        Calendar.current.date(byAdding: .day, value: value, to: self)!
-    }
-
-    func addingHours(_ value: Int) -> Date {
-        Calendar.current.date(byAdding: .hour, value: value, to: self)!
+    func adding(days: Int? = nil, hours: Int? = nil, minutes: Int? = nil) -> Self {
+        Calendar.current.date(byAdding: .init(day: days, hour: hours, minute: minutes), to: self)!
     }
 }

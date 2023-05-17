@@ -19,7 +19,7 @@ import Plot
 extension HomeIndex.Model {
     static func query(database: Database) -> EventLoopFuture<Self> {
         let stats = Stats.fetch(on: database)
-        let packages = RecentPackage.fetch(on: database).mapEach(makeDatedLink)
+        let packages = RecentPackage.fetch(on: database).mapEach(makeDateLink)
         let releases = RecentRelease.fetch(on: database).mapEach(Release.init(recent:))
         return stats.and(packages).and(releases)
             .map { ($0.0, $0.1, $1) }
@@ -36,9 +36,9 @@ extension HomeIndex.Model {
                                           .none).relativeURL())
     }
 
-    static func makeDatedLink(_ recent: RecentPackage) -> DatedLink {
+    static func makeDateLink(_ recent: RecentPackage) -> DateLink {
         let link = makeLink(recent)
-        return .init(date: "\(date: recent.createdAt, relativeTo: Current.date())", link: link)
+        return .init(date: recent.createdAt, link: link)
     }
 }
 

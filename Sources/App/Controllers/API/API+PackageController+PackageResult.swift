@@ -35,17 +35,12 @@ extension API.PackageController.PackageResult {
     func activity() -> API.PackageController.GetRoute.Model.Activity? {
         guard repository.lastPullRequestClosedAt != nil else { return nil }
 
-        let openIssues = Link(label: repository.openIssues.labeled("open issue"),
-                              url: package.url.droppingGitExtension + "/issues")
-        let openPRs = Link(label: repository.openPullRequests.labeled("open pull request"),
-                           url: package.url.droppingGitExtension + "/pulls")
-        let lastIssueClosed = repository.lastIssueClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
-        let lastPRClosed = repository.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
         return .init(openIssuesCount: repository.openIssues,
-                     openIssues: openIssues,
-                     openPullRequests: openPRs,
-                     lastIssueClosedAt: lastIssueClosed,
-                     lastPullRequestClosedAt: lastPRClosed)
+                     openIssuesURL: package.url.droppingGitExtension + "/issues",
+                     openPullRequestsCount: repository.openPullRequests,
+                     openPullRequestsURL: package.url.droppingGitExtension + "/pulls",
+                     lastIssueClosedAt: repository.lastIssueClosedAt,
+                     lastPullRequestClosedAt: repository.lastPullRequestClosedAt)
     }
 
 }

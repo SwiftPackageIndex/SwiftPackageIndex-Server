@@ -107,9 +107,11 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     func test_history() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.history = .init(
-            since: "7 months",
-            commitCount: .init(label: "12 commits", url: "https://example.com/commits.html"),
-            releaseCount: .init(label: "2 releases", url: "https://example.com/releases.html")
+            createdAt: Calendar.current.date(byAdding: .month, value: -7, to: Current.date())!,
+            commitCount: 12,
+            commitCountURL: "https://example.com/commits.html",
+            releaseCount: 2,
+            releaseCountURL: "https://example.com/releases.html"
         )
 
         let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
@@ -137,9 +139,11 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     func test_history_archived_package() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.history = .init(
-            since: "7 months",
-            commitCount: .init(label: "12 commits", url: "https://example.com/commits.html"),
-            releaseCount: .init(label: "2 releases", url: "https://example.com/releases.html")
+            createdAt: Calendar.current.date(byAdding: .month, value: -7, to: Current.date())!,
+            commitCount: 12,
+            commitCountURL: "https://example.com/commits.html",
+            releaseCount: 2,
+            releaseCountURL: "https://example.com/releases.html"
         )
         model.isArchived = true
 
@@ -165,7 +169,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
     func test_activity_variants__missing_open_issue() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.activity?.openIssues = nil
+        model.activity?.openIssuesURL = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedActivity, as: .lines)
@@ -173,7 +177,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
     func test_activity_variants__missing_open_PRs() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.activity?.openPullRequests = nil
+        model.activity?.openPullRequestsURL = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedActivity, as: .lines)
@@ -181,8 +185,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
     func test_activity_variants__missing_open_issues_and_PRs() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.activity?.openIssues = nil
-        model.activity?.openPullRequests = nil
+        model.activity?.openIssuesURL = nil
+        model.activity?.openPullRequestsURL = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedActivity, as: .lines)
@@ -215,8 +219,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
     func test_activity_variants__missing_everything() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.activity?.openIssues = nil
-        model.activity?.openPullRequests = nil
+        model.activity?.openIssuesURL = nil
+        model.activity?.openPullRequestsURL = nil
         model.activity?.lastIssueClosedAt = nil
         model.activity?.lastPullRequestClosedAt = nil
 
@@ -355,20 +359,20 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         try await [
             try App.Version(package: pkg, reference: .branch("branch")),
             try App.Version(package: pkg,
-                            commitDate: daysAgo(1),
+                            commitDate: Current.date().adding(days: -1),
                             latest: .defaultBranch,
                             reference: .branch("default"),
                             supportedPlatforms: [.macos("10.15"), .ios("13")],
                             swiftVersions: ["5.2", "5.3"].asSwiftVersions),
             try App.Version(package: pkg, reference: .tag(.init(1, 2, 3))),
             try App.Version(package: pkg,
-                            commitDate: daysAgo(3),
+                            commitDate: Current.date().adding(days: -3),
                             latest: .release,
                             reference: .tag(.init(2, 1, 0)),
                             supportedPlatforms: [.macos("10.13"), .ios("10")],
                             swiftVersions: ["4", "5"].asSwiftVersions),
             try App.Version(package: pkg,
-                            commitDate: daysAgo(2),
+                            commitDate: Current.date().adding(days: -2),
                             latest: .preRelease,
                             reference: .tag(.init(3, 0, 0, "beta")),
                             supportedPlatforms: [.macos("10.14"), .ios("13")],

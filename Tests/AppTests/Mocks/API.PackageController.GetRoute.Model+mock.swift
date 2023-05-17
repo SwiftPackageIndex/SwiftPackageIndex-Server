@@ -26,12 +26,11 @@ extension API.PackageController.GetRoute.Model {
             repositoryName: "Alamofire",
             activity: .init(
                 openIssuesCount: 27,
-                openIssues: .init(label: "27 open issues",
-                                  url: "https://github.com/Alamofire/Alamofire/issues"),
-                openPullRequests: .init(label: "5 open pull requests",
-                                        url: "https://github.com/Alamofire/Alamofire/pulls"),
-                lastIssueClosedAt: "5 days ago",
-                lastPullRequestClosedAt: "6 days ago"
+                openIssuesURL: "https://github.com/Alamofire/Alamofire/issues",
+                openPullRequestsCount: 5,
+                openPullRequestsURL: "https://github.com/Alamofire/Alamofire/pulls",
+                lastIssueClosedAt: Current.date().adding(days: -5),
+                lastPullRequestClosedAt: Current.date().adding(days: -6)
             ),
             authors: AuthorMetadata.fromGitRepository(.init(authors: [
                 .init(name: "Author One"),
@@ -80,22 +79,24 @@ extension API.PackageController.GetRoute.Model {
                                    tvosStatus: .compatible,
                                    watchosStatus: .compatible))),
             history: .init(
-                since: "over 5 years",
-                commitCount: .init(label: "1,433 commits",
-                                   url: "https://github.com/Alamofire/Alamofire/commits/main"),
-                releaseCount: .init(label: "79 releases",
-                                    url: "https://github.com/Alamofire/Alamofire/releases")
+                createdAt: Calendar.current.date(byAdding: .day,
+                                                 value: -365*5,
+                                                 to: Current.date())!,
+                commitCount: 1433,
+                commitCountURL: "https://github.com/Alamofire/Alamofire/commits/main",
+                releaseCount: 79,
+                releaseCountURL: "https://github.com/Alamofire/Alamofire/releases"
             ),
             license: .mit,
             licenseUrl: nil,
             productCounts: .init(libraries: 3, executables: 1, plugins: 0),
-            releases: .init(stable: .init(date: "12 days ago",
+            releases: .init(stable: .init(date: Current.date().adding(days: -12),
                                           link: .init(label: "5.2.0",
                                                       url: "https://github.com/Alamofire/Alamofire/releases/tag/5.2.0")),
-                            beta: .init(date: "4 days ago",
+                            beta: .init(date: Current.date().adding(days: -4),
                                         link: .init(label: "5.3.0-beta.1",
                                                     url: "https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1")),
-                            latest: .init(date: "12 minutes ago",
+                            latest: .init(date: Current.date().adding(minutes: -12),
                                           link: .init(label: "main",
                                                       url: "https://github.com/Alamofire/Alamofire"))),
             dependencies: [

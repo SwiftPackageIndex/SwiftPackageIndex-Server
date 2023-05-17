@@ -20,17 +20,17 @@ extension HomeIndex.Model {
         .init(
             stats: .init(packageCount: 2544),
             recentPackages: [
-                .init(date: "2 hours ago",
+                .init(date: Current.date().adding(hours: -2),
                       link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: "2 hours ago",
+                .init(date: Current.date().adding(hours: -2),
                       link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: "2 hours ago",
+                .init(date: Current.date().adding(hours: -2),
                       link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: "2 hours ago",
+                .init(date: Current.date().adding(hours: -2),
                       link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: "2 hours ago",
+                .init(date: Current.date().adding(hours: -2),
                       link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: "2 hours ago",
+                .init(date: Current.date().adding(hours: -2),
                       link: .init(label: "Package", url: "https://example.com/package")),
             ],
             recentReleases: [

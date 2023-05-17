@@ -1127,7 +1127,7 @@ class SearchTests: AppTestCase {
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
-                       lastCommitDate: .t0.addingDays(-1),
+                       lastCommitDate: .t0.adding(days: -1),
                        name: "1",
                        owner: "foo",
                        summary: "test package").save(on: app.db).wait()
@@ -1170,7 +1170,7 @@ class SearchTests: AppTestCase {
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
-                       lastCommitDate: .t0.addingDays(-1),
+                       lastCommitDate: .t0.adding(days: -1),
                        name: "1",
                        owner: "foo",
                        summary: "test package").save(on: app.db).wait()

@@ -153,10 +153,13 @@ final class PackageTests: AppTestCase {
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
         let versions = [
             try Version(package: pkg, reference: .branch("branch")),
-            try Version(package: pkg, commitDate: daysAgo(1), reference: .branch("default")),
+            try Version(package: pkg, commitDate: Current.date().adding(days: -1),
+                        reference: .branch("default")),
             try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
-            try Version(package: pkg, commitDate: daysAgo(3), reference: .tag(.init(2, 1, 0))),
-            try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(3, 0, 0, "beta"))),
+            try Version(package: pkg, commitDate: Current.date().adding(days: -3),
+                        reference: .tag(.init(2, 1, 0))),
+            try Version(package: pkg, commitDate: Current.date().adding(days: -2),
+                        reference: .tag(.init(3, 0, 0, "beta"))),
         ]
         try versions.create(on: app.db).wait()
 
@@ -416,9 +419,4 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(p2.platformCompatibility, [])
     }
 
-}
-
-
-func daysAgo(_ days: Int) -> Date {
-    Calendar.current.date(byAdding: .init(day: -days), to: Current.date())!
 }

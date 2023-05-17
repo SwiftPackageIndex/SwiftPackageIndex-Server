@@ -97,7 +97,7 @@ class ScoreTests: AppTestCase {
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
-                                           lastActivityAt: Current.date().addingDays(-400),
+                                           lastActivityAt: Current.date().adding(days: -400),
                                            hasDocumentation: false,
                                            numberOfContributors: 0)),
                        92)
@@ -106,7 +106,7 @@ class ScoreTests: AppTestCase {
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
-                                           lastActivityAt: Current.date().addingDays(-300),
+                                           lastActivityAt: Current.date().adding(days: -300),
                                            hasDocumentation: false,
                                            numberOfContributors: 0)),
                        97)
@@ -115,7 +115,7 @@ class ScoreTests: AppTestCase {
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
-                                           lastActivityAt: Current.date().addingDays(-100),
+                                           lastActivityAt: Current.date().adding(days: -100),
                                            hasDocumentation: false,
                                            numberOfContributors: 0)),
                        102)
@@ -124,7 +124,7 @@ class ScoreTests: AppTestCase {
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
-                                           lastActivityAt: Current.date().addingDays(-10),
+                                           lastActivityAt: Current.date().adding(days: -10),
                                            hasDocumentation: false,
                                            numberOfContributors: 0)),
                        107)
@@ -133,7 +133,7 @@ class ScoreTests: AppTestCase {
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
-                                           lastActivityAt: Current.date().addingDays(-10),
+                                           lastActivityAt: Current.date().adding(days: -10),
                                            hasDocumentation: true,
                                            numberOfContributors: 0)),
                        122)
@@ -142,7 +142,7 @@ class ScoreTests: AppTestCase {
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
-                                           lastActivityAt: Current.date().addingDays(-10),
+                                           lastActivityAt: Current.date().adding(days: -10),
                                            hasDocumentation: true,
                                            numberOfContributors: 5)),
                        127)
@@ -151,7 +151,7 @@ class ScoreTests: AppTestCase {
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
-                                           lastActivityAt: Current.date().addingDays(-10),
+                                           lastActivityAt: Current.date().adding(days: -10),
                                            hasDocumentation: true,
                                            numberOfContributors: 20)),
                        132)

@@ -136,12 +136,11 @@ extension API.PackageController.GetRoute.Model.Activity: WithExample {
     static var example: Self {
         .init(
             openIssuesCount: 2,
-            openIssues: .init(label: "2 open issues",
-                              url: "https://github.com/mona/LinkedList/issues"),
-            openPullRequests: .init(label: "1 open pull request",
-                                    url: "https://github.com/mona/LinkedList/pulls"),
-            lastIssueClosedAt: "2 days ago",
-            lastPullRequestClosedAt: "6 days ago"
+            openIssuesURL: "https://github.com/mona/LinkedList/issues",
+            openPullRequestsCount: 1,
+            openPullRequestsURL: "https://github.com/mona/LinkedList/pulls",
+            lastIssueClosedAt: .example,
+            lastPullRequestClosedAt: .example
         )
     }
 }
@@ -149,13 +148,11 @@ extension API.PackageController.GetRoute.Model.Activity: WithExample {
 
 extension API.PackageController.GetRoute.Model.History: WithExample {
     static var example: Self {
-        .init(
-            since: "over 3 years",
-            commitCount: .init(label: "433 commits",
-                               url: "https://github.com/mona/LinkedList/commits/main"),
-            releaseCount: .init(label: "5 releases",
-                                url: "https://github.com/mona/LinkedList/releases")
-        )
+        .init(createdAt: .example,
+              commitCount: 433,
+              commitCountURL: "https://github.com/mona/LinkedList/commits/main",
+              releaseCount: 5,
+              releaseCountURL: "https://github.com/mona/LinkedList/releases")
     }
 }
 
@@ -215,10 +212,10 @@ extension API.PackageController.GetRoute.Model: WithExample {
               license: .mit,
               productCounts: .init(libraries: 1, executables: 0, plugins: 0),
               releases: .init(
-                stable: .init(date: "5 days ago",
+                stable: .init(date: .example,
                               link: .init(label: "1.2.3",
                                           url: "https://github.com/mona/LinkedList/releases/tag/1.2.3")),
-                latest: .init(date: "5 days ago",
+                latest: .init(date: .example,
                               link: .init(label: "main",
                                           url: "https://github.com/mona/LinkedList/tree/main"))),
               dependencies: nil,

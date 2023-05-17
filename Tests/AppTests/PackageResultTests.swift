@@ -197,13 +197,10 @@ class PackageResultTests: AppTestCase {
 
     func test_activity() async throws {
         // setup
-        let m: TimeInterval = 60
-        let H = 60*m
-        let d = 24*H
         let pkg = try savePackage(on: app.db, "https://github.com/Alamofire/Alamofire")
         try await Repository(package: pkg,
-                             lastIssueClosedAt: Date(timeIntervalSinceNow: -5*d),
-                             lastPullRequestClosedAt: Date(timeIntervalSinceNow: -6*d),
+                             lastIssueClosedAt: .t0,
+                             lastPullRequestClosedAt: .t1,
                              name: "bar",
                              openIssues: 27,
                              openPullRequests: 1,
@@ -217,12 +214,11 @@ class PackageResultTests: AppTestCase {
         // validate
         XCTAssertEqual(res,
                        .init(openIssuesCount: 27,
-                             openIssues: .init(label: "27 open issues",
-                                               url: "https://github.com/Alamofire/Alamofire/issues"),
-                             openPullRequests: .init(label: "1 open pull request",
-                                                     url: "https://github.com/Alamofire/Alamofire/pulls"),
-                             lastIssueClosedAt: "5 days ago",
-                             lastPullRequestClosedAt: "6 days ago"))
+                             openIssuesURL: "https://github.com/Alamofire/Alamofire/issues",
+                             openPullRequestsCount: 1,
+                             openPullRequestsURL: "https://github.com/Alamofire/Alamofire/pulls",
+                             lastIssueClosedAt: .t0,
+                             lastPullRequestClosedAt: .t1))
     }
 
     func test_hasDocumentation() async throws {

@@ -212,13 +212,13 @@ extension API.PackageController.GetRoute.Model {
         guard let history = history else { return .empty }
 
         let commitsLinkNode: Node<HTML.BodyContext> = .a(
-            .href(history.commitCount.url),
-            .text(history.commitCount.label)
+            .href(history.commitCountURL),
+            .text(history.commitCount.labeled("commit"))
         )
 
         let releasesLinkNode: Node<HTML.BodyContext> = .a(
-            .href(history.releaseCount.url),
-            .text(history.releaseCount.label)
+            .href(history.releaseCountURL),
+            .text(history.releaseCount.labeled("release"))
         )
 
         var releasesSentenceFragments: [Node<HTML.BodyContext>] = []
@@ -230,7 +230,7 @@ extension API.PackageController.GetRoute.Model {
             ])
         } else {
             releasesSentenceFragments.append(contentsOf: [
-                "In development for \(history.since), with ",
+                "In development for \(inWords: Current.date().timeIntervalSince(history.createdAt)), with ",
                 commitsLinkNode, " and ", releasesLinkNode,
                 "."
             ])
@@ -256,8 +256,8 @@ extension API.PackageController.GetRoute.Model {
             .map { Node.a(.href($0.url), .text($0.label)) }
 
         let lastClosed: [Node<HTML.BodyContext>] = [
-            activity.lastIssueClosedAt.map { .text("last issue was closed \($0)") },
-            activity.lastPullRequestClosedAt.map { .text("last pull request was merged/closed \($0)") }
+            activity.lastIssueClosedAt.map { .text("last issue was closed \($0.relative)") },
+            activity.lastPullRequestClosedAt.map { .text("last pull request was merged/closed \($0.relative)") }
         ]
         .compactMap { $0 }
 
@@ -344,32 +344,32 @@ extension API.PackageController.GetRoute.Model {
     }
 
     func stableReleaseMetadata() -> Node<HTML.ListContext> {
-        guard let datedLink = releases.stable else { return .empty }
-        return releaseMetadata(datedLink, title: "Latest Stable Release", cssClass: "stable")
+        guard let dateLink = releases.stable else { return .empty }
+        return releaseMetadata(dateLink, title: "Latest Stable Release", cssClass: "stable")
     }
 
     func betaReleaseMetadata() -> Node<HTML.ListContext> {
-        guard let datedLink = releases.beta else { return .empty }
-        return releaseMetadata(datedLink, title: "Latest Beta Release", cssClass: "beta")
+        guard let dateLink = releases.beta else { return .empty }
+        return releaseMetadata(dateLink, title: "Latest Beta Release", cssClass: "beta")
     }
 
     func defaultBranchMetadata() -> Node<HTML.ListContext> {
-        guard let datedLink = releases.latest else { return .empty }
-        return releaseMetadata(datedLink, title: "Default Branch", datePrefix: "Modified", cssClass: "branch")
+        guard let dateLink = releases.latest else { return .empty }
+        return releaseMetadata(dateLink, title: "Default Branch", datePrefix: "Modified", cssClass: "branch")
     }
 
-    func releaseMetadata(_ datedLink: DatedLink, title: String, datePrefix: String = "Released", cssClass: String) -> Node<HTML.ListContext> {
+    func releaseMetadata(_ dateLink: DateLink, title: String, datePrefix: String = "Released", cssClass: String) -> Node<HTML.ListContext> {
         .li(
             .class(cssClass),
             .a(
-                .href(datedLink.link.url),
+                .href(dateLink.link.url),
                 .span(
                     .class(cssClass),
-                    .text(datedLink.link.label)
+                    .text(dateLink.link.label)
                 )
             ),
             .strong(.text(title)),
-            .small(.text([datePrefix, datedLink.date].joined(separator: " ")))
+            .small(.text([datePrefix, dateLink.date.relative].joined(separator: " ")))
         )
     }
 
@@ -453,7 +453,7 @@ extension API.PackageController.GetRoute.Model {
             .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
             .ul(
                 .class("matrix compatibility"),
-                .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.cells) }
+                .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.all) }
             )
         )
     }
@@ -465,7 +465,7 @@ extension API.PackageController.GetRoute.Model {
             .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
             .ul(
                 .class("matrix compatibility"),
-                .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.cells) }
+                .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.all) }
             )
         )
     }
@@ -490,6 +490,22 @@ extension API.PackageController.GetRoute.Model {
                 .forEach(cells) { $0.cellNode }
             )
         )
+    }
+}
+
+
+// MARK: - Nested type extensions
+
+extension API.PackageController.GetRoute.Model.Activity {
+    var openIssues: Link? {
+        guard let url = openIssuesURL else { return nil }
+        return .init(label: openIssuesCount.labeled("open issue"), url: url)
+    }
+
+    var openPullRequests: Link? {
+        guard let url = openPullRequestsURL else { return nil }
+        return .init(label: openPullRequestsCount.labeled("open pull request"),
+                     url: url)
     }
 }
 

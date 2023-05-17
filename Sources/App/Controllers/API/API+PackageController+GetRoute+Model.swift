@@ -172,19 +172,20 @@ extension API.PackageController.GetRoute.Model {
     }
 
     struct History: Codable, Equatable {
-#warning("make date-based")
-        var since: String
-        var commitCount: Link
-        var releaseCount: Link
+        var createdAt: Date
+        var commitCount: Int
+        var commitCountURL: String
+        var releaseCount: Int
+        var releaseCountURL: String
     }
 
     struct Activity: Codable, Equatable {
         var openIssuesCount: Int
-        var openIssues: Link?
-        var openPullRequests: Link?
-#warning("make date-based")
-        var lastIssueClosedAt: String?        // <-
-        var lastPullRequestClosedAt: String?  // <-
+        var openIssuesURL: String?
+        var openPullRequestsCount: Int
+        var openPullRequestsURL: String?
+        var lastIssueClosedAt: Date?
+        var lastPullRequestClosedAt: Date?
     }
 
     struct ProductCounts: Codable, Equatable {
@@ -194,10 +195,9 @@ extension API.PackageController.GetRoute.Model {
     }
 
     struct ReleaseInfo: Codable, Equatable {
-#warning("make date-based")
-        var stable: DatedLink?  // <-
-        var beta: DatedLink?    // <-
-        var latest: DatedLink?  // <-
+        var stable: DateLink?
+        var beta: DateLink?
+        var latest: DateLink?
     }
 
     struct Version: Equatable {
@@ -257,8 +257,7 @@ extension API.PackageController.GetRoute.Model {
             self.v5_8 = .init(parameter: .v5_8, status: status5_8)
         }
 
-#warning("move to View")
-        var cells: [BuildResult<SwiftVersion>] { [v5_8, v5_7, v5_6, v5_5 ] }
+        var all: [BuildResult<SwiftVersion>] { [v5_8, v5_7, v5_6, v5_5] }
     }
 
     struct PlatformResults: Codable, Equatable {
@@ -280,8 +279,7 @@ extension API.PackageController.GetRoute.Model {
             self.watchos = .init(parameter: .watchos, status: watchosStatus)
         }
 
-#warning("move to View")
-        var cells: [BuildResult<PlatformCompatibility>] { [ios, macos, watchos, tvos, linux] }
+        var all: [BuildResult<PlatformCompatibility>] { [ios, macos, watchos, tvos, linux] }
     }
 
     enum BuildStatus: String, Codable, Equatable {
