@@ -172,10 +172,11 @@ extension API.PackageController.GetRoute.Model {
     }
 
     struct History: Codable, Equatable {
-#warning("make date-based")
-        var since: String
-        var commitCount: Link
-        var releaseCount: Link
+        var createdAt: Date
+        var commitCount: Int
+        var commitCountURL: String
+        var releaseCount: Int
+        var releaseCountURL: String
     }
 
     struct Activity: Codable, Equatable {

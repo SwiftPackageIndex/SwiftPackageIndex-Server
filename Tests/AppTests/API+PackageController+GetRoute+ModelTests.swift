@@ -107,9 +107,11 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     func test_history() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.history = .init(
-            since: "7 months",
-            commitCount: .init(label: "12 commits", url: "https://example.com/commits.html"),
-            releaseCount: .init(label: "2 releases", url: "https://example.com/releases.html")
+            createdAt: Calendar.current.date(byAdding: .month, value: -7, to: Current.date())!,
+            commitCount: 12,
+            commitCountURL: "https://example.com/commits.html",
+            releaseCount: 2,
+            releaseCountURL: "https://example.com/releases.html"
         )
 
         let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
@@ -137,9 +139,11 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     func test_history_archived_package() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.history = .init(
-            since: "7 months",
-            commitCount: .init(label: "12 commits", url: "https://example.com/commits.html"),
-            releaseCount: .init(label: "2 releases", url: "https://example.com/releases.html")
+            createdAt: Calendar.current.date(byAdding: .month, value: -7, to: Current.date())!,
+            commitCount: 12,
+            commitCountURL: "https://example.com/commits.html",
+            releaseCount: 2,
+            releaseCountURL: "https://example.com/releases.html"
         )
         model.isArchived = true
 

@@ -88,7 +88,6 @@ class API_PackageControllerTests: AppTestCase {
     }
 
     func test_History_Record_historyModel() throws {
-        Current.date = { .spiBirthday }
         do {  // all inputs set to non-nil values
             // setup
             let record = API.PackageController.History.Record(
@@ -105,11 +104,11 @@ class API_PackageControllerTests: AppTestCase {
             // validate
             XCTAssertEqual(
                 hist,
-                .init(since: "50 years",
-                      commitCount: .init(label: "7 commits",
-                                         url: "url/commits/main"),
-                      releaseCount: .init(label: "11 releases",
-                                          url: "url/releases"))
+                .init(createdAt: .t0,
+                      commitCount: 7,
+                      commitCountURL: "url/commits/main",
+                      releaseCount: 11,
+                      releaseCountURL: "url/releases")
             )
         }
         do {  // test nil inputs

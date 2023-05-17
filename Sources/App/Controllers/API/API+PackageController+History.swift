@@ -39,15 +39,11 @@ extension API.PackageController {
                       let firstCommitDate = firstCommitDate else {
                     return nil
                 }
-                let cl = Link(
-                    label: commitCount.labeled("commit"),
-                    url: url.droppingGitExtension + "/commits/\(defaultBranch)")
-                let rl = Link(
-                    label: releaseCount.labeled("release"),
-                    url: url.droppingGitExtension + "/releases")
-                return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",
-                             commitCount: cl,
-                             releaseCount: rl)
+                return .init(createdAt: firstCommitDate,
+                             commitCount: commitCount,
+                             commitCountURL: url.droppingGitExtension + "/commits/\(defaultBranch)",
+                             releaseCount: releaseCount,
+                             releaseCountURL: url.droppingGitExtension + "/releases")
             }
         }
 

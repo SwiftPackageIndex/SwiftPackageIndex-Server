@@ -79,11 +79,13 @@ extension API.PackageController.GetRoute.Model {
                                    tvosStatus: .compatible,
                                    watchosStatus: .compatible))),
             history: .init(
-                since: "over 5 years",
-                commitCount: .init(label: "1,433 commits",
-                                   url: "https://github.com/Alamofire/Alamofire/commits/main"),
-                releaseCount: .init(label: "79 releases",
-                                    url: "https://github.com/Alamofire/Alamofire/releases")
+                createdAt: Calendar.current.date(byAdding: .day,
+                                                 value: -365*5,
+                                                 to: Current.date())!,
+                commitCount: 1433,
+                commitCountURL: "https://github.com/Alamofire/Alamofire/commits/main",
+                releaseCount: 79,
+                releaseCountURL: "https://github.com/Alamofire/Alamofire/releases"
             ),
             license: .mit,
             licenseUrl: nil,

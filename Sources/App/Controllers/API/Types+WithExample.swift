@@ -148,13 +148,11 @@ extension API.PackageController.GetRoute.Model.Activity: WithExample {
 
 extension API.PackageController.GetRoute.Model.History: WithExample {
     static var example: Self {
-        .init(
-            since: "over 3 years",
-            commitCount: .init(label: "433 commits",
-                               url: "https://github.com/mona/LinkedList/commits/main"),
-            releaseCount: .init(label: "5 releases",
-                                url: "https://github.com/mona/LinkedList/releases")
-        )
+        .init(createdAt: .example,
+              commitCount: 433,
+              commitCountURL: "https://github.com/mona/LinkedList/commits/main",
+              releaseCount: 5,
+              releaseCountURL: "https://github.com/mona/LinkedList/releases")
     }
 }
 

@@ -212,13 +212,13 @@ extension API.PackageController.GetRoute.Model {
         guard let history = history else { return .empty }
 
         let commitsLinkNode: Node<HTML.BodyContext> = .a(
-            .href(history.commitCount.url),
-            .text(history.commitCount.label)
+            .href(history.commitCountURL),
+            .text(history.commitCount.labeled("commit"))
         )
 
         let releasesLinkNode: Node<HTML.BodyContext> = .a(
-            .href(history.releaseCount.url),
-            .text(history.releaseCount.label)
+            .href(history.releaseCountURL),
+            .text(history.releaseCount.labeled("release"))
         )
 
         var releasesSentenceFragments: [Node<HTML.BodyContext>] = []
@@ -230,7 +230,7 @@ extension API.PackageController.GetRoute.Model {
             ])
         } else {
             releasesSentenceFragments.append(contentsOf: [
-                "In development for \(history.since), with ",
+                "In development for \(inWords: Current.date().timeIntervalSince(history.createdAt)), with ",
                 commitsLinkNode, " and ", releasesLinkNode,
                 "."
             ])
