@@ -1119,8 +1119,8 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.contentsOfDirectory = { _ in ["foo", "bar"] }
         Current.fileManager.attributesOfItem = { path in
             [
-                "/checkouts/foo": [FileAttributeKey.modificationDate: daysAgo(31)],
-                "/checkouts/bar": [FileAttributeKey.modificationDate: daysAgo(29)],
+                "/checkouts/foo": [FileAttributeKey.modificationDate: Current.date().adding(days: -31)],
+                "/checkouts/bar": [FileAttributeKey.modificationDate: Current.date().adding(days: -29)],
             ][path]!
         }
         var removedPaths = [String]()

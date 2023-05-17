@@ -344,32 +344,32 @@ extension API.PackageController.GetRoute.Model {
     }
 
     func stableReleaseMetadata() -> Node<HTML.ListContext> {
-        guard let datedLink = releases.stable else { return .empty }
-        return releaseMetadata(datedLink, title: "Latest Stable Release", cssClass: "stable")
+        guard let dateLink = releases.stable else { return .empty }
+        return releaseMetadata(dateLink, title: "Latest Stable Release", cssClass: "stable")
     }
 
     func betaReleaseMetadata() -> Node<HTML.ListContext> {
-        guard let datedLink = releases.beta else { return .empty }
-        return releaseMetadata(datedLink, title: "Latest Beta Release", cssClass: "beta")
+        guard let dateLink = releases.beta else { return .empty }
+        return releaseMetadata(dateLink, title: "Latest Beta Release", cssClass: "beta")
     }
 
     func defaultBranchMetadata() -> Node<HTML.ListContext> {
-        guard let datedLink = releases.latest else { return .empty }
-        return releaseMetadata(datedLink, title: "Default Branch", datePrefix: "Modified", cssClass: "branch")
+        guard let dateLink = releases.latest else { return .empty }
+        return releaseMetadata(dateLink, title: "Default Branch", datePrefix: "Modified", cssClass: "branch")
     }
 
-    func releaseMetadata(_ datedLink: DatedLink, title: String, datePrefix: String = "Released", cssClass: String) -> Node<HTML.ListContext> {
+    func releaseMetadata(_ dateLink: DateLink, title: String, datePrefix: String = "Released", cssClass: String) -> Node<HTML.ListContext> {
         .li(
             .class(cssClass),
             .a(
-                .href(datedLink.link.url),
+                .href(dateLink.link.url),
                 .span(
                     .class(cssClass),
-                    .text(datedLink.link.label)
+                    .text(dateLink.link.label)
                 )
             ),
             .strong(.text(title)),
-            .small(.text([datePrefix, datedLink.date].joined(separator: " ")))
+            .small(.text([datePrefix, dateLink.date.relative].joined(separator: " ")))
         )
     }
 

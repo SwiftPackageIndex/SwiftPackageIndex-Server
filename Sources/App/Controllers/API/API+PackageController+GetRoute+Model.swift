@@ -195,10 +195,9 @@ extension API.PackageController.GetRoute.Model {
     }
 
     struct ReleaseInfo: Codable, Equatable {
-#warning("make date-based")
-        var stable: DatedLink?  // <-
-        var beta: DatedLink?    // <-
-        var latest: DatedLink?  // <-
+        var stable: DateLink?
+        var beta: DateLink?
+        var latest: DateLink?
     }
 
     struct Version: Equatable {

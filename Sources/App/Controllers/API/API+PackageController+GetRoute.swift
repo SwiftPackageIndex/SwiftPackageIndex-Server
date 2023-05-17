@@ -72,11 +72,11 @@ extension API.PackageController.GetRoute {
                             releaseVersion: ReleaseVersion?,
                             preReleaseVersion: PreReleaseVersion?) -> Self.Model.ReleaseInfo {
         let links = [releaseVersion?.model, preReleaseVersion?.model, defaultBranchVersion?.model]
-            .map { version -> DatedLink? in
+            .map { version -> DateLink? in
                 guard let version = version else { return nil }
-                return makeDatedLink(packageUrl: packageUrl,
-                                     version: version,
-                                     keyPath: \.commitDate)
+                return makeDateLink(packageUrl: packageUrl,
+                                    version: version,
+                                    keyPath: \.commitDate)
             }
         return .init(stable: links[0],
                      beta: links[1],

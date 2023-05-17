@@ -212,10 +212,10 @@ extension API.PackageController.GetRoute.Model: WithExample {
               license: .mit,
               productCounts: .init(libraries: 1, executables: 0, plugins: 0),
               releases: .init(
-                stable: .init(date: "5 days ago",
+                stable: .init(date: .example,
                               link: .init(label: "1.2.3",
                                           url: "https://github.com/mona/LinkedList/releases/tag/1.2.3")),
-                latest: .init(date: "5 days ago",
+                latest: .init(date: .example,
                               link: .init(label: "main",
                                           url: "https://github.com/mona/LinkedList/tree/main"))),
               dependencies: nil,

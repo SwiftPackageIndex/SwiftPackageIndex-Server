@@ -23,7 +23,6 @@ class API_PackageController_GetRouteTests: AppTestCase {
 
     func test_releaseInfo() async throws {
         // setup
-        Current.date = { .t0 }
         let pkg = try savePackage(on: app.db, "1")
         try await Repository(package: pkg,
                              defaultBranch: "default",
@@ -34,18 +33,18 @@ class API_PackageController_GetRouteTests: AppTestCase {
                         latest: nil,
                         reference: .branch("branch")),
             try Version(package: pkg,
-                        commitDate: daysAgo(1),
+                        commitDate: .t0,
                         latest: .defaultBranch,
                         reference: .branch("default")),
             try Version(package: pkg,
                         latest: nil,
                         reference: .tag(.init(1, 2, 3))),
             try Version(package: pkg,
-                        commitDate: daysAgo(3),
+                        commitDate: .t1,
                         latest: .release,
                         reference: .tag(.init(2, 1, 0))),
             try Version(package: pkg,
-                        commitDate: daysAgo(2),
+                        commitDate: .t2,
                         latest: .preRelease,
                         reference: .tag(.init(3, 0, 0, "beta"))),
         ].save(on: app.db)
@@ -62,15 +61,14 @@ class API_PackageController_GetRouteTests: AppTestCase {
         )
 
         // validate
-        XCTAssertEqual(info.stable?.date, "3 days ago")
-        XCTAssertEqual(info.beta?.date, "2 days ago")
-        XCTAssertEqual(info.latest?.date, "1 day ago")
+        XCTAssertEqual(info.stable?.date, .t1)
+        XCTAssertEqual(info.beta?.date, .t2)
+        XCTAssertEqual(info.latest?.date, .t0)
     }
 
     func test_releaseInfo_exclude_non_latest() async throws {
         // Test to ensure that we don't include versions with `latest IS NULL`
         // setup
-        Current.date = { .t0 }
         let pkg = try savePackage(on: app.db, "1")
         try await Repository(package: pkg,
                              defaultBranch: "default",
@@ -78,15 +76,15 @@ class API_PackageController_GetRouteTests: AppTestCase {
                              owner: "foo").save(on: app.db)
         try await [
             try Version(package: pkg,
-                        commitDate: daysAgo(1),
+                        commitDate: .t0,
                         latest: .defaultBranch,
                         reference: .branch("default")),
             try Version(package: pkg,
-                        commitDate: daysAgo(3),
+                        commitDate: .t1,
                         latest: .release,
                         reference: .tag(.init(2, 1, 0))),
             try Version(package: pkg,
-                        commitDate: daysAgo(2),
+                        commitDate: .t2,
                         latest: nil,
                         reference: .tag(.init(2, 0, 0, "beta"))),
         ].save(on: app.db)
@@ -103,9 +101,9 @@ class API_PackageController_GetRouteTests: AppTestCase {
         )
 
         // validate
-        XCTAssertEqual(info.stable?.date, "3 days ago")
+        XCTAssertEqual(info.stable?.date, .t1)
         XCTAssertEqual(info.beta, nil)
-        XCTAssertEqual(info.latest?.date, "1 day ago")
+        XCTAssertEqual(info.latest?.date, .t0)
     }
 
 }
