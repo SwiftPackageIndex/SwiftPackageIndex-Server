@@ -165,7 +165,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
     func test_activity_variants__missing_open_issue() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.activity?.openIssues = nil
+        model.activity?.openIssuesURL = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedActivity, as: .lines)
@@ -173,7 +173,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
     func test_activity_variants__missing_open_PRs() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.activity?.openPullRequests = nil
+        model.activity?.openPullRequestsURL = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedActivity, as: .lines)
@@ -181,8 +181,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
     func test_activity_variants__missing_open_issues_and_PRs() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.activity?.openIssues = nil
-        model.activity?.openPullRequests = nil
+        model.activity?.openIssuesURL = nil
+        model.activity?.openPullRequestsURL = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedActivity, as: .lines)
@@ -215,8 +215,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
     func test_activity_variants__missing_everything() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.activity?.openIssues = nil
-        model.activity?.openPullRequests = nil
+        model.activity?.openIssuesURL = nil
+        model.activity?.openPullRequestsURL = nil
         model.activity?.lastIssueClosedAt = nil
         model.activity?.lastPullRequestClosedAt = nil
 

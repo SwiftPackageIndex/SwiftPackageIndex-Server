@@ -256,8 +256,8 @@ extension API.PackageController.GetRoute.Model {
             .map { Node.a(.href($0.url), .text($0.label)) }
 
         let lastClosed: [Node<HTML.BodyContext>] = [
-            activity.lastIssueClosedAt.map { .text("last issue was closed \($0)") },
-            activity.lastPullRequestClosedAt.map { .text("last pull request was merged/closed \($0)") }
+            activity.lastIssueClosedAt.map { .text("last issue was closed \($0.relative)") },
+            activity.lastPullRequestClosedAt.map { .text("last pull request was merged/closed \($0.relative)") }
         ]
         .compactMap { $0 }
 
@@ -490,6 +490,22 @@ extension API.PackageController.GetRoute.Model {
                 .forEach(cells) { $0.cellNode }
             )
         )
+    }
+}
+
+
+// MARK: - Nested type extensions
+
+extension API.PackageController.GetRoute.Model.Activity {
+    var openIssues: Link? {
+        guard let url = openIssuesURL else { return nil }
+        return .init(label: openIssuesCount.labeled("open issue"), url: url)
+    }
+
+    var openPullRequests: Link? {
+        guard let url = openPullRequestsURL else { return nil }
+        return .init(label: openPullRequestsCount.labeled("open pull request"),
+                     url: url)
     }
 }
 

@@ -180,11 +180,11 @@ extension API.PackageController.GetRoute.Model {
 
     struct Activity: Codable, Equatable {
         var openIssuesCount: Int
-        var openIssues: Link?
-        var openPullRequests: Link?
-#warning("make date-based")
-        var lastIssueClosedAt: String?        // <-
-        var lastPullRequestClosedAt: String?  // <-
+        var openIssuesURL: String?
+        var openPullRequestsCount: Int
+        var openPullRequestsURL: String?
+        var lastIssueClosedAt: Date?
+        var lastPullRequestClosedAt: Date?
     }
 
     struct ProductCounts: Codable, Equatable {

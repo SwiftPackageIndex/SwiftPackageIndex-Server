@@ -136,12 +136,11 @@ extension API.PackageController.GetRoute.Model.Activity: WithExample {
     static var example: Self {
         .init(
             openIssuesCount: 2,
-            openIssues: .init(label: "2 open issues",
-                              url: "https://github.com/mona/LinkedList/issues"),
-            openPullRequests: .init(label: "1 open pull request",
-                                    url: "https://github.com/mona/LinkedList/pulls"),
-            lastIssueClosedAt: "2 days ago",
-            lastPullRequestClosedAt: "6 days ago"
+            openIssuesURL: "https://github.com/mona/LinkedList/issues",
+            openPullRequestsCount: 1,
+            openPullRequestsURL: "https://github.com/mona/LinkedList/pulls",
+            lastIssueClosedAt: .example,
+            lastPullRequestClosedAt: .example
         )
     }
 }

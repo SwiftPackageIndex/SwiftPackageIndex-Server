@@ -26,12 +26,11 @@ extension API.PackageController.GetRoute.Model {
             repositoryName: "Alamofire",
             activity: .init(
                 openIssuesCount: 27,
-                openIssues: .init(label: "27 open issues",
-                                  url: "https://github.com/Alamofire/Alamofire/issues"),
-                openPullRequests: .init(label: "5 open pull requests",
-                                        url: "https://github.com/Alamofire/Alamofire/pulls"),
-                lastIssueClosedAt: "5 days ago",
-                lastPullRequestClosedAt: "6 days ago"
+                openIssuesURL: "https://github.com/Alamofire/Alamofire/issues",
+                openPullRequestsCount: 5,
+                openPullRequestsURL: "https://github.com/Alamofire/Alamofire/pulls",
+                lastIssueClosedAt: Current.date().addingDays(-5),
+                lastPullRequestClosedAt: Current.date().addingDays(-6)
             ),
             authors: AuthorMetadata.fromGitRepository(.init(authors: [
                 .init(name: "Author One"),
