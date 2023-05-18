@@ -290,29 +290,24 @@ func triggerBuildsUnchecked(on database: Database,
                                         status: .triggered,
                                         swiftVersion: pair.swiftVersion)
                         .create(on: database)
-                    } catch {
-                        if let error = error as? PostgresError,
-                           error.code == .uniqueViolation {
-                            if let oldBuild = try await Build.query(on: database,
-                                                                    platform: pair.platform,
-                                                                    swiftVersion: pair.swiftVersion,
-                                                                    versionId: trigger.versionId) {
-                                // Fluent doesn't allow modification of the buildId of an existing
-                                // record, therefore we need to delete + create.
-                                let newBuild = Build(id: buildId,
-                                                     versionId: trigger.versionId,
-                                                     buildCommand: oldBuild.buildCommand,
-                                                     jobUrl: jobUrl,
-                                                     platform: pair.platform,
-                                                     status: .triggered,
-                                                     swiftVersion: pair.swiftVersion)
-                                try await database.transaction { tx in
-                                    try await oldBuild.delete(on: tx)
-                                    try await newBuild.create(on: tx)
-                                }
+                    } catch let error as PSQLError where error.sqlState == .uniqueViotation {
+                        if let oldBuild = try await Build.query(on: database,
+                                                                platform: pair.platform,
+                                                                swiftVersion: pair.swiftVersion,
+                                                                versionId: trigger.versionId) {
+                            // Fluent doesn't allow modification of the buildId of an existing
+                            // record, therefore we need to delete + create.
+                            let newBuild = Build(id: buildId,
+                                                 versionId: trigger.versionId,
+                                                 buildCommand: oldBuild.buildCommand,
+                                                 jobUrl: jobUrl,
+                                                 platform: pair.platform,
+                                                 status: .triggered,
+                                                 swiftVersion: pair.swiftVersion)
+                            try await database.transaction { tx in
+                                try await oldBuild.delete(on: tx)
+                                try await newBuild.create(on: tx)
                             }
-                        } else {
-                            throw error
                         }
                     }
                 }
@@ -486,4 +481,15 @@ func trimBuilds(on database: Database) async throws -> Int {
         """)
         .all(decoding: Row.self)
         .count
+}
+
+
+#warning("move")
+extension PSQLError {
+    var sqlState: String? { serverInfo?[.sqlState] }
+}
+
+
+extension String {
+    static var uniqueViotation = "23505"
 }
