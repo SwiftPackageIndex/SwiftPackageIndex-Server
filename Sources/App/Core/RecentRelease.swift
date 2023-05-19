@@ -90,21 +90,3 @@ extension RecentRelease {
         static var all: Self { [.major, .minor, .patch, .pre] }
     }
 }
-
-
-extension RecentRelease.Filter {
-    init(_ string: String) {
-        switch string.lowercased() {
-            case "major":
-                self = .major
-            case "minor":
-                self = .minor
-            case "patch":
-                self = .patch
-            case "pre":
-                self = .pre
-            default:
-                self = [.major, .minor, .patch, .pre]
-        }
-    }
-}

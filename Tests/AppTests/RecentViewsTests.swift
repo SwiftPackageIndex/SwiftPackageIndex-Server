@@ -142,14 +142,6 @@ class RecentViewsTests: AppTestCase {
         XCTAssertEqual(res.map(\.releaseUrl), ["5/release/2.0.0", "1/release/1.2.3"])
     }
 
-    func test_recentReleases_Filter() throws {
-        XCTAssertTrue(RecentRelease.Filter.minor == .init("minor"))
-        XCTAssertTrue(RecentRelease.Filter.major == .init("major"))
-        XCTAssertTrue(RecentRelease.Filter.patch == .init("patch"))
-        XCTAssertTrue(RecentRelease.Filter.all == [.init("minor"), .init("major"), .init("patch"), .init("pre")])
-        XCTAssertTrue(RecentRelease.Filter.all == .init("nonsensical defaults to all"))
-    }
-
     func test_recentReleases_filter() throws {
         // List only major releases
         // setup

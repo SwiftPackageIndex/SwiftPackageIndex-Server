@@ -280,24 +280,11 @@ func routes(_ app: Application) throws {
     }
 
     do {  // RSS + Sitemap
-        app.get(SiteURL.rssPackages.pathComponents) { req in
-            RSSFeed.recentPackages(on: req.db, limit: Constants.rssFeedMaxItemCount)
-                .map { $0.rss }
-        }.excludeFromOpenAPI()
+        app.get(SiteURL.rssPackages.pathComponents, use: RSSFeed.showPackages)
+            .excludeFromOpenAPI()
 
-        app.get(SiteURL.rssReleases.pathComponents) { req -> EventLoopFuture<RSS> in
-            var filter: RecentRelease.Filter = []
-            for param in ["major", "minor", "patch", "pre"] {
-                if let value = req.query[Bool.self, at: param], value == true {
-                    filter.insert(.init(param))
-                }
-            }
-            if filter.isEmpty { filter = .all }
-            return RSSFeed.recentReleases(on: req.db,
-                                          limit: Constants.rssFeedMaxItemCount,
-                                          filter: filter)
-                .map { $0.rss }
-        }.excludeFromOpenAPI()
+        app.get(SiteURL.rssReleases.pathComponents, use: RSSFeed.showReleases)
+            .excludeFromOpenAPI()
 
         app.get(SiteURL.siteMap.pathComponents) { req in
             SiteMap.fetchPackages(req.db)

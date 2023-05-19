@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Fluent
 import Foundation
+
+import Fluent
 import Plot
+import Vapor
+
 
 struct RSSFeed {
     var title: String
@@ -34,6 +37,38 @@ struct RSSFeed {
             .atomLink(link),
             .group(items)
         )
+    }
+
+    static func showPackages(req: Request) async throws -> RSS {
+        try await RSSFeed.recentPackages(on: req.db, limit: Constants.rssFeedMaxItemCount)
+            .get()
+            .rss
+    }
+
+    struct Query: Codable {
+        var major: Bool?
+        var minor: Bool?
+        var patch: Bool?
+        var pre: Bool?
+
+        var filter: RecentRelease.Filter {
+            var filter: RecentRelease.Filter = []
+            if major == true { filter.insert(.major) }
+            if minor == true { filter.insert(.minor) }
+            if patch == true { filter.insert(.patch) }
+            if pre == true { filter.insert(.pre) }
+            if filter.isEmpty { filter = .all }
+            return filter
+        }
+    }
+
+    static func showReleases(req: Request) async throws -> RSS {
+        let filter = try req.query.decode(Query.self).filter
+        return try await RSSFeed.recentReleases(on: req.db,
+                                                limit: Constants.rssFeedMaxItemCount,
+                                                filter: filter)
+        .get()
+        .rss
     }
 }
 
