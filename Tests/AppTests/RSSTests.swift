@@ -18,7 +18,6 @@ import SnapshotTesting
 import XCTVapor
 
 
-@MainActor
 class RSSTests: SnapshotTestCase {
 
     func test_recentPackage_rssGuid() throws {
@@ -65,6 +64,7 @@ class RSSTests: SnapshotTestCase {
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
+    @MainActor
     func test_recentPackages() async throws {
         // setup
         for idx in 1...10 {
