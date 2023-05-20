@@ -59,81 +59,81 @@ class RecentViewsTests: AppTestCase {
         XCTAssertEqual(res.map(\.packageSummary), ["pkg 3", "pkg 1"])
     }
 
-    func test_recentReleases() throws {
+    func test_recentReleases() async throws {
         // setup
         do {  // 1st package is eligible
             let pkg = Package(id: UUID(), url: "1")
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           defaultBranch: "default",
-                           name: "1",
-                           owner: "foo",
-                           summary: "pkg 1").create(on: app.db).wait()
-            try Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: 0),
-                        packageName: "1",
-                        reference: .tag(.init(1, 2, 3)),
-                        url: "1/release/1.2.3").save(on: app.db).wait()
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 defaultBranch: "default",
+                                 name: "1",
+                                 owner: "foo",
+                                 summary: "pkg 1").create(on: app.db)
+            try await Version(package: pkg,
+                              commitDate: Date(timeIntervalSince1970: 0),
+                              packageName: "1",
+                              reference: .tag(.init(1, 2, 3)),
+                              url: "1/release/1.2.3").save(on: app.db)
         }
         do {  // 2nd package is ineligible, because it has a branch reference
             let pkg = Package(id: UUID(), url: "2")
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           defaultBranch: "default",
-                           name: "2",
-                           owner: "foo",
-                           summary: "pkg 2").create(on: app.db).wait()
-            try Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: 0),
-                        packageName: "2",
-                        reference: .branch("default"),
-                        url: "2/branch/default").save(on: app.db).wait()
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 defaultBranch: "default",
+                                 name: "2",
+                                 owner: "foo",
+                                 summary: "pkg 2").create(on: app.db)
+            try await Version(package: pkg,
+                              commitDate: Date(timeIntervalSince1970: 0),
+                              packageName: "2",
+                              reference: .branch("default"),
+                              url: "2/branch/default").save(on: app.db)
         }
         do {  // 3rd package is ineligible, because it has no package name
             let pkg = Package(id: UUID(), url: "3")
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           defaultBranch: "default",
-                           name: "3",
-                           owner: "foo",
-                           summary: "pkg 3").create(on: app.db).wait()
-            try Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: 0),
-                        reference: .branch("default"),
-                        url: "2/branch/default").save(on: app.db).wait()
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 defaultBranch: "default",
+                                 name: "3",
+                                 owner: "foo",
+                                 summary: "pkg 3").create(on: app.db)
+            try await Version(package: pkg,
+                              commitDate: Date(timeIntervalSince1970: 0),
+                              reference: .branch("default"),
+                              url: "2/branch/default").save(on: app.db)
         }
         do {  // 4th package is ineligible, because it has no reference
             let pkg = Package(id: UUID(), url: "4")
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           defaultBranch: "default",
-                           name: "4",
-                           owner: "foo",
-                           summary: "pkg 4").create(on: app.db).wait()
-            try Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: 0),
-                        packageName: "4").save(on: app.db).wait()
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 defaultBranch: "default",
+                                 name: "4",
+                                 owner: "foo",
+                                 summary: "pkg 4").create(on: app.db)
+            try await Version(package: pkg,
+                              commitDate: Date(timeIntervalSince1970: 0),
+                              packageName: "4").save(on: app.db)
         }
         do {  // 5th package is eligible - should come before 1st because of more recent commit date
             let pkg = Package(id: UUID(), url: "5")
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           defaultBranch: "default",
-                           name: "5",
-                           owner: "foo",
-                           summary: "pkg 5").create(on: app.db).wait()
-            try Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: 1),
-                        packageName: "5",
-                        reference: .tag(.init(2, 0, 0)),
-                        url: "5/release/2.0.0").save(on: app.db).wait()
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 defaultBranch: "default",
+                                 name: "5",
+                                 owner: "foo",
+                                 summary: "pkg 5").create(on: app.db)
+            try await Version(package: pkg,
+                              commitDate: Date(timeIntervalSince1970: 1),
+                              packageName: "5",
+                              reference: .tag(.init(2, 0, 0)),
+                              url: "5/release/2.0.0").save(on: app.db)
         }
 
         // make sure to refresh the materialized view
-        try RecentRelease.refresh(on: app.db).wait()
+        try await RecentRelease.refresh(on: app.db)
 
         // MUT
-        let res = try RecentRelease.fetch(on: app.db).wait()
+        let res = try await RecentRelease.fetch(on: app.db).get()
 
         // validate
         XCTAssertEqual(res.map(\.packageName), ["5", "1"])
@@ -208,28 +208,28 @@ class RecentViewsTests: AppTestCase {
         XCTAssertEqual(res.map(\.packageName), ["pkg-bar-updated"])
     }
 
-    func test_recentReleases_dedupe_issue() throws {
+    func test_recentReleases_dedupe_issue() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/315
         // setup
         let pkg = Package(id: UUID(), url: "1")
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg,
-                       name: "bar",
-                       owner: "foo",
-                       summary: "pkg summary").create(on: app.db).wait()
-        try Version(package: pkg,
-                    commitDate: Date(timeIntervalSince1970: 0),
-                    packageName: "pkg-bar",
-                    reference: .tag(.init(1, 0, 0))).save(on: app.db).wait()
-        try Version(package: pkg,
-                    commitDate: Date(timeIntervalSince1970: 1),
-                    packageName: "pkg-bar-updated",
-                    reference: .tag(.init(1, 0, 1))).save(on: app.db).wait()
+        try await pkg.save(on: app.db)
+        try await Repository(package: pkg,
+                             name: "bar",
+                             owner: "foo",
+                             summary: "pkg summary").create(on: app.db)
+        try await Version(package: pkg,
+                          commitDate: Date(timeIntervalSince1970: 0),
+                          packageName: "pkg-bar",
+                          reference: .tag(.init(1, 0, 0))).save(on: app.db)
+        try await Version(package: pkg,
+                          commitDate: Date(timeIntervalSince1970: 1),
+                          packageName: "pkg-bar-updated",
+                          reference: .tag(.init(1, 0, 1))).save(on: app.db)
         // make sure to refresh the materialized view
-        try RecentRelease.refresh(on: app.db).wait()
+        try await RecentRelease.refresh(on: app.db)
 
         // MUT
-        let res = try RecentRelease.fetch(on: app.db).wait()
+        let res = try await RecentRelease.fetch(on: app.db).get()
 
         // validate
         XCTAssertEqual(res.map(\.packageName), ["pkg-bar-updated"])

@@ -32,7 +32,7 @@ class HomeIndexModelTests: AppTestCase {
                               packageName: "Package",
                               reference: .tag(.init(1, 2, 3))).save(on: app.db)
         try await RecentPackage.refresh(on: app.db)
-        try await RecentRelease.refresh(on: app.db).get()
+        try await RecentRelease.refresh(on: app.db)
 
         // MUT
         let m = try await HomeIndex.Model.query(database: app.db)
