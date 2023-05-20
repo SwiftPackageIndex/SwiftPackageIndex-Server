@@ -65,7 +65,6 @@ struct RSSFeed {
         return try await RSSFeed.recentReleases(on: req.db,
                                                 limit: Constants.rssFeedMaxItemCount,
                                                 filter: filter)
-        .get()
         .rss
     }
 }
@@ -84,15 +83,14 @@ extension RSSFeed {
 
     static func recentReleases(on database: Database,
                                limit: Int = Constants.rssFeedMaxItemCount,
-                               filter: RecentRelease.Filter = .all) -> EventLoopFuture<Self> {
-        RecentRelease.fetch(on: database, limit: limit, filter: filter)
-            .mapEach(\.rssItem)
-            .map {
-                RSSFeed(title: "Swift Package Index – Recent Releases",
-                        description: "List of recent Swift packages releases",
-                        link: SiteURL.rssReleases.absoluteURL(),
-                        items: $0)
-            }
+                               filter: RecentRelease.Filter = .all) async throws -> Self {
+        let items = try await RecentRelease.fetch(on: database, limit: limit, filter: filter)
+            .get()
+            .map(\.rssItem)
+        return RSSFeed(title: "Swift Package Index – Recent Releases",
+                       description: "List of recent Swift packages releases",
+                       link: SiteURL.rssReleases.absoluteURL(),
+                       items: items)
     }
 }
 

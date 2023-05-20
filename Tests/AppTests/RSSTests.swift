@@ -18,7 +18,6 @@ import SnapshotTesting
 import XCTVapor
 
 
-@MainActor
 class RSSTests: SnapshotTestCase {
 
     func test_recentPackage_rssGuid() throws {
@@ -101,29 +100,29 @@ class RSSTests: SnapshotTestCase {
         }
     }
 
-    func test_recentReleases() throws {
+    func test_recentReleases() async throws {
         // setup
-        try (1...10).forEach {
-            let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           name: "pkg-\($0)",
-                           owner: "owner-\($0)",
-                           summary: "Summary").create(on: app.db).wait()
-            try Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
-                        packageName: "pkg-\($0)",
-                        reference: .tag(.init($0, 0, 0), "\($0).0.0"),
-                        releaseNotes: "Awesome Release Notes",
-                        releaseNotesHTML: "<p>Awesome Release Notes</p>",
-                        url: "https://example.com/release-url")
-                .save(on: app.db).wait()
+        for idx in 1...10 {
+            let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "pkg-\(idx)",
+                                 owner: "owner-\(idx)",
+                                 summary: "Summary").create(on: app.db)
+            try await Version(package: pkg,
+                              commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
+                              packageName: "pkg-\(idx)",
+                              reference: .tag(.init(idx, 0, 0), "\(idx).0.0"),
+                              releaseNotes: "Awesome Release Notes",
+                              releaseNotesHTML: "<p>Awesome Release Notes</p>",
+                              url: "https://example.com/release-url")
+            .save(on: app.db)
         }
         // make sure to refresh the materialized view
-        try RecentRelease.refresh(on: app.db).wait()
+        try await RecentRelease.refresh(on: app.db).get()
 
         // MUT
-        let feed = try RSSFeed.recentReleases(on: app.db, limit: 8).wait()
+        let feed = try await RSSFeed.recentReleases(on: app.db, limit: 8)
 
         // validation
         assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
