@@ -80,7 +80,7 @@ class RSSTests: SnapshotTestCase {
             try await Version(package: pkg, packageName: "pkg-\(idx)").save(on: app.db)
         }
         // make sure to refresh the materialized view
-        try await RecentPackage.refresh(on: app.db).get()
+        try await RecentPackage.refresh(on: app.db)
 
         // MUT
         let feed = try await RSSFeed.recentPackages(on: app.db, limit: 8)

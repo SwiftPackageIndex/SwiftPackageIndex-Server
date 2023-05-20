@@ -188,7 +188,7 @@ extension Analyze {
                                  results: packageResults,
                                  stage: .analysis)
 
-        try await RecentPackage.refresh(on: database).get()
+        try await RecentPackage.refresh(on: database)
         try await RecentRelease.refresh(on: database).get()
         try await Search.refresh(on: database).get()
         try await Stats.refresh(on: database).get()

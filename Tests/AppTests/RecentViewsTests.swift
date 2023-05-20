@@ -19,40 +19,40 @@ import XCTVapor
 
 class RecentViewsTests: AppTestCase {
 
-    func test_recentPackages() throws {
+    func test_recentPackages() async throws {
         // setup
         do {  // 1st package is eligible
             let pkg = Package(id: UUID(), url: "1")
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           name: "1",
-                           owner: "foo",
-                           summary: "pkg 1").create(on: app.db).wait()
-            try Version(package: pkg, packageName: "1").save(on: app.db).wait()
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "1",
+                                 owner: "foo",
+                                 summary: "pkg 1").create(on: app.db)
+            try await Version(package: pkg, packageName: "1").save(on: app.db)
         }
         do {  // 2nd package should not be selected, because it has no package name
             let pkg = Package(id: UUID(), url: "2")
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           name: "2",
-                           owner: "foo",
-                           summary: "pkg 2").create(on: app.db).wait()
-            try Version(package: pkg).save(on: app.db).wait()
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "2",
+                                 owner: "foo",
+                                 summary: "pkg 2").create(on: app.db)
+            try await Version(package: pkg).save(on: app.db)
         }
         do {  // 3rd package is eligible
             let pkg = Package(id: UUID(), url: "3")
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           name: "3",
-                           owner: "foo",
-                           summary: "pkg 3").create(on: app.db).wait()
-            try Version(package: pkg, packageName: "3").save(on: app.db).wait()
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "3",
+                                 owner: "foo",
+                                 summary: "pkg 3").create(on: app.db)
+            try await Version(package: pkg, packageName: "3").save(on: app.db)
         }
         // make sure to refresh the materialized view
-        try RecentPackage.refresh(on: app.db).wait()
+        try await RecentPackage.refresh(on: app.db)
 
         // MUT
-        let res = try RecentPackage.fetch(on: app.db).wait()
+        let res = try await RecentPackage.fetch(on: app.db).get()
 
         // validate
         XCTAssertEqual(res.map(\.packageName), ["3", "1"])
@@ -182,27 +182,27 @@ class RecentViewsTests: AppTestCase {
             pre.map(\.version), ["3.2.1-b1", "4.0.0-b1"])
     }
 
-    func test_recentPackages_dedupe_issue() throws {
+    func test_recentPackages_dedupe_issue() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/315
         // setup
         // Package with two eligible versions that differ in package name
         let pkg = Package(id: UUID(), url: "1")
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg,
-                       name: "bar",
-                       owner: "foo",
-                       summary: "pkg summary").create(on: app.db).wait()
-        try Version(package: pkg,
-                    commitDate: Date(timeIntervalSince1970: 0),
-                    packageName: "pkg-bar").save(on: app.db).wait()
-        try Version(package: pkg,
-                    commitDate: Date(timeIntervalSince1970: 1),
-                    packageName: "pkg-bar-updated").save(on: app.db).wait()
+        try await pkg.save(on: app.db)
+        try await Repository(package: pkg,
+                             name: "bar",
+                             owner: "foo",
+                             summary: "pkg summary").create(on: app.db)
+        try await Version(package: pkg,
+                          commitDate: Date(timeIntervalSince1970: 0),
+                          packageName: "pkg-bar").save(on: app.db)
+        try await Version(package: pkg,
+                          commitDate: Date(timeIntervalSince1970: 1),
+                          packageName: "pkg-bar-updated").save(on: app.db)
         // make sure to refresh the materialized view
-        try RecentPackage.refresh(on: app.db).wait()
+        try await RecentPackage.refresh(on: app.db)
 
         // MUT
-        let res = try RecentPackage.fetch(on: app.db).wait()
+        let res = try await RecentPackage.fetch(on: app.db).get()
 
         // validate
         XCTAssertEqual(res.map(\.packageName), ["pkg-bar-updated"])
