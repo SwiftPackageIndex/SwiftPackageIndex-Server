@@ -40,9 +40,7 @@ struct RSSFeed {
     }
 
     static func showPackages(req: Request) async throws -> RSS {
-        try await RSSFeed.recentPackages(on: req.db, limit: Constants.rssFeedMaxItemCount)
-            .get()
-            .rss
+        try await RSSFeed.recentPackages(on: req.db, limit: Constants.rssFeedMaxItemCount).rss
     }
 
     struct Query: Codable {
@@ -74,15 +72,14 @@ struct RSSFeed {
 
 extension RSSFeed {
     static func recentPackages(on database: Database,
-                               limit: Int = Constants.rssFeedMaxItemCount) -> EventLoopFuture<Self> {
-        RecentPackage.fetch(on: database, limit: limit)
-            .mapEach(\.rssItem)
-            .map {
-                RSSFeed(title: "Swift Package Index – Recently Added",
+                               limit: Int = Constants.rssFeedMaxItemCount) async throws -> Self {
+        let items = try await RecentPackage.fetch(on: database, limit: limit)
+            .get()
+            .map(\.rssItem)
+        return RSSFeed(title: "Swift Package Index – Recently Added",
                         description: "List of recently added Swift packages",
                         link: SiteURL.rssPackages.absoluteURL(),
-                        items: $0)
-            }
+                        items: items)
     }
 
     static func recentReleases(on database: Database,

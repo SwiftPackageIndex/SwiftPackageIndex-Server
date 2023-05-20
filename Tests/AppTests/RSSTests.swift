@@ -18,6 +18,7 @@ import SnapshotTesting
 import XCTVapor
 
 
+@MainActor
 class RSSTests: SnapshotTestCase {
 
     func test_recentPackage_rssGuid() throws {
@@ -64,25 +65,25 @@ class RSSTests: SnapshotTestCase {
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
-    func test_recentPackages() throws {
+    func test_recentPackages() async throws {
         // setup
-        try (1...10).forEach {
-            let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
-            try pkg.save(on: app.db).wait()
+        for idx in 1...10 {
+            let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
+            try await pkg.save(on: app.db)
             // re-write creation date to something stable for snapshotting
-            pkg.createdAt = Date(timeIntervalSince1970: TimeInterval(100*$0))
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           name: "pkg-\($0)",
-                           owner: "owner-\($0)",
-                           summary: "Summary").create(on: app.db).wait()
-            try Version(package: pkg, packageName: "pkg-\($0)").save(on: app.db).wait()
+            pkg.createdAt = Date(timeIntervalSince1970: TimeInterval(100*idx))
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "pkg-\(idx)",
+                                 owner: "owner-\(idx)",
+                                 summary: "Summary").create(on: app.db)
+            try await Version(package: pkg, packageName: "pkg-\(idx)").save(on: app.db)
         }
         // make sure to refresh the materialized view
-        try RecentPackage.refresh(on: app.db).wait()
+        try await RecentPackage.refresh(on: app.db).get()
 
         // MUT
-        let feed = try RSSFeed.recentPackages(on: app.db, limit: 8).wait()
+        let feed = try await RSSFeed.recentPackages(on: app.db, limit: 8)
 
         // validation
         assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
