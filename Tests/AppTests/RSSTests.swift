@@ -18,6 +18,7 @@ import SnapshotTesting
 import XCTVapor
 
 
+@MainActor
 class RSSTests: SnapshotTestCase {
 
     func test_recentPackage_rssGuid() throws {

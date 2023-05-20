@@ -18,7 +18,6 @@ import Foundation
 import SnapshotTesting
 
 
-@MainActor
 class SnapshotTestCase: AppTestCase {
 
     override func setUp() {
