@@ -89,6 +89,17 @@ class RSSTests: SnapshotTestCase {
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
+    func test_Query_RecentRelease_filter() throws {
+        do {
+            let query = RSSFeed.Query(major: true, minor: nil, patch: false, pre: nil)
+            XCTAssertEqual(query.filter, [.major])
+        }
+        do {
+            let query = RSSFeed.Query(major: nil, minor: nil, patch: false, pre: nil)
+            XCTAssertEqual(query.filter, .all)
+        }
+    }
+
     func test_recentReleases() throws {
         // setup
         try (1...10).forEach {
