@@ -142,7 +142,7 @@ class RecentViewsTests: AppTestCase {
         XCTAssertEqual(res.map(\.releaseUrl), ["5/release/2.0.0", "1/release/1.2.3"])
     }
 
-    func test_recentReleases_filter() throws {
+    func test_Array_RecentReleases_filter() throws {
         // List only major releases
         // setup
         let releases: [RecentRelease] = (1...12).map {
@@ -161,11 +161,11 @@ class RecentViewsTests: AppTestCase {
         }
 
         // MUT
-        let all = RecentRelease.filterReleases(releases, by: .all)
-        let majorOnly = RecentRelease.filterReleases(releases, by: .major)
-        let minorOnly = RecentRelease.filterReleases(releases, by: .minor)
-        let majorMinor = RecentRelease.filterReleases(releases, by: [.major, .minor])
-        let pre = RecentRelease.filterReleases(releases, by: [.pre])
+        let all = releases.filter(by: .all)
+        let majorOnly = releases.filter(by: .major)
+        let minorOnly = releases.filter(by: .minor)
+        let majorMinor = releases.filter(by: [.major, .minor])
+        let pre = releases.filter(by: [.pre])
 
         // validate
         XCTAssertEqual(
