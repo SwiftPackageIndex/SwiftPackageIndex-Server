@@ -73,7 +73,6 @@ extension RSSFeed {
     static func recentPackages(on database: Database,
                                limit: Int = Constants.rssFeedMaxItemCount) async throws -> Self {
         let items = try await RecentPackage.fetch(on: database, limit: limit)
-            .get()
             .map(\.rssItem)
         return RSSFeed(title: "Swift Package Index – Recently Added",
                         description: "List of recently added Swift packages",

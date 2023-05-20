@@ -23,9 +23,8 @@ import VaporToOpenAPI
 func routes(_ app: Application) throws {
     do {  // home page
         app.get { req in
-            HomeIndex.Model.query(database: req.db).map {
-                HomeIndex.View(path: req.url.path, model: $0).document()
-            }
+            let model = try await HomeIndex.Model.query(database: req.db)
+            return HomeIndex.View(path: req.url.path, model: model).document()
         }.excludeFromOpenAPI()
     }
 

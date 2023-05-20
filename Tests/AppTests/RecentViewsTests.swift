@@ -52,7 +52,7 @@ class RecentViewsTests: AppTestCase {
         try await RecentPackage.refresh(on: app.db)
 
         // MUT
-        let res = try await RecentPackage.fetch(on: app.db).get()
+        let res = try await RecentPackage.fetch(on: app.db)
 
         // validate
         XCTAssertEqual(res.map(\.packageName), ["3", "1"])
@@ -202,7 +202,7 @@ class RecentViewsTests: AppTestCase {
         try await RecentPackage.refresh(on: app.db)
 
         // MUT
-        let res = try await RecentPackage.fetch(on: app.db).get()
+        let res = try await RecentPackage.fetch(on: app.db)
 
         // validate
         XCTAssertEqual(res.map(\.packageName), ["pkg-bar-updated"])

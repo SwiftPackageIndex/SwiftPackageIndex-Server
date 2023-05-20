@@ -35,7 +35,7 @@ class HomeIndexModelTests: AppTestCase {
         try await RecentRelease.refresh(on: app.db).get()
 
         // MUT
-        let m = try await HomeIndex.Model.query(database: app.db).get()
+        let m = try await HomeIndex.Model.query(database: app.db)
 
         // validate
         let createdAt = try XCTUnwrap(pkg.createdAt)
