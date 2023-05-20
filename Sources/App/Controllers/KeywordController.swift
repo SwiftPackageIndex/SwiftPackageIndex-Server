@@ -28,30 +28,35 @@ enum KeywordController {
             .page(page, size: pageSize)
     }
 
-    static func show(req: Request) throws -> EventLoopFuture<HTML> {
+    struct Query: Codable {
+        var page: Int?
+
+        static let defaultPage = 1
+    }
+
+    static func show(req: Request) async throws -> HTML {
         guard let keyword = req.parameters.get("keyword") else {
-            return req.eventLoop.future(error: Abort(.notFound))
+            throw Abort(.notFound)
         }
-        let pageIndex = req.query[Int.self, at: "page"] ?? 1
+        let pageIndex = try req.query.decode(Query.self).page ?? Query.defaultPage
         let pageSize = Constants.resultsPageSize
 
-        return Self.query(on: req.db, keyword: keyword, page: pageIndex, pageSize: pageSize)
-            .flatMapThrowing { page in
-                guard !page.results.isEmpty else {
-                    throw Abort(.notFound)
-                }
-                let packageInfo = page.results
-                    .compactMap(PackageInfo.init(package:))
-                return KeywordShow.Model(
-                    keyword: keyword,
-                    packages: packageInfo,
-                    page: pageIndex,
-                    hasMoreResults: page.hasMoreResults
-                )
-            }
-            .map {
-                KeywordShow.View(path: req.url.path, model: $0).document()
-            }
+        let page = try await Self.query(on: req.db, keyword: keyword, page: pageIndex, pageSize: pageSize).get()
+
+        guard !page.results.isEmpty else {
+            throw Abort(.notFound)
+        }
+
+        let packageInfo = page.results.compactMap(PackageInfo.init(package:))
+
+        let model = KeywordShow.Model(
+            keyword: keyword,
+            packages: packageInfo,
+            page: pageIndex,
+            hasMoreResults: page.hasMoreResults
+        )
+
+        return KeywordShow.View(path: req.url.path, model: model).document()
     }
 
 }

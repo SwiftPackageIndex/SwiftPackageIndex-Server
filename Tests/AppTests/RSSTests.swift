@@ -64,54 +64,67 @@ class RSSTests: SnapshotTestCase {
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
-    func test_recentPackages() throws {
+    @MainActor
+    func test_recentPackages() async throws {
         // setup
-        try (1...10).forEach {
-            let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
-            try pkg.save(on: app.db).wait()
+        for idx in 1...10 {
+            let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
+            try await pkg.save(on: app.db)
             // re-write creation date to something stable for snapshotting
-            pkg.createdAt = Date(timeIntervalSince1970: TimeInterval(100*$0))
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           name: "pkg-\($0)",
-                           owner: "owner-\($0)",
-                           summary: "Summary").create(on: app.db).wait()
-            try Version(package: pkg, packageName: "pkg-\($0)").save(on: app.db).wait()
+            pkg.createdAt = Date(timeIntervalSince1970: TimeInterval(100*idx))
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "pkg-\(idx)",
+                                 owner: "owner-\(idx)",
+                                 summary: "Summary").create(on: app.db)
+            try await Version(package: pkg, packageName: "pkg-\(idx)").save(on: app.db)
         }
         // make sure to refresh the materialized view
-        try RecentPackage.refresh(on: app.db).wait()
+        try await RecentPackage.refresh(on: app.db)
 
         // MUT
-        let feed = try RSSFeed.recentPackages(on: app.db, limit: 8).wait()
+        let feed = try await RSSFeed.recentPackages(on: app.db, limit: 8)
 
         // validation
         assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
-    func test_recentReleases() throws {
+    func test_Query_RecentRelease_filter() throws {
+        do {
+            let query = RSSFeed.Query(major: true, minor: nil, patch: false, pre: nil)
+            XCTAssertEqual(query.filter, [.major])
+        }
+        do {
+            let query = RSSFeed.Query(major: nil, minor: nil, patch: false, pre: nil)
+            XCTAssertEqual(query.filter, .all)
+        }
+    }
+
+    @MainActor
+    func test_recentReleases() async throws {
         // setup
-        try (1...10).forEach {
-            let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           name: "pkg-\($0)",
-                           owner: "owner-\($0)",
-                           summary: "Summary").create(on: app.db).wait()
-            try Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
-                        packageName: "pkg-\($0)",
-                        reference: .tag(.init($0, 0, 0), "\($0).0.0"),
-                        releaseNotes: "Awesome Release Notes",
-                        releaseNotesHTML: "<p>Awesome Release Notes</p>",
-                        url: "https://example.com/release-url")
-                .save(on: app.db).wait()
+        for idx in 1...10 {
+            let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "pkg-\(idx)",
+                                 owner: "owner-\(idx)",
+                                 summary: "Summary").create(on: app.db)
+            try await Version(package: pkg,
+                              commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
+                              packageName: "pkg-\(idx)",
+                              reference: .tag(.init(idx, 0, 0), "\(idx).0.0"),
+                              releaseNotes: "Awesome Release Notes",
+                              releaseNotesHTML: "<p>Awesome Release Notes</p>",
+                              url: "https://example.com/release-url")
+            .save(on: app.db)
         }
         // make sure to refresh the materialized view
-        try RecentRelease.refresh(on: app.db).wait()
+        try await RecentRelease.refresh(on: app.db)
 
         // MUT
-        let feed = try RSSFeed.recentReleases(on: app.db, limit: 8).wait()
+        let feed = try await RSSFeed.recentReleases(on: app.db, limit: 8)
 
         // validation
         assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
@@ -127,30 +140,31 @@ class RSSTests: SnapshotTestCase {
         })
     }
 
-    func test_recentReleases_route_all() throws {
+    @MainActor
+    func test_recentReleases_route_all() async throws {
         // Test request handler - without parameters (all)
         // setup
         // see RecentViewsTests.test_recentReleases_filter for filter results
-        try (1...10).forEach {
-            let major = $0 / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
-            let minor = $0 % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
-            let patch = $0 % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
-            let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           name: "pkg-\($0)",
-                           owner: "owner-\($0)",
-                           summary: "Summary")
-                .create(on: app.db).wait()
-            try Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
-                        packageName: "pkg-\($0)",
-                        reference: .tag(.init(major, minor, patch)),
-                        url: "https://example.com/release-url")
-                .save(on: app.db).wait()
+        for idx in 1...10 {
+            let major = idx / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
+            let minor = idx % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
+            let patch = idx % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
+            let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "pkg-\(idx)",
+                                 owner: "owner-\(idx)",
+                                 summary: "Summary")
+            .create(on: app.db)
+            try await Version(package: pkg,
+                              commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
+                              packageName: "pkg-\(idx)",
+                              reference: .tag(.init(major, minor, patch)),
+                              url: "https://example.com/release-url")
+            .save(on: app.db)
         }
         // make sure to refresh the materialized view
-        try RecentRelease.refresh(on: app.db).wait()
+        try await RecentRelease.refresh(on: app.db)
 
         // MUT
         try app.test(.GET, "releases.rss", afterResponse:  { res in
@@ -163,30 +177,31 @@ class RSSTests: SnapshotTestCase {
         })
     }
 
-    func test_recentReleases_route_major() throws {
+    @MainActor
+    func test_recentReleases_route_major() async throws {
         // Test request handler - major releases only
         // setup
         // see RecentViewsTests.test_recentReleases_filter for filter results
-        try (1...10).forEach {
-            let major = $0 / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
-            let minor = $0 % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
-            let patch = $0 % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
-            let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           name: "pkg-\($0)",
-                           owner: "owner-\($0)",
-                           summary: "Summary")
-                .create(on: app.db).wait()
-            try Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
-                        packageName: "pkg-\($0)",
-                        reference: .tag(.init(major, minor, patch)),
-                        url: "https://example.com/release-url")
-                .save(on: app.db).wait()
+        for idx in 1...10 {
+            let major = idx / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
+            let minor = idx % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
+            let patch = idx % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
+            let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "pkg-\(idx)",
+                                 owner: "owner-\(idx)",
+                                 summary: "Summary")
+            .create(on: app.db)
+            try await Version(package: pkg,
+                              commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
+                              packageName: "pkg-\(idx)",
+                              reference: .tag(.init(major, minor, patch)),
+                              url: "https://example.com/release-url")
+            .save(on: app.db)
         }
         // make sure to refresh the materialized view
-        try RecentRelease.refresh(on: app.db).wait()
+        try await RecentRelease.refresh(on: app.db)
 
         // MUT
         try app.test(.GET, "releases.rss?major=true", afterResponse: { res in
@@ -199,30 +214,31 @@ class RSSTests: SnapshotTestCase {
         })
     }
 
-    func test_recentReleases_route_majorMinor() throws {
+    @MainActor
+    func test_recentReleases_route_majorMinor() async throws {
         // Test request handler - major & minor releases only
         // setup
         // see RecentViewsTests.test_recentReleases_filter for filter results
-        try (1...10).forEach {
-            let major = $0 / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
-            let minor = $0 % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
-            let patch = $0 % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
-            let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           name: "pkg-\($0)",
-                           owner: "owner-\($0)",
+        for idx in 1...10 {
+            let major = idx / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
+            let minor = idx % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
+            let patch = idx % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
+            let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                           name: "pkg-\(idx)",
+                           owner: "owner-\(idx)",
                            summary: "Summary")
-                .create(on: app.db).wait()
-            try Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
-                        packageName: "pkg-\($0)",
+                .create(on: app.db)
+            try await Version(package: pkg,
+                        commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
+                        packageName: "pkg-\(idx)",
                         reference: .tag(.init(major, minor, patch)),
                         url: "https://example.com/release-url")
-                .save(on: app.db).wait()
+                .save(on: app.db)
         }
         // make sure to refresh the materialized view
-        try RecentRelease.refresh(on: app.db).wait()
+        try await RecentRelease.refresh(on: app.db)
 
         // MUT
         try app.test(.GET, "releases.rss?major=true&minor=true", afterResponse: { res in
@@ -235,31 +251,32 @@ class RSSTests: SnapshotTestCase {
         })
     }
 
-    func test_recentReleases_route_preRelease() throws {
+    @MainActor
+    func test_recentReleases_route_preRelease() async throws {
         // Test request handler - pre-releases only
         // setup
         // see RecentViewsTests.test_recentReleases_filter for filter results
-        try (1...12).forEach {
-            let major = $0 / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4
-            let minor = $0 % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0
-            let patch = $0 % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
-            let pre = $0 <= 10 ? "" : "b1"
-            let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg,
-                           name: "pkg-\($0)",
-                           owner: "owner-\($0)",
+        for idx in 1...12 {
+            let major = idx / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4
+            let minor = idx % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0
+            let patch = idx % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
+            let pre = idx <= 10 ? "" : "b1"
+            let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                           name: "pkg-\(idx)",
+                           owner: "owner-\(idx)",
                            summary: "Summary")
-                .create(on: app.db).wait()
-            try Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
-                        packageName: "pkg-\($0)",
+                .create(on: app.db)
+            try await Version(package: pkg,
+                        commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
+                        packageName: "pkg-\(idx)",
                         reference: .tag(.init(major, minor, patch, pre)),
                         url: "https://example.com/release-url")
-                .save(on: app.db).wait()
+                .save(on: app.db)
         }
         // make sure to refresh the materialized view
-        try RecentRelease.refresh(on: app.db).wait()
+        try await RecentRelease.refresh(on: app.db)
 
         // MUT
         try app.test(.GET, "releases.rss?pre=true", afterResponse: { res in

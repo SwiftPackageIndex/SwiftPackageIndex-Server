@@ -39,20 +39,20 @@ struct RecentPackage: Decodable, Equatable {
 }
 
 extension RecentPackage {
-    static func refresh(on database: Database) -> EventLoopFuture<Void> {
+    static func refresh(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
+        try await db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
     }
 
 
     static func fetch(on database: Database,
-                      limit: Int = Constants.recentPackagesLimit) -> EventLoopFuture<[RecentPackage]> {
+                      limit: Int = Constants.recentPackagesLimit) async throws -> [RecentPackage] {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("SELECT * FROM \(raw: Self.schema) ORDER BY created_at DESC LIMIT \(bind: limit)")
+        return try await db.raw("SELECT * FROM \(raw: Self.schema) ORDER BY created_at DESC LIMIT \(bind: limit)")
             .all(decoding: RecentPackage.self)
     }
 }

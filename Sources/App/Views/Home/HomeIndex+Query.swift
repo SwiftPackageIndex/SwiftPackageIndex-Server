@@ -17,13 +17,12 @@ import Plot
 
 
 extension HomeIndex.Model {
-    static func query(database: Database) -> EventLoopFuture<Self> {
-        let stats = Stats.fetch(on: database)
-        let packages = RecentPackage.fetch(on: database).mapEach(makeDateLink)
-        let releases = RecentRelease.fetch(on: database).mapEach(Release.init(recent:))
-        return stats.and(packages).and(releases)
-            .map { ($0.0, $0.1, $1) }
-            .map(Self.init)
+    static func query(database: Database) async throws -> Self {
+        let stats = try await Stats.fetch(on: database).get()
+        let packages = try await RecentPackage.fetch(on: database).map(makeDateLink)
+        let releases = try await RecentRelease.fetch(on: database)
+            .map(Release.init(recent:))
+        return .init(stats: stats, recentPackages: packages, recentReleases: releases)
     }
 }
 

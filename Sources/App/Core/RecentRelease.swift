@@ -46,35 +46,23 @@ struct RecentRelease: Decodable, Equatable {
 }
 
 extension RecentRelease {
-    static func refresh(on database: Database) -> EventLoopFuture<Void> {
+    static func refresh(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
-    }
-
-    static func filterReleases(_ releases: [RecentRelease], by filter: Filter) -> [RecentRelease] {
-        if filter == .all { return releases }
-        return releases.filter { recent in
-            guard let version = SemanticVersion(recent.version) else { return false }
-            if filter.contains(.major) && version.isMajorRelease { return true }
-            if filter.contains(.minor) && version.isMinorRelease { return true }
-            if filter.contains(.patch) && version.isPatchRelease { return true }
-            if filter.contains(.pre) && version.isPreRelease { return true }
-            return false
-        }
+        try await db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
     }
 
     static func fetch(on database: Database,
                       limit: Int = Constants.recentReleasesLimit,
-                      filter: Filter = .all) -> EventLoopFuture<[RecentRelease]> {
+                      filter: Filter = .all) async throws -> [RecentRelease] {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        return db.raw("SELECT * FROM \(raw: Self.schema) ORDER BY released_at DESC LIMIT \(bind: limit)")
+        return try await db.raw("SELECT * FROM \(raw: Self.schema) ORDER BY released_at DESC LIMIT \(bind: limit)")
             .all(decoding: RecentRelease.self)
-            .map { filterReleases($0, by: filter) }
+            .filter(by: filter)
     }
 }
 
@@ -92,19 +80,16 @@ extension RecentRelease {
 }
 
 
-extension RecentRelease.Filter {
-    init(_ string: String) {
-        switch string.lowercased() {
-            case "major":
-                self = .major
-            case "minor":
-                self = .minor
-            case "patch":
-                self = .patch
-            case "pre":
-                self = .pre
-            default:
-                self = [.major, .minor, .patch, .pre]
+extension [RecentRelease] {
+    func filter(by releaseFilter: RecentRelease.Filter) -> Self {
+        if releaseFilter == .all { return self }
+        return filter { release in
+            guard let version = SemanticVersion(release.version) else { return false }
+            if releaseFilter.contains(.major) && version.isMajorRelease { return true }
+            if releaseFilter.contains(.minor) && version.isMinorRelease { return true }
+            if releaseFilter.contains(.patch) && version.isPatchRelease { return true }
+            if releaseFilter.contains(.pre) && version.isPreRelease { return true }
+            return false
         }
     }
 }

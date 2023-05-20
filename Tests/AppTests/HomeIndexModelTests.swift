@@ -19,23 +19,23 @@ import XCTVapor
 
 class HomeIndexModelTests: AppTestCase {
 
-    func test_query() throws {
+    func test_query() async throws {
         // setup
         let pkgId = UUID()
         let pkg = Package(id: pkgId, url: "1".url)
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg,
-                       name: "1",
-                       owner: "foo").save(on: app.db).wait()
-        try App.Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: 0),
-                        packageName: "Package",
-                        reference: .tag(.init(1, 2, 3))).save(on: app.db).wait()
-        try RecentPackage.refresh(on: app.db).wait()
-        try RecentRelease.refresh(on: app.db).wait()
+        try await pkg.save(on: app.db)
+        try await Repository(package: pkg,
+                             name: "1",
+                             owner: "foo").save(on: app.db)
+        try await App.Version(package: pkg,
+                              commitDate: Date(timeIntervalSince1970: 0),
+                              packageName: "Package",
+                              reference: .tag(.init(1, 2, 3))).save(on: app.db)
+        try await RecentPackage.refresh(on: app.db)
+        try await RecentRelease.refresh(on: app.db)
 
         // MUT
-        let m = try HomeIndex.Model.query(database: app.db).wait()
+        let m = try await HomeIndex.Model.query(database: app.db)
 
         // validate
         let createdAt = try XCTUnwrap(pkg.createdAt)

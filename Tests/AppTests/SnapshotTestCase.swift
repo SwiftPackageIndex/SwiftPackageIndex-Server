@@ -17,6 +17,7 @@
 import Foundation
 import SnapshotTesting
 
+
 class SnapshotTestCase: AppTestCase {
 
     override func setUp() {
