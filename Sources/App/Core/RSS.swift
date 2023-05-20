@@ -84,7 +84,6 @@ extension RSSFeed {
                                limit: Int = Constants.rssFeedMaxItemCount,
                                filter: RecentRelease.Filter = .all) async throws -> Self {
         let items = try await RecentRelease.fetch(on: database, limit: limit, filter: filter)
-            .get()
             .map(\.rssItem)
         return RSSFeed(title: "Swift Package Index – Recent Releases",
                        description: "List of recent Swift packages releases",

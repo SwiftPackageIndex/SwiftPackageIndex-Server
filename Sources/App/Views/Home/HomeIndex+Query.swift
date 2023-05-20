@@ -21,7 +21,6 @@ extension HomeIndex.Model {
         let stats = try await Stats.fetch(on: database).get()
         let packages = try await RecentPackage.fetch(on: database).map(makeDateLink)
         let releases = try await RecentRelease.fetch(on: database)
-            .get()
             .map(Release.init(recent:))
         return .init(stats: stats, recentPackages: packages, recentReleases: releases)
     }

@@ -53,6 +53,7 @@ extension RecentRelease {
         try await db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
     }
 
+    @available(*, deprecated)
     static func filterReleases(_ releases: [RecentRelease], by filter: Filter) -> [RecentRelease] {
         if filter == .all { return releases }
         return releases.filter { recent in
@@ -67,14 +68,14 @@ extension RecentRelease {
 
     static func fetch(on database: Database,
                       limit: Int = Constants.recentReleasesLimit,
-                      filter: Filter = .all) -> EventLoopFuture<[RecentRelease]> {
+                      filter: Filter = .all) async throws -> [RecentRelease] {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        return db.raw("SELECT * FROM \(raw: Self.schema) ORDER BY released_at DESC LIMIT \(bind: limit)")
+        return try await db.raw("SELECT * FROM \(raw: Self.schema) ORDER BY released_at DESC LIMIT \(bind: limit)")
             .all(decoding: RecentRelease.self)
-            .map { filterReleases($0, by: filter) }
+            .filter(by: filter)
     }
 }
 
@@ -88,5 +89,20 @@ extension RecentRelease {
         static let patch = Filter(rawValue: 1 << 2)
         static let pre = Filter(rawValue: 1 << 3)
         static var all: Self { [.major, .minor, .patch, .pre] }
+    }
+}
+
+
+extension [RecentRelease] {
+    func filter(by releaseFilter: RecentRelease.Filter) -> Self {
+        if releaseFilter == .all { return self }
+        return filter { release in
+            guard let version = SemanticVersion(release.version) else { return false }
+            if releaseFilter.contains(.major) && version.isMajorRelease { return true }
+            if releaseFilter.contains(.minor) && version.isMinorRelease { return true }
+            if releaseFilter.contains(.patch) && version.isPatchRelease { return true }
+            if releaseFilter.contains(.pre) && version.isPreRelease { return true }
+            return false
+        }
     }
 }

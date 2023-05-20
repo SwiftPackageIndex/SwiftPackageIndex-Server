@@ -216,7 +216,7 @@ class AnalyzerTests: AppTestCase {
         // ensure stats, recent packages, and releases are refreshed
         try await XCTAssertEqualAsync(try await Stats.fetch(on: app.db).get(), .init(packageCount: 2))
         try await XCTAssertEqualAsync(try await RecentPackage.fetch(on: app.db).count, 2)
-        try await XCTAssertEqualAsync(try await RecentRelease.fetch(on: app.db).get().count, 2)
+        try await XCTAssertEqualAsync(try await RecentRelease.fetch(on: app.db).count, 2)
     }
 
     func test_analyze_version_update() async throws {
