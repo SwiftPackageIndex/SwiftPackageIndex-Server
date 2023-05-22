@@ -442,10 +442,5 @@ extension Array<Supporters.Community> {
             name: "Sparrow Code",
             avatarUrl: "https://avatars.githubusercontent.com/u/98487302?v=4"
         ),
-        .init(
-            login: "alexandresantosal91",
-            name: "Alexandre Santos",
-            avatarUrl: "https://avatars.githubusercontent.com/u/122564125?u=aa4097f85322bffdb57c687b09458f2026a31567&v=4"
-        ),
     ]
 }
