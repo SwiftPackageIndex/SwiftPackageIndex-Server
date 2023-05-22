@@ -95,8 +95,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-kit.git",
       "state" : {
-        "revision" : "3a4e63e49534589fe682e934e898211debd7d10e",
-        "version" : "2.10.1"
+        "revision" : "875e8c191ea776802fddf6773146349803629754",
+        "version" : "2.11.2"
       }
     },
     {
@@ -373,8 +373,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/SwiftOpenAPI.git",
       "state" : {
-        "revision" : "18c1233958b47fe2f7ed6ea5be10d722cf9f2996",
-        "version" : "2.13.0"
+        "revision" : "47ea58323660714fba45bd6df1a21eb2045f2762",
+        "version" : "2.14.2"
       }
     },
     {
@@ -400,8 +400,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "f4b00a5350238fe896d865d96d64f12fcbbeda95",
-        "version" : "4.76.0"
+        "revision" : "b42287f2c3909930be6329922906a6a8092943d2",
+        "version" : "4.76.2"
       }
     },
     {
