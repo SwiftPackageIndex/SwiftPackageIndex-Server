@@ -65,9 +65,6 @@ build:
     set -eu
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
 
-    telegram() {
-      curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?parse_mode=Markdown" -d chat_id=${TELEGRAM_CHAT_ID} -d text="$1"
-    }
     discord() {
       curl -s -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data '{"content": "'"$1"'"}' $DISCORD_WEBHOOK
     }
@@ -100,7 +97,6 @@ build:
     done
 
     echo Deploying VERSION $VERSION with SITE_URL: ${SITE_URL} ...
-    telegram "🚧 deploying version $VERSION [↗]($CI_JOB_URL) ..."
     discord "🚧 deploying version $VERSION [↗]($CI_JOB_URL) ..."
 
     retries=3
@@ -142,10 +138,8 @@ build:
 
     if [[ "$DEPLOYED_VERSION" == "$VERSION" && "${COUNT[0]}" == "${COUNT[1]}" ]]; then
       post_annotation "✅ deployed version $VERSION"
-      telegram "✅ deployed version $VERSION [↗]($CI_JOB_URL)"
       discord "✅ deployed version $VERSION [↗]($CI_JOB_URL)"
     else
-      telegram "🛑 failed to deploy version $VERSION [↗]($CI_JOB_URL)"
       discord "🛑 failed to deploy version $VERSION [↗]($CI_JOB_URL)"
       exit 1
     fi
