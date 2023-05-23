@@ -14,7 +14,9 @@
 
 import Foundation
 import XCTest
+
 @testable import App
+
 
 final class StringExtTests: XCTestCase {
 
@@ -63,4 +65,15 @@ final class StringExtTests: XCTestCase {
         XCTAssertEqual("Bobby and Bob".removingSuffix("bob"), "Bobby and ")
         XCTAssertEqual("bobby and bob".removingSuffix("Bob"), "bobby and ")
     }
+
+    func test_sha256Checksum() throws {
+        XCTAssertEqual("foo".sha256Checksum, "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae")
+    }
+
+    func test_prefixIfNeeded() throws {
+        XCTAssertEqual("/api".prefixIfNeeded("/"), "/api")
+        XCTAssertEqual("api".prefixIfNeeded("/"), "/api")
+        XCTAssertEqual("".prefixIfNeeded("/"), "/")
+    }
+
 }
