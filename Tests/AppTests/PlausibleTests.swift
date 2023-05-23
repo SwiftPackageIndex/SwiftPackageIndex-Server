@@ -33,13 +33,13 @@ final class PlausibleTests: XCTestCase {
             // validate
             XCTAssertEqual(try? req.content.decode(Plausible.Event.self),
                            .init(name: .api,
-                                 url: "https://foo.bar/api/test",
+                                 url: "https://foo.bar/api/search",
                                  domain: "foo.bar",
                                  props: ["apiID": "3c469e9d"]))
         }
 
         // MUT
-        _ = try await Plausible.postEvent(client: client, kind: .api, path: "/api/test")
+        _ = try await Plausible.postEvent(client: client, kind: .api, path: .search)
 
         XCTAssertTrue(called)
     }

@@ -28,6 +28,9 @@ extension API {
 
         static func get(req: Request) async throws -> Search.Response {
             let query = try req.query.decode(Query.self)
+            Task {
+                try? await Plausible.postEvent(client: req.client, kind: .api, path: .search)
+            }
             AppMetrics.apiSearchGetTotal?.inc()
             return try await search(database: req.db,
                                     query: query,

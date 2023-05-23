@@ -42,10 +42,6 @@ extension String {
         if trimmedString.isEmpty { return nil }
         return trimmedString
     }
-
-    func prefixIfNeeded(_ prefix: String) -> Self {
-        hasPrefix(prefix) ? self : prefix + self
-    }
 }
 
 

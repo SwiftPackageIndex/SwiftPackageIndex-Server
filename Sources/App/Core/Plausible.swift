@@ -28,13 +28,17 @@ enum Plausible {
         }
     }
 
+    enum Path: String {
+        case search = "/api/search"
+    }
+
     struct Error: Swift.Error {
         var message: String
     }
 
     static let postEventURI = URI(string: "https://plausible.io/api/event")
 
-    static func postEvent(client: Client, kind: Event.Kind, path: String) async throws {
+    static func postEvent(client: Client, kind: Event.Kind, path: Path) async throws {
         guard let siteID = Current.plausibleSiteID() else { throw Error(message: "PLAUSIBLE_SITE_ID not set") }
         guard let token = Current.plausibleToken() else { throw Error(message: "PLAUSIBLE_TOKEN not set") }
         let headers = HTTPHeaders([
@@ -43,7 +47,7 @@ enum Plausible {
         ])
         let res = try await client.post(postEventURI, headers: headers) { req in
             try req.content.encode(Event(name: .api,
-                                         url: "https://\(siteID)\(path.prefixIfNeeded("/"))",
+                                         url: "https://\(siteID)\(path.rawValue)",
                                          domain: siteID,
                                          props: .apiID(for: token)))
         }
