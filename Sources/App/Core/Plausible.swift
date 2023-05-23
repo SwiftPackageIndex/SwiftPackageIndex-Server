@@ -62,6 +62,16 @@ enum Plausible {
         }
     }
 
+    static func postEvent(req: Request, kind: Event.Kind, path: Path, apiKey: APIKey) {
+        Task {
+            do {
+                try await postEvent(client: req.client, kind: kind, path: path, apiKey: apiKey)
+            } catch {
+                req.logger.warning("Plausible.postEvent failed: \(error)")
+            }
+        }
+    }
+
     static func apiID(for apiKey: APIKey) -> [String: String] {
         switch apiKey {
             case .open:
