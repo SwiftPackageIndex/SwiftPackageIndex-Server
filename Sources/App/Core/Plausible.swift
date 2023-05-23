@@ -1,0 +1,63 @@
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import Vapor
+
+
+enum Plausible {
+    struct Event: Content, Equatable {
+        var name: Kind
+        var url: String
+        var domain: String
+        var props: [String: String]
+
+        enum Kind: String, Content, Equatable {
+            case api
+            case pageview
+        }
+    }
+
+    struct Error: Swift.Error {
+        var message: String
+    }
+
+    static let postEventURI = URI(string: "https://plausible.io/api/event")
+
+    static func postEvent(client: Client, kind: Event.Kind, path: String) async throws {
+        guard let siteID = Current.plausibleSiteID() else { throw Error(message: "PLAUSIBLE_SITE_ID not set") }
+        guard let token = Current.plausibleToken() else { throw Error(message: "PLAUSIBLE_TOKEN not set") }
+        let headers = HTTPHeaders([
+            ("Authorization", "Bearer \(token)"),
+            ("Content-Type", "application/json")
+        ])
+        let res = try await client.post(postEventURI, headers: headers) { req in
+            try req.content.encode(Event(name: .api,
+                                         url: "https://\(siteID)\(path.prefixIfNeeded("/"))",
+                                         domain: siteID,
+                                         props: .apiID(for: token)))
+        }
+        guard res.status == .ok else {
+            throw Error(message: "Plausible postEvent failed with status code: \(res.status)")
+        }
+    }
+
+    static func apiID(for token: String) -> [String: String] {
+        ["apiID": String(token.sha256Checksum.prefix(8))]
+    }
+}
+
+
+private extension [String: String] {
+    static func apiID(for token: String) -> Self { Plausible.apiID(for: token) }
+}
