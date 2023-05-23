@@ -29,6 +29,7 @@ enum Plausible {
     }
 
     enum Path: String {
+        case badge = "/api/packages/{owner}/{repository}/badge"
         case search = "/api/search"
     }
 

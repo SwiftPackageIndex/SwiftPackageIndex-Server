@@ -43,8 +43,14 @@ extension API {
                 throw Abort(.notFound)
             }
             let query = try req.query.decode(BadgeQuery.self)
-
             let significantBuilds = try await BadgeRoute.query(on: req.db, owner: owner, repository: repository)
+            Task {
+                do {
+                    try await Plausible.postEvent(client: req.client, kind: .api, path: .badge, apiKey: .open)
+                } catch {
+                    req.logger.warning("Plausible.postEvent failed: \(error)")
+                }
+            }
             return Badge(significantBuilds: significantBuilds, badgeType: query.type)
         }
 
