@@ -32,13 +32,18 @@ enum Plausible {
         case search = "/api/search"
     }
 
+    enum APIKey {
+        case open
+        case token(String)
+    }
+
     struct Error: Swift.Error {
         var message: String
     }
 
     static let postEventURI = URI(string: "https://plausible.io/api/event")
 
-    static func postEvent(client: Client, kind: Event.Kind, path: Path) async throws {
+    static func postEvent(client: Client, kind: Event.Kind, path: Path, apiKey: APIKey) async throws {
         guard let siteID = Current.plausibleSiteID() else { throw Error(message: "PLAUSIBLE_SITE_ID not set") }
         guard let token = Current.plausibleToken() else { throw Error(message: "PLAUSIBLE_TOKEN not set") }
         let headers = HTTPHeaders([
@@ -49,19 +54,24 @@ enum Plausible {
             try req.content.encode(Event(name: .api,
                                          url: "https://\(siteID)\(path.rawValue)",
                                          domain: siteID,
-                                         props: .apiID(for: token)))
+                                         props: .apiID(for: apiKey)))
         }
         guard res.status == .ok else {
-            throw Error(message: "Plausible postEvent failed with status code: \(res.status)")
+            throw Error(message: "Request failed with status code: \(res.status)")
         }
     }
 
-    static func apiID(for token: String) -> [String: String] {
-        ["apiID": String(token.sha256Checksum.prefix(8))]
+    static func apiID(for apiKey: APIKey) -> [String: String] {
+        switch apiKey {
+            case .open:
+                return ["apiID": "open"]
+            case let .token(token):
+                return ["apiID": String(token.sha256Checksum.prefix(8))]
+        }
     }
 }
 
 
 private extension [String: String] {
-    static func apiID(for token: String) -> Self { Plausible.apiID(for: token) }
+    static func apiID(for apiKey: Plausible.APIKey) -> Self { Plausible.apiID(for: apiKey) }
 }

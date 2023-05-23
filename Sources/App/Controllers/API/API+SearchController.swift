@@ -30,7 +30,7 @@ extension API {
             let query = try req.query.decode(Query.self)
             Task {
                 do {
-                    try await Plausible.postEvent(client: req.client, kind: .api, path: .search)
+                    try await Plausible.postEvent(client: req.client, kind: .api, path: .search, apiKey: .open)
                 } catch {
                     req.logger.warning("Plausible.postEvent failed: \(error)")
                 }

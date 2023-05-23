@@ -20,7 +20,8 @@ import XCTest
 final class PlausibleTests: XCTestCase {
 
     func test_apiID() throws {
-        XCTAssertEqual(Plausible.apiID(for: "token"), ["apiID": "3c469e9d"])
+        XCTAssertEqual(Plausible.apiID(for: .open), ["apiID": "open"])
+        XCTAssertEqual(Plausible.apiID(for: .token("token")), ["apiID": "3c469e9d"])
     }
 
     func test_postEvent() async throws {
@@ -35,11 +36,11 @@ final class PlausibleTests: XCTestCase {
                            .init(name: .api,
                                  url: "https://foo.bar/api/search",
                                  domain: "foo.bar",
-                                 props: ["apiID": "3c469e9d"]))
+                                 props: ["apiID": "open"]))
         }
 
         // MUT
-        _ = try await Plausible.postEvent(client: client, kind: .api, path: .search)
+        _ = try await Plausible.postEvent(client: client, kind: .api, path: .search, apiKey: .open)
 
         XCTAssertTrue(called)
     }
