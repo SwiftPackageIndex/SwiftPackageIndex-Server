@@ -61,6 +61,11 @@ class ApiTests: AppTestCase {
         try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
 
+        var event: TestEvent? = nil
+        Current.postPlausibleEvent = { _, kind, path, _ in
+            event = .init(kind: kind, path: path)
+        }
+
         // MUT
         try app.test(.GET, "api/search?query=foo%20bar", afterResponse: { res in
             // validation
@@ -86,6 +91,9 @@ class ApiTests: AppTestCase {
                       ])
             )
         })
+
+        // ensure API event has been reported
+        XCTAssertEqual(event, .some(.init(kind: .api, path: .search)))
     }
 
     func test_post_buildReport() throws {
