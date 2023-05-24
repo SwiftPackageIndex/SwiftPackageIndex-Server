@@ -46,18 +46,13 @@ enum Plausible {
 
     static func postEvent(client: Client, kind: Event.Kind, path: Path, apiKey: APIKey) async throws {
         guard let siteID = Current.plausibleSiteID() else { throw Error(message: "PLAUSIBLE_SITE_ID not set") }
-        guard let token = Current.plausibleToken() else { throw Error(message: "PLAUSIBLE_TOKEN not set") }
-        let headers = HTTPHeaders([
-            ("Authorization", "Bearer \(token)"),
-            ("Content-Type", "application/json")
-        ])
-        let res = try await client.post(postEventURI, headers: headers) { req in
+        let res = try await client.post(postEventURI, headers: .applicationJSON) { req in
             try req.content.encode(Event(name: .api,
                                          url: "https://\(siteID)\(path.rawValue)",
                                          domain: siteID,
                                          props: .apiID(for: apiKey)))
         }
-        guard res.status == .ok else {
+        guard res.status.succeeded else {
             throw Error(message: "Request failed with status code: \(res.status)")
         }
     }
@@ -80,6 +75,16 @@ enum Plausible {
                 return ["apiID": String(token.sha256Checksum.prefix(8))]
         }
     }
+}
+
+
+private extension HTTPStatus {
+    var succeeded: Bool { (200..<300).contains(self.code) }
+}
+
+
+private extension HTTPHeaders {
+    static var applicationJSON: Self { .init([("Content-Type", "application/json")]) }
 }
 
 
