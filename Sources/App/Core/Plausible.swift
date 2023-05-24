@@ -60,7 +60,7 @@ enum Plausible {
     static func postEvent(req: Request, kind: Event.Kind, path: Path, apiKey: APIKey) {
         Task {
             do {
-                try await postEvent(client: req.client, kind: kind, path: path, apiKey: apiKey)
+                try await Current.postPlausibleEvent(req.client, kind, path, apiKey)
             } catch {
                 Current.logger().warning("Plausible.postEvent failed: \(error)")
             }

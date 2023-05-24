@@ -61,6 +61,7 @@ extension AppEnvironment {
             mastodonPost: { _, _ in },
             metricsPushGatewayUrl: { "http://pushgateway:9091" },
             plausibleSiteID: { nil },
+            postPlausibleEvent: { _, _, _, _ in },
             random: Double.random,
             setLogger: { logger in Self.logger = logger },
             shell: .mock,

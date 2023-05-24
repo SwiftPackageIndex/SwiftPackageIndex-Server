@@ -56,6 +56,7 @@ struct AppEnvironment {
     var mastodonPost: (_ client: Client, _ post: String) async throws -> Void
     var metricsPushGatewayUrl: () -> String?
     var plausibleSiteID: () -> String?
+    var postPlausibleEvent: (Client, Plausible.Event.Kind, Plausible.Path, Plausible.APIKey) async throws -> Void
     var random: (_ range: ClosedRange<Double>) -> Double
     var setLogger: (Logger) -> Void
     var shell: Shell
@@ -175,6 +176,10 @@ extension AppEnvironment {
         mastodonPost: Mastodon.post(client:message:),
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         plausibleSiteID: { Environment.get("PLAUSIBLE_SITE_ID") },
+        postPlausibleEvent: { client, kind, path, apiKey in
+#warning("fix assignment")
+            try await Plausible.postEvent(client: client, kind: kind, path: path, apiKey: apiKey)
+        },
         random: Double.random,
         setLogger: { logger in Self.logger = logger },
         shell: .live,
