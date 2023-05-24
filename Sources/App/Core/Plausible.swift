@@ -62,7 +62,7 @@ enum Plausible {
             do {
                 try await postEvent(client: req.client, kind: kind, path: path, apiKey: apiKey)
             } catch {
-                req.logger.warning("Plausible.postEvent failed: \(error)")
+                Current.logger().warning("Plausible.postEvent failed: \(error)")
             }
         }
     }
