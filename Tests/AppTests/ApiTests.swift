@@ -554,6 +554,11 @@ class ApiTests: AppTestCase {
             .save(on: app.db)
             .wait()
 
+        var event: TestEvent? = nil
+        Current.postPlausibleEvent = { _, kind, path, _ in
+            event = .init(kind: kind, path: path)
+        }
+
         // MUT - swift versions
         try app.test(
             .GET,
@@ -590,6 +595,8 @@ class ApiTests: AppTestCase {
                 XCTAssertNotNil(badge.logoSvg)
             })
 
+        // ensure API event has been reported
+        XCTAssertEqual(event, .some(.init(kind: .api, path: .badge)))
     }
 
     func test_package_collections_owner() throws {
@@ -837,5 +844,13 @@ private extension HTTPHeaders {
 
     static func bearerApplicationJSON(_ token: String) -> Self {
         .init([("Content-Type", "application/json"), ("Authorization", "Bearer \(token)")])
+    }
+}
+
+
+extension ApiTests {
+    struct TestEvent: Equatable {
+        var kind: Plausible.Event.Kind
+        var path: Plausible.Path
     }
 }
