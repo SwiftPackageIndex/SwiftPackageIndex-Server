@@ -16,18 +16,21 @@ import Vapor
 import VaporToOpenAPI
 
 
-struct User: Authenticatable {
+struct User: Authenticatable, Equatable {
     var name: String
+    var identifier: String
 }
 
 
 extension User {
-    static var api: Self { .init(name: "api") }
+    static func api(for token: String) -> Self {
+        .init(name: "api", identifier: String(token.sha256Checksum.prefix(8)))
+    }
 
     struct APIAuthenticator: AsyncBearerAuthenticator {
         func authenticate(bearer: BearerAuthorization, for request: Request) async throws {
             if Current.isValidAPIToken(bearer.token) {
-                request.auth.login(User.api)
+                request.auth.login(User.api(for: bearer.token))
             }
         }
     }
@@ -35,7 +38,7 @@ extension User {
 
 
 extension User {
-    static var builder: Self { .init(name: "builder") }
+    static var builder: Self { .init(name: "builder", identifier: "builder") }
 
     struct BuilderAuthenticator: AsyncBearerAuthenticator {
         func authenticate(bearer: BearerAuthorization, for request: Request) async throws {

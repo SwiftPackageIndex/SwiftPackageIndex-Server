@@ -20,7 +20,7 @@ struct APIReportingMiddleware: AsyncMiddleware {
 
     func respond(to request: Request, chainingTo next: AsyncResponder) async throws -> Response {
         let response = try await next.respond(to: request)
-        Plausible.postEvent(req: request, kind: .api, path: path, apiKey: .open)
+        Plausible.postEvent(req: request, kind: .api, path: path)
         return response
     }
 }
