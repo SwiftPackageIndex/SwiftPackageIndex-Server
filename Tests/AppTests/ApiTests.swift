@@ -39,31 +39,29 @@ class ApiTests: AppTestCase {
         })
     }
 
-    func test_search_basic_param() throws {
+    func test_search_basic_param() async throws {
         // setup
-        let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
-                         url: "1")
-        try p1.save(on: app.db).wait()
-        let p2 = Package(id: UUID(uuidString: "4e256250-d1ea-4cdd-9fe9-0fc5dce17a80")!,
-                         url: "2")
-        try p2.save(on: app.db).wait()
-        try Repository(package: p1,
-                       defaultBranch: "main",
-                       summary: "some package").save(on: app.db).wait()
-        try Repository(package: p2,
-                       defaultBranch: "main",
-                       lastCommitDate: .t0,
-                       name: "name 2",
-                       owner: "owner 2",
-                       stars: 1234,
-                       summary: "foo bar package").save(on: app.db).wait()
-        try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
-        try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
-        try Search.refresh(on: app.db).wait()
+        let p1 = Package(id: .id0, url: "1")
+        try await p1.save(on: app.db)
+        let p2 = Package(id: .id1, url: "2")
+        try await p2.save(on: app.db)
+        try await Repository(package: p1,
+                             defaultBranch: "main",
+                             summary: "some package").save(on: app.db)
+        try await Repository(package: p2,
+                             defaultBranch: "main",
+                             lastCommitDate: .t0,
+                             name: "name 2",
+                             owner: "owner 2",
+                             stars: 1234,
+                             summary: "foo bar package").save(on: app.db)
+        try await Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db)
+        try await Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db)
+        try await Search.refresh(on: app.db).get()
 
-        var event: TestEvent? = nil
+        let event = ActorIsolated<TestEvent?>(nil)
         Current.postPlausibleEvent = { _, kind, path, _ in
-            event = .init(kind: kind, path: path)
+            await event.setValue(.init(kind: kind, path: path))
         }
 
         // MUT
@@ -77,7 +75,7 @@ class ApiTests: AppTestCase {
                       searchFilters: [],
                       results: [
                         .package(
-                            .init(packageId: UUID(uuidString: "4e256250-d1ea-4cdd-9fe9-0fc5dce17a80")!,
+                            .init(packageId: .id1,
                                   packageName: "Bar",
                                   packageURL: "/owner%202/name%202",
                                   repositoryName: "name 2",
@@ -93,7 +91,9 @@ class ApiTests: AppTestCase {
         })
 
         // ensure API event has been reported
-        XCTAssertEqual(event, .some(.init(kind: .api, path: .search)))
+        await event.withValue {
+            XCTAssertEqual($0, .some(.init(kind: .api, path: .search)))
+        }
     }
 
     func test_post_buildReport() throws {
@@ -542,29 +542,27 @@ class ApiTests: AppTestCase {
         ])
     }
 
-    func test_get_badge() throws {
+    func test_get_badge() async throws {
         // setup
         let owner = "owner"
         let repo = "repo"
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .release, reference: .tag(.init(1, 2, 3)))
-        try v.save(on: app.db).wait()
-        try Repository(package: p,
-                       defaultBranch: "main",
-                       license: .mit,
-                       name: repo,
-                       owner: owner).save(on: app.db).wait()
+        try await v.save(on: app.db)
+        try await Repository(package: p,
+                             defaultBranch: "main",
+                             license: .mit,
+                             name: repo,
+                             owner: owner).save(on: app.db)
         // add builds
-        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 6, 0))
+        try await Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 6, 0))
             .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 5, 2))
+        try await Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 5, 2))
             .save(on: app.db)
-            .wait()
 
-        var event: TestEvent? = nil
+        let event = ActorIsolated<TestEvent?>(nil)
         Current.postPlausibleEvent = { _, kind, path, _ in
-            event = .init(kind: kind, path: path)
+            await event.setValue(.init(kind: kind, path: path))
         }
 
         // MUT - swift versions
@@ -604,7 +602,9 @@ class ApiTests: AppTestCase {
             })
 
         // ensure API event has been reported
-        XCTAssertEqual(event, .some(.init(kind: .api, path: .badge)))
+        await event.withValue {
+            XCTAssertEqual($0, .some(.init(kind: .api, path: .badge)))
+        }
     }
 
     func test_package_collections_owner() throws {
