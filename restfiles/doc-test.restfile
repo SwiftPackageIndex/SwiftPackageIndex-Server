@@ -59,6 +59,10 @@ requests:
     url: ${base_url}/MessageKit/MessageKit/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /RedMadRobot/input-mask-ios/documentation:
+    url: ${base_url}/RedMadRobot/input-mask-ios/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /RevenueCat/purchases-ios/documentation:
     url: ${base_url}/RevenueCat/purchases-ios/documentation
     validation:
@@ -259,6 +263,10 @@ requests:
     url: ${base_url}/onevcat/Kingfisher/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /orlandos-nl/MongoKitten/documentation:
+    url: ${base_url}/orlandos-nl/MongoKitten/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /parse-community/Parse-Swift/documentation:
     url: ${base_url}/parse-community/Parse-Swift/documentation
     validation:
@@ -313,6 +321,10 @@ requests:
       status: .regex((2|3)\d\d)
   /swift-server/swift-service-lifecycle/documentation:
     url: ${base_url}/swift-server/swift-service-lifecycle/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /swift-server/webauthn-swift/documentation:
+    url: ${base_url}/swift-server/webauthn-swift/documentation
     validation:
       status: .regex((2|3)\d\d)
   /swiftwasm/JavaScriptKit/documentation:
