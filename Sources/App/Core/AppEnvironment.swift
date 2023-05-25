@@ -50,6 +50,7 @@ struct AppEnvironment {
     var gitlabPipelineToken: () -> String?
     var gitlabPipelineLimit: () -> Int
     var hideStagingBanner: () -> Bool
+    var httpClient: () -> Client
     var loadSPIManifest: (String) -> SPIManifest.Manifest?
     var logger: () -> Logger
     var mastodonCredentials: () -> Mastodon.Credentials?
@@ -58,6 +59,7 @@ struct AppEnvironment {
     var plausibleSiteID: () -> String?
     var postPlausibleEvent: (Client, Plausible.Event.Kind, Plausible.Path, Plausible.APIKey) async throws -> Void
     var random: (_ range: ClosedRange<Double>) -> Double
+    var setHTTPClient: (Client) -> Void
     var setLogger: (Logger) -> Void
     var shell: Shell
     var siteURL: () -> String
@@ -91,6 +93,7 @@ extension AppEnvironment {
             .flatMap { try? JSONDecoder().decode([String].self, from: $0) }
             .map { Set($0) } ?? .init()
     }()
+    static var httpClient: Client!
     static var logger: Logger!
 
     static let live = AppEnvironment(
@@ -167,6 +170,7 @@ extension AppEnvironment {
             Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
                 ?? Constants.defaultHideStagingBanner
         },
+        httpClient: { httpClient },
         loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },
         mastodonCredentials: {
@@ -181,6 +185,7 @@ extension AppEnvironment {
             try await Plausible.postEvent(client: client, kind: kind, path: path, apiKey: apiKey)
         },
         random: Double.random,
+        setHTTPClient: { client in Self.httpClient = client },
         setLogger: { logger in Self.logger = logger },
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
