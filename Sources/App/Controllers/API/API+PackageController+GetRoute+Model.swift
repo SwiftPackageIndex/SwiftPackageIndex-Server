@@ -17,7 +17,7 @@ import Vapor
 
 
 extension API.PackageController.GetRoute {
-    struct Model: Codable, Content, Equatable {
+    struct Model: Content, Equatable {
         var packageId: Package.Id
         var repositoryOwner: String
         var repositoryOwnerName: String
@@ -25,7 +25,9 @@ extension API.PackageController.GetRoute {
         var activity: Activity?
         var authors: AuthorMetadata?
         var keywords: [String]?
+        var swiftVersionCompatibility: [SwiftVersion]?
         var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
+        var platformCompatibility: [Model.PlatformCompatibility]?
         var platformBuildInfo: BuildInfo<PlatformResults>?
         var history: History?
         var license: License
@@ -80,7 +82,9 @@ extension API.PackageController.GetRoute {
             self.activity = activity
             self.authors = authors
             self.keywords = keywords
+            self.swiftVersionCompatibility = swiftVersionBuildInfo?.compatibility
             self.swiftVersionBuildInfo = swiftVersionBuildInfo
+            self.platformCompatibility = platformBuildInfo?.compatibility
             self.platformBuildInfo = platformBuildInfo
             self.history = history
             self.license = license
@@ -228,7 +232,7 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
-    enum PlatformCompatibility: Codable {
+    enum PlatformCompatibility: Codable, Comparable {
         case ios
         case linux
         case macos
@@ -293,4 +297,30 @@ extension API.PackageController.GetRoute.Model {
         var status: BuildStatus
     }
 
+}
+
+
+extension API.PackageController.GetRoute.Model.BuildInfo where T == API.PackageController.GetRoute.Model.SwiftVersionResults {
+    var compatibility: [SwiftVersion] {
+        var result = Set<SwiftVersion>()
+        for v in [beta, stable, latest].compacted() {
+            for r in v.results.all where r.status == .compatible {
+                result.insert(r.parameter)
+            }
+        }
+        return result.sorted()
+    }
+}
+
+
+extension API.PackageController.GetRoute.Model.BuildInfo where T == API.PackageController.GetRoute.Model.PlatformResults {
+    var compatibility: [API.PackageController.GetRoute.Model.PlatformCompatibility] {
+        var result = Set<API.PackageController.GetRoute.Model.PlatformCompatibility>()
+        for v in [beta, stable, latest].compacted() {
+            for r in v.results.all where r.status == .compatible {
+                result.insert(r.parameter)
+            }
+        }
+        return result.sorted()
+    }
 }

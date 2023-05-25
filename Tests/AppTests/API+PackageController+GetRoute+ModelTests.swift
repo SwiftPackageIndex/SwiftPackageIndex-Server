@@ -297,6 +297,67 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                             latest: nil))
     }
 
+    func test_BuildInfo_SwiftVersion_compatibility() throws {
+        typealias Results = API.PackageController.GetRoute.Model.SwiftVersionResults
+
+        do {
+            let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
+                                                     results: Results(status5_5: .compatible,
+                                                                      status5_6: .incompatible,
+                                                                      status5_7: .unknown,
+                                                                      status5_8: .compatible))),
+                                 beta: nil,
+                                 latest: nil)
+            XCTAssertEqual(info?.compatibility, [.v5_5, .v5_8])
+        }
+        do {
+            let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
+                                                     results: Results(status5_5: .compatible,
+                                                                      status5_6: .incompatible,
+                                                                      status5_7: .unknown,
+                                                                      status5_8: .compatible))),
+                                 beta: .some(.init(referenceName: "1.2.3-b1",
+                                                   results: Results(status5_5: .incompatible,
+                                                                    status5_6: .incompatible,
+                                                                    status5_7: .compatible,
+                                                                    status5_8: .unknown))),
+                                 latest: nil)
+            XCTAssertEqual(info?.compatibility, [.v5_5, .v5_7, .v5_8])
+        }
+    }
+
+    func test_BuildInfo_Platform_compatibility() throws {
+        typealias Results = API.PackageController.GetRoute.Model.PlatformResults
+
+        do {
+            let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
+                                                     results: Results(iosStatus: .compatible,
+                                                                      linuxStatus: .incompatible,
+                                                                      macosStatus: .unknown,
+                                                                      tvosStatus: .unknown,
+                                                                      watchosStatus: .compatible))),
+                                 beta: nil,
+                                 latest: nil)
+            XCTAssertEqual(info?.compatibility, [.ios, .watchos])
+        }
+        do {
+            let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
+                                                     results: Results(iosStatus: .compatible,
+                                                                      linuxStatus: .incompatible,
+                                                                      macosStatus: .unknown,
+                                                                      tvosStatus: .unknown,
+                                                                      watchosStatus: .compatible))),
+                                 beta: .some(.init(referenceName: "1.2.3-b1",
+                                                   results: Results(iosStatus: .compatible,
+                                                                    linuxStatus: .incompatible,
+                                                                    macosStatus: .compatible,
+                                                                    tvosStatus: .unknown,
+                                                                    watchosStatus: .unknown))),
+                                 latest: nil)
+            XCTAssertEqual(info?.compatibility, [.ios, .macos, .watchos])
+        }
+    }
+
     func test_groupBuildInfo() throws {
         let result1: BuildResults = .init(status5_5: .compatible,
                                           status5_6: .compatible,
