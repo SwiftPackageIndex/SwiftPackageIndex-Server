@@ -19,12 +19,16 @@ import XCTest
 
 final class PlausibleTests: XCTestCase {
 
-    func test_apiID() throws {
-        XCTAssertEqual(Plausible.apiID(for: .open), ["apiID": "open"])
-        XCTAssertEqual(Plausible.apiID(for: .token("token")), ["apiID": "3c469e9d"])
+    func test_User_identifier() throws {
+        XCTAssertEqual(User.api(for: "token"), .init(name: "api", identifier: "3c469e9d"))
     }
 
-    func test_postEvent() async throws {
+    func test_props() throws {
+        XCTAssertEqual(Plausible.props(for: nil), ["user": "none"])
+        XCTAssertEqual(Plausible.props(for: .init(name: "api", identifier: "foo")), ["user": "foo"])
+    }
+
+    func test_postEvent_anonymous() async throws {
         Current.plausibleAPIReportingSiteID = { "foo.bar" }
 
         var called = false
@@ -35,13 +39,33 @@ final class PlausibleTests: XCTestCase {
                            .init(name: .api,
                                  url: "https://foo.bar/api/search",
                                  domain: "foo.bar",
-                                 props: ["apiID": "open"]))
+                                 props: ["user": "none"]))
         }
 
         // MUT
-        _ = try await Plausible.postEvent(client: client, kind: .api, path: .search, apiKey: .open)
+        _ = try await Plausible.postEvent(client: client, kind: .api, path: .search, user: nil)
 
         XCTAssertTrue(called)
     }
 
+    func test_postEvent_package() async throws {
+        Current.plausibleAPIReportingSiteID = { "foo.bar" }
+
+        let user = User(name: "api", identifier: "3c469e9d")
+        var called = false
+        let client = MockClient { req, _ in
+            called = true
+            // validate
+            XCTAssertEqual(try? req.content.decode(Plausible.Event.self),
+                           .init(name: .api,
+                                 url: "https://foo.bar/api/packages/{owner}/{repository}",
+                                 domain: "foo.bar",
+                                 props: ["user": user.identifier]))
+        }
+
+        // MUT
+        _ = try await Plausible.postEvent(client: client, kind: .api, path: .package, user: user)
+
+        XCTAssertTrue(called)
+    }
 }

@@ -215,8 +215,8 @@ func routes(_ app: Application) throws {
         // api token protected routes
         app.group(User.APIAuthenticator(), User.guardMiddleware()) {
             $0.groupedOpenAPI(auth: .apiBearerToken).group(tags: []) { protected in
-                if Environment.current == .development {
-                    protected.get("api", "packages", ":owner", ":repository", use: API.PackageController.get)
+                protected.group(APIReportingMiddleware(path: .package)) {
+                    $0.get("api", "packages", ":owner", ":repository", use: API.PackageController.get)
                         .openAPI(
                             summary: "/api/packages/{owner}/{repository}",
                             description: "Get package details.",
@@ -228,9 +228,11 @@ func routes(_ app: Application) throws {
                                 404: "Not found"
                             ]
                         )
+                }
 
-                    protected.post(SiteURL.api(.packageCollections).pathComponents,
-                                   use: API.PackageCollectionController.generate)
+                protected.group(APIReportingMiddleware(path: .packageCollections)) {
+                    $0.post(SiteURL.api(.packageCollections).pathComponents,
+                            use: API.PackageCollectionController.generate)
                     .openAPI(
                         summary: "/api/package-collections",
                         description: "Generate a signed package collection.",

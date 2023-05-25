@@ -30,12 +30,18 @@ enum Plausible {
 
     enum Path: String {
         case badge = "/api/packages/{owner}/{repository}/badge"
+        case package = "/api/packages/{owner}/{repository}"
+        case packageCollections = "/api/package-collections"
         case search = "/api/search"
     }
 
-    enum APIKey {
-        case open
-        case token(String)
+    enum Identifier {
+        case anonymous
+        case identifier(String)
+
+        var props: [String: String] {
+            fatalError("fix me")
+        }
     }
 
     struct Error: Swift.Error {
@@ -44,7 +50,7 @@ enum Plausible {
 
     static let postEventURI = URI(string: "https://plausible.io/api/event")
 
-    static func postEvent(client: Client, kind: Event.Kind, path: Path, apiKey: APIKey) async throws {
+    static func postEvent(client: Client, kind: Event.Kind, path: Path, user: User?) async throws {
         guard let siteID = Current.plausibleAPIReportingSiteID() else {
             throw Error(message: "PLAUSIBLE_API_REPORTING_SITE_ID not set")
         }
@@ -52,30 +58,21 @@ enum Plausible {
             try req.content.encode(Event(name: .api,
                                          url: "https://\(siteID)\(path.rawValue)",
                                          domain: siteID,
-                                         props: .apiID(for: apiKey)))
+                                         props: user.props))
         }
         guard res.status.succeeded else {
             throw Error(message: "Request failed with status code: \(res.status)")
         }
     }
 
-    static func postEvent(req: Request, kind: Event.Kind, path: Path, apiKey: APIKey) {
-        Task {
-            do {
-                try await Current.postPlausibleEvent(Current.httpClient(), kind, path, apiKey)
-            } catch {
-                Current.logger().warning("Plausible.postEvent failed: \(error)")
-            }
+    static func props(for user: User?) -> [String: String] {
+        switch user {
+            case .none:
+                return ["user": "none"]
+            case .some(let wrapped):
+                return ["user": wrapped.identifier]
         }
-    }
 
-    static func apiID(for apiKey: APIKey) -> [String: String] {
-        switch apiKey {
-            case .open:
-                return ["apiID": "open"]
-            case let .token(token):
-                return ["apiID": String(token.sha256Checksum.prefix(8))]
-        }
     }
 }
 
@@ -90,6 +87,6 @@ private extension HTTPHeaders {
 }
 
 
-private extension [String: String] {
-    static func apiID(for apiKey: Plausible.APIKey) -> Self { Plausible.apiID(for: apiKey) }
+private extension Optional<User> {
+    var props: [String: String] { Plausible.props(for: self) }
 }
