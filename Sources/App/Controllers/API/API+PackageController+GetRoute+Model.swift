@@ -232,12 +232,14 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
-    enum PlatformCompatibility: Codable, Comparable {
+    enum PlatformCompatibility: String, Codable, Comparable {
         case ios
         case linux
         case macos
         case tvos
         case watchos
+
+        static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
     }
 
     struct NamedBuildResults<T: Codable & Equatable>: Codable, Equatable {
