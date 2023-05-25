@@ -18,6 +18,8 @@ import VaporToOpenAPI
 
 struct User: Authenticatable, Equatable {
     var name: String
+
+    /// A user's identifier provides additional detail in cases where multiple clients refer to the same user entity via different authentication mechanisms. For example, API access via bearer tokens creates a user named `api` and the additional identifier allows to uniquely identify which bearer token authenticated the user.
     var identifier: String
 }
 
