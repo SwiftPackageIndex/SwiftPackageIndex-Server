@@ -61,7 +61,7 @@ extension AppEnvironment {
             mastodonCredentials: { nil },
             mastodonPost: { _, _ in },
             metricsPushGatewayUrl: { "http://pushgateway:9091" },
-            plausibleSiteID: { nil },
+            plausibleAPIReportingSiteID: { nil },
             postPlausibleEvent: { _, _, _, _ in },
             random: Double.random,
             setHTTPClient: { client in Self.httpClient = client },

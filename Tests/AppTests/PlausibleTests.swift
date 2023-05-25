@@ -25,7 +25,7 @@ final class PlausibleTests: XCTestCase {
     }
 
     func test_postEvent() async throws {
-        Current.plausibleSiteID = { "foo.bar" }
+        Current.plausibleAPIReportingSiteID = { "foo.bar" }
 
         var called = false
         let client = MockClient { req, _ in
