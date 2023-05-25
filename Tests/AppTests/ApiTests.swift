@@ -607,27 +607,32 @@ class ApiTests: AppTestCase {
         }
     }
 
-    func test_package_collections_owner() throws {
+    func test_package_collections_owner() async throws {
         try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         // setup
         Current.date = { .t0 }
         Current.apiTokens = { Set(["api-token"]) }
         let p1 = Package(id: .id1, url: "1")
-        try p1.save(on: app.db).wait()
-        try Repository(package: p1,
-                       defaultBranch: "main",
-                       name: "name 1",
-                       owner: "foo",
-                       summary: "foo bar package").save(on: app.db).wait()
+        try await p1.save(on: app.db)
+        try await Repository(package: p1,
+                             defaultBranch: "main",
+                             name: "name 1",
+                             owner: "foo",
+                             summary: "foo bar package").save(on: app.db)
         let v = try Version(package: p1,
-                    latest: .release,
-                    packageName: "Foo",
-                    reference: .tag(1, 2, 3),
+                            latest: .release,
+                            packageName: "Foo",
+                            reference: .tag(1, 2, 3),
                             toolsVersion: "5.0")
-        try v.save(on: app.db).wait()
-        try Product(version: v, type: .library(.automatic), name: "lib")
-            .save(on: app.db).wait()
-        try Search.refresh(on: app.db).wait()
+        try await v.save(on: app.db)
+        try await Product(version: v, type: .library(.automatic), name: "lib")
+            .save(on: app.db)
+        try await Search.refresh(on: app.db).get()
+
+        let event = ActorIsolated<TestEvent?>(nil)
+        Current.postPlausibleEvent = { _, kind, path, _ in
+            await event.setValue(.init(kind: kind, path: path))
+        }
 
         do {  // MUT
             let body: ByteBuffer = .init(string: """
@@ -659,6 +664,11 @@ class ApiTests: AppTestCase {
                 // more details are tested in PackageCollectionTests
                 XCTAssertEqual(container.collection.name, "my collection")
             })
+        }
+
+        // ensure API event has been reported
+        await event.withValue {
+            XCTAssertEqual($0, .some(.init(kind: .api, path: .packageCollections)))
         }
     }
 

@@ -229,19 +229,21 @@ func routes(_ app: Application) throws {
                             ]
                         )
                 }
-                
-                protected.post(SiteURL.api(.packageCollections).pathComponents,
-                               use: API.PackageCollectionController.generate)
-                .openAPI(
-                    summary: "/api/package-collections",
-                    description: "Generate a signed package collection.",
-                    body: API.PostPackageCollectionDTO.example,
-                    response: SignedCollection.example,
-                    responseType: .application(.json),
-                    errorDescriptions: [
-                        400: "Bad request",
-                        401: "Unauthorized"
-                    ])
+
+                protected.group(APIReportingMiddleware(path: .packageCollections)) {
+                    $0.post(SiteURL.api(.packageCollections).pathComponents,
+                            use: API.PackageCollectionController.generate)
+                    .openAPI(
+                        summary: "/api/package-collections",
+                        description: "Generate a signed package collection.",
+                        body: API.PostPackageCollectionDTO.example,
+                        response: SignedCollection.example,
+                        responseType: .application(.json),
+                        errorDescriptions: [
+                            400: "Bad request",
+                            401: "Unauthorized"
+                        ])
+                }
             }
         }
 
