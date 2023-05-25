@@ -158,3 +158,6 @@ lint-front-end-auto-fix: run-prettier-auto-fix run-stylelint-auto-fix
 
 periphery:
 	periphery scan --quiet
+
+update-doc-test:
+	swift run Run create-restfile docs > restfiles/doc-test.restfile
