@@ -1,0 +1,13 @@
+requests:
+  api-events-aggregate-day:
+    url: https://plausible.io/api/v1/stats/aggregate
+    query:
+      site_id: ${SITE_ID}
+      metrics: events
+      # period: month
+      period: day
+    headers:
+      Authorization: Bearer ${PLAUSIBLE_TOKEN}
+    validation:
+      status: .regex((2|3)\d\d)
+    log: json

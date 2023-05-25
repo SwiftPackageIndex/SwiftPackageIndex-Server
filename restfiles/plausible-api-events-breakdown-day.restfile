@@ -1,0 +1,13 @@
+requests:
+  api-events-breakdown-day:
+    url: https://plausible.io/api/v1/stats/breakdown
+    query:
+      site_id: ${SITE_ID}
+      metrics: visitors,events
+      period: day
+      property: event:props:user
+    headers:
+      Authorization: Bearer ${PLAUSIBLE_TOKEN}
+    validation:
+      status: .regex((2|3)\d\d)
+    log: json

@@ -37,7 +37,6 @@ extension String {
         return self
     }
 
-
     var trimmed: String? {
         let trimmedString = trimmingCharacters(in: .whitespaces)
         if trimmedString.isEmpty { return nil }
@@ -85,3 +84,26 @@ extension String.StringInterpolation {
     }
 
 }
+
+
+// MARK: - SHA256 checksum
+
+import Crypto
+
+extension String {
+    var sha256Checksum: String {
+        return SHA256.hash(data: Data(utf8)).hexString
+    }
+}
+
+private extension Digest {
+    var bytes: [UInt8] { Array(makeIterator()) }
+    var data: Data { Data(bytes) }
+
+    var hexString: String {
+        bytes.map { String(format: "%02X", $0) }
+            .joined()
+            .lowercased()
+    }
+}
+

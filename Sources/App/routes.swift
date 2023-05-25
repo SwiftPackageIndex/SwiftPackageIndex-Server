@@ -182,31 +182,35 @@ func routes(_ app: Application) throws {
             response: API.Version(version: "1.2.3"),
             responseType: .application(.json)
         )
+
+        app.group(APIReportingMiddleware(path: .search)) {
+            $0.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
+                .openAPI(
+                    summary: "/api/search",
+                    description: "Execute a search.",
+                    query: API.SearchController.Query.example,
+                    response: Search.Response.example,
+                    responseType: .application(.json),
+                    errorDescriptions: [
+                        400: "Bad request"
+                    ]
+                )
+        }
         
-        app.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
+        app.group(APIReportingMiddleware(path: .badge)) {
+            $0.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
+                   use: API.PackageController.badge)
             .openAPI(
-                summary: "/api/search",
-                description: "Execute a search.",
-                query: API.SearchController.Query.example,
-                response: Search.Response.example,
+                summary: "/api/packages/{owner}/{repository}/badge",
+                description: "Get shields.io badge for the given repository.",
+                query: API.PackageController.BadgeQuery.example,
+                response: Badge.example,
                 responseType: .application(.json),
                 errorDescriptions: [
-                    400: "Bad request"
-                ]
-            )
-        
-        app.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
-                use: API.PackageController.badge)
-        .openAPI(
-            summary: "/api/packages/{owner}/{repository}/badge",
-            description: "Get shields.io badge for the given repository.",
-            query: API.PackageController.BadgeQuery.example,
-            response: Badge.example,
-            responseType: .application(.json),
-            errorDescriptions: [
-                400: "Bad request",
-                404: "Not found"
-            ])
+                    400: "Bad request",
+                    404: "Not found"
+                ])
+        }
 
         // api token protected routes
         app.group(User.APIAuthenticator(), User.guardMiddleware()) {

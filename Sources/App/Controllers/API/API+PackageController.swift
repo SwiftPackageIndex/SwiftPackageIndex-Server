@@ -43,7 +43,6 @@ extension API {
                 throw Abort(.notFound)
             }
             let query = try req.query.decode(BadgeQuery.self)
-
             let significantBuilds = try await BadgeRoute.query(on: req.db, owner: owner, repository: repository)
             return Badge(significantBuilds: significantBuilds, badgeType: query.type)
         }

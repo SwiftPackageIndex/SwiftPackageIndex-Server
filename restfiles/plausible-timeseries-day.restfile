@@ -1,0 +1,12 @@
+requests:
+  timeseries-day:
+    url: https://plausible.io/api/v1/stats/timeseries
+    query:
+      site_id: ${SITE_ID}
+      metrics: visitors,visits
+      period: day
+    headers:
+      Authorization: Bearer ${PLAUSIBLE_TOKEN}
+    validation:
+      status: .regex((2|3)\d\d)
+    log: json
