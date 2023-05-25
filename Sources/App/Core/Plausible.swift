@@ -65,17 +65,6 @@ enum Plausible {
         }
     }
 
-    static func postEvent(req: Request, kind: Event.Kind, path: Path) {
-        let user = try? req.auth.require(User.self)
-        Task {
-            do {
-                try await Current.postPlausibleEvent(Current.httpClient(), kind, path, user)
-            } catch {
-                Current.logger().warning("Plausible.postEvent failed: \(error)")
-            }
-        }
-    }
-
     static func props(for user: User?) -> [String: String] {
         switch user {
             case .none:
