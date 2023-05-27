@@ -111,10 +111,6 @@ requests:
     url: ${base_url}/apple/swift-distributed-tracing-baggage-core/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /apple/swift-distributed-tracing-baggage/documentation:
-    url: ${base_url}/apple/swift-distributed-tracing-baggage/documentation
-    validation:
-      status: .regex((2|3)\d\d)
   /apple/swift-distributed-tracing/documentation:
     url: ${base_url}/apple/swift-distributed-tracing/documentation
     validation:
@@ -175,6 +171,10 @@ requests:
     url: ${base_url}/apple/swift-protobuf/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /apple/swift-service-context/documentation:
+    url: ${base_url}/apple/swift-service-context/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /apple/swift-service-discovery/documentation:
     url: ${base_url}/apple/swift-service-discovery/documentation
     validation:
@@ -193,8 +193,16 @@ requests:
   #   url: ${base_url}/calimarkus/JDStatusBarNotification/documentation
   #   validation:
   #     status: .regex((2|3)\d\d)
+  /carekit-apple/CareKit/documentation:
+    url: ${base_url}/carekit-apple/CareKit/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /crelies/AdvancedList/documentation:
     url: ${base_url}/crelies/AdvancedList/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /davdroman/swiftui-navigation-transitions/documentation:
+    url: ${base_url}/davdroman/swiftui-navigation-transitions/documentation
     validation:
       status: .regex((2|3)\d\d)
   /gonzalezreal/swift-markdown-ui/documentation:
@@ -203,6 +211,10 @@ requests:
       status: .regex((2|3)\d\d)
   /groue/GRDB.swift/documentation:
     url: ${base_url}/groue/GRDB.swift/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /groue/Semaphore/documentation:
+    url: ${base_url}/groue/Semaphore/documentation
     validation:
       status: .regex((2|3)\d\d)
   /grpc/grpc-swift/documentation:
@@ -233,6 +245,10 @@ requests:
       status: .regex((2|3)\d\d)
   /lorenzofiamingo/swiftui-cached-async-image/documentation:
     url: ${base_url}/lorenzofiamingo/swiftui-cached-async-image/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /marcoarment/Blackbird/documentation:
+    url: ${base_url}/marcoarment/Blackbird/documentation
     validation:
       status: .regex((2|3)\d\d)
   /maxxfrazer/FocusEntity/documentation:
@@ -297,6 +313,10 @@ requests:
       status: .regex((2|3)\d\d)
   /sindresorhus/Defaults/documentation:
     url: ${base_url}/sindresorhus/Defaults/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /sindresorhus/DockProgress/documentation:
+    url: ${base_url}/sindresorhus/DockProgress/documentation
     validation:
       status: .regex((2|3)\d\d)
   /sindresorhus/KeyboardShortcuts/documentation:
