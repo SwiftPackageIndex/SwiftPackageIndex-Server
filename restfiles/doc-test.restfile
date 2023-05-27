@@ -193,10 +193,11 @@ requests:
   #   url: ${base_url}/calimarkus/JDStatusBarNotification/documentation
   #   validation:
   #     status: .regex((2|3)\d\d)
-  /carekit-apple/CareKit/documentation:
-    url: ${base_url}/carekit-apple/CareKit/documentation
-    validation:
-      status: .regex((2|3)\d\d)
+  # Bad .spi.yml, PR to address here: https://github.com/carekit-apple/CareKit/pull/697
+  # /carekit-apple/CareKit/documentation:
+  #   url: ${base_url}/carekit-apple/CareKit/documentation
+  #   validation:
+  #     status: .regex((2|3)\d\d)
   /crelies/AdvancedList/documentation:
     url: ${base_url}/crelies/AdvancedList/documentation
     validation:
