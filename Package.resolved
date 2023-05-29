@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server/async-http-client.git",
       "state" : {
-        "revision" : "333e60cc90f52973f7ee29cd8e3a7f6adfe79f4e",
-        "version" : "1.17.0"
+        "revision" : "78db67e5bf4a8543075787f228e8920097319281",
+        "version" : "1.18.0"
       }
     },
     {
@@ -329,7 +329,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "release/5.8",
-        "revision" : "fa3db13e0bd00e33c187c63c80673b3ac7c82f55"
+        "revision" : "4a07547a62159f151479a0e2d404f5ee838d697a"
       }
     },
     {
@@ -337,8 +337,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-parsing.git",
       "state" : {
-        "revision" : "c6e2241daa46e5c6e5027a93b161bca6ba692bcc",
-        "version" : "0.12.0"
+        "revision" : "27c941bbd22a4bbc53005a15a0440443fd892f70",
+        "version" : "0.12.1"
       }
     },
     {
@@ -373,8 +373,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/SwiftOpenAPI.git",
       "state" : {
-        "revision" : "47ea58323660714fba45bd6df1a21eb2045f2762",
-        "version" : "2.14.2"
+        "revision" : "1361695d4e2b6939923911cf4cdc1befd085a648",
+        "version" : "2.16.0"
       }
     },
     {
@@ -400,8 +400,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "b42287f2c3909930be6329922906a6a8092943d2",
-        "version" : "4.76.2"
+        "revision" : "8b79ff0bd264a33bd0b7471dcf50dd1be983f992",
+        "version" : "4.76.3"
       }
     },
     {
@@ -418,8 +418,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/websocket-kit.git",
       "state" : {
-        "revision" : "17c0afbf24f4e288e183bc34317dc97b5cd084bd",
-        "version" : "2.9.0"
+        "revision" : "2ec14506d5f8199926906dc5a620ac22b147db86",
+        "version" : "2.13.0"
       }
     },
     {
