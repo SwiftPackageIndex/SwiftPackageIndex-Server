@@ -105,9 +105,19 @@ extension DocUpload {
     func attach(to build: Build, on database: Database) async throws {
         $build.id = try build.requireID()
         build.$docUpload.id = try requireID()
-        try await database.transaction {
-            try await self.save(on: $0)
-            try await build.save(on: $0)
+        do {
+            try await database.transaction {
+                do {
+                    try await self.save(on: $0)
+                    try await build.save(on: $0)
+                } catch {
+                    print("in transaction: \(type(of: error))")
+                    throw error
+                }
+            }
+        } catch {
+            print("outside transaction: \(type(of: error))")
+            throw error
         }
     }
 
