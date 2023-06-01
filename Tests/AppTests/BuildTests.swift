@@ -108,7 +108,7 @@ class BuildTests: AppTestCase {
                       status: .ok,
                       swiftVersion: .init(5, 2, 0)).save(on: app.db).wait()
         ) {
-            XCTAssertEqual(($0 as? PostgresError)?.code, .uniqueViolation)
+            XCTAssertEqual(($0 as? PSQLError)?.sqlState, .uniqueViotation)
         }
 
         // validate

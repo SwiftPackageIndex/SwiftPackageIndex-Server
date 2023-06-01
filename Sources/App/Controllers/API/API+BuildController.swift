@@ -50,8 +50,8 @@ extension API {
                     // (although it should technically be impossible to actually occur
                     // since we are explicitly querying for the record to update rather
                     // than saving without checking for conflict first.)
-                    if let error = error as? PostgresError,
-                       error.code == .uniqueViolation {
+                    if let error = error as? PSQLError,
+                       error.sqlState == .uniqueViotation {
                         return .conflict
                     } else {
                         throw error
@@ -90,7 +90,7 @@ extension API {
             // Upsert build.docUpload
             do {
                 try await DocUpload(dto: dto).attach(to: build, on: req.db)
-            } catch let error as PostgresError where error.code == .uniqueViolation {
+            } catch let error as PSQLError where error.sqlState == .uniqueViotation {
                 // Find the conflicting DocUpload via the version_id. The doc upload could have
                 // moved to a different build, which is why we filter via the version.
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2280
