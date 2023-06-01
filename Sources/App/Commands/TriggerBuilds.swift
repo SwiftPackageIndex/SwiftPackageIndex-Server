@@ -290,7 +290,7 @@ func triggerBuildsUnchecked(on database: Database,
                                         status: .triggered,
                                         swiftVersion: pair.swiftVersion)
                         .create(on: database)
-                    } catch let error as PSQLError where error.sqlState == .uniqueViotation {
+                    } catch let error as DatabaseError where error.isConstraintFailure {
                         if let oldBuild = try await Build.query(on: database,
                                                                 platform: pair.platform,
                                                                 swiftVersion: pair.swiftVersion,
@@ -484,12 +484,12 @@ func trimBuilds(on database: Database) async throws -> Int {
 }
 
 
-#warning("move")
-extension PSQLError {
-    var sqlState: String? { serverInfo?[.sqlState] }
-}
-
-
-extension String {
-    static var uniqueViotation = "23505"
-}
+//#warning("move")
+//extension PSQLError {
+//    var sqlState: String? { serverInfo?[.sqlState] }
+//}
+//
+//
+//extension String {
+//    static var uniqueViotation = "23505"
+//}

@@ -14,7 +14,7 @@
 
 @testable import App
 
-import PostgresKit
+import Fluent
 import XCTVapor
 
 
@@ -150,15 +150,10 @@ final class DocUploadTests: AppTestCase {
             try await DocUpload(id: UUID(), status: .ok)
                 .attach(to: b, on: app.db)
             XCTFail("Attaching another doc_upload to the same build must fail.")
-//        } catch let error as PSQLError where error.code == .server && error.serverInfo?[.sqlState] == "23505" {
-//            // validate
-//            XCTAssert(error.localizedDescription.contains(#"duplicate key value violates unique constraint "uq:doc_uploads.build_id""#), "was: \(error)")
+        } catch let error as DatabaseError where error.isConstraintFailure {
+            // validate
+            XCTAssert("\(error)".contains(#"duplicate key value violates unique constraint "uq:doc_uploads.build_id""#), "was: \(error)")
         } catch {
-            let psqlError = error as? PSQLError
-            XCTAssertNotNil(psqlError)
-            dump(error)
-            print(type(of: error))
-            XCTAssertEqual(psqlError?.code, .server)
             XCTFail("unexpected error: \(error)")
         }
     }
@@ -182,9 +177,9 @@ final class DocUploadTests: AppTestCase {
         do {
             try await docUpload.attach(to: b2, on: app.db)
             XCTFail("Attaching same doc_upload to another build must fail.")
-        } catch let error as PSQLError where error.sqlState == .uniqueViotation {
+        } catch let error as DatabaseError where error.isConstraintFailure {
             // validate
-            XCTAssert(error.localizedDescription.contains(#"duplicate key value violates unique constraint "uq:builds.doc_upload_id""#), "was: \(error)")
+            XCTAssert("\(error)".contains(#"duplicate key value violates unique constraint "uq:builds.doc_upload_id""#), "was: \(error)")
         } catch {
             XCTFail("unexpected error: \(error)")
         }
@@ -207,9 +202,9 @@ final class DocUploadTests: AppTestCase {
         do {
             try await docUpload.attach(to: b2, on: app.db)
             XCTFail("Attaching same doc_upload to another build must fail.")
-        } catch let error as PSQLError where error.sqlState == .uniqueViotation {
+        } catch let error as DatabaseError where error.isConstraintFailure {
             // validate
-            XCTAssert(error.localizedDescription.contains(#"duplicate key value violates unique constraint "uq:builds.doc_upload_id""#), "was: \(error)")
+            XCTAssert("\(error)".contains(#"duplicate key value violates unique constraint "uq:builds.doc_upload_id""#), "was: \(error)")
         } catch {
             XCTFail("unexpected error: \(error)")
         }
@@ -233,9 +228,9 @@ final class DocUploadTests: AppTestCase {
         do {
             try await docUpload2.attach(to: b2, on: app.db)
             XCTFail("Attaching to build with a version_id that already has a doc_upload must fail.")
-        } catch let error as PSQLError where error.sqlState == .uniqueViotation {
+        } catch let error as DatabaseError where error.isConstraintFailure {
             // validate
-            XCTAssert(error.localizedDescription.contains(#"duplicate key value violates unique constraint "uq:builds.version_id+partial""#), "was: \(error)")
+            XCTAssert("\(error)".contains(#"duplicate key value violates unique constraint "uq:builds.version_id+partial""#), "was: \(error)")
         } catch {
             XCTFail("unexpected error: \(error)")
         }
