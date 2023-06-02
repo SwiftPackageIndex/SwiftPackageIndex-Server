@@ -933,7 +933,42 @@ class SearchTests: AppTestCase {
         ])
     }
 
-    func test_search_withNoTerms() throws {
+    func test_search_module_name() async throws {
+        // Test searching for a term that only appears in a module (target) name
+        // setup
+        // p1: decoy
+        // p2: match
+        let p1 = Package(id: .id1, url: "1", score: 10)
+        let p2 = Package(id: .id2, url: "2", score: 20)
+        try await [p1, p2].save(on: app.db)
+        try await Repository(package: p1, defaultBranch: "main", name: "1", owner: "foo").save(on: app.db)
+        try await Repository(package: p2, defaultBranch: "main", name: "2", owner: "foo").save(on: app.db)
+        try await Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db)
+        let v2 = try Version(package: p2, latest: .defaultBranch, packageName: "p2", reference: .branch("main"))
+        try await v2.save(on: app.db)
+        try await Product(version: v2, type: .library(.automatic), name: "ModuleName").save(on: app.db)
+        try await Search.refresh(on: app.db).get()
+
+        // MUT
+        let res = try await Search.fetch(app.db, ["ModuleName"], page: 1, pageSize: 20).get()
+
+        XCTAssertEqual(res.results.count, 1)
+        XCTAssertEqual(res.results, [
+            .package(.init(packageId: .id2,
+                           packageName: "p2",
+                           packageURL: "/foo/2",
+                           repositoryName: "2",
+                           repositoryOwner: "foo",
+                           stars: 0,
+                           lastActivityAt: nil,
+                           summary: nil,
+                           keywords: [],
+                           hasDocs: false)!)
+        ])
+    }
+
+    func test_search_withoutTerms() throws {
         // Setup
         let p1 = Package(id: .id1, url: "1", score: 10)
         let p2 = Package(id: .id2, url: "2", score: 20)

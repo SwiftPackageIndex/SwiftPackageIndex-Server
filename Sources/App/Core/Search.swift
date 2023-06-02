@@ -30,6 +30,7 @@ enum Search {
     static let license = SQLIdentifier("license")
     static let packageId = SQLIdentifier("package_id")
     static let packageName = SQLIdentifier("package_name")
+    static let productNames = SQLIdentifier("product_names")
     static let repoName = SQLIdentifier("repo_name")
     static let repoOwner = SQLIdentifier("repo_owner")
     static let score = SQLIdentifier("score")
@@ -143,7 +144,12 @@ enum Search {
 
         let haystack = concat(
             with: " ",
-            packageName, coalesce(summary, emptyString), repoName, repoOwner, arrayToString(keywords, delimiter: " ")
+            packageName,
+            coalesce(summary, emptyString),
+            repoName,
+            repoOwner,
+            arrayToString(keywords, delimiter: " "),
+            arrayToString(productNames, delimiter: " ")
         )
 
         let exactPackageNameMatch = eq(lower(coalesce(packageName, emptyString)), mergedTerms)

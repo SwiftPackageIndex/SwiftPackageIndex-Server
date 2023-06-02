@@ -280,8 +280,11 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 061 - create doc_uploads
         app.migrations.add(CreateDocUpload())
     }
-    do { // Migration 062 - create doc_uploads
+    do { // Migration 062 - add repository name to ts vector
         app.migrations.add(UpdateSearchExtendTSVector())
+    }
+    do { // Migration 063 - add product names to search view
+        app.migrations.add(UpdateSearchAddProductNames())
     }
 
     app.commands.use(Analyze.Command(), as: "analyze")
