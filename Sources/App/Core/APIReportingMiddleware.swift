@@ -24,7 +24,7 @@ struct APIReportingMiddleware: AsyncMiddleware {
         let user = try? request.auth.require(User.self)
         Task {
             do {
-                try await Current.postPlausibleEvent(Current.httpClient(), .api, path, user)
+                try await Current.postPlausibleEvent(Current.httpClient(), .pageview, path, user)
             } catch {
                 Current.logger().warning("Plausible.postEvent failed: \(error)")
             }

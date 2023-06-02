@@ -92,7 +92,7 @@ class ApiTests: AppTestCase {
 
         // ensure API event has been reported
         await event.withValue {
-            XCTAssertEqual($0, .some(.init(kind: .api, path: .search)))
+            XCTAssertEqual($0, .some(.init(kind: .pageview, path: .search)))
         }
     }
 
@@ -603,7 +603,7 @@ class ApiTests: AppTestCase {
 
         // ensure API event has been reported
         await event.withValue {
-            XCTAssertEqual($0, .some(.init(kind: .api, path: .badge)))
+            XCTAssertEqual($0, .some(.init(kind: .pageview, path: .badge)))
         }
     }
 
@@ -668,7 +668,7 @@ class ApiTests: AppTestCase {
 
         // ensure API event has been reported
         await event.withValue {
-            XCTAssertEqual($0, .some(.init(kind: .api, path: .packageCollections)))
+            XCTAssertEqual($0, .some(.init(kind: .pageview, path: .packageCollections)))
         }
     }
 
