@@ -23,7 +23,6 @@ enum Plausible {
         var props: [String: String]
 
         enum Kind: String, Content, Equatable {
-            case api
             case pageview
         }
     }
@@ -55,7 +54,7 @@ enum Plausible {
             throw Error(message: "PLAUSIBLE_API_REPORTING_SITE_ID not set")
         }
         let res = try await client.post(postEventURI, headers: .applicationJSON) { req in
-            try req.content.encode(Event(name: .api,
+            try req.content.encode(Event(name: .pageview,
                                          url: "https://\(siteID)\(path.rawValue)",
                                          domain: siteID,
                                          props: user.props))

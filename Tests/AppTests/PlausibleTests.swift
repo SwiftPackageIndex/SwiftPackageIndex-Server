@@ -36,14 +36,14 @@ final class PlausibleTests: XCTestCase {
             called = true
             // validate
             XCTAssertEqual(try? req.content.decode(Plausible.Event.self),
-                           .init(name: .api,
+                           .init(name: .pageview,
                                  url: "https://foo.bar/api/search",
                                  domain: "foo.bar",
                                  props: ["user": "none"]))
         }
 
         // MUT
-        _ = try await Plausible.postEvent(client: client, kind: .api, path: .search, user: nil)
+        _ = try await Plausible.postEvent(client: client, kind: .pageview, path: .search, user: nil)
 
         XCTAssertTrue(called)
     }
@@ -57,14 +57,14 @@ final class PlausibleTests: XCTestCase {
             called = true
             // validate
             XCTAssertEqual(try? req.content.decode(Plausible.Event.self),
-                           .init(name: .api,
+                           .init(name: .pageview,
                                  url: "https://foo.bar/api/packages/{owner}/{repository}",
                                  domain: "foo.bar",
                                  props: ["user": user.identifier]))
         }
 
         // MUT
-        _ = try await Plausible.postEvent(client: client, kind: .api, path: .package, user: user)
+        _ = try await Plausible.postEvent(client: client, kind: .pageview, path: .package, user: user)
 
         XCTAssertTrue(called)
     }
