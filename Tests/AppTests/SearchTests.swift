@@ -951,7 +951,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db).get()
 
         // MUT
-        let res = try await Search.fetch(app.db, ["ModuleName"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["modulename"], page: 1, pageSize: 20).get()
 
         XCTAssertEqual(res.results.count, 1)
         XCTAssertEqual(res.results, [
