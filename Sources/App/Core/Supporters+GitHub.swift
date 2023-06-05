@@ -65,7 +65,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "ashtom",
             name: "Thomas Dohmke",
-            avatarUrl: "https://avatars.githubusercontent.com/u/70720?u=5210ac874456eed768fe8b537322c1798acb9917&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/70720?u=109e9a9ab13598cad80ac3b4b8bcaccdacbcd3df&v=4"
         ),
         .init(
             login: "drewmccormack",
@@ -81,11 +81,6 @@ extension Array<Supporters.Community> {
             login: "mattmassicotte",
             name: "Matt Massicotte",
             avatarUrl: "https://avatars.githubusercontent.com/u/85322?u=686384227a6f3796b5c80ab6f310da95bdce973c&v=4"
-        ),
-        .init(
-            login: "MaxDesiatov",
-            name: "Max Desiatov",
-            avatarUrl: "https://avatars.githubusercontent.com/u/112310?u=3c86a5baad3413ec9df4c30c094d1fe89ca411b6&v=4"
         ),
         .init(
             login: "kharrison",
