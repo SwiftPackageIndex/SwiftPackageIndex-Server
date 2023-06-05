@@ -241,16 +241,18 @@ extension PackageShow {
                             )
                         )
                     },
-                    .if(model.hasDocumentation, .li(
-                        .a(
-                            // Always output the default documentation redirect here so people can copy a stable URL.
-                            .href(SiteURL.package(.value(model.repositoryOwner),
-                                                  .value(model.repositoryName),
-                                                  .documentation).relativeURL()),
-                            .data(named: "turbo", value: String(false)),
-                            "Documentation"
-                        )
-                    ))
+                    .unwrap(model.documentationTarget) { target in
+                            .li(
+                                .a(
+                                    .href(SiteURL.relativeURL(owner: model.repositoryOwner,
+                                                              repository: model.repositoryName,
+                                                              documentation: target,
+                                                              fragment: .documentation)),
+                                    .data(named: "turbo", value: String(false)),
+                                    "Documentation"
+                                )
+                            )
+                    }
                 )
             )
         }
