@@ -89,14 +89,14 @@ services:
 
   pushgateway:
     # https://github.com/prometheus/pushgateway/releases
-    image: prom/pushgateway:v1.5.1
+    image: prom/pushgateway:v1.6.0
     networks:
       - app_backend
 
 
   node-exporter:
     # https://github.com/prometheus/node_exporter/releases
-    image: prom/node-exporter:v1.5.0
+    image: prom/node-exporter:v1.6.0
     networks:
       - app_backend
     volumes:
