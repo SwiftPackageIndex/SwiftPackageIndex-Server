@@ -43,7 +43,7 @@ extension API.PackageController.GetRoute {
         var isArchived: Bool
         var hasBinaryTargets: Bool
         var homepageUrl: String?
-        var hasDocumentation: Bool = false
+        var documentationTarget: DocumentationTarget? = nil
         var weightedKeywords: [WeightedKeyword]
         var releaseReferences: [App.Version.Kind: App.Reference]
 
@@ -70,7 +70,7 @@ extension API.PackageController.GetRoute {
                       isArchived: Bool,
                       hasBinaryTargets: Bool = false,
                       homepageUrl: String? = nil,
-                      hasDocumentation: Bool = false,
+                      documentationTarget: DocumentationTarget? = nil,
                       weightedKeywords: [WeightedKeyword] = [],
                       defaultBranchReference: App.Reference,
                       releaseReference: App.Reference?,
@@ -100,7 +100,7 @@ extension API.PackageController.GetRoute {
             self.isArchived = isArchived
             self.hasBinaryTargets = hasBinaryTargets
             self.homepageUrl = homepageUrl
-            self.hasDocumentation = hasDocumentation
+            self.documentationTarget = documentationTarget
             self.weightedKeywords = weightedKeywords
             self.releaseReferences = {
                 var refs = [App.Version.Kind.defaultBranch: defaultBranchReference]
@@ -157,7 +157,7 @@ extension API.PackageController.GetRoute {
                 isArchived: repository.isArchived,
                 hasBinaryTargets: result.defaultBranchVersion.hasBinaryTargets,
                 homepageUrl: repository.homepageUrl,
-                hasDocumentation: result.hasDocumentation(),
+                documentationTarget: result.canonicalDocumentationTarget(),
                 weightedKeywords: weightedKeywords,
                 defaultBranchReference: result.defaultBranchVersion.reference,
                 releaseReference: result.releaseVersion?.reference,
