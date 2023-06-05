@@ -273,7 +273,7 @@ class PackageResultTests: AppTestCase {
                 .query(on: app.db, owner: "foo", repository: "bar1")
 
             // validate
-            XCTAssertEqual(res.hasDocumentation(), true)
+            XCTAssertEqual(res.canonicalDocumentationTarget(), .internal(reference: "main", archive: "foo"))
         }
 
         do {
@@ -282,7 +282,7 @@ class PackageResultTests: AppTestCase {
                 .query(on: app.db, owner: "foo", repository: "bar2")
 
             // validate
-            XCTAssertEqual(res.hasDocumentation(), false)
+            XCTAssertEqual(res.canonicalDocumentationTarget(), nil)
         }
     }
 
