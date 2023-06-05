@@ -80,7 +80,7 @@ extension API.PackageController.GetRoute.Model {
                                    watchosStatus: .compatible))),
             history: .init(
                 createdAt: Calendar.current.date(byAdding: .day,
-                                                 value: -365*5,
+                                                 value: -80,
                                                  to: Current.date())!,
                 commitCount: 1433,
                 commitCountURL: "https://github.com/Alamofire/Alamofire/commits/main",
