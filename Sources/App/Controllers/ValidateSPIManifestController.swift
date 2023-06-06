@@ -25,7 +25,6 @@ enum ValidateSPIManifestController {
     }
 
     static func validate(req: Request) async throws -> HTML {
-
         struct FormData: Content {
             var manifest: String
         }

@@ -38,13 +38,13 @@ class SearchTests: AppTestCase {
 
     func test_packageMatchQuery_single_term() throws {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER(COALESCE("package_name", '')) = $3 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER(COALESCE("package_name", '')) = $3 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC"#)
         XCTAssertEqual(binds(b), ["a", "a", "a"])
     }
 
     func test_packageMatchQuery_multiple_terms() throws {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a", "b"], filters: [])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $2 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $3 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $2 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $3 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC"#)
         XCTAssertEqual(binds(b), ["a b", "a", "b", "a b"])
     }
 
@@ -55,7 +55,7 @@ class SearchTests: AppTestCase {
         )
 
         XCTAssertEqual(renderSQL(b), """
-              SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("repo_owner" ILIKE $3) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
+              SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("repo_owner" ILIKE $3) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
               """)
         XCTAssertEqual(binds(b), ["a", "a", "foo", "a"])
     }
@@ -68,7 +68,7 @@ class SearchTests: AppTestCase {
         )
 
         XCTAssertEqual(renderSQL(b), """
-            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ($3 ILIKE ANY("keywords")) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ($3 ILIKE ANY("keywords")) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
             """)
         XCTAssertEqual(binds(b), ["a", "a", "foo", "a"])
     }
@@ -81,7 +81,7 @@ class SearchTests: AppTestCase {
         )
 
         XCTAssertEqual(renderSQL(b), """
-            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("last_activity_at" > $3) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("last_activity_at" > $3) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
             """)
         XCTAssertEqual(binds(b), ["a", "a", "2021-12-01", "a"])
     }
@@ -94,7 +94,7 @@ class SearchTests: AppTestCase {
         )
 
         XCTAssertEqual(renderSQL(b), """
-            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("last_commit_date" > $3) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("last_commit_date" > $3) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
             """)
         XCTAssertEqual(binds(b), ["a", "a", "2021-12-01", "a"])
     }
@@ -106,7 +106,7 @@ class SearchTests: AppTestCase {
         )
 
         XCTAssertEqual(renderSQL(b), """
-            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("license" IN ($3)) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("license" IN ($3)) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
             """)
         XCTAssertEqual(binds(b), ["a", "a", "mit", "a"])
     }
@@ -118,7 +118,7 @@ class SearchTests: AppTestCase {
         )
 
         XCTAssertEqual(renderSQL(b), """
-        SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("platform_compatibility" @> $3) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
+        SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("platform_compatibility" @> $3) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
         """)
         XCTAssertEqual(binds(b), ["a", "a", "{ios,macos}", "a"])
     }
@@ -132,7 +132,7 @@ class SearchTests: AppTestCase {
                 ]
             )
             XCTAssertEqual(renderSQL(b), """
-            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("product_types" @> $3) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("product_types" @> $3) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
             """)
             XCTAssertEqual(binds(b), ["a", "a", "{\(type.rawValue)}", "a"])
         }
@@ -145,7 +145,7 @@ class SearchTests: AppTestCase {
                                                               value: "500"))])
 
         XCTAssertEqual(renderSQL(b), """
-            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("stars" > $3) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($1) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("stars" > $3) ORDER BY LOWER(COALESCE("package_name", '')) = $4 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC
             """)
         XCTAssertEqual(binds(b), ["a", "a", "500", "a"])
     }
@@ -180,7 +180,7 @@ class SearchTests: AppTestCase {
         let query = try XCTUnwrap(Search.query(app.db, ["test"], page: 1, pageSize: 20))
         // validate
         XCTAssertEqual(renderSQL(query), """
-            SELECT * FROM ((SELECT DISTINCT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", LEVENSHTEIN("repo_owner", $1) AS "levenshtein_dist", NULL::BOOL AS "has_exact_word_matches" FROM "search" WHERE "repo_owner" ILIKE $2 ORDER BY "levenshtein_dist" LIMIT 50) UNION ALL (SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", NULL::INT AS "levenshtein_dist", NULL::BOOL AS "has_exact_word_matches" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $3 LIMIT 50) UNION ALL (SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($4) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $5 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER(COALESCE("package_name", '')) = $6 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC LIMIT 21 OFFSET 0)) AS "t"
+            SELECT * FROM ((SELECT DISTINCT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", LEVENSHTEIN("repo_owner", $1) AS "levenshtein_dist", NULL::BOOL AS "has_exact_word_matches" FROM "search" WHERE "repo_owner" ILIKE $2 ORDER BY "levenshtein_dist" LIMIT 50) UNION ALL (SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::TEXT[] AS "keywords", NULL::BOOL AS "has_docs", NULL::INT AS "levenshtein_dist", NULL::BOOL AS "has_exact_word_matches" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $3 LIMIT 50) UNION ALL (SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", "has_docs", NULL::INT AS "levenshtein_dist", ts_rank("tsvector", "tsquery") >= 0.05 AS "has_exact_word_matches" FROM "search", plainto_tsquery($4) AS "tsquery" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' '), ARRAY_TO_STRING("product_names", ' ')) ~* $5 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER(COALESCE("package_name", '')) = $6 DESC, "has_exact_word_matches" DESC, "score" DESC, "stars" DESC, "package_name" ASC LIMIT 21 OFFSET 0)) AS "t"
             """)
         XCTAssertEqual(binds(query), ["test", "%test%", "%test%", "test", "test", "test"])
     }
@@ -933,7 +933,42 @@ class SearchTests: AppTestCase {
         ])
     }
 
-    func test_search_withNoTerms() throws {
+    func test_search_module_name() async throws {
+        // Test searching for a term that only appears in a module (target) name
+        // setup
+        // p1: decoy
+        // p2: match
+        let p1 = Package(id: .id1, url: "1", score: 10)
+        let p2 = Package(id: .id2, url: "2", score: 20)
+        try await [p1, p2].save(on: app.db)
+        try await Repository(package: p1, defaultBranch: "main", name: "1", owner: "foo").save(on: app.db)
+        try await Repository(package: p2, defaultBranch: "main", name: "2", owner: "foo").save(on: app.db)
+        try await Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db)
+        let v2 = try Version(package: p2, latest: .defaultBranch, packageName: "p2", reference: .branch("main"))
+        try await v2.save(on: app.db)
+        try await Product(version: v2, type: .library(.automatic), name: "ModuleName").save(on: app.db)
+        try await Search.refresh(on: app.db).get()
+
+        // MUT
+        let res = try await Search.fetch(app.db, ["modulename"], page: 1, pageSize: 20).get()
+
+        XCTAssertEqual(res.results.count, 1)
+        XCTAssertEqual(res.results, [
+            .package(.init(packageId: .id2,
+                           packageName: "p2",
+                           packageURL: "/foo/2",
+                           repositoryName: "2",
+                           repositoryOwner: "foo",
+                           stars: 0,
+                           lastActivityAt: nil,
+                           summary: nil,
+                           keywords: [],
+                           hasDocs: false)!)
+        ])
+    }
+
+    func test_search_withoutTerms() throws {
         // Setup
         let p1 = Package(id: .id1, url: "1", score: 10)
         let p2 = Package(id: .id2, url: "2", score: 20)
