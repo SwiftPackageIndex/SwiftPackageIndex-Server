@@ -121,6 +121,7 @@ enum SiteURL: Resourceable {
     case rssReleases
     case search
     case siteMapIndex
+    case siteMapStaticPages
     case stylesheets(String)
     case supporters
     case tryInPlayground
@@ -205,6 +206,9 @@ enum SiteURL: Resourceable {
             case .siteMapIndex:
                 return "sitemap.xml"
 
+            case .siteMapStaticPages:
+                return "sitemap-static-pages.xml"
+
             case .supporters:
                 return "supporters"
 
@@ -222,7 +226,8 @@ enum SiteURL: Resourceable {
     var pathComponents: [PathComponent] {
         switch self {
             case .addAPackage, .buildMonitor, .faq, .home, .packageCollections, .privacy, .rssPackages,
-                    .rssReleases, .search, .siteMapIndex, .supporters, .tryInPlayground, .validateSPIManifest:
+                    .rssReleases, .search, .siteMapIndex, .siteMapStaticPages, .supporters, .tryInPlayground,
+                    .validateSPIManifest:
                 return [.init(stringLiteral: path)]
 
             case let .api(next):
