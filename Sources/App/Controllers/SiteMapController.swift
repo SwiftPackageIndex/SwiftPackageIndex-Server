@@ -162,7 +162,7 @@ extension SiteURL {
                 return .hourly
             case .validateSPIManifest:
                 return .monthly
-            case .siteMap:
+            case .siteMapIndex:
                 return .weekly
             case .supporters:
                 return .weekly
