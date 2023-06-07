@@ -24,7 +24,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
-        .package(url: "https://github.com/JohnSundell/Plot.git", from: "0.10.0"),
+        .package(url: "https://github.com/daveverwer/Plot.git", branch: "sitemapindex"),
         .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
         .package(url: "https://github.com/SwiftPackageIndex/DependencyResolution", from: "1.0.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SPIManifest", from: "0.17.0"),
