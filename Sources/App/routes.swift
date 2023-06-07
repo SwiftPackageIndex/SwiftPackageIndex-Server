@@ -268,10 +268,8 @@ func routes(_ app: Application) throws {
         }
 
         app.group(BackendReportingMiddleware(path: .sitemap)) {
-            $0.get(SiteURL.siteMap.pathComponents) { req in
-                SiteMap.fetchPackages(req.db)
-                    .map(SiteURL.siteMap)
-            }.excludeFromOpenAPI()
+            $0.get(SiteURL.siteMap.pathComponents, use: SiteMapController.index)
+                .excludeFromOpenAPI()
         }
     }
 

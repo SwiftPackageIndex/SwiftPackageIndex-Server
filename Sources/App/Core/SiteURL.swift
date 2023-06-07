@@ -289,6 +289,7 @@ enum SiteURL: Resourceable {
         case builds
         case documentation
         case maintainerInfo = "information-for-package-maintainers"
+        case siteMap = "sitemap.xml"
     }
 
 }
