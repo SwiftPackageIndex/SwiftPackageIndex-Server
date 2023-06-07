@@ -66,6 +66,17 @@ enum SiteMapController {
         )).encodeResponse(for: req)
     }
 
+    static func staticPagesSiteMap(req: Request) async throws -> Response {
+        return SiteMap(.group(
+            staticRoutes.map { page -> Node<SiteMap.URLSetContext> in
+                    .url(
+                        .loc(page.absoluteURL()),
+                        .changefreq(page.changefreq)
+                    )
+            }
+        )).encodeResponse(for: req)
+    }
+
 //    static func sitemap(req: Request) async throws -> Response {
 //        guard
 //            let owner = req.parameters.get("owner"),
@@ -74,95 +85,91 @@ enum SiteMapController {
 //            throw Abort(.notFound)
 //        }
 //    }
+
+    //    static func siteMap(with packages: [SiteMap.Package]) -> SiteMap {
+    //        .init(
+    //            .forEach(staticRoutes) {
+    //                .url(
+    //                    .loc($0.absoluteURL()),
+    //                    .changefreq($0.changefreq)
+    //                )
+    //            },
+    //            .forEach(packages) { package in
+    //                    .group(
+    //                        .url(
+    //                            .loc(SiteURL.package(.value(package.owner),
+    //                                                 .value(package.repository),
+    //                                                 .none).absoluteURL()),
+    //                            .changefreq(SiteURL.package(.value(package.owner),
+    //                                                        .value(package.repository),
+    //                                                        .none).changefreq)
+    //                        ),
+    //                        .unwrap(package.hasDocs, { hasDocs in
+    //                                .if(hasDocs, .url(
+    //                                    .loc(SiteURL.package(.value(package.owner),
+    //                                                         .value(package.repository),
+    //                                                         .documentation).absoluteURL()),
+    //                                    .changefreq(SiteURL.package(.value(package.owner),
+    //                                                                .value(package.repository),
+    //                                                                .documentation).changefreq)
+    //                                ))
+    //                        })
+    //                    )
+    //            }
+    //        )
+    //    }
+
 }
 
-
-
-
-//extension SiteURL {
-//
-//    static func siteMap(with packages: [SiteMap.Package]) -> SiteMap {
-//        .init(
-//            .forEach(staticRoutes) {
-//                .url(
-//                    .loc($0.absoluteURL()),
-//                    .changefreq($0.changefreq)
-//                )
-//            },
-//            .forEach(packages) { package in
-//                    .group(
-//                        .url(
-//                            .loc(SiteURL.package(.value(package.owner),
-//                                                 .value(package.repository),
-//                                                 .none).absoluteURL()),
-//                            .changefreq(SiteURL.package(.value(package.owner),
-//                                                        .value(package.repository),
-//                                                        .none).changefreq)
-//                        ),
-//                        .unwrap(package.hasDocs, { hasDocs in
-//                                .if(hasDocs, .url(
-//                                    .loc(SiteURL.package(.value(package.owner),
-//                                                         .value(package.repository),
-//                                                         .documentation).absoluteURL()),
-//                                    .changefreq(SiteURL.package(.value(package.owner),
-//                                                                .value(package.repository),
-//                                                                .documentation).changefreq)
-//                                ))
-//                        })
-//                    )
-//            }
-//        )
-//    }
-//
-//    var changefreq: SiteMapChangeFrequency {
-//        switch self {
-//            case .addAPackage:
-//                return .weekly
-//            case .api:
-//                return .weekly
-//            case .author:
-//                return .daily
-//            case .buildMonitor:
-//                return .hourly
-//            case .builds:
-//                return .daily
-//            case .docs:
-//                return .weekly
-//            case .faq:
-//                return .weekly
-//            case .home:
-//                return .hourly
-//            case .images:
-//                return .weekly
-//            case .javascripts:
-//                return .weekly
-//            case .keywords:
-//                return .daily
-//            case .package:
-//                return .daily
-//            case .packageCollections:
-//                return .daily
-//            case .packageCollection:
-//                return .daily
-//            case .privacy:
-//                return .monthly
-//            case .rssPackages:
-//                return .hourly
-//            case .rssReleases:
-//                return .hourly
-//            case .search:
-//                return .hourly
-//            case .validateSPIManifest:
-//                return .monthly
-//            case .siteMap:
-//                return .weekly
-//            case .supporters:
-//                return .weekly
-//            case .stylesheets:
-//                return .weekly
-//            case .tryInPlayground:
-//                return .monthly
-//        }
-//    }
-//
-//}
+extension SiteURL {
+    var changefreq: SiteMapChangeFrequency {
+        switch self {
+            case .addAPackage:
+                return .weekly
+            case .api:
+                return .weekly
+            case .author:
+                return .daily
+            case .buildMonitor:
+                return .hourly
+            case .builds:
+                return .daily
+            case .docs:
+                return .weekly
+            case .faq:
+                return .weekly
+            case .home:
+                return .hourly
+            case .images:
+                return .weekly
+            case .javascripts:
+                return .weekly
+            case .keywords:
+                return .daily
+            case .package:
+                return .daily
+            case .packageCollections:
+                return .daily
+            case .packageCollection:
+                return .daily
+            case .privacy:
+                return .monthly
+            case .rssPackages:
+                return .hourly
+            case .rssReleases:
+                return .hourly
+            case .search:
+                return .hourly
+            case .validateSPIManifest:
+                return .monthly
+            case .siteMap:
+                return .weekly
+            case .supporters:
+                return .weekly
+            case .stylesheets:
+                return .weekly
+            case .tryInPlayground:
+                return .monthly
+        }
+    }
+}
