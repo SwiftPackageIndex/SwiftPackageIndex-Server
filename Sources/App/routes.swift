@@ -258,7 +258,7 @@ func routes(_ app: Application) throws {
         
     }
 
-    do {  // RSS + Sitemap
+    do { // RSS
         app.group(BackendReportingMiddleware(path: .rss)) {
             $0.get(SiteURL.rssPackages.pathComponents, use: RSSFeed.showPackages)
                 .excludeFromOpenAPI()
@@ -266,11 +266,16 @@ func routes(_ app: Application) throws {
             $0.get(SiteURL.rssReleases.pathComponents, use: RSSFeed.showReleases)
                 .excludeFromOpenAPI()
         }
+    }
 
+    do { // Site map index and site maps
         app.group(BackendReportingMiddleware(path: .sitemap)) {
-            $0.get(SiteURL.siteMap.pathComponents, use: SiteMapController.index)
+            $0.get(SiteURL.siteMapIndex.pathComponents, use: SiteMapController.index)
                 .excludeFromOpenAPI()
         }
+
+        app.get(SiteURL.siteMapStaticPages.pathComponents, use: SiteMapController.staticPages)
+            .excludeFromOpenAPI()
     }
 
     do {  // Metrics

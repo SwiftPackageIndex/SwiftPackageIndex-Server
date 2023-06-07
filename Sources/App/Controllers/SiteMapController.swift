@@ -66,7 +66,7 @@ enum SiteMapController {
         )).encodeResponse(for: req)
     }
 
-    static func staticPagesSiteMap(req: Request) async throws -> Response {
+    static func staticPages(req: Request) async throws -> Response {
         return SiteMap(.group(
             staticRoutes.map { page -> Node<SiteMap.URLSetContext> in
                     .url(
