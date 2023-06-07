@@ -50,22 +50,20 @@ enum SiteMapController {
             .column(Search.repoName, as: "repository")
             .column(Search.lastActivityAt, as: "last_activity_at")
             .from(Search.searchView)
-            .orderBy(Search.repoName)
             .orderBy(Search.repoOwner)
+            .orderBy(Search.repoName)
 
         let packages = try await query.all(decoding: Package.self)
-        let index = SiteMapIndex(
-            .group(
-                packages.map { package -> Node<SiteMapIndex.SiteMapIndexContext> in
-                    return .sitemap(
-                        .loc(SiteURL.package(.value(package.owner),
-                                             .value(package.repository),
-                                             .siteMap).absoluteURL())
-                    )
-                }
-            )
-        )
-        return index.encodeResponse(for: req)
+        return SiteMapIndex(.group(
+            packages.map { package -> Node<SiteMapIndex.SiteMapIndexContext> in
+                return .sitemap(
+                    .loc(SiteURL.package(.value(package.owner),
+                                         .value(package.repository),
+                                         .siteMap).absoluteURL()),
+                    .lastmod(package.lastActivityAt)
+                )
+            }
+        )).encodeResponse(for: req)
     }
 
 //    static func sitemap(req: Request) async throws -> Response {
