@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/finestructure/spi-base:0.10.0
+FROM registry.gitlab.com/finestructure/spi-base:1240dfbcf393af3cd68754d7aeb95260541cfa39
 
 # Install SPM build dependencies
 RUN apt-get update && apt-get install -y curl git make unzip \
