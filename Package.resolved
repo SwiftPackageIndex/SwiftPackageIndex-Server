@@ -373,8 +373,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/SwiftOpenAPI.git",
       "state" : {
-        "revision" : "0a2448d43758e2f3fe2a87b0d7298076376c27ba",
-        "version" : "2.16.4"
+        "revision" : "9c5cf016ad224b5cde6c41d8835c92822ebcc51f",
+        "version" : "2.16.7"
       }
     },
     {
