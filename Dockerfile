@@ -18,7 +18,7 @@
 # ================================
 # Build image
 # ================================
-FROM registry.gitlab.com/finestructure/spi-base:1240dfbcf393af3cd68754d7aeb95260541cfa39 as build
+FROM registry.gitlab.com/finestructure/spi-base:0.11.0 as build
 
 # Set up a build area
 WORKDIR /build
@@ -54,7 +54,7 @@ RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w
 # ================================
 # Run image
 # ================================
-FROM registry.gitlab.com/finestructure/spi-base:1240dfbcf393af3cd68754d7aeb95260541cfa39
+FROM registry.gitlab.com/finestructure/spi-base:0.11.0
 
 # NB sas 2022-09-23: We're not using a dedicated `vapor` user to run the executable, because it
 # makes managing the data in the checkouts volume difficult. See
