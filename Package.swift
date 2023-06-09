@@ -31,6 +31,8 @@ let package = Package(
         .package(url: "https://github.com/SwiftPackageIndex/ShellOut.git",
                  revision: "db112a2104eae7fa8412ea80210d0f60b89a377e"),
         .package(url: "https://github.com/apple/swift-package-manager.git", branch: "release/5.8"),
+        // FIXME: unpin when build error is fixed https://github.com/dankinsoid/SwiftOpenAPI/issues/3
+        .package(url: "https://github.com/dankinsoid/SwiftOpenAPI.git", exact: "2.16.6"),
         .package(url: "https://github.com/dankinsoid/VaporToOpenAPI.git", from: "3.12.1"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "0.10.0"),
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0"),
