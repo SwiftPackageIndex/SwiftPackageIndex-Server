@@ -179,8 +179,8 @@ func routes(_ app: Application) throws {
         .openAPI(
             summary: "/api/version",
             description: "Get the site's version.",
-            response: API.Version(version: "1.2.3"),
-            responseType: .application(.json)
+            response: .type(of: API.Version(version: "1.2.3")),
+            responseContentType: .application(.json)
         )
 
         app.group(APIReportingMiddleware(path: .search)) {
@@ -188,12 +188,9 @@ func routes(_ app: Application) throws {
                 .openAPI(
                     summary: "/api/search",
                     description: "Execute a search.",
-                    query: API.SearchController.Query.example,
-                    response: Search.Response.example,
-                    responseType: .application(.json),
-                    errorDescriptions: [
-                        400: "Bad request"
-                    ]
+                    query: .type(of: API.SearchController.Query.example),
+                    response: .type(of: Search.Response.example),
+                    responseContentType: .application(.json)
                 )
         }
         
@@ -203,13 +200,10 @@ func routes(_ app: Application) throws {
             .openAPI(
                 summary: "/api/packages/{owner}/{repository}/badge",
                 description: "Get shields.io badge for the given repository.",
-                query: API.PackageController.BadgeQuery.example,
-                response: Badge.example,
-                responseType: .application(.json),
-                errorDescriptions: [
-                    400: "Bad request",
-                    404: "Not found"
-                ])
+                query: .type(of: API.PackageController.BadgeQuery.example),
+                response: .type(of: Badge.example),
+                responseContentType: .application(.json)
+            )
         }
 
         // api token protected routes
@@ -220,13 +214,8 @@ func routes(_ app: Application) throws {
                         .openAPI(
                             summary: "/api/packages/{owner}/{repository}",
                             description: "Get package details.",
-                            response: API.PackageController.GetRoute.Model.example,
-                            responseType: .application(.json),
-                            errorDescriptions: [
-                                400: "Bad request",
-                                401: "Unauthorized",
-                                404: "Not found"
-                            ]
+                            response: .type(of: API.PackageController.GetRoute.Model.example),
+                            responseContentType: .application(.json)
                         )
                 }
 
@@ -236,13 +225,10 @@ func routes(_ app: Application) throws {
                     .openAPI(
                         summary: "/api/package-collections",
                         description: "Generate a signed package collection.",
-                        body: API.PostPackageCollectionDTO.example,
-                        response: SignedCollection.example,
-                        responseType: .application(.json),
-                        errorDescriptions: [
-                            400: "Bad request",
-                            401: "Unauthorized"
-                        ])
+                        body: .type(of: API.PostPackageCollectionDTO.example),
+                        response: .type(of: SignedCollection.example),
+                        responseContentType: .application(.json)
+                    )
                 }
             }
         }
@@ -255,14 +241,8 @@ func routes(_ app: Application) throws {
                 .openAPI(
                     summary: "/api/versions/{id}/build-report",
                     description: "Send a build report.",
-                    body: API.PostBuildReportDTO.example,
-                    responseType: .application(.json),
-                    errorDescriptions: [
-                        400: "Bad request",
-                        404: "Not found",
-                        409: "Conflict",
-                        500: "Internal server error"
-                    ]
+                    body: .type(of: API.PostBuildReportDTO.example),
+                    responseContentType: .application(.json)
                 )
 
                 protected.on(.POST, SiteURL.api(.builds(.key, .docReport)).pathComponents,
@@ -270,14 +250,8 @@ func routes(_ app: Application) throws {
                 .openAPI(
                     summary: "/api/builds/{id}/doc-report",
                     description: "Send a documentation generation report.",
-                    body: API.PostDocReportDTO.example,
-                    responseType: .application(.json),
-                    errorDescriptions: [
-                        400: "Bad request",
-                        404: "Not found",
-                        409: "Conflict",
-                        500: "Internal server error"
-                    ]
+                    body: .type(of: API.PostDocReportDTO.example),
+                    responseContentType: .application(.json)
                 )
             }
         }
