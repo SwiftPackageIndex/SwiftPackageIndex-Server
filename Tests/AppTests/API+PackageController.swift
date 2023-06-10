@@ -221,10 +221,10 @@ class API_PackageControllerTests: AppTestCase {
             // v3 - ok
             makeBuild(.ok, .macosXcodebuild, .v3),
             // v4 - ok
-            makeBuild(.failed, .ios, .v5_8),
-            makeBuild(.ok, .macosXcodebuild, .v5_8),
+            makeBuild(.failed, .ios, .v4),
+            makeBuild(.ok, .macosXcodebuild, .v4),
             // unrelated release version build (we're testing defaultBranch builds)
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_8, platform: .ios, status: .failed),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v4, platform: .ios, status: .failed),
         ]
 
         // MUT
@@ -236,7 +236,7 @@ class API_PackageControllerTests: AppTestCase {
         XCTAssertEqual(res?.results.v5_5, .init(parameter: .v1, status: .incompatible))
         XCTAssertEqual(res?.results.v5_6, .init(parameter: .v2, status: .unknown))
         XCTAssertEqual(res?.results.v5_7, .init(parameter: .v3, status: .compatible))
-        XCTAssertEqual(res?.results.v5_8, .init(parameter: .v5_8, status: .compatible))
+        XCTAssertEqual(res?.results.v5_8, .init(parameter: .v4, status: .compatible))
     }
 
     func test_platformBuildInfo() throws {
@@ -282,7 +282,7 @@ class API_PackageControllerTests: AppTestCase {
         XCTAssertEqual(res?.stable?.results.v5_7,
                        .init(parameter: .v3, status: .compatible))
         XCTAssertEqual(res?.stable?.results.v5_8,
-                       .init(parameter: .v5_8, status: .unknown))
+                       .init(parameter: .v4, status: .unknown))
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
     }

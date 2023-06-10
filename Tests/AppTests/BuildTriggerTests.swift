@@ -335,7 +335,7 @@ class BuildTriggerTests: AppTestCase {
                        ["\(SwiftVersion.v1)": 6,
                         "\(SwiftVersion.v2)": 6,
                         "\(SwiftVersion.v3)": 6,
-                        "\(SwiftVersion.v5_8)": 6])
+                        "\(SwiftVersion.v4)": 6])
 
         // ensure the Build stubs are created to prevent re-selection
         let v = try await Version.find(versionId, on: app.db)

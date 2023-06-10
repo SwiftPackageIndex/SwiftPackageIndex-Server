@@ -308,7 +308,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                       status5_8: .compatible))),
                                  beta: nil,
                                  latest: nil)
-            XCTAssertEqual(info?.compatibility, [.v1, .v5_8])
+            XCTAssertEqual(info?.compatibility, [.v1, .v4])
         }
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
@@ -322,7 +322,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                     status5_7: .compatible,
                                                                     status5_8: .unknown))),
                                  latest: nil)
-            XCTAssertEqual(info?.compatibility, [.v1, .v3, .v5_8])
+            XCTAssertEqual(info?.compatibility, [.v1, .v3, .v4])
         }
     }
 
