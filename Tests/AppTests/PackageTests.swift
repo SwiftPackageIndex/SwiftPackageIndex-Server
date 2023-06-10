@@ -400,7 +400,7 @@ final class PackageTests: AppTestCase {
             // (which is a bit obscure but means that the content of
             // platform_compatibility cannot be de-serialised into
             // PlatformCompatibility)
-            try await Build(version: v, platform: platform, status: .ok, swiftVersion: .v5_5)
+            try await Build(version: v, platform: platform, status: .ok, swiftVersion: .v1)
                 .save(on: app.db)
         }
         try savePackage(on: app.db, "2")

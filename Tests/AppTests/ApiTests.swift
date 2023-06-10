@@ -528,7 +528,7 @@ class ApiTests: AppTestCase {
                                  license: .mit,
                                  name: "decoy",
                                  owner: "owner").save(on: app.db)
-            try await Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_5)
+            try await Build(version: v, platform: .ios, status: .ok, swiftVersion: .v1)
                 .save(on: app.db)
         }
 

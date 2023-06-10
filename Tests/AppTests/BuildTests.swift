@@ -324,7 +324,7 @@ class BuildTests: AppTestCase {
         let v = try Version(package: p, latest: .defaultBranch)
         try v.save(on: app.db).wait()
         // save a Build with status 'triggered'
-        try Build(id: .id0, version: v, platform: .ios, status: .triggered, swiftVersion: .v5_5).save(on: app.db).wait()
+        try Build(id: .id0, version: v, platform: .ios, status: .triggered, swiftVersion: .v1).save(on: app.db).wait()
 
         // MUT - test roll back to previous schema, migrating 'triggered' -> 'pending'
         try UpdateBuildPendingToTriggered().revert(on: app.db).wait()
@@ -355,7 +355,7 @@ class BuildTests: AppTestCase {
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
         // save a Build with platform `macos-spm`
-        try await Build(id: .id0, version: v, platform: .macosSpm, status: .triggered, swiftVersion: .v5_5).save(on: app.db)
+        try await Build(id: .id0, version: v, platform: .macosSpm, status: .triggered, swiftVersion: .v1).save(on: app.db)
         // save a Build with `macos-spm-arm` - we need to use raw SQL, because the platform enum
         // does not exist anymore
         try await (app.db as! SQLDatabase).raw(#"""

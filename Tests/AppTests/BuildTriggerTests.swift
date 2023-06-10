@@ -22,7 +22,7 @@ import XCTest
 class BuildTriggerTests: AppTestCase {
 
     func test_BuildTriggerInfo_emptyPair() throws {
-        XCTAssertNotNil(BuildTriggerInfo(versionId: .id0, pairs: Set([BuildPair(.ios, .v5_5)])))
+        XCTAssertNotNil(BuildTriggerInfo(versionId: .id0, pairs: Set([BuildPair(.ios, .v1)])))
         XCTAssertNil(BuildTriggerInfo(versionId: .id0, pairs: []))
     }
 
@@ -188,7 +188,7 @@ class BuildTriggerTests: AppTestCase {
          // i.e. ignoring patch version
          let allExceptFirst = Array(BuildPair.all.dropFirst())
          // just assert what the first one actually is so we test the right thing
-         XCTAssertEqual(BuildPair.all.first, .init(.ios, .v5_5))
+         XCTAssertEqual(BuildPair.all.first, .init(.ios, .v1))
          // substitute in build with a different patch version
          let existing = allExceptFirst + [.init(.ios, .init(5, 5, 1))]
 
@@ -257,7 +257,7 @@ class BuildTriggerTests: AppTestCase {
             try await v.save(on: app.db)
         }
         let triggers = [BuildTriggerInfo(versionId: versionId,
-                                         pairs: [BuildPair(.ios, .v5_5)])!]
+                                         pairs: [BuildPair(.ios, .v1)])!]
 
         // MUT
         try await triggerBuildsUnchecked(on: app.db,
@@ -332,7 +332,7 @@ class BuildTriggerTests: AppTestCase {
         let swiftVersions = queries.value.compactMap { $0.variables["SWIFT_VERSION"] }
         XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
                         .mapValues(\.count),
-                       ["\(SwiftVersion.v5_5)": 6,
+                       ["\(SwiftVersion.v1)": 6,
                         "\(SwiftVersion.v5_6)": 6,
                         "\(SwiftVersion.v5_7)": 6,
                         "\(SwiftVersion.v5_8)": 6])
@@ -860,7 +860,7 @@ class BuildTriggerTests: AppTestCase {
                 .save(on: app.db)
             // old non-triggered build (keep)
             try await Build(id: keepBuildId2,
-                      version: v1, platform: .ios, status: .ok, swiftVersion: .v5_5)
+                      version: v1, platform: .ios, status: .ok, swiftVersion: .v1)
                 .save(on: app.db)
 
             // make old builds "old" by resetting "created_at"
@@ -881,7 +881,7 @@ class BuildTriggerTests: AppTestCase {
                 .save(on: app.db)
             // old non-triggered build
             try await Build(id: UUID(),
-                      version: v2, platform: .ios, status: .ok, swiftVersion: .v5_5)
+                      version: v2, platform: .ios, status: .ok, swiftVersion: .v1)
                 .save(on: app.db)
         }
 
@@ -935,7 +935,7 @@ class BuildTriggerTests: AppTestCase {
                         version: v,
                         platform: .ios,
                         status: .timeout,
-                        swiftVersion: .v5_5).save(on: app.db)
+                        swiftVersion: .v1).save(on: app.db)
 
         // MUT
         var deleteCount = try await trimBuilds(on: app.db)
@@ -972,7 +972,7 @@ class BuildTriggerTests: AppTestCase {
                         version: v,
                         platform: .ios,
                         status: .infrastructureError,
-                        swiftVersion: .v5_5).save(on: app.db)
+                        swiftVersion: .v1).save(on: app.db)
 
         // MUT
         var deleteCount = try await trimBuilds(on: app.db)

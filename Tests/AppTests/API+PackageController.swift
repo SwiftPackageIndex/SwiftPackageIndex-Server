@@ -180,14 +180,14 @@ class API_PackageControllerTests: AppTestCase {
         let builds = [
             // ios - failed
             makeBuild(.failed, .ios, .v5_6),
-            makeBuild(.failed, .ios, .v5_5),
+            makeBuild(.failed, .ios, .v1),
             // macos - failed
             makeBuild(.failed, .macosSpm, .v5_6),
-            makeBuild(.failed, .macosXcodebuild, .v5_5),
+            makeBuild(.failed, .macosXcodebuild, .v1),
             // tvos - no data - unknown
             // watchos - ok
             makeBuild(.failed, .watchos, .v5_6),
-            makeBuild(.ok, .watchos, .v5_5),
+            makeBuild(.ok, .watchos, .v1),
             // unrelated build
             .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_6, platform: .ios, status: .ok),
         ]
@@ -214,13 +214,13 @@ class API_PackageControllerTests: AppTestCase {
         }
 
         let builds = [
-            // 5.5 - failed
-            makeBuild(.failed, .ios, .v5_5),
-            makeBuild(.failed, .macosXcodebuild, .v5_5),
-            // 5.6 - no data - unknown
-            // 5.7 - ok
+            // v1 - failed
+            makeBuild(.failed, .ios, .v1),
+            makeBuild(.failed, .macosXcodebuild, .v1),
+            // v2 - no data - unknown
+            // v3 - ok
             makeBuild(.ok, .macosXcodebuild, .v5_7),
-            // 5.8 - ok
+            // v4 - ok
             makeBuild(.failed, .ios, .v5_8),
             makeBuild(.ok, .macosXcodebuild, .v5_8),
             // unrelated release version build (we're testing defaultBranch builds)
@@ -233,7 +233,7 @@ class API_PackageControllerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.v5_5, .init(parameter: .v5_5, status: .incompatible))
+        XCTAssertEqual(res?.results.v5_5, .init(parameter: .v1, status: .incompatible))
         XCTAssertEqual(res?.results.v5_6, .init(parameter: .v5_6, status: .unknown))
         XCTAssertEqual(res?.results.v5_7, .init(parameter: .v5_7, status: .compatible))
         XCTAssertEqual(res?.results.v5_8, .init(parameter: .v5_8, status: .compatible))
@@ -276,7 +276,7 @@ class API_PackageControllerTests: AppTestCase {
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res?.stable?.results.v5_5,
-                       .init(parameter: .v5_5, status: .unknown))
+                       .init(parameter: .v1, status: .unknown))
         XCTAssertEqual(res?.stable?.results.v5_6,
                        .init(parameter: .v5_6, status: .incompatible))
         XCTAssertEqual(res?.stable?.results.v5_7,
@@ -318,7 +318,7 @@ class API_PackageControllerTests: AppTestCase {
                                  name: "bar2",
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
-                (.branch("develop"), .ios, .v5_5, .ok),
+                (.branch("develop"), .ios, .v1, .ok),
             ]
             for b in builds {
                 let v = try App.Version(package: pkg,

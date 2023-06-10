@@ -24,7 +24,7 @@ class SignificantBuildsTests: XCTestCase {
         let sb = SignificantBuilds(buildInfo: [
             (.v5_7, .linux, .ok),
             (.v5_6, .macosSpm, .ok),
-            (.v5_5, .ios, .failed)
+            (.v1, .ios, .failed)
         ])
 
         // MUT
@@ -39,7 +39,7 @@ class SignificantBuildsTests: XCTestCase {
         let sb = SignificantBuilds(buildInfo: [
             (.v5_7, .linux, .triggered),
             (.v5_6, .macosSpm, .triggered),
-            (.v5_5, .ios, .triggered)
+            (.v1, .ios, .triggered)
         ])
 
         // MUT
@@ -54,7 +54,7 @@ class SignificantBuildsTests: XCTestCase {
         let sb = SignificantBuilds(buildInfo: [
             (.v5_7, .linux, .ok),
             (.v5_6, .macosSpm, .failed),
-            (.v5_5, .ios, .triggered)
+            (.v1, .ios, .triggered)
         ])
 
         // MUT
@@ -69,7 +69,7 @@ class SignificantBuildsTests: XCTestCase {
         let sb = SignificantBuilds(buildInfo: [
             (.v5_7, .linux, .ok),
             (.v5_6, .macosSpm, .ok),
-            (.v5_5, .ios, .failed)
+            (.v1, .ios, .failed)
         ])
 
         // MUT
@@ -84,7 +84,7 @@ class SignificantBuildsTests: XCTestCase {
         let sb = SignificantBuilds(buildInfo: [
             (.v5_7, .linux, .triggered),
             (.v5_6, .macosSpm, .triggered),
-            (.v5_5, .ios, .triggered)
+            (.v1, .ios, .triggered)
         ])
 
         // MUT
@@ -99,7 +99,7 @@ class SignificantBuildsTests: XCTestCase {
         let sb = SignificantBuilds(buildInfo: [
             (.v5_7, .linux, .ok),
             (.v5_6, .macosSpm, .failed),
-            (.v5_5, .ios, .triggered)
+            (.v1, .ios, .triggered)
         ])
 
         // MUT
