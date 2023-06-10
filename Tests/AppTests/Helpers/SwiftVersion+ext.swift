@@ -71,9 +71,9 @@ extension SwiftVersion {
     /// ```
     ///
     /// And then all that remains is to adjust the mapping below whenever we change the range of Swift versions.
-    static var v1: Self { .v5_5 }
-    static var v2: Self { .v5_6 }
-    static var v3: Self { .v5_7 }
-    static var v4: Self { .v5_8 }
+    static var v1: Self { .v5_6 }
+    static var v2: Self { .v5_7 }
+    static var v3: Self { .v5_8 }
+    static var v4: Self { .v5_9 }
 
 }

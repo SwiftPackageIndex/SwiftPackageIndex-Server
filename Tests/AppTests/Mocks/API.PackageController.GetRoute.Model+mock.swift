@@ -40,22 +40,22 @@ extension API.PackageController.GetRoute.Model {
             swiftVersionBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",
-                    results: .init(status5_5: .incompatible,
-                                   status5_6: .incompatible,
-                                   status5_7: .unknown,
-                                   status5_8: .compatible)),
+                    results: .init(status5_6: .incompatible,
+                                   status5_7: .incompatible,
+                                   status5_8: .unknown,
+                                   status5_9: .compatible)),
                 beta: NamedBuildResults(
                     referenceName: "6.0.0-b1",
-                    results: .init(status5_5: .incompatible,
-                                   status5_6: .compatible,
+                    results: .init(status5_6: .incompatible,
                                    status5_7: .compatible,
-                                   status5_8: .compatible)),
+                                   status5_8: .compatible,
+                                   status5_9: .compatible)),
                 latest: NamedBuildResults(
                     referenceName: "main",
-                    results: .init(status5_5: .incompatible,
-                                   status5_6: .incompatible,
-                                   status5_7: .unknown,
-                                   status5_8: .compatible))),
+                    results: .init(status5_6: .incompatible,
+                                   status5_7: .incompatible,
+                                   status5_8: .unknown,
+                                   status5_9: .compatible))),
             platformBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",

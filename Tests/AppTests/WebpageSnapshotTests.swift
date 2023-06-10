@@ -191,10 +191,10 @@ class WebpageSnapshotTests: SnapshotTestCase {
         var model = API.PackageController.GetRoute.Model.mock
         do {
             let compatible = API.PackageController.GetRoute.Model.SwiftVersionResults(
-                status5_5: .compatible,
                 status5_6: .compatible,
                 status5_7: .compatible,
-                status5_8: .compatible
+                status5_8: .compatible,
+                status5_9: .compatible
             )
             model.swiftVersionBuildInfo = .init(
                 stable: .init(referenceName: "5.2.5", results: compatible),

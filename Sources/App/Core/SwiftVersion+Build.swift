@@ -18,27 +18,27 @@ extension SwiftVersion {
     // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1267#issuecomment-975379966
     // Patch versions are irrelevant here but the underlying type requires one, so use 0
     // in general.
-    static let v5_5: Self = .init(5, 5, 0)
     static let v5_6: Self = .init(5, 6, 0)
     static let v5_7: Self = .init(5, 7, 0)
     static let v5_8: Self = .init(5, 8, 0)
+    static let v5_9: Self = .init(5, 9, 0)
 
     /// Currently supported swift versions for building
     static var allActive: [Self] {
-        [.v5_5, .v5_6, .v5_7, .v5_8]
+        [.v5_6, .v5_7, .v5_8, .v5_9]
     }
 
     var xcodeVersion: String? {
         // NB: this is used for display purposes and not critical for compiler selection
         switch self {
-            case .v5_5:
-                return "Xcode 13.2.1"
             case .v5_6:
                 return "Xcode 13.4.1"
             case .v5_7:
                 return "Xcode 14.2"
             case .v5_8:
                 return "Xcode 14.3"
+            case .v5_9:
+                return "Xcode 15.0b1"
             default:
                 return nil
         }
