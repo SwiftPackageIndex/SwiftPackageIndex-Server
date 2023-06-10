@@ -227,8 +227,8 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.version, "1.2.3")
         XCTAssertEqual(res.summary, "Bar")
         XCTAssertEqual(res.verifiedCompatibility, [
-            .init(platform: .init(name: "ios"), swiftVersion: .init("5.5")),
-            .init(platform: .init(name: "macos"), swiftVersion: .init("5.6")),
+            .init(platform: .init(name: "ios"), swiftVersion: .init("5.6")),
+            .init(platform: .init(name: "macos"), swiftVersion: .init("5.7")),
         ])
         XCTAssertEqual(res.license, .init(name: "MIT", url: URL(string: "https://foo/mit")!))
         XCTAssertEqual(res.createdAt, Date(timeIntervalSince1970: 0))
@@ -428,7 +428,7 @@ class PackageCollectionTests: AppTestCase {
             try Build(version: v,
                       platform: .ios,
                       status: .ok,
-                      swiftVersion: .v2).save(on: app.db).wait()
+                      swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
             try Target(version: v, name: "t1").save(on: app.db).wait()
         }
         // second package

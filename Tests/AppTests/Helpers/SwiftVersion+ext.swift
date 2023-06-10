@@ -76,4 +76,7 @@ extension SwiftVersion {
     static var v3: Self { .v5_8 }
     static var v4: Self { .v5_9 }
 
+    func incrementingPatchVersion(by value: Int = 1) -> Self {
+        .init(major, minor, patch + value)
+    }
 }

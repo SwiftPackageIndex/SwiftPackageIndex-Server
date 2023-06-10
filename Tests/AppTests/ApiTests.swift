@@ -547,7 +547,7 @@ class ApiTests: AppTestCase {
         let owner = "owner"
         let repo = "repo"
         let p = try savePackage(on: app.db, "1")
-        let v = try Version(package: p, latest: .release, reference: .tag(.init(1, 2, 3)))
+        let v = try Version(package: p, latest: .release, reference: .tag(1, 2, 3))
         try await v.save(on: app.db)
         try await Repository(package: p,
                              defaultBranch: "main",
@@ -555,9 +555,9 @@ class ApiTests: AppTestCase {
                              name: repo,
                              owner: owner).save(on: app.db)
         // add builds
-        try await Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 6, 0))
+        try await Build(version: v, platform: .linux, status: .ok, swiftVersion: .v2)
             .save(on: app.db)
-        try await Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 5, 2))
+        try await Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .v1)
             .save(on: app.db)
 
         let event = ActorIsolated<TestEvent?>(nil)
@@ -576,7 +576,7 @@ class ApiTests: AppTestCase {
                 let badge = try res.content.decode(Badge.self)
                 XCTAssertEqual(badge.schemaVersion, 1)
                 XCTAssertEqual(badge.label, "Swift Compatibility")
-                XCTAssertEqual(badge.message, "5.6 | 5.5")
+                XCTAssertEqual(badge.message, "5.7 | 5.6")
                 XCTAssertEqual(badge.isError, false)
                 XCTAssertEqual(badge.color, "F05138")
                 XCTAssertEqual(badge.cacheSeconds, 6*3600)

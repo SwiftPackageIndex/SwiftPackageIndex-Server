@@ -190,7 +190,7 @@ class BuildTriggerTests: AppTestCase {
          // just assert what the first one actually is so we test the right thing
          XCTAssertEqual(BuildPair.all.first, .init(.ios, .v1))
          // substitute in build with a different patch version
-         let existing = allExceptFirst + [.init(.ios, .init(5, 5, 1))]
+        let existing = allExceptFirst + [.init(.ios, .v1.incrementingPatchVersion())]
 
          // MUT & validate x.y.1 is matched as an existing x.y build
          XCTAssertEqual(missingPairs(existing: existing), Set())
@@ -270,7 +270,7 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(queries.count, 1)
         XCTAssertEqual(queries.value.map { $0.variables["VERSION_ID"] }, [versionId.uuidString])
         XCTAssertEqual(queries.value.map { $0.variables["BUILD_PLATFORM"] }, ["ios"])
-        XCTAssertEqual(queries.value.map { $0.variables["SWIFT_VERSION"] }, ["5.5"])
+        XCTAssertEqual(queries.value.map { $0.variables["SWIFT_VERSION"] }, ["5.6"])
 
         // ensure the Build stubs is created to prevent re-selection
         let v = try await Version.find(versionId, on: app.db)
@@ -1038,7 +1038,7 @@ class BuildTriggerTests: AppTestCase {
                             version: v,
                             platform: .ios,
                             status: .ok,
-                            swiftVersion: .init(5, 7, 1)).save(on: app.db)
+                            swiftVersion: .v1.incrementingPatchVersion()).save(on: app.db)
         }
 
         // MUT
@@ -1046,7 +1046,7 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(res.count, 1)
         let triggerInfo = try XCTUnwrap(res.first)
         XCTAssertEqual(triggerInfo.pairs.count, 23)
-        XCTAssertTrue(!triggerInfo.pairs.contains(.init(.ios, .v3)))
+        XCTAssertTrue(!triggerInfo.pairs.contains(.init(.ios, .v1)))
     }
 
 }

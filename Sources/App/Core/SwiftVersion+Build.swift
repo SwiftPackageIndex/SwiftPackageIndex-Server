@@ -32,13 +32,13 @@ extension SwiftVersion {
         // NB: this is used for display purposes and not critical for compiler selection
         switch self {
             case .v5_6:
-                return "Xcode 13.4.1"
+                return "Xcode 13.4"
             case .v5_7:
                 return "Xcode 14.2"
             case .v5_8:
                 return "Xcode 14.3"
             case .v5_9:
-                return "Xcode 15.0b1"
+                return "Xcode 15.0"
             default:
                 return nil
         }
