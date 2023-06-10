@@ -53,7 +53,24 @@ extension SwiftVersion {
     /// XCTAssertEqual(res.sorted(), [.v5_7, .v5_8])
     /// ```
     ///
-    /// Adding these new, test-only shortcuts that map generic variable names `.v1`, `.v2`, ... to Swift version numbers, we can write all tests in terms of these variables instead and only need to adjust the single mapping below whenever we change the range of Swift versions.
+    /// Adding these new, test-only shortcuts that map generic variable names `.v1`, `.v2`, ... to Swift version numbers, we can write all tests in terms of these variables instead:
+    ///
+    /// ```swift
+    /// // setup
+    /// let sb = SignificantBuilds(buildInfo: [
+    ///     (.v3, .linux, .ok),
+    ///     (.v2, .macosSpm, .ok),
+    ///     (.v1, .ios, .failed)
+    /// ])
+    ///
+    /// // MUT
+    /// let res = try XCTUnwrap(sb.swiftVersionCompatibility().values)
+    ///
+    /// // validate
+    /// XCTAssertEqual(res.sorted(), [.v2, .v3])
+    /// ```
+    ///
+    /// And then all that remains is to adjust the mapping below whenever we change the range of Swift versions.
     static var v1: Self { .v5_5 }
     static var v2: Self { .v5_6 }
     static var v3: Self { .v5_7 }
