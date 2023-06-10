@@ -333,7 +333,7 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
                         .mapValues(\.count),
                        ["\(SwiftVersion.v1)": 6,
-                        "\(SwiftVersion.v5_6)": 6,
+                        "\(SwiftVersion.v2)": 6,
                         "\(SwiftVersion.v5_7)": 6,
                         "\(SwiftVersion.v5_8)": 6])
 
@@ -569,7 +569,7 @@ class BuildTriggerTests: AppTestCase {
         try await p.save(on: app.db)
         let v = try Version(id: versionId, package: p, latest: nil, reference: .branch("main"))
         try await v.save(on: app.db)
-        try await Build(id: UUID(), version: v, platform: .ios, status: .triggered, swiftVersion: .v5_6)
+        try await Build(id: UUID(), version: v, platform: .ios, status: .triggered, swiftVersion: .v2)
             .save(on: app.db)
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
 
@@ -852,7 +852,7 @@ class BuildTriggerTests: AppTestCase {
         do {  // v1 builds
             // old triggered build (delete)
             try await Build(id: deleteId1,
-                      version: v1, platform: .ios, status: .triggered, swiftVersion: .v5_6)
+                      version: v1, platform: .ios, status: .triggered, swiftVersion: .v2)
                 .save(on: app.db)
             // new triggered build (keep)
             try await Build(id: keepBuildId1,
@@ -873,7 +873,7 @@ class BuildTriggerTests: AppTestCase {
         do {  // v2 builds (should all be deleted)
             // old triggered build
             try await Build(id: UUID(),
-                      version: v2, platform: .ios, status: .triggered, swiftVersion: .v5_6)
+                      version: v2, platform: .ios, status: .triggered, swiftVersion: .v2)
                 .save(on: app.db)
             // new triggered build
             try await Build(id: UUID(),
@@ -907,7 +907,7 @@ class BuildTriggerTests: AppTestCase {
         try await p.save(on: app.db)
         let v1 = try Version(package: p, latest: .defaultBranch)
         try await v1.save(on: app.db)
-        try await Build(version: v1, platform: .ios, status: .triggered, swiftVersion: .v5_6)
+        try await Build(version: v1, platform: .ios, status: .triggered, swiftVersion: .v2)
             .save(on: app.db)
 
         let db = try XCTUnwrap(app.db as? SQLDatabase)

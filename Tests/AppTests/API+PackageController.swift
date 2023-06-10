@@ -179,17 +179,17 @@ class API_PackageControllerTests: AppTestCase {
 
         let builds = [
             // ios - failed
-            makeBuild(.failed, .ios, .v5_6),
+            makeBuild(.failed, .ios, .v2),
             makeBuild(.failed, .ios, .v1),
             // macos - failed
-            makeBuild(.failed, .macosSpm, .v5_6),
+            makeBuild(.failed, .macosSpm, .v2),
             makeBuild(.failed, .macosXcodebuild, .v1),
             // tvos - no data - unknown
             // watchos - ok
-            makeBuild(.failed, .watchos, .v5_6),
+            makeBuild(.failed, .watchos, .v2),
             makeBuild(.ok, .watchos, .v1),
             // unrelated build
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_6, platform: .ios, status: .ok),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v2, platform: .ios, status: .ok),
         ]
 
         // MUT
@@ -234,7 +234,7 @@ class API_PackageControllerTests: AppTestCase {
         // validate
         XCTAssertEqual(res?.referenceName, "main")
         XCTAssertEqual(res?.results.v5_5, .init(parameter: .v1, status: .incompatible))
-        XCTAssertEqual(res?.results.v5_6, .init(parameter: .v5_6, status: .unknown))
+        XCTAssertEqual(res?.results.v5_6, .init(parameter: .v2, status: .unknown))
         XCTAssertEqual(res?.results.v5_7, .init(parameter: .v5_7, status: .compatible))
         XCTAssertEqual(res?.results.v5_8, .init(parameter: .v5_8, status: .compatible))
     }
@@ -242,8 +242,8 @@ class API_PackageControllerTests: AppTestCase {
     func test_platformBuildInfo() throws {
         // setup
         let builds: [PackageController.BuildsRoute.BuildInfo] = [
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_6, platform: .macosSpm, status: .ok),
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v5_6, platform: .tvos, status: .failed)
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v2, platform: .macosSpm, status: .ok),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v2, platform: .tvos, status: .failed)
         ]
 
         // MUT
@@ -267,7 +267,7 @@ class API_PackageControllerTests: AppTestCase {
         // setup
         let builds: [PackageController.BuildsRoute.BuildInfo] = [
             .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_7, platform: .macosSpm, status: .ok),
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v5_6, platform: .ios, status: .failed)
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v2, platform: .ios, status: .failed)
         ]
 
         // MUT
@@ -278,7 +278,7 @@ class API_PackageControllerTests: AppTestCase {
         XCTAssertEqual(res?.stable?.results.v5_5,
                        .init(parameter: .v1, status: .unknown))
         XCTAssertEqual(res?.stable?.results.v5_6,
-                       .init(parameter: .v5_6, status: .incompatible))
+                       .init(parameter: .v2, status: .incompatible))
         XCTAssertEqual(res?.stable?.results.v5_7,
                        .init(parameter: .v5_7, status: .compatible))
         XCTAssertEqual(res?.stable?.results.v5_8,
@@ -297,7 +297,7 @@ class API_PackageControllerTests: AppTestCase {
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
                 (.branch("main"), .ios, .v5_7, .ok),
-                (.branch("main"), .tvos, .v5_6, .failed),
+                (.branch("main"), .tvos, .v2, .failed),
                 (.tag(1, 2, 3), .ios, .v5_7, .ok),
                 (.tag(2, 0, 0, "b1"), .ios, .v5_7, .failed),
             ]

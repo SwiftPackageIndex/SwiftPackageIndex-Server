@@ -240,9 +240,9 @@ class BuildTests: AppTestCase {
         let vid2 = UUID()
         let v2 = try Version(id: vid2, package: pkg)
         try v2.save(on: app.db).wait()
-        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
-        try Build(version: v2, platform: .ios, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v2, platform: .ios, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
 
         // MUT
@@ -269,9 +269,9 @@ class BuildTests: AppTestCase {
         try v2.save(on: app.db).wait()
 
         // save different platforms as an easy way to check the correct one has been deleted
-        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
-        try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
 
 
@@ -301,11 +301,11 @@ class BuildTests: AppTestCase {
         try v3.save(on: app.db).wait()
 
         // save different platforms as an easy way to check the correct one has been deleted
-        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
-        try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
-        try Build(version: v3, platform: .tvos, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v3, platform: .tvos, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
 
         // MUT

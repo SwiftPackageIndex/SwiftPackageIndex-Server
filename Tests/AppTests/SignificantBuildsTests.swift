@@ -23,7 +23,7 @@ class SignificantBuildsTests: XCTestCase {
         // setup
         let sb = SignificantBuilds(buildInfo: [
             (.v5_7, .linux, .ok),
-            (.v5_6, .macosSpm, .ok),
+            (.v2, .macosSpm, .ok),
             (.v1, .ios, .failed)
         ])
 
@@ -31,14 +31,14 @@ class SignificantBuildsTests: XCTestCase {
         let res = try XCTUnwrap(sb.swiftVersionCompatibility().values)
 
         // validate
-        XCTAssertEqual(res.sorted(), [.v5_6, .v5_7])
+        XCTAssertEqual(res.sorted(), [.v2, .v5_7])
     }
 
     func test_swiftVersionCompatibility_allPending() throws {
         // setup
         let sb = SignificantBuilds(buildInfo: [
             (.v5_7, .linux, .triggered),
-            (.v5_6, .macosSpm, .triggered),
+            (.v2, .macosSpm, .triggered),
             (.v1, .ios, .triggered)
         ])
 
@@ -53,7 +53,7 @@ class SignificantBuildsTests: XCTestCase {
         // setup
         let sb = SignificantBuilds(buildInfo: [
             (.v5_7, .linux, .ok),
-            (.v5_6, .macosSpm, .failed),
+            (.v2, .macosSpm, .failed),
             (.v1, .ios, .triggered)
         ])
 
@@ -68,7 +68,7 @@ class SignificantBuildsTests: XCTestCase {
         // setup
         let sb = SignificantBuilds(buildInfo: [
             (.v5_7, .linux, .ok),
-            (.v5_6, .macosSpm, .ok),
+            (.v2, .macosSpm, .ok),
             (.v1, .ios, .failed)
         ])
 
@@ -83,7 +83,7 @@ class SignificantBuildsTests: XCTestCase {
         // setup
         let sb = SignificantBuilds(buildInfo: [
             (.v5_7, .linux, .triggered),
-            (.v5_6, .macosSpm, .triggered),
+            (.v2, .macosSpm, .triggered),
             (.v1, .ios, .triggered)
         ])
 
@@ -98,7 +98,7 @@ class SignificantBuildsTests: XCTestCase {
         // setup
         let sb = SignificantBuilds(buildInfo: [
             (.v5_7, .linux, .ok),
-            (.v5_6, .macosSpm, .failed),
+            (.v2, .macosSpm, .failed),
             (.v1, .ios, .triggered)
         ])
 

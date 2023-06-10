@@ -517,7 +517,7 @@ class ApiTests: AppTestCase {
         // add builds
         try await Build(version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
             .save(on: app.db)
-        try await Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_6)
+        try await Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v2)
             .save(on: app.db)
         do { // save decoy
             let p = try savePackage(on: app.db, "2")
@@ -537,7 +537,7 @@ class ApiTests: AppTestCase {
 
         // validate
         XCTAssertEqual(sb.builds.sorted(), [
-            .init(.v5_6, .macosSpm, .ok),
+            .init(.v2, .macosSpm, .ok),
             .init(.v5_7, .linux, .ok)
         ])
     }

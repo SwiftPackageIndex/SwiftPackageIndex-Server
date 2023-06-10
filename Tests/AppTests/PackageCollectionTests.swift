@@ -207,7 +207,7 @@ class PackageCollectionTests: AppTestCase {
                 try Build(version: v,
                           platform: .macosXcodebuild,
                           status: .ok,
-                          swiftVersion: .v5_6).save(on: app.db).wait()
+                          swiftVersion: .v2).save(on: app.db).wait()
             }
         }
         let v = try XCTUnwrap(VersionResult.query(on: app.db,
@@ -428,7 +428,7 @@ class PackageCollectionTests: AppTestCase {
             try Build(version: v,
                       platform: .ios,
                       status: .ok,
-                      swiftVersion: .v5_6).save(on: app.db).wait()
+                      swiftVersion: .v2).save(on: app.db).wait()
             try Target(version: v, name: "t1").save(on: app.db).wait()
         }
         // second package
@@ -689,7 +689,7 @@ class PackageCollectionTests: AppTestCase {
             try Build(version: v,
                       platform: .ios,
                       status: .ok,
-                      swiftVersion: .v5_6).save(on: app.db).wait()
+                      swiftVersion: .v2).save(on: app.db).wait()
             try Target(version: v, name: "t1").save(on: app.db).wait()
         }
         // unrelated package
@@ -728,7 +728,7 @@ class PackageCollectionTests: AppTestCase {
         // ...then append three successful ones
         builds.append(contentsOf: [
             .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_7),
-            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_6),
+            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v2),
             .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v1),
         ])
         // MUT
@@ -738,7 +738,7 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.map(\.platform).sorted(),
                        [.init(name: "ios"), .init(name: "ios"), .init(name: "ios")])
         XCTAssertEqual(res.map(\.swiftVersion).sorted(),
-                       ["\(SwiftVersion.v1)", "\(SwiftVersion.v5_6)", "\(SwiftVersion.v5_7)"])
+                       ["\(SwiftVersion.v1)", "\(SwiftVersion.v2)", "\(SwiftVersion.v5_7)"])
     }
 
     func test_authorLabel() throws {

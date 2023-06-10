@@ -71,11 +71,11 @@ class BuildIndexModelTests: AppTestCase {
         let id = UUID()
         let stable: [BuildInfo] = [
             .init(id: id, swiftVersion: .v5_7, platform: .ios, status: .ok, docStatus: .ok),
-            .init(id: id, swiftVersion: .v5_6, platform: .macosXcodebuild, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v2, platform: .macosXcodebuild, status: .ok, docStatus: nil),
             .init(id: id, swiftVersion: .v1, platform: .tvos, status: .ok, docStatus: nil),
         ]
         let latest: [BuildInfo] = [
-            .init(id: id, swiftVersion: .v5_6, platform: .macosSpm, status: .failed, docStatus: nil),
+            .init(id: id, swiftVersion: .v2, platform: .macosSpm, status: .failed, docStatus: nil),
             .init(id: id, swiftVersion: .v1, platform: .tvos, status: .ok, docStatus: nil),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
@@ -102,12 +102,12 @@ class BuildIndexModelTests: AppTestCase {
             .some([.ok, nil, nil])
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_6,
+            matrix.values[.init(swiftVersion: .v2,
                                 platform: .macosXcodebuild)]?.map(\.value?.status),
             [.ok, nil, nil]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_6, platform: .macosSpm)]?.map(\.value?.status),
+            matrix.values[.init(swiftVersion: .v2, platform: .macosSpm)]?.map(\.value?.status),
             [nil, nil, .failed]
         )
         XCTAssertEqual(
@@ -152,12 +152,12 @@ class BuildIndexModelTests: AppTestCase {
             [.ok, nil]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_6,
+            matrix.values[.init(swiftVersion: .v2,
                                 platform: .macosXcodebuild)]?.map(\.value?.status),
             [.ok, nil]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_6,
+            matrix.values[.init(swiftVersion: .v2,
                                 platform: .macosSpm)]?.map(\.value?.status),
             [nil, .failed]
         )
