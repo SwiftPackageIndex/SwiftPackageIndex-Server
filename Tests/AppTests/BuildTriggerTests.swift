@@ -334,7 +334,7 @@ class BuildTriggerTests: AppTestCase {
                         .mapValues(\.count),
                        ["\(SwiftVersion.v1)": 6,
                         "\(SwiftVersion.v2)": 6,
-                        "\(SwiftVersion.v5_7)": 6,
+                        "\(SwiftVersion.v3)": 6,
                         "\(SwiftVersion.v5_8)": 6])
 
         // ensure the Build stubs are created to prevent re-selection
@@ -386,11 +386,11 @@ class BuildTriggerTests: AppTestCase {
                             version: v,
                             platform: .macosSpm,
                             status: .failed,
-                            swiftVersion: .v5_7).save(on: app.db)
+                            swiftVersion: .v3).save(on: app.db)
 
         }
         let triggers = [BuildTriggerInfo(versionId: versionId,
-                                         pairs: [BuildPair(.macosSpm, .v5_7)])!]
+                                         pairs: [BuildPair(.macosSpm, .v3)])!]
 
         // MUT
         try await triggerBuildsUnchecked(on: app.db,
@@ -856,7 +856,7 @@ class BuildTriggerTests: AppTestCase {
                 .save(on: app.db)
             // new triggered build (keep)
             try await Build(id: keepBuildId1,
-                      version: v1, platform: .ios, status: .triggered, swiftVersion: .v5_7)
+                      version: v1, platform: .ios, status: .triggered, swiftVersion: .v3)
                 .save(on: app.db)
             // old non-triggered build (keep)
             try await Build(id: keepBuildId2,
@@ -877,7 +877,7 @@ class BuildTriggerTests: AppTestCase {
                 .save(on: app.db)
             // new triggered build
             try await Build(id: UUID(),
-                      version: v2, platform: .ios, status: .triggered, swiftVersion: .v5_7)
+                      version: v2, platform: .ios, status: .triggered, swiftVersion: .v3)
                 .save(on: app.db)
             // old non-triggered build
             try await Build(id: UUID(),
@@ -1026,7 +1026,7 @@ class BuildTriggerTests: AppTestCase {
         let pkgId = UUID()
         let versionId = UUID()
         do {  // save package with a different Swift patch version
-              // (5.7.1 when SwiftVersion.v5_7 is "5.7.0")
+              // (5.7.1 when SwiftVersion.v3 is "5.7.0")
             let p = Package(id: pkgId, url: "1")
             try await p.save(on: app.db)
             let v = try Version(id: versionId,
@@ -1046,7 +1046,7 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(res.count, 1)
         let triggerInfo = try XCTUnwrap(res.first)
         XCTAssertEqual(triggerInfo.pairs.count, 23)
-        XCTAssertTrue(!triggerInfo.pairs.contains(.init(.ios, .v5_7)))
+        XCTAssertTrue(!triggerInfo.pairs.contains(.init(.ios, .v3)))
     }
 
 }

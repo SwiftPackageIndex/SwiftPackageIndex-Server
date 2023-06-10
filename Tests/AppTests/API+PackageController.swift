@@ -219,7 +219,7 @@ class API_PackageControllerTests: AppTestCase {
             makeBuild(.failed, .macosXcodebuild, .v1),
             // v2 - no data - unknown
             // v3 - ok
-            makeBuild(.ok, .macosXcodebuild, .v5_7),
+            makeBuild(.ok, .macosXcodebuild, .v3),
             // v4 - ok
             makeBuild(.failed, .ios, .v5_8),
             makeBuild(.ok, .macosXcodebuild, .v5_8),
@@ -235,7 +235,7 @@ class API_PackageControllerTests: AppTestCase {
         XCTAssertEqual(res?.referenceName, "main")
         XCTAssertEqual(res?.results.v5_5, .init(parameter: .v1, status: .incompatible))
         XCTAssertEqual(res?.results.v5_6, .init(parameter: .v2, status: .unknown))
-        XCTAssertEqual(res?.results.v5_7, .init(parameter: .v5_7, status: .compatible))
+        XCTAssertEqual(res?.results.v5_7, .init(parameter: .v3, status: .compatible))
         XCTAssertEqual(res?.results.v5_8, .init(parameter: .v5_8, status: .compatible))
     }
 
@@ -266,7 +266,7 @@ class API_PackageControllerTests: AppTestCase {
     func test_swiftVersionBuildInfo() throws {
         // setup
         let builds: [PackageController.BuildsRoute.BuildInfo] = [
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_7, platform: .macosSpm, status: .ok),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v3, platform: .macosSpm, status: .ok),
             .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v2, platform: .ios, status: .failed)
         ]
 
@@ -280,7 +280,7 @@ class API_PackageControllerTests: AppTestCase {
         XCTAssertEqual(res?.stable?.results.v5_6,
                        .init(parameter: .v2, status: .incompatible))
         XCTAssertEqual(res?.stable?.results.v5_7,
-                       .init(parameter: .v5_7, status: .compatible))
+                       .init(parameter: .v3, status: .compatible))
         XCTAssertEqual(res?.stable?.results.v5_8,
                        .init(parameter: .v5_8, status: .unknown))
         XCTAssertNil(res?.beta)
@@ -296,10 +296,10 @@ class API_PackageControllerTests: AppTestCase {
                                  name: "bar",
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
-                (.branch("main"), .ios, .v5_7, .ok),
+                (.branch("main"), .ios, .v3, .ok),
                 (.branch("main"), .tvos, .v2, .failed),
-                (.tag(1, 2, 3), .ios, .v5_7, .ok),
-                (.tag(2, 0, 0, "b1"), .ios, .v5_7, .failed),
+                (.tag(1, 2, 3), .ios, .v3, .ok),
+                (.tag(2, 0, 0, "b1"), .ios, .v3, .failed),
             ]
             for b in builds {
                 let v = try App.Version(package: pkg,

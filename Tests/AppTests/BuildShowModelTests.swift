@@ -43,7 +43,7 @@ class BuildShowModelTests: AppTestCase {
         let version = try Version(id: UUID(), package: pkg, packageName: "Bar", reference: .branch("main"))
         try version.save(on: app.db).wait()
         let buildId = UUID()
-        try Build(id: buildId, version: version, platform: .ios, status: .ok, swiftVersion: .v5_7)
+        try Build(id: buildId, version: version, platform: .ios, status: .ok, swiftVersion: .v3)
             .save(on: app.db).wait()
         let result = try BuildResult
             .query(on: app.db, buildId: buildId)
