@@ -53,7 +53,7 @@ extension SwiftVersion {
     /// XCTAssertEqual(res.sorted(), [.v5_7, .v5_8])
     /// ```
     ///
-    /// Adding these new, test-only shortcuts that map generic variable names `.v1`, `.v2`, ... to Swift version numbers, we can write all tests in terms of these variables instead:
+    /// Adding these new, test-only shortcuts that map generic variable names `.v1`, `.v2`, ... to `SwiftVersion`, we can write all tests in terms of these variables instead:
     ///
     /// ```swift
     /// // setup
