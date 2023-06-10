@@ -15,5 +15,10 @@
 extension SwiftVersion: BuildResultPresentable {
     var displayName: String { "\(major).\(minor)" }
     var longDisplayName: String { "Swift \(displayName)" }
-    var note: String? { nil }
+    var note: String? {
+        switch self {
+            case .v5_9: return "beta"
+            default: return nil
+        }
+    }
 }
