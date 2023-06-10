@@ -121,13 +121,13 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let stable: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 7, 0), platform: .ios, status: .ok, docStatus: nil),
-            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .macosXcodebuild, status: .ok, docStatus: nil),
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .tvos, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v3, platform: .ios, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v2, platform: .macosXcodebuild, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v1, platform: .tvos, status: .ok, docStatus: nil),
         ]
         let latest: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .macosSpm, status: .failed, docStatus: nil),
-            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .tvos, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v2, platform: .macosSpm, status: .failed, docStatus: nil),
+            .init(id: id, swiftVersion: .v1, platform: .tvos, status: .ok, docStatus: nil),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
                                           ownerName: "Foo",

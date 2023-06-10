@@ -216,7 +216,7 @@ class BuildTests: AppTestCase {
         do {  // MUT - negative test: Swift version mismatch
             let b = try await Build.query(on: app.db,
                                           platform: .linux,
-                                          swiftVersion: .v5_5,
+                                          swiftVersion: .init(5, 5, 0),
                                           versionId: v1.requireID())
             XCTAssertNil(b)
         }
