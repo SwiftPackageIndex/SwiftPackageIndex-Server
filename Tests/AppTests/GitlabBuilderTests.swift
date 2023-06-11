@@ -186,7 +186,7 @@ class LiveGitlabBuilderTests: AppTestCase {
             cloneURL: "https://github.com/SwiftPackageIndex/SemanticVersion.git",
             platform: .macosSpm,
             reference: .tag(.init(0, 3, 2)),
-            swiftVersion: .v5_6,
+            swiftVersion: .v2,
             versionID: versionID).wait()
 
         print("status: \(res.status)")

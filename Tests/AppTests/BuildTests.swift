@@ -216,7 +216,7 @@ class BuildTests: AppTestCase {
         do {  // MUT - negative test: Swift version mismatch
             let b = try await Build.query(on: app.db,
                                           platform: .linux,
-                                          swiftVersion: .v5_5,
+                                          swiftVersion: .init(5, 5, 0),
                                           versionId: v1.requireID())
             XCTAssertNil(b)
         }
@@ -240,9 +240,9 @@ class BuildTests: AppTestCase {
         let vid2 = UUID()
         let v2 = try Version(id: vid2, package: pkg)
         try v2.save(on: app.db).wait()
-        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
-        try Build(version: v2, platform: .ios, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v2, platform: .ios, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
 
         // MUT
@@ -269,9 +269,9 @@ class BuildTests: AppTestCase {
         try v2.save(on: app.db).wait()
 
         // save different platforms as an easy way to check the correct one has been deleted
-        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
-        try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
 
 
@@ -301,11 +301,11 @@ class BuildTests: AppTestCase {
         try v3.save(on: app.db).wait()
 
         // save different platforms as an easy way to check the correct one has been deleted
-        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
-        try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
-        try Build(version: v3, platform: .tvos, status: .ok, swiftVersion: .v5_6)
+        try Build(version: v3, platform: .tvos, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
 
         // MUT
@@ -324,7 +324,7 @@ class BuildTests: AppTestCase {
         let v = try Version(package: p, latest: .defaultBranch)
         try v.save(on: app.db).wait()
         // save a Build with status 'triggered'
-        try Build(id: .id0, version: v, platform: .ios, status: .triggered, swiftVersion: .v5_5).save(on: app.db).wait()
+        try Build(id: .id0, version: v, platform: .ios, status: .triggered, swiftVersion: .v1).save(on: app.db).wait()
 
         // MUT - test roll back to previous schema, migrating 'triggered' -> 'pending'
         try UpdateBuildPendingToTriggered().revert(on: app.db).wait()
@@ -355,7 +355,7 @@ class BuildTests: AppTestCase {
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
         // save a Build with platform `macos-spm`
-        try await Build(id: .id0, version: v, platform: .macosSpm, status: .triggered, swiftVersion: .v5_5).save(on: app.db)
+        try await Build(id: .id0, version: v, platform: .macosSpm, status: .triggered, swiftVersion: .v1).save(on: app.db)
         // save a Build with `macos-spm-arm` - we need to use raw SQL, because the platform enum
         // does not exist anymore
         try await (app.db as! SQLDatabase).raw(#"""

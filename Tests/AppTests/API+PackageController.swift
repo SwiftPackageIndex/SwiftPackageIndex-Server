@@ -179,17 +179,17 @@ class API_PackageControllerTests: AppTestCase {
 
         let builds = [
             // ios - failed
-            makeBuild(.failed, .ios, .v5_6),
-            makeBuild(.failed, .ios, .v5_5),
+            makeBuild(.failed, .ios, .v2),
+            makeBuild(.failed, .ios, .v1),
             // macos - failed
-            makeBuild(.failed, .macosSpm, .v5_6),
-            makeBuild(.failed, .macosXcodebuild, .v5_5),
+            makeBuild(.failed, .macosSpm, .v2),
+            makeBuild(.failed, .macosXcodebuild, .v1),
             // tvos - no data - unknown
             // watchos - ok
-            makeBuild(.failed, .watchos, .v5_6),
-            makeBuild(.ok, .watchos, .v5_5),
+            makeBuild(.failed, .watchos, .v2),
+            makeBuild(.ok, .watchos, .v1),
             // unrelated build
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_6, platform: .ios, status: .ok),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v2, platform: .ios, status: .ok),
         ]
 
         // MUT
@@ -214,17 +214,17 @@ class API_PackageControllerTests: AppTestCase {
         }
 
         let builds = [
-            // 5.5 - failed
-            makeBuild(.failed, .ios, .v5_5),
-            makeBuild(.failed, .macosXcodebuild, .v5_5),
-            // 5.6 - no data - unknown
-            // 5.7 - ok
-            makeBuild(.ok, .macosXcodebuild, .v5_7),
-            // 5.8 - ok
-            makeBuild(.failed, .ios, .v5_8),
-            makeBuild(.ok, .macosXcodebuild, .v5_8),
+            // v1 - failed
+            makeBuild(.failed, .ios, .v1),
+            makeBuild(.failed, .macosXcodebuild, .v1),
+            // v2 - no data - unknown
+            // v3 - ok
+            makeBuild(.ok, .macosXcodebuild, .v3),
+            // v4 - ok
+            makeBuild(.failed, .ios, .v4),
+            makeBuild(.ok, .macosXcodebuild, .v4),
             // unrelated release version build (we're testing defaultBranch builds)
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_8, platform: .ios, status: .failed),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v4, platform: .ios, status: .failed),
         ]
 
         // MUT
@@ -233,17 +233,17 @@ class API_PackageControllerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.v5_5, .init(parameter: .v5_5, status: .incompatible))
-        XCTAssertEqual(res?.results.v5_6, .init(parameter: .v5_6, status: .unknown))
-        XCTAssertEqual(res?.results.v5_7, .init(parameter: .v5_7, status: .compatible))
-        XCTAssertEqual(res?.results.v5_8, .init(parameter: .v5_8, status: .compatible))
+        XCTAssertEqual(res?.results.v5_5, .init(parameter: .v1, status: .incompatible))
+        XCTAssertEqual(res?.results.v5_6, .init(parameter: .v2, status: .unknown))
+        XCTAssertEqual(res?.results.v5_7, .init(parameter: .v3, status: .compatible))
+        XCTAssertEqual(res?.results.v5_8, .init(parameter: .v4, status: .compatible))
     }
 
     func test_platformBuildInfo() throws {
         // setup
         let builds: [PackageController.BuildsRoute.BuildInfo] = [
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_6, platform: .macosSpm, status: .ok),
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v5_6, platform: .tvos, status: .failed)
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v2, platform: .macosSpm, status: .ok),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v2, platform: .tvos, status: .failed)
         ]
 
         // MUT
@@ -266,8 +266,8 @@ class API_PackageControllerTests: AppTestCase {
     func test_swiftVersionBuildInfo() throws {
         // setup
         let builds: [PackageController.BuildsRoute.BuildInfo] = [
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_7, platform: .macosSpm, status: .ok),
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v5_6, platform: .ios, status: .failed)
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v3, platform: .macosSpm, status: .ok),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v2, platform: .ios, status: .failed)
         ]
 
         // MUT
@@ -276,13 +276,13 @@ class API_PackageControllerTests: AppTestCase {
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res?.stable?.results.v5_5,
-                       .init(parameter: .v5_5, status: .unknown))
+                       .init(parameter: .v1, status: .unknown))
         XCTAssertEqual(res?.stable?.results.v5_6,
-                       .init(parameter: .v5_6, status: .incompatible))
+                       .init(parameter: .v2, status: .incompatible))
         XCTAssertEqual(res?.stable?.results.v5_7,
-                       .init(parameter: .v5_7, status: .compatible))
+                       .init(parameter: .v3, status: .compatible))
         XCTAssertEqual(res?.stable?.results.v5_8,
-                       .init(parameter: .v5_8, status: .unknown))
+                       .init(parameter: .v4, status: .unknown))
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
     }
@@ -296,10 +296,10 @@ class API_PackageControllerTests: AppTestCase {
                                  name: "bar",
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
-                (.branch("main"), .ios, .v5_7, .ok),
-                (.branch("main"), .tvos, .v5_6, .failed),
-                (.tag(1, 2, 3), .ios, .v5_7, .ok),
-                (.tag(2, 0, 0, "b1"), .ios, .v5_7, .failed),
+                (.branch("main"), .ios, .v3, .ok),
+                (.branch("main"), .tvos, .v2, .failed),
+                (.tag(1, 2, 3), .ios, .v3, .ok),
+                (.tag(2, 0, 0, "b1"), .ios, .v3, .failed),
             ]
             for b in builds {
                 let v = try App.Version(package: pkg,
@@ -318,7 +318,7 @@ class API_PackageControllerTests: AppTestCase {
                                  name: "bar2",
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
-                (.branch("develop"), .ios, .v5_5, .ok),
+                (.branch("develop"), .ios, .v1, .ok),
             ]
             for b in builds {
                 let v = try App.Version(package: pkg,

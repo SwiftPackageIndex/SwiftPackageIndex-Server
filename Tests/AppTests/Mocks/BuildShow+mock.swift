@@ -24,7 +24,7 @@ extension BuildShow.Model {
                              logs: buildLog,
                              platform: .ios,
                              status: .ok,
-                             swiftVersion: .v5_6,
+                             swiftVersion: .v2,
                              runner: .mac0),
             packageName: "Bar",
             repositoryOwner: "foo",

@@ -49,7 +49,7 @@ class PackageCollectionTests: AppTestCase {
                           buildCommand: "build \(index)",
                           platform: .ios,
                           status: .ok,
-                          swiftVersion: .v5_5)
+                          swiftVersion: .v1)
                     .save(on: app.db).wait()
                 try Product(version: v,
                             type: .library(.automatic),
@@ -97,7 +97,7 @@ class PackageCollectionTests: AppTestCase {
                           buildCommand: "build \(index)",
                           platform: .ios,
                           status: .ok,
-                          swiftVersion: .v5_5)
+                          swiftVersion: .v1)
                     .save(on: app.db).wait()
                 try Product(version: v,
                             type: .library(.automatic),
@@ -144,7 +144,7 @@ class PackageCollectionTests: AppTestCase {
                           buildCommand: "build \(index)",
                           platform: .ios,
                           status: .ok,
-                          swiftVersion: .v5_5)
+                          swiftVersion: .v1)
                     .save(on: app.db).wait()
                 try Product(version: v,
                             type: .library(.automatic),
@@ -203,11 +203,11 @@ class PackageCollectionTests: AppTestCase {
                 try Build(version: v,
                           platform: .ios,
                           status: .ok,
-                          swiftVersion: .v5_5).save(on: app.db).wait()
+                          swiftVersion: .v1).save(on: app.db).wait()
                 try Build(version: v,
                           platform: .macosXcodebuild,
                           status: .ok,
-                          swiftVersion: .v5_6).save(on: app.db).wait()
+                          swiftVersion: .v2).save(on: app.db).wait()
             }
         }
         let v = try XCTUnwrap(VersionResult.query(on: app.db,
@@ -428,7 +428,7 @@ class PackageCollectionTests: AppTestCase {
             try Build(version: v,
                       platform: .ios,
                       status: .ok,
-                      swiftVersion: .v5_6).save(on: app.db).wait()
+                      swiftVersion: .v2).save(on: app.db).wait()
             try Target(version: v, name: "t1").save(on: app.db).wait()
         }
         // second package
@@ -689,7 +689,7 @@ class PackageCollectionTests: AppTestCase {
             try Build(version: v,
                       platform: .ios,
                       status: .ok,
-                      swiftVersion: .v5_6).save(on: app.db).wait()
+                      swiftVersion: .v2).save(on: app.db).wait()
             try Target(version: v, name: "t1").save(on: app.db).wait()
         }
         // unrelated package
@@ -727,9 +727,9 @@ class PackageCollectionTests: AppTestCase {
         }
         // ...then append three successful ones
         builds.append(contentsOf: [
-            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_7),
-            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_6),
-            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_5),
+            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v3),
+            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v2),
+            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v1),
         ])
         // MUT
         let res = [PackageCollection.Compatibility].init(builds: builds)
@@ -738,7 +738,7 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.map(\.platform).sorted(),
                        [.init(name: "ios"), .init(name: "ios"), .init(name: "ios")])
         XCTAssertEqual(res.map(\.swiftVersion).sorted(),
-                       ["\(SwiftVersion.v5_5)", "\(SwiftVersion.v5_6)", "\(SwiftVersion.v5_7)"])
+                       ["\(SwiftVersion.v1)", "\(SwiftVersion.v2)", "\(SwiftVersion.v3)"])
     }
 
     func test_authorLabel() throws {

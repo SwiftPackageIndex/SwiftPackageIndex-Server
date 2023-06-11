@@ -301,7 +301,7 @@ class ApiTests: AppTestCase {
         let p = try await savePackageAsync(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
-        let b = try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_7)
+        let b = try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v3)
         try await b.save(on: app.db)
         let buildId = try b.requireID()
 
@@ -387,9 +387,9 @@ class ApiTests: AppTestCase {
         let p = try await savePackageAsync(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
-        let b1 = try Build(id: .id0, version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        let b1 = try Build(id: .id0, version: v, platform: .linux, status: .ok, swiftVersion: .v3)
         try await b1.save(on: app.db)
-        let b2 = try Build(id: .id1, version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_7)
+        let b2 = try Build(id: .id1, version: v, platform: .macosSpm, status: .ok, swiftVersion: .v3)
         try await b2.save(on: app.db)
 
         do {  // initial insert
@@ -457,7 +457,7 @@ class ApiTests: AppTestCase {
         let p = try await savePackageAsync(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
-        let b = try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_7)
+        let b = try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v3)
         try await b.save(on: app.db)
         let buildId = try b.requireID()
         let dto: API.PostDocReportDTO = .init(status: .ok)
@@ -515,9 +515,9 @@ class ApiTests: AppTestCase {
                              name: "repo",
                              owner: "owner").save(on: app.db)
         // add builds
-        try await Build(version: v, platform: .linux, status: .ok, swiftVersion: .v5_7)
+        try await Build(version: v, platform: .linux, status: .ok, swiftVersion: .v3)
             .save(on: app.db)
-        try await Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_6)
+        try await Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v2)
             .save(on: app.db)
         do { // save decoy
             let p = try savePackage(on: app.db, "2")
@@ -528,7 +528,7 @@ class ApiTests: AppTestCase {
                                  license: .mit,
                                  name: "decoy",
                                  owner: "owner").save(on: app.db)
-            try await Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_5)
+            try await Build(version: v, platform: .ios, status: .ok, swiftVersion: .v1)
                 .save(on: app.db)
         }
 
@@ -537,8 +537,8 @@ class ApiTests: AppTestCase {
 
         // validate
         XCTAssertEqual(sb.builds.sorted(), [
-            .init(.v5_6, .macosSpm, .ok),
-            .init(.v5_7, .linux, .ok)
+            .init(.v2, .macosSpm, .ok),
+            .init(.v3, .linux, .ok)
         ])
     }
 

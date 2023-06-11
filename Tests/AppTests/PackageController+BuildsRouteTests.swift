@@ -30,10 +30,10 @@ class PackageController_BuildsRouteTests: AppTestCase {
                                  name: "bar",
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
-                (.id0, .branch("main"), .ios, .v5_6, .ok, .ok),
-                (.id1, .branch("main"), .tvos, .v5_5, .failed, nil),
-                (.id2, .tag(1, 2, 3), .ios, .v5_6, .ok, nil),
-                (.id3, .tag(2, 0, 0, "b1"), .ios, .v5_6, .failed, nil),
+                (.id0, .branch("main"), .ios, .v2, .ok, .ok),
+                (.id1, .branch("main"), .tvos, .v1, .failed, nil),
+                (.id2, .tag(1, 2, 3), .ios, .v2, .ok, nil),
+                (.id3, .tag(2, 0, 0, "b1"), .ios, .v2, .failed, nil),
             ]
             for b in builds {
                 let v = try App.Version(package: pkg,
@@ -56,7 +56,7 @@ class PackageController_BuildsRouteTests: AppTestCase {
                                  name: "bar2",
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
-                (.id4, .branch("develop"), .ios, .v5_8, .ok, nil),
+                (.id4, .branch("develop"), .ios, .v4, .ok, nil),
             ]
             for b in builds {
                 let v = try App.Version(package: pkg,
@@ -76,10 +76,10 @@ class PackageController_BuildsRouteTests: AppTestCase {
         XCTAssertEqual(
             builds.sorted { $0.buildId.uuidString < $1.buildId.uuidString },
             [
-                .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v5_6, platform: .ios, status: .ok, docStatus: .ok),
-                .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id1, swiftVersion: .v5_5, platform: .tvos, status: .failed),
-                .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id2, swiftVersion: .v5_6, platform: .ios, status: .ok),
-                .init(versionKind: .preRelease, reference: .tag(2, 0, 0, "b1"), buildId: .id3, swiftVersion: .v5_6, platform: .ios, status: .failed),
+                .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v2, platform: .ios, status: .ok, docStatus: .ok),
+                .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id1, swiftVersion: .v1, platform: .tvos, status: .failed),
+                .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id2, swiftVersion: .v2, platform: .ios, status: .ok),
+                .init(versionKind: .preRelease, reference: .tag(2, 0, 0, "b1"), buildId: .id3, swiftVersion: .v2, platform: .ios, status: .failed),
             ].sorted { $0.buildId.uuidString < $1.buildId.uuidString }
         )
     }
@@ -97,7 +97,7 @@ class PackageController_BuildsRouteTests: AppTestCase {
                              summary: "summary").save(on: app.db)
         let v = try Version(package: pkg, latest: .defaultBranch, packageName: "pkg", reference: .branch("main"))
         try await v.save(on: app.db)
-        try await Build(id: .id0, version: v, platform: .ios, status: .ok, swiftVersion: .v5_5)
+        try await Build(id: .id0, version: v, platform: .ios, status: .ok, swiftVersion: .v1)
             .save(on: app.db)
 
         // MUT
@@ -112,7 +112,7 @@ class PackageController_BuildsRouteTests: AppTestCase {
             .init(versionKind: .defaultBranch,
                   reference: .branch("main"),
                   buildId: .id0,
-                  swiftVersion: .v5_5,
+                  swiftVersion: .v1,
                   platform: .ios,
                   status: .ok)
         ])

@@ -71,5 +71,5 @@ class PackageController_BuildsRoute_BuildInfoTests: AppTestCase {
 
 
 private func mkBuildInfo(_ status: Build.Status) -> PackageController.BuildsRoute.BuildInfo {
-    .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v5_5, platform: .ios, status: status)
+    .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v1, platform: .ios, status: status)
 }
