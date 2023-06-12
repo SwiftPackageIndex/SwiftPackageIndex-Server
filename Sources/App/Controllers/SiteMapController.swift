@@ -76,8 +76,7 @@ enum SiteMapController {
         return SiteMap(.group(
             staticRoutes.map { page -> Node<SiteMap.URLSetContext> in
                     .url(
-                        .loc(page.absoluteURL()),
-                        .changefreq(page.changefreq)
+                        .loc(page.absoluteURL())
                     )
             }
         )).encodeResponse(for: req)
@@ -125,59 +124,4 @@ enum SiteMapController {
     //        )
     //    }
 
-}
-
-extension SiteURL {
-    var changefreq: SiteMapChangeFrequency {
-        switch self {
-            case .addAPackage:
-                return .weekly
-            case .api:
-                return .weekly
-            case .author:
-                return .daily
-            case .buildMonitor:
-                return .hourly
-            case .builds:
-                return .daily
-            case .docs:
-                return .weekly
-            case .faq:
-                return .weekly
-            case .home:
-                return .hourly
-            case .images:
-                return .weekly
-            case .javascripts:
-                return .weekly
-            case .keywords:
-                return .daily
-            case .package:
-                return .daily
-            case .packageCollections:
-                return .daily
-            case .packageCollection:
-                return .daily
-            case .privacy:
-                return .monthly
-            case .rssPackages:
-                return .hourly
-            case .rssReleases:
-                return .hourly
-            case .search:
-                return .hourly
-            case .validateSPIManifest:
-                return .monthly
-            case .siteMapIndex:
-                return .daily
-            case .siteMapStaticPages:
-                return .daily
-            case .supporters:
-                return .weekly
-            case .stylesheets:
-                return .weekly
-            case .tryInPlayground:
-                return .monthly
-        }
-    }
 }
