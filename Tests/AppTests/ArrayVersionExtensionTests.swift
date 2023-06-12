@@ -44,7 +44,7 @@ class ArrayVersionExtensionTests: AppTestCase {
         }
 
         do {
-            // [ Default branch (with docs), Release (no docs), nil ] = Release
+            // [ Default branch (with docs), nil, Release (no docs) ] = Default branch
             let versions = [
                 try Version(package: pkg,
                             commit: "123",
@@ -53,11 +53,11 @@ class ArrayVersionExtensionTests: AppTestCase {
                             latest: .defaultBranch,
                             reference: .branch("main"),
                             spiManifest: nil),
+                nil,
                 try Version(package: pkg,
                             docArchives: nil,
                             latest: .release,
                             reference: .tag(SemanticVersion(1, 2, 3))),
-                nil
             ]
 
             XCTAssertEqual(versions.canonicalDocumentationTarget(),
