@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-kit.git",
       "state" : {
-        "revision" : "04691f8d523830c49c0bf261c2d48d7bd11ec313",
-        "version" : "1.42.3"
+        "revision" : "2d7dce5cb04156eecdb17e7349f4eac4206e8a17",
+        "version" : "1.42.4"
       }
     },
     {
@@ -95,8 +95,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-kit.git",
       "state" : {
-        "revision" : "875e8c191ea776802fddf6773146349803629754",
-        "version" : "2.11.2"
+        "revision" : "a88d025748edd3a2f9f2e74091ecccc20d20fe30",
+        "version" : "2.11.3"
       }
     },
     {
@@ -104,8 +104,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-nio.git",
       "state" : {
-        "revision" : "f87709218c4e444cb9593dd4dd4a3a0420950ee5",
-        "version" : "1.15.0"
+        "revision" : "061a0836d7c1887e04a975d1d2eaa2ef5fd7dfab",
+        "version" : "1.16.0"
       }
     },
     {
@@ -373,8 +373,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/SwiftOpenAPI.git",
       "state" : {
-        "revision" : "9c5cf016ad224b5cde6c41d8835c92822ebcc51f",
-        "version" : "2.16.7"
+        "revision" : "c05e38f98e403bde41327974a4edba6877863767",
+        "version" : "2.17.7"
       }
     },
     {
@@ -409,8 +409,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/VaporToOpenAPI.git",
       "state" : {
-        "revision" : "4281e9a55a096497ba016e2a504762b4ff365166",
-        "version" : "4.3.6"
+        "revision" : "6ce97fdce5a751684102da9bf673a9c4c4ac1bd4",
+        "version" : "4.3.8"
       }
     },
     {
