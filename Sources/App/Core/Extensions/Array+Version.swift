@@ -52,5 +52,9 @@ extension [Version] {
 
 
 extension [Version?] {
+    func canonicalDocumentationTarget() -> DocumentationTarget? {
+        self.compactMap { $0 }.canonicalDocumentationTarget()
+    }
+
     func hasDocumentation() -> Bool { compactMap { $0 }.hasDocumentation() }
 }

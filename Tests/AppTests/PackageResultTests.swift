@@ -221,7 +221,7 @@ class PackageResultTests: AppTestCase {
                              lastPullRequestClosedAt: .t1))
     }
 
-    func test_hasDocumentation() async throws {
+    func test_canonicalDocumentationTarget() async throws {
         // setup
         do {
             // first package has docs
@@ -252,7 +252,7 @@ class PackageResultTests: AppTestCase {
             }
         }
         do {
-            // seconds package doesn't have docs
+            // second package doesn't have docs
             let pkg = try savePackage(on: app.db, "2".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
@@ -285,51 +285,4 @@ class PackageResultTests: AppTestCase {
             XCTAssertEqual(res.canonicalDocumentationTarget(), nil)
         }
     }
-
-    func test_Array_hasDocumentation() async throws {
-        // Test behaviour of [Version].hasDocumentation()
-        let pkg = try await savePackageAsync(on: app.db, "1".url)
-        let archive = DocArchive(name: "foo", title: "Foo")
-
-        do {  // test release
-            let semVer = SemanticVersion(1, 2, 3)
-            XCTAssertTrue(semVer.isStable)
-            XCTAssertTrue(
-                [
-                    try Version(package: pkg,
-                                docArchives: [archive],
-                                latest: .release,
-                                reference: .tag(semVer))
-                ].hasDocumentation()
-            )
-        }
-
-        do {  // test pre-release
-            let semVer = SemanticVersion(1, 2, 3, "b1")
-            XCTAssertTrue(semVer.isPreRelease)
-            XCTAssertTrue(
-                [
-                    try Version(package: pkg,
-                                docArchives: [archive],
-                                latest: .preRelease,
-                                reference: .tag(semVer))
-                ].hasDocumentation()
-            )
-        }
-
-        do {  // test default branch
-            XCTAssertTrue(
-                [
-                    try Version(package: pkg,
-                                commit: "123",
-                                commitDate: .t0,
-                                docArchives: [archive],
-                                latest: .defaultBranch,
-                                reference: .branch("main"),
-                                spiManifest: nil)
-                ].hasDocumentation()
-            )
-        }
-    }
-
 }
