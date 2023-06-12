@@ -303,7 +303,7 @@ private extension PackageCollection.Platform {
 
 extension PackageCollectionModel.V1.Signer {
     static var spi: Self {
-        .init(type: "",
+        .init(type: "ADP",
               commonName: "Swift Package Index",
               organizationalUnitName: "Swift Package Index",
               organizationName: "Swift Package Index")

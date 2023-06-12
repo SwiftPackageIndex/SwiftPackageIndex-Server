@@ -49,7 +49,7 @@
               - commonName: "Swift Package Index"
               - organizationName: "Swift Package Index"
               - organizationalUnitName: "Swift Package Index"
-              - type: ""
+              - type: "ADP"
           - summary: Optional<String>.none
           ▿ verifiedCompatibility: Optional<Array<Compatibility>>
             - some: 0 elements

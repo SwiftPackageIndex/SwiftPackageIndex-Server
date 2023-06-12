@@ -61,7 +61,7 @@
             "commonName" : "Swift Package Index",
             "organizationalUnitName" : "Swift Package Index",
             "organizationName" : "Swift Package Index",
-            "type" : ""
+            "type" : "ADP"
           },
           "verifiedCompatibility" : [
             {
@@ -125,7 +125,7 @@
             "commonName" : "Swift Package Index",
             "organizationalUnitName" : "Swift Package Index",
             "organizationName" : "Swift Package Index",
-            "type" : ""
+            "type" : "ADP"
           },
           "verifiedCompatibility" : [
 
