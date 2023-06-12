@@ -65,7 +65,12 @@ class PackageCollectionControllerTests: AppTestCase {
                 // validation
                 XCTAssertEqual(res.status, .ok)
                 let json = try res.content.decode(PackageCollection.self)
-                assertSnapshot(matching: json, as: .json(encoder))
+                // See https://github.com/pointfreeco/swift-snapshot-testing/discussions/739 for why this is conditional
+        #if os(macOS)
+                assertSnapshot(matching: json, as: .json(encoder), named: "macos")
+        #elseif os(Linux)
+                assertSnapshot(matching: json, as: .json(encoder), named: "linux")
+        #endif
             })
     }
 
