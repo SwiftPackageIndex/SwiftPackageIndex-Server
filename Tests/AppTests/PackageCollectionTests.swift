@@ -859,6 +859,8 @@ private extension PackageCollection {
                               defaultToolsVersion: "5.5",
                               verifiedCompatibility: nil,
                               license: nil,
+                              author: nil,
+                              signer: .spi,
                               createdAt: .t0)
                       ],
                       readmeURL: nil,

@@ -200,6 +200,8 @@ extension PackageCollection.Package.Version {
             defaultToolsVersion: toolsVersion,
             verifiedCompatibility: .init(builds: version.builds),
             license: license,
+            author: nil,
+            signer: .spi,
             createdAt: version.publishedAt
         )
     }
@@ -295,5 +297,15 @@ private extension PackageCollection.Platform {
             case .macosSpm, .macosXcodebuild:
                 self.init(name: "macos")
         }
+    }
+}
+
+
+extension PackageCollectionModel.V1.Signer {
+    static var spi: Self {
+        .init(type: "",
+              commonName: "Swift Package Index",
+              organizationalUnitName: "Swift Package Index",
+              organizationName: "Swift Package Index")
     }
 }
