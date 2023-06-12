@@ -221,7 +221,7 @@ class PackageResultTests: AppTestCase {
                              lastPullRequestClosedAt: .t1))
     }
 
-    func test_hasDocumentation() async throws {
+    func test_canonicalDocumentationTarget() async throws {
         // setup
         do {
             // first package has docs
@@ -252,7 +252,7 @@ class PackageResultTests: AppTestCase {
             }
         }
         do {
-            // seconds package doesn't have docs
+            // second package doesn't have docs
             let pkg = try savePackage(on: app.db, "2".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
