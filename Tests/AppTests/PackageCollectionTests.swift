@@ -790,7 +790,12 @@ class PackageCollectionTests: AppTestCase {
 
         // validate signed collection content
         XCTAssertFalse(signedCollection.signature.signature.isEmpty)
-        assertSnapshot(matching: signedCollection, as: .json(self.encoder))
+        // See https://github.com/pointfreeco/swift-snapshot-testing/discussions/739 for why this is conditional
+#if os(macOS)
+        assertSnapshot(matching: signedCollection, as: .json(encoder), named: "macos")
+#elseif os(Linux)
+        assertSnapshot(matching: signedCollection, as: .json(encoder), named: "linux")
+#endif
 
         // validate signature
         let validated = try SignedCollection.validate(eventLoop: app.eventLoopGroup.next(),
