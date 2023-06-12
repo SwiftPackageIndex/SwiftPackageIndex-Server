@@ -383,7 +383,12 @@ class PackageCollectionTests: AppTestCase {
             .wait()
 
         // validate
-        assertSnapshot(matching: res, as: .json(encoder))
+        // See https://github.com/pointfreeco/swift-snapshot-testing/discussions/739 for why this is conditional
+#if os(macOS)
+        assertSnapshot(matching: res, as: .json(encoder), named: "macos")
+#elseif os(Linux)
+        assertSnapshot(matching: res, as: .json(encoder), named: "linux")
+#endif
     }
 
     func test_generate_from_urls_noResults() throws {
@@ -478,7 +483,12 @@ class PackageCollectionTests: AppTestCase {
             .wait()
 
         // validate
-        assertSnapshot(matching: res, as: .json(encoder))
+        // See https://github.com/pointfreeco/swift-snapshot-testing/discussions/739 for why this is conditional
+#if os(macOS)
+        assertSnapshot(matching: res, as: .json(encoder), named: "macos")
+#elseif os(Linux)
+        assertSnapshot(matching: res, as: .json(encoder), named: "linux")
+#endif
     }
 
     func test_generate_for_owner_noResults() throws {
