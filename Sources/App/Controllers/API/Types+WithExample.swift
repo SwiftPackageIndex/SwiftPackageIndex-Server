@@ -168,22 +168,22 @@ extension API.PackageController.GetRoute.Model: WithExample {
               swiftVersionBuildInfo: .init(
                 stable: .init(
                     referenceName: "1.2.3",
-                    results: .init(status5_5: .incompatible,
-                                   status5_6: .incompatible,
-                                   status5_7: .unknown,
-                                   status5_8: .compatible)),
+                    results: .init(status5_6: .incompatible,
+                                   status5_7: .incompatible,
+                                   status5_8: .unknown,
+                                   status5_9: .compatible)),
                 beta: .init(
                     referenceName: "2.0.0-b1",
-                    results: .init(status5_5: .incompatible,
-                                   status5_6: .incompatible,
-                                   status5_7: .unknown,
-                                   status5_8: .compatible)),
+                    results: .init(status5_6: .incompatible,
+                                   status5_7: .incompatible,
+                                   status5_8: .unknown,
+                                   status5_9: .compatible)),
                 latest: .init(
                     referenceName: "main",
-                    results: .init(status5_5: .incompatible,
-                                   status5_6: .incompatible,
-                                   status5_7: .unknown,
-                                   status5_8: .compatible))
+                    results: .init(status5_6: .incompatible,
+                                   status5_7: .incompatible,
+                                   status5_8: .unknown,
+                                   status5_9: .compatible))
               ),
               platformBuildInfo: .init(
                 stable: .init(

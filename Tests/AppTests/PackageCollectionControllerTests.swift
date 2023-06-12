@@ -47,7 +47,7 @@ class PackageCollectionControllerTests: AppTestCase {
             try Build(version: v,
                       platform: .ios,
                       status: .ok,
-                      swiftVersion: .v2).save(on: app.db).wait()
+                      swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
             try Target(version: v, name: "t1").save(on: app.db).wait()
         }
         try Repository(package: p,
