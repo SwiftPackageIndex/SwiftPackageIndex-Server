@@ -54,6 +54,12 @@
               "toolsVersion" : "5.4"
             }
           },
+          "signer" : {
+            "commonName" : "Swift Package Index",
+            "organizationalUnitName" : "Swift Package Index",
+            "organizationName" : "Swift Package Index",
+            "type" : ""
+          },
           "verifiedCompatibility" : [
 
           ],

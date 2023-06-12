@@ -57,6 +57,12 @@
               "toolsVersion" : "5.2"
             }
           },
+          "signer" : {
+            "commonName" : "Swift Package Index",
+            "organizationalUnitName" : "Swift Package Index",
+            "organizationName" : "Swift Package Index",
+            "type" : ""
+          },
           "verifiedCompatibility" : [
             {
               "platform" : {
@@ -114,6 +120,12 @@
               ],
               "toolsVersion" : "5.3"
             }
+          },
+          "signer" : {
+            "commonName" : "Swift Package Index",
+            "organizationalUnitName" : "Swift Package Index",
+            "organizationName" : "Swift Package Index",
+            "type" : ""
           },
           "verifiedCompatibility" : [
 

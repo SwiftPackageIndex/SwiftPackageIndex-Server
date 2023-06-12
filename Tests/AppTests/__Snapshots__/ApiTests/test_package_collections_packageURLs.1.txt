@@ -13,6 +13,7 @@
     - some: "my overview"
   ▿ packages: 1 element
     ▿ Package
+      - identity: Optional<String>.none
       ▿ keywords: Optional<Array<String>>
         ▿ some: 2 elements
           - "a"
@@ -24,6 +25,7 @@
       - url: 1
       ▿ versions: 1 element
         ▿ Version
+          - author: Optional<Author>.none
           - createdAt: Optional<Date>.none
           - defaultToolsVersion: "5.3"
           - license: Optional<License>.none
@@ -42,6 +44,12 @@
                       - library: LibraryType.automatic
                 - targets: 0 elements
                 - toolsVersion: "5.3"
+          ▿ signer: Optional<Signer>
+            ▿ some: Signer
+              - commonName: "Swift Package Index"
+              - organizationName: "Swift Package Index"
+              - organizationalUnitName: "Swift Package Index"
+              - type: ""
           - summary: Optional<String>.none
           ▿ verifiedCompatibility: Optional<Array<Compatibility>>
             - some: 0 elements
