@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+    <url>
+        <loc>http://localhost:8080/</loc>
+    </url>
+    <url>
+        <loc>http://localhost:8080/add-a-package</loc>
+    </url>
+    <url>
+        <loc>http://localhost:8080/faq</loc>
+    </url>
+    <url>
+        <loc>http://localhost:8080/supporters</loc>
+    </url>
+    <url>
+        <loc>http://localhost:8080/build-monitor</loc>
+    </url>
+    <url>
+        <loc>http://localhost:8080/privacy</loc>
+    </url>
+</urlset>

@@ -33,49 +33,35 @@ class SitemapControllerTests: SnapshotTestCase {
         try await Search.refresh(on: app.db).get()
 
         // MUT
-        let xml = try await SiteMapController.buildIndex(db: app.db).render(indentedBy: .spaces(4))
+        let siteMap = try await SiteMapController.buildIndex(db: app.db)
 
-        assertSnapshot(matching: xml, as: .init(pathExtension: "xml", diffing: .lines), record: true)
+        assertSnapshot(matching: siteMap.render(indentedBy: .spaces(4)),
+                       as: .init(pathExtension: "xml", diffing: .lines))
     }
 
+    @MainActor
+    func test_buildSiteMapStaticPages() async throws {
+        // MUT
+        let siteMap = SiteMapController.buildStaticPages()
 
-//    func test_render() throws {
-//        // setup
-//        Current.siteURL = { "https://indexsite.com" }
-//        let packages: [SiteMap.Package] = [
-//            .init(owner: "foo1", repository: "bar1", hasDocs: true),
-//            .init(owner: "foo2", repository: "bar2"),
-//            .init(owner: "foo3", repository: "bar3"),
-//        ]
-//
-//        // MUT
-//        let xml = SiteURL.siteMap(with: packages).render(indentedBy: .spaces(2))
-//
-//        // MUT + validation
-//        assertSnapshot(matching: xml, as: .init(pathExtension: "xml", diffing: .lines))
-//    }
+        assertSnapshot(matching: siteMap.render(indentedBy: .spaces(4)),
+                       as: .init(pathExtension: "xml", diffing: .lines))
+    }
 
-//    func test_sitemap_route() throws {
-//        // setup
-//        Current.siteURL = { "https://indexsite.com" }
-//        let packages = (0..<3).map { Package(url: "\($0)".url) }
-//        try packages.save(on: app.db).wait()
-//        try packages.map { try Repository(package: $0, defaultBranch: "default",
-//                                          name: $0.url, owner: "foo") }
-//            .save(on: app.db)
-//            .wait()
-//        try packages.map { try Version(package: $0, packageName: "foo", reference: .branch("default")) }
-//            .save(on: app.db)
-//            .wait()
-//        try Search.refresh(on: app.db).wait()
-//
-//        // MUT
-//        try app.test(.GET, "sitemap.xml") { res in
-//            XCTAssertEqual(res.status, .ok)
-//            XCTAssertEqual(res.content.contentType,
-//                           .some(.init(type: "text", subType: "xml")))
-//            let xml = try XCTUnwrap(res.body.asString())
-//            assertSnapshot(matching: xml, as: .init(pathExtension: "xml", diffing: .lines))
-//        }
-//    }
+    @MainActor
+    func test_buildMapForPackage() async throws {
+        let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
+        try await package.save(on: app.db)
+        try await Repository(package: package, defaultBranch: "default",
+                             lastCommitDate: Current.date(),
+                             name: "repo0", owner: "owner").save(on: app.db)
+        try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
+                          reference: .branch("default")).save(on: app.db)
+
+        // MUT
+        let siteMap = try await SiteMapController.buildMapForPackage(db: app.db, owner: "owner", repository: "repo0")
+
+        assertSnapshot(matching: siteMap.render(indentedBy: .spaces(4)),
+                       as: .init(pathExtension: "xml", diffing: .lines))
+    }
 }
