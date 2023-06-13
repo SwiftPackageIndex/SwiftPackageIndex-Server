@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Vapor
+import Fluent
 import SQLKit
 import Plot
 
@@ -21,7 +22,7 @@ enum SiteMapController {
     struct Package: Equatable, Decodable {
         var owner: String
         var repository: String
-        var lastActivityAt: Date
+        var lastActivityAt: Date?
 
         enum CodingKeys: String, CodingKey {
             case owner
@@ -40,7 +41,11 @@ enum SiteMapController {
     ]
 
     static func index(req: Request) async throws -> Response {
-        guard let db = req.db as? SQLDatabase else {
+        return try await buildIndex(db: req.db).encodeResponse(for: req)
+    }
+
+    static func buildIndex(db: Database) async throws -> SiteMapIndex {
+        guard let db = db as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
@@ -48,7 +53,7 @@ enum SiteMapController {
         let query = db.select()
             .column(Search.repoOwner, as: "owner")
             .column(Search.repoName, as: "repository")
-            .column(Search.lastActivityAt, as: "last_activity_at")
+            .column(Search.lastActivityAt)
             .from(Search.searchView)
             .orderBy(Search.repoOwner)
             .orderBy(Search.repoName)
@@ -57,19 +62,19 @@ enum SiteMapController {
         return SiteMapIndex(
             .sitemap(
                 .loc(SiteURL.siteMapStaticPages.absoluteURL()),
-                .lastmod(Current.date())
+                .lastmod(Current.date()) // The home page updates every day.
             ),
             .group(
                 packages.map { package -> Node<SiteMapIndex.SiteMapIndexContext> in
-                    return .sitemap(
-                        .loc(SiteURL.package(.value(package.owner),
-                                             .value(package.repository),
-                                             .siteMap).absoluteURL()),
-                        .lastmod(package.lastActivityAt)
-                    )
+                        .sitemap(
+                            .loc(SiteURL.package(.value(package.owner),
+                                                 .value(package.repository),
+                                                 .siteMap).absoluteURL()),
+                            .unwrap(package.lastActivityAt, { .lastmod($0) })
+                        )
                 }
             )
-        ).encodeResponse(for: req)
+        )
     }
 
     static func staticPages(req: Request) async throws -> Response {
