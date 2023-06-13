@@ -119,6 +119,10 @@ func routes(_ app: Application) throws {
                 use: PackageController.builds).excludeFromOpenAPI()
         app.get(SiteURL.package(.key, .key, .maintainerInfo).pathComponents,
                 use: PackageController.maintainerInfo).excludeFromOpenAPI()
+
+        // Package specific site map, including all documentation URLs if available.
+        app.get(SiteURL.package(.key, .key, .siteMap).pathComponents,
+                use: SiteMapController.mapForPackage).excludeFromOpenAPI()
     }
 
     do {  // package collection page

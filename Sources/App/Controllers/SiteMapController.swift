@@ -82,46 +82,19 @@ enum SiteMapController {
         )).encodeResponse(for: req)
     }
 
-//    static func sitemap(req: Request) async throws -> Response {
-//        guard
-//            let owner = req.parameters.get("owner"),
-//            let repository = req.parameters.get("repository")
-//        else {
-//            throw Abort(.notFound)
-//        }
-//    }
+    static func mapForPackage(req: Request) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else { throw Abort(.notFound) }
 
-    //    static func siteMap(with packages: [SiteMap.Package]) -> SiteMap {
-    //        .init(
-    //            .forEach(staticRoutes) {
-    //                .url(
-    //                    .loc($0.absoluteURL()),
-    //                    .changefreq($0.changefreq)
-    //                )
-    //            },
-    //            .forEach(packages) { package in
-    //                    .group(
-    //                        .url(
-    //                            .loc(SiteURL.package(.value(package.owner),
-    //                                                 .value(package.repository),
-    //                                                 .none).absoluteURL()),
-    //                            .changefreq(SiteURL.package(.value(package.owner),
-    //                                                        .value(package.repository),
-    //                                                        .none).changefreq)
-    //                        ),
-    //                        .unwrap(package.hasDocs, { hasDocs in
-    //                                .if(hasDocs, .url(
-    //                                    .loc(SiteURL.package(.value(package.owner),
-    //                                                         .value(package.repository),
-    //                                                         .documentation).absoluteURL()),
-    //                                    .changefreq(SiteURL.package(.value(package.owner),
-    //                                                                .value(package.repository),
-    //                                                                .documentation).changefreq)
-    //                                ))
-    //                        })
-    //                    )
-    //            }
-    //        )
-    //    }
+        let packageResult = try await PackageController.PackageResult.query(on: req.db, owner: owner, repository: repository)
 
+        return SiteMap(
+            .url(
+                .loc(SiteURL.package(.value(owner), .value(repository), .none).absoluteURL()),
+                .unwrap(packageResult.repository.lastActivityAt, { .lastmod($0) })
+            )
+        ).encodeResponse(for: req)
+    }
 }
