@@ -78,13 +78,17 @@ enum SiteMapController {
     }
 
     static func staticPages(req: Request) async throws -> Response {
-        return SiteMap(.group(
+        buildStaticPages().encodeResponse(for: req)
+    }
+
+    static func buildStaticPages() -> SiteMap {
+        SiteMap(.group(
             staticRoutes.map { page -> Node<SiteMap.URLSetContext> in
                     .url(
                         .loc(page.absoluteURL())
                     )
             }
-        )).encodeResponse(for: req)
+        ))
     }
 
     static func mapForPackage(req: Request) async throws -> Response {
@@ -93,13 +97,17 @@ enum SiteMapController {
             let repository = req.parameters.get("repository")
         else { throw Abort(.notFound) }
 
-        let packageResult = try await PackageController.PackageResult.query(on: req.db, owner: owner, repository: repository)
+        return try await buildMapForPackage(db: req.db, owner: owner, repository: repository).encodeResponse(for: req)
+    }
+
+    static func buildMapForPackage(db: Database, owner: String, repository: String) async throws -> SiteMap {
+        let packageResult = try await PackageController.PackageResult.query(on: db, owner: owner, repository: repository)
 
         return SiteMap(
             .url(
                 .loc(SiteURL.package(.value(owner), .value(repository), .none).absoluteURL()),
                 .unwrap(packageResult.repository.lastActivityAt, { .lastmod($0) })
             )
-        ).encodeResponse(for: req)
+        )
     }
 }
