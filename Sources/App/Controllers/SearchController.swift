@@ -36,7 +36,7 @@ enum SearchController {
         let model = SearchShow.Model(query: query, response: response, weightedKeywords: weightedKeywords)
         var path = req.url.string
         
-        if var components = URLComponents(string: req.url.string), let queryItems = components.queryItems {
+        if var components = URLComponents(string: path), let queryItems = components.queryItems {
             components.queryItems = queryItems.filter { item in
                 ["page", "query"].contains(item.name)
             }
