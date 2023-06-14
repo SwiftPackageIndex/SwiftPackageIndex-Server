@@ -14,9 +14,10 @@
 
 @testable import App
 
+import SnapshotTesting
 import XCTVapor
 
-class SearchShowModelTests: XCTestCase {
+class SearchShowModelTests: AppTestCase {
 
     func test_SearchShow_Model_init() throws {
         let results: [Search.Result] = .mock()
@@ -142,6 +143,14 @@ class SearchShowModelTests: XCTestCase {
         let matchingKeywords = model.matchingKeywords(packageKeywords: ["keyword2", "keyword4", "keyword5"])
 
         XCTAssertEqual(matchingKeywords, ["keyword2", "keyword4"])
+    }
+    
+    func test_SearchShow_Model_canonicalURLAllowList() throws {
+        try app.test(.GET, "search?query=alamo&page=2&utm_campaign=test&utm_source=email", afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            
+            assertSnapshot(matching: res.body.string, as: .html)
+        })
     }
 
 }
