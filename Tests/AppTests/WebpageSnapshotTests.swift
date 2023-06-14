@@ -231,6 +231,17 @@ class WebpageSnapshotTests: SnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
     }
 
+    func test_PackageShowView_canonicalURL_noImageSnapshots() throws {
+        // In production, the owner and repository name in the view model are fetched from
+        // the database and have canonical capitalisation.
+        var model = API.PackageController.GetRoute.Model.mock
+        model.repositoryOwner = "owner"
+        model.repositoryName = "repo"
+        let page = { PackageShow.View(path: "/OWNER/Repo", model: model, packageSchema: .mock).document() }
+        
+        assertSnapshot(matching: page, as: .html)
+    }
+    
     func test_PackageShowView_missingPackage() throws {
         let page = { MissingPackage.View(path: "", model: .mock).document() }
         assertSnapshot(matching: page, as: .html)
