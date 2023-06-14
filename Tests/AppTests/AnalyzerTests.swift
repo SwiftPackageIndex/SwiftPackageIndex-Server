@@ -929,14 +929,14 @@ class AnalyzerTests: AppTestCase {
 
     func test_dumpPackage_5_4() throws {
         // Test parsing a Package.swift that requires a 5.4 toolchain
-        // NB: If this test fails on macOS with Xcode 12, make sure
-        // xcode-select -p points to the correct version of Xcode!
+        // NB: If this test fails on macOS make sure xcode-select -p
+        // points to the correct version of Xcode!
         // setup
         Current.fileManager = .live
         Current.shell = .live
         try withTempDir { tempDir in
             let fixture = fixturesDirectory()
-                .appendingPathComponent("VisualEffects-Package-swift").path
+                .appendingPathComponent("5.4-Package-swift").path
             let fname = tempDir.appending("/Package.swift")
             try ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
             let m = try Analyze.dumpPackage(at: tempDir)
@@ -946,19 +946,36 @@ class AnalyzerTests: AppTestCase {
 
     func test_dumpPackage_5_5() throws {
         // Test parsing a Package.swift that requires a 5.5 toolchain
-        // NB: If this test fails on macOS with Xcode 12, make sure
-        // xcode-select -p points to the correct version of Xcode!
+        // NB: If this test fails on macOS make sure xcode-select -p
+        // points to the correct version of Xcode!
         // See also https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1441
         // setup
         Current.fileManager = .live
         Current.shell = .live
         try withTempDir { tempDir in
             let fixture = fixturesDirectory()
-                .appendingPathComponent("Firestarter-Package-swift").path
+                .appendingPathComponent("5.5-Package-swift").path
             let fname = tempDir.appending("/Package.swift")
             try ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
             let m = try Analyze.dumpPackage(at: tempDir)
             XCTAssertEqual(m.name, "Firestarter")
+        }
+    }
+
+    func test_dumpPackage_5_9_macro_target() throws {
+        // Test parsing a 5.9 Package.swift with a macro target
+        // NB: If this test fails on macOS make sure xcode-select -p
+        // points to the correct version of Xcode!
+        // setup
+        Current.fileManager = .live
+        Current.shell = .live
+        try withTempDir { tempDir in
+            let fixture = fixturesDirectory()
+                .appendingPathComponent("5.9-Package-swift").path
+            let fname = tempDir.appending("/Package.swift")
+            try ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+            let m = try Analyze.dumpPackage(at: tempDir)
+            XCTAssertEqual(m.name, "StaticMemberIterable")
         }
     }
 
