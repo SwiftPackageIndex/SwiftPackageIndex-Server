@@ -38,7 +38,9 @@ enum SearchController {
         
         if var components = URLComponents(string: path), let queryItems = components.queryItems {
             components.queryItems = queryItems.filter { item in
-                ["page", "query"].contains(item.name)
+                // Every parameter in the query string must exist in `API.SearchController.Query`.
+                let mirror = Mirror(reflecting: query)
+                return mirror.children.map { $0.label }.contains(item.name)
             }
             
             if let filteredPath = components.string {
