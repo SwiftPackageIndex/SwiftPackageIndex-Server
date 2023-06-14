@@ -74,10 +74,7 @@ struct DocumentationPageProcessor {
             try document.head()?.append(self.stylesheetLink)
             if let canonicalUrl = self.canonicalUrl {
                 try document.head()?.append(
-                    Plot.Node.link(
-                        .rel(.canonical),
-                        .href(canonicalUrl)
-                    ).render()
+                    Plot.Node<HTML.HeadContext>.url(canonicalUrl).render()
                 )
             }
             try document.body()?.prepend(self.header)
