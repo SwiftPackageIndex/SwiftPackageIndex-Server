@@ -37,7 +37,10 @@ enum SearchController {
         var path = req.url.string
         
         if var components = URLComponents(string: req.url.string), let queryItems = components.queryItems {
-            components.queryItems = queryItems.filter { $0.name == "query" }
+            components.queryItems = queryItems.filter { item in
+                ["page", "query"].contains(item.name)
+            }
+            
             if let filteredPath = components.string {
                 path = filteredPath
             }
