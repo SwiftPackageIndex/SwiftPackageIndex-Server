@@ -34,7 +34,16 @@ enum SearchController {
         : []
 
         let model = SearchShow.Model(query: query, response: response, weightedKeywords: weightedKeywords)
-        return SearchShow.View.init(path: req.url.string, model: model).document()
+        var path = req.url.string
+        
+        if var components = URLComponents(string: req.url.string), let queryItems = components.queryItems {
+            components.queryItems = queryItems.filter { $0.name == "query" }
+            if let filteredPath = components.string {
+                path = filteredPath
+            }
+        }
+        
+        return SearchShow.View.init(path: path, model: model).document()
     }
 
 }
