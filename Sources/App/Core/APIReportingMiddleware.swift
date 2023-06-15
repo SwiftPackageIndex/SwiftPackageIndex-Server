@@ -20,16 +20,8 @@ struct APIReportingMiddleware: AsyncMiddleware {
 
     func respond(to request: Request, chainingTo next: AsyncResponder) async throws -> Response {
         let response = try await next.respond(to: request)
-
         let user = try? request.auth.require(User.self)
-        Task {
-            do {
-                try await Current.postPlausibleEvent(Current.httpClient(), .pageview, path, user)
-            } catch {
-                Current.logger().warning("Plausible.postEvent failed: \(error)")
-            }
-        }
-
+        Current.postPlausibleEvent(.pageview, path: path, user: user)
         return response
     }
 }

@@ -83,6 +83,16 @@ extension AppEnvironment {
     }
 
     func isValidAPIToken(_ token: String) -> Bool { apiTokens().contains(token) }
+
+    func postPlausibleEvent(_ event: Plausible.Event.Kind, path: Plausible.Path, user: User?) {
+        Task {
+            do {
+                try await Current.postPlausibleEvent(Current.httpClient(), event, path, user)
+            } catch {
+                Current.logger().warning("Plausible.postEvent failed: \(error)")
+            }
+        }
+    }
 }
 
 
