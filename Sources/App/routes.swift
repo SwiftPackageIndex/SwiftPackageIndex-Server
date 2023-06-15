@@ -259,16 +259,20 @@ func routes(_ app: Application) throws {
     }
 
     do {  // RSS + Sitemap
-        app.get(SiteURL.rssPackages.pathComponents, use: RSSFeed.showPackages)
-            .excludeFromOpenAPI()
+        app.group(APIReportingMiddleware(path: .rss)) {
+            $0.get(SiteURL.rssPackages.pathComponents, use: RSSFeed.showPackages)
+                .excludeFromOpenAPI()
+            
+            $0.get(SiteURL.rssReleases.pathComponents, use: RSSFeed.showReleases)
+                .excludeFromOpenAPI()
+        }
 
-        app.get(SiteURL.rssReleases.pathComponents, use: RSSFeed.showReleases)
-            .excludeFromOpenAPI()
-
-        app.get(SiteURL.siteMap.pathComponents) { req in
-            SiteMap.fetchPackages(req.db)
-                .map(SiteURL.siteMap)
-        }.excludeFromOpenAPI()
+        app.group(APIReportingMiddleware(path: .sitemap)) {
+            $0.get(SiteURL.siteMap.pathComponents) { req in
+                SiteMap.fetchPackages(req.db)
+                    .map(SiteURL.siteMap)
+            }.excludeFromOpenAPI()
+        }
     }
 
     do {  // Metrics
