@@ -183,7 +183,7 @@ func routes(_ app: Application) throws {
             responseContentType: .application(.json)
         )
 
-        app.group(APIReportingMiddleware(path: .search)) {
+        app.group(BackendReportingMiddleware(path: .search)) {
             $0.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
                 .openAPI(
                     summary: "/api/search",
@@ -194,7 +194,7 @@ func routes(_ app: Application) throws {
                 )
         }
         
-        app.group(APIReportingMiddleware(path: .badge)) {
+        app.group(BackendReportingMiddleware(path: .badge)) {
             $0.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
                    use: API.PackageController.badge)
             .openAPI(
@@ -209,7 +209,7 @@ func routes(_ app: Application) throws {
         // api token protected routes
         app.group(User.APIAuthenticator(), User.guardMiddleware()) {
             $0.groupedOpenAPI(auth: .apiBearerToken).group(tags: []) { protected in
-                protected.group(APIReportingMiddleware(path: .package)) {
+                protected.group(BackendReportingMiddleware(path: .package)) {
                     $0.get("api", "packages", ":owner", ":repository", use: API.PackageController.get)
                         .openAPI(
                             summary: "/api/packages/{owner}/{repository}",
@@ -219,7 +219,7 @@ func routes(_ app: Application) throws {
                         )
                 }
 
-                protected.group(APIReportingMiddleware(path: .packageCollections)) {
+                protected.group(BackendReportingMiddleware(path: .packageCollections)) {
                     $0.post(SiteURL.api(.packageCollections).pathComponents,
                             use: API.PackageCollectionController.generate)
                     .openAPI(
@@ -259,7 +259,7 @@ func routes(_ app: Application) throws {
     }
 
     do {  // RSS + Sitemap
-        app.group(APIReportingMiddleware(path: .rss)) {
+        app.group(BackendReportingMiddleware(path: .rss)) {
             $0.get(SiteURL.rssPackages.pathComponents, use: RSSFeed.showPackages)
                 .excludeFromOpenAPI()
             
@@ -267,7 +267,7 @@ func routes(_ app: Application) throws {
                 .excludeFromOpenAPI()
         }
 
-        app.group(APIReportingMiddleware(path: .sitemap)) {
+        app.group(BackendReportingMiddleware(path: .sitemap)) {
             $0.get(SiteURL.siteMap.pathComponents) { req in
                 SiteMap.fetchPackages(req.db)
                     .map(SiteURL.siteMap)
