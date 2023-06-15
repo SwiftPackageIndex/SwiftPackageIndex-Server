@@ -29,7 +29,7 @@ final class PlausibleTests: XCTestCase {
     }
 
     func test_postEvent_anonymous() async throws {
-        Current.plausibleAPIReportingSiteID = { "foo.bar" }
+        Current.plausibleBackendReportingSiteID = { "foo.bar" }
 
         var called = false
         let client = MockClient { req, _ in
@@ -49,7 +49,7 @@ final class PlausibleTests: XCTestCase {
     }
 
     func test_postEvent_package() async throws {
-        Current.plausibleAPIReportingSiteID = { "foo.bar" }
+        Current.plausibleBackendReportingSiteID = { "foo.bar" }
 
         let user = User(name: "api", identifier: "3c469e9d")
         var called = false
