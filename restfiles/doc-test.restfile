@@ -167,6 +167,18 @@ requests:
     url: ${base_url}/apple/swift-nio/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /apple/swift-openapi-generator/documentation:
+    url: ${base_url}/apple/swift-openapi-generator/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /apple/swift-openapi-runtime/documentation:
+    url: ${base_url}/apple/swift-openapi-runtime/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /apple/swift-openapi-urlsession/documentation:
+    url: ${base_url}/apple/swift-openapi-urlsession/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /apple/swift-protobuf/documentation:
     url: ${base_url}/apple/swift-protobuf/documentation
     validation:
@@ -324,6 +336,10 @@ requests:
     url: ${base_url}/sindresorhus/KeyboardShortcuts/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /stackotter/swift-bundler/documentation:
+    url: ${base_url}/stackotter/swift-bundler/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /swift-server-community/APNSwift/documentation:
     url: ${base_url}/swift-server-community/APNSwift/documentation
     validation:
@@ -338,6 +354,10 @@ requests:
       status: .regex((2|3)\d\d)
   /swift-server/swift-backtrace/documentation:
     url: ${base_url}/swift-server/swift-backtrace/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /swift-server/swift-openapi-async-http-client/documentation:
+    url: ${base_url}/swift-server/swift-openapi-async-http-client/documentation
     validation:
       status: .regex((2|3)\d\d)
   /swift-server/swift-service-lifecycle/documentation:
