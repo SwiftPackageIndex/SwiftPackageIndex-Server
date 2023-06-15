@@ -34,15 +34,6 @@ enum Plausible {
         case search = "/api/search"
     }
 
-    enum Identifier {
-        case anonymous
-        case identifier(String)
-
-        var props: [String: String] {
-            fatalError("fix me")
-        }
-    }
-
     struct Error: Swift.Error {
         var message: String
     }
