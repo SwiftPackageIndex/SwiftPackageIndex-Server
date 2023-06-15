@@ -34,7 +34,21 @@ enum SearchController {
         : []
 
         let model = SearchShow.Model(query: query, response: response, weightedKeywords: weightedKeywords)
-        return SearchShow.View.init(path: req.url.string, model: model).document()
+        var path = req.url.string
+        
+        if var components = URLComponents(string: path), let queryItems = components.queryItems {
+            components.queryItems = queryItems.filter { item in
+                // Every parameter in the query string must exist in `API.SearchController.Query`.
+                let mirror = Mirror(reflecting: query)
+                return mirror.children.map { $0.label }.contains(item.name)
+            }
+            
+            if let filteredPath = components.string {
+                path = filteredPath
+            }
+        }
+        
+        return SearchShow.View.init(path: path, model: model).document()
     }
 
 }
