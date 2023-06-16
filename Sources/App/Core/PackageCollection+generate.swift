@@ -254,8 +254,6 @@ private extension PackageCollection.ProductType {
                 self = .library(.dynamic)
             case .library(.static):
                 self = .library(.static)
-            case .macro:
-                self = .macro
             case .test:
                 self = .test
             case .plugin:

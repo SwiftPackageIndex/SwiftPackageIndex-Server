@@ -68,7 +68,6 @@ final class Product: Model, Content {
 enum ProductType: Codable, Equatable {
     case executable
     case library(LibraryType)
-    case macro
     case plugin
     case test
 
@@ -82,8 +81,6 @@ enum ProductType: Codable, Equatable {
                 self = .library(.dynamic)
             case .library(.static):
                 self = .library(.static)
-            case .macro:
-                self = .macro
             case .plugin:
                 self = .plugin
             case .test:
@@ -100,14 +97,14 @@ enum ProductType: Codable, Equatable {
     var isLibrary: Bool {
         switch self {
             case .library: return true
-            case .executable, .macro, .plugin, .test: return false
+            case .executable, .plugin, .test: return false
         }
     }
 
     var isExecutable: Bool {
         switch self {
             case .executable: return true
-            case .library, .macro, .plugin, .test: return false
+            case .library, .plugin, .test: return false
         }
     }
 

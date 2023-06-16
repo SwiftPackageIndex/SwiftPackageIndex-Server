@@ -62,14 +62,12 @@ struct Manifest: Decodable, Equatable {
     enum ProductType: Equatable {
         case executable
         case library(LibraryType)
-        case macro
         case plugin
         case test
 
         enum CodingKeys: CodingKey {
             case executable
             case library
-            case macro
             case plugin
             case test
         }
@@ -125,8 +123,6 @@ extension Manifest.ProductType: Decodable {
                 var unkeyedValues = try container.nestedUnkeyedContainer(forKey: key)
                 let value = try unkeyedValues.decode(Manifest.LibraryType.self)
                 self = .library(value)
-            case .macro:
-                self = .macro
             case .plugin:
                 self = .plugin
             case .test:
