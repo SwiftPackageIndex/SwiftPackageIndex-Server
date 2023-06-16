@@ -362,9 +362,9 @@
     {
       "identity" : "swift-snapshot-testing",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/finestructure/swift-snapshot-testing.git",
+      "location" : "https://github.com/pointfreeco/swift-snapshot-testing.git",
       "state" : {
-        "revision" : "d47aff583470146b355108f08a74f958d3b0b111"
+        "revision" : "dc46eeb3928a75390651fac6c1ef7f93ad59a73b"
       }
     },
     {
