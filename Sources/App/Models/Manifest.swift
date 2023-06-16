@@ -80,12 +80,13 @@ struct Manifest: Decodable, Equatable {
     }
 
     enum TargetType: String, Equatable, Codable {
-        case regular
-        case executable
-        case test
-        case system
         case binary
+        case executable
+        case macro
         case plugin
+        case regular
+        case system
+        case test
     }
 
     struct Target: Decodable, Equatable {

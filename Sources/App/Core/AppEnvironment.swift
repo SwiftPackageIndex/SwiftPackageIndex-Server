@@ -56,7 +56,7 @@ struct AppEnvironment {
     var mastodonCredentials: () -> Mastodon.Credentials?
     var mastodonPost: (_ client: Client, _ post: String) async throws -> Void
     var metricsPushGatewayUrl: () -> String?
-    var plausibleAPIReportingSiteID: () -> String?
+    var plausibleBackendReportingSiteID: () -> String?
     var postPlausibleEvent: (Client, Plausible.Event.Kind, Plausible.Path, User?) async throws -> Void
     var random: (_ range: ClosedRange<Double>) -> Double
     var setHTTPClient: (Client) -> Void
@@ -83,6 +83,16 @@ extension AppEnvironment {
     }
 
     func isValidAPIToken(_ token: String) -> Bool { apiTokens().contains(token) }
+
+    func postPlausibleEvent(_ event: Plausible.Event.Kind, path: Plausible.Path, user: User?) {
+        Task {
+            do {
+                try await Current.postPlausibleEvent(Current.httpClient(), event, path, user)
+            } catch {
+                Current.logger().warning("Plausible.postEvent failed: \(error)")
+            }
+        }
+    }
 }
 
 
@@ -179,7 +189,7 @@ extension AppEnvironment {
         },
         mastodonPost: Mastodon.post(client:message:),
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
-        plausibleAPIReportingSiteID: { Environment.get("PLAUSIBLE_API_REPORTING_SITE_ID") },
+        plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },
         postPlausibleEvent: Plausible.postEvent,
         random: Double.random,
         setHTTPClient: { client in Self.httpClient = client },

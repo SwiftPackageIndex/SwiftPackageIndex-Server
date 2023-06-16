@@ -44,7 +44,7 @@ class PublicPage {
             .viewport(.accordingToDevice, initialScale: 1),
             .meta(.charset(.utf8)),
             .siteName("The Swift Package Index"),
-            .url(SiteURL.absoluteURL(path)),
+            .url(canonicalURL()),
             .title(title()),
             .description(description()),
             .twitterCardType(.summary),
@@ -115,6 +115,21 @@ class PublicPage {
         <script async defer data-domain="swiftpackageindex.com" src="https://plausible.io/js/plausible.outbound-links.js"></script>
         <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
         """
+    }
+    
+    /// The canonical URL for the current page, as determined by the page's `path`.
+    /// - Returns: A string indicating the canonical URL for the current page.
+    final func canonicalURL() -> String {
+        guard let pageCanonicalURL = pageCanonicalURL()
+        else { return SiteURL.absoluteURL(path) }
+        
+        return pageCanonicalURL
+    }
+    
+    /// The canonical URL for the current page, as determined by the page.
+    /// - Returns: A string indicating the canonical URL for the current page.
+    func pageCanonicalURL() -> String? {
+        nil
     }
 
     /// The full page title, including the site name.

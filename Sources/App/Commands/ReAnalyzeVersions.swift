@@ -205,7 +205,13 @@ enum ReAnalyzeVersions {
                 Analyze.mergeReleaseInfo(package: pkg, into: versions)
 
                 for version in versions {
-                    guard let pkgInfo = try? Analyze.getPackageInfo(package: pkg, version: version) else { continue }
+                    let pkgInfo: Analyze.PackageInfo
+                    do {
+                        pkgInfo = try Analyze.getPackageInfo(package: pkg, version: version)
+                    } catch {
+                        Current.logger().report(error: error)
+                        continue
+                    }
 
                     try await Analyze.updateVersion(on: tx,
                                                     version: version,

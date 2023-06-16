@@ -31,16 +31,9 @@ enum Plausible {
         case badge = "/api/packages/{owner}/{repository}/badge"
         case package = "/api/packages/{owner}/{repository}"
         case packageCollections = "/api/package-collections"
+        case rss = "/rss"
         case search = "/api/search"
-    }
-
-    enum Identifier {
-        case anonymous
-        case identifier(String)
-
-        var props: [String: String] {
-            fatalError("fix me")
-        }
+        case sitemap = "/sitemap"
     }
 
     struct Error: Swift.Error {
@@ -50,8 +43,8 @@ enum Plausible {
     static let postEventURI = URI(string: "https://plausible.io/api/event")
 
     static func postEvent(client: Client, kind: Event.Kind, path: Path, user: User?) async throws {
-        guard let siteID = Current.plausibleAPIReportingSiteID() else {
-            throw Error(message: "PLAUSIBLE_API_REPORTING_SITE_ID not set")
+        guard let siteID = Current.plausibleBackendReportingSiteID() else {
+            throw Error(message: "PLAUSIBLE_BACKEND_REPORTING_SITE_ID not set")
         }
         let res = try await client.post(postEventURI, headers: .applicationJSON) { req in
             try req.content.encode(Event(name: .pageview,

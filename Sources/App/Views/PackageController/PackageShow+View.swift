@@ -30,6 +30,10 @@ extension PackageShow {
             self.packageSchema = packageSchema
             super.init(path: path)
         }
+        
+        override func pageCanonicalURL() -> String? {
+            SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .none).absoluteURL()
+        }
 
         override func pageTitle() -> String? {
             model.title
