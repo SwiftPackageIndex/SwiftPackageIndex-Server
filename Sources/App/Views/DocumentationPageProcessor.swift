@@ -295,7 +295,12 @@ struct DocumentationPageProcessor {
     func stagingBanner() -> Plot.Node<HTML.BodyContext> {
         .div(
             .class("staging"),
-            .text("Staging / Development")
+            .text("This is a staging environment. For live and up-to-date documentation, "),
+            .a(
+                .href("https://swiftpackageindex.com"),
+                "visit swiftpackageindex.com"
+            ),
+            .text(".")
         )
     }
 }
