@@ -70,8 +70,13 @@ class VersionTests: AppTestCase {
             XCTFail("save must fail")
         } catch {
             // validation
-            XCTAssertEqual(error.localizedDescription,
-                           #"server: null value in column "commit" of relation "versions" violates not-null constraint (ExecConstraints)"#)
+            let error = String(reflecting: error)
+            XCTAssert(
+                error.contains(
+                    #"null value in column "commit" of relation "versions" violates not-null constraint"#
+                ),
+                "was: \(error)"
+            )
         }
 
         do {  // commitDate unset
@@ -82,8 +87,13 @@ class VersionTests: AppTestCase {
             XCTFail("save must fail")
         } catch {
             // validation
-            XCTAssertEqual(error.localizedDescription,
-                           #"server: null value in column "commit_date" of relation "versions" violates not-null constraint (ExecConstraints)"#)
+            let error = String(reflecting: error)
+            XCTAssert(
+                error.contains(
+                    #"null value in column "commit_date" of relation "versions" violates not-null constraint"#
+                ),
+                "was: \(error)"
+            )
         }
 
         do {  // reference unset
@@ -94,8 +104,13 @@ class VersionTests: AppTestCase {
             XCTFail("save must fail")
         } catch {
             // validation
-            XCTAssertEqual(error.localizedDescription,
-                           #"server: null value in column "reference" of relation "versions" violates not-null constraint (ExecConstraints)"#)
+            let error = String(reflecting: error)
+            XCTAssert(
+                error.contains(
+                           #"null value in column "reference" of relation "versions" violates not-null constraint"#
+                ),
+                "was: \(error)"
+            )
         }
     }
 
