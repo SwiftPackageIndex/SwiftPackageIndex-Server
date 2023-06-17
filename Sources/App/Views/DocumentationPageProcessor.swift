@@ -211,7 +211,7 @@ struct DocumentationPageProcessor {
                                                             fragment: .documentation
                                                         )
                                                     ),
-                                                    .text("View latest documentation")
+                                                    .text("View latest release documentation")
                                                 ),
                                                 .text(".")
                                             )
@@ -286,9 +286,9 @@ struct DocumentationPageProcessor {
 
     var latestStableLinkExplanatoryText: String {
         switch referenceKind {
-            case .release: return "This documentation is from a previous release and may not reflect the latest version."
-            case .preRelease: return "This documentation is from a pre-release and may not reflect the latest version."
-            case .defaultBranch: return "This documentation is from the \(reference) branch and may not reflect the latest version."
+            case .release: return "This documentation is from a previous release and may not reflect the latest released version."
+            case .preRelease: return "This documentation is from a pre-release and may not reflect the latest released version."
+            case .defaultBranch: return "This documentation is from the \(reference) branch and may not reflect the latest released version."
         }
     }
 
