@@ -24,7 +24,7 @@ struct CreateRepositoriesNameIndex: Migration {
 
         // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/176#issuecomment-637710906
         // for details about this index
-        return db.raw("CREATE EXTENSION pg_trgm").run()
+        return db.raw("CREATE EXTENSION IF NOT EXISTS pg_trgm").run()
             .flatMap {
                 db.raw("CREATE INDEX idx_repositories_name ON repositories USING gin (name gin_trgm_ops)").run() }
     }

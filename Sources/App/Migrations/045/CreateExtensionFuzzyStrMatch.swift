@@ -23,7 +23,7 @@ struct CreateExtensionFuzzyStrMatch: AsyncMigration {
         }
 
         // required for levenshtein distance in search
-        try await db.raw("CREATE EXTENSION fuzzystrmatch").run()
+        try await db.raw("CREATE EXTENSION IF NOT EXISTS fuzzystrmatch").run()
     }
 
     func revert(on database: Database) async throws {
