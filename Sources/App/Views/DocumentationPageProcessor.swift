@@ -288,7 +288,7 @@ struct DocumentationPageProcessor {
         switch referenceKind {
             case .release: return "This documentation is from a previous release and may not reflect the latest version."
             case .preRelease: return "This documentation is from a pre-release and may not reflect the latest version."
-            case .defaultBranch: return "This documentation is from the \(reference) branch and may not reflect the latest version."
+            case .defaultBranch: return "This documentation is from the \(reference) branch and may not reflect the latest released version."
         }
     }
 
