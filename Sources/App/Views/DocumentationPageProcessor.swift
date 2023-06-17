@@ -71,6 +71,9 @@ struct DocumentationPageProcessor {
 
         do {
             document = try SwiftSoup.parse(rawHtml)
+            if let metaNoIndex = self.metaNoIndex {
+                try document.head()?.prepend(metaNoIndex)
+            }
             try document.head()?.append(self.stylesheetLink)
             if let canonicalUrl = self.canonicalUrl {
                 try document.head()?.append(
@@ -91,6 +94,14 @@ struct DocumentationPageProcessor {
         } catch {
             return nil
         }
+    }
+
+    var metaNoIndex: String? {
+        guard Environment.current != .production else { return nil }
+        return Plot.Node.meta(
+            .name("robots"),
+            .content("noindex")
+        ).render()
     }
 
     var stylesheetLink: String {
