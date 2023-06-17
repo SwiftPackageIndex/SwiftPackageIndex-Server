@@ -60,11 +60,19 @@ footer.spi {
 
     .staging {
         padding: 10px;
-        font-weight: bold;
+        font-weight: 600;
         text-align: center;
-        text-transform: uppercase;
         color: var(--white);
         background-color: var(--mid-red);
+
+        a {
+            text-decoration: underline;
+            color: var(--white);
+
+            &:hover {
+                color: var(--header-link-highlight);
+            }
+        }
     }
 }
 
