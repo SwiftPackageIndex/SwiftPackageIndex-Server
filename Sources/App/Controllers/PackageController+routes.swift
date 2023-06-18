@@ -228,10 +228,14 @@ enum PackageController {
         }
 
         let canonicalUrl: String? = {
-            guard let canonicalTarget = documentationMetadata.canonicalTarget else { return nil }
+            guard let canonicalOwner = documentationMetadata.owner,
+                  let canonicalRepository = documentationMetadata.repository,
+                  let canonicalTarget = documentationMetadata.canonicalTarget
+            else { return nil }
+            
             return Self.canonicalDocumentationUrl(from: "\(req.url)",
-                                                  owner: owner,
-                                                  repository: repository,
+                                                  owner: canonicalOwner,
+                                                  repository: canonicalRepository,
                                                   fromReference: reference,
                                                   toTarget: canonicalTarget)
         }()
