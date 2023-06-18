@@ -18,6 +18,8 @@ import Fluent
 import SemanticVersion
 
 struct DocumentationMetadata {
+    var owner: String?
+    var repository: String?
     var canonicalTarget: DocumentationTarget?
     var versions: [DocumentationVersion]
 
@@ -36,6 +38,8 @@ struct DocumentationMetadata {
             .field(Version.self, \.$commitDate)
             .field(Version.self, \.$publishedAt)
             .field(Version.self, \.$spiManifest)
+            .field(Repository.self, \.$owner)
+            .field(Repository.self, \.$name)
             .field(Repository.self, \.$ownerName)
             .all()
 
@@ -55,7 +59,9 @@ struct DocumentationMetadata {
                       updatedAt: result.model.publishedAt ?? result.model.commitDate)
         }
 
-        return .init(canonicalTarget: canonicalDocumentationTarget,
+        return .init(owner: results.first?.relation2?.owner,
+                     repository: results.first?.relation2?.name,
+                     canonicalTarget: canonicalDocumentationTarget,
                      versions: documentationVersions)
     }
 }
