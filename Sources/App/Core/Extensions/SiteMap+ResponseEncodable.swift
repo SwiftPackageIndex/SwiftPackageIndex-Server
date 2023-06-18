@@ -15,16 +15,20 @@
 import Plot
 import Vapor
 
-extension SiteMapIndex: AsyncResponseEncodable {
-    public func encodeResponse(for request: Request) -> Response {
-        let res = Response(status: .ok, body: .init(string: self.render()))
-        res.headers.add(name: "Content-Type", value: "text/xml")
-        return res
+extension SiteMapIndex: AsyncResponseEncodable, Renderable {
+    public func encodeResponse(for request: Request) async throws -> Response {
+        try await encodeXMLResponse(for: request)
     }
 }
 
-extension SiteMap: AsyncResponseEncodable {
-    public func encodeResponse(for request: Request) -> Response {
+extension SiteMap: AsyncResponseEncodable, Renderable {
+    public func encodeResponse(for request: Request) async throws -> Response {
+        try await encodeXMLResponse(for: request)
+    }
+}
+
+extension AsyncResponseEncodable where Self: Renderable {
+    func encodeXMLResponse(for request: Request) async throws -> Response {
         let res = Response(status: .ok, body: .init(string: self.render()))
         res.headers.add(name: "Content-Type", value: "text/xml")
         return res

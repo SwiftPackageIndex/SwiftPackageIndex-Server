@@ -78,7 +78,7 @@ enum SiteMapController {
     }
 
     static func staticPages(req: Request) async throws -> Response {
-        buildStaticPages().encodeResponse(for: req)
+        try await buildStaticPages().encodeResponse(for: req)
     }
 
     static func buildStaticPages() -> SiteMap {
