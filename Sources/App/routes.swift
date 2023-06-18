@@ -121,8 +121,10 @@ func routes(_ app: Application) throws {
                 use: PackageController.maintainerInfo).excludeFromOpenAPI()
 
         // Package specific site map, including all documentation URLs if available.
-        app.get(SiteURL.package(.key, .key, .siteMap).pathComponents,
-                use: SiteMapController.mapForPackage).excludeFromOpenAPI()
+        app.group(BackendReportingMiddleware(path: .sitemapPackage)) {
+            $0.get(SiteURL.package(.key, .key, .siteMap).pathComponents,
+                    use: SiteMapController.mapForPackage).excludeFromOpenAPI()
+        }
     }
 
     do {  // package collection page
@@ -273,13 +275,15 @@ func routes(_ app: Application) throws {
     }
 
     do { // Site map index and site maps
-        app.group(BackendReportingMiddleware(path: .sitemap)) {
+        app.group(BackendReportingMiddleware(path: .sitemapIndex)) {
             $0.get(SiteURL.siteMapIndex.pathComponents, use: SiteMapController.index)
                 .excludeFromOpenAPI()
         }
 
-        app.get(SiteURL.siteMapStaticPages.pathComponents, use: SiteMapController.staticPages)
-            .excludeFromOpenAPI()
+        app.group(BackendReportingMiddleware(path: .sitemapStaticPages)) {
+            $0.get(SiteURL.siteMapStaticPages.pathComponents, use: SiteMapController.staticPages)
+                .excludeFromOpenAPI()
+        }
     }
 
     do {  // Metrics
