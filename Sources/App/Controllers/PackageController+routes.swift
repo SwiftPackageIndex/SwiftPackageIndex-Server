@@ -66,6 +66,7 @@ enum PackageController {
         case img
         case index
         case js
+        case linkableEntities = "linkable-entities.json"
         case themeSettings = "theme-settings.json"
         case tutorials
 
@@ -73,8 +74,10 @@ enum PackageController {
             switch self {
                 case .css:
                     return "text/css"
-                case  .data, .faviconIco, .faviconSvg, .images, .img, .index, .themeSettings:
+                case .data, .faviconIco, .faviconSvg, .images, .img, .index:
                     return "application/octet-stream"
+                case .linkableEntities, .themeSettings:
+                    return "application/json"
                 case .documentation, .tutorials:
                     return "text/html; charset=utf-8"
                 case .js:
@@ -152,7 +155,7 @@ enum PackageController {
                 // and https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2172
                 // for details.
                 path = catchAll.joined(separator: "/").lowercased()
-            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .themeSettings:
+            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkableEntities, .themeSettings:
                 path = catchAll.joined(separator: "/")
         }
 
@@ -175,7 +178,7 @@ enum PackageController {
                     repository: repository
                 )
 
-            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .themeSettings:
+            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkableEntities, .themeSettings:
                 return try await awsResponse.encodeResponse(
                     status: .ok,
                     headers: req.headers
@@ -427,7 +430,7 @@ extension PackageController {
         switch fragment {
             case .css, .data, .documentation, .images, .img, .index, .js, .tutorials:
                 return URI(string: "\(baseURL)/\(fragment)/\(path)")
-            case .faviconIco, .faviconSvg, .themeSettings:
+            case .faviconIco, .faviconSvg, .linkableEntities, .themeSettings:
                 return path.isEmpty
                 ? URI(string: "\(baseURL)/\(fragment)")
                 : URI(string: "\(baseURL)/\(path)/\(fragment)")
