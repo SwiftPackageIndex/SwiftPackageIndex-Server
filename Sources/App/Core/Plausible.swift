@@ -33,7 +33,9 @@ enum Plausible {
         case packageCollections = "/api/package-collections"
         case rss = "/rss"
         case search = "/api/search"
-        case sitemap = "/sitemap"
+        case sitemapIndex = "/sitemap-index"
+        case sitemapStaticPages = "/sitemap-static"
+        case sitemapPackage = "/{owner}/{repository}/sitemap"
     }
 
     struct Error: Swift.Error {
