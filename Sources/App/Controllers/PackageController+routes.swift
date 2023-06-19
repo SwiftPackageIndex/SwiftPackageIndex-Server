@@ -298,7 +298,7 @@ enum PackageController {
                   let repository = packageResult.repository.name
             else {
                 // If we can not get a definitively correct canonical URL because one of these things
-                // is not available, it is better to not include canonical documentation URLs.
+                // is not available, it is better not to include canonical documentation URLs.
                 return []
             }
 
@@ -316,10 +316,10 @@ enum PackageController {
                     .decode([LinkableEntity].self, from: body)
                     .map { "\(baseUrl)/\(reference)\($0.path)"  }
             } catch {
-                // Errors here should *never* break the site map, onl return no linkable entities.
-                // The most likely cause of an error here is either a 4xx from the `awsResponse`,
-                // which means there is no `linkable-entites.json` on the server, or a JSON decoding
-                // error. Both should result in a blank set of URLs.
+                // Errors here should *never* break the site map. Instead, they should return no
+                // linkable entities. The most likely cause of an error here is either a 4xx from
+                // the `awsResponse` (meaning there is no `linkable-entites.json` on the server),
+                // or a JSON decoding error. Both should result in a blank set of URLs.
                 return []
             }
         }
