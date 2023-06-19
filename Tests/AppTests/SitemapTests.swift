@@ -20,7 +20,7 @@ import XCTVapor
 
 
 class SitemapTests: SnapshotTestCase {
-
+    
     @MainActor
     func test_siteMapIndex() async throws {
         // Setup
@@ -32,7 +32,7 @@ class SitemapTests: SnapshotTestCase {
         try await packages.map { try Version(package: $0, packageName: "foo",
                                              reference: .branch("default")) }.save(on: app.db)
         try await Search.refresh(on: app.db).get()
-
+        
         // MUT
         try app.test(.GET, "/sitemap.xml") { res in
             // Validation
@@ -40,7 +40,7 @@ class SitemapTests: SnapshotTestCase {
             assertSnapshot(matching: res.body.asString(), as: .init(pathExtension: "xml", diffing: .lines))
         }
     }
-
+    
     @MainActor
     func test_siteMapStaticPages() async throws {
         // MUT
@@ -54,7 +54,7 @@ class SitemapTests: SnapshotTestCase {
     @MainActor
     func test_siteMapForPackage_noDocs() async throws {
         return // Temporary
-
+        
         let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
         try await package.save(on: app.db)
         try await Repository(package: package, defaultBranch: "default",
@@ -71,11 +71,11 @@ class SitemapTests: SnapshotTestCase {
         // Validation
         assertSnapshot(matching: body, as: .init(pathExtension: "xml", diffing: .lines))
     }
-
+    
     @MainActor
     func test_siteMapForPackage_withDocs() async throws {
         return // Temporary
-
+        
         let linkableEntitiesJson = """
         [
             { "path": "/documentation/semanticversion/semanticversion/minor" },
@@ -91,12 +91,12 @@ class SitemapTests: SnapshotTestCase {
                              name: "Repo0", owner: "Owner").save(on: app.db)
         try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
                           reference: .branch("default")).save(on: app.db)
-
+        
         // MUT
         let req = Vapor.Request(application: app, url: "/owner/repo0/sitemap.xml", on: app.eventLoopGroup.next())
         let response = try await PackageController.siteMap(req: req)
         let body = try XCTUnwrap(response.body.string)
-
+        
         // Validation
         assertSnapshot(matching: body, as: .init(pathExtension: "xml", diffing: .lines))
     }
