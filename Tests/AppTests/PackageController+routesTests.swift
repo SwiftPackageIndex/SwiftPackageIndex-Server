@@ -709,6 +709,23 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
+    func test_linkableEntites() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                .init(status: .ok,
+                      headers: ["content-type": "application/json"],
+                      body: .init(string: uri.path))
+        }
+
+        // MUT
+        try app.test(.GET, "/owner/package/1.2.3/linkable-entities.json") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/json")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/linkable-entities.json")
+        }
+    }
+
     func test_tutorial() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
