@@ -34,7 +34,7 @@ class SitemapControllerTests: SnapshotTestCase {
         try await Search.refresh(on: app.db).get()
 
         // MUT
-        let req = Vapor.Request(application: app, url: "/sitemap-static-pages.xml",on: app.eventLoopGroup.next())
+        let req = Vapor.Request(application: app, url: "/sitemap-index.xml",on: app.eventLoopGroup.next())
         let response = try await SiteMapController.index(req: req)
 
         // Validation
