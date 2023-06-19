@@ -257,7 +257,7 @@
       "location" : "https://github.com/apple/swift-driver.git",
       "state" : {
         "branch" : "release/5.9",
-        "revision" : "7555785f8b8f27e3f4e7aafdb6f76efe29f87b00"
+        "revision" : "0b960834da7459af27cb666d51dd26033f5d9329"
       }
     },
     {
@@ -347,7 +347,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "release/5.9",
-        "revision" : "251b5a10af624e3c48e2eb975214ff573d186448"
+        "revision" : "803c3609fb48106613550a09725ffbc1707224b5"
       }
     },
     {
@@ -390,8 +390,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/SwiftOpenAPI.git",
       "state" : {
-        "revision" : "c05e38f98e403bde41327974a4edba6877863767",
-        "version" : "2.17.7"
+        "revision" : "0a790b493edb4450ccc78b11919498cc5085ab28",
+        "version" : "2.18.1"
       }
     },
     {
@@ -426,8 +426,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/VaporToOpenAPI.git",
       "state" : {
-        "revision" : "6ce97fdce5a751684102da9bf673a9c4c4ac1bd4",
-        "version" : "4.3.8"
+        "revision" : "0ba6581199d11fdbfe5dc6e7a24a5e69aeef0651",
+        "version" : "4.3.10"
       }
     },
     {
