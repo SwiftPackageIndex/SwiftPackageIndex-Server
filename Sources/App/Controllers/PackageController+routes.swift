@@ -489,10 +489,12 @@ extension PackageController {
         switch fragment {
             case .css, .data, .documentation, .images, .img, .index, .js, .tutorials:
                 return URI(string: "\(baseURL)/\(fragment)/\(path)")
-            case .faviconIco, .faviconSvg, .linkableEntities, .themeSettings:
+            case .faviconIco, .faviconSvg, .themeSettings:
                 return path.isEmpty
                 ? URI(string: "\(baseURL)/\(fragment)")
                 : URI(string: "\(baseURL)/\(path)/\(fragment)")
+            case .linkableEntities:
+                return URI(string: "\(baseURL)/\(fragment)")
         }
     }
 }
