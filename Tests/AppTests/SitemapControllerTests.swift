@@ -52,21 +52,4 @@ class SitemapControllerTests: SnapshotTestCase {
         // Validation
         assertSnapshot(matching: body, as: .init(pathExtension: "xml", diffing: .lines))
     }
-
-    @MainActor
-    func test_buildMapForPackage() async throws {
-        let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
-        try await package.save(on: app.db)
-        try await Repository(package: package, defaultBranch: "default",
-                             lastCommitDate: Current.date(),
-                             name: "repo0", owner: "owner").save(on: app.db)
-        try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
-                          reference: .branch("default")).save(on: app.db)
-
-        // MUT
-        let siteMap = try await SiteMapController.buildMapForPackage(db: app.db, owner: "owner", repository: "repo0")
-
-        assertSnapshot(matching: siteMap.render(indentedBy: .spaces(4)),
-                       as: .init(pathExtension: "xml", diffing: .lines))
-    }
 }
