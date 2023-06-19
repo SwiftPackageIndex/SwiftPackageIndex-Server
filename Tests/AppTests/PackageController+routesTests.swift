@@ -14,6 +14,7 @@
 
 @testable import App
 
+import SwiftSoup
 import Vapor
 import XCTest
 
@@ -552,6 +553,37 @@ class PackageController_routesTests: AppTestCase {
             XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
             XCTAssertEqual($0.body.asString(),
                            "/apple/swift-nio/main/data/documentation/niocore.json")
+        }
+    }
+    
+    func test_documentation_canonicalCapitalisation() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok, body: .init(string: uri.path))
+        }
+        
+        // The `packageName` property on the `Version` has been set to the lower-cased version so
+        // we can be sure the canonical URL is built from the properties on the `Repository` model.
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "Package", owner: "Owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "0123456789",
+                    commitDate: .t0,
+                    docArchives: [.init(name: "docs", title: "Docs")],
+                    latest: .defaultBranch,
+                    packageName: "package",
+                    reference: .tag(1, 2, 3))
+            .save(on: app.db).wait()
+
+        try app.test(.GET, "/owner/package/1.2.3/documentation/a/b") { response in
+            let document = try SwiftSoup.parse(response.body.string)
+            let linkElements = try document.select("link[rel='canonical']")
+            XCTAssertEqual(linkElements.count, 1)
+            
+            let href = try linkElements.first()!.attr("href")
+            XCTAssertEqual(href, "/Owner/Package/1.2.3/documentation/a/b")
         }
     }
 
