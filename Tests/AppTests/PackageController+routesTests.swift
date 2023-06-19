@@ -697,14 +697,14 @@ class PackageController_routesTests: AppTestCase {
         Current.fetchDocumentation = { _, uri in
             // embed uri.path in the body as a simple way to test the requested url
             .init(status: .ok,
-                  headers: ["content-type": "application/octet-stream"],
+                  headers: ["content-type": "application/json"],
                   body: .init(string: uri.path))
         }
 
         // MUT
         try app.test(.GET, "/owner/package/1.2.3/theme-settings.json") {
             XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual($0.content.contentType?.description, "application/json")
             XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/theme-settings.json")
         }
     }
