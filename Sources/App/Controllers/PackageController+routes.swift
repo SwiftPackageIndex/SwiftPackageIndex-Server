@@ -330,11 +330,21 @@ enum PackageController {
         else { throw Abort(.notFound) }
 
         let packageResult = try await PackageResult.query(on: req.db, owner: owner, repository: repository)
+        guard let canonicalOwner = packageResult.repository.owner,
+              let canonicalRepository = packageResult.repository.name
+        else {
+            // This should never happen, but we should return an empty
+            // sitemap instead of an incorrect one.
+            return try await SiteMap().encodeResponse(for: req)
+        }
+
         let urls = await linkableEntityUrls(packageResult)
 
         return try await SiteMap(
             .url(
-                .loc(SiteURL.package(.value(owner), .value(repository), .none).absoluteURL()),
+                .loc(SiteURL.package(.value(canonicalOwner),
+                                     .value(canonicalRepository),
+                                     .none).absoluteURL()),
                 .unwrap(packageResult.repository.lastActivityAt, { .lastmod($0) })
             ),
             .forEach(urls, { url in
