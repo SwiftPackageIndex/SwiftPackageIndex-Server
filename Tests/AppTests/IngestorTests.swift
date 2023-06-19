@@ -363,9 +363,11 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(reconciled.processingStage, .reconciliation)
         XCTAssert(reconciled.updatedAt! < lastUpdate)
         // ... and an error has been logged
-        logger.logs.withValue {
-            XCTAssertEqual($0, [.init(level: .critical,
-                                      message: #"server: duplicate key value violates unique constraint "idx_repositories_owner_name" (_bt_check_unique)"#)])
+        try logger.logs.withValue { logs in
+            XCTAssertEqual(logs.count, 1)
+            let log = try XCTUnwrap(logs.first)
+            XCTAssertEqual(log.level, .critical)
+            XCTAssertEqual(log.message, #"server: duplicate key value violates unique constraint "idx_repositories_owner_name" (_bt_check_unique)"#)
         }
     }
 
