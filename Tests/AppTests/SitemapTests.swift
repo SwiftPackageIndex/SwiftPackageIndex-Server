@@ -19,7 +19,7 @@ import SnapshotTesting
 import XCTVapor
 
 
-class SitemapControllerTests: SnapshotTestCase {
+class SitemapTests: SnapshotTestCase {
 
     @MainActor
     func test_siteMapIndex() async throws {
