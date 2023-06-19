@@ -22,7 +22,8 @@ import XCTVapor
 class SitemapControllerTests: SnapshotTestCase {
 
     @MainActor
-    func test_buildSiteMapIndex() async throws {
+    func test_siteMapIndex() async throws {
+        // Setup
         let packages = (0..<3).map { Package(url: "\($0)".url) }
         try await packages.save(on: app.db)
         try await packages.map { try Repository(package: $0, defaultBranch: "default",
@@ -33,19 +34,23 @@ class SitemapControllerTests: SnapshotTestCase {
         try await Search.refresh(on: app.db).get()
 
         // MUT
-        let siteMap = try await SiteMapController.buildIndex(db: app.db)
+        let req = Vapor.Request(application: app, url: "/sitemap-static-pages.xml",on: app.eventLoopGroup.next())
+        let response = try await SiteMapController.index(req: req)
 
-        assertSnapshot(matching: siteMap.render(indentedBy: .spaces(4)),
-                       as: .init(pathExtension: "xml", diffing: .lines))
+        // Validation
+        let body = try XCTUnwrap(response.body.string)
+        assertSnapshot(matching: body, as: .init(pathExtension: "xml", diffing: .lines))
     }
 
     @MainActor
-    func test_buildSiteMapStaticPages() async throws {
+    func test_siteMapStaticPages() async throws {
         // MUT
-        let siteMap = SiteMapController.buildStaticPages()
+        let req = Vapor.Request(application: app, url: "/sitemap-static-pages.xml",on: app.eventLoopGroup.next())
+        let response = try await SiteMapController.staticPages(req: req)
+        let body = try XCTUnwrap(response.body.string)
 
-        assertSnapshot(matching: siteMap.render(indentedBy: .spaces(4)),
-                       as: .init(pathExtension: "xml", diffing: .lines))
+        // Validation
+        assertSnapshot(matching: body, as: .init(pathExtension: "xml", diffing: .lines))
     }
 
     @MainActor
