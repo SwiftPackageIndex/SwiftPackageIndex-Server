@@ -101,6 +101,9 @@ func routes(_ app: Application) throws {
             app.get(":owner", ":repository", ":reference", "js", "**") {
                 try await PackageController.documentation(req: $0, fragment: .js)
             }.excludeFromOpenAPI()
+            app.get(":owner", ":repository", ":reference", .fragment(.linkableEntities)) {
+                try await PackageController.documentation(req: $0, fragment: .linkableEntities)
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", .fragment(.themeSettings)) {
                 try await PackageController.documentation(req: $0, fragment: .themeSettings)
             }.excludeFromOpenAPI()
