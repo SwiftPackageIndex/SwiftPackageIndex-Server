@@ -82,24 +82,4 @@ enum SiteMapController {
             }
         )).encodeResponse(for: req)
     }
-
-    static func mapForPackage(req: Request) async throws -> Response {
-        guard
-            let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository")
-        else { throw Abort(.notFound) }
-
-        return try await buildMapForPackage(db: req.db, owner: owner, repository: repository).encodeResponse(for: req)
-    }
-
-    static func buildMapForPackage(db: Database, owner: String, repository: String) async throws -> SiteMap {
-        let packageResult = try await PackageController.PackageResult.query(on: db, owner: owner, repository: repository)
-
-        return SiteMap(
-            .url(
-                .loc(SiteURL.package(.value(owner), .value(repository), .none).absoluteURL()),
-                .unwrap(packageResult.repository.lastActivityAt, { .lastmod($0) })
-            )
-        )
-    }
 }
