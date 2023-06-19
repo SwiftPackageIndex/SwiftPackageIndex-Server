@@ -486,17 +486,17 @@ class PackageController_routesTests: AppTestCase {
 
         // MUT
         // test base url
-        try app.test(.GET, "/owner/package/1.2.3/js/a") {
+        try app.test(.GET, "/owner/package/1.2.3/css/a") {
             XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/js/a")
+            XCTAssertEqual($0.content.contentType?.description, "text/css")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/css/a")
         }
 
         // test path a/b
-        try app.test(.GET, "/owner/package/1.2.3/js/a/b") {
+        try app.test(.GET, "/owner/package/1.2.3/css/a/b") {
             XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/js/a/b")
+            XCTAssertEqual($0.content.contentType?.description, "text/css")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/css/a/b")
         }
     }
 
@@ -509,17 +509,17 @@ class PackageController_routesTests: AppTestCase {
 
         // MUT
         // test base url
-        try app.test(.GET, "/owner/package/1.2.3/css/a") {
+        try app.test(.GET, "/owner/package/1.2.3/js/a") {
             XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "text/css")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/css/a")
+            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/js/a")
         }
 
         // test path a/b
-        try app.test(.GET, "/owner/package/1.2.3/css/a/b") {
+        try app.test(.GET, "/owner/package/1.2.3/js/a/b") {
             XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "text/css")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/css/a/b")
+            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/js/a/b")
         }
     }
 
