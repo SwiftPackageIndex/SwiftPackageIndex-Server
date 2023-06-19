@@ -41,11 +41,7 @@ enum SiteMapController {
     ]
 
     static func index(req: Request) async throws -> Response {
-        return try await buildIndex(db: req.db).encodeResponse(for: req)
-    }
-
-    static func buildIndex(db: Database) async throws -> SiteMapIndex {
-        guard let db = db as? SQLDatabase else {
+        guard let db = req.db as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
@@ -59,7 +55,7 @@ enum SiteMapController {
             .orderBy(Search.repoName)
 
         let packages = try await query.all(decoding: Package.self)
-        return SiteMapIndex(
+        return try await SiteMapIndex(
             .sitemap(
                 .loc(SiteURL.siteMapStaticPages.absoluteURL()),
                 .lastmod(Current.date()) // The home page updates every day.
@@ -74,21 +70,17 @@ enum SiteMapController {
                         )
                 }
             )
-        )
+        ).encodeResponse(for: req)
     }
 
     static func staticPages(req: Request) async throws -> Response {
-        try await buildStaticPages().encodeResponse(for: req)
-    }
-
-    static func buildStaticPages() -> SiteMap {
-        SiteMap(.group(
+        try await SiteMap(.group(
             staticRoutes.map { page -> Node<SiteMap.URLSetContext> in
                     .url(
                         .loc(page.absoluteURL())
                     )
             }
-        ))
+        )).encodeResponse(for: req)
     }
 
     static func mapForPackage(req: Request) async throws -> Response {
