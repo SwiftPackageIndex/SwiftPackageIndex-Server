@@ -51,12 +51,30 @@ class SitemapTests: SnapshotTestCase {
         }
     }
     
+    func test_siteMap_basic_request() async throws {
+        // Test basic sitemap request
+        // setup
+        let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
+        try await package.save(on: app.db)
+        try await Repository(package: package, defaultBranch: "default",
+                             lastCommitDate: Current.date(),
+                             name: "Repo0", owner: "Owner").save(on: app.db)
+        try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
+                          reference: .branch("default")).save(on: app.db)
+        
+        // MUT
+        try app.test(.GET, "/owner/repo0/sitemap.xml") { res in
+            XCTAssertEqual(res.status, .ok)
+        }
+    }
+    
     func test_linkableEntityUrls() async throws {
         throw XCTSkip()
     }
     
     @MainActor
     func test_siteMapForPackage_noDocs() async throws {
+        // setup
         let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
         try await package.save(on: app.db)
         try await Repository(package: package, defaultBranch: "default",
@@ -70,13 +88,14 @@ class SitemapTests: SnapshotTestCase {
         // MUT
         let sitemap = try await PackageController.siteMap(packageResult: packageResult, linkableEntityUrls: [])
         let xml = sitemap.render(indentedBy: .spaces(2))
-
+        
         // Validation
         assertSnapshot(matching: xml, as: .init(pathExtension: "xml", diffing: .lines))
     }
     
     @MainActor
     func test_siteMapForPackage_withDocs() async throws {
+        // setup
         let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
         try await package.save(on: app.db)
         try await Repository(package: package, defaultBranch: "default",
@@ -91,18 +110,14 @@ class SitemapTests: SnapshotTestCase {
             "/documentation/semanticversion/semanticversion/_(_:_:)-4ftn7",
             "/documentation/semanticversion/semanticversion/'...(_:)-40b95"
         ]
-
+        
         // MUT
         let sitemap = try await PackageController.siteMap(packageResult: packageResult,
                                                           linkableEntityUrls: linkableEntitiesUlrs)
         let xml = sitemap.render(indentedBy: .spaces(2))
-
+        
         // Validation
         assertSnapshot(matching: xml, as: .init(pathExtension: "xml", diffing: .lines))
-    }
-    
-    func test_siteMap_request() async throws {
-        XCTFail("implement me")
     }
 
 }
