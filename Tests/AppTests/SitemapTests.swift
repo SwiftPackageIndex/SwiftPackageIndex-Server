@@ -69,7 +69,42 @@ class SitemapTests: SnapshotTestCase {
     }
     
     func test_linkableEntityUrls() async throws {
-        throw XCTSkip()
+        // setup
+        let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
+        try await package.save(on: app.db)
+        try await Repository(package: package, defaultBranch: "default",
+                             lastCommitDate: Current.date(),
+                             name: "Repo0", owner: "Owner").save(on: app.db)
+        try await Version(package: package,
+                          commit: "123456",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "t1", title: "T1")],
+                          latest: .defaultBranch,
+                          packageName: "SomePackage",
+                          reference: .branch("default"),
+                          spiManifest: .init(builder: .init(configs: [.init(documentationTargets: ["t1", "t2"])]))).save(on: app.db)
+        let packageResult = try await PackageController.PackageResult
+            .query(on: app.db, owner: "owner", repository: "repo0")
+        Current.siteURL = { "https://spi.com" }
+        Current.fetchDocumentation = { client, url in
+            guard url.path.hasSuffix("/owner/repo0/default/linkable-entities.json") else { throw Abort(.notFound) }
+            return .init(status: .ok,
+                         body: .init(string: """
+                            [
+                                { "path": "/documentation/foo/bar/1" },
+                                { "path": "/documentation/foo/bar/2" },
+                            ]
+                            """)
+            )
+        }
+
+        // MUT
+        let urls = await PackageController.linkableEntityUrls(client: app.client, packageResult: packageResult)
+
+        XCTAssertEqual(urls, [
+            "https://spi.com/Owner/Repo0/default/documentation/foo/bar/1",
+            "https://spi.com/Owner/Repo0/default/documentation/foo/bar/2"
+        ])
     }
     
     @MainActor
