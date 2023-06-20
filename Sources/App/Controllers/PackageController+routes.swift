@@ -292,35 +292,37 @@ enum PackageController {
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
         else { throw Abort(.notFound) }
-        return try await siteMap(req: req, owner: owner, repository: repository)
+
+        let packageResult = try await PackageResult.query(on: req.db, owner: owner, repository: repository)
+        let urls = await linkableEntityUrls(client: req.client, packageResult: packageResult)
+
+        return try await siteMap(packageResult: packageResult, linkableEntityUrls: urls)
+            .encodeResponse(for: req)
     }
 
-    static func siteMap(req: Request, owner: String, repository: String) async throws -> Response {
-        let packageResult = try await PackageResult.query(on: req.db, owner: owner, repository: repository)
+    static func siteMap(packageResult: PackageResult, linkableEntityUrls: [String]) async throws -> SiteMap {
         guard let canonicalOwner = packageResult.repository.owner,
               let canonicalRepository = packageResult.repository.name
         else {
             // This should never happen, but we should return an empty
             // sitemap instead of an incorrect one.
-            return try await SiteMap().encodeResponse(for: req)
+            return SiteMap()
         }
 
-        let urls = await linkableEntityUrls(client: req.client, packageResult: packageResult)
-
-        return try await SiteMap(
+        return SiteMap(
             .url(
                 .loc(SiteURL.package(.value(canonicalOwner),
                                      .value(canonicalRepository),
                                      .none).absoluteURL()),
                 .unwrap(packageResult.repository.lastActivityAt, { .lastmod($0) })
             ),
-            .forEach(urls, { url in
+            .forEach(linkableEntityUrls, { url in
                     .url(
                         .loc(url),
                         .unwrap(packageResult.repository.lastActivityAt, { .lastmod($0) })
                     )
             })
-        ).encodeResponse(for: req)
+        )
     }
 
     static func linkableEntityUrls(client: Client, packageResult: PackageResult) async -> [String] {
