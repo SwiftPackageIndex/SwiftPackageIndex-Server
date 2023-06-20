@@ -77,15 +77,6 @@ class SitemapTests: SnapshotTestCase {
     
     @MainActor
     func test_siteMapForPackage_withDocs() async throws {
-        throw XCTSkip()
-        let linkableEntitiesJson = """
-        [
-            { "path": "/documentation/semanticversion/semanticversion/minor" },
-            { "path": "/documentation/semanticversion/semanticversion/_(_:_:)-4ftn7" },
-            { "path": "/documentation/semanticversion/semanticversion/'...(_:)-40b95" }
-        ]
-        """
-        
         let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
         try await package.save(on: app.db)
         try await Repository(package: package, defaultBranch: "default",
@@ -93,14 +84,21 @@ class SitemapTests: SnapshotTestCase {
                              name: "Repo0", owner: "Owner").save(on: app.db)
         try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
                           reference: .branch("default")).save(on: app.db)
-        
+        let packageResult = try await PackageController.PackageResult
+            .query(on: app.db, owner: "owner", repository: "repo0")
+        let linkableEntitiesUlrs = [
+            "/documentation/semanticversion/semanticversion/minor",
+            "/documentation/semanticversion/semanticversion/_(_:_:)-4ftn7",
+            "/documentation/semanticversion/semanticversion/'...(_:)-40b95"
+        ]
+
         // MUT
-        let req = Vapor.Request(application: app, url: "/owner/repo0/sitemap.xml", on: app.eventLoopGroup.next())
-        let response = try await PackageController.siteMap(req: req)
-        let body = try XCTUnwrap(response.body.string)
-        
+        let sitemap = try await PackageController.siteMap(packageResult: packageResult,
+                                                          linkableEntityUrls: linkableEntitiesUlrs)
+        let xml = sitemap.render(indentedBy: .spaces(2))
+
         // Validation
-        assertSnapshot(matching: body, as: .init(pathExtension: "xml", diffing: .lines))
+        assertSnapshot(matching: xml, as: .init(pathExtension: "xml", diffing: .lines))
     }
     
     func test_siteMap_request() async throws {
