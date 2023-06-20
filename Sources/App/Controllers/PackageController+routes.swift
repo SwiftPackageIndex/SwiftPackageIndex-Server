@@ -288,42 +288,6 @@ enum PackageController {
     }
 
     static func siteMap(req: Request) async throws -> Response {
-
-        func linkableEntityUrls(_ packageResult: PackageResult) async -> [String] {
-            guard let canonicalTarget = [packageResult.defaultBranchVersion.model,
-                                         packageResult.preReleaseVersion?.model,
-                                         packageResult.releaseVersion?.model].canonicalDocumentationTarget(),
-                  case let DocumentationTarget.internal(reference, _) = canonicalTarget,
-                  let owner = packageResult.repository.owner,
-                  let repository = packageResult.repository.name
-            else {
-                // If we can not get a definitively correct canonical URL because one of these things
-                // is not available, it is better not to include canonical documentation URLs.
-                return []
-            }
-
-            do {
-                let awsResponse = try await awsResponse(client: req.client, owner: owner, repository: repository,
-                                                        reference: reference, fragment: .linkableEntities, path: "")
-                guard let body = awsResponse.body else { return [] }
-
-                struct LinkableEntity: Decodable {
-                    var path: String
-                }
-
-                let baseUrl = SiteURL.package(.value(owner), .value(repository), .none).absoluteURL()
-                return try JSONDecoder()
-                    .decode([LinkableEntity].self, from: body)
-                    .map { "\(baseUrl)/\(reference)\($0.path)"  }
-            } catch {
-                // Errors here should *never* break the site map. Instead, they should return no
-                // linkable entities. The most likely cause of an error here is either a 4xx from
-                // the `awsResponse` (meaning there is no `linkable-entites.json` on the server),
-                // or a JSON decoding error. Both should result in a blank set of URLs.
-                return []
-            }
-        }
-
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -338,7 +302,7 @@ enum PackageController {
             return try await SiteMap().encodeResponse(for: req)
         }
 
-        let urls = await linkableEntityUrls(packageResult)
+        let urls = await linkableEntityUrls(client: req.client, packageResult: packageResult)
 
         return try await SiteMap(
             .url(
@@ -354,6 +318,41 @@ enum PackageController {
                     )
             })
         ).encodeResponse(for: req)
+    }
+
+    static func linkableEntityUrls(client: Client, packageResult: PackageResult) async -> [String] {
+        guard let canonicalTarget = [packageResult.defaultBranchVersion.model,
+                                     packageResult.preReleaseVersion?.model,
+                                     packageResult.releaseVersion?.model].canonicalDocumentationTarget(),
+              case let DocumentationTarget.internal(reference, _) = canonicalTarget,
+              let owner = packageResult.repository.owner,
+              let repository = packageResult.repository.name
+        else {
+            // If we can not get a definitively correct canonical URL because one of these things
+            // is not available, it is better not to include canonical documentation URLs.
+            return []
+        }
+
+        do {
+            let awsResponse = try await awsResponse(client: client, owner: owner, repository: repository,
+                                                    reference: reference, fragment: .linkableEntities, path: "")
+            guard let body = awsResponse.body else { return [] }
+
+            struct LinkableEntity: Decodable {
+                var path: String
+            }
+
+            let baseUrl = SiteURL.package(.value(owner), .value(repository), .none).absoluteURL()
+            return try JSONDecoder()
+                .decode([LinkableEntity].self, from: body)
+                .map { "\(baseUrl)/\(reference)\($0.path)"  }
+        } catch {
+            // Errors here should *never* break the site map. Instead, they should return no
+            // linkable entities. The most likely cause of an error here is either a 4xx from
+            // the `awsResponse` (meaning there is no `linkable-entites.json` on the server),
+            // or a JSON decoding error. Both should result in a blank set of URLs.
+            return []
+        }
     }
 
     static func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
