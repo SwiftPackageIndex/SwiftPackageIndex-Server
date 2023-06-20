@@ -292,7 +292,10 @@ enum PackageController {
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
         else { throw Abort(.notFound) }
+        return try await siteMap(req: req, owner: owner, repository: repository)
+    }
 
+    static func siteMap(req: Request, owner: String, repository: String) async throws -> Response {
         let packageResult = try await PackageResult.query(on: req.db, owner: owner, repository: repository)
         guard let canonicalOwner = packageResult.repository.owner,
               let canonicalRepository = packageResult.repository.name
