@@ -34,22 +34,21 @@ class SitemapControllerTests: SnapshotTestCase {
         try await Search.refresh(on: app.db).get()
 
         // MUT
-        let req = Vapor.Request(application: app, url: "/sitemap-index.xml",on: app.eventLoopGroup.next())
-        let response = try await SiteMapController.index(req: req)
-
-        // Validation
-        let body = try XCTUnwrap(response.body.string)
-        assertSnapshot(matching: body, as: .init(pathExtension: "xml", diffing: .lines))
+        try app.test(.GET, "/sitemap.xml") { res in
+            // Validation
+            XCTAssertEqual(res.status, .ok)
+            assertSnapshot(matching: res.body.asString(), as: .init(pathExtension: "xml", diffing: .lines))
+        }
     }
 
     @MainActor
     func test_siteMapStaticPages() async throws {
         // MUT
-        let req = Vapor.Request(application: app, url: "/sitemap-static-pages.xml",on: app.eventLoopGroup.next())
-        let response = try await SiteMapController.staticPages(req: req)
-        let body = try XCTUnwrap(response.body.string)
-
-        // Validation
-        assertSnapshot(matching: body, as: .init(pathExtension: "xml", diffing: .lines))
+        try app.test(.GET, "/sitemap-static-pages.xml") { res in
+            // Validation
+            XCTAssertEqual(res.status, .ok)
+            assertSnapshot(matching: res.body.asString(), as: .init(pathExtension: "xml", diffing: .lines))
+        }
     }
+
 }
