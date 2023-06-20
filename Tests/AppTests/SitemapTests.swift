@@ -53,8 +53,6 @@ class SitemapTests: SnapshotTestCase {
 
     @MainActor
     func test_siteMapForPackage_noDocs() async throws {
-        return // Temporary
-
         let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
         try await package.save(on: app.db)
         try await Repository(package: package, defaultBranch: "default",
@@ -65,7 +63,7 @@ class SitemapTests: SnapshotTestCase {
 
         // MUT
         let req = Vapor.Request(application: app, url: "/owner/repo0/sitemap.xml", on: app.eventLoopGroup.next())
-        let response = try await PackageController.siteMap(req: req)
+        let response = try await PackageController.siteMap(req: req, owner: "owner", repository: "repo0")
         let body = try XCTUnwrap(response.body.string)
 
         // Validation
@@ -74,8 +72,7 @@ class SitemapTests: SnapshotTestCase {
 
     @MainActor
     func test_siteMapForPackage_withDocs() async throws {
-        return // Temporary
-
+        throw XCTSkip()
         let linkableEntitiesJson = """
         [
             { "path": "/documentation/semanticversion/semanticversion/minor" },
