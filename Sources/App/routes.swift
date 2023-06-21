@@ -101,6 +101,9 @@ func routes(_ app: Application) throws {
             app.get(":owner", ":repository", ":reference", "js", "**") {
                 try await PackageController.documentation(req: $0, fragment: .js)
             }.excludeFromOpenAPI()
+            app.get(":owner", ":repository", ":reference", .fragment(.linkableEntities)) {
+                try await PackageController.documentation(req: $0, fragment: .linkableEntities)
+            }.excludeFromOpenAPI()
             app.get(":owner", ":repository", ":reference", .fragment(.themeSettings)) {
                 try await PackageController.documentation(req: $0, fragment: .themeSettings)
             }.excludeFromOpenAPI()
@@ -119,6 +122,12 @@ func routes(_ app: Application) throws {
                 use: PackageController.builds).excludeFromOpenAPI()
         app.get(SiteURL.package(.key, .key, .maintainerInfo).pathComponents,
                 use: PackageController.maintainerInfo).excludeFromOpenAPI()
+
+        // Package specific site map, including all documentation URLs if available.
+        app.group(BackendReportingMiddleware(path: .sitemapPackage)) {
+            $0.get(SiteURL.package(.key, .key, .siteMap).pathComponents,
+                    use: PackageController.siteMap).excludeFromOpenAPI()
+        }
     }
 
     do {  // package collection page
@@ -258,7 +267,7 @@ func routes(_ app: Application) throws {
         
     }
 
-    do {  // RSS + Sitemap
+    do { // RSS
         app.group(BackendReportingMiddleware(path: .rss)) {
             $0.get(SiteURL.rssPackages.pathComponents, use: RSSFeed.showPackages)
                 .excludeFromOpenAPI()
@@ -266,12 +275,17 @@ func routes(_ app: Application) throws {
             $0.get(SiteURL.rssReleases.pathComponents, use: RSSFeed.showReleases)
                 .excludeFromOpenAPI()
         }
+    }
 
-        app.group(BackendReportingMiddleware(path: .sitemap)) {
-            $0.get(SiteURL.siteMap.pathComponents) { req in
-                SiteMap.fetchPackages(req.db)
-                    .map(SiteURL.siteMap)
-            }.excludeFromOpenAPI()
+    do { // Site map index and site maps
+        app.group(BackendReportingMiddleware(path: .sitemapIndex)) {
+            $0.get(SiteURL.siteMapIndex.pathComponents, use: SiteMapController.index)
+                .excludeFromOpenAPI()
+        }
+
+        app.group(BackendReportingMiddleware(path: .sitemapStaticPages)) {
+            $0.get(SiteURL.siteMapStaticPages.pathComponents, use: SiteMapController.staticPages)
+                .excludeFromOpenAPI()
         }
     }
 
