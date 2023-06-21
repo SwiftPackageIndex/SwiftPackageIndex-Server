@@ -482,14 +482,3 @@ func trimBuilds(on database: Database) async throws -> Int {
         .all(decoding: Row.self)
         .count
 }
-
-
-//#warning("move")
-//extension PSQLError {
-//    var sqlState: String? { serverInfo?[.sqlState] }
-//}
-//
-//
-//extension String {
-//    static var uniqueViotation = "23505"
-//}

@@ -101,10 +101,6 @@ extension API {
                 }
             } catch {
                 req.logger.critical("\(error)")
-                dump(error)
-                print("type(of: error)", type(of: error))
-                print("error as? PSQLError:", error as? PSQLError)
-                print("error as? DatabaseError:", error as? DatabaseError)
                 throw error
             }
 
