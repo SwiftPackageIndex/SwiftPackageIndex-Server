@@ -26,6 +26,11 @@ enum BuildShow {
             super.init(path: path)
         }
 
+        override func allowIndexing() -> Bool {
+            // Block this page from being indexed by search engines.
+            return false
+        }
+
         override func pageTitle() -> String? {
             "\(model.packageName) &ndash; Build Information"
         }
