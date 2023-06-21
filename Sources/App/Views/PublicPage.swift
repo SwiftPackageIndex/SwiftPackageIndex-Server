@@ -94,14 +94,25 @@ class PublicPage {
         )
     }
 
-    /// For non-production environments, if a search engine requests the page, tell it not to index it.
+    /// if a search engine requests the page, we can tell it not to index it by including this meta tag.
+    /// For non-production environments, this will *always* return true.
     /// - Returns: Either nothing, or a <meta> element telling search engines not to index this content.
     final func metaNoIndex() -> Node<HTML.HeadContext> {
-        return .if(Environment.current != .production,
-                   .meta(
-                    .name("robots"),
-                    .content("noindex")
-                   ))
+        if Environment.current == .production && allowIndexing() {
+            return .empty
+        } else {
+            return .meta(
+                .name("robots"),
+                .content("noindex")
+            )
+
+        }
+    }
+
+    /// Whether this page should be indexed by search engines, as determined by the page.
+    /// - Returns: A booleam indicating whether the page should be indexed.
+    func allowIndexing() -> Bool {
+        return true
     }
 
     /// The Plausible analytics code to be inserted into the <head> element.
