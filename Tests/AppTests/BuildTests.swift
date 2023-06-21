@@ -108,7 +108,7 @@ class BuildTests: AppTestCase {
                       status: .ok,
                       swiftVersion: .init(5, 2, 0)).save(on: app.db).wait()
         ) {
-            XCTAssertEqual(($0 as? DatabaseError)?.isConstraintFailure, .some(true))
+            XCTAssertEqual(($0 as? PSQLError)?.isUniqueViolation, .some(true))
         }
 
         // validate

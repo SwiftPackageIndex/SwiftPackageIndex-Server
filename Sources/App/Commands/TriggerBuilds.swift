@@ -290,7 +290,7 @@ func triggerBuildsUnchecked(on database: Database,
                                         status: .triggered,
                                         swiftVersion: pair.swiftVersion)
                         .create(on: database)
-                    } catch let error as DatabaseError where error.isConstraintFailure {
+                    } catch let error as PSQLError where error.isUniqueViolation {
                         if let oldBuild = try await Build.query(on: database,
                                                                 platform: pair.platform,
                                                                 swiftVersion: pair.swiftVersion,
