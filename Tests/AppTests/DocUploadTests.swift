@@ -14,7 +14,6 @@
 
 @testable import App
 
-import Fluent
 import PostgresKit
 import XCTVapor
 
