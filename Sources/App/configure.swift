@@ -281,6 +281,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 063 - add product names to search view
         app.migrations.add(UpdateSearchAddProductNames())
     }
+    do { // Migration 064 - add type to targets
+        app.migrations.add(UpdateTargetAddType())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
