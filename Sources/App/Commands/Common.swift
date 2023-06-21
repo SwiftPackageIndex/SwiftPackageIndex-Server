@@ -70,9 +70,18 @@ func updatePackage(client: Client,
                 Current.logger().report(error: error)
             }
 
-        case let .failure(error) where error is PostgresError:
+        // PSQLError also conforms to DatabaseError but we want to intercept it specifically,
+        // because it allows us to log more concise error messages via serverInfo[.message]
+        case let .failure(error) where error is PSQLError:
             // Escalate database errors to critical
-            Current.logger().critical("\(error)")
+            let error = error as! PSQLError
+            let msg = error.serverInfo?[.message] ?? String(reflecting: error)
+            Current.logger().critical("\(msg)")
+            try await recordError(database: database, error: error, stage: stage)
+
+        case let .failure(error) where error is DatabaseError:
+            // Escalate database errors to critical
+            Current.logger().critical("\(String(reflecting: error))")
             try await recordError(database: database, error: error, stage: stage)
 
         case let .failure(error):

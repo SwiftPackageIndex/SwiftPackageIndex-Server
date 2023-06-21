@@ -45,17 +45,12 @@ extension API {
                 build.swiftVersion = dto.swiftVersion
                 do {
                     try await build.save(on: req.db)
-                } catch {
+                } catch let error as PSQLError where error.isUniqueViolation {
                     // We could simply let this propagate but this is easier to diagnose
                     // (although it should technically be impossible to actually occur
                     // since we are explicitly querying for the record to update rather
                     // than saving without checking for conflict first.)
-                    if let error = error as? PostgresError,
-                       error.code == .uniqueViolation {
-                        return .conflict
-                    } else {
-                        throw error
-                    }
+                    return .conflict
                 }
 
                 AppMetrics.apiBuildReportTotal?.inc(1, .buildReportLabels(build))
@@ -90,7 +85,7 @@ extension API {
             // Upsert build.docUpload
             do {
                 try await DocUpload(dto: dto).attach(to: build, on: req.db)
-            } catch let error as PostgresError where error.code == .uniqueViolation {
+            } catch let error as PSQLError where error.isUniqueViolation {
                 // Find the conflicting DocUpload via the version_id. The doc upload could have
                 // moved to a different build, which is why we filter via the version.
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2280

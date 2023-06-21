@@ -57,15 +57,10 @@ public func configure(_ app: Application) throws -> String {
         throw Abort(.internalServerError)
     }
 
-    let tlsConfig: TLSConfiguration? = Environment.get("DATABASE_USE_TLS")
-        .flatMap(\.asBool)
-        .flatMap { $0 ? .clientDefault : nil }
-    app.databases.use(.postgres(hostname: host,
-                                port: port,
-                                username: username,
-                                password: password,
-                                database: database,
-                                tlsConfiguration: tlsConfig,
+    let useTLS = Environment.get("DATABASE_USE_TLS").flatMap(\.asBool) ?? false
+    let tlsConfig: PostgresConnection.Configuration.TLS = useTLS ? .require(try .init(configuration: .clientDefault)) : .disable
+    let dbConfig = SQLPostgresConfiguration(hostname: host, port: port, username: username, password: password, database: database, tls: tlsConfig)
+    app.databases.use(.postgres(configuration: dbConfig,
                                 maxConnectionsPerEventLoop: maxConnectionsPerEventLoop,
                                 // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2227
                                 // for details why we've changed this from the default of 10s.

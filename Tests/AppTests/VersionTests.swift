@@ -14,6 +14,7 @@
 
 @testable import App
 
+import PostgresKit
 import XCTVapor
 
 
@@ -70,8 +71,8 @@ class VersionTests: AppTestCase {
             XCTFail("save must fail")
         } catch {
             // validation
-            XCTAssertEqual(error.localizedDescription,
-                           #"server: null value in column "commit" of relation "versions" violates not-null constraint (ExecConstraints)"#)
+            XCTAssertEqual(error.serverMessage,
+                           #"null value in column "commit" of relation "versions" violates not-null constraint"#)
         }
 
         do {  // commitDate unset
@@ -82,8 +83,8 @@ class VersionTests: AppTestCase {
             XCTFail("save must fail")
         } catch {
             // validation
-            XCTAssertEqual(error.localizedDescription,
-                           #"server: null value in column "commit_date" of relation "versions" violates not-null constraint (ExecConstraints)"#)
+            XCTAssertEqual(error.serverMessage,
+                           #"null value in column "commit_date" of relation "versions" violates not-null constraint"#)
         }
 
         do {  // reference unset
@@ -94,8 +95,8 @@ class VersionTests: AppTestCase {
             XCTFail("save must fail")
         } catch {
             // validation
-            XCTAssertEqual(error.localizedDescription,
-                           #"server: null value in column "reference" of relation "versions" violates not-null constraint (ExecConstraints)"#)
+            XCTAssertEqual(error.serverMessage,
+                           #"null value in column "reference" of relation "versions" violates not-null constraint"#)
         }
     }
 
@@ -172,4 +173,14 @@ class VersionTests: AppTestCase {
         XCTAssertEqual(latest?.id, vid)
     }
 
+}
+
+
+private extension PSQLError {
+    var serverMessage: String? { serverInfo?[.message] }
+}
+
+
+private extension Error {
+    var serverMessage: String? { (self as? PSQLError)?.serverMessage }
 }

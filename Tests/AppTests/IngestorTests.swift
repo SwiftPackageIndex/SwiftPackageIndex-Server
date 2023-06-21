@@ -313,7 +313,6 @@ class IngestorTests: AppTestCase {
         // Test error behaviour when two packages resolving to the same owner/name are ingested:
         //   - don't update package
         //   - don't create repository records
-        //   - report critical error up to Rollbar
         // setup
         for url in ["https://github.com/foo/1", "https://github.com/foo/2"].asURLs {
             try await Package(url: url, processingStage: .reconciliation).save(on: app.db)
@@ -367,7 +366,7 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(logs.count, 1)
             let log = try XCTUnwrap(logs.first)
             XCTAssertEqual(log.level, .critical)
-            XCTAssertEqual(log.message, #"server: duplicate key value violates unique constraint "idx_repositories_owner_name" (_bt_check_unique)"#)
+            XCTAssertEqual(log.message, #"duplicate key value violates unique constraint "idx_repositories_owner_name""#)
         }
     }
 
