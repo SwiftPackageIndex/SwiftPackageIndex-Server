@@ -186,8 +186,8 @@ class API_PackageControllerTests: AppTestCase {
             makeBuild(.failed, .macosXcodebuild, .v1),
             // tvos - no data - unknown
             // watchos - ok
-            makeBuild(.failed, .watchos, .v2),
-            makeBuild(.ok, .watchos, .v1),
+            makeBuild(.failed, .watchOS, .v2),
+            makeBuild(.ok, .watchOS, .v1),
             // unrelated build
             .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v2, platform: .iOS, status: .ok),
         ]

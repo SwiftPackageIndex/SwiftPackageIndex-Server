@@ -37,21 +37,21 @@ extension BuildIndex.Model {
                         // The Linux build for v5.5 is intentionally missing to test the representation of a pending build
                         // .init(id: Self.id, swiftVersion: .v3, platform: .linux,              status: .ok),
                         .init(id: Self.id, swiftVersion: .v3, platform: .tvOS,               status: .timeout, docStatus: nil),
-                        .init(id: Self.id, swiftVersion: .v3, platform: .watchos,            status: .infrastructureError, docStatus: nil),
+                        .init(id: Self.id, swiftVersion: .v3, platform: .watchOS,            status: .infrastructureError, docStatus: nil),
                         //
                         .init(id: Self.id, swiftVersion: .v2, platform: .iOS,                status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v2, platform: .macosSpm,           status: .failed, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v2, platform: .macosXcodebuild,    status: .triggered, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v2, platform: .linux,              status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v2, platform: .tvOS,               status: .ok, docStatus: nil),
-                        .init(id: Self.id, swiftVersion: .v2, platform: .watchos,            status: .ok, docStatus: nil),
+                        .init(id: Self.id, swiftVersion: .v2, platform: .watchOS,            status: .ok, docStatus: nil),
                         //
                         .init(id: Self.id, swiftVersion: .v1, platform: .iOS,                status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v1, platform: .macosSpm,           status: .failed, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v1, platform: .macosXcodebuild,    status: .triggered, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v1, platform: .linux,              status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v1, platform: .tvOS,               status: .ok, docStatus: nil),
-                        .init(id: Self.id, swiftVersion: .v1, platform: .watchos,            status: .ok, docStatus: nil),
+                        .init(id: Self.id, swiftVersion: .v1, platform: .watchOS,            status: .ok, docStatus: nil),
                     ]
                 ),
                 .init(
@@ -63,21 +63,21 @@ extension BuildIndex.Model {
                         .init(id: Self.id, swiftVersion: .v3, platform: .macosXcodebuild,    status: .triggered, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v3, platform: .linux,              status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v3, platform: .tvOS,               status: .ok, docStatus: nil),
-                        .init(id: Self.id, swiftVersion: .v3, platform: .watchos,            status: .ok, docStatus: nil),
+                        .init(id: Self.id, swiftVersion: .v3, platform: .watchOS,            status: .ok, docStatus: nil),
                         //
                         .init(id: Self.id, swiftVersion: .v2, platform: .iOS,                status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v2, platform: .macosSpm,           status: .failed, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v2, platform: .macosXcodebuild,    status: .triggered, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v2, platform: .linux,              status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v2, platform: .tvOS,               status: .ok, docStatus: nil),
-                        .init(id: Self.id, swiftVersion: .v2, platform: .watchos,            status: .ok, docStatus: nil),
+                        .init(id: Self.id, swiftVersion: .v2, platform: .watchOS,            status: .ok, docStatus: nil),
                         //
                         .init(id: Self.id, swiftVersion: .v1, platform: .iOS,                status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v1, platform: .macosSpm,           status: .failed, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v1, platform: .macosXcodebuild,    status: .triggered, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v1, platform: .linux,              status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v1, platform: .tvOS,               status: .ok, docStatus: nil),
-                        .init(id: Self.id, swiftVersion: .v1, platform: .watchos,            status: .ok, docStatus: nil),
+                        .init(id: Self.id, swiftVersion: .v1, platform: .watchOS,            status: .ok, docStatus: nil),
                     ]
                 ),
                 .init(
@@ -89,21 +89,21 @@ extension BuildIndex.Model {
                         .init(id: Self.id, swiftVersion: .v3, platform: .macosXcodebuild,    status: .triggered, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v3, platform: .linux,              status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v3, platform: .tvOS,               status: .ok, docStatus: nil),
-                        .init(id: Self.id, swiftVersion: .v3, platform: .watchos,            status: .ok, docStatus: nil),
+                        .init(id: Self.id, swiftVersion: .v3, platform: .watchOS,            status: .ok, docStatus: nil),
                         //
                         .init(id: Self.id, swiftVersion: .v2, platform: .iOS,                status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v2, platform: .macosSpm,           status: .failed, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v2, platform: .macosXcodebuild,    status: .triggered, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v2, platform: .linux,              status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v2, platform: .tvOS,               status: .ok, docStatus: nil),
-                        .init(id: Self.id, swiftVersion: .v2, platform: .watchos,            status: .ok, docStatus: nil),
+                        .init(id: Self.id, swiftVersion: .v2, platform: .watchOS,            status: .ok, docStatus: nil),
                         //
                         .init(id: Self.id, swiftVersion: .v1, platform: .iOS,                status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v1, platform: .macosSpm,           status: .failed, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v1, platform: .macosXcodebuild,    status: .triggered, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v1, platform: .linux,              status: .ok, docStatus: nil),
                         .init(id: Self.id, swiftVersion: .v1, platform: .tvOS,               status: .ok, docStatus: nil),
-                        .init(id: Self.id, swiftVersion: .v1, platform: .watchos,            status: .ok, docStatus: nil),
+                        .init(id: Self.id, swiftVersion: .v1, platform: .watchOS,            status: .ok, docStatus: nil),
                     ]
                 )
             ]

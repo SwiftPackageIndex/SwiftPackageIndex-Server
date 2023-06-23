@@ -22,7 +22,7 @@ extension Build {
         case macosSpm           = "macos-spm"
         case macosXcodebuild    = "macos-xcodebuild"
         case tvOS               = "tvos"
-        case watchos            = "watchos"
+        case watchOS            = "watchos"
 
         var name: String {
             switch self {
@@ -34,7 +34,7 @@ extension Build {
                     return "macOS - xcodebuild"
                 case .tvOS:
                     return "tvOS"
-                case .watchos:
+                case .watchOS:
                     return "watchOS"
                 case .linux:
                     return "Linux"
@@ -51,7 +51,7 @@ extension Build {
                     return "macOS (Xcode)"
                 case .tvOS:
                     return "tvOS"
-                case .watchos:
+                case .watchOS:
                     return "watchOS"
                 case .linux:
                     return "Linux"
@@ -60,7 +60,7 @@ extension Build {
 
         /// Currently supported build platforms
         static var allActive: [Self] {
-            [.iOS, .macosSpm, .macosXcodebuild, .linux, .tvOS, .watchos]
+            [.iOS, .macosSpm, .macosXcodebuild, .linux, .tvOS, .watchOS]
         }
 
 
@@ -80,7 +80,7 @@ extension Build {
                 case .tvos:
                     self = .tvOS
                 case .watchos:
-                    self = .watchos
+                    self = .watchOS
             }
         }
     }
