@@ -354,7 +354,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                     tvosStatus: .unknown,
                                                                     watchosStatus: .unknown))),
                                  latest: nil)
-            XCTAssertEqual(info?.compatibility, [.iOS, .macos, .watchos])
+            XCTAssertEqual(info?.compatibility, [.iOS, .macOS, .watchos])
         }
     }
 

@@ -54,7 +54,7 @@ extension Build.Platform {
             case .iOS:
                 return other == .iOS
             case .macosSpm, .macosXcodebuild:
-                return other == .macos
+                return other == .macOS
             case .tvOS:
                 return other == .tvos
             case .watchOS:
