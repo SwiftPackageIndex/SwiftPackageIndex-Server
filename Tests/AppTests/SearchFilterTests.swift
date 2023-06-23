@@ -332,12 +332,12 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(
             try PlatformSearchFilter(expression: .init(operator: .is,
                                                        value: "iOS,macos,MacOS X")).bindableValue,
-            [.ios, .macos]
+            [.ios, .macOS]
         )
         XCTAssertEqual(
             try PlatformSearchFilter(expression: .init(operator: .is,
                                                        value: "iOS,macos,ios")).bindableValue,
-            [.ios, .macos]
+            [.ios, .macOS]
         )
     }
 
@@ -347,7 +347,7 @@ class SearchFilterTests: AppTestCase {
             let predicate = try PlatformSearchFilter(
                 expression: .init(operator: .is, value: "iOS,macos,ios")).predicate
             XCTAssertEqual(predicate.bindableValue.asPlatforms,
-                           [.ios, .macos])
+                           [.ios, .macOS])
             XCTAssertEqual(predicate.operator, .contains)
         }
         do {
@@ -355,7 +355,7 @@ class SearchFilterTests: AppTestCase {
                 expression: .init(operator: .is,
                                   value: "iOS,macos,linux")).predicate
             XCTAssertEqual(predicate.bindableValue.asPlatforms,
-                           [.ios, .linux, .macos])
+                           [.ios, .linux, .macOS])
             XCTAssertEqual(predicate.operator, .contains)
         }
 

@@ -59,7 +59,7 @@ private extension Package.PlatformCompatibility {
         switch self {
             case .ios:
                 return "iOS"
-            case .macos:
+            case .macOS:
                 return "macOS"
             case .linux:
                 return "Linux"

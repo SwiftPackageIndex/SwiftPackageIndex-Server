@@ -1074,7 +1074,7 @@ class SearchTests: AppTestCase {
     func test_authorSearchFilter() throws {
         // Setup
         let p1 = Package(url: "1", platformCompatibility: [.ios])
-        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
@@ -1115,7 +1115,7 @@ class SearchTests: AppTestCase {
     func test_keywordSearchFilter() throws {
         // Setup
         let p1 = Package(url: "1", platformCompatibility: [.ios])
-        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
@@ -1158,7 +1158,7 @@ class SearchTests: AppTestCase {
     func test_lastActivitySearchFilter() throws {
         // Setup
         let p1 = Package(url: "1", platformCompatibility: [.ios])
-        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
@@ -1201,7 +1201,7 @@ class SearchTests: AppTestCase {
     func test_lastCommitSearchFilter() throws {
         // Setup
         let p1 = Package(url: "1", platformCompatibility: [.ios])
-        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
@@ -1244,7 +1244,7 @@ class SearchTests: AppTestCase {
     func test_licenseSearchFilter() throws {
         // Setup
         let p1 = Package(url: "1", platformCompatibility: [.ios])
-        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
@@ -1295,7 +1295,7 @@ class SearchTests: AppTestCase {
     func test_platformSearchFilter() throws {
         // Setup
         let p1 = Package(url: "1", platformCompatibility: [.ios])
-        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
@@ -1336,7 +1336,7 @@ class SearchTests: AppTestCase {
     func test_starsSearchFilter() throws {
         // Setup
         let p1 = Package(url: "1", platformCompatibility: [.ios])
-        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
@@ -1431,7 +1431,7 @@ class SearchTests: AppTestCase {
         // Test error handling in case of an invalid filter
         // Setup
         let p1 = Package(url: "1", platformCompatibility: [.ios])
-        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
