@@ -273,16 +273,16 @@ extension API.PackageController.GetRoute.Model {
         var tvOS: BuildResult<PlatformCompatibility>
         var watchOS: BuildResult<PlatformCompatibility>
 
-        init(iosStatus: BuildStatus,
+        init(iOSStatus: BuildStatus,
              linuxStatus: BuildStatus,
-             macosStatus: BuildStatus,
-             tvosStatus: BuildStatus,
-             watchosStatus: BuildStatus) {
-            self.iOS = .init(parameter: .iOS, status: iosStatus)
+             macOSStatus: BuildStatus,
+             tvOSStatus: BuildStatus,
+             watchOSStatus: BuildStatus) {
+            self.iOS = .init(parameter: .iOS, status: iOSStatus)
             self.linux = .init(parameter: .linux, status: linuxStatus)
-            self.macOS = .init(parameter: .macOS, status: macosStatus)
-            self.tvOS = .init(parameter: .tvOS, status: tvosStatus)
-            self.watchOS = .init(parameter: .watchOS, status: watchosStatus)
+            self.macOS = .init(parameter: .macOS, status: macOSStatus)
+            self.tvOS = .init(parameter: .tvOS, status: tvOSStatus)
+            self.watchOS = .init(parameter: .watchOS, status: watchOSStatus)
         }
 
         var all: [BuildResult<PlatformCompatibility>] { [iOS, macOS, watchOS, tvOS, linux] }
