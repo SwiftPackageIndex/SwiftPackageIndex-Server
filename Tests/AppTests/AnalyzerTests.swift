@@ -758,7 +758,7 @@ class AnalyzerTests: AppTestCase {
         let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
         let m = Manifest(name: "1",
                          products: [],
-                         targets: [.init(name: "t1", type: .regular), .init(name: "t2", type: .regular)],
+                         targets: [.init(name: "t1", type: .regular), .init(name: "t2", type: .executable)],
                          toolsVersion: .init(version: "5.0.0"))
         try p.save(on: app.db).wait()
         try v.save(on: app.db).wait()
@@ -769,6 +769,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         let targets = try Target.query(on: app.db).sort(\.$createdAt).all().wait()
         XCTAssertEqual(targets.map(\.name), ["t1", "t2"])
+        XCTAssertEqual(targets.map(\.type), [.regular, .executable])
     }
 
     func test_updatePackage() async throws {

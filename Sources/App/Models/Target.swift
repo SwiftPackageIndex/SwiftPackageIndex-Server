@@ -42,15 +42,50 @@ final class Target: Model, Content {
     @Field(key: "name")
     var name: String
 
+    @Field(key: "type")
+    var type: TargetType?
+
     // initializers
 
     init() { }
 
     init(id: UUID? = nil,
          version: Version,
-         name: String) throws {
+         name: String,
+         type: TargetType? = nil) throws {
         self.id = id
         self.$version.id = try version.requireID()
         self.name = name
+        self.type = type
+    }
+}
+
+
+enum TargetType: Codable, Equatable {
+    case binary
+    case executable
+    case macro
+    case plugin
+    case regular
+    case system
+    case test
+
+    init(manifestTargetType: Manifest.TargetType) {
+        switch manifestTargetType {
+            case .binary:
+                self = .binary
+            case .executable:
+                self = .executable
+            case .macro:
+                self = .macro
+            case .plugin:
+                self = .plugin
+            case .regular:
+                self = .regular
+            case .system:
+                self = .system
+            case .test:
+                self = .test
+        }
     }
 }

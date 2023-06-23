@@ -656,8 +656,8 @@ extension Analyze {
     ///   - manifest: `Manifest` data
     /// - Returns: future
     static func createTargets(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
-        manifest.targets.compactMap { manifestTarget in
-            try? Target(version: version, name: manifestTarget.name)
+        manifest.targets.compactMap {
+            try? Target(version: version, name: $0.name, type: .init(manifestTargetType: $0.type))
         }
         .create(on: database)
     }
