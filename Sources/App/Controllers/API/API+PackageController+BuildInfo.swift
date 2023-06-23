@@ -66,11 +66,11 @@ extension API.PackageController {
             // ... and report the status
             return
                 .init(referenceName: referenceName,
-                      results: .init(iosStatus: ios.buildStatus,
+                      results: .init(iOSStatus: ios.buildStatus,
                                      linuxStatus: linux.buildStatus,
-                                     macosStatus: macos.buildStatus,
-                                     tvosStatus: tvos.buildStatus,
-                                     watchosStatus: watchos.buildStatus)
+                                     macOSStatus: macos.buildStatus,
+                                     tvOSStatus: tvos.buildStatus,
+                                     watchOSStatus: watchos.buildStatus)
                 )
         }
 

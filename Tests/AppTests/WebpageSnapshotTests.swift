@@ -204,11 +204,11 @@ class WebpageSnapshotTests: SnapshotTestCase {
         }
         do {
             let compatible = API.PackageController.GetRoute.Model.PlatformResults(
-                iosStatus: .compatible,
+                iOSStatus: .compatible,
                 linuxStatus: .compatible,
-                macosStatus: .compatible,
-                tvosStatus: .compatible,
-                watchosStatus: .compatible
+                macOSStatus: .compatible,
+                tvOSStatus: .compatible,
+                watchOSStatus: .compatible
             )
             model.platformBuildInfo = .init(
                 stable: .init(referenceName: "5.2.5", results: compatible),

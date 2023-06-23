@@ -331,28 +331,28 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
-                                                     results: Results(iosStatus: .compatible,
+                                                     results: Results(iOSStatus: .compatible,
                                                                       linuxStatus: .incompatible,
-                                                                      macosStatus: .unknown,
-                                                                      tvosStatus: .unknown,
-                                                                      watchosStatus: .compatible))),
+                                                                      macOSStatus: .unknown,
+                                                                      tvOSStatus: .unknown,
+                                                                      watchOSStatus: .compatible))),
                                  beta: nil,
                                  latest: nil)
             XCTAssertEqual(info?.compatibility, [.iOS, .watchOS])
         }
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
-                                                     results: Results(iosStatus: .compatible,
+                                                     results: Results(iOSStatus: .compatible,
                                                                       linuxStatus: .incompatible,
-                                                                      macosStatus: .unknown,
-                                                                      tvosStatus: .unknown,
-                                                                      watchosStatus: .compatible))),
+                                                                      macOSStatus: .unknown,
+                                                                      tvOSStatus: .unknown,
+                                                                      watchOSStatus: .compatible))),
                                  beta: .some(.init(referenceName: "1.2.3-b1",
-                                                   results: Results(iosStatus: .compatible,
+                                                   results: Results(iOSStatus: .compatible,
                                                                     linuxStatus: .incompatible,
-                                                                    macosStatus: .compatible,
-                                                                    tvosStatus: .unknown,
-                                                                    watchosStatus: .unknown))),
+                                                                    macOSStatus: .compatible,
+                                                                    tvOSStatus: .unknown,
+                                                                    watchOSStatus: .unknown))),
                                  latest: nil)
             XCTAssertEqual(info?.compatibility, [.iOS, .macOS, .watchOS])
         }

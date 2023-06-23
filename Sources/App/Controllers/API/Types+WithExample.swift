@@ -188,25 +188,25 @@ extension API.PackageController.GetRoute.Model: WithExample {
               platformBuildInfo: .init(
                 stable: .init(
                     referenceName: "1.2.3",
-                    results: .init(iosStatus: .compatible,
+                    results: .init(iOSStatus: .compatible,
                                    linuxStatus: .unknown,
-                                   macosStatus: .unknown,
-                                   tvosStatus: .unknown,
-                                   watchosStatus: .unknown)),
+                                   macOSStatus: .unknown,
+                                   tvOSStatus: .unknown,
+                                   watchOSStatus: .unknown)),
                 beta: .init(
                     referenceName: "2.0.0-b1",
-                    results: .init(iosStatus: .compatible,
+                    results: .init(iOSStatus: .compatible,
                                    linuxStatus: .unknown,
-                                   macosStatus: .unknown,
-                                   tvosStatus: .unknown,
-                                   watchosStatus: .unknown)),
+                                   macOSStatus: .unknown,
+                                   tvOSStatus: .unknown,
+                                   watchOSStatus: .unknown)),
                 latest: .init(
                     referenceName: "main",
-                    results: .init(iosStatus: .compatible,
+                    results: .init(iOSStatus: .compatible,
                                    linuxStatus: .compatible,
-                                   macosStatus: .compatible,
-                                   tvosStatus: .compatible,
-                                   watchosStatus: .compatible))
+                                   macOSStatus: .compatible,
+                                   tvOSStatus: .compatible,
+                                   watchOSStatus: .compatible))
               ),
               history: .example,
               license: .mit,
