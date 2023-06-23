@@ -98,7 +98,7 @@ extension Package {
         case macOS   = "macos"
         case linux
         case tvOS    = "tvos"
-        case watchos = "watchos"
+        case watchOS = "watchos"
     }
 }
 

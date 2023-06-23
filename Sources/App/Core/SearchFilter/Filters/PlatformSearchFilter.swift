@@ -65,7 +65,7 @@ private extension Package.PlatformCompatibility {
                 return "Linux"
             case .tvOS:
                 return "tvOS"
-            case .watchos:
+            case .watchOS:
                 return "watchOS"
         }
     }

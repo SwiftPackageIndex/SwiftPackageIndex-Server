@@ -412,7 +412,7 @@ final class PackageTests: AppTestCase {
         let p1 = try XCTUnwrap(
             Package.query(on: app.db).filter(by: "1".url).first().wait()
         )
-        XCTAssertEqual(p1.platformCompatibility, [.iOS, .macOS, .linux, .tvOS, .watchos])
+        XCTAssertEqual(p1.platformCompatibility, [.iOS, .macOS, .linux, .tvOS, .watchOS])
         let p2 = try XCTUnwrap(
             Package.query(on: app.db).filter(by: "2".url).first().wait()
         )
