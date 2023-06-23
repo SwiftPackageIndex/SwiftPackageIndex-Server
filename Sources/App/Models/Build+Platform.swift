@@ -65,7 +65,9 @@ extension Build {
 
         /// Currently supported build platforms
         static var allActive: [Self] {
-            [.iOS, .macosSpm, .macosXcodebuild, .linux, .tvOS, .watchOS]
+            let active: [Self] = [.iOS, .macosSpm, .macosXcodebuild, .linux, .tvOS, .visionOS, .watchOS]
+            precondition(active.count == allCases.count, "mismatch in Build.Platform and active platform count")
+            return active
         }
 
 
