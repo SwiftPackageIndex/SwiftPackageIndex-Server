@@ -200,7 +200,7 @@ class API_PackageControllerTests: AppTestCase {
         XCTAssertEqual(res?.referenceName, "main")
         XCTAssertEqual(res?.results.iOS, .init(parameter: .iOS, status: .incompatible))
         XCTAssertEqual(res?.results.macOS, .init(parameter: .macOS, status: .incompatible))
-        XCTAssertEqual(res?.results.tvos, .init(parameter: .tvOS, status: .unknown))
+        XCTAssertEqual(res?.results.tvOS, .init(parameter: .tvOS, status: .unknown))
         XCTAssertEqual(res?.results.watchos, .init(parameter: .watchOS, status: .compatible))
     }
 
@@ -255,7 +255,7 @@ class API_PackageControllerTests: AppTestCase {
                        .init(parameter: .iOS, status: .unknown))
         XCTAssertEqual(res?.stable?.results.macOS,
                        .init(parameter: .macOS, status: .compatible))
-        XCTAssertEqual(res?.stable?.results.tvos,
+        XCTAssertEqual(res?.stable?.results.tvOS,
                        .init(parameter: .tvOS, status: .incompatible))
         XCTAssertEqual(res?.stable?.results.watchos,
                        .init(parameter: .watchOS, status: .unknown))
@@ -339,7 +339,7 @@ class API_PackageControllerTests: AppTestCase {
         // more detailed tests are covered in the lower level test
         XCTAssertEqual(res.platform?.latest?.referenceName, "main")
         XCTAssertEqual(res.platform?.latest?.results.iOS.status, .compatible)
-        XCTAssertEqual(res.platform?.latest?.results.tvos.status, .incompatible)
+        XCTAssertEqual(res.platform?.latest?.results.tvOS.status, .incompatible)
         XCTAssertEqual(res.platform?.latest?.results.watchos.status, .unknown)
         XCTAssertEqual(res.platform?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res.platform?.beta?.referenceName, "2.0.0-b1")
