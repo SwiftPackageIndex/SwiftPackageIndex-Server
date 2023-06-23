@@ -317,9 +317,9 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         // ensure Gitlab requests go out
-        XCTAssertEqual(queries.count, 24)
+        XCTAssertEqual(queries.count, 28)
         XCTAssertEqual(queries.value.map { $0.variables["VERSION_ID"] },
-                       Array(repeating: versionId.uuidString, count: 24))
+                       Array(repeating: versionId.uuidString, count: 28))
         let buildPlatforms = queries.value.compactMap { $0.variables["BUILD_PLATFORM"] }
         XCTAssertEqual(Dictionary(grouping: buildPlatforms, by: { $0 })
                         .mapValues(\.count),
@@ -328,19 +328,20 @@ class BuildTriggerTests: AppTestCase {
                         "macos-xcodebuild": 4,
                         "linux": 4,
                         "watchos": 4,
+                        "visionos": 4,
                         "tvos": 4])
         let swiftVersions = queries.value.compactMap { $0.variables["SWIFT_VERSION"] }
         XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
                         .mapValues(\.count),
-                       ["\(SwiftVersion.v1)": 6,
-                        "\(SwiftVersion.v2)": 6,
-                        "\(SwiftVersion.v3)": 6,
-                        "\(SwiftVersion.v4)": 6])
+                       ["\(SwiftVersion.v1)": 7,
+                        "\(SwiftVersion.v2)": 7,
+                        "\(SwiftVersion.v3)": 7,
+                        "\(SwiftVersion.v4)": 7])
 
         // ensure the Build stubs are created to prevent re-selection
         let v = try await Version.find(versionId, on: app.db)
         try await v?.$builds.load(on: app.db)
-        XCTAssertEqual(v?.builds.count, 24)
+        XCTAssertEqual(v?.builds.count, 28)
 
         // ensure re-selection is empty
         let candidates = try await fetchBuildCandidates(app.db)
@@ -475,11 +476,11 @@ class BuildTriggerTests: AppTestCase {
                                     mode: .packageId(pkgId, force: false))
 
             // validate
-            XCTAssertEqual(triggerCount, 24)
+            XCTAssertEqual(triggerCount, 28)
             // ensure builds are now in progress
             let v = try await Version.find(versionId, on: app.db)
             try await v?.$builds.load(on: app.db)
-            XCTAssertEqual(v?.builds.count, 24)
+            XCTAssertEqual(v?.builds.count, 28)
         }
 
         do {  // third run: we are at capacity and using the `force` flag
@@ -507,11 +508,11 @@ class BuildTriggerTests: AppTestCase {
                                     mode: .packageId(pkgId, force: true))
 
             // validate
-            XCTAssertEqual(triggerCount, 24)
+            XCTAssertEqual(triggerCount, 28)
             // ensure builds are now in progress
             let v = try await Version.find(versionId, on: app.db)
             try await v?.$builds.load(on: app.db)
-            XCTAssertEqual(v?.builds.count, 24)
+            XCTAssertEqual(v?.builds.count, 28)
         }
 
     }
@@ -550,7 +551,7 @@ class BuildTriggerTests: AppTestCase {
                                 mode: .limit(4))
 
         // validate - only the first batch must be allowed to trigger
-        XCTAssertEqual(triggerCount, 24)
+        XCTAssertEqual(triggerCount, 28)
     }
 
     func test_triggerBuilds_trimming() async throws {
@@ -727,7 +728,7 @@ class BuildTriggerTests: AppTestCase {
                                     mode: .packageId(pkgId, force: false))
 
             // validate
-            XCTAssertEqual(triggerCount, 24)
+            XCTAssertEqual(triggerCount, 28)
         }
     }
 
@@ -788,7 +789,7 @@ class BuildTriggerTests: AppTestCase {
                                     mode: .packageId(pkgId, force: false))
 
             // validate
-            XCTAssertEqual(triggerCount, 24)
+            XCTAssertEqual(triggerCount, 28)
         }
 
     }
@@ -829,7 +830,7 @@ class BuildTriggerTests: AppTestCase {
                                     mode: .packageId(pkgId, force: false))
 
             // validate
-            XCTAssertEqual(triggerCount, 24)
+            XCTAssertEqual(triggerCount, 28)
         }
     }
 
@@ -997,8 +998,8 @@ class BuildTriggerTests: AppTestCase {
 
     func test_BuildPair_counts() throws {
         // Sanity checks for critical counts used in canadidate selection
-        XCTAssertEqual(BuildPair.all.count, 24)
-        XCTAssertEqual(BuildPair.allExceptLatestSwiftVersion.count, 18)
+        XCTAssertEqual(BuildPair.all.count, 28)
+        XCTAssertEqual(BuildPair.allExceptLatestSwiftVersion.count, 21)
     }
 
     func test_BuildPair_Equatable() throws {
@@ -1045,7 +1046,7 @@ class BuildTriggerTests: AppTestCase {
         let res = try await findMissingBuilds(app.db, packageId: pkgId)
         XCTAssertEqual(res.count, 1)
         let triggerInfo = try XCTUnwrap(res.first)
-        XCTAssertEqual(triggerInfo.pairs.count, 23)
+        XCTAssertEqual(triggerInfo.pairs.count, 27)
         XCTAssertTrue(!triggerInfo.pairs.contains(.init(.iOS, .v1)))
     }
 
