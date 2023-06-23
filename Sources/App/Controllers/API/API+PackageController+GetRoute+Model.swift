@@ -232,7 +232,7 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
-    enum PlatformCompatibility: String, Codable, Comparable {
+    enum PlatformCompatibility: String, Codable, Comparable, CaseIterable {
         case iOS
         case linux
         case macOS
@@ -289,7 +289,11 @@ extension API.PackageController.GetRoute.Model {
             self.watchOS = .init(parameter: .watchOS, status: watchOSStatus)
         }
 
-        var all: [BuildResult<PlatformCompatibility>] { [iOS, macOS, watchOS, tvOS, linux] }
+        var all: [BuildResult<PlatformCompatibility>] {
+            let all: [BuildResult<PlatformCompatibility>] = [iOS, macOS, watchOS, visionOS, tvOS, linux]
+            assert(all.count == PlatformCompatibility.allCases.count, "mismatch in GetRoute.Model.PlatformCompatibility and all platform results count")
+            return all
+        }
     }
 
     enum BuildStatus: String, Codable, Equatable {
