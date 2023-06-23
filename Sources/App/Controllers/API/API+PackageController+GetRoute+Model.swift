@@ -271,7 +271,7 @@ extension API.PackageController.GetRoute.Model {
         var linux: BuildResult<PlatformCompatibility>
         var macOS: BuildResult<PlatformCompatibility>
         var tvOS: BuildResult<PlatformCompatibility>
-        var watchos: BuildResult<PlatformCompatibility>
+        var watchOS: BuildResult<PlatformCompatibility>
 
         init(iosStatus: BuildStatus,
              linuxStatus: BuildStatus,
@@ -282,10 +282,10 @@ extension API.PackageController.GetRoute.Model {
             self.linux = .init(parameter: .linux, status: linuxStatus)
             self.macOS = .init(parameter: .macOS, status: macosStatus)
             self.tvOS = .init(parameter: .tvOS, status: tvosStatus)
-            self.watchos = .init(parameter: .watchOS, status: watchosStatus)
+            self.watchOS = .init(parameter: .watchOS, status: watchosStatus)
         }
 
-        var all: [BuildResult<PlatformCompatibility>] { [iOS, macOS, watchos, tvOS, linux] }
+        var all: [BuildResult<PlatformCompatibility>] { [iOS, macOS, watchOS, tvOS, linux] }
     }
 
     enum BuildStatus: String, Codable, Equatable {
