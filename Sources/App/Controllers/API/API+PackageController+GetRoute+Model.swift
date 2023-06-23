@@ -233,11 +233,11 @@ extension API.PackageController.GetRoute.Model {
     }
 
     enum PlatformCompatibility: String, Codable, Comparable {
-        case ios
+        case iOS
         case linux
-        case macos
-        case tvos
-        case watchos
+        case macOS
+        case tvOS
+        case watchOS
 
         static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
     }
@@ -278,11 +278,11 @@ extension API.PackageController.GetRoute.Model {
              macosStatus: BuildStatus,
              tvosStatus: BuildStatus,
              watchosStatus: BuildStatus) {
-            self.ios = .init(parameter: .ios, status: iosStatus)
+            self.ios = .init(parameter: .iOS, status: iosStatus)
             self.linux = .init(parameter: .linux, status: linuxStatus)
-            self.macos = .init(parameter: .macos, status: macosStatus)
-            self.tvos = .init(parameter: .tvos, status: tvosStatus)
-            self.watchos = .init(parameter: .watchos, status: watchosStatus)
+            self.macos = .init(parameter: .macOS, status: macosStatus)
+            self.tvos = .init(parameter: .tvOS, status: tvosStatus)
+            self.watchos = .init(parameter: .watchOS, status: watchosStatus)
         }
 
         var all: [BuildResult<PlatformCompatibility>] { [ios, macos, watchos, tvos, linux] }

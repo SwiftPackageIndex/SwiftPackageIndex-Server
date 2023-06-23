@@ -16,22 +16,22 @@
 extension API.PackageController.GetRoute.Model.PlatformCompatibility: BuildResultPresentable {
     var displayName: String {
         switch self {
-            case .ios:
+            case .iOS:
                 return "iOS"
             case .linux:
                 return "Linux"
-            case .macos:
+            case .macOS:
                 return "macOS"
-            case .tvos:
+            case .tvOS:
                 return "tvOS"
-            case .watchos:
+            case .watchOS:
                 return "watchOS"
         }
     }
 
     var longDisplayName: String {
         switch self {
-            case .macos, .ios, .linux, .tvos, .watchos:
+            case .macOS, .iOS, .linux, .tvOS, .watchOS:
                 return displayName
         }
     }

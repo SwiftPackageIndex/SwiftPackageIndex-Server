@@ -52,13 +52,13 @@ extension Build.Platform {
     func isCompatible(with other: API.PackageController.GetRoute.Model.PlatformCompatibility) -> Bool {
         switch self {
             case .iOS:
-                return other == .ios
+                return other == .iOS
             case .macosSpm, .macosXcodebuild:
-                return other == .macos
+                return other == .macOS
             case .tvOS:
-                return other == .tvos
+                return other == .tvOS
             case .watchOS:
-                return other == .watchos
+                return other == .watchOS
             case .linux:
                 return other == .linux
         }

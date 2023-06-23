@@ -198,10 +198,10 @@ class API_PackageControllerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.ios, .init(parameter: .ios, status: .incompatible))
-        XCTAssertEqual(res?.results.macos, .init(parameter: .macos, status: .incompatible))
-        XCTAssertEqual(res?.results.tvos, .init(parameter: .tvos, status: .unknown))
-        XCTAssertEqual(res?.results.watchos, .init(parameter: .watchos, status: .compatible))
+        XCTAssertEqual(res?.results.ios, .init(parameter: .iOS, status: .incompatible))
+        XCTAssertEqual(res?.results.macos, .init(parameter: .macOS, status: .incompatible))
+        XCTAssertEqual(res?.results.tvos, .init(parameter: .tvOS, status: .unknown))
+        XCTAssertEqual(res?.results.watchos, .init(parameter: .watchOS, status: .compatible))
     }
 
     func test_swiftVersionBuildResults() throws {
@@ -252,13 +252,13 @@ class API_PackageControllerTests: AppTestCase {
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res?.stable?.results.ios,
-                       .init(parameter: .ios, status: .unknown))
+                       .init(parameter: .iOS, status: .unknown))
         XCTAssertEqual(res?.stable?.results.macos,
-                       .init(parameter: .macos, status: .compatible))
+                       .init(parameter: .macOS, status: .compatible))
         XCTAssertEqual(res?.stable?.results.tvos,
-                       .init(parameter: .tvos, status: .incompatible))
+                       .init(parameter: .tvOS, status: .incompatible))
         XCTAssertEqual(res?.stable?.results.watchos,
-                       .init(parameter: .watchos, status: .unknown))
+                       .init(parameter: .watchOS, status: .unknown))
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
     }
