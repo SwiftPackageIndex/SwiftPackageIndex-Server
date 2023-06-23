@@ -338,7 +338,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                       watchosStatus: .compatible))),
                                  beta: nil,
                                  latest: nil)
-            XCTAssertEqual(info?.compatibility, [.iOS, .watchos])
+            XCTAssertEqual(info?.compatibility, [.iOS, .watchOS])
         }
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
@@ -354,7 +354,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                     tvosStatus: .unknown,
                                                                     watchosStatus: .unknown))),
                                  latest: nil)
-            XCTAssertEqual(info?.compatibility, [.iOS, .macOS, .watchos])
+            XCTAssertEqual(info?.compatibility, [.iOS, .macOS, .watchOS])
         }
     }
 

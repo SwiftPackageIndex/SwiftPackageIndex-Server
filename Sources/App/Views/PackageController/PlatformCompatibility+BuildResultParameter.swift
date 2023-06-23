@@ -24,14 +24,14 @@ extension API.PackageController.GetRoute.Model.PlatformCompatibility: BuildResul
                 return "macOS"
             case .tvOS:
                 return "tvOS"
-            case .watchos:
+            case .watchOS:
                 return "watchOS"
         }
     }
 
     var longDisplayName: String {
         switch self {
-            case .macOS, .iOS, .linux, .tvOS, .watchos:
+            case .macOS, .iOS, .linux, .tvOS, .watchOS:
                 return displayName
         }
     }
