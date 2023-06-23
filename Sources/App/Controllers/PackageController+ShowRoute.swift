@@ -59,6 +59,8 @@ extension Build.Platform {
                 return other == .tvOS
             case .watchOS:
                 return other == .watchOS
+            case .visionOS:
+                return other == .visionOS
             case .linux:
                 return other == .linux
         }

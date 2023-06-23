@@ -116,8 +116,10 @@ extension Badge {
                                 return .init(left: 2, right: "Linux")
                             case .tvOS:
                                 return .init(left: 3, right: "tvOS")
+                            case .visionOS:
+                                return .init(left: 4, right: "visionOS")
                             case .watchOS:
-                                return .init(left: 4, right: "watchOS")
+                                return .init(left: 5, right: "watchOS")
                         }
                     }
                 )

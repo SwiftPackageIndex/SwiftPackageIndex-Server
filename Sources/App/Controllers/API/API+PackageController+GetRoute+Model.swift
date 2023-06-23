@@ -237,6 +237,7 @@ extension API.PackageController.GetRoute.Model {
         case linux
         case macOS
         case tvOS
+        case visionOS
         case watchOS
 
         static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }

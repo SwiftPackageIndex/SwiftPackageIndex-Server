@@ -22,6 +22,7 @@ extension Build {
         case macosSpm           = "macos-spm"
         case macosXcodebuild    = "macos-xcodebuild"
         case tvOS               = "tvos"
+        case visionOS           = "visionos"
         case watchOS            = "watchos"
 
         var name: String {
@@ -36,6 +37,8 @@ extension Build {
                     return "tvOS"
                 case .watchOS:
                     return "watchOS"
+                case .visionOS:
+                    return "visionOS"
                 case .linux:
                     return "Linux"
             }
@@ -53,6 +56,8 @@ extension Build {
                     return "tvOS"
                 case .watchOS:
                     return "watchOS"
+                case .visionOS:
+                    return "visionOS"
                 case .linux:
                     return "Linux"
             }
@@ -69,7 +74,7 @@ extension Build {
         /// - Parameter spiManifestPlatform: SPIManifest platform
         private init(_ spiManifestPlatform: SPIManifest.Platform) {
             switch spiManifestPlatform {
-                case .ios:
+                case .iOS:
                     self = .iOS
                 case .linux:
                     self = .linux
@@ -77,9 +82,11 @@ extension Build {
                     self = .macosSpm
                 case .macosXcodebuild:
                     self = .macosXcodebuild
-                case .tvos:
+                case .tvOS:
                     self = .tvOS
-                case .watchos:
+                case .visionOS:
+                    self = .visionOS
+                case .watchOS:
                     self = .watchOS
             }
         }
