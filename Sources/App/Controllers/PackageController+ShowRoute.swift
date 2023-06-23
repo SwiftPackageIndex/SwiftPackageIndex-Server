@@ -51,13 +51,13 @@ extension Array where Element == PackageController.BuildsRoute.BuildInfo {
 extension Build.Platform {
     func isCompatible(with other: API.PackageController.GetRoute.Model.PlatformCompatibility) -> Bool {
         switch self {
-            case .ios:
+            case .iOS:
                 return other == .ios
             case .macosSpm, .macosXcodebuild:
                 return other == .macos
-            case .tvos:
+            case .tvOS:
                 return other == .tvos
-            case .watchos:
+            case .watchOS:
                 return other == .watchos
             case .linux:
                 return other == .linux

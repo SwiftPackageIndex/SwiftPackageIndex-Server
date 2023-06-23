@@ -60,8 +60,8 @@ class PackageController_BuildsRoute_BuildInfoTests: AppTestCase {
     }
 
     func test_Platform_isCompatible() throws {
-        XCTAssertTrue(Build.Platform.ios.isCompatible(with: .ios))
-        XCTAssertFalse(Build.Platform.ios.isCompatible(with: .macos))
+        XCTAssertTrue(Build.Platform.iOS.isCompatible(with: .ios))
+        XCTAssertFalse(Build.Platform.iOS.isCompatible(with: .macos))
 
         XCTAssertTrue(Build.Platform.macosSpm.isCompatible(with: .macos))
         XCTAssertTrue(Build.Platform.macosXcodebuild.isCompatible(with: .macos))
@@ -71,5 +71,5 @@ class PackageController_BuildsRoute_BuildInfoTests: AppTestCase {
 
 
 private func mkBuildInfo(_ status: Build.Status) -> PackageController.BuildsRoute.BuildInfo {
-    .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v1, platform: .ios, status: status)
+    .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v1, platform: .iOS, status: status)
 }

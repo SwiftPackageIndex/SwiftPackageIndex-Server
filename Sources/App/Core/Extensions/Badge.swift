@@ -108,15 +108,15 @@ extension Badge {
                 platforms
                     .map { p -> Pair<Int, String> in
                         switch p {
-                            case .ios:
+                            case .iOS:
                                 return .init(left: 0, right: "iOS")
                             case .macosSpm, .macosXcodebuild:
                                 return .init(left: 1, right: "macOS")
                             case .linux:
                                 return .init(left: 2, right: "Linux")
-                            case .tvos:
+                            case .tvOS:
                                 return .init(left: 3, right: "tvOS")
-                            case .watchos:
+                            case .watchOS:
                                 return .init(left: 4, right: "watchOS")
                         }
                     }

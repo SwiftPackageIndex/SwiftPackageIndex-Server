@@ -70,13 +70,13 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let stable: [BuildInfo] = [
-            .init(id: id, swiftVersion: .v3, platform: .ios, status: .ok, docStatus: .ok),
+            .init(id: id, swiftVersion: .v3, platform: .iOS, status: .ok, docStatus: .ok),
             .init(id: id, swiftVersion: .v2, platform: .macosXcodebuild, status: .ok, docStatus: nil),
-            .init(id: id, swiftVersion: .v1, platform: .tvos, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v1, platform: .tvOS, status: .ok, docStatus: nil),
         ]
         let latest: [BuildInfo] = [
             .init(id: id, swiftVersion: .v2, platform: .macosSpm, status: .failed, docStatus: nil),
-            .init(id: id, swiftVersion: .v1, platform: .tvos, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v1, platform: .tvOS, status: .ok, docStatus: nil),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
                                           ownerName: "Foo",
@@ -94,11 +94,11 @@ class BuildIndexModelTests: AppTestCase {
         // validate
         XCTAssertEqual(matrix.values.keys.count, 24)
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v3, platform: .ios)]?.map(\.column.label),
+            matrix.values[.init(swiftVersion: .v3, platform: .iOS)]?.map(\.column.label),
             ["1.2.3", "2.0.0-b1", "main"]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v3, platform: .ios)]?.map(\.value?.status),
+            matrix.values[.init(swiftVersion: .v3, platform: .iOS)]?.map(\.value?.status),
             .some([.ok, nil, nil])
         )
         XCTAssertEqual(
@@ -111,7 +111,7 @@ class BuildIndexModelTests: AppTestCase {
             [nil, nil, .failed]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v1, platform: .tvos)]?.map(\.value?.status),
+            matrix.values[.init(swiftVersion: .v1, platform: .tvOS)]?.map(\.value?.status),
             [.ok, nil, .ok]
         )
     }
@@ -121,13 +121,13 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let stable: [BuildInfo] = [
-            .init(id: id, swiftVersion: .v3, platform: .ios, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v3, platform: .iOS, status: .ok, docStatus: nil),
             .init(id: id, swiftVersion: .v2, platform: .macosXcodebuild, status: .ok, docStatus: nil),
-            .init(id: id, swiftVersion: .v1, platform: .tvos, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v1, platform: .tvOS, status: .ok, docStatus: nil),
         ]
         let latest: [BuildInfo] = [
             .init(id: id, swiftVersion: .v2, platform: .macosSpm, status: .failed, docStatus: nil),
-            .init(id: id, swiftVersion: .v1, platform: .tvos, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v1, platform: .tvOS, status: .ok, docStatus: nil),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
                                           ownerName: "Foo",
@@ -144,11 +144,11 @@ class BuildIndexModelTests: AppTestCase {
         // validate
         XCTAssertEqual(matrix.values.keys.count, 24)
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v3, platform: .ios)]?.map(\.column.label),
+            matrix.values[.init(swiftVersion: .v3, platform: .iOS)]?.map(\.column.label),
             ["1.2.3", "main"]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v3, platform: .ios)]?.map(\.value?.status),
+            matrix.values[.init(swiftVersion: .v3, platform: .iOS)]?.map(\.value?.status),
             [.ok, nil]
         )
         XCTAssertEqual(
@@ -162,7 +162,7 @@ class BuildIndexModelTests: AppTestCase {
             [nil, .failed]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v1, platform: .tvos)]?.map(\.value?.status),
+            matrix.values[.init(swiftVersion: .v1, platform: .tvOS)]?.map(\.value?.status),
             [.ok, .ok]
         )
     }
@@ -186,7 +186,7 @@ class BuildIndexModelTests: AppTestCase {
     func test_BuildItem() throws {
         // setup
         let id = UUID()
-        let bi = BuildItem(index: .init(swiftVersion: .v3, platform: .ios),
+        let bi = BuildItem(index: .init(swiftVersion: .v3, platform: .iOS),
                            values: [.init("1.2.3", .release, id, .ok, docStatus: nil),
                                     .init("2.0.0-b1", .preRelease),
                                     .init("develop", .defaultBranch, id, .failed, docStatus: nil)])
@@ -219,7 +219,7 @@ class BuildIndexModelTests: AppTestCase {
     func test_BuildItem_generatedDocs() throws {
         // setup
         let id = UUID()
-        let bi = BuildItem(index: .init(swiftVersion: .v3, platform: .ios),
+        let bi = BuildItem(index: .init(swiftVersion: .v3, platform: .iOS),
                            values: [ .init("main", .defaultBranch, id, .ok, docStatus: .ok) ])
 
         // MUT

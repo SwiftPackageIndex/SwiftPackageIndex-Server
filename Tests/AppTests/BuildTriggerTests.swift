@@ -22,7 +22,7 @@ import XCTest
 class BuildTriggerTests: AppTestCase {
 
     func test_BuildTriggerInfo_emptyPair() throws {
-        XCTAssertNotNil(BuildTriggerInfo(versionId: .id0, pairs: Set([BuildPair(.ios, .v1)])))
+        XCTAssertNotNil(BuildTriggerInfo(versionId: .id0, pairs: Set([BuildPair(.iOS, .v1)])))
         XCTAssertNil(BuildTriggerInfo(versionId: .id0, pairs: []))
     }
 
@@ -188,9 +188,9 @@ class BuildTriggerTests: AppTestCase {
          // i.e. ignoring patch version
          let allExceptFirst = Array(BuildPair.all.dropFirst())
          // just assert what the first one actually is so we test the right thing
-         XCTAssertEqual(BuildPair.all.first, .init(.ios, .v1))
+         XCTAssertEqual(BuildPair.all.first, .init(.iOS, .v1))
          // substitute in build with a different patch version
-        let existing = allExceptFirst + [.init(.ios, .v1.incrementingPatchVersion())]
+        let existing = allExceptFirst + [.init(.iOS, .v1.incrementingPatchVersion())]
 
          // MUT & validate x.y.1 is matched as an existing x.y build
          XCTAssertEqual(missingPairs(existing: existing), Set())
@@ -257,7 +257,7 @@ class BuildTriggerTests: AppTestCase {
             try await v.save(on: app.db)
         }
         let triggers = [BuildTriggerInfo(versionId: versionId,
-                                         pairs: [BuildPair(.ios, .v1)])!]
+                                         pairs: [BuildPair(.iOS, .v1)])!]
 
         // MUT
         try await triggerBuildsUnchecked(on: app.db,
@@ -569,7 +569,7 @@ class BuildTriggerTests: AppTestCase {
         try await p.save(on: app.db)
         let v = try Version(id: versionId, package: p, latest: nil, reference: .branch("main"))
         try await v.save(on: app.db)
-        try await Build(id: UUID(), version: v, platform: .ios, status: .triggered, swiftVersion: .v2)
+        try await Build(id: UUID(), version: v, platform: .iOS, status: .triggered, swiftVersion: .v2)
             .save(on: app.db)
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
 
@@ -852,15 +852,15 @@ class BuildTriggerTests: AppTestCase {
         do {  // v1 builds
             // old triggered build (delete)
             try await Build(id: deleteId1,
-                      version: v1, platform: .ios, status: .triggered, swiftVersion: .v2)
+                      version: v1, platform: .iOS, status: .triggered, swiftVersion: .v2)
                 .save(on: app.db)
             // new triggered build (keep)
             try await Build(id: keepBuildId1,
-                      version: v1, platform: .ios, status: .triggered, swiftVersion: .v3)
+                      version: v1, platform: .iOS, status: .triggered, swiftVersion: .v3)
                 .save(on: app.db)
             // old non-triggered build (keep)
             try await Build(id: keepBuildId2,
-                      version: v1, platform: .ios, status: .ok, swiftVersion: .v1)
+                      version: v1, platform: .iOS, status: .ok, swiftVersion: .v1)
                 .save(on: app.db)
 
             // make old builds "old" by resetting "created_at"
@@ -873,15 +873,15 @@ class BuildTriggerTests: AppTestCase {
         do {  // v2 builds (should all be deleted)
             // old triggered build
             try await Build(id: UUID(),
-                      version: v2, platform: .ios, status: .triggered, swiftVersion: .v2)
+                      version: v2, platform: .iOS, status: .triggered, swiftVersion: .v2)
                 .save(on: app.db)
             // new triggered build
             try await Build(id: UUID(),
-                      version: v2, platform: .ios, status: .triggered, swiftVersion: .v3)
+                      version: v2, platform: .iOS, status: .triggered, swiftVersion: .v3)
                 .save(on: app.db)
             // old non-triggered build
             try await Build(id: UUID(),
-                      version: v2, platform: .ios, status: .ok, swiftVersion: .v1)
+                      version: v2, platform: .iOS, status: .ok, swiftVersion: .v1)
                 .save(on: app.db)
         }
 
@@ -907,7 +907,7 @@ class BuildTriggerTests: AppTestCase {
         try await p.save(on: app.db)
         let v1 = try Version(package: p, latest: .defaultBranch)
         try await v1.save(on: app.db)
-        try await Build(version: v1, platform: .ios, status: .triggered, swiftVersion: .v2)
+        try await Build(version: v1, platform: .iOS, status: .triggered, swiftVersion: .v2)
             .save(on: app.db)
 
         let db = try XCTUnwrap(app.db as? SQLDatabase)
@@ -933,7 +933,7 @@ class BuildTriggerTests: AppTestCase {
         let buildId = UUID()
         try await Build(id: buildId,
                         version: v,
-                        platform: .ios,
+                        platform: .iOS,
                         status: .timeout,
                         swiftVersion: .v1).save(on: app.db)
 
@@ -970,7 +970,7 @@ class BuildTriggerTests: AppTestCase {
         let buildId = UUID()
         try await Build(id: buildId,
                         version: v,
-                        platform: .ios,
+                        platform: .iOS,
                         status: .infrastructureError,
                         swiftVersion: .v1).save(on: app.db)
 
@@ -1002,18 +1002,18 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_BuildPair_Equatable() throws {
-        XCTAssertEqual(BuildPair(.ios, .init(5, 3, 0)),
-                       BuildPair(.ios, .init(5, 3, 3)))
-        XCTAssertFalse(BuildPair(.ios, .init(5, 3, 0))
-                       == BuildPair(.ios, .init(5, 4, 0)))
-        XCTAssertFalse(BuildPair(.ios, .init(5, 3, 0))
-                       == BuildPair(.tvos, .init(5, 3, 0)))
+        XCTAssertEqual(BuildPair(.iOS, .init(5, 3, 0)),
+                       BuildPair(.iOS, .init(5, 3, 3)))
+        XCTAssertFalse(BuildPair(.iOS, .init(5, 3, 0))
+                       == BuildPair(.iOS, .init(5, 4, 0)))
+        XCTAssertFalse(BuildPair(.iOS, .init(5, 3, 0))
+                       == BuildPair(.tvOS, .init(5, 3, 0)))
     }
 
     func test_BuildPair_Hashable() throws {
-        let set = Set([BuildPair(.ios, .init(5, 3, 0))])
-        XCTAssertTrue(set.contains(BuildPair(.ios, .init(5, 3, 3))))
-        XCTAssertFalse(set.contains(BuildPair(.ios, .init(5, 4, 0))))
+        let set = Set([BuildPair(.iOS, .init(5, 3, 0))])
+        XCTAssertTrue(set.contains(BuildPair(.iOS, .init(5, 3, 3))))
+        XCTAssertFalse(set.contains(BuildPair(.iOS, .init(5, 4, 0))))
         XCTAssertFalse(set.contains(BuildPair(.macosSpm, .init(5, 3, 0))))
     }
 
@@ -1036,7 +1036,7 @@ class BuildTriggerTests: AppTestCase {
             try await v.save(on: app.db)
             try await Build(id: UUID(),
                             version: v,
-                            platform: .ios,
+                            platform: .iOS,
                             status: .ok,
                             swiftVersion: .v1.incrementingPatchVersion()).save(on: app.db)
         }
@@ -1046,7 +1046,7 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(res.count, 1)
         let triggerInfo = try XCTUnwrap(res.first)
         XCTAssertEqual(triggerInfo.pairs.count, 23)
-        XCTAssertTrue(!triggerInfo.pairs.contains(.init(.ios, .v1)))
+        XCTAssertTrue(!triggerInfo.pairs.contains(.init(.iOS, .v1)))
     }
 
 }

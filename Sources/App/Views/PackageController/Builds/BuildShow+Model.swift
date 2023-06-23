@@ -90,10 +90,10 @@ extension BuildShow {
 
         var xcodeVersion: String? {
             switch (platform, swiftVersion) {
-                case (.ios, let swift),
+                case (.iOS, let swift),
                      (.macosXcodebuild, let swift),
-                     (.tvos, let swift),
-                     (.watchos, let swift):
+                     (.tvOS, let swift),
+                     (.watchOS, let swift):
                     return swift.xcodeVersion
                 case (.macosSpm, _), (.linux, _):
                     return nil

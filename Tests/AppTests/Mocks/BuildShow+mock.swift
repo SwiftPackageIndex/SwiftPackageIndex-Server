@@ -22,7 +22,7 @@ extension BuildShow.Model {
         .init(
             buildInfo: .init(buildCommand: "env DEVELOPER_DIR=\"/Applications/Xcode_11_6.app\" xcrun xcodebuild -IDEClonedSourcePackagesDirPathOverride=\"$PWD/.derivedData\" build -scheme \"Bar\" -destination \"generic/platform=ios\"",
                              logs: buildLog,
-                             platform: .ios,
+                             platform: .iOS,
                              status: .ok,
                              swiftVersion: .v2,
                              runner: .mac0),

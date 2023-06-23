@@ -12,26 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import SPIManifest
+
+
 extension Build {
     enum Platform: String, Codable, Equatable, CaseIterable {
-        case ios
+        case iOS                = "ios"
+        case linux
         case macosSpm           = "macos-spm"
         case macosXcodebuild    = "macos-xcodebuild"
-        case tvos
-        case watchos
-        case linux
+        case tvOS               = "tvos"
+        case watchOS            = "watchos"
 
         var name: String {
             switch self {
-                case .ios:
+                case .iOS:
                     return "iOS"
                 case .macosSpm:
                     return "macOS - SPM"
                 case .macosXcodebuild:
                     return "macOS - xcodebuild"
-                case .tvos:
+                case .tvOS:
                     return "tvOS"
-                case .watchos:
+                case .watchOS:
                     return "watchOS"
                 case .linux:
                     return "Linux"
@@ -40,15 +43,15 @@ extension Build {
 
         var displayName: String {
             switch self {
-                case .ios:
+                case .iOS:
                     return "iOS"
                 case .macosSpm:
                     return "macOS (SPM)"
                 case .macosXcodebuild:
                     return "macOS (Xcode)"
-                case .tvos:
+                case .tvOS:
                     return "tvOS"
-                case .watchos:
+                case .watchOS:
                     return "watchOS"
                 case .linux:
                     return "Linux"
@@ -57,7 +60,28 @@ extension Build {
 
         /// Currently supported build platforms
         static var allActive: [Self] {
-            [.ios, .macosSpm, .macosXcodebuild, .linux, .tvos, .watchos]
+            [.iOS, .macosSpm, .macosXcodebuild, .linux, .tvOS, .watchOS]
+        }
+
+
+        /// This initialiser is unused. Its only purpose is to ensure that platform changes in the upstream package `SPIManifest.Platform`
+        /// automatically trigger corresponding changes in `Build.Platform` to keep the two enums aligned.
+        /// - Parameter spiManifestPlatform: SPIManifest platform
+        private init(_ spiManifestPlatform: SPIManifest.Platform) {
+            switch spiManifestPlatform {
+                case .ios:
+                    self = .iOS
+                case .linux:
+                    self = .linux
+                case .macosSpm:
+                    self = .macosSpm
+                case .macosXcodebuild:
+                    self = .macosXcodebuild
+                case .tvos:
+                    self = .tvOS
+                case .watchos:
+                    self = .watchOS
+            }
         }
     }
 }

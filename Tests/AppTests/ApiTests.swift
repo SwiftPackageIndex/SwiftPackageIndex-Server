@@ -184,7 +184,7 @@ class ApiTests: AppTestCase {
         do {  // MUT - add another build to test Package.platformCompatibility
             let dto: API.PostBuildReportDTO = .init(
                 buildId: .id1,
-                platform: .ios,
+                platform: .iOS,
                 resolvedDependencies: [.init(packageName: "foo",
                                              repositoryURL: "http://foo/bar")],
                 status: .ok,
@@ -301,7 +301,7 @@ class ApiTests: AppTestCase {
         let p = try await savePackageAsync(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
-        let b = try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v3)
+        let b = try Build(version: v, platform: .iOS, status: .ok, swiftVersion: .v3)
         try await b.save(on: app.db)
         let buildId = try b.requireID()
 
@@ -457,7 +457,7 @@ class ApiTests: AppTestCase {
         let p = try await savePackageAsync(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
-        let b = try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v3)
+        let b = try Build(version: v, platform: .iOS, status: .ok, swiftVersion: .v3)
         try await b.save(on: app.db)
         let buildId = try b.requireID()
         let dto: API.PostDocReportDTO = .init(status: .ok)
@@ -528,7 +528,7 @@ class ApiTests: AppTestCase {
                                  license: .mit,
                                  name: "decoy",
                                  owner: "owner").save(on: app.db)
-            try await Build(version: v, platform: .ios, status: .ok, swiftVersion: .v1)
+            try await Build(version: v, platform: .iOS, status: .ok, swiftVersion: .v1)
                 .save(on: app.db)
         }
 
