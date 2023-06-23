@@ -57,15 +57,15 @@ struct PlatformSearchFilter: SearchFilterProtocol {
 private extension Package.PlatformCompatibility {
     var displayDescription: String {
         switch self {
-            case .ios:
+            case .iOS:
                 return "iOS"
-            case .macos:
+            case .macOS:
                 return "macOS"
             case .linux:
                 return "Linux"
-            case .tvos:
+            case .tvOS:
                 return "tvOS"
-            case .watchos:
+            case .watchOS:
                 return "watchOS"
         }
     }
