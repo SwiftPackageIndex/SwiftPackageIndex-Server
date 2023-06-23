@@ -64,7 +64,7 @@ extension Build {
         }
 
 
-        /// This initialiser is unused. It's only purpose is to ensure that platform changes in the upstream package `SPIManifest.Platform`
+        /// This initialiser is unused. Its only purpose is to ensure that platform changes in the upstream package `SPIManifest.Platform`
         /// automatically trigger corresponding changes in `Build.Platform` to keep the two enums aligned.
         /// - Parameter spiManifestPlatform: SPIManifest platform
         private init(_ spiManifestPlatform: SPIManifest.Platform) {
