@@ -52,7 +52,7 @@ extension Build.Platform {
     func isCompatible(with other: API.PackageController.GetRoute.Model.PlatformCompatibility) -> Bool {
         switch self {
             case .iOS:
-                return other == .ios
+                return other == .iOS
             case .macosSpm, .macosXcodebuild:
                 return other == .macos
             case .tvOS:

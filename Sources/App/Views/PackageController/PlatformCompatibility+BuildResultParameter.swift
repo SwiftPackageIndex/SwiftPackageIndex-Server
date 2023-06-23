@@ -16,7 +16,7 @@
 extension API.PackageController.GetRoute.Model.PlatformCompatibility: BuildResultPresentable {
     var displayName: String {
         switch self {
-            case .ios:
+            case .iOS:
                 return "iOS"
             case .linux:
                 return "Linux"
@@ -31,7 +31,7 @@ extension API.PackageController.GetRoute.Model.PlatformCompatibility: BuildResul
 
     var longDisplayName: String {
         switch self {
-            case .macos, .ios, .linux, .tvos, .watchos:
+            case .macos, .iOS, .linux, .tvos, .watchos:
                 return displayName
         }
     }

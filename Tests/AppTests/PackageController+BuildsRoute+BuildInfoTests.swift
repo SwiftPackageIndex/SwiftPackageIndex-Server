@@ -60,7 +60,7 @@ class PackageController_BuildsRoute_BuildInfoTests: AppTestCase {
     }
 
     func test_Platform_isCompatible() throws {
-        XCTAssertTrue(Build.Platform.iOS.isCompatible(with: .ios))
+        XCTAssertTrue(Build.Platform.iOS.isCompatible(with: .iOS))
         XCTAssertFalse(Build.Platform.iOS.isCompatible(with: .macos))
 
         XCTAssertTrue(Build.Platform.macosSpm.isCompatible(with: .macos))
