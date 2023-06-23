@@ -61,7 +61,7 @@ extension API.PackageController {
             let ios = builds.filter { $0.platform.isCompatible(with: .iOS) }
             let linux = builds.filter { $0.platform.isCompatible(with: .linux) }
             let macos = builds.filter { $0.platform.isCompatible(with: .macOS) }
-            let tvos = builds.filter { $0.platform.isCompatible(with: .tvos) }
+            let tvos = builds.filter { $0.platform.isCompatible(with: .tvOS) }
             let watchos = builds.filter { $0.platform.isCompatible(with: .watchos) }
             // ... and report the status
             return

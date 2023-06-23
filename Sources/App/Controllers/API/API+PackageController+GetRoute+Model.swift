@@ -236,7 +236,7 @@ extension API.PackageController.GetRoute.Model {
         case iOS
         case linux
         case macOS
-        case tvos
+        case tvOS
         case watchos
 
         static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
@@ -281,7 +281,7 @@ extension API.PackageController.GetRoute.Model {
             self.ios = .init(parameter: .iOS, status: iosStatus)
             self.linux = .init(parameter: .linux, status: linuxStatus)
             self.macos = .init(parameter: .macOS, status: macosStatus)
-            self.tvos = .init(parameter: .tvos, status: tvosStatus)
+            self.tvos = .init(parameter: .tvOS, status: tvosStatus)
             self.watchos = .init(parameter: .watchos, status: watchosStatus)
         }
 
