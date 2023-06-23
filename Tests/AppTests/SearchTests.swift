@@ -1073,7 +1073,7 @@ class SearchTests: AppTestCase {
 
     func test_authorSearchFilter() throws {
         // Setup
-        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p1 = Package(url: "1", platformCompatibility: [.iOS])
         let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
@@ -1114,7 +1114,7 @@ class SearchTests: AppTestCase {
 
     func test_keywordSearchFilter() throws {
         // Setup
-        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p1 = Package(url: "1", platformCompatibility: [.iOS])
         let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
@@ -1157,7 +1157,7 @@ class SearchTests: AppTestCase {
 
     func test_lastActivitySearchFilter() throws {
         // Setup
-        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p1 = Package(url: "1", platformCompatibility: [.iOS])
         let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
@@ -1200,7 +1200,7 @@ class SearchTests: AppTestCase {
 
     func test_lastCommitSearchFilter() throws {
         // Setup
-        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p1 = Package(url: "1", platformCompatibility: [.iOS])
         let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
@@ -1243,7 +1243,7 @@ class SearchTests: AppTestCase {
 
     func test_licenseSearchFilter() throws {
         // Setup
-        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p1 = Package(url: "1", platformCompatibility: [.iOS])
         let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
@@ -1294,7 +1294,7 @@ class SearchTests: AppTestCase {
 
     func test_platformSearchFilter() throws {
         // Setup
-        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p1 = Package(url: "1", platformCompatibility: [.iOS])
         let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
@@ -1335,7 +1335,7 @@ class SearchTests: AppTestCase {
 
     func test_starsSearchFilter() throws {
         // Setup
-        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p1 = Package(url: "1", platformCompatibility: [.iOS])
         let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
@@ -1430,7 +1430,7 @@ class SearchTests: AppTestCase {
     func test_SearchFilter_error() throws {
         // Test error handling in case of an invalid filter
         // Setup
-        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p1 = Package(url: "1", platformCompatibility: [.iOS])
         let p2 = Package(url: "2", platformCompatibility: [.macOS])
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,

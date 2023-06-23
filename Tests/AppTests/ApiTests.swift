@@ -202,7 +202,7 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(Set(builds.map(\.id)), Set([.id0, .id1]))
                     // additional ios build ok -> package is also ios compatible
                     let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
-                    XCTAssertEqual(p.platformCompatibility, [.ios, .macOS])
+                    XCTAssertEqual(p.platformCompatibility, [.iOS, .macOS])
                 })
         }
 

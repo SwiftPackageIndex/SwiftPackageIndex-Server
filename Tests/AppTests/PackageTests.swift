@@ -103,7 +103,7 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(p.status, .ok)
         XCTAssertEqual(p.createdAt, Date(timeIntervalSince1970: 0))
         XCTAssertEqual(p.updatedAt, Date(timeIntervalSince1970: 1))
-        XCTAssertEqual(p.platformCompatibility, [.ios, .macOS])
+        XCTAssertEqual(p.platformCompatibility, [.iOS, .macOS])
     }
 
     func test_unique_url() throws {
@@ -358,10 +358,10 @@ final class PackageTests: AppTestCase {
     }
 
     func test_save_platformCompatibility_save() throws {
-        try Package(url: "1".url, platformCompatibility: [.ios, .macOS, .ios])
+        try Package(url: "1".url, platformCompatibility: [.iOS, .macOS, .iOS])
             .save(on: app.db).wait()
         let readBack = try XCTUnwrap(Package.query(on: app.db).first().wait())
-        XCTAssertEqual(readBack.platformCompatibility, [.ios, .macOS])
+        XCTAssertEqual(readBack.platformCompatibility, [.iOS, .macOS])
     }
 
     func test_save_platformCompatibility_read_nonunique() throws {
@@ -374,7 +374,7 @@ final class PackageTests: AppTestCase {
             "update packages set platform_compatibility = '{ios,ios}'"
         ).run().wait()
         let readBack = try XCTUnwrap(Package.query(on: app.db).first().wait())
-        XCTAssertEqual(readBack.platformCompatibility, [.ios])
+        XCTAssertEqual(readBack.platformCompatibility, [.iOS])
     }
 
     func test_updatePlatformCompatibility() async throws {
@@ -412,7 +412,7 @@ final class PackageTests: AppTestCase {
         let p1 = try XCTUnwrap(
             Package.query(on: app.db).filter(by: "1".url).first().wait()
         )
-        XCTAssertEqual(p1.platformCompatibility, [.ios, .macOS, .linux, .tvos, .watchos])
+        XCTAssertEqual(p1.platformCompatibility, [.iOS, .macOS, .linux, .tvos, .watchos])
         let p2 = try XCTUnwrap(
             Package.query(on: app.db).filter(by: "2".url).first().wait()
         )
