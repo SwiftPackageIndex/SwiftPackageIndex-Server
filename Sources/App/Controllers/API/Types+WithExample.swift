@@ -65,7 +65,7 @@ extension SearchFilter.ViewModel: WithExample {
 extension SignificantBuilds: WithExample {
     static var example: Self {
         .init(buildInfo: [
-            (.v5_8, Build.Platform.ios, .ok)
+            (.v5_8, Build.Platform.iOS, .ok)
         ])
     }
 }
@@ -236,7 +236,7 @@ extension API.PackageController.GetRoute.Model: WithExample {
 extension API.PostBuildReportDTO: WithExample {
     static var example: Self {
         .init(buildId: .example,
-              platform: .ios,
+              platform: .iOS,
               status: .ok,
               swiftVersion: .v5_8)
     }

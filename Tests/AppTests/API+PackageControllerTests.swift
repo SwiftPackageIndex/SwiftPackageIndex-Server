@@ -179,8 +179,8 @@ class API_PackageControllerTests: AppTestCase {
 
         let builds = [
             // ios - failed
-            makeBuild(.failed, .ios, .v2),
-            makeBuild(.failed, .ios, .v1),
+            makeBuild(.failed, .iOS, .v2),
+            makeBuild(.failed, .iOS, .v1),
             // macos - failed
             makeBuild(.failed, .macosSpm, .v2),
             makeBuild(.failed, .macosXcodebuild, .v1),
@@ -189,7 +189,7 @@ class API_PackageControllerTests: AppTestCase {
             makeBuild(.failed, .watchos, .v2),
             makeBuild(.ok, .watchos, .v1),
             // unrelated build
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v2, platform: .ios, status: .ok),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v2, platform: .iOS, status: .ok),
         ]
 
         // MUT
@@ -215,16 +215,16 @@ class API_PackageControllerTests: AppTestCase {
 
         let builds = [
             // v1 - failed
-            makeBuild(.failed, .ios, .v1),
+            makeBuild(.failed, .iOS, .v1),
             makeBuild(.failed, .macosXcodebuild, .v1),
             // v2 - no data - unknown
             // v3 - ok
             makeBuild(.ok, .macosXcodebuild, .v3),
             // v4 - ok
-            makeBuild(.failed, .ios, .v4),
+            makeBuild(.failed, .iOS, .v4),
             makeBuild(.ok, .macosXcodebuild, .v4),
             // unrelated release version build (we're testing defaultBranch builds)
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v4, platform: .ios, status: .failed),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v4, platform: .iOS, status: .failed),
         ]
 
         // MUT
@@ -267,7 +267,7 @@ class API_PackageControllerTests: AppTestCase {
         // setup
         let builds: [PackageController.BuildsRoute.BuildInfo] = [
             .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v3, platform: .macosSpm, status: .ok),
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v2, platform: .ios, status: .failed)
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v2, platform: .iOS, status: .failed)
         ]
 
         // MUT
@@ -296,10 +296,10 @@ class API_PackageControllerTests: AppTestCase {
                                  name: "bar",
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
-                (.branch("main"), .ios, .v3, .ok),
+                (.branch("main"), .iOS, .v3, .ok),
                 (.branch("main"), .tvos, .v2, .failed),
-                (.tag(1, 2, 3), .ios, .v3, .ok),
-                (.tag(2, 0, 0, "b1"), .ios, .v3, .failed),
+                (.tag(1, 2, 3), .iOS, .v3, .ok),
+                (.tag(2, 0, 0, "b1"), .iOS, .v3, .failed),
             ]
             for b in builds {
                 let v = try App.Version(package: pkg,
@@ -318,7 +318,7 @@ class API_PackageControllerTests: AppTestCase {
                                  name: "bar2",
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
-                (.branch("develop"), .ios, .v1, .ok),
+                (.branch("develop"), .iOS, .v1, .ok),
             ]
             for b in builds {
                 let v = try App.Version(package: pkg,

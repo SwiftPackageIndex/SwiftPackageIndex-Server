@@ -45,7 +45,7 @@ class PackageCollectionControllerTests: AppTestCase {
             try Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
                 .save(on: app.db).wait()
             try Build(version: v,
-                      platform: .ios,
+                      platform: .iOS,
                       status: .ok,
                       swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
             try Target(version: v, name: "t1").save(on: app.db).wait()

@@ -14,16 +14,16 @@
 
 extension Build {
     enum Platform: String, Codable, Equatable, CaseIterable {
-        case ios
+        case iOS                = "ios"
+        case linux
         case macosSpm           = "macos-spm"
         case macosXcodebuild    = "macos-xcodebuild"
         case tvos
         case watchos
-        case linux
 
         var name: String {
             switch self {
-                case .ios:
+                case .iOS:
                     return "iOS"
                 case .macosSpm:
                     return "macOS - SPM"
@@ -40,7 +40,7 @@ extension Build {
 
         var displayName: String {
             switch self {
-                case .ios:
+                case .iOS:
                     return "iOS"
                 case .macosSpm:
                     return "macOS (SPM)"
@@ -57,7 +57,7 @@ extension Build {
 
         /// Currently supported build platforms
         static var allActive: [Self] {
-            [.ios, .macosSpm, .macosXcodebuild, .linux, .tvos, .watchos]
+            [.iOS, .macosSpm, .macosXcodebuild, .linux, .tvos, .watchos]
         }
     }
 }

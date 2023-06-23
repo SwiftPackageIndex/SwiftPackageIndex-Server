@@ -25,7 +25,7 @@ class BadgeTests: AppTestCase {
     }
 
     func test_badgeMessage_platforms() throws {
-        XCTAssertEqual(Badge.badgeMessage(platforms: [.linux, .ios, .macosXcodebuild, .macosSpm]),
+        XCTAssertEqual(Badge.badgeMessage(platforms: [.linux, .iOS, .macosXcodebuild, .macosSpm]),
                        "iOS | macOS | Linux")
         XCTAssertNil(Badge.badgeMessage(platforms: []))
     }

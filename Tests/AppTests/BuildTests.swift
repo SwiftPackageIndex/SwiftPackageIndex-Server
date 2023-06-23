@@ -57,7 +57,7 @@ class BuildTests: AppTestCase {
         let v = try Version(package: pkg)
         try v.save(on: app.db).wait()
         let b = try Build(version: v,
-                          platform: .ios,
+                          platform: .iOS,
                           status: .ok,
                           swiftVersion: .init(5, 2, 0))
         try b.save(on: app.db).wait()
@@ -207,7 +207,7 @@ class BuildTests: AppTestCase {
 
         do {  // MUT - negative test: platform mismatch
             let b = try await Build.query(on: app.db,
-                                          platform: .ios,
+                                          platform: .iOS,
                                           swiftVersion: .init(5, 2, 4),
                                           versionId: v1.requireID())
             XCTAssertNil(b)
@@ -240,9 +240,9 @@ class BuildTests: AppTestCase {
         let vid2 = UUID()
         let v2 = try Version(id: vid2, package: pkg)
         try v2.save(on: app.db).wait()
-        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v2)
+        try Build(version: v1, platform: .iOS, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
-        try Build(version: v2, platform: .ios, status: .ok, swiftVersion: .v2)
+        try Build(version: v2, platform: .iOS, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
 
         // MUT
@@ -269,7 +269,7 @@ class BuildTests: AppTestCase {
         try v2.save(on: app.db).wait()
 
         // save different platforms as an easy way to check the correct one has been deleted
-        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v2)
+        try Build(version: v1, platform: .iOS, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
         try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
@@ -281,7 +281,7 @@ class BuildTests: AppTestCase {
         // validate
         XCTAssertEqual(count, 1)
         let builds = try Build.query(on: app.db).all().wait()
-        XCTAssertEqual(builds.map(\.platform), [.ios])
+        XCTAssertEqual(builds.map(\.platform), [.iOS])
     }
 
     func test_delete_by_packageId_versionKind() throws {
@@ -301,7 +301,7 @@ class BuildTests: AppTestCase {
         try v3.save(on: app.db).wait()
 
         // save different platforms as an easy way to check the correct one has been deleted
-        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v2)
+        try Build(version: v1, platform: .iOS, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
         try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
@@ -314,7 +314,7 @@ class BuildTests: AppTestCase {
         // validate
         XCTAssertEqual(count, 1)
         let builds = try Build.query(on: app.db).all().wait()
-        XCTAssertEqual(builds.map(\.platform), [.ios, .tvos])
+        XCTAssertEqual(builds.map(\.platform), [.iOS, .tvos])
     }
 
     func test_pending_to_triggered_migration() throws {
@@ -324,7 +324,7 @@ class BuildTests: AppTestCase {
         let v = try Version(package: p, latest: .defaultBranch)
         try v.save(on: app.db).wait()
         // save a Build with status 'triggered'
-        try Build(id: .id0, version: v, platform: .ios, status: .triggered, swiftVersion: .v1).save(on: app.db).wait()
+        try Build(id: .id0, version: v, platform: .iOS, status: .triggered, swiftVersion: .v1).save(on: app.db).wait()
 
         // MUT - test roll back to previous schema, migrating 'triggered' -> 'pending'
         try UpdateBuildPendingToTriggered().revert(on: app.db).wait()

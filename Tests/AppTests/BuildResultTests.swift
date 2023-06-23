@@ -26,7 +26,7 @@ class BuildResultTests: AppTestCase {
         try repo.save(on: app.db).wait()
         let version = try Version(package: pkg)
         try version.save(on: app.db).wait()
-        let build = try Build(version: version, platform: .ios, status: .ok, swiftVersion: .init(5, 3, 0))
+        let build = try Build(version: version, platform: .iOS, status: .ok, swiftVersion: .init(5, 3, 0))
         try build.save(on: app.db).wait()
 
         // MUT

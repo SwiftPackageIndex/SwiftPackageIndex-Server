@@ -47,7 +47,7 @@ class PackageCollectionTests: AppTestCase {
                 try v.save(on: app.db).wait()
                 try Build(version: v,
                           buildCommand: "build \(index)",
-                          platform: .ios,
+                          platform: .iOS,
                           status: .ok,
                           swiftVersion: .v1)
                     .save(on: app.db).wait()
@@ -95,7 +95,7 @@ class PackageCollectionTests: AppTestCase {
                 try v.save(on: app.db).wait()
                 try Build(version: v,
                           buildCommand: "build \(index)",
-                          platform: .ios,
+                          platform: .iOS,
                           status: .ok,
                           swiftVersion: .v1)
                     .save(on: app.db).wait()
@@ -142,7 +142,7 @@ class PackageCollectionTests: AppTestCase {
                 try v.save(on: app.db).wait()
                 try Build(version: v,
                           buildCommand: "build \(index)",
-                          platform: .ios,
+                          platform: .iOS,
                           status: .ok,
                           swiftVersion: .v1)
                     .save(on: app.db).wait()
@@ -201,7 +201,7 @@ class PackageCollectionTests: AppTestCase {
             }
             do {
                 try Build(version: v,
-                          platform: .ios,
+                          platform: .iOS,
                           status: .ok,
                           swiftVersion: .v1).save(on: app.db).wait()
                 try Build(version: v,
@@ -431,7 +431,7 @@ class PackageCollectionTests: AppTestCase {
             try Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
                 .save(on: app.db).wait()
             try Build(version: v,
-                      platform: .ios,
+                      platform: .iOS,
                       status: .ok,
                       swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
             try Target(version: v, name: "t1").save(on: app.db).wait()
@@ -697,7 +697,7 @@ class PackageCollectionTests: AppTestCase {
             try Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
                 .save(on: app.db).wait()
             try Build(version: v,
-                      platform: .ios,
+                      platform: .iOS,
                       status: .ok,
                       swiftVersion: .v2).save(on: app.db).wait()
             try Target(version: v, name: "t1").save(on: app.db).wait()
@@ -737,9 +737,9 @@ class PackageCollectionTests: AppTestCase {
         }
         // ...then append three successful ones
         builds.append(contentsOf: [
-            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v3),
-            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v2),
-            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v1),
+            .init(versionId: .id0, platform: .iOS, status: .ok, swiftVersion: .v3),
+            .init(versionId: .id0, platform: .iOS, status: .ok, swiftVersion: .v2),
+            .init(versionId: .id0, platform: .iOS, status: .ok, swiftVersion: .v1),
         ])
         // MUT
         let res = [PackageCollection.Compatibility].init(builds: builds)
