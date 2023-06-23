@@ -335,6 +335,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                       linuxStatus: .incompatible,
                                                                       macOSStatus: .unknown,
                                                                       tvOSStatus: .unknown,
+                                                                      visionOSStatus: .unknown,
                                                                       watchOSStatus: .compatible))),
                                  beta: nil,
                                  latest: nil)
@@ -346,12 +347,14 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                       linuxStatus: .incompatible,
                                                                       macOSStatus: .unknown,
                                                                       tvOSStatus: .unknown,
+                                                                      visionOSStatus: .unknown,
                                                                       watchOSStatus: .compatible))),
                                  beta: .some(.init(referenceName: "1.2.3-b1",
                                                    results: Results(iOSStatus: .compatible,
                                                                     linuxStatus: .incompatible,
                                                                     macOSStatus: .compatible,
                                                                     tvOSStatus: .unknown,
+                                                                    visionOSStatus: .unknown,
                                                                     watchOSStatus: .unknown))),
                                  latest: nil)
             XCTAssertEqual(info?.compatibility, [.iOS, .macOS, .watchOS])

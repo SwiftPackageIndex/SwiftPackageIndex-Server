@@ -208,6 +208,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                 linuxStatus: .compatible,
                 macOSStatus: .compatible,
                 tvOSStatus: .compatible,
+                visionOSStatus: .compatible,
                 watchOSStatus: .compatible
             )
             model.platformBuildInfo = .init(

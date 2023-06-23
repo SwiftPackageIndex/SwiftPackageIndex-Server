@@ -192,6 +192,7 @@ extension API.PackageController.GetRoute.Model: WithExample {
                                    linuxStatus: .unknown,
                                    macOSStatus: .unknown,
                                    tvOSStatus: .unknown,
+                                   visionOSStatus: .unknown,
                                    watchOSStatus: .unknown)),
                 beta: .init(
                     referenceName: "2.0.0-b1",
@@ -199,6 +200,7 @@ extension API.PackageController.GetRoute.Model: WithExample {
                                    linuxStatus: .unknown,
                                    macOSStatus: .unknown,
                                    tvOSStatus: .unknown,
+                                   visionOSStatus: .unknown,
                                    watchOSStatus: .unknown)),
                 latest: .init(
                     referenceName: "main",
@@ -206,6 +208,7 @@ extension API.PackageController.GetRoute.Model: WithExample {
                                    linuxStatus: .compatible,
                                    macOSStatus: .compatible,
                                    tvOSStatus: .compatible,
+                                   visionOSStatus: .compatible,
                                    watchOSStatus: .compatible))
               ),
               history: .example,
