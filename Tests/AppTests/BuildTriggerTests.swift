@@ -1007,7 +1007,7 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertFalse(BuildPair(.iOS, .init(5, 3, 0))
                        == BuildPair(.iOS, .init(5, 4, 0)))
         XCTAssertFalse(BuildPair(.iOS, .init(5, 3, 0))
-                       == BuildPair(.tvos, .init(5, 3, 0)))
+                       == BuildPair(.tvOS, .init(5, 3, 0)))
     }
 
     func test_BuildPair_Hashable() throws {

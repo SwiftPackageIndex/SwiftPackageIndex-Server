@@ -305,7 +305,7 @@ class BuildTests: AppTestCase {
             .save(on: app.db).wait()
         try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
-        try Build(version: v3, platform: .tvos, status: .ok, swiftVersion: .v2)
+        try Build(version: v3, platform: .tvOS, status: .ok, swiftVersion: .v2)
             .save(on: app.db).wait()
 
         // MUT
@@ -314,7 +314,7 @@ class BuildTests: AppTestCase {
         // validate
         XCTAssertEqual(count, 1)
         let builds = try Build.query(on: app.db).all().wait()
-        XCTAssertEqual(builds.map(\.platform), [.iOS, .tvos])
+        XCTAssertEqual(builds.map(\.platform), [.iOS, .tvOS])
     }
 
     func test_pending_to_triggered_migration() throws {

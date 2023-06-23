@@ -72,11 +72,11 @@ class BuildIndexModelTests: AppTestCase {
         let stable: [BuildInfo] = [
             .init(id: id, swiftVersion: .v3, platform: .iOS, status: .ok, docStatus: .ok),
             .init(id: id, swiftVersion: .v2, platform: .macosXcodebuild, status: .ok, docStatus: nil),
-            .init(id: id, swiftVersion: .v1, platform: .tvos, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v1, platform: .tvOS, status: .ok, docStatus: nil),
         ]
         let latest: [BuildInfo] = [
             .init(id: id, swiftVersion: .v2, platform: .macosSpm, status: .failed, docStatus: nil),
-            .init(id: id, swiftVersion: .v1, platform: .tvos, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v1, platform: .tvOS, status: .ok, docStatus: nil),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
                                           ownerName: "Foo",
@@ -111,7 +111,7 @@ class BuildIndexModelTests: AppTestCase {
             [nil, nil, .failed]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v1, platform: .tvos)]?.map(\.value?.status),
+            matrix.values[.init(swiftVersion: .v1, platform: .tvOS)]?.map(\.value?.status),
             [.ok, nil, .ok]
         )
     }
@@ -123,11 +123,11 @@ class BuildIndexModelTests: AppTestCase {
         let stable: [BuildInfo] = [
             .init(id: id, swiftVersion: .v3, platform: .iOS, status: .ok, docStatus: nil),
             .init(id: id, swiftVersion: .v2, platform: .macosXcodebuild, status: .ok, docStatus: nil),
-            .init(id: id, swiftVersion: .v1, platform: .tvos, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v1, platform: .tvOS, status: .ok, docStatus: nil),
         ]
         let latest: [BuildInfo] = [
             .init(id: id, swiftVersion: .v2, platform: .macosSpm, status: .failed, docStatus: nil),
-            .init(id: id, swiftVersion: .v1, platform: .tvos, status: .ok, docStatus: nil),
+            .init(id: id, swiftVersion: .v1, platform: .tvOS, status: .ok, docStatus: nil),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
                                           ownerName: "Foo",
@@ -162,7 +162,7 @@ class BuildIndexModelTests: AppTestCase {
             [nil, .failed]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v1, platform: .tvos)]?.map(\.value?.status),
+            matrix.values[.init(swiftVersion: .v1, platform: .tvOS)]?.map(\.value?.status),
             [.ok, .ok]
         )
     }

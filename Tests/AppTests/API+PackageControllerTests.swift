@@ -243,7 +243,7 @@ class API_PackageControllerTests: AppTestCase {
         // setup
         let builds: [PackageController.BuildsRoute.BuildInfo] = [
             .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v2, platform: .macosSpm, status: .ok),
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v2, platform: .tvos, status: .failed)
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v2, platform: .tvOS, status: .failed)
         ]
 
         // MUT
@@ -297,7 +297,7 @@ class API_PackageControllerTests: AppTestCase {
                                  owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
                 (.branch("main"), .iOS, .v3, .ok),
-                (.branch("main"), .tvos, .v2, .failed),
+                (.branch("main"), .tvOS, .v2, .failed),
                 (.tag(1, 2, 3), .iOS, .v3, .ok),
                 (.tag(2, 0, 0, "b1"), .iOS, .v3, .failed),
             ]

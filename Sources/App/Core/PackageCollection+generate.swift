@@ -290,7 +290,7 @@ extension Array where Element == PackageCollection.Compatibility {
 private extension PackageCollection.Platform {
     init(platform: Build.Platform) {
         switch platform {
-            case .iOS, .tvos, .watchos, .linux:
+            case .iOS, .tvOS, .watchos, .linux:
                 self.init(name: platform.rawValue)
             case .macosSpm, .macosXcodebuild:
                 self.init(name: "macos")

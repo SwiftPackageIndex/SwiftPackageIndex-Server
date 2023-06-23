@@ -92,7 +92,7 @@ extension BuildShow {
             switch (platform, swiftVersion) {
                 case (.iOS, let swift),
                      (.macosXcodebuild, let swift),
-                     (.tvos, let swift),
+                     (.tvOS, let swift),
                      (.watchos, let swift):
                     return swift.xcodeVersion
                 case (.macosSpm, _), (.linux, _):
