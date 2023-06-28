@@ -291,7 +291,7 @@ extension API.PackageController.GetRoute.Model {
 
         var all: [BuildResult<PlatformCompatibility>] {
             // The order of this array defines the order of the platforms in the build matrix on the package page.
-            let all: [BuildResult<PlatformCompatibility>] = [iOS, macOS, watchOS, visionOS, tvOS, linux]
+            let all: [BuildResult<PlatformCompatibility>] = [iOS, macOS, visionOS, watchOS, tvOS, linux]
             assert(all.count == PlatformCompatibility.allCases.count, "mismatch in GetRoute.Model.PlatformCompatibility and all platform results count")
             return all
         }
