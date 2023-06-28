@@ -148,7 +148,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SPIManifest.git",
       "state" : {
-        "revision" : "3d75eeb182469088d48f4b02319db362a649d533"
+        "revision" : "6c0d08244cacbe92e1d719f65d3b6856acba5267",
+        "version" : "1.0.0"
       }
     },
     {

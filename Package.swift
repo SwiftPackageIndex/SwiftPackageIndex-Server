@@ -27,7 +27,7 @@ let package = Package(
         .package(url: "https://github.com/daveverwer/Plot.git", branch: "sitemapindex"),
         .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
         .package(url: "https://github.com/SwiftPackageIndex/DependencyResolution", from: "1.0.0"),
-        .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", revision: "3d75eeb182469088d48f4b02319db362a649d533"),
+        .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "1.0.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
         .package(url: "https://github.com/SwiftPackageIndex/ShellOut.git",
                  revision: "db112a2104eae7fa8412ea80210d0f60b89a377e"),
