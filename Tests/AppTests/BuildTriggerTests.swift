@@ -996,9 +996,39 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(buildCount, 0)
     }
 
-    func test_BuildPair_counts() throws {
+    func test_BuildPair_all() throws {
         // Sanity checks for critical counts used in canadidate selection
         XCTAssertEqual(BuildPair.all.count, 28)
+        XCTAssertEqual(BuildPair.all, [
+            .init(.iOS, .v5_6),
+            .init(.iOS, .v5_7),
+            .init(.iOS, .v5_8),
+            .init(.iOS, .v5_9),
+            .init(.macosSpm, .v5_6),
+            .init(.macosSpm, .v5_7),
+            .init(.macosSpm, .v5_8),
+            .init(.macosSpm, .v5_9),
+            .init(.macosXcodebuild, .v5_6),
+            .init(.macosXcodebuild, .v5_7),
+            .init(.macosXcodebuild, .v5_8),
+            .init(.macosXcodebuild, .v5_9),
+            .init(.linux, .v5_6),
+            .init(.linux, .v5_7),
+            .init(.linux, .v5_8),
+            .init(.linux, .v5_9),
+            .init(.tvOS, .v5_6),
+            .init(.tvOS, .v5_7),
+            .init(.tvOS, .v5_8),
+            .init(.tvOS, .v5_9),
+            .init(.visionOS, .v5_6),
+            .init(.visionOS, .v5_7),
+            .init(.visionOS, .v5_8),
+            .init(.visionOS, .v5_9),
+            .init(.watchOS, .v5_6),
+            .init(.watchOS, .v5_7),
+            .init(.watchOS, .v5_8),
+            .init(.watchOS, .v5_9),
+        ])
         XCTAssertEqual(BuildPair.allExceptLatestSwiftVersion.count, 21)
     }
 
