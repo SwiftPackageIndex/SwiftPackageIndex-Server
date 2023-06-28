@@ -46,11 +46,22 @@ extension API {
                 do {
                     try await build.save(on: req.db)
                 } catch let error as PSQLError where error.isUniqueViolation {
-                    // We could simply let this propagate but this is easier to diagnose
-                    // (although it should technically be impossible to actually occur
-                    // since we are explicitly querying for the record to update rather
-                    // than saving without checking for conflict first.)
-                    return .conflict
+                    // Try and delete the conflicting build
+                    let conflictingBuild = try await Build.query(on: req.db,
+                                                                 platform: dto.platform,
+                                                                 swiftVersion: dto.swiftVersion,
+                                                                 versionId: version.requireID())
+                    try await conflictingBuild?.delete(on: req.db)
+                    // Try saving one more time
+                    do {
+                        try await build.save(on: req.db)
+                    } catch let error as PSQLError where error.isUniqueViolation {
+                        // We could simply let this propagate but this is easier to diagnose
+                        // (although it should technically be impossible to actually occur
+                        // since we are explicitly querying for the record to update rather
+                        // than saving without checking for conflict first.)
+                        return .conflict
+                    }
                 }
 
                 AppMetrics.apiBuildReportTotal?.inc(1, .buildReportLabels(build))
