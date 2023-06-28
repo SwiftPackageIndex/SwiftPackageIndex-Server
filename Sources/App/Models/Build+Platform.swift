@@ -65,7 +65,9 @@ extension Build {
 
         /// Currently supported build platforms
         static var allActive: [Self] {
-            let active: [Self] = [.iOS, .macosSpm, .macosXcodebuild, .linux, .tvOS, .visionOS, .watchOS]
+            // The order of this array defines the platform order on the BuildIndex page. Keep this aliged with the
+            // order in GetRoute.Model.PlatformResults (which is the order in the build matrix on the PackageShow page).
+            let active: [Self] = [.iOS, .macosSpm, .macosXcodebuild, .visionOS, .tvOS, .watchOS, .linux]
             assert(active.count == allCases.count, "mismatch in Build.Platform and active platform count")
             return active
         }
