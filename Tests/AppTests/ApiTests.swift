@@ -136,7 +136,6 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(b.runnerId, "some-runner")
                     XCTAssertEqual(b.status, .failed)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
-                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
                     let v = try Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound)).wait()
                     XCTAssertEqual(v.resolvedDependencies, [])
                     // build failed, hence no package platform compatibility yet
@@ -170,7 +169,6 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(b.platform, .macosXcodebuild)
                     XCTAssertEqual(b.status, .ok)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
-                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
                     let v = try Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound)).wait()
                     XCTAssertEqual(v.resolvedDependencies,
                                    [.init(packageName: "foo",
@@ -206,6 +204,45 @@ class ApiTests: AppTestCase {
                 })
         }
 
+    }
+
+    func test_post_buildReport_conflict() async throws {
+        // Test behaviour when reporting back with a different build id for the same build pair. This would not
+        // happen in normal behaviour but it _is_ something we rely on when running the builder tests. They
+        // trigger builds not via trigger commands that prepares a build record before triggering, resolving
+        // potential conflicts ahead of time. Instead the build is simply triggered and reported back with a
+        // configured build id.
+        // setup
+        Current.builderToken = { "secr3t" }
+        let p = try await savePackageAsync(on: app.db, "1")
+        let v = try Version(package: p, latest: .defaultBranch)
+        try await v.save(on: app.db)
+        let versionId = try v.requireID()
+        try await Build(id: .id0, version: v, platform: .iOS, status: .failed, swiftVersion: .latest).save(on: app.db)
+
+        let dto: API.PostBuildReportDTO = .init(
+            buildId: .id1,
+            platform: .iOS,
+            status: .ok,
+            swiftVersion: .latest
+        )
+        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+        try app.test(
+            .POST,
+            "api/versions/\(versionId)/build-report",
+            headers: .bearerApplicationJSON("secr3t"),
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .noContent)
+                let builds = try Build.query(on: app.db).all().wait()
+                XCTAssertEqual(builds.count, 1)
+                let b = try builds.first.unwrap()
+                XCTAssertEqual(b.id, .id1)
+                XCTAssertEqual(b.platform, .iOS)
+                XCTAssertEqual(b.status, .ok)
+                XCTAssertEqual(b.swiftVersion, .latest)
+            })
     }
 
     func test_post_buildReport_infrastructureError() throws {
