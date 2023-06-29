@@ -63,6 +63,7 @@ extension API.PackageController.GetRoute.Model {
                                    linuxStatus: .unknown,
                                    macOSStatus: .unknown,
                                    tvOSStatus: .unknown,
+                                   visionOSStatus: .unknown,
                                    watchOSStatus: .unknown)),
                 beta: NamedBuildResults(
                     referenceName: "6.0.0-b1",
@@ -70,6 +71,7 @@ extension API.PackageController.GetRoute.Model {
                                    linuxStatus: .compatible,
                                    macOSStatus: .compatible,
                                    tvOSStatus: .compatible,
+                                   visionOSStatus: .compatible,
                                    watchOSStatus: .unknown)),
                 latest: NamedBuildResults(
                     referenceName: "main",
@@ -77,6 +79,7 @@ extension API.PackageController.GetRoute.Model {
                                    linuxStatus: .compatible,
                                    macOSStatus: .compatible,
                                    tvOSStatus: .compatible,
+                                   visionOSStatus: .compatible,
                                    watchOSStatus: .compatible))),
             history: .init(
                 createdAt: Calendar.current.date(byAdding: .day,

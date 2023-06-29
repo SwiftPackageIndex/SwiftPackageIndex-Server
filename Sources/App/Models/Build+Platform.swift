@@ -22,6 +22,7 @@ extension Build {
         case macosSpm           = "macos-spm"
         case macosXcodebuild    = "macos-xcodebuild"
         case tvOS               = "tvos"
+        case visionOS           = "visionos"
         case watchOS            = "watchos"
 
         var name: String {
@@ -36,6 +37,8 @@ extension Build {
                     return "tvOS"
                 case .watchOS:
                     return "watchOS"
+                case .visionOS:
+                    return "visionOS"
                 case .linux:
                     return "Linux"
             }
@@ -53,6 +56,8 @@ extension Build {
                     return "tvOS"
                 case .watchOS:
                     return "watchOS"
+                case .visionOS:
+                    return "visionOS"
                 case .linux:
                     return "Linux"
             }
@@ -60,7 +65,11 @@ extension Build {
 
         /// Currently supported build platforms
         static var allActive: [Self] {
-            [.iOS, .macosSpm, .macosXcodebuild, .linux, .tvOS, .watchOS]
+            // The order of this array defines the platform order on the BuildIndex page. Keep this aliged with the
+            // order in GetRoute.Model.PlatformResults (which is the order in the build matrix on the PackageShow page).
+            let active: [Self] = [.iOS, .macosSpm, .macosXcodebuild, .visionOS, .tvOS, .watchOS, .linux]
+            assert(active.count == allCases.count, "mismatch in Build.Platform and active platform count")
+            return active
         }
 
 
@@ -69,7 +78,7 @@ extension Build {
         /// - Parameter spiManifestPlatform: SPIManifest platform
         private init(_ spiManifestPlatform: SPIManifest.Platform) {
             switch spiManifestPlatform {
-                case .ios:
+                case .iOS:
                     self = .iOS
                 case .linux:
                     self = .linux
@@ -77,9 +86,11 @@ extension Build {
                     self = .macosSpm
                 case .macosXcodebuild:
                     self = .macosXcodebuild
-                case .tvos:
+                case .tvOS:
                     self = .tvOS
-                case .watchos:
+                case .visionOS:
+                    self = .visionOS
+                case .watchOS:
                     self = .watchOS
             }
         }

@@ -385,8 +385,14 @@ struct BuildPair {
     }
 
     static let all = Build.Platform.allActive.flatMap { platform in
-        SwiftVersion.allActive.map { swiftVersion in
-            BuildPair(platform, swiftVersion)
+        SwiftVersion.allActive.compactMap { swiftVersion in
+            switch platform {
+                case .iOS, .linux, .macosSpm, .macosXcodebuild, .tvOS, .watchOS:
+                    return BuildPair(platform, swiftVersion)
+                case .visionOS:
+                    // visionOS is only available for Swift versions 5.9+
+                    return swiftVersion >= .v5_9 ? BuildPair(platform, swiftVersion) : nil
+            }
         }
     }
 

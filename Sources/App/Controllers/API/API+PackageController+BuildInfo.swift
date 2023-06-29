@@ -58,19 +58,21 @@ extension API.PackageController {
                 return nil
             }
             // For each reported platform pick appropriate build matches
-            let ios = builds.filter { $0.platform.isCompatible(with: .iOS) }
+            let iOS = builds.filter { $0.platform.isCompatible(with: .iOS) }
             let linux = builds.filter { $0.platform.isCompatible(with: .linux) }
-            let macos = builds.filter { $0.platform.isCompatible(with: .macOS) }
-            let tvos = builds.filter { $0.platform.isCompatible(with: .tvOS) }
-            let watchos = builds.filter { $0.platform.isCompatible(with: .watchOS) }
+            let macOS = builds.filter { $0.platform.isCompatible(with: .macOS) }
+            let tvOS = builds.filter { $0.platform.isCompatible(with: .tvOS) }
+            let visionOS = builds.filter { $0.platform.isCompatible(with: .visionOS) }
+            let watchOS = builds.filter { $0.platform.isCompatible(with: .watchOS) }
             // ... and report the status
             return
                 .init(referenceName: referenceName,
-                      results: .init(iOSStatus: ios.buildStatus,
+                      results: .init(iOSStatus: iOS.buildStatus,
                                      linuxStatus: linux.buildStatus,
-                                     macOSStatus: macos.buildStatus,
-                                     tvOSStatus: tvos.buildStatus,
-                                     watchOSStatus: watchos.buildStatus)
+                                     macOSStatus: macOS.buildStatus,
+                                     tvOSStatus: tvOS.buildStatus,
+                                     visionOSStatus: visionOS.buildStatus,
+                                     watchOSStatus: watchOS.buildStatus)
                 )
         }
 

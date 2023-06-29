@@ -232,11 +232,12 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
-    enum PlatformCompatibility: String, Codable, Comparable {
+    enum PlatformCompatibility: String, Codable, Comparable, CaseIterable {
         case iOS
         case linux
         case macOS
         case tvOS
+        case visionOS
         case watchOS
 
         static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
@@ -271,21 +272,31 @@ extension API.PackageController.GetRoute.Model {
         var linux: BuildResult<PlatformCompatibility>
         var macOS: BuildResult<PlatformCompatibility>
         var tvOS: BuildResult<PlatformCompatibility>
+        var visionOS: BuildResult<PlatformCompatibility>
         var watchOS: BuildResult<PlatformCompatibility>
 
         init(iOSStatus: BuildStatus,
              linuxStatus: BuildStatus,
              macOSStatus: BuildStatus,
              tvOSStatus: BuildStatus,
+             visionOSStatus: BuildStatus,
              watchOSStatus: BuildStatus) {
             self.iOS = .init(parameter: .iOS, status: iOSStatus)
             self.linux = .init(parameter: .linux, status: linuxStatus)
             self.macOS = .init(parameter: .macOS, status: macOSStatus)
             self.tvOS = .init(parameter: .tvOS, status: tvOSStatus)
+            self.visionOS = .init(parameter: .visionOS, status: visionOSStatus)
             self.watchOS = .init(parameter: .watchOS, status: watchOSStatus)
         }
 
-        var all: [BuildResult<PlatformCompatibility>] { [iOS, macOS, watchOS, tvOS, linux] }
+        var all: [BuildResult<PlatformCompatibility>] {
+            // The order of this array defines the order of the platforms in the build matrix on the package page.
+            // Keep this aligned with the order in Build.Platform.allActive (which is the order of the builds on
+            // the BuildIndex page).
+            let all: [BuildResult<PlatformCompatibility>] = [iOS, macOS, visionOS, watchOS, tvOS, linux]
+            assert(all.count == PlatformCompatibility.allCases.count, "mismatch in GetRoute.Model.PlatformCompatibility and all platform results count")
+            return all
+        }
     }
 
     enum BuildStatus: String, Codable, Equatable {

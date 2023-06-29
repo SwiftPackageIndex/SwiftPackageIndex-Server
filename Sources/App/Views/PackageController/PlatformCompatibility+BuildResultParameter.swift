@@ -24,6 +24,8 @@ extension API.PackageController.GetRoute.Model.PlatformCompatibility: BuildResul
                 return "macOS"
             case .tvOS:
                 return "tvOS"
+            case .visionOS:
+                return "visionOS"
             case .watchOS:
                 return "watchOS"
         }
@@ -31,7 +33,7 @@ extension API.PackageController.GetRoute.Model.PlatformCompatibility: BuildResul
 
     var longDisplayName: String {
         switch self {
-            case .macOS, .iOS, .linux, .tvOS, .watchOS:
+            case .macOS, .iOS, .linux, .tvOS, .visionOS, .watchOS:
                 return displayName
         }
     }

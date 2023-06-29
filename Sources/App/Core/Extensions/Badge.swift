@@ -103,6 +103,8 @@ extension Badge {
 
     static func badgeMessage(platforms: [Build.Platform]) -> String? {
         guard !platforms.isEmpty else { return nil }
+        // The order of this array defines the platform order on the build badges. Keep this aligned
+        // with the order in Build.Platform.
         return Array(
             Set(
                 platforms
@@ -112,12 +114,14 @@ extension Badge {
                                 return .init(left: 0, right: "iOS")
                             case .macosSpm, .macosXcodebuild:
                                 return .init(left: 1, right: "macOS")
-                            case .linux:
-                                return .init(left: 2, right: "Linux")
+                            case .visionOS:
+                                return .init(left: 2, right: "visionOS")
                             case .tvOS:
                                 return .init(left: 3, right: "tvOS")
                             case .watchOS:
                                 return .init(left: 4, right: "watchOS")
+                            case .linux:
+                                return .init(left: 5, right: "Linux")
                         }
                     }
                 )
