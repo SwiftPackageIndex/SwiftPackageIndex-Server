@@ -284,6 +284,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 064 - add type to targets
         app.migrations.add(UpdateTargetAddType())
     }
+    do { // Migration 065 - add linkable_paths_count to doc_uploads
+        app.migrations.add(UpdateDocUploadAddLinkablePathsCount())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

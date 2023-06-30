@@ -345,6 +345,7 @@ class ApiTests: AppTestCase {
         do {  // MUT - initial insert
             let dto: API.PostDocReportDTO = .init(error: "too large",
                                                   fileCount: 70_000,
+                                                  linkablePathsCount: 137,
                                                   logUrl: "log url",
                                                   mbSize: 900,
                                                   status: .skipped)
@@ -362,6 +363,7 @@ class ApiTests: AppTestCase {
                     let d = try docUploads.first.unwrap()
                     XCTAssertEqual(d.error, "too large")
                     XCTAssertEqual(d.fileCount, 70_000)
+                    XCTAssertEqual(d.linkablePathsCount, 137)
                     XCTAssertEqual(d.logUrl, "log url")
                     XCTAssertEqual(d.mbSize, 900)
                     XCTAssertEqual(d.status, .skipped)

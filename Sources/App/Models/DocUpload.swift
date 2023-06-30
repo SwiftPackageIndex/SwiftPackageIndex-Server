@@ -46,6 +46,9 @@ final class DocUpload: Model, Content {
     @Field(key: "file_count")
     var fileCount: Int?
 
+    @Field(key: "linkable_paths_count")
+    var linkablePathsCount: Int?
+
     @Field(key: "log_url")
     var logUrl: String?
 
@@ -61,6 +64,7 @@ final class DocUpload: Model, Content {
         id: Id? = nil,
         error: String? = nil,
         fileCount: Int? = nil,
+        linkablePathsCount: Int? = nil,
         logUrl: String? = nil,
         mbSize: Int? = nil,
         status: Status
@@ -68,6 +72,7 @@ final class DocUpload: Model, Content {
         self.id = id
         self.error = error
         self.fileCount = fileCount
+        self.linkablePathsCount = linkablePathsCount
         self.logUrl = logUrl
         self.mbSize = mbSize
         self.status = status

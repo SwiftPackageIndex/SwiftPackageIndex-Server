@@ -136,6 +136,7 @@ private extension DocUpload {
             id: .init(),
             error: dto.error,
             fileCount: dto.fileCount,
+            linkablePathsCount: dto.linkablePathsCount,
             logUrl: dto.logUrl,
             mbSize: dto.mbSize,
             status: dto.status
