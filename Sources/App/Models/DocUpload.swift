@@ -46,6 +46,9 @@ final class DocUpload: Model, Content {
     @Field(key: "file_count")
     var fileCount: Int?
 
+    @Field(key: "linkable_paths_count")
+    var linkablePathsCount: Int?
+
     @Field(key: "log_url")
     var logUrl: String?
 
