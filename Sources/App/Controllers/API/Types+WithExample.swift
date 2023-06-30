@@ -250,6 +250,7 @@ extension API.PostDocReportDTO: WithExample {
         .init(docArchives: [.init(name: "linkedlist", title: "LinkedList")],
               error: nil,
               fileCount: 2639,
+              linkablePathsCount: 137,
               logUrl: "https://us-east-2.console.aws.amazon.com/logs/123456678",
               mbSize: 23,
               status: .ok)
