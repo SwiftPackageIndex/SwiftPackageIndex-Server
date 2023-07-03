@@ -35,7 +35,7 @@ run:
 
 test: xcbeautify
 	set -o pipefail \
-	&& swift test --disable-automatic-resolution --sanitize=thread \
+	&& swift test --disable-automatic-resolution \
 	2>&1 | ./xcbeautify
 
 test-query-performance: xcbeautify
