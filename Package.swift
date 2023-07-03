@@ -16,7 +16,6 @@
 
 import PackageDescription
 
-#warning("see FIXME below")
 let package = Package(
     name: "SPI-Server",
     platforms: [
@@ -35,8 +34,7 @@ let package = Package(
         .package(url: "https://github.com/dankinsoid/VaporToOpenAPI.git", from: "4.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "0.10.0"),
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0"),
-        // FIXME: change this back to a release once Xcode 15 support has been tagged
-        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", revision: "dc46eeb3928a75390651fac6c1ef7f93ad59a73b"),
+        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.11.1"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
