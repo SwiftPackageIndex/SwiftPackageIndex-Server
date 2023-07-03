@@ -20,7 +20,7 @@ import Fluent
 import ShellOut
 
 
-#if swift(>=5.8.1)
+#if swift(>=5.9.1)
 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2324
 #warning("Try to re-enable TSAN")
 #endif
