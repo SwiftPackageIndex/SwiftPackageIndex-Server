@@ -287,6 +287,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 065 - add linkable_paths_count to doc_uploads
         app.migrations.add(UpdateDocUploadAddLinkablePathsCount())
     }
+    do { // Migration 066 - add virtual macro product type to search view
+        app.migrations.add(UpdateSearchAddMacroProductType())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
