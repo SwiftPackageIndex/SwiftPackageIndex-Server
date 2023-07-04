@@ -1427,6 +1427,58 @@ class SearchTests: AppTestCase {
         }
     }
 
+    func test_productTypeFilter_macro() async throws {
+        // setup
+        do {
+            let p1 = Package.init(id: .id0, url: "1".url)
+            try await p1.save(on: app.db)
+            try await Repository(package: p1,
+                                 defaultBranch: "main",
+                                 name: "1",
+                                 owner: "foo",
+                                 stars: 1,
+                                 summary: "test package").save(on: app.db)
+            let v = try Version(package: p1)
+            try await v.save(on: app.db)
+            try await Target(version: v, name: "t1", type: .regular).save(on: app.db)
+        }
+        do {
+            let p2 = Package.init(id: .id1, url: "2".url)
+            try await p2.save(on: app.db)
+            try await Repository(package: p2,
+                                 defaultBranch: "main",
+                                 name: "2",
+                                 owner: "foo",
+                                 summary: "test package").save(on: app.db)
+            let v = try Version(package: p2)
+            try await v.save(on: app.db)
+            try await Target(version: v, name: "t2", type: .macro).save(on: app.db)
+        }
+        try await Search.refresh(on: app.db).get()
+
+        do {
+            // MUT
+            let res = try await Search.fetch(app.db, ["test", "product:macro"], page: 1, pageSize: 20).get()
+
+            // validate
+            XCTAssertEqual(res.results.count, 1)
+            XCTAssertEqual(
+                res.results.compactMap(\.packageResult?.repositoryName), ["2"]
+            )
+        }
+
+        do {
+            // MUT
+            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20).get()
+
+            // validate
+            XCTAssertEqual(res.results.count, 2)
+            XCTAssertEqual(
+                res.results.compactMap(\.packageResult?.repositoryName), ["1", "2"]
+            )
+        }
+    }
+
     func test_SearchFilter_error() throws {
         // Test error handling in case of an invalid filter
         // Setup

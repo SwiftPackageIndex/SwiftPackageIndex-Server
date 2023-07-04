@@ -65,6 +65,7 @@ extension ProductTypeSearchFilter {
     enum ProductType: String, Codable, CaseIterable {
         case executable
         case library
+        case macro
         case plugin
 
         var displayDescription: String {
@@ -73,6 +74,8 @@ extension ProductTypeSearchFilter {
                     return "Executable"
                 case .library:
                     return "Library"
+                case .macro:
+                    return "Macro"
                 case .plugin:
                     return "Plugin"
             }

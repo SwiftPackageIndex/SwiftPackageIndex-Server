@@ -431,11 +431,29 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(binds(filter.rightHandSide), ["{executable}"])
     }
 
+    func test_productTypeFilter_macro() throws {
+        // Test "virtual" macro product filter
+        let filter = try ProductTypeSearchFilter(expression: .init(operator: .is, value: "macro"))
+        XCTAssertEqual(filter.key, .productType)
+        XCTAssertEqual(filter.predicate, .init(operator: .contains,
+                                               bindableValue: .value("macro"),
+                                               displayValue: "Macro"))
+
+        // test view representation
+        XCTAssertEqual(filter.viewModel.description, "Package products contain a Macro")
+
+        // test sql representation
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""product_types""#)
+        XCTAssertEqual(renderSQL(filter.sqlOperator), "@>")
+        XCTAssertEqual(binds(filter.rightHandSide), ["{macro}"])
+    }
+
     func test_productTypeFilter_spelling() throws {
         let expectedDisplayValues = [
             ProductTypeSearchFilter.ProductType.executable: "Package products contain an Executable",
             ProductTypeSearchFilter.ProductType.plugin: "Package products contain a Plugin",
-            ProductTypeSearchFilter.ProductType.library: "Package products contain a Library"
+            ProductTypeSearchFilter.ProductType.library: "Package products contain a Library",
+            ProductTypeSearchFilter.ProductType.macro: "Package products contain a Macro"
         ]
 
         for type in ProductTypeSearchFilter.ProductType.allCases {

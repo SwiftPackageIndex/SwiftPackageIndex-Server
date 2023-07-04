@@ -124,7 +124,7 @@ class QueryPerformanceTests: XCTestCase {
             return
         }
         let query = db.raw("""
-            -- v10
+            -- v11
             SELECT
               p.id AS package_id,
               p.platform_compatibility,
@@ -139,7 +139,14 @@ class QueryPerformanceTests: XCTestCase {
               r.summary,
               v.package_name,
               array_length(doc_archives, 1) >= 1 AS has_docs,
-              ARRAY(SELECT DISTINCT JSONB_OBJECT_KEYS(type) FROM products WHERE products.version_id = v.id) AS product_types,
+              ARRAY(
+                SELECT DISTINCT JSONB_OBJECT_KEYS(type) FROM products WHERE products.version_id = v.id
+                UNION
+                SELECT * FROM (
+                  SELECT DISTINCT JSONB_OBJECT_KEYS(type) AS "type" FROM targets
+                  WHERE targets.version_id = v.id) AS macro_targets
+                WHERE type = 'macro'
+              ) AS product_types,
               ARRAY(SELECT DISTINCT name FROM products WHERE products.version_id = v.id) AS product_names,
               TO_TSVECTOR(CONCAT_WS(' ', COALESCE(v.package_name, ''), r.name, COALESCE(r.summary, ''), ARRAY_TO_STRING(r.keywords, ' '))) AS tsvector
             FROM packages p
@@ -147,7 +154,7 @@ class QueryPerformanceTests: XCTestCase {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
-        try await assertQueryPerformance(query, expectedCost: 31_300, variation: 500)
+        try await assertQueryPerformance(query, expectedCost: 55_000, variation: 500)
     }
 
 }
