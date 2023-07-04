@@ -87,7 +87,7 @@ class SitemapTests: SnapshotTestCase {
             .query(on: app.db, owner: "owner", repository: "repo0")
         Current.siteURL = { "https://spi.com" }
         Current.fetchDocumentation = { client, url in
-            guard url.path.hasSuffix("/owner/repo0/default/linkable-entities.json") else { throw Abort(.notFound) }
+            guard url.path.hasSuffix("/owner/repo0/default/linkable-paths.json") else { throw Abort(.notFound) }
             return .init(status: .ok,
                          body: .init(string: """
                             [

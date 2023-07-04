@@ -353,8 +353,8 @@ enum PackageController {
                 .map { "\(baseUrl)/\(reference)\($0.path)"  }
         } catch {
             // Errors here should *never* break the site map. Instead, they should return no
-            // linkable entities. The most likely cause of an error here is either a 4xx from
-            // the `awsResponse` (meaning there is no `linkable-entites.json` on the server),
+            // linkable paths. The most likely cause of an error here is either a 4xx from
+            // the `awsResponse` (meaning there is no `linkable-paths.json` on the server),
             // or a JSON decoding error. Both should result in a blank set of URLs.
             return []
         }

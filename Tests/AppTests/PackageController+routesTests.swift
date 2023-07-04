@@ -727,10 +727,10 @@ class PackageController_routesTests: AppTestCase {
         }
 
         // MUT
-        try app.test(.GET, "/owner/package/1.2.3/linkable-entities.json") {
+        try app.test(.GET, "/owner/package/1.2.3/linkable-paths.json") {
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "application/json")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/linkable-entities.json")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/linkable-paths.json")
         }
     }
 
