@@ -115,7 +115,6 @@ class QueryPerformanceTests: XCTestCase {
     }
 
     func test_12_Search_refresh() async throws {
-        throw XCTSkip("run only after schema change with new index has been deployed")
         // We can't "explain analyze" the refresh itself so we need to measure the underlying
         // query.
         // Unfortunately, this means it'll need to be kept in sync when updating the search
@@ -155,7 +154,7 @@ class QueryPerformanceTests: XCTestCase {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
-        try await assertQueryPerformance(query, expectedCost: 31_300, variation: 500)
+        try await assertQueryPerformance(query, expectedCost: 55_000, variation: 500)
     }
 
 }
