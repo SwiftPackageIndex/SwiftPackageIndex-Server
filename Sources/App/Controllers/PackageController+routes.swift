@@ -294,7 +294,7 @@ enum PackageController {
         else { throw Abort(.notFound) }
 
         let packageResult = try await PackageResult.query(on: req.db, owner: owner, repository: repository)
-        let urls = await linkableEntityUrls(client: req.client, packageResult: packageResult)
+        let urls = await linkablePathUrls(client: req.client, packageResult: packageResult)
 
         return try await siteMap(packageResult: packageResult, linkableEntityUrls: urls)
             .encodeResponse(for: req)
@@ -325,7 +325,7 @@ enum PackageController {
         )
     }
 
-    static func linkableEntityUrls(client: Client, packageResult: PackageResult) async -> [String] {
+    static func linkablePathUrls(client: Client, packageResult: PackageResult) async -> [String] {
         guard let canonicalTarget = [packageResult.defaultBranchVersion.model,
                                      packageResult.preReleaseVersion?.model,
                                      packageResult.releaseVersion?.model].canonicalDocumentationTarget(),

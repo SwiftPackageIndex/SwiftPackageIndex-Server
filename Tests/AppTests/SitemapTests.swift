@@ -99,7 +99,7 @@ class SitemapTests: SnapshotTestCase {
         }
 
         // MUT
-        let urls = await PackageController.linkableEntityUrls(client: app.client, packageResult: packageResult)
+        let urls = await PackageController.linkablePathUrls(client: app.client, packageResult: packageResult)
 
         XCTAssertEqual(urls, [
             "https://spi.com/Owner/Repo0/default/documentation/foo/bar/1",
