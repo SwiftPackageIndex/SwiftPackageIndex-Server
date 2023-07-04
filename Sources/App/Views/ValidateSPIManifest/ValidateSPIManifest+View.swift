@@ -66,7 +66,8 @@ extension ValidateSPIManifest {
                                         .name("manifest"),
                                         .autofocus(true),
                                         .rows(15),
-                                        .text(model.manifest)
+                                        .text(model.manifest),
+                                        .attribute(named: "maxlength", value: "\(SPIManifest.Manifest.maxByteSize)")
                                     )
                                 ),
                                 .button(
