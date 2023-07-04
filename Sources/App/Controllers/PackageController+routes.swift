@@ -66,7 +66,7 @@ enum PackageController {
         case img
         case index
         case js
-        case linkableEntities = "linkable-entities.json"
+        case linkablePaths = "linkable-paths.json"
         case themeSettings = "theme-settings.json"
         case tutorials
 
@@ -76,7 +76,7 @@ enum PackageController {
                     return "text/css"
                 case .data, .faviconIco, .faviconSvg, .images, .img, .index:
                     return "application/octet-stream"
-                case .linkableEntities, .themeSettings:
+                case .linkablePaths, .themeSettings:
                     return "application/json"
                 case .documentation, .tutorials:
                     return "text/html; charset=utf-8"
@@ -155,7 +155,7 @@ enum PackageController {
                 // and https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2172
                 // for details.
                 path = catchAll.joined(separator: "/").lowercased()
-            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkableEntities, .themeSettings:
+            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
                 path = catchAll.joined(separator: "/")
         }
 
@@ -178,7 +178,7 @@ enum PackageController {
                     repository: repository
                 )
 
-            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkableEntities, .themeSettings:
+            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
                 return try await awsResponse.encodeResponse(
                     status: .ok,
                     headers: req.headers
@@ -340,7 +340,7 @@ enum PackageController {
 
         do {
             let awsResponse = try await awsResponse(client: client, owner: owner, repository: repository,
-                                                    reference: reference, fragment: .linkableEntities, path: "")
+                                                    reference: reference, fragment: .linkablePaths, path: "")
             guard let body = awsResponse.body else { return [] }
 
             struct LinkableEntity: Decodable {
@@ -507,7 +507,7 @@ extension PackageController {
                 return path.isEmpty
                 ? URI(string: "\(baseURL)/\(fragment)")
                 : URI(string: "\(baseURL)/\(path)/\(fragment)")
-            case .linkableEntities:
+            case .linkablePaths:
                 return URI(string: "\(baseURL)/\(fragment)")
         }
     }
