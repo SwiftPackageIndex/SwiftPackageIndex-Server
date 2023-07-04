@@ -343,14 +343,10 @@ enum PackageController {
                                                     reference: reference, fragment: .linkablePaths, path: "")
             guard let body = awsResponse.body else { return [] }
 
-            struct LinkableEntity: Decodable {
-                var path: String
-            }
-
             let baseUrl = SiteURL.package(.value(owner), .value(repository), .none).absoluteURL()
             return try JSONDecoder()
-                .decode([LinkableEntity].self, from: body)
-                .map { "\(baseUrl)/\(reference)\($0.path)"  }
+                .decode([String].self, from: body)
+                .map { "\(baseUrl)/\(reference)\($0)"  }
         } catch {
             // Errors here should *never* break the site map. Instead, they should return no
             // linkable paths. The most likely cause of an error here is either a 4xx from
