@@ -91,8 +91,8 @@ class SitemapTests: SnapshotTestCase {
             return .init(status: .ok,
                          body: .init(string: """
                             [
-                                { "path": "/documentation/foo/bar/1" },
-                                { "path": "/documentation/foo/bar/2" },
+                                "/documentation/foo/bar/1",
+                                "/documentation/foo/bar/2",
                             ]
                             """)
             )
