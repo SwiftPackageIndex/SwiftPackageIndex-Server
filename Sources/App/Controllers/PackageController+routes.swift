@@ -309,6 +309,7 @@ enum PackageController {
             return SiteMap()
         }
 
+        // See SwiftPackageIndex-Server#2485 for context on the performance implications of this
         let lastmod: Node<SiteMap.URLContext> = packageResult.repository.lastActivityAt.map { .lastmod($0) } ?? .empty
         return SiteMap(
             .url(
