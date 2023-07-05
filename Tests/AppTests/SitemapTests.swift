@@ -87,19 +87,19 @@ class SitemapTests: SnapshotTestCase {
             .query(on: app.db, owner: "owner", repository: "repo0")
         Current.siteURL = { "https://spi.com" }
         Current.fetchDocumentation = { client, url in
-            guard url.path.hasSuffix("/owner/repo0/default/linkable-entities.json") else { throw Abort(.notFound) }
+            guard url.path.hasSuffix("/owner/repo0/default/linkable-paths.json") else { throw Abort(.notFound) }
             return .init(status: .ok,
                          body: .init(string: """
                             [
-                                { "path": "/documentation/foo/bar/1" },
-                                { "path": "/documentation/foo/bar/2" },
+                                "/documentation/foo/bar/1",
+                                "/documentation/foo/bar/2",
                             ]
                             """)
             )
         }
 
         // MUT
-        let urls = await PackageController.linkableEntityUrls(client: app.client, packageResult: packageResult)
+        let urls = await PackageController.linkablePathUrls(client: app.client, packageResult: packageResult)
 
         XCTAssertEqual(urls, [
             "https://spi.com/Owner/Repo0/default/documentation/foo/bar/1",
