@@ -29,8 +29,8 @@ enum ReAnalyzeVersions {
             @Option(name: "before")
             var before: Date?
 
-            @Option(name: "id")
-            var id: UUID?
+            @Option(name: "packageId", short: "p")
+            var packageId: Package.Id?
 
             @Option(name: "limit", short: "l")
             var limit: Int?
@@ -48,7 +48,7 @@ enum ReAnalyzeVersions {
             let db = context.application.db
             let logger = Logger(component: "re-analyze-versions")
 
-            if let id = signature.id {
+            if let id = signature.packageId {
                 logger.info("Re-analyzing versions (id: \(id)) ...")
                 do {
                     try await reAnalyzeVersions(
@@ -57,7 +57,7 @@ enum ReAnalyzeVersions {
                         logger: logger,
                         versionsLastUpdatedBefore: Current.date(),
                         refreshCheckouts: signature.refreshCheckouts,
-                        id: id
+                        packageId: id
                     )
                 } catch {
                     logger.error("\(error.localizedDescription)")
@@ -117,8 +117,8 @@ enum ReAnalyzeVersions {
                                   logger: Logger,
                                   versionsLastUpdatedBefore cutOffDate: Date,
                                   refreshCheckouts: Bool,
-                                  id: Package.Id) async throws {
-        let pkg = try await Package.fetchCandidate(database, id: id).get()
+                                  packageId: Package.Id) async throws {
+        let pkg = try await Package.fetchCandidate(database, id: packageId).get()
         try await reAnalyzeVersions(client: client,
                                     database: database,
                                     logger: logger,
