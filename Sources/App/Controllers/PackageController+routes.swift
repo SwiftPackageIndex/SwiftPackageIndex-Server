@@ -309,18 +309,17 @@ enum PackageController {
             return SiteMap()
         }
 
+        // See SwiftPackageIndex-Server#2485 for context on the performance implications of this
+        let lastmod: Node<SiteMap.URLContext> = packageResult.repository.lastActivityAt.map { .lastmod($0) } ?? .empty
         return SiteMap(
             .url(
                 .loc(SiteURL.package(.value(canonicalOwner),
                                      .value(canonicalRepository),
                                      .none).absoluteURL()),
-                .unwrap(packageResult.repository.lastActivityAt, { .lastmod($0) })
+                lastmod
             ),
             .forEach(linkableEntityUrls, { url in
-                    .url(
-                        .loc(url),
-                        .unwrap(packageResult.repository.lastActivityAt, { .lastmod($0) })
-                    )
+                    .url(.loc(url), lastmod)
             })
         )
     }
