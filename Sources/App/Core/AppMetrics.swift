@@ -255,4 +255,8 @@ extension DimensionLabels {
         .init([("key", key.rawValue)])
     }
 
+    static func searchFilterLabels(_ key: SearchFilter.Key, _ expression: SearchFilter.Expression) -> Self {
+        .init([("key", key.rawValue), ("value", expression.value)])
+    }
+
 }

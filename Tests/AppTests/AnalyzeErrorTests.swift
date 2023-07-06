@@ -182,7 +182,7 @@ final class AnalyzeErrorTests: AppTestCase {
         // setup
         Current.shell.run = { cmd, path in
             switch cmd {
-                case .gitCheckout(branch: "main") where path.hasSuffix("foo-1"):
+                case .gitCheckout(branch: "main", quiet: true) where path.hasSuffix("foo-1"):
                     throw SimulatedError()
 
                 default:
