@@ -45,7 +45,14 @@ enum SearchFilter {
               let expression = Expression(predicate: components[1])
         else { return nil }
 
-        AppMetrics.apiSearchGetWithFilterTotal?.inc(1, .searchFilterLabels(key))
+        switch key {
+            case .author, .keyword, .lastActivity, .lastCommit, .license, .stars:
+                AppMetrics.apiSearchGetWithFilterTotal?.inc(1, .searchFilterLabels(key))
+            case .platform, .productType:
+                // It's important not to send labels with too high cardinality to Prometheus, so we only record
+                // additional detail for filters where we know the values are from limited, small sets.
+                AppMetrics.apiSearchGetWithFilterTotal?.inc(1, .searchFilterLabels(key, expression))
+        }
 
         return try? key.searchFilter.init(expression: expression)
     }
