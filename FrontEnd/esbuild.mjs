@@ -24,7 +24,6 @@ try {
     bundle: true,
     sourcemap: true,
     minify: true,
-    watch: process.argv.includes('--watch'),
     plugins: [sassPlugin()],
     external: ['/images/*'],
   })
