@@ -26,7 +26,9 @@ struct AppEnvironment {
     var allowTwitterPosts: () -> Bool
     var apiTokens: () -> Set<String>
     var appVersion: () -> String?
+    var awsAccessKeyId: () -> String?
     var awsDocsBucket: () -> String?
+    var awsSecretAccessKey: () -> String?
     var builderToken: () -> String?
     var buildTriggerAllowList: () -> [Package.Id]
     var buildTriggerDownscaling: () -> Double
@@ -119,7 +121,9 @@ extension AppEnvironment {
         },
         apiTokens: { _apiTokens },
         appVersion: { App.appVersion },
+        awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },
         awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
+        awsSecretAccessKey: { Environment.get("AWS_SECRET_ACCESS_KEY") },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerAllowList: {
             Environment.get("BUILD_TRIGGER_ALLOW_LIST")
