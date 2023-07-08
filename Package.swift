@@ -65,13 +65,15 @@ let package = Package(
             .product(name: "SotoS3FileTransfer", package: "soto-s3-file-transfer"),
         ]),
         .testTarget(name: "AppTests",
-            dependencies: [
-                .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
-                .product(name: "XCTVapor", package: "vapor"),
-                .target(name: "App"),
-            ],
-            exclude: ["__Snapshots__", "Fixtures"]
-        ),
+                    dependencies: [
+                        .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
+                        .product(name: "XCTVapor", package: "vapor"),
+                        .target(name: "App"),
+                    ],
+                    exclude: ["__Snapshots__", "Fixtures"]
+                   ),
+        .testTarget(name: "S3StoreTests",
+                    dependencies: [.target(name: "S3Store")])
     ],
     swiftLanguageVersions: [.v5]
 )
