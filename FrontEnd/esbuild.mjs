@@ -14,20 +14,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import esbuild from 'esbuild'
+import * as esbuild from 'esbuild'
 import { sassPlugin } from 'esbuild-sass-plugin'
 
 try {
-  await esbuild.build({
-    entryPoints: ['FrontEnd/main.js', 'FrontEnd/main.scss', 'FrontEnd/docc.scss'],
-    outdir: 'Public',
-    bundle: true,
-    sourcemap: true,
-    minify: true,
-    watch: process.argv.includes('--watch'),
-    plugins: [sassPlugin()],
-    external: ['/images/*'],
-  })
+    const context = await esbuild.context({
+        entryPoints: ['FrontEnd/main.js', 'FrontEnd/main.scss', 'FrontEnd/docc.scss'],
+        outdir: 'Public',
+        bundle: true,
+        sourcemap: true,
+        minify: true,
+        plugins: [sassPlugin()],
+        external: ['/images/*'],
+    })
+
+    if (process.argv.includes('--watch')) {
+        // Watch forever!
+        await context.watch()
+        await new Promise(() => {})
+    } else {
+        await context.rebuild()
+        await context.dispose()
+    }
 } catch {
-  process.exit(1)
+    process.exit(1)
 }

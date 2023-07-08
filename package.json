@@ -7,18 +7,18 @@
         "serve": "./FrontEnd/esbuild.mjs --watch"
     },
     "dependencies": {
-        "@hotwired/stimulus": "^3.2.0",
+        "@hotwired/stimulus": "^3.2.1",
         "@hotwired/turbo": "^7.3.0",
         "normalize.css": "^8.0.1"
     },
     "devDependencies": {
-        "esbuild": "^0.14.21",
-        "esbuild-sass-plugin": "^2.2.3",
-        "postcss": "^8.3.3",
-        "prettier": "^2.7.1",
-        "stylelint": "^14.9.1",
-        "stylelint-config-standard-scss": "^5.0.0",
-        "stylelint-order": "^5.0.0",
-        "stylelint-scss": "^4.3.0"
+        "esbuild": "^0.18.11",
+        "esbuild-sass-plugin": "^2.10.0",
+        "postcss": "^8.4.25",
+        "prettier": "^3.0.0",
+        "stylelint": "^15.10.1",
+        "stylelint-config-standard-scss": "^10.0.0",
+        "stylelint-order": "^6.0.3",
+        "stylelint-scss": "^5.0.1"
     }
 }
