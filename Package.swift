@@ -36,6 +36,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.11.1"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
+        .package(url: "https://github.com/soto-project/soto-s3-file-transfer.git", from: "1.2.0"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
