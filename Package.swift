@@ -46,6 +46,7 @@ let package = Package(
         .target(name: "App", dependencies: [
             "Ink",
             "Plot",
+            "S3Store",
             "SPIManifest",
             "SemanticVersion",
             "SwiftPrometheus",
@@ -59,6 +60,9 @@ let package = Package(
             .product(name: "VaporToOpenAPI", package: "VaporToOpenAPI"),
             .product(name: "SwiftPMPackageCollections", package: "swift-package-manager"),
             .product(name: "Vapor", package: "vapor"),
+        ]),
+        .target(name: "S3Store", dependencies: [
+            .product(name: "SotoS3FileTransfer", package: "soto-s3-file-transfer"),
         ]),
         .testTarget(name: "AppTests",
             dependencies: [
