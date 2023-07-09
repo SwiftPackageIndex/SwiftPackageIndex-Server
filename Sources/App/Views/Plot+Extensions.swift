@@ -244,6 +244,7 @@ extension Node where Context == HTML.ListContext {
                                 hasDocs: Bool) -> Self {
         .li(
             .a(
+                .class("package-link"),
                 .href(linkUrl),
                 .h4(.text(packageName)),
                 .unwrap(summary) { .p(.text($0)) },
@@ -286,15 +287,16 @@ extension Node where Context == HTML.ListContext {
                     },
                     .unwrap(stars) {
                         .starsListItem(numberOfStars: $0)
-                    },
-                    .if (hasDocs,
-                        .li(.class("has-documentation"),
-                            .small(
-                                .text("Has documentation")
-                            )
-                        )
-                    )
+                    }
                 )
+            ),
+            .if (hasDocs,
+                 .a(
+                    .class("documentation-link"),
+                    .div(
+                        .text("Documentation")
+                    )
+                 )
             )
         )
     }

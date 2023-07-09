@@ -17,17 +17,22 @@
 // -------------------------------------------------------------------------
 
 #package-list {
-    display: grid;
-    gap: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     padding: 0;
     list-style: none;
 
     > li {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
         background-color: var(--package-list-background);
         border-left: 3px var(--package-list-border) solid;
 
-        a {
+        a.package-link {
             display: block;
+            flex-grow: 1;
             align-items: center;
             padding: 10px;
 
@@ -80,10 +85,20 @@
             li.stars::before {
                 background-image: var(--image-stars);
             }
+        }
 
-            li.has-documentation::before {
-                background-size: 84%;
-                background-image: var(--image-documentation);
+        a.documentation-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            background-position: center calc(50% - 20px);
+            background-repeat: no-repeat;
+            background-size: 20px;
+            background-image: var(--image-documentation);
+
+            div {
+                margin-top: 20px;
             }
         }
 
