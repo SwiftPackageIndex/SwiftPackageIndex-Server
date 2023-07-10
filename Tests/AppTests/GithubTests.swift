@@ -306,6 +306,13 @@ class GithubTests: AppTestCase {
         XCTAssertEqual(res, nil)
     }
 
+    func test_new_fetchReadme() async throws {
+        Current.githubToken = { Environment.get("GITHUB_TOKEN") }
+        let res = await Github.fetchReadmeHtml(client: app.client,
+                                               packageUrl: "https://github.com/SwiftPackageIndex/SemanticVersion")
+        print(res)
+    }
+
     func test_fetchReadme() async throws {
         // setup
         Current.githubToken = { "secr3t" }

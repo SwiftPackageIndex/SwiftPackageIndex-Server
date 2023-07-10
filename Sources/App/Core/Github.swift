@@ -19,6 +19,7 @@ enum Github {
 
     enum Error: LocalizedError {
         case missingToken
+        case noBody
         case invalidURI(Package.Id?, _ url: String)
         case requestFailed(HTTPStatus)
 
@@ -26,6 +27,8 @@ enum Github {
             switch self {
                 case .missingToken:
                     return "missing Github API token"
+                case .noBody:
+                    return "no body"
                 case let .invalidURI(id, url):
                     return "invalid URL: \(url) (id: \(id?.uuidString ?? "nil"))"
                 case .requestFailed(let statusCode):
@@ -65,7 +68,7 @@ enum Github {
         return (owner: parts[0], name: parts[1])
     }
 
-    static func headers(with token: String) -> HTTPHeaders {
+    static func defaultHeaders(with token: String) -> HTTPHeaders {
         // Set User-Agent or we get a 403
         // https://developer.github.com/v3/#user-agent-required
         HTTPHeaders([("User-Agent", "SPI-Server"),
@@ -97,12 +100,37 @@ extension Github {
         }
     }
 
+    static func fetch(client: Client, uri: URI, headers: [(String, String)] = []) async throws -> String {
+        guard let token = Current.githubToken() else {
+            throw Error.missingToken
+        }
+
+        let response = try await client.get(uri, headers: defaultHeaders(with: token).adding(contentsOf: headers))
+
+        guard !isRateLimited(response) else {
+            Current.logger().critical("rate limited while fetching uri \(uri)")
+            throw Error.requestFailed(.tooManyRequests)
+        }
+
+        guard response.status == .ok else {
+            Current.logger().warning("Github.fetch request failed with status \(response.status)")
+            throw Error.requestFailed(response.status)
+        }
+
+        guard let body = response.body else {
+            Current.logger().warning("Github.fetch has no body")
+            throw Error.noBody
+        }
+
+        return body.asString()
+    }
+
     static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, uri: URI) async throws -> T {
         guard let token = Current.githubToken() else {
             throw Error.missingToken
         }
 
-        let response = try await client.get(uri, headers: headers(with: token))
+        let response = try await client.get(uri, headers: defaultHeaders(with: token))
 
         guard !isRateLimited(response) else {
             Current.logger().critical("rate limited while fetching resource \(T.self)")
@@ -123,10 +151,19 @@ extension Github {
         return try? await Github.fetchResource(Github.License.self, client: client, uri: uri)
     }
 
+    @available(*, deprecated)
     static func fetchReadme(client: Client, packageUrl: String) async -> Readme? {
         guard let uri = try? Github.apiUri(for: packageUrl, resource: .readme)
         else { return nil }
         return try? await Github.fetchResource(Github.Readme.self, client: client, uri: uri)
+    }
+
+    static func fetchReadmeHtml(client: Client, packageUrl: String) async -> String? {
+        guard let uri = try? Github.apiUri(for: packageUrl, resource: .readme)
+        else { return nil }
+        return try? await Github.fetch(client: client, uri: uri, headers: [
+            ("Accept", "application/vnd.github.v3.html+json")
+        ])
     }
 
 }
@@ -147,7 +184,7 @@ extension Github {
             throw Error.missingToken
         }
 
-        let response = try await client.post(Self.graphQLApiUri, headers: headers(with: token)) {
+        let response = try await client.post(Self.graphQLApiUri, headers: defaultHeaders(with: token)) {
             try $0.content.encode(query)
         }
 
@@ -179,6 +216,15 @@ extension Github {
         return try await fetchMetadata(client: client, owner: owner, repository: name)
     }
 
+}
+
+
+private extension HTTPHeaders {
+    func adding<S>(contentsOf other: S) -> Self where S : Sequence, S.Element == (String, String) {
+        var headers = self
+        headers.add(contentsOf: other)
+        return headers
+    }
 }
 
 
