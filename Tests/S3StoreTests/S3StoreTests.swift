@@ -23,7 +23,7 @@ final class S3StoreTests: XCTestCase {
         let keyId = try XCTUnwrap(ProcessInfo.processInfo.environment["LIVE_AWS_ACCESS_KEY_ID"])
         let secret = try XCTUnwrap(ProcessInfo.processInfo.environment["LIVE_AWS_SECRET_ACCESS_KEY"])
         let store = S3Store(credentials: .init(keyId: keyId, secret: secret))
-        let path = fixturesDirectory().appending(path: "README.md").path()
+        let path = fixturesDirectory().appendingPathComponent("README.md").path
 
         // MUT
         try await store.copy(from: path, to: .init(bucket: "spi-dev-readmes", path: "foo/bar/README.md"))
