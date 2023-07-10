@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import AsyncHTTPClient
+import S3Store
 import SPIManifest
 import ShellOut
 import Vapor
@@ -42,7 +43,9 @@ struct AppEnvironment {
     var fetchPackageList: (_ client: Client) async throws -> [URL]
     var fetchLicense: (_ client: Client, _ packageUrl: String) async -> Github.License?
     var fetchMetadata: (_ client: Client, _ packageUrl: String) async throws -> Github.Metadata
+#warning("remove")
     var fetchReadme: (_ client: Client, _ packageUrl: String) async -> Github.Readme?
+    var fetchS3Readme: (_ client: Client, _ owner: String, _ repository: String) async throws -> String
     var fileManager: FileManager
     var getStatusCount: (_ client: Client,
                          _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
@@ -163,6 +166,7 @@ extension AppEnvironment {
         fetchLicense: Github.fetchLicense(client:packageUrl:),
         fetchMetadata: Github.fetchMetadata(client:packageUrl:),
         fetchReadme: Github.fetchReadme(client:packageUrl:),
+        fetchS3Readme: S3Store.fetchReadme(client:owner:repository:),
         fileManager: .live,
         getStatusCount: { client, status in
             Gitlab.Builder.getStatusCount(

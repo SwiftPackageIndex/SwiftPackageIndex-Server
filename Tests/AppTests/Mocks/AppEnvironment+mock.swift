@@ -49,6 +49,7 @@ extension AppEnvironment {
                 .init(downloadUrl: "https://raw.githubusercontent.com/foo/bar/main/README.md",
                       htmlUrl: "https://github.com/foo/bar/blob/main/README.md")
             },
+            fetchS3Readme: { _, _, _ in "" },
             fileManager: .mock,
             getStatusCount: { _, _ in eventLoop.future(100) },
             git: .mock,

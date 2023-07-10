@@ -75,6 +75,7 @@ extension S3Store {
 
     public enum Error: Swift.Error {
         case invalidURL(String)
+        case genericError(String)
     }
 }
 
