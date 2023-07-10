@@ -44,7 +44,6 @@ struct AppEnvironment {
     var fetchPackageList: (_ client: Client) async throws -> [URL]
     var fetchLicense: (_ client: Client, _ packageUrl: String) async -> Github.License?
     var fetchMetadata: (_ client: Client, _ packageUrl: String) async throws -> Github.Metadata
-#warning("remove")
     var fetchReadme: (_ client: Client, _ packageUrl: String) async -> Github.Readme?
     var fetchS3Readme: (_ client: Client, _ owner: String, _ repository: String) async throws -> String
     var fileManager: FileManager

@@ -151,19 +151,13 @@ extension Github {
         return try? await Github.fetchResource(Github.License.self, client: client, uri: uri)
     }
 
-    @available(*, deprecated)
     static func fetchReadme(client: Client, packageUrl: String) async -> Readme? {
         guard let uri = try? Github.apiUri(for: packageUrl, resource: .readme)
         else { return nil }
-        return try? await Github.fetchResource(Github.Readme.self, client: client, uri: uri)
-    }
-
-    static func fetchReadmeHtml(client: Client, packageUrl: String) async -> String? {
-        guard let uri = try? Github.apiUri(for: packageUrl, resource: .readme)
-        else { return nil }
-        return try? await Github.fetch(client: client, uri: uri, headers: [
+        let html = try? await Github.fetch(client: client, uri: uri, headers: [
             ("Accept", "application/vnd.github.v3.html+json")
         ])
+        return html.map(Readme.init)
     }
 
 }
@@ -237,8 +231,7 @@ extension Github {
     }
 
     struct Readme: Decodable, Equatable {
-        var downloadUrl: String
-        var htmlUrl: String
+        var html: String
     }
 
     struct Metadata: Decodable, Equatable {

@@ -92,7 +92,7 @@ class IngestorTests: AppTestCase {
                                            for: jpr,
                                            metadata: .mock(for: pkg.url),
                                            licenseInfo: .init(htmlUrl: ""),
-                                           readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
+                                           readmeInfo: .init(html: ""))
 
         // validate
         try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
@@ -139,8 +139,7 @@ class IngestorTests: AppTestCase {
                                            for: jpr,
                                            metadata: md,
                                            licenseInfo: .init(htmlUrl: "license url"),
-                                           readmeInfo: .init(downloadUrl: "readme url",
-                                                             htmlUrl: "readme html url"))
+                                           readmeInfo: .init(html: "readme html"))
 
         // validate
         try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
@@ -199,8 +198,7 @@ class IngestorTests: AppTestCase {
                                            for: jpr,
                                            metadata: md,
                                            licenseInfo: .init(htmlUrl: "license url"),
-                                           readmeInfo: .init(downloadUrl: "readme url",
-                                                             htmlUrl: "readme html url"))
+                                           readmeInfo: .init(html: "readme html"))
 
         // validate
         let repo = try await Repository.query(on: app.db).first().unwrap()

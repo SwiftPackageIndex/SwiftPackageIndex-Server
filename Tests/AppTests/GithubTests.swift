@@ -306,28 +306,21 @@ class GithubTests: AppTestCase {
         XCTAssertEqual(res, nil)
     }
 
-    func test_new_fetchReadme() async throws {
-        Current.githubToken = { Environment.get("GITHUB_TOKEN") }
-        let res = await Github.fetchReadmeHtml(client: app.client,
-                                               packageUrl: "https://github.com/SwiftPackageIndex/SemanticVersion")
-        print(res)
-    }
-
     func test_fetchReadme() async throws {
         // setup
         Current.githubToken = { "secr3t" }
-        let pkg = Package(url: "https://github.com/daveverwer/leftpad")
-        let data = try XCTUnwrap(try fixtureData(for: "github-readme-response.json"))
+        let pkg = Package(url: "https://github.com/SwiftPackageIndex/SemanticVersion")
+        let html = try XCTUnwrap(try fixtureString(for: "github-readme-response.html"))
         let client = MockClient { _, resp in
             resp.status = .ok
-            resp.body = makeBody(data)
+            resp.body = makeBody(html)
         }
 
         // MUT
         let res = await Github.fetchReadme(client: client, packageUrl: pkg.url)
 
         // validate
-        XCTAssertEqual(res?.downloadUrl, "https://raw.githubusercontent.com/daveverwer/LeftPad/master/README.md")
+        XCTAssertEqual(res, .init(html: html))
     }
 
     func test_fetchReadme_notFound() async throws {
@@ -340,7 +333,7 @@ class GithubTests: AppTestCase {
         let res = await Github.fetchReadme(client: client, packageUrl: pkg.url)
 
         // validate
-        XCTAssertEqual(res?.downloadUrl, nil)
+        XCTAssertEqual(res, nil)
     }
 
 }

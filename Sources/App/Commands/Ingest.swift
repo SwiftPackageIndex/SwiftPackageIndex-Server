@@ -190,8 +190,10 @@ func insertOrUpdateRepository(on database: Database,
     repo.owner = repository.owner.login
     repo.ownerName = repository.owner.name
     repo.ownerAvatarUrl = repository.owner.avatarUrl
-    repo.readmeUrl = readmeInfo?.downloadUrl
-    repo.readmeHtmlUrl = readmeInfo?.htmlUrl
+#warning("FIXME: populate from different url")
+//    repo.readmeUrl = readmeInfo?.downloadUrl
+#warning("FIXME: remove")
+//    repo.readmeHtmlUrl = readmeInfo?.htmlUrl
     repo.releases = metadata.repository?.releases.nodes
         .map(Release.init(from:)) ?? []
     repo.stars = repository.stargazerCount

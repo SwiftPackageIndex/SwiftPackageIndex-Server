@@ -1,0 +1,107 @@
+<div id="readme" class="md" data-path="README.md"><article class="markdown-body entry-content container-lg" itemprop="text"><p dir="auto"><a href="https://swiftpackageindex.com/SwiftPackageIndex/SemanticVersion" rel="nofollow"><img src="https://camo.githubusercontent.com/fe4bcf436ce5c1aaead928d555ac0903da4126b5f46bb65798ac496850e86c34/68747470733a2f2f696d672e736869656c64732e696f2f656e64706f696e743f75726c3d687474707325334125324625324673776966747061636b616765696e6465782e636f6d2532466170692532467061636b6167657325324653776966745061636b616765496e64657825324653656d616e74696356657273696f6e25324662616467652533467479706525334473776966742d76657273696f6e73" alt="" data-canonical-src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftPackageIndex%2FSemanticVersion%2Fbadge%3Ftype%3Dswift-versions" style="max-width: 100%;"></a>
+<a href="https://swiftpackageindex.com/SwiftPackageIndex/SemanticVersion" rel="nofollow"><img src="https://camo.githubusercontent.com/2c04a790023be7d9aa90153ce6dd46779e4aa05c69312ede99a18db58c898c3f/68747470733a2f2f696d672e736869656c64732e696f2f656e64706f696e743f75726c3d687474707325334125324625324673776966747061636b616765696e6465782e636f6d2532466170692532467061636b6167657325324653776966745061636b616765496e64657825324653656d616e74696356657273696f6e253246626164676525334674797065253344706c6174666f726d73" alt="" data-canonical-src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftPackageIndex%2FSemanticVersion%2Fbadge%3Ftype%3Dplatforms" style="max-width: 100%;"></a></p>
+<h1 dir="auto"><a id="user-content--semanticversion" class="anchor" aria-hidden="true" href="#-semanticversion"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><g-emoji class="g-emoji" alias="label" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f3f7.png">🏷</g-emoji> SemanticVersion</h1>
+<p dir="auto">SemanticVersion is a simple <code>Codable</code>, <code>Comparable</code>, <code>Equatable</code>, <code>Hashable</code>, and <code>LosslessStringConvertible</code> struct that can represent semantic versions.</p>
+<p dir="auto">Here's what using <code>SemanticVersion</code> looks like in practise:</p>
+<div class="highlight highlight-source-swift notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="import SemanticVersion
+import Foundation
+
+// Query semantic version components
+let v123 = SemanticVersion(1, 2, 3)
+v123.isStable        // true
+v123.isPreRelease    // false
+v123.isMajorRelease  // false
+v123.isMinorRelease  // false
+v123.isPatchRelease  // true
+
+// Parse semantic version from String
+let v200 = SemanticVersion(&quot;2.0.0&quot;)!
+v200.isStable        // true
+v200.isPreRelease    // false
+v200.isMajorRelease  // true
+v200.isMinorRelease  // false
+v200.isPatchRelease  // false
+
+// Supports beta versions
+let v300rc1 = SemanticVersion(&quot;3.0.0-rc1-test&quot;)!
+v300rc1.isStable        // false
+v300rc1.isPreRelease    // true
+v300rc1.isMajorRelease  // false
+v300rc1.isMinorRelease  // false
+v300rc1.isPatchRelease  // false
+v300rc1.major           // 3
+v300rc1.minor           // 0
+v300rc1.patch           // 0
+v300rc1.preRelease      // &quot;rc1-test&quot;
+
+// SemanticVersion is Comparable and Equatable
+v123 &lt; v200          // true
+SemanticVersion(&quot;2.0.0&quot;)! &lt; SemanticVersion(&quot;2.0.1&quot;)!  // true
+// NB: beta versions come before their releases
+SemanticVersion(&quot;2.0.0&quot;)! &gt; SemanticVersion(&quot;2.0.0-b1&quot;)!  // true
+v123 == SemanticVersion(&quot;1.2.3&quot;)  // true
+SemanticVersion(&quot;v1.2.3-beta1+build5&quot;)
+    == SemanticVersion(1, 2, 3, &quot;beta1&quot;, &quot;build5&quot;)  // true
+
+// SemanticVersion is Hashable
+let dict = [         // [{major 3, minor 0, patch 0,...
+    v123: 1,
+    v200: 2,
+    v300rc1: 3
+]
+
+// SemanticVersion is Codable
+let data = try JSONEncoder().encode(v123)  // 58 bytes
+let decoded = try JSONDecoder().decode(SemanticVersion.self, from: data)  // 1.2.3
+decoded == v123  // true"><pre><span class="pl-k">import</span> <span class="pl-en">SemanticVersion</span>
+<span class="pl-k">import</span> <span class="pl-en">Foundation</span>
+
+<span class="pl-c"><span class="pl-c">//</span> Query semantic version components</span>
+<span class="pl-c"></span><span class="pl-k">let</span> v123 <span class="pl-k">=</span> <span class="pl-c1">SemanticVersion</span>(<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>)
+v123.<span class="pl-smi">isStable</span>        <span class="pl-c"><span class="pl-c">//</span> true</span>
+<span class="pl-c"></span>v123.<span class="pl-smi">isPreRelease</span>    <span class="pl-c"><span class="pl-c">//</span> false</span>
+<span class="pl-c"></span>v123.<span class="pl-smi">isMajorRelease</span>  <span class="pl-c"><span class="pl-c">//</span> false</span>
+<span class="pl-c"></span>v123.<span class="pl-smi">isMinorRelease</span>  <span class="pl-c"><span class="pl-c">//</span> false</span>
+<span class="pl-c"></span>v123.<span class="pl-smi">isPatchRelease</span>  <span class="pl-c"><span class="pl-c">//</span> true</span>
+<span class="pl-c"></span>
+<span class="pl-c"><span class="pl-c">//</span> Parse semantic version from String</span>
+<span class="pl-c"></span><span class="pl-k">let</span> v200 <span class="pl-k">=</span> <span class="pl-c1">SemanticVersion</span>(<span class="pl-s"><span class="pl-pds">"</span>2.0.0<span class="pl-pds">"</span></span>)<span class="pl-k">!</span>
+v200.<span class="pl-smi">isStable</span>        <span class="pl-c"><span class="pl-c">//</span> true</span>
+<span class="pl-c"></span>v200.<span class="pl-smi">isPreRelease</span>    <span class="pl-c"><span class="pl-c">//</span> false</span>
+<span class="pl-c"></span>v200.<span class="pl-smi">isMajorRelease</span>  <span class="pl-c"><span class="pl-c">//</span> true</span>
+<span class="pl-c"></span>v200.<span class="pl-smi">isMinorRelease</span>  <span class="pl-c"><span class="pl-c">//</span> false</span>
+<span class="pl-c"></span>v200.<span class="pl-smi">isPatchRelease</span>  <span class="pl-c"><span class="pl-c">//</span> false</span>
+<span class="pl-c"></span>
+<span class="pl-c"><span class="pl-c">//</span> Supports beta versions</span>
+<span class="pl-c"></span><span class="pl-k">let</span> v300rc1 <span class="pl-k">=</span> <span class="pl-c1">SemanticVersion</span>(<span class="pl-s"><span class="pl-pds">"</span>3.0.0-rc1-test<span class="pl-pds">"</span></span>)<span class="pl-k">!</span>
+v300rc1.<span class="pl-smi">isStable</span>        <span class="pl-c"><span class="pl-c">//</span> false</span>
+<span class="pl-c"></span>v300rc1.<span class="pl-smi">isPreRelease</span>    <span class="pl-c"><span class="pl-c">//</span> true</span>
+<span class="pl-c"></span>v300rc1.<span class="pl-smi">isMajorRelease</span>  <span class="pl-c"><span class="pl-c">//</span> false</span>
+<span class="pl-c"></span>v300rc1.<span class="pl-smi">isMinorRelease</span>  <span class="pl-c"><span class="pl-c">//</span> false</span>
+<span class="pl-c"></span>v300rc1.<span class="pl-smi">isPatchRelease</span>  <span class="pl-c"><span class="pl-c">//</span> false</span>
+<span class="pl-c"></span>v300rc1.<span class="pl-smi">major</span>           <span class="pl-c"><span class="pl-c">//</span> 3</span>
+<span class="pl-c"></span>v300rc1.<span class="pl-smi">minor</span>           <span class="pl-c"><span class="pl-c">//</span> 0</span>
+<span class="pl-c"></span>v300rc1.<span class="pl-smi">patch</span>           <span class="pl-c"><span class="pl-c">//</span> 0</span>
+<span class="pl-c"></span>v300rc1.<span class="pl-smi">preRelease</span>      <span class="pl-c"><span class="pl-c">//</span> "rc1-test"</span>
+<span class="pl-c"></span>
+<span class="pl-c"><span class="pl-c">//</span> SemanticVersion is Comparable and Equatable</span>
+<span class="pl-c"></span>v123 <span class="pl-k">&lt;</span> v200          <span class="pl-c"><span class="pl-c">//</span> true</span>
+<span class="pl-c"></span><span class="pl-c1">SemanticVersion</span>(<span class="pl-s"><span class="pl-pds">"</span>2.0.0<span class="pl-pds">"</span></span>)<span class="pl-k">!</span> <span class="pl-k">&lt;</span> <span class="pl-c1">SemanticVersion</span>(<span class="pl-s"><span class="pl-pds">"</span>2.0.1<span class="pl-pds">"</span></span>)<span class="pl-k">!</span>  <span class="pl-c"><span class="pl-c">//</span> true</span>
+<span class="pl-c"><span class="pl-c">//</span> NB: beta versions come before their releases</span>
+<span class="pl-c"></span><span class="pl-c1">SemanticVersion</span>(<span class="pl-s"><span class="pl-pds">"</span>2.0.0<span class="pl-pds">"</span></span>)<span class="pl-k">!</span> <span class="pl-k">&gt;</span> <span class="pl-c1">SemanticVersion</span>(<span class="pl-s"><span class="pl-pds">"</span>2.0.0-b1<span class="pl-pds">"</span></span>)<span class="pl-k">!</span>  <span class="pl-c"><span class="pl-c">//</span> true</span>
+<span class="pl-c"></span>v123 <span class="pl-k">==</span> <span class="pl-c1">SemanticVersion</span>(<span class="pl-s"><span class="pl-pds">"</span>1.2.3<span class="pl-pds">"</span></span>)  <span class="pl-c"><span class="pl-c">//</span> true</span>
+<span class="pl-c"></span><span class="pl-c1">SemanticVersion</span>(<span class="pl-s"><span class="pl-pds">"</span>v1.2.3-beta1+build5<span class="pl-pds">"</span></span>)
+    <span class="pl-k">==</span> <span class="pl-c1">SemanticVersion</span>(<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>, <span class="pl-s"><span class="pl-pds">"</span>beta1<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>build5<span class="pl-pds">"</span></span>)  <span class="pl-c"><span class="pl-c">//</span> true</span>
+<span class="pl-c"></span>
+<span class="pl-c"><span class="pl-c">//</span> SemanticVersion is Hashable</span>
+<span class="pl-c"></span><span class="pl-k">let</span> dict <span class="pl-k">=</span> [         <span class="pl-c"><span class="pl-c">//</span> [{major 3, minor 0, patch 0,...</span>
+<span class="pl-c"></span>    v123<span class="pl-k">:</span> <span class="pl-c1">1</span>,
+    v200<span class="pl-k">:</span> <span class="pl-c1">2</span>,
+    v300rc1<span class="pl-k">:</span> <span class="pl-c1">3</span>
+]
+
+<span class="pl-c"><span class="pl-c">//</span> SemanticVersion is Codable</span>
+<span class="pl-c"></span><span class="pl-k">let</span> data <span class="pl-k">=</span> <span class="pl-k">try</span> <span class="pl-c1">JSONEncoder</span>().<span class="pl-c1">encode</span>(v123)  <span class="pl-c"><span class="pl-c">//</span> 58 bytes</span>
+<span class="pl-c"></span><span class="pl-k">let</span> decoded <span class="pl-k">=</span> <span class="pl-k">try</span> <span class="pl-c1">JSONDecoder</span>().<span class="pl-c1">decode</span>(SemanticVersion.<span class="pl-k">self</span>, <span class="pl-c1">from</span>: data)  <span class="pl-c"><span class="pl-c">//</span> 1.2.3</span>
+<span class="pl-c"></span>decoded <span class="pl-k">==</span> v123  <span class="pl-c"><span class="pl-c">//</span> true</span></pre></div>
+</article></div>
