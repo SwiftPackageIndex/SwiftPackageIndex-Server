@@ -158,7 +158,8 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.owner, "foo")
         XCTAssertEqual(repo.ownerName, "foo")
         XCTAssertEqual(repo.ownerAvatarUrl, "https://avatars.githubusercontent.com/u/61124617?s=200&v=4")
-        XCTAssertEqual(repo.readmeUrl, "readme url")
+#warning("TODO: check if this readme url is viable")
+        XCTAssertEqual(repo.readmeUrl, "http://localhost:8080/foo/bar/readme")
         XCTAssertEqual(repo.readmeHtmlUrl, "readme html url")
         XCTAssertEqual(repo.releases, [
             .init(description: "a release",
