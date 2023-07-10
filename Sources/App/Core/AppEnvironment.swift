@@ -29,6 +29,7 @@ struct AppEnvironment {
     var appVersion: () -> String?
     var awsAccessKeyId: () -> String?
     var awsDocsBucket: () -> String?
+    var awsReadmeBucket: () -> String?
     var awsSecretAccessKey: () -> String?
     var builderToken: () -> String?
     var buildTriggerAllowList: () -> [Package.Id]
@@ -126,6 +127,7 @@ extension AppEnvironment {
         appVersion: { App.appVersion },
         awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },
         awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
+        awsReadmeBucket: { Environment.get("AWS_README_BUCKET") },
         awsSecretAccessKey: { Environment.get("AWS_SECRET_ACCESS_KEY") },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerAllowList: {

@@ -28,6 +28,7 @@ extension AppEnvironment {
             appVersion: { "test" },
             awsAccessKeyId: { nil },
             awsDocsBucket: { "awsDocsBucket" },
+            awsReadmeBucket: { "awsReadmeBucket" },
             awsSecretAccessKey: { nil },
             builderToken: { nil },
             buildTriggerAllowList: { [] },

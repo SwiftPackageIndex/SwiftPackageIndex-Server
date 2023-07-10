@@ -19,8 +19,10 @@ import Vapor
 extension S3Store {
 
     static func fetchReadme(client: Client, owner: String, repository: String) async throws -> String {
-        #warning("fix bucket")
-        let key = Key(bucket: "spi-dev-readmes", path: "\(owner)/\(repository)/readme.html")
+        guard let bucket = Current.awsReadmeBucket() else {
+            throw Error.genericError("AWS_README_BUCKET not set")
+        }
+        let key = Key(bucket: bucket, path: "\(owner)/\(repository)/readme.html")
         guard let body = try await client.get(URI(string: key.url)).body else {
             throw Error.genericError("No body")
         }
