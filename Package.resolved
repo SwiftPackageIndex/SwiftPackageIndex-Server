@@ -292,8 +292,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "6213ba7a06febe8fef60563a4a7d26a4085783cf",
-        "version" : "2.54.0"
+        "revision" : "324bc65a28323660fad8a36a7a37f0c2c78eeb9a",
+        "version" : "2.55.0"
       }
     },
     {
@@ -418,8 +418,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "9a340de4995e5a9dade4ff4c51cd2e6ae30c12d6",
-        "version" : "4.77.0"
+        "revision" : "1baf62327cc55f55a0767c3a9414dec8ebfdff96",
+        "version" : "4.77.1"
       }
     },
     {
