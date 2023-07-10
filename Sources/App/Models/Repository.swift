@@ -105,11 +105,8 @@ final class Repository: Model, Content {
     @Field(key: "owner_avatar_url")
     var ownerAvatarUrl: String?
 
-    @Field(key: "readme_url")
-    var readmeUrl: String?
-
-    @Field(key: "readme_html_url")
-    var readmeHtmlUrl: String?
+    @Field(key: "readme_etag")
+    var readmeEtag: String?
 
     @Field(key: "releases")
     var releases: [Release]
@@ -147,8 +144,7 @@ final class Repository: Model, Content {
          owner: String? = nil,
          ownerName: String? = nil,
          ownerAvatarUrl: String? = nil,
-         readmeUrl: String? = nil,
-         readmeHtmlUrl: String? = nil,
+         readmeEtag: String? = nil,
          releases: [Release] = [],
          stars: Int = 0,
          summary: String? = nil
@@ -179,8 +175,7 @@ final class Repository: Model, Content {
         self.owner = owner
         self.ownerName = ownerName
         self.ownerAvatarUrl = ownerAvatarUrl
-        self.readmeUrl = readmeUrl
-        self.readmeHtmlUrl = readmeHtmlUrl
+        self.readmeEtag = readmeEtag
         self.releases = releases
         self.stars = stars
     }

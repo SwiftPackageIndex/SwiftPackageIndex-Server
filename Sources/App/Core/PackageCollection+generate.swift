@@ -157,7 +157,9 @@ extension PackageCollection.Package {
         }.sorted { $0.version > $1.version }
 
         guard let url = URL(string: resultGroup.package.url),
-              !versions.isEmpty
+              !versions.isEmpty,
+              let repositoryOwner = repository.owner,
+              let repositoryName = repository.name
         else { return nil }
 
         self.init(
@@ -165,7 +167,7 @@ extension PackageCollection.Package {
             summary: repository.summary,
             keywords: keywords,
             versions: versions,
-            readmeURL: repository.readmeUrl.flatMap(URL.init(string:)),
+            readmeURL: URL(string: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .readme).absoluteURL()),
             license: license
         )
     }

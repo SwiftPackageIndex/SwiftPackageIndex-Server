@@ -290,6 +290,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 066 - add virtual macro product type to search view
         app.migrations.add(UpdateSearchAddMacroProductType())
     }
+    do { // Migration 067 - remove readmeUrl, readmeHtmlUrl from repositories, add readmeEtag
+        app.migrations.add(UpdateRepositoryReadmeChanges())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
