@@ -83,26 +83,28 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.licenseUrl, "license")
     }
 
-    func test_insertOrUpdateRepository_insert() async throws {
+    func test_updateRepository_insert() async throws {
         let pkg = try await savePackageAsync(on: app.db, "https://github.com/foo/bar")
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let repo = Repository(packageId: try pkg.requireID())
 
         // MUT
-        try await insertOrUpdateRepository(on: app.db,
-                                           for: jpr,
-                                           metadata: .mock(for: pkg.url),
-                                           licenseInfo: .init(htmlUrl: ""),
-                                           readmeInfo: .init(html: "", htmlUrl: ""))
+        try await updateRepository(on: app.db,
+                                   for: repo,
+                                   metadata: .mock(for: pkg.url),
+                                   licenseInfo: .init(htmlUrl: ""),
+                                   readmeInfo: .init(html: "", htmlUrl: ""))
 
         // validate
-        try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
-        let repo = try await Repository.query(on: app.db).first().unwrap()
-        XCTAssertEqual(repo.summary, "This is package https://github.com/foo/bar")
+        do {
+            try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
+            let repo = try await Repository.query(on: app.db).first().unwrap()
+            XCTAssertEqual(repo.summary, "This is package https://github.com/foo/bar")
+        }
     }
 
-    func test_insertOrUpdateRepository_update() async throws {
+    func test_updateRepository_update() async throws {
         let pkg = try await savePackageAsync(on: app.db, "https://github.com/foo/bar")
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let repo = Repository(packageId: try pkg.requireID())
         let md: Github.Metadata = .init(defaultBranch: "main",
                                         forks: 1,
                                         homepageUrl: "https://swiftpackageindex.com/Alamofire/Alamofire",
@@ -135,48 +137,50 @@ class IngestorTests: AppTestCase {
                                         summary: "package desc")
 
         // MUT
-        try await insertOrUpdateRepository(on: app.db,
-                                           for: jpr,
-                                           metadata: md,
-                                           licenseInfo: .init(htmlUrl: "license url"),
-                                           readmeInfo: .init(etag: "etag", html: "readme html", htmlUrl: "readme html url"))
+        try await updateRepository(on: app.db,
+                                   for: repo,
+                                   metadata: md,
+                                   licenseInfo: .init(htmlUrl: "license url"),
+                                   readmeInfo: .init(etag: "etag", html: "readme html", htmlUrl: "readme html url"))
 
         // validate
-        try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
-        let repo = try await Repository.query(on: app.db).first().unwrap()
-        XCTAssertEqual(repo.defaultBranch, "main")
-        XCTAssertEqual(repo.forks, 1)
-        XCTAssertEqual(repo.homepageUrl, "https://swiftpackageindex.com/Alamofire/Alamofire")
-        XCTAssertEqual(repo.isInOrganization, true)
-        XCTAssertEqual(repo.keywords, ["bar", "baz", "foo"])
-        XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 2))
-        XCTAssertEqual(repo.lastPullRequestClosedAt, Date(timeIntervalSince1970: 3))
-        XCTAssertEqual(repo.license, .mit)
-        XCTAssertEqual(repo.licenseUrl, "license url")
-        XCTAssertEqual(repo.openIssues, 1)
-        XCTAssertEqual(repo.openPullRequests, 2)
-        XCTAssertEqual(repo.owner, "foo")
-        XCTAssertEqual(repo.ownerName, "foo")
-        XCTAssertEqual(repo.ownerAvatarUrl, "https://avatars.githubusercontent.com/u/61124617?s=200&v=4")
-        XCTAssertEqual(repo.readmeEtag, "etag")
-        XCTAssertEqual(repo.readmeHtmlUrl, "readme html url")
-        XCTAssertEqual(repo.releases, [
-            .init(description: "a release",
-                  descriptionHTML: "<p>a release</p>",
-                  isDraft: false,
-                  publishedAt: Date(timeIntervalSince1970: 5),
-                  tagName: "1.2.3",
-                  url: "https://example.com/1.2.3")
-        ])
-        XCTAssertEqual(repo.name, "bar")
-        XCTAssertEqual(repo.stars, 2)
-        XCTAssertEqual(repo.summary, "package desc")
+        do {
+            try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
+            let repo = try await Repository.query(on: app.db).first().unwrap()
+            XCTAssertEqual(repo.defaultBranch, "main")
+            XCTAssertEqual(repo.forks, 1)
+            XCTAssertEqual(repo.homepageUrl, "https://swiftpackageindex.com/Alamofire/Alamofire")
+            XCTAssertEqual(repo.isInOrganization, true)
+            XCTAssertEqual(repo.keywords, ["bar", "baz", "foo"])
+            XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 2))
+            XCTAssertEqual(repo.lastPullRequestClosedAt, Date(timeIntervalSince1970: 3))
+            XCTAssertEqual(repo.license, .mit)
+            XCTAssertEqual(repo.licenseUrl, "license url")
+            XCTAssertEqual(repo.openIssues, 1)
+            XCTAssertEqual(repo.openPullRequests, 2)
+            XCTAssertEqual(repo.owner, "foo")
+            XCTAssertEqual(repo.ownerName, "foo")
+            XCTAssertEqual(repo.ownerAvatarUrl, "https://avatars.githubusercontent.com/u/61124617?s=200&v=4")
+            XCTAssertEqual(repo.readmeEtag, "etag")
+            XCTAssertEqual(repo.readmeHtmlUrl, "readme html url")
+            XCTAssertEqual(repo.releases, [
+                .init(description: "a release",
+                      descriptionHTML: "<p>a release</p>",
+                      isDraft: false,
+                      publishedAt: Date(timeIntervalSince1970: 5),
+                      tagName: "1.2.3",
+                      url: "https://example.com/1.2.3")
+            ])
+            XCTAssertEqual(repo.name, "bar")
+            XCTAssertEqual(repo.stars, 2)
+            XCTAssertEqual(repo.summary, "package desc")
+        }
     }
 
     func test_homePageEmptyString() async throws {
         // setup
         let pkg = try await savePackageAsync(on: app.db, "2")
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let repo = Repository(packageId: try pkg.requireID())
         let md: Github.Metadata = .init(defaultBranch: "main",
                                         forks: 1,
                                         homepageUrl: "  ",
@@ -194,15 +198,17 @@ class IngestorTests: AppTestCase {
                                         summary: "package desc")
 
         // MUT
-        try await insertOrUpdateRepository(on: app.db,
-                                           for: jpr,
-                                           metadata: md,
-                                           licenseInfo: .init(htmlUrl: "license url"),
-                                           readmeInfo: .init(html: "readme html", htmlUrl: "readme html url"))
+        try await updateRepository(on: app.db,
+                                   for: repo,
+                                   metadata: md,
+                                   licenseInfo: .init(htmlUrl: "license url"),
+                                   readmeInfo: .init(html: "readme html", htmlUrl: "readme html url"))
 
         // validate
-        let repo = try await Repository.query(on: app.db).first().unwrap()
-        XCTAssertNil(repo.homepageUrl)
+        do {
+            let repo = try await Repository.query(on: app.db).first().unwrap()
+            XCTAssertNil(repo.homepageUrl)
+        }
     }
 
     func test_updatePackage() async throws {

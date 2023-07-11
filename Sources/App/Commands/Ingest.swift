@@ -122,15 +122,21 @@ func ingest(client: Client,
             group.addTask {
                 let result = await Result {
                     let (metadata, license, readme) = try await fetchMetadata(client: client, package: pkg)
+                    let repo = try await Repository.findOrCreate(on: database, for: pkg.model)
+                    let originalReadmeEtag = repo.readmeEtag
+
+                    try await updateRepository(on: database, for: repo, metadata: metadata, licenseInfo: license, readmeInfo: readme)
+
+                    do {  // Store readme in S3 if it has changed
 #warning("FIXME: add test for this")
-                    if let repo = pkg.repository,
-                       let owner = repo.owner,
-                       let repository = repo.name,
-                       let html = readme?.html,
-                       repo.readmeNeedsUpdate(etag: readme?.etag) {
-                        try await Current.storeS3Readme(owner, repository, html)
+                        let needsUpdate = (originalReadmeEtag == nil) || originalReadmeEtag != repo.readmeEtag
+                        if let owner = repo.owner,
+                           let repository = repo.name,
+                           let html = readme?.html,
+                           needsUpdate {
+                            try await Current.storeS3Readme(owner, repository, html)
+                        }
                     }
-                    try await insertOrUpdateRepository(on: database, for: pkg, metadata: metadata, licenseInfo: license, readmeInfo: readme)
                     return pkg
                 }
 
@@ -166,44 +172,38 @@ func fetchMetadata(client: Client, package: Joined<Package, Repository>) async t
 ///   - package: package to update
 ///   - metadata: `Github.Metadata` with data for update
 /// - Returns: future
-func insertOrUpdateRepository(on database: Database,
-                              for package: Joined<Package, Repository>,
-                              metadata: Github.Metadata,
-                              licenseInfo: Github.License?,
-                              readmeInfo: Github.Readme?) async throws {
-    guard let pkgId = try? package.model.requireID() else {
-        throw AppError.genericError(nil, "package id not found")
+func updateRepository(on database: Database,
+                      for repository: Repository,
+                      metadata: Github.Metadata,
+                      licenseInfo: Github.License?,
+                      readmeInfo: Github.Readme?) async throws {
+    guard let repoMetadata = metadata.repository else {
+        throw AppError.genericError(repository.package.id,
+                                    "repository metadata is nil for package \(repository.name ?? "unknown")")
     }
 
-    guard let repository = metadata.repository else {
-        throw AppError.genericError(pkgId, "repository is nil for package \(package.model.url)")
-    }
-
-    let repo = try await Repository.query(on: database)
-        .filter(\.$package.$id == pkgId)
-        .first() ?? Repository(packageId: pkgId)
-    repo.defaultBranch = repository.defaultBranch
-    repo.forks = repository.forkCount
-    repo.homepageUrl = repository.homepageUrl?.trimmed
-    repo.isArchived = repository.isArchived
-    repo.isInOrganization = repository.isInOrganization
-    repo.keywords = Set(repository.topics.map { $0.lowercased() }).sorted()
-    repo.lastIssueClosedAt = repository.lastIssueClosedAt
-    repo.lastPullRequestClosedAt = repository.lastPullRequestClosedAt
-    repo.license = .init(from: repository.licenseInfo)
-    repo.licenseUrl = licenseInfo?.htmlUrl
-    repo.name = repository.name
-    repo.openIssues = repository.openIssues.totalCount
-    repo.openPullRequests = repository.openPullRequests.totalCount
-    repo.owner = repository.owner.login
-    repo.ownerName = repository.owner.name
-    repo.ownerAvatarUrl = repository.owner.avatarUrl
-    repo.readmeEtag = readmeInfo?.etag
-    repo.readmeHtmlUrl = readmeInfo?.htmlUrl
-    repo.releases = metadata.repository?.releases.nodes
+    repository.defaultBranch = repoMetadata.defaultBranch
+    repository.forks = repoMetadata.forkCount
+    repository.homepageUrl = repoMetadata.homepageUrl?.trimmed
+    repository.isArchived = repoMetadata.isArchived
+    repository.isInOrganization = repoMetadata.isInOrganization
+    repository.keywords = Set(repoMetadata.topics.map { $0.lowercased() }).sorted()
+    repository.lastIssueClosedAt = repoMetadata.lastIssueClosedAt
+    repository.lastPullRequestClosedAt = repoMetadata.lastPullRequestClosedAt
+    repository.license = .init(from: repoMetadata.licenseInfo)
+    repository.licenseUrl = licenseInfo?.htmlUrl
+    repository.name = repoMetadata.name
+    repository.openIssues = repoMetadata.openIssues.totalCount
+    repository.openPullRequests = repoMetadata.openPullRequests.totalCount
+    repository.owner = repoMetadata.owner.login
+    repository.ownerName = repoMetadata.owner.name
+    repository.ownerAvatarUrl = repoMetadata.owner.avatarUrl
+    repository.readmeEtag = readmeInfo?.etag
+    repository.readmeHtmlUrl = readmeInfo?.htmlUrl
+    repository.releases = metadata.repository?.releases.nodes
         .map(Release.init(from:)) ?? []
-    repo.stars = repository.stargazerCount
-    repo.summary = repository.description
+    repository.stars = repoMetadata.stargazerCount
+    repository.summary = repoMetadata.description
 
-    try await repo.save(on: database)
+    try await repository.save(on: database)
 }

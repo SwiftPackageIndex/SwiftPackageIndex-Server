@@ -187,6 +187,38 @@ final class Repository: Model, Content {
 
     init(packageId: Package.Id) {
         self.$package.id = packageId
+        self.authors = nil
+        self.commitCount = 0
+        self.defaultBranch = nil
+        self.firstCommitDate = nil
+        self.forks = 0
+        self.homepageUrl = nil
+        self.isArchived = false
+        self.isInOrganization = false
+        self.keywords = []
+        self.lastCommitDate = nil
+        self.lastIssueClosedAt = nil
+        self.lastPullRequestClosedAt = nil
+        self.license = .none
+        self.licenseUrl = nil
+        self.name = nil
+        self.openIssues = 0
+        self.openPullRequests = 0
+        self.owner = nil
+        self.ownerName = nil
+        self.ownerAvatarUrl = nil
+        self.readmeEtag = nil
+        self.readmeHtmlUrl = nil
+        self.releases = []
+        self.stars = 0
+        self.summary = nil
+    }
+
+    static func findOrCreate(on database: Database, for package: Package) async throws -> Repository {
+        let pkgId = try package.requireID()
+        return try await Repository.query(on: database)
+            .filter(\.$package.$id == pkgId)
+            .first() ?? Repository(packageId: pkgId)
     }
 }
 
@@ -200,12 +232,5 @@ extension Repository: Equatable {
 extension Repository {
     var ownerDisplayName: String? {
         ownerName ?? owner
-    }
-}
-
-extension Repository {
-    func readmeNeedsUpdate(etag: String?) -> Bool {
-#warning("FIXME: test this")
-        return true
     }
 }
