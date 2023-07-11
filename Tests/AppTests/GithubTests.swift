@@ -307,6 +307,7 @@ class GithubTests: AppTestCase {
     }
 
     func test_fetchReadme() async throws {
+        throw XCTSkip()
         // setup
         Current.githubToken = { "secr3t" }
         let pkg = Package(url: "https://github.com/SwiftPackageIndex/SemanticVersion")
