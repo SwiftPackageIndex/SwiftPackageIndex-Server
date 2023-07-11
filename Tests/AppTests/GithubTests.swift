@@ -307,23 +307,38 @@ class GithubTests: AppTestCase {
     }
 
     func test_fetchReadme() async throws {
-        throw XCTSkip()
         // setup
         Current.githubToken = { "secr3t" }
         let pkg = Package(url: "https://github.com/SwiftPackageIndex/SemanticVersion")
-        let html = try XCTUnwrap(try fixtureString(for: "github-readme-response.html"))
-        let client = MockClient { _, resp in
-            resp.status = .ok
-            resp.body = makeBody(html)
+        let requestCount = QueueIsolated(0)
+        let client = MockClient { req, resp in
+            requestCount.increment()
+            switch req.headers[.accept] {
+                case ["application/vnd.github.html+json"]:
+                    resp.status = .ok
+                    resp.body = makeBody("readme html")
+                    resp.headers.add(name: .eTag, value: "etag")
+                case []:
+                    resp.status = .ok
+                    struct Response: Encodable {
+                        var htmlUrl: String
+                    }
+                    resp.body = makeBody(try! JSONEncoder().encode(Response(htmlUrl: "readme url")))
+                default:
+                    XCTFail("unexpected accept header")
+            }
         }
 
         // MUT
         let res = await Github.fetchReadme(client: client, packageUrl: pkg.url)
 
         // validate
+        XCTAssertEqual(requestCount.value, 2)
         XCTAssertEqual(
             res,
-            .init(html: html, htmlUrl: "https://github.com/SwiftPackageIndex/SemanticVersion/blob/main/README.md")
+            .init(etag: "etag",
+                  html: "readme html",
+                  htmlUrl: "readme url")
         )
     }
 

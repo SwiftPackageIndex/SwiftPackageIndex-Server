@@ -100,7 +100,7 @@ extension Github {
         }
     }
 
-    static func fetch(client: Client, uri: URI, headers: [(String, String)] = []) async throws -> String {
+    static func fetch(client: Client, uri: URI, headers: [(String, String)] = []) async throws -> (content: String, etag: String?) {
         guard let token = Current.githubToken() else {
             throw Error.missingToken
         }
@@ -122,7 +122,7 @@ extension Github {
             throw Error.noBody
         }
 
-        return body.asString()
+        return (body.asString(), response.headers.first(name: .eTag))
     }
 
     static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, uri: URI) async throws -> T {
@@ -154,13 +154,23 @@ extension Github {
     static func fetchReadme(client: Client, packageUrl: String) async -> Readme? {
         guard let uri = try? Github.apiUri(for: packageUrl, resource: .readme)
         else { return nil }
-        let html = try? await Github.fetch(client: client, uri: uri, headers: [
+
+        // Fetch readme html content
+        let readme = try? await Github.fetch(client: client, uri: uri, headers: [
             ("Accept", "application/vnd.github.html+json")
         ])
-        #warning("FIXE: fetch html_url")
-        let htmlUrl: String? = ""
-        guard let html, let htmlUrl else { return nil }
-        return .init(html: html, htmlUrl: htmlUrl)
+        guard let html = readme?.content else { return nil }
+
+        // Fetch readme html url
+        let htmlUrl: String? = await {
+            struct Response: Decodable {
+                var htmlUrl: String
+            }
+            return try? await Github.fetchResource(Response.self, client: client, uri: uri).htmlUrl
+        }()
+        guard let htmlUrl else { return nil }
+
+        return .init(etag: readme?.etag, html: html, htmlUrl: htmlUrl)
     }
 
 }
@@ -234,6 +244,7 @@ extension Github {
     }
 
     struct Readme: Decodable, Equatable {
+        var etag: String?
         var html: String
         var htmlUrl: String
     }
