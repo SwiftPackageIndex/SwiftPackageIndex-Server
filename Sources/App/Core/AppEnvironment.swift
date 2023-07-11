@@ -68,6 +68,7 @@ struct AppEnvironment {
     var setLogger: (Logger) -> Void
     var shell: Shell
     var siteURL: () -> String
+    var storeS3Readme: (_ owner: String, _ repository: String, _ readme: String) async throws -> Void
     var triggerBuild: (_ client: Client,
                        _ logger: Logger,
                        _ buildId: Build.Id,
@@ -205,6 +206,7 @@ extension AppEnvironment {
         setLogger: { logger in Self.logger = logger },
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
+        storeS3Readme: S3Store.storeReadme(owner:repository:readme:),
         triggerBuild: Gitlab.Builder.triggerBuild,
         twitterCredentials: {
             guard let apiKey = Environment.get("TWITTER_API_KEY"),

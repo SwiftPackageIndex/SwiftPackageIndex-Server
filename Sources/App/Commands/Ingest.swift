@@ -122,6 +122,14 @@ func ingest(client: Client,
             group.addTask {
                 let result = await Result {
                     let (metadata, license, readme) = try await fetchMetadata(client: client, package: pkg)
+#warning("FIXME: add test for this")
+                    if let repo = pkg.repository,
+                       let owner = repo.owner,
+                       let repository = repo.name,
+                       let html = readme?.html,
+                       repo.readmeNeedsUpdate(etag: readme?.etag) {
+                        try await Current.storeS3Readme(owner, repository, html)
+                    }
                     try await insertOrUpdateRepository(on: database, for: pkg, metadata: metadata, licenseInfo: license, readmeInfo: readme)
                     return pkg
                 }

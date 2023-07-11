@@ -29,4 +29,8 @@ extension S3Store {
         return body.asString()
     }
 
+    static func storeReadme(owner: String, repository: String, readme: String) async throws {
+#warning("FIXME: implement me")
+    }
+    
 }

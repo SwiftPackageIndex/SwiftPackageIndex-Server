@@ -202,3 +202,10 @@ extension Repository {
         ownerName ?? owner
     }
 }
+
+extension Repository {
+    func readmeNeedsUpdate(etag: String?) -> Bool {
+#warning("FIXME: test this")
+        return true
+    }
+}
