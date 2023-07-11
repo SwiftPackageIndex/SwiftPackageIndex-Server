@@ -355,25 +355,21 @@ enum PackageController {
         }
     }
 
-    static func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
+    static func readme(req: Request) async throws -> Node<HTML.BodyContext> {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
         else {
-            return req.eventLoop.future(error: Abort(.notFound))
+            throw Abort(.notFound)
         }
 
-        return Joined<Package, Repository>
-            .query(on: req.db, owner: owner, repository: repository)
-            .flatMap { result in
-                guard let url = result.repository?.readmeHtmlUrl
-                else { return req.eventLoop.future((url: nil, readme: nil)) }
-                return req.client.get(URI(string: url))
-                    .map { (url: url, readme: $0.body?.asString()) }
-            }
-            .map(PackageReadme.Model.init(url:readme:))
-            .map(PackageReadme.View.init(model:))
-            .map { $0.document() }
+        let pkg = try await Joined<Package, Repository>
+            .query(on: req.db, owner: owner, repository: repository).get()
+        guard let readmeHtmlUrl = pkg.repository?.readmeHtmlUrl else {
+            return PackageReadme.View(model: .init(url: nil, readme: nil)).document()
+        }
+        let readme = try await Current.fetchS3Readme(req.client, owner, repository)
+        return PackageReadme.View(model: .init(url: readmeHtmlUrl, readme: readme)).document()
     }
 
     static func releases(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
