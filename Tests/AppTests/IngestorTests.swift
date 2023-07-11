@@ -104,42 +104,42 @@ class IngestorTests: AppTestCase {
         let pkg = try await savePackageAsync(on: app.db, "https://github.com/foo/bar")
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
         let md: Github.Metadata = .init(defaultBranch: "main",
-                                            forks: 1,
-                                            homepageUrl: "https://swiftpackageindex.com/Alamofire/Alamofire",
-                                            isInOrganization: true,
-                                            issuesClosedAtDates: [
-                                                Date(timeIntervalSince1970: 0),
-                                                Date(timeIntervalSince1970: 2),
-                                                Date(timeIntervalSince1970: 1),
-                                            ],
-                                            license: .mit,
-                                            openIssues: 1,
-                                            openPullRequests: 2,
-                                            owner: "foo",
-                                            pullRequestsClosedAtDates: [
-                                                Date(timeIntervalSince1970: 1),
-                                                Date(timeIntervalSince1970: 3),
-                                                Date(timeIntervalSince1970: 2),
-                                            ],
-                                            releases: [
-                                                .init(description: "a release",
-                                                      descriptionHTML: "<p>a release</p>",
-                                                      isDraft: false,
-                                                      publishedAt: Date(timeIntervalSince1970: 5),
-                                                      tagName: "1.2.3",
-                                                      url: "https://example.com/1.2.3")
-                                            ],
-                                            repositoryTopics: ["foo", "bar", "Bar", "baz"],
-                                            name: "bar",
-                                            stars: 2,
-                                            summary: "package desc")
+                                        forks: 1,
+                                        homepageUrl: "https://swiftpackageindex.com/Alamofire/Alamofire",
+                                        isInOrganization: true,
+                                        issuesClosedAtDates: [
+                                            Date(timeIntervalSince1970: 0),
+                                            Date(timeIntervalSince1970: 2),
+                                            Date(timeIntervalSince1970: 1),
+                                        ],
+                                        license: .mit,
+                                        openIssues: 1,
+                                        openPullRequests: 2,
+                                        owner: "foo",
+                                        pullRequestsClosedAtDates: [
+                                            Date(timeIntervalSince1970: 1),
+                                            Date(timeIntervalSince1970: 3),
+                                            Date(timeIntervalSince1970: 2),
+                                        ],
+                                        releases: [
+                                            .init(description: "a release",
+                                                  descriptionHTML: "<p>a release</p>",
+                                                  isDraft: false,
+                                                  publishedAt: Date(timeIntervalSince1970: 5),
+                                                  tagName: "1.2.3",
+                                                  url: "https://example.com/1.2.3")
+                                        ],
+                                        repositoryTopics: ["foo", "bar", "Bar", "baz"],
+                                        name: "bar",
+                                        stars: 2,
+                                        summary: "package desc")
 
         // MUT
         try await insertOrUpdateRepository(on: app.db,
                                            for: jpr,
                                            metadata: md,
                                            licenseInfo: .init(htmlUrl: "license url"),
-                                           readmeInfo: .init(html: "readme html", htmlUrl: "readme html url"))
+                                           readmeInfo: .init(etag: "etag", html: "readme html", htmlUrl: "readme html url"))
 
         // validate
         try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
@@ -158,6 +158,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.owner, "foo")
         XCTAssertEqual(repo.ownerName, "foo")
         XCTAssertEqual(repo.ownerAvatarUrl, "https://avatars.githubusercontent.com/u/61124617?s=200&v=4")
+        XCTAssertEqual(repo.readmeEtag, "etag")
         XCTAssertEqual(repo.readmeHtmlUrl, "readme html url")
         XCTAssertEqual(repo.releases, [
             .init(description: "a release",

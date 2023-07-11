@@ -190,6 +190,7 @@ func insertOrUpdateRepository(on database: Database,
     repo.owner = repository.owner.login
     repo.ownerName = repository.owner.name
     repo.ownerAvatarUrl = repository.owner.avatarUrl
+    repo.readmeEtag = readmeInfo?.etag
     repo.readmeHtmlUrl = readmeInfo?.htmlUrl
     repo.releases = metadata.repository?.releases.nodes
         .map(Release.init(from:)) ?? []
