@@ -20,9 +20,6 @@ struct UpdateRepositoryReadmeChanges: AsyncMigration {
             .deleteField("readme_url")
             .update()
         try await database.schema("repositories")
-            .deleteField("readme_html_url")
-            .update()
-        try await database.schema("repositories")
             .field("readme_etag", .string)
             .update()
     }
@@ -30,9 +27,6 @@ struct UpdateRepositoryReadmeChanges: AsyncMigration {
     func revert(on database: Database) async throws {
         try await database.schema("repositories")
             .deleteField("readme_etag")
-            .update()
-        try await database.schema("repositories")
-            .field("readme_html_url", .string)
             .update()
         try await database.schema("repositories")
             .field("readme_url", .string)

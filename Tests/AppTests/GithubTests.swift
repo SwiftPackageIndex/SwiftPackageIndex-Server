@@ -320,7 +320,10 @@ class GithubTests: AppTestCase {
         let res = await Github.fetchReadme(client: client, packageUrl: pkg.url)
 
         // validate
-        XCTAssertEqual(res, .init(html: html))
+        XCTAssertEqual(
+            res,
+            .init(html: html, htmlUrl: "https://github.com/SwiftPackageIndex/SemanticVersion/blob/main/README.md")
+        )
     }
 
     func test_fetchReadme_notFound() async throws {

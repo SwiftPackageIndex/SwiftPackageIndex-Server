@@ -157,7 +157,10 @@ extension Github {
         let html = try? await Github.fetch(client: client, uri: uri, headers: [
             ("Accept", "application/vnd.github.html+json")
         ])
-        return html.map(Readme.init)
+        #warning("FIXE: fetch html_url")
+        let htmlUrl: String? = ""
+        guard let html, let htmlUrl else { return nil }
+        return .init(html: html, htmlUrl: htmlUrl)
     }
 
 }
@@ -232,6 +235,7 @@ extension Github {
 
     struct Readme: Decodable, Equatable {
         var html: String
+        var htmlUrl: String
     }
 
     struct Metadata: Decodable, Equatable {

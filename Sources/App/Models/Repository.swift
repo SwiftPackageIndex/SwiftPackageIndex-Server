@@ -108,6 +108,9 @@ final class Repository: Model, Content {
     @Field(key: "readme_etag")
     var readmeEtag: String?
 
+    @Field(key: "readme_html_url")
+    var readmeHtmlUrl: String?
+
     @Field(key: "releases")
     var releases: [Release]
 
@@ -145,6 +148,7 @@ final class Repository: Model, Content {
          ownerName: String? = nil,
          ownerAvatarUrl: String? = nil,
          readmeEtag: String? = nil,
+         readmeHtmlUrl: String? = nil,
          releases: [Release] = [],
          stars: Int = 0,
          summary: String? = nil
@@ -176,6 +180,7 @@ final class Repository: Model, Content {
         self.ownerName = ownerName
         self.ownerAvatarUrl = ownerAvatarUrl
         self.readmeEtag = readmeEtag
+        self.readmeHtmlUrl = readmeHtmlUrl
         self.releases = releases
         self.stars = stars
     }

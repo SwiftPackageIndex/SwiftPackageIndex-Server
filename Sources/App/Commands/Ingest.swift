@@ -171,8 +171,6 @@ func insertOrUpdateRepository(on database: Database,
         throw AppError.genericError(pkgId, "repository is nil for package \(package.model.url)")
     }
 
-    let repositoryOwner = repository.owner.login
-    let repositoryName = repository.name
     let repo = try await Repository.query(on: database)
         .filter(\.$package.$id == pkgId)
         .first() ?? Repository(packageId: pkgId)
@@ -186,12 +184,13 @@ func insertOrUpdateRepository(on database: Database,
     repo.lastPullRequestClosedAt = repository.lastPullRequestClosedAt
     repo.license = .init(from: repository.licenseInfo)
     repo.licenseUrl = licenseInfo?.htmlUrl
-    repo.name = repositoryName
+    repo.name = repository.name
     repo.openIssues = repository.openIssues.totalCount
     repo.openPullRequests = repository.openPullRequests.totalCount
-    repo.owner = repositoryOwner
+    repo.owner = repository.owner.login
     repo.ownerName = repository.owner.name
     repo.ownerAvatarUrl = repository.owner.avatarUrl
+    repo.readmeHtmlUrl = readmeInfo?.htmlUrl
     repo.releases = metadata.repository?.releases.nodes
         .map(Release.init(from:)) ?? []
     repo.stars = repository.stargazerCount

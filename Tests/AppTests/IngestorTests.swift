@@ -92,7 +92,7 @@ class IngestorTests: AppTestCase {
                                            for: jpr,
                                            metadata: .mock(for: pkg.url),
                                            licenseInfo: .init(htmlUrl: ""),
-                                           readmeInfo: .init(html: ""))
+                                           readmeInfo: .init(html: "", htmlUrl: ""))
 
         // validate
         try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
@@ -139,7 +139,7 @@ class IngestorTests: AppTestCase {
                                            for: jpr,
                                            metadata: md,
                                            licenseInfo: .init(htmlUrl: "license url"),
-                                           readmeInfo: .init(html: "readme html"))
+                                           readmeInfo: .init(html: "readme html", htmlUrl: "readme html url"))
 
         // validate
         try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
@@ -158,8 +158,6 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.owner, "foo")
         XCTAssertEqual(repo.ownerName, "foo")
         XCTAssertEqual(repo.ownerAvatarUrl, "https://avatars.githubusercontent.com/u/61124617?s=200&v=4")
-#warning("TODO: check if this readme url is viable")
-        XCTAssertEqual(repo.readmeUrl, "http://localhost:8080/foo/bar/readme")
         XCTAssertEqual(repo.readmeHtmlUrl, "readme html url")
         XCTAssertEqual(repo.releases, [
             .init(description: "a release",
@@ -199,7 +197,7 @@ class IngestorTests: AppTestCase {
                                            for: jpr,
                                            metadata: md,
                                            licenseInfo: .init(htmlUrl: "license url"),
-                                           readmeInfo: .init(html: "readme html"))
+                                           readmeInfo: .init(html: "readme html", htmlUrl: "readme html url"))
 
         // validate
         let repo = try await Repository.query(on: app.db).first().unwrap()
