@@ -155,7 +155,7 @@ extension Github {
         guard let uri = try? Github.apiUri(for: packageUrl, resource: .readme)
         else { return nil }
         let html = try? await Github.fetch(client: client, uri: uri, headers: [
-            ("Accept", "application/vnd.github.v3.html+json")
+            ("Accept", "application/vnd.github.html+json")
         ])
         return html.map(Readme.init)
     }
