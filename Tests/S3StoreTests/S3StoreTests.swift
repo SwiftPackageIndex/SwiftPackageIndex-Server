@@ -20,6 +20,7 @@ import XCTest
 final class S3StoreTests: XCTestCase {
 
     func test_copy() async throws {
+#warning("FIXME: update test")
         let keyId = try XCTUnwrap(ProcessInfo.processInfo.environment["LIVE_AWS_ACCESS_KEY_ID"])
         let secret = try XCTUnwrap(ProcessInfo.processInfo.environment["LIVE_AWS_SECRET_ACCESS_KEY"])
         let store = S3Store(credentials: .init(keyId: keyId, secret: secret))
