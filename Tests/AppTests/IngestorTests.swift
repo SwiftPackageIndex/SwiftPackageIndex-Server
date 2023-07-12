@@ -92,7 +92,8 @@ class IngestorTests: AppTestCase {
                                    for: repo,
                                    metadata: .mock(for: pkg.url),
                                    licenseInfo: .init(htmlUrl: ""),
-                                   readmeInfo: .init(html: "", htmlUrl: ""))
+                                   readmeInfo: .init(html: "", htmlUrl: ""),
+                                   s3ReadmeStored: true)
 
         // validate
         do {
@@ -141,7 +142,8 @@ class IngestorTests: AppTestCase {
                                    for: repo,
                                    metadata: md,
                                    licenseInfo: .init(htmlUrl: "license url"),
-                                   readmeInfo: .init(etag: "etag", html: "readme html", htmlUrl: "readme html url"))
+                                   readmeInfo: .init(etag: "etag", html: "readme html", htmlUrl: "readme html url"),
+                                   s3ReadmeStored: true)
 
         // validate
         do {
@@ -202,7 +204,8 @@ class IngestorTests: AppTestCase {
                                    for: repo,
                                    metadata: md,
                                    licenseInfo: .init(htmlUrl: "license url"),
-                                   readmeInfo: .init(html: "readme html", htmlUrl: "readme html url"))
+                                   readmeInfo: .init(html: "readme html", htmlUrl: "readme html url"),
+                                   s3ReadmeStored: true)
 
         // validate
         do {

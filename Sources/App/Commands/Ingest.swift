@@ -123,20 +123,24 @@ func ingest(client: Client,
                 let result = await Result {
                     let (metadata, license, readme) = try await fetchMetadata(client: client, package: pkg)
                     let repo = try await Repository.findOrCreate(on: database, for: pkg.model)
-                    let originalReadmeEtag = repo.readmeEtag
-
-                    try await updateRepository(on: database, for: repo, metadata: metadata, licenseInfo: license, readmeInfo: readme)
-
-                    do {  // Store readme in S3 if it has changed
+                    let s3ReadmeNeedsUpdate = (repo.readmeEtag == nil) || repo.readmeEtag != readme?.etag
+                    var s3ReadmeStored = false
+                    
 #warning("FIXME: add test for this")
-                        let needsUpdate = (originalReadmeEtag == nil) || originalReadmeEtag != repo.readmeEtag
-                        if let owner = repo.owner,
-                           let repository = repo.name,
-                           let html = readme?.html,
-                           needsUpdate {
-                            try await Current.storeS3Readme(owner, repository, html)
-                        }
+                    if s3ReadmeNeedsUpdate,
+                       let owner = metadata.repositoryOwner,
+                       let repository = metadata.repositoryName,
+                       let html = readme?.html {
+                        try await Current.storeS3Readme(owner, repository, html)
+                        s3ReadmeStored = true
                     }
+                    
+                    try await updateRepository(on: database,
+                                               for: repo,
+                                               metadata: metadata,
+                                               licenseInfo: license,
+                                               readmeInfo: readme,
+                                               s3ReadmeStored: s3ReadmeStored)
                     return pkg
                 }
 
@@ -176,7 +180,8 @@ func updateRepository(on database: Database,
                       for repository: Repository,
                       metadata: Github.Metadata,
                       licenseInfo: Github.License?,
-                      readmeInfo: Github.Readme?) async throws {
+                      readmeInfo: Github.Readme?,
+                      s3ReadmeStored: Bool) async throws {
     guard let repoMetadata = metadata.repository else {
         throw AppError.genericError(repository.package.id,
                                     "repository metadata is nil for package \(repository.name ?? "unknown")")
@@ -192,13 +197,15 @@ func updateRepository(on database: Database,
     repository.lastPullRequestClosedAt = repoMetadata.lastPullRequestClosedAt
     repository.license = .init(from: repoMetadata.licenseInfo)
     repository.licenseUrl = licenseInfo?.htmlUrl
-    repository.name = repoMetadata.name
+    repository.name = repoMetadata.repositoryName
     repository.openIssues = repoMetadata.openIssues.totalCount
     repository.openPullRequests = repoMetadata.openPullRequests.totalCount
-    repository.owner = repoMetadata.owner.login
+    repository.owner = repoMetadata.repositoryOwner
     repository.ownerName = repoMetadata.owner.name
     repository.ownerAvatarUrl = repoMetadata.owner.avatarUrl
-    repository.readmeEtag = readmeInfo?.etag
+    if s3ReadmeStored {  // Only save etag in case of success to ensure it will be retried
+        repository.readmeEtag = readmeInfo?.etag
+    }
     repository.readmeHtmlUrl = readmeInfo?.htmlUrl
     repository.releases = metadata.repository?.releases.nodes
         .map(Release.init(from:)) ?? []
@@ -206,4 +213,17 @@ func updateRepository(on database: Database,
     repository.summary = repoMetadata.description
 
     try await repository.save(on: database)
+}
+
+
+// Helper to ensure the canonical source for these critical fields is the same in all the places where we need them
+private extension Github.Metadata {
+    var repositoryOwner: String? { repository?.repositoryOwner }
+    var repositoryName: String? { repository?.repositoryName }
+}
+
+// Helper to ensure the canonical source for these critical fields is the same in all the places where we need them
+private extension Github.Metadata.Repository {
+    var repositoryOwner: String? { owner.login }
+    var repositoryName: String? { name }
 }
