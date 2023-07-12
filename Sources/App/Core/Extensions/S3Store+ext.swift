@@ -29,8 +29,27 @@ extension S3Store {
         return body.asString()
     }
 
+#warning("FIXME: add test")
     static func storeReadme(owner: String, repository: String, readme: String) async throws {
-#warning("FIXME: implement me")
+        guard let accessKeyId = Current.awsAccessKeyId(),
+              let secretAccessKey = Current.awsSecretAccessKey(),
+              let readmeBucket = Current.awsReadmeBucket()
+        else {
+            throw Error.genericError("missing AWS credentials")
+        }
+
+
+        try await Current.fileManager.withTempDir { tempDir in
+            let tempfile = "\(tempDir)/readme.html"
+            guard Current.fileManager.createFile(atPath: tempfile, contents: Data(readme.utf8)) else {
+                throw Error.genericError("failed to save temporary readme")
+            }
+
+            let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
+            let key = S3Store.Key(bucket: readmeBucket, path: "\(owner)/\(repository)/readme.html")
+            Current.logger().debug("Copying \(tempfile) to \(key.url) ...")
+            try await store.copy(from: tempfile, to: key, logger: Current.logger())
+        }
     }
     
 }

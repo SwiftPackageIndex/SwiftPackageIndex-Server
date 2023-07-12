@@ -27,7 +27,7 @@ public struct S3Store {
         self.credentials = credentials
     }
     
-    func copy(from path: String, to key: Key, logger: Logger? = nil) async throws {
+    public func copy(from path: String, to key: Key, logger: Logger? = nil) async throws {
         guard let s3File = S3File(url: key.url) else { throw Error.invalidURL(key.url) }
         
         let client = AWSClient(
@@ -43,7 +43,7 @@ public struct S3Store {
         var nextProgressTick = 0.1
         try await s3FileTransfer.copy(from: path, to: s3File) { progress in
             if progress >= nextProgressTick {
-                logger?.info("Copying... [\(percent: progress)]")
+                logger?.debug("Copying... [\(percent: progress)]")
                 nextProgressTick += 0.1
             }
         }

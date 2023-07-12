@@ -17,9 +17,9 @@ import Foundation
 
 class TempDir {
     let path: String
-    let fileManager: FileManager
+    let fileManager: Foundation.FileManager
 
-    init(fileManager: FileManager = .default) throws {
+    init(fileManager: Foundation.FileManager = .default) throws {
         self.fileManager = fileManager
         let tempDir = fileManager.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
@@ -34,6 +34,12 @@ class TempDir {
         } catch {
             print("⚠️ failed to delete temp directory: \(error.localizedDescription)")
         }
+    }
+
+    @discardableResult
+    convenience init(body: (String) async throws -> Void) async throws {
+        try self.init()
+        try await body(path)
     }
 }
 
