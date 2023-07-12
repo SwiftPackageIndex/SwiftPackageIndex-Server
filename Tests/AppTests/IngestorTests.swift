@@ -406,7 +406,7 @@ class IngestorTests: AppTestCase {
         do { // first ingestion, no readme has been saved
             // MUT
             try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
-            
+
             // validate
             try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
             let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
@@ -422,7 +422,7 @@ class IngestorTests: AppTestCase {
 
             // MUT
             try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
-            
+
             // validate
             try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
             let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
@@ -438,7 +438,7 @@ class IngestorTests: AppTestCase {
 
             // MUT
             try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
-            
+
             // validate
             try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
             let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
@@ -446,6 +446,35 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(fetchCalls.value, 3)
             XCTAssertEqual(storeCalls.value, 2)
             XCTAssertEqual(repo.readmeEtag, "etag2")
+        }
+    }
+
+    func test_ingest_storeS3Readme_error() async throws {
+        // Test caching behaviour in case the storeS3Readme call fails
+        // setup
+        let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
+        try await pkg.save(on: app.db)
+        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        Current.fetchReadme = { _, _ in
+            return .init(etag: "etag1", html: "readme html 1", htmlUrl: "readme url")
+        }
+        let storeCalls = QueueIsolated(0)
+        struct Error: Swift.Error { }
+        Current.storeS3Readme = { owner, repo, html in
+            storeCalls.increment()
+            throw Error()
+        }
+
+        do { // first ingestion, no readme has been saved
+            // MUT
+            try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+
+            // validate
+            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+            XCTAssertEqual(storeCalls.value, 1)
+            // Ensure the etag value is not saved
+            XCTAssertEqual(repo.readmeEtag, nil)
         }
     }
 

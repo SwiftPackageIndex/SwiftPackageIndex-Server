@@ -126,14 +126,19 @@ func ingest(client: Client,
                     let s3ReadmeNeedsUpdate = (repo.readmeEtag == nil) || repo.readmeEtag != readme?.etag
                     var s3ReadmeStored = false
 
-                    if s3ReadmeNeedsUpdate,
-                       let owner = metadata.repositoryOwner,
-                       let repository = metadata.repositoryName,
-                       let html = readme?.html {
-                        try await Current.storeS3Readme(owner, repository, html)
-                        s3ReadmeStored = true
+                    do {
+                        if s3ReadmeNeedsUpdate,
+                           let owner = metadata.repositoryOwner,
+                           let repository = metadata.repositoryName,
+                           let html = readme?.html {
+                            try await Current.storeS3Readme(owner, repository, html)
+                            s3ReadmeStored = true
+                        }
+                    } catch {
+                        // We don't want to fail ingestion in case storing the readme fails - warn and continue.
+                        logger.warning("storeS3Readme failed")
                     }
-                    
+
                     try await updateRepository(on: database,
                                                for: repo,
                                                metadata: metadata,
