@@ -72,8 +72,6 @@ let package = Package(
                     ],
                     exclude: ["__Snapshots__", "Fixtures"]
                    ),
-        .testTarget(name: "S3StoreTests",
-                    dependencies: [.target(name: "S3Store")])
     ],
     swiftLanguageVersions: [.v5]
 )
