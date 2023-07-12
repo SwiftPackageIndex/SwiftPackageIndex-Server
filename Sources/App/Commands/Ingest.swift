@@ -125,8 +125,7 @@ func ingest(client: Client,
                     let repo = try await Repository.findOrCreate(on: database, for: pkg.model)
                     let s3ReadmeNeedsUpdate = (repo.readmeEtag == nil) || repo.readmeEtag != readme?.etag
                     var s3ReadmeStored = false
-                    
-#warning("FIXME: add test for this")
+
                     if s3ReadmeNeedsUpdate,
                        let owner = metadata.repositoryOwner,
                        let repository = metadata.repositoryName,

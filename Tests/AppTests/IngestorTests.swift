@@ -377,6 +377,78 @@ class IngestorTests: AppTestCase {
         }
     }
 
+    func test_ingest_storeS3Readme() async throws {
+        // setup
+        let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
+        try await pkg.save(on: app.db)
+        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        let fetchCalls = QueueIsolated(0)
+        Current.fetchReadme = { _, _ in
+            fetchCalls.increment()
+            if fetchCalls.value <= 2 {
+                return .init(etag: "etag1", html: "readme html 1", htmlUrl: "readme url")
+            } else {
+                return .init(etag: "etag2", html: "readme html 2", htmlUrl: "readme url")
+            }
+        }
+        let storeCalls = QueueIsolated(0)
+        Current.storeS3Readme = { owner, repo, html in
+            storeCalls.increment()
+            XCTAssertEqual(owner, "foo")
+            XCTAssertEqual(repo, "bar")
+            if fetchCalls.value <= 2 {
+                XCTAssertEqual(html, "readme html 1")
+            } else {
+                XCTAssertEqual(html, "readme html 2")
+            }
+        }
+
+        do { // first ingestion, no readme has been saved
+            // MUT
+            try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+            
+            // validate
+            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+            // Ensure fetch and store have been called, etag save to repository
+            XCTAssertEqual(fetchCalls.value, 1)
+            XCTAssertEqual(storeCalls.value, 1)
+            XCTAssertEqual(repo.readmeEtag, "etag1")
+        }
+
+        do { // second pass, readme has been saved, no new save should be issued
+            pkg.processingStage = .reconciliation
+            try await pkg.save(on: app.db)
+
+            // MUT
+            try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+            
+            // validate
+            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+            // Ensure fetch and store have been called, etag save to repository
+            XCTAssertEqual(fetchCalls.value, 2)
+            XCTAssertEqual(storeCalls.value, 1)
+            XCTAssertEqual(repo.readmeEtag, "etag1")
+        }
+
+        do { // third pass, readme has changed upstream, save should be issues
+            pkg.processingStage = .reconciliation
+            try await pkg.save(on: app.db)
+
+            // MUT
+            try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+            
+            // validate
+            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+            // Ensure fetch and store have been called, etag save to repository
+            XCTAssertEqual(fetchCalls.value, 3)
+            XCTAssertEqual(storeCalls.value, 2)
+            XCTAssertEqual(repo.readmeEtag, "etag2")
+        }
+    }
+
     func test_issue_761_no_license() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup
