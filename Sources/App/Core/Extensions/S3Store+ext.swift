@@ -29,7 +29,6 @@ extension S3Store {
         return body.asString()
     }
 
-#warning("FIXME: add test")
     static func storeReadme(owner: String, repository: String, readme: String) async throws {
         guard let accessKeyId = Current.awsAccessKeyId(),
               let secretAccessKey = Current.awsSecretAccessKey(),
@@ -37,7 +36,6 @@ extension S3Store {
         else {
             throw Error.genericError("missing AWS credentials")
         }
-
 
         try await Current.fileManager.withTempDir { tempDir in
             let tempfile = "\(tempDir)/readme.html"
