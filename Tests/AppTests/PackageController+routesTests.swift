@@ -216,7 +216,7 @@ class PackageController_routesTests: AppTestCase {
         XCTAssertEqual(node.render(indentedBy: .spaces(2)),
             """
             <turbo-frame id="readme_content">
-              <p>This package's README file couldn't be loaded. Try
+              <p>This package's README file couldn't be loaded. Try 
                 <a href="html url">viewing it on GitHub</a>.
               </p>
             </turbo-frame>
