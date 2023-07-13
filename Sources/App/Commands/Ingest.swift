@@ -127,7 +127,7 @@ func ingest(client: Client,
                     let s3Readme: S3Readme?
                     do {
                         if let upstreamEtag = readme?.etag,
-                           repo.s3ReadmeNeedsUpdate(upstreamEtag: upstreamEtag),
+                           repo.s3Readme?.needsUpdate(upstreamEtag: upstreamEtag) ?? true,
                            let owner = metadata.repositoryOwner,
                            let repository = metadata.repositoryName,
                            let html = readme?.html {

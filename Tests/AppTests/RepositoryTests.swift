@@ -257,5 +257,11 @@ final class RepositoryTests: AppTestCase {
             "CREATE INDEX idx_repositories_name ON repositories USING gin (name gin_trgm_ops)"
         ).run().wait()
     }
+    
+    func test_S3Readme_needsUpdate() {
+        XCTAssertTrue(S3Readme.error("").needsUpdate(upstreamEtag: "etag"))
+        XCTAssertFalse(S3Readme.cached(s3ObjectUrl: "", githubEtag: "old etag").needsUpdate(upstreamEtag: "old etag"))
+        XCTAssertTrue(S3Readme.cached(s3ObjectUrl: "", githubEtag: "old etag").needsUpdate(upstreamEtag: "new etag"))
+    }
 
 }

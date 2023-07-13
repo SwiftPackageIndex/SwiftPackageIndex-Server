@@ -257,15 +257,10 @@ enum S3Readme: Codable, Equatable {
                 return true
         }
     }
-}
 
-
-extension Repository {
-    func s3ReadmeNeedsUpdate(upstreamEtag: String) -> Bool {
-        switch s3Readme {
-            case .none:
-                return true
-            case let .cached(s3ObjectUrl: _, githubEtag: existingEtag):
+    func needsUpdate(upstreamEtag: String) -> Bool {
+        switch self {
+            case let .cached(_, githubEtag: existingEtag):
                 return existingEtag != upstreamEtag
             case .error:
                 return true
