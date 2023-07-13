@@ -22,8 +22,8 @@ extension S3Store {
         guard let bucket = Current.awsReadmeBucket() else {
             throw Error.genericError("AWS_README_BUCKET not set")
         }
-        let url = "https://\(bucket).s3-us-east-2.amazonaws.com/\(owner)/\(repository)/readme.html"
-        guard let body = try await client.get(URI(string: url)).body else {
+        let key = Key(bucket: bucket, path: "\(owner)/\(repository)/readme.html")
+        guard let body = try await client.get(URI(string: key.objectUrl)).body else {
             throw Error.genericError("No body")
         }
         return body.asString()
