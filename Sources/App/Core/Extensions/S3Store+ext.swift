@@ -32,18 +32,11 @@ extension S3Store {
         else {
             throw Error.genericError("missing AWS credentials")
         }
+        let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
         let key = try Key.readme(owner: owner, repository: repository)
 
-        try await Current.fileManager.withTempDir { tempDir in
-            let tempfile = "\(tempDir)/readme.html"
-            guard Current.fileManager.createFile(atPath: tempfile, contents: Data(readme.utf8)) else {
-                throw Error.genericError("failed to save temporary readme")
-            }
-
-            let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
-            Current.logger().debug("Copying \(tempfile) to \(key.s3Uri) ...")
-            try await store.copy(from: tempfile, to: key, logger: Current.logger())
-        }
+        Current.logger().debug("Copying readme to \(key.s3Uri) ...")
+        try await store.save(payload: readme, to: key)
 
         return key.objectUrl
     }

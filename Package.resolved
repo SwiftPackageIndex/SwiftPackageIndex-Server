@@ -171,15 +171,6 @@
       }
     },
     {
-      "identity" : "soto-s3-file-transfer",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/soto-project/soto-s3-file-transfer.git",
-      "state" : {
-        "revision" : "78d655d4f811026dce90f065d5aa88946d7a1b1e",
-        "version" : "1.2.0"
-      }
-    },
-    {
       "identity" : "spimanifest",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SPIManifest.git",

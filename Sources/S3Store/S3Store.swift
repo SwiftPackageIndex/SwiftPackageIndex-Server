@@ -15,7 +15,6 @@
 import Foundation
 
 import SotoS3
-import SotoS3FileTransfer
 
 
 public struct S3Store {
@@ -27,9 +26,7 @@ public struct S3Store {
         self.credentials = credentials
     }
     
-    public func copy(from path: String, to key: Key, logger: Logger? = nil) async throws {
-        guard let s3File = S3File(url: key.s3Uri) else { throw Error.invalidURL(key.s3Uri) }
-        
+    public func save(payload: String, to key: Key) async throws {
         let client = AWSClient(
             credentialProvider: .static(accessKeyId: credentials.keyId,
                                         secretAccessKey: credentials.secret),
@@ -37,16 +34,14 @@ public struct S3Store {
         )
         defer { try? client.syncShutdown() }
         let s3 = S3(client: client, region: Self.region)
-        let s3FileTransfer = S3FileTransferManager(s3: s3, threadPoolProvider: .createNew)
-        defer { try? s3FileTransfer.syncShutdown() }
-        
-        var nextProgressTick = 0.1
-        try await s3FileTransfer.copy(from: path, to: s3File) { progress in
-            if progress >= nextProgressTick {
-                logger?.debug("Copying... [\(percent: progress)]")
-                nextProgressTick += 0.1
-            }
-        }
+
+        let req = S3.PutObjectRequest(
+            acl: .publicRead,  // requires "Block all public access" to be "off"
+            body: .string(payload),
+            bucket: key.bucket,
+            key: key.path
+        )
+        _ = try await s3.putObject(req)
     }
 }
 
