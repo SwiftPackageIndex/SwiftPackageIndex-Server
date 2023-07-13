@@ -123,20 +123,23 @@ func ingest(client: Client,
                 let result = await Result {
                     let (metadata, license, readme) = try await fetchMetadata(client: client, package: pkg)
                     let repo = try await Repository.findOrCreate(on: database, for: pkg.model)
-                    let s3ReadmeNeedsUpdate = (repo.readmeEtag == nil) || repo.readmeEtag != readme?.etag
-                    var s3ReadmeStored = false
 
+                    let s3Readme: S3Readme?
                     do {
-                        if s3ReadmeNeedsUpdate,
+                        if let upstreamEtag = readme?.etag,
+                           repo.s3ReadmeNeedsUpdate(upstreamEtag: upstreamEtag),
                            let owner = metadata.repositoryOwner,
                            let repository = metadata.repositoryName,
                            let html = readme?.html {
-                            try await Current.storeS3Readme(owner, repository, html)
-                            s3ReadmeStored = true
+                            let objectUrl = try await Current.storeS3Readme(owner, repository, html)
+                            s3Readme = .cached(s3ObjectUrl: objectUrl, githubEtag: upstreamEtag)
+                        } else {
+                            s3Readme = repo.s3Readme
                         }
                     } catch {
                         // We don't want to fail ingestion in case storing the readme fails - warn and continue.
                         logger.warning("storeS3Readme failed")
+                        s3Readme = .error(error.localizedDescription)
                     }
 
                     try await updateRepository(on: database,
@@ -144,7 +147,7 @@ func ingest(client: Client,
                                                metadata: metadata,
                                                licenseInfo: license,
                                                readmeInfo: readme,
-                                               s3ReadmeStored: s3ReadmeStored)
+                                               s3Readme: s3Readme)
                     return pkg
                 }
 
@@ -185,7 +188,7 @@ func updateRepository(on database: Database,
                       metadata: Github.Metadata,
                       licenseInfo: Github.License?,
                       readmeInfo: Github.Readme?,
-                      s3ReadmeStored: Bool) async throws {
+                      s3Readme: S3Readme?) async throws {
     guard let repoMetadata = metadata.repository else {
         throw AppError.genericError(repository.package.id,
                                     "repository metadata is nil for package \(repository.name ?? "unknown")")
@@ -207,9 +210,7 @@ func updateRepository(on database: Database,
     repository.owner = repoMetadata.repositoryOwner
     repository.ownerName = repoMetadata.owner.name
     repository.ownerAvatarUrl = repoMetadata.owner.avatarUrl
-    if s3ReadmeStored {  // Only save etag in case of success to ensure it will be retried
-        repository.readmeEtag = readmeInfo?.etag
-    }
+    repository.s3Readme = s3Readme
     repository.readmeHtmlUrl = readmeInfo?.htmlUrl
     repository.releases = metadata.repository?.releases.nodes
         .map(Release.init(from:)) ?? []

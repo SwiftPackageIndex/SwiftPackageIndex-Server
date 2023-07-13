@@ -69,7 +69,7 @@ extension AppEnvironment {
             setLogger: { logger in Self.logger = logger },
             shell: .mock,
             siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
-            storeS3Readme: { _, _, _ in },
+            storeS3Readme: { _, _, _ in "s3ObjectUrl" },
             triggerBuild: { _, _, _, _, _, _, _, _ in
                 eventLoop.future(.init(status: .ok, webUrl: "http://web_url"))
             },

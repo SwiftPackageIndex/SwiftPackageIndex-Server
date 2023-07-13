@@ -105,8 +105,8 @@ final class Repository: Model, Content {
     @Field(key: "owner_avatar_url")
     var ownerAvatarUrl: String?
 
-    @Field(key: "readme_etag")
-    var readmeEtag: String?
+    @Field(key: "s3_readme")
+    var s3Readme: S3Readme?
 
     @Field(key: "readme_html_url")
     var readmeHtmlUrl: String?
@@ -147,7 +147,7 @@ final class Repository: Model, Content {
          owner: String? = nil,
          ownerName: String? = nil,
          ownerAvatarUrl: String? = nil,
-         readmeEtag: String? = nil,
+         s3Readme: S3Readme? = nil,
          readmeHtmlUrl: String? = nil,
          releases: [Release] = [],
          stars: Int = 0,
@@ -179,7 +179,7 @@ final class Repository: Model, Content {
         self.owner = owner
         self.ownerName = ownerName
         self.ownerAvatarUrl = ownerAvatarUrl
-        self.readmeEtag = readmeEtag
+        self.s3Readme = s3Readme
         self.readmeHtmlUrl = readmeHtmlUrl
         self.releases = releases
         self.stars = stars
@@ -207,7 +207,7 @@ final class Repository: Model, Content {
         self.owner = nil
         self.ownerName = nil
         self.ownerAvatarUrl = nil
-        self.readmeEtag = nil
+        self.s3Readme = nil
         self.readmeHtmlUrl = nil
         self.releases = []
         self.stars = 0
@@ -232,5 +232,43 @@ extension Repository: Equatable {
 extension Repository {
     var ownerDisplayName: String? {
         ownerName ?? owner
+    }
+}
+
+
+enum S3Readme: Codable, Equatable {
+    case cached(s3ObjectUrl: String, githubEtag: String)
+    case error(String)
+
+    var isCached: Bool {
+        switch self {
+            case .cached:
+                return true
+            case .error:
+                return false
+        }
+    }
+
+    var isError: Bool {
+        switch self {
+            case .cached:
+                return false
+            case .error:
+                return true
+        }
+    }
+}
+
+
+extension Repository {
+    func s3ReadmeNeedsUpdate(upstreamEtag: String) -> Bool {
+        switch s3Readme {
+            case .none:
+                return true
+            case let .cached(s3ObjectUrl: _, githubEtag: existingEtag):
+                return existingEtag != upstreamEtag
+            case .error:
+                return true
+        }
     }
 }

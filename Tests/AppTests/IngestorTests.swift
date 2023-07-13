@@ -95,7 +95,7 @@ class IngestorTests: AppTestCase {
                                    metadata: .mock(for: pkg.url),
                                    licenseInfo: .init(htmlUrl: ""),
                                    readmeInfo: .init(html: "", htmlUrl: ""),
-                                   s3ReadmeStored: true)
+                                   s3Readme: nil)
 
         // validate
         do {
@@ -145,7 +145,7 @@ class IngestorTests: AppTestCase {
                                    metadata: md,
                                    licenseInfo: .init(htmlUrl: "license url"),
                                    readmeInfo: .init(etag: "etag", html: "readme html", htmlUrl: "readme html url"),
-                                   s3ReadmeStored: true)
+                                   s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"))
 
         // validate
         do {
@@ -165,7 +165,7 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(repo.owner, "foo")
             XCTAssertEqual(repo.ownerName, "foo")
             XCTAssertEqual(repo.ownerAvatarUrl, "https://avatars.githubusercontent.com/u/61124617?s=200&v=4")
-            XCTAssertEqual(repo.readmeEtag, "etag")
+            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "url", githubEtag: "etag"))
             XCTAssertEqual(repo.readmeHtmlUrl, "readme html url")
             XCTAssertEqual(repo.releases, [
                 .init(description: "a release",
@@ -207,7 +207,7 @@ class IngestorTests: AppTestCase {
                                    metadata: md,
                                    licenseInfo: .init(htmlUrl: "license url"),
                                    readmeInfo: .init(html: "readme html", htmlUrl: "readme html url"),
-                                   s3ReadmeStored: true)
+                                   s3Readme: nil)
 
         // validate
         do {
@@ -408,6 +408,7 @@ class IngestorTests: AppTestCase {
             } else {
                 XCTAssertEqual(html, "readme html 2")
             }
+            return "objectUrl"
         }
 
         do { // first ingestion, no readme has been saved
@@ -420,7 +421,7 @@ class IngestorTests: AppTestCase {
             // Ensure fetch and store have been called, etag save to repository
             XCTAssertEqual(fetchCalls.value, 1)
             XCTAssertEqual(storeCalls.value, 1)
-            XCTAssertEqual(repo.readmeEtag, "etag1")
+            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag1"))
         }
 
         do { // second pass, readme has been saved, no new save should be issued
@@ -436,7 +437,7 @@ class IngestorTests: AppTestCase {
             // Ensure fetch and store have been called, etag save to repository
             XCTAssertEqual(fetchCalls.value, 2)
             XCTAssertEqual(storeCalls.value, 1)
-            XCTAssertEqual(repo.readmeEtag, "etag1")
+            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag1"))
         }
 
         do { // third pass, readme has changed upstream, save should be issues
@@ -452,7 +453,7 @@ class IngestorTests: AppTestCase {
             // Ensure fetch and store have been called, etag save to repository
             XCTAssertEqual(fetchCalls.value, 3)
             XCTAssertEqual(storeCalls.value, 2)
-            XCTAssertEqual(repo.readmeEtag, "etag2")
+            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag2"))
         }
     }
 
@@ -480,8 +481,8 @@ class IngestorTests: AppTestCase {
             try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
             let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
             XCTAssertEqual(storeCalls.value, 1)
-            // Ensure the etag value is not saved
-            XCTAssertEqual(repo.readmeEtag, nil)
+            // Ensure an error is recorded
+            XCTAssert(repo.s3Readme?.isError ?? false)
         }
     }
 
