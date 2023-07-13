@@ -26,10 +26,8 @@ extension App.FileManager {
             contents: { _ in .init() },
             checkoutsDirectory: { DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
             createDirectory: { _, _, _ in },
-            createFile: { _, _, _ in true },
             fileExists: { path in fileExists },
             removeItem: { _ in },
-            withTempDir: { try await TempDir(body: $0) },
             workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
         )
     }

@@ -145,7 +145,7 @@ class PackageController_routesTests: AppTestCase {
     }
 
     func test_readme_basic() async throws {
-        // Test that readme happy path
+        // Test readme fragment happy path
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner", readmeHtmlUrl: "html url")
@@ -167,7 +167,7 @@ class PackageController_routesTests: AppTestCase {
     }
 
     func test_readme_no_readmeHtmlUrl() async throws {
-        // Test page when there's no readme html url
+        // Test readme fragment when there's no readme html url
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner", readmeHtmlUrl: nil)
@@ -194,6 +194,7 @@ class PackageController_routesTests: AppTestCase {
     }
 
     func test_readme_error() async throws {
+        // Test readme fragment when fetchS3Readme throws
         // setup
         struct Error: Swift.Error { }
         Current.fetchS3Readme = { _, _, _ in throw Error() }
