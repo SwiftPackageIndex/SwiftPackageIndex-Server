@@ -243,10 +243,8 @@ struct FileManager {
     var contents: (_ atPath: String) -> Data?
     var checkoutsDirectory: () -> String
     var createDirectory: (String, Bool, [FileAttributeKey : Any]?) throws -> Void
-    var createFile: (_ atPath: String, _ contents: Data?, _ attributes: [FileAttributeKey : Any]?) -> Bool
     var fileExists: (String) -> Bool
     var removeItem: (_ path: String) throws -> Void
-    var withTempDir: ((String) async throws -> Void) async throws -> Void
     var workingDirectory: () -> String
 
     // pass-through methods to preserve argument labels
@@ -262,9 +260,6 @@ struct FileManager {
                          attributes: [FileAttributeKey : Any]?) throws {
         try createDirectory(path, createIntermediates, attributes)
     }
-    func createFile(atPath path: String, contents: Data?, attributes: [FileAttributeKey : Any]? = nil) -> Bool {
-        createFile(path, contents, attributes)
-    }
     func fileExists(atPath path: String) -> Bool { fileExists(path) }
     func removeItem(atPath path: String) throws { try removeItem(path) }
 
@@ -274,10 +269,8 @@ struct FileManager {
         contents: Foundation.FileManager.default.contents(atPath:),
         checkoutsDirectory: { Environment.get("CHECKOUTS_DIR") ?? DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
         createDirectory: Foundation.FileManager.default.createDirectory(atPath:withIntermediateDirectories: attributes:),
-        createFile: Foundation.FileManager.default.createFile(atPath:contents:attributes:),
         fileExists: Foundation.FileManager.default.fileExists(atPath:),
         removeItem: Foundation.FileManager.default.removeItem(atPath:),
-        withTempDir: { try await TempDir(body: $0) },
         workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
     )
 }
