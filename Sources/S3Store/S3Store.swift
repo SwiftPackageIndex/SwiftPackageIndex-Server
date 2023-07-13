@@ -62,8 +62,8 @@ extension S3Store {
     }
 
     public struct Key {
-        let bucket: String
-        let path: String
+        public let bucket: String
+        public let path: String
 
         public init(bucket: String, path: String) {
             self.bucket = bucket

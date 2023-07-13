@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
 import Fluent
+import S3Store
 import Vapor
-import XCTest
 
 
 class IngestorTests: AppTestCase {
@@ -375,6 +377,11 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(log.level, .critical)
             XCTAssertEqual(log.message, #"duplicate key value violates unique constraint "idx_repositories_owner_name""#)
         }
+    }
+
+    func test_S3Store_Key_readme() throws {
+        XCTAssertEqual(try S3Store.Key.readme(owner: "foo", repository: "bar").path, "foo/bar/readme.html")
+        XCTAssertEqual(try S3Store.Key.readme(owner: "FOO", repository: "bar").path, "foo/bar/readme.html")
     }
 
     func test_ingest_storeS3Readme() async throws {
