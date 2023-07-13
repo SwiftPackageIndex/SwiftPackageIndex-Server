@@ -368,8 +368,16 @@ enum PackageController {
         guard let readmeHtmlUrl = pkg.repository?.readmeHtmlUrl else {
             return PackageReadme.View(model: .init(url: nil, readme: nil)).document()
         }
-        let readme = try await Current.fetchS3Readme(req.client, owner, repository)
-        return PackageReadme.View(model: .init(url: readmeHtmlUrl, readme: readme)).document()
+        do {
+            let readme = try await Current.fetchS3Readme(req.client, owner, repository)
+            return PackageReadme.View(model: .init(url: readmeHtmlUrl, readme: readme)).document()
+        } catch {
+            if let repo = pkg.repository {
+                repo.s3Readme = .error("failed to fetch ")
+                try await repo.update(on: req.db)
+            }
+            return PackageReadme.View(model: .init(url: readmeHtmlUrl, readme: nil)).document()
+        }
     }
 
     static func releases(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {

@@ -130,17 +130,100 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
-    func test_readme() throws {
+    func test_readme_route() async throws {
+        // Test that readme route is set up
         // setup
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
         // MUT
         try app.test(.GET, "/owner/package/readme") {
             XCTAssertEqual($0.status, .ok)
         }
+    }
+
+    func test_readme_basic() async throws {
+        // Test that readme happy path
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner", readmeHtmlUrl: "html url")
+            .save(on: app.db)
+        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
+        let req = Request(application: app, on: app.eventLoopGroup.next())
+        req.parameters.set("owner", to: "owner")
+        req.parameters.set("repository", to: "package")
+        Current.fetchS3Readme = { _, _, _ in #"<div id="readme"><article>readme content</article></div>"# }
+
+        // MUT
+        let node = try await PackageController.readme(req: req)
+
+        // validate
+        XCTAssertEqual(node.render(indentedBy: .spaces(2)),
+            """
+            <turbo-frame id="readme_content">readme content</turbo-frame>
+            """)
+    }
+
+    func test_readme_no_readmeHtmlUrl() async throws {
+        // Test page when there's no readme html url
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner", readmeHtmlUrl: nil)
+            .save(on: app.db)
+        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
+        let req = Request(application: app, on: app.eventLoopGroup.next())
+        req.parameters.set("owner", to: "owner")
+        req.parameters.set("repository", to: "package")
+        Current.fetchS3Readme = { _, _, _ in
+            XCTFail("must not be called")
+            return ""
+        }
+
+        // MUT
+        let node = try await PackageController.readme(req: req)
+
+        // validate
+        XCTAssertEqual(node.render(indentedBy: .spaces(2)),
+            """
+            <turbo-frame id="readme_content">
+              <p>This package does not have a README file.</p>
+            </turbo-frame>
+            """)
+    }
+
+    func test_readme_error() async throws {
+        // setup
+        struct Error: Swift.Error { }
+        Current.fetchS3Readme = { _, _, _ in throw Error() }
+        let pkg = try savePackage(on: app.db, "1")
+        try await Repository(package: pkg,
+                             name: "package",
+                             owner: "owner",
+                             readmeHtmlUrl: "html url",
+                             s3Readme: .cached(s3ObjectUrl: "", githubEtag: "")
+        ).save(on: app.db)
+        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
+        let req = Request(application: app, on: app.eventLoopGroup.next())
+        req.parameters.set("owner", to: "owner")
+        req.parameters.set("repository", to: "package")
+
+        // MUT
+        let node = try await PackageController.readme(req: req)
+
+        // validate
+        XCTAssertEqual(node.render(indentedBy: .spaces(2)),
+            """
+            <turbo-frame id="readme_content">
+              <p>This package's README file couldn't be loaded. Try
+                <a href="html url">viewing it on GitHub</a>.
+              </p>
+            </turbo-frame>
+            """)
+        try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
+        let s3Readme = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first()?.s3Readme)
+        XCTAssert(s3Readme.isError)
     }
 
     func test_releases() throws {

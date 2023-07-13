@@ -42,7 +42,6 @@ final class RepositoryTests: AppTestCase {
                                   licenseUrl: "https://github.com/foo/bar/blob/main/LICENSE",
                                   openIssues: 3,
                                   openPullRequests: 4,
-                                  s3Readme: .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag"),
                                   readmeHtmlUrl: "https://github.com/foo/bar/blob/main/README.md",
                                   releases: [
                                     .init(description: "a release",
@@ -51,6 +50,7 @@ final class RepositoryTests: AppTestCase {
                                           tagName: "1.2.3",
                                           url: "https://example.com/release/1.2.3")
                                   ],
+                                  s3Readme: .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag"),
                                   stars: 42,
                                   summary: "desc")
 

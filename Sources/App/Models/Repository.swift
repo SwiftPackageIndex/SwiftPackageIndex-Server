@@ -105,14 +105,14 @@ final class Repository: Model, Content {
     @Field(key: "owner_avatar_url")
     var ownerAvatarUrl: String?
 
-    @Field(key: "s3_readme")
-    var s3Readme: S3Readme?
-
     @Field(key: "readme_html_url")
     var readmeHtmlUrl: String?
 
     @Field(key: "releases")
     var releases: [Release]
+    
+    @Field(key: "s3_readme")
+    var s3Readme: S3Readme?
 
     @Field(key: "stars")
     var stars: Int
@@ -147,9 +147,9 @@ final class Repository: Model, Content {
          owner: String? = nil,
          ownerName: String? = nil,
          ownerAvatarUrl: String? = nil,
-         s3Readme: S3Readme? = nil,
          readmeHtmlUrl: String? = nil,
          releases: [Release] = [],
+         s3Readme: S3Readme? = nil,
          stars: Int = 0,
          summary: String? = nil
     ) throws {
@@ -179,9 +179,9 @@ final class Repository: Model, Content {
         self.owner = owner
         self.ownerName = ownerName
         self.ownerAvatarUrl = ownerAvatarUrl
-        self.s3Readme = s3Readme
         self.readmeHtmlUrl = readmeHtmlUrl
         self.releases = releases
+        self.s3Readme = s3Readme
         self.stars = stars
     }
 
@@ -207,9 +207,9 @@ final class Repository: Model, Content {
         self.owner = nil
         self.ownerName = nil
         self.ownerAvatarUrl = nil
-        self.s3Readme = nil
         self.readmeHtmlUrl = nil
         self.releases = []
+        self.s3Readme = nil
         self.stars = 0
         self.summary = nil
     }
