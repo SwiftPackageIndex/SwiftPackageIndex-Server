@@ -45,7 +45,7 @@ extension S3Store {
 
             let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
             let key = S3Store.Key(bucket: readmeBucket, path: "\(owner)/\(repository)/readme.html")
-            Current.logger().debug("Copying \(tempfile) to \(key.url) ...")
+            Current.logger().debug("Copying \(tempfile) to \(key.s3Uri) ...")
             try await store.copy(from: tempfile, to: key, logger: Current.logger())
         }
     }
