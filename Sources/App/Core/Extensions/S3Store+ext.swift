@@ -26,7 +26,7 @@ extension S3Store {
         return body.asString()
     }
 
-    static func storeReadme(owner: String, repository: String, readme: String) async throws {
+    static func storeReadme(owner: String, repository: String, readme: String) async throws -> String {
         guard let accessKeyId = Current.awsAccessKeyId(),
               let secretAccessKey = Current.awsSecretAccessKey()
         else {
@@ -44,6 +44,8 @@ extension S3Store {
             Current.logger().debug("Copying \(tempfile) to \(key.s3Uri) ...")
             try await store.copy(from: tempfile, to: key, logger: Current.logger())
         }
+
+        return key.objectUrl
     }
 
 }

@@ -68,7 +68,7 @@ struct AppEnvironment {
     var setLogger: (Logger) -> Void
     var shell: Shell
     var siteURL: () -> String
-    var storeS3Readme: (_ owner: String, _ repository: String, _ readme: String) async throws -> Void
+    var storeS3Readme: (_ owner: String, _ repository: String, _ readme: String) async throws -> String
     var triggerBuild: (_ client: Client,
                        _ logger: Logger,
                        _ buildId: Build.Id,

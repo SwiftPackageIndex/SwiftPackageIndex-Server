@@ -42,7 +42,6 @@ final class RepositoryTests: AppTestCase {
                                   licenseUrl: "https://github.com/foo/bar/blob/main/LICENSE",
                                   openIssues: 3,
                                   openPullRequests: 4,
-                                  readmeEtag: "3c1ba46c96a24a64dfd6bc3a79ef6e2bfbc6ab6d12211178818f1b4d13bc3058",
                                   readmeHtmlUrl: "https://github.com/foo/bar/blob/main/README.md",
                                   releases: [
                                     .init(description: "a release",
@@ -51,6 +50,7 @@ final class RepositoryTests: AppTestCase {
                                           tagName: "1.2.3",
                                           url: "https://example.com/release/1.2.3")
                                   ],
+                                  s3Readme: .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag"),
                                   stars: 42,
                                   summary: "desc")
 
@@ -76,7 +76,7 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(r.licenseUrl, "https://github.com/foo/bar/blob/main/LICENSE")
             XCTAssertEqual(r.openIssues, 3)
             XCTAssertEqual(r.openPullRequests, 4)
-            XCTAssertEqual(r.readmeEtag, "3c1ba46c96a24a64dfd6bc3a79ef6e2bfbc6ab6d12211178818f1b4d13bc3058")
+            XCTAssertEqual(r.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag"))
             XCTAssertEqual(r.readmeHtmlUrl, "https://github.com/foo/bar/blob/main/README.md")
             XCTAssertEqual(r.releases, [
                 .init(description: "a release",
@@ -256,6 +256,12 @@ final class RepositoryTests: AppTestCase {
         try db.raw(
             "CREATE INDEX idx_repositories_name ON repositories USING gin (name gin_trgm_ops)"
         ).run().wait()
+    }
+    
+    func test_S3Readme_needsUpdate() {
+        XCTAssertTrue(S3Readme.error("").needsUpdate(upstreamEtag: "etag"))
+        XCTAssertFalse(S3Readme.cached(s3ObjectUrl: "", githubEtag: "old etag").needsUpdate(upstreamEtag: "old etag"))
+        XCTAssertTrue(S3Readme.cached(s3ObjectUrl: "", githubEtag: "old etag").needsUpdate(upstreamEtag: "new etag"))
     }
 
 }

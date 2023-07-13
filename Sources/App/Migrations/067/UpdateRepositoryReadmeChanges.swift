@@ -20,13 +20,13 @@ struct UpdateRepositoryReadmeChanges: AsyncMigration {
             .deleteField("readme_url")
             .update()
         try await database.schema("repositories")
-            .field("readme_etag", .string)
+            .field("s3_readme", .json)
             .update()
     }
 
     func revert(on database: Database) async throws {
         try await database.schema("repositories")
-            .deleteField("readme_etag")
+            .deleteField("s3_readme")
             .update()
         try await database.schema("repositories")
             .field("readme_url", .string)
