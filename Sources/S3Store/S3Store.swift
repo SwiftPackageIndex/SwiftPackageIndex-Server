@@ -28,7 +28,7 @@ public struct S3Store {
     }
     
     public func copy(from path: String, to key: Key, logger: Logger? = nil) async throws {
-        guard let s3File = S3File(url: key.url) else { throw Error.invalidURL(key.url) }
+        guard let s3File = S3File(url: key.s3Uri) else { throw Error.invalidURL(key.s3Uri) }
         
         let client = AWSClient(
             credentialProvider: .static(accessKeyId: credentials.keyId,
@@ -67,10 +67,11 @@ extension S3Store {
 
         public init(bucket: String, path: String) {
             self.bucket = bucket
-            self.path = path
+            self.path = path.droppingLeadingSlashes
         }
 
-        public var url: String { "s3://\(bucket)/\(path)" }
+        public var objectUrl: String { "https://\(bucket).s3.\(S3Store.region).amazonaws.com/\(path)" }
+        public var s3Uri: String { "s3://\(bucket)/\(path)" }
     }
 
     public enum Error: Swift.Error {
@@ -83,5 +84,16 @@ extension S3Store {
 private extension DefaultStringInterpolation {
     mutating func appendInterpolation(percent value: Double) {
         appendInterpolation(String(format: "%.0f%%", value * 100))
+    }
+}
+
+
+private extension String {
+    var droppingLeadingSlashes: String {
+        var result = self[...]
+        while result.hasPrefix("/") {
+            result = result.dropFirst()
+        }
+        return String(result)
     }
 }

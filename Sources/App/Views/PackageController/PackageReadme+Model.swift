@@ -47,8 +47,8 @@ extension PackageReadme {
 
         func extractReadmeElement(_ rawReadme: String) -> Element? {
             do {
-                let htmlDocument = try SwiftSoup.parse(rawReadme)
-                let readmeElements = try htmlDocument.select("#readme article")
+                let bodyFragment = try SwiftSoup.parseBodyFragment(rawReadme)
+                let readmeElements = try bodyFragment.select("#readme article")
                 guard let articleElement = readmeElements.first()
                 else { return nil } // There is no README if this element doesn't exist.
                 return articleElement
