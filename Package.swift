@@ -36,6 +36,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.11.1"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
+        .package(url: "https://github.com/soto-project/soto.git", from: "6.0.0"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
@@ -45,6 +46,7 @@ let package = Package(
         .target(name: "App", dependencies: [
             "Ink",
             "Plot",
+            "S3Store",
             "SPIManifest",
             "SemanticVersion",
             "SwiftPrometheus",
@@ -59,14 +61,19 @@ let package = Package(
             .product(name: "SwiftPMPackageCollections", package: "swift-package-manager"),
             .product(name: "Vapor", package: "vapor"),
         ]),
+        .target(name: "S3Store", dependencies: [
+            .product(name: "SotoS3", package: "soto"),
+        ]),
         .testTarget(name: "AppTests",
-            dependencies: [
-                .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
-                .product(name: "XCTVapor", package: "vapor"),
-                .target(name: "App"),
-            ],
-            exclude: ["__Snapshots__", "Fixtures"]
-        ),
+                    dependencies: [
+                        .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
+                        .product(name: "XCTVapor", package: "vapor"),
+                        .target(name: "App"),
+                    ],
+                    exclude: ["__Snapshots__", "Fixtures"]
+                   ),
+        .testTarget(name: "S3StoreTests",
+                    dependencies: [.target(name: "S3Store")])
     ],
     swiftLanguageVersions: [.v5]
 )

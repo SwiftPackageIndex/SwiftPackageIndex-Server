@@ -165,7 +165,7 @@ extension PackageCollection.Package {
             summary: repository.summary,
             keywords: keywords,
             versions: versions,
-            readmeURL: repository.readmeUrl.flatMap(URL.init(string:)),
+            readmeURL: repository.readmeHtmlUrl.flatMap(URL.init(string:)),
             license: license
         )
     }

@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
 import Fluent
+import S3Store
 import Vapor
-import XCTest
 
 
 class IngestorTests: AppTestCase {
@@ -83,101 +85,106 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.licenseUrl, "license")
     }
 
-    func test_insertOrUpdateRepository_insert() async throws {
+    func test_updateRepository_insert() async throws {
         let pkg = try await savePackageAsync(on: app.db, "https://github.com/foo/bar")
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let repo = Repository(packageId: try pkg.requireID())
 
         // MUT
-        try await insertOrUpdateRepository(on: app.db,
-                                           for: jpr,
-                                           metadata: .mock(for: pkg.url),
-                                           licenseInfo: .init(htmlUrl: ""),
-                                           readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
+        try await updateRepository(on: app.db,
+                                   for: repo,
+                                   metadata: .mock(for: pkg.url),
+                                   licenseInfo: .init(htmlUrl: ""),
+                                   readmeInfo: .init(html: "", htmlUrl: ""),
+                                   s3Readme: nil)
 
         // validate
-        try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
-        let repo = try await Repository.query(on: app.db).first().unwrap()
-        XCTAssertEqual(repo.summary, "This is package https://github.com/foo/bar")
+        do {
+            try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
+            let repo = try await Repository.query(on: app.db).first().unwrap()
+            XCTAssertEqual(repo.summary, "This is package https://github.com/foo/bar")
+        }
     }
 
-    func test_insertOrUpdateRepository_update() async throws {
+    func test_updateRepository_update() async throws {
         let pkg = try await savePackageAsync(on: app.db, "https://github.com/foo/bar")
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let repo = Repository(packageId: try pkg.requireID())
         let md: Github.Metadata = .init(defaultBranch: "main",
-                                            forks: 1,
-                                            homepageUrl: "https://swiftpackageindex.com/Alamofire/Alamofire",
-                                            isInOrganization: true,
-                                            issuesClosedAtDates: [
-                                                Date(timeIntervalSince1970: 0),
-                                                Date(timeIntervalSince1970: 2),
-                                                Date(timeIntervalSince1970: 1),
-                                            ],
-                                            license: .mit,
-                                            openIssues: 1,
-                                            openPullRequests: 2,
-                                            owner: "foo",
-                                            pullRequestsClosedAtDates: [
-                                                Date(timeIntervalSince1970: 1),
-                                                Date(timeIntervalSince1970: 3),
-                                                Date(timeIntervalSince1970: 2),
-                                            ],
-                                            releases: [
-                                                .init(description: "a release",
-                                                      descriptionHTML: "<p>a release</p>",
-                                                      isDraft: false,
-                                                      publishedAt: Date(timeIntervalSince1970: 5),
-                                                      tagName: "1.2.3",
-                                                      url: "https://example.com/1.2.3")
-                                            ],
-                                            repositoryTopics: ["foo", "bar", "Bar", "baz"],
-                                            name: "bar",
-                                            stars: 2,
-                                            summary: "package desc")
+                                        forks: 1,
+                                        homepageUrl: "https://swiftpackageindex.com/Alamofire/Alamofire",
+                                        isInOrganization: true,
+                                        issuesClosedAtDates: [
+                                            Date(timeIntervalSince1970: 0),
+                                            Date(timeIntervalSince1970: 2),
+                                            Date(timeIntervalSince1970: 1),
+                                        ],
+                                        license: .mit,
+                                        openIssues: 1,
+                                        openPullRequests: 2,
+                                        owner: "foo",
+                                        pullRequestsClosedAtDates: [
+                                            Date(timeIntervalSince1970: 1),
+                                            Date(timeIntervalSince1970: 3),
+                                            Date(timeIntervalSince1970: 2),
+                                        ],
+                                        releases: [
+                                            .init(description: "a release",
+                                                  descriptionHTML: "<p>a release</p>",
+                                                  isDraft: false,
+                                                  publishedAt: Date(timeIntervalSince1970: 5),
+                                                  tagName: "1.2.3",
+                                                  url: "https://example.com/1.2.3")
+                                        ],
+                                        repositoryTopics: ["foo", "bar", "Bar", "baz"],
+                                        name: "bar",
+                                        stars: 2,
+                                        summary: "package desc")
 
         // MUT
-        try await insertOrUpdateRepository(on: app.db,
-                                           for: jpr,
-                                           metadata: md,
-                                           licenseInfo: .init(htmlUrl: "license url"),
-                                           readmeInfo: .init(downloadUrl: "readme url",
-                                                             htmlUrl: "readme html url"))
+        try await updateRepository(on: app.db,
+                                   for: repo,
+                                   metadata: md,
+                                   licenseInfo: .init(htmlUrl: "license url"),
+                                   readmeInfo: .init(etag: "etag", html: "readme html", htmlUrl: "readme html url"),
+                                   s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"))
 
         // validate
-        try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
-        let repo = try await Repository.query(on: app.db).first().unwrap()
-        XCTAssertEqual(repo.defaultBranch, "main")
-        XCTAssertEqual(repo.forks, 1)
-        XCTAssertEqual(repo.homepageUrl, "https://swiftpackageindex.com/Alamofire/Alamofire")
-        XCTAssertEqual(repo.isInOrganization, true)
-        XCTAssertEqual(repo.keywords, ["bar", "baz", "foo"])
-        XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 2))
-        XCTAssertEqual(repo.lastPullRequestClosedAt, Date(timeIntervalSince1970: 3))
-        XCTAssertEqual(repo.license, .mit)
-        XCTAssertEqual(repo.licenseUrl, "license url")
-        XCTAssertEqual(repo.openIssues, 1)
-        XCTAssertEqual(repo.openPullRequests, 2)
-        XCTAssertEqual(repo.owner, "foo")
-        XCTAssertEqual(repo.ownerName, "foo")
-        XCTAssertEqual(repo.ownerAvatarUrl, "https://avatars.githubusercontent.com/u/61124617?s=200&v=4")
-        XCTAssertEqual(repo.readmeUrl, "readme url")
-        XCTAssertEqual(repo.readmeHtmlUrl, "readme html url")
-        XCTAssertEqual(repo.releases, [
-            .init(description: "a release",
-                  descriptionHTML: "<p>a release</p>",
-                  isDraft: false,
-                  publishedAt: Date(timeIntervalSince1970: 5),
-                  tagName: "1.2.3",
-                  url: "https://example.com/1.2.3")
-        ])
-        XCTAssertEqual(repo.name, "bar")
-        XCTAssertEqual(repo.stars, 2)
-        XCTAssertEqual(repo.summary, "package desc")
+        do {
+            try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
+            let repo = try await Repository.query(on: app.db).first().unwrap()
+            XCTAssertEqual(repo.defaultBranch, "main")
+            XCTAssertEqual(repo.forks, 1)
+            XCTAssertEqual(repo.homepageUrl, "https://swiftpackageindex.com/Alamofire/Alamofire")
+            XCTAssertEqual(repo.isInOrganization, true)
+            XCTAssertEqual(repo.keywords, ["bar", "baz", "foo"])
+            XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 2))
+            XCTAssertEqual(repo.lastPullRequestClosedAt, Date(timeIntervalSince1970: 3))
+            XCTAssertEqual(repo.license, .mit)
+            XCTAssertEqual(repo.licenseUrl, "license url")
+            XCTAssertEqual(repo.openIssues, 1)
+            XCTAssertEqual(repo.openPullRequests, 2)
+            XCTAssertEqual(repo.owner, "foo")
+            XCTAssertEqual(repo.ownerName, "foo")
+            XCTAssertEqual(repo.ownerAvatarUrl, "https://avatars.githubusercontent.com/u/61124617?s=200&v=4")
+            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "url", githubEtag: "etag"))
+            XCTAssertEqual(repo.readmeHtmlUrl, "readme html url")
+            XCTAssertEqual(repo.releases, [
+                .init(description: "a release",
+                      descriptionHTML: "<p>a release</p>",
+                      isDraft: false,
+                      publishedAt: Date(timeIntervalSince1970: 5),
+                      tagName: "1.2.3",
+                      url: "https://example.com/1.2.3")
+            ])
+            XCTAssertEqual(repo.name, "bar")
+            XCTAssertEqual(repo.stars, 2)
+            XCTAssertEqual(repo.summary, "package desc")
+        }
     }
 
     func test_homePageEmptyString() async throws {
         // setup
         let pkg = try await savePackageAsync(on: app.db, "2")
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let repo = Repository(packageId: try pkg.requireID())
         let md: Github.Metadata = .init(defaultBranch: "main",
                                         forks: 1,
                                         homepageUrl: "  ",
@@ -195,16 +202,18 @@ class IngestorTests: AppTestCase {
                                         summary: "package desc")
 
         // MUT
-        try await insertOrUpdateRepository(on: app.db,
-                                           for: jpr,
-                                           metadata: md,
-                                           licenseInfo: .init(htmlUrl: "license url"),
-                                           readmeInfo: .init(downloadUrl: "readme url",
-                                                             htmlUrl: "readme html url"))
+        try await updateRepository(on: app.db,
+                                   for: repo,
+                                   metadata: md,
+                                   licenseInfo: .init(htmlUrl: "license url"),
+                                   readmeInfo: .init(html: "readme html", htmlUrl: "readme html url"),
+                                   s3Readme: nil)
 
         // validate
-        let repo = try await Repository.query(on: app.db).first().unwrap()
-        XCTAssertNil(repo.homepageUrl)
+        do {
+            let repo = try await Repository.query(on: app.db).first().unwrap()
+            XCTAssertNil(repo.homepageUrl)
+        }
     }
 
     func test_updatePackage() async throws {
@@ -367,6 +376,113 @@ class IngestorTests: AppTestCase {
             let log = try XCTUnwrap(logs.first)
             XCTAssertEqual(log.level, .critical)
             XCTAssertEqual(log.message, #"duplicate key value violates unique constraint "idx_repositories_owner_name""#)
+        }
+    }
+
+    func test_S3Store_Key_readme() throws {
+        XCTAssertEqual(try S3Store.Key.readme(owner: "foo", repository: "bar").path, "foo/bar/readme.html")
+        XCTAssertEqual(try S3Store.Key.readme(owner: "FOO", repository: "bar").path, "foo/bar/readme.html")
+    }
+
+    func test_ingest_storeS3Readme() async throws {
+        // setup
+        let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
+        try await pkg.save(on: app.db)
+        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        let fetchCalls = QueueIsolated(0)
+        Current.fetchReadme = { _, _ in
+            fetchCalls.increment()
+            if fetchCalls.value <= 2 {
+                return .init(etag: "etag1", html: "readme html 1", htmlUrl: "readme url")
+            } else {
+                return .init(etag: "etag2", html: "readme html 2", htmlUrl: "readme url")
+            }
+        }
+        let storeCalls = QueueIsolated(0)
+        Current.storeS3Readme = { owner, repo, html in
+            storeCalls.increment()
+            XCTAssertEqual(owner, "foo")
+            XCTAssertEqual(repo, "bar")
+            if fetchCalls.value <= 2 {
+                XCTAssertEqual(html, "readme html 1")
+            } else {
+                XCTAssertEqual(html, "readme html 2")
+            }
+            return "objectUrl"
+        }
+
+        do { // first ingestion, no readme has been saved
+            // MUT
+            try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+
+            // validate
+            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+            // Ensure fetch and store have been called, etag save to repository
+            XCTAssertEqual(fetchCalls.value, 1)
+            XCTAssertEqual(storeCalls.value, 1)
+            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag1"))
+        }
+
+        do { // second pass, readme has been saved, no new save should be issued
+            pkg.processingStage = .reconciliation
+            try await pkg.save(on: app.db)
+
+            // MUT
+            try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+
+            // validate
+            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+            // Ensure fetch and store have been called, etag save to repository
+            XCTAssertEqual(fetchCalls.value, 2)
+            XCTAssertEqual(storeCalls.value, 1)
+            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag1"))
+        }
+
+        do { // third pass, readme has changed upstream, save should be issues
+            pkg.processingStage = .reconciliation
+            try await pkg.save(on: app.db)
+
+            // MUT
+            try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+
+            // validate
+            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+            // Ensure fetch and store have been called, etag save to repository
+            XCTAssertEqual(fetchCalls.value, 3)
+            XCTAssertEqual(storeCalls.value, 2)
+            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag2"))
+        }
+    }
+
+    func test_ingest_storeS3Readme_error() async throws {
+        // Test caching behaviour in case the storeS3Readme call fails
+        // setup
+        let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
+        try await pkg.save(on: app.db)
+        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        Current.fetchReadme = { _, _ in
+            return .init(etag: "etag1", html: "readme html 1", htmlUrl: "readme url")
+        }
+        let storeCalls = QueueIsolated(0)
+        struct Error: Swift.Error { }
+        Current.storeS3Readme = { owner, repo, html in
+            storeCalls.increment()
+            throw Error()
+        }
+
+        do { // first ingestion, no readme has been saved
+            // MUT
+            try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+
+            // validate
+            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+            XCTAssertEqual(storeCalls.value, 1)
+            // Ensure an error is recorded
+            XCTAssert(repo.s3Readme?.isError ?? false)
         }
     }
 

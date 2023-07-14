@@ -26,7 +26,10 @@ extension AppEnvironment {
             allowTwitterPosts: { true },
             apiTokens: { .init() },
             appVersion: { "test" },
+            awsAccessKeyId: { nil },
             awsDocsBucket: { "awsDocsBucket" },
+            awsReadmeBucket: { "awsReadmeBucket" },
+            awsSecretAccessKey: { nil },
             builderToken: { nil },
             buildTriggerAllowList: { [] },
             buildTriggerDownscaling: { 1.0 },
@@ -43,10 +46,8 @@ extension AppEnvironment {
             },
             fetchLicense: { _, _ in .init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE") },
             fetchMetadata: { _, _ in .mock },
-            fetchReadme: { _, _ in
-                .init(downloadUrl: "https://raw.githubusercontent.com/foo/bar/main/README.md",
-                      htmlUrl: "https://github.com/foo/bar/blob/main/README.md")
-            },
+            fetchReadme: { _, _ in .init(html: "readme html", htmlUrl: "readme html url") },
+            fetchS3Readme: { _, _, _ in "" },
             fileManager: .mock,
             getStatusCount: { _, _ in eventLoop.future(100) },
             git: .mock,
@@ -68,6 +69,7 @@ extension AppEnvironment {
             setLogger: { logger in Self.logger = logger },
             shell: .mock,
             siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
+            storeS3Readme: { _, _, _ in "s3ObjectUrl" },
             triggerBuild: { _, _, _, _, _, _, _, _ in
                 eventLoop.future(.init(status: .ok, webUrl: "http://web_url"))
             },

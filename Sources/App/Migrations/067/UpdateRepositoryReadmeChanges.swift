@@ -12,12 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extension ActorIsolated where Value == Int {
-    public func increment(by delta: Int = 1) {
-        self.value += delta
+import Fluent
+
+struct UpdateRepositoryReadmeChanges: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.schema("repositories")
+            .deleteField("readme_url")
+            .update()
+        try await database.schema("repositories")
+            .field("s3_readme", .json)
+            .update()
     }
 
-    public func decrement(by delta: Int = 1) {
-        self.value -= delta
+    func revert(on database: Database) async throws {
+        try await database.schema("repositories")
+            .deleteField("s3_readme")
+            .update()
+        try await database.schema("repositories")
+            .field("readme_url", .string)
+            .update()
     }
 }

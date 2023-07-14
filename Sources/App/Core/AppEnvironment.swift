@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import AsyncHTTPClient
+import S3Store
 import SPIManifest
 import ShellOut
 import Vapor
@@ -26,7 +27,10 @@ struct AppEnvironment {
     var allowTwitterPosts: () -> Bool
     var apiTokens: () -> Set<String>
     var appVersion: () -> String?
+    var awsAccessKeyId: () -> String?
     var awsDocsBucket: () -> String?
+    var awsReadmeBucket: () -> String?
+    var awsSecretAccessKey: () -> String?
     var builderToken: () -> String?
     var buildTriggerAllowList: () -> [Package.Id]
     var buildTriggerDownscaling: () -> Double
@@ -41,6 +45,7 @@ struct AppEnvironment {
     var fetchLicense: (_ client: Client, _ packageUrl: String) async -> Github.License?
     var fetchMetadata: (_ client: Client, _ packageUrl: String) async throws -> Github.Metadata
     var fetchReadme: (_ client: Client, _ packageUrl: String) async -> Github.Readme?
+    var fetchS3Readme: (_ client: Client, _ owner: String, _ repository: String) async throws -> String
     var fileManager: FileManager
     var getStatusCount: (_ client: Client,
                          _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
@@ -63,6 +68,7 @@ struct AppEnvironment {
     var setLogger: (Logger) -> Void
     var shell: Shell
     var siteURL: () -> String
+    var storeS3Readme: (_ owner: String, _ repository: String, _ readme: String) async throws -> String
     var triggerBuild: (_ client: Client,
                        _ logger: Logger,
                        _ buildId: Build.Id,
@@ -119,7 +125,10 @@ extension AppEnvironment {
         },
         apiTokens: { _apiTokens },
         appVersion: { App.appVersion },
+        awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },
         awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
+        awsReadmeBucket: { Environment.get("AWS_README_BUCKET") },
+        awsSecretAccessKey: { Environment.get("AWS_SECRET_ACCESS_KEY") },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerAllowList: {
             Environment.get("BUILD_TRIGGER_ALLOW_LIST")
@@ -159,6 +168,7 @@ extension AppEnvironment {
         fetchLicense: Github.fetchLicense(client:packageUrl:),
         fetchMetadata: Github.fetchMetadata(client:packageUrl:),
         fetchReadme: Github.fetchReadme(client:packageUrl:),
+        fetchS3Readme: S3Store.fetchReadme(client:owner:repository:),
         fileManager: .live,
         getStatusCount: { client, status in
             Gitlab.Builder.getStatusCount(
@@ -196,6 +206,7 @@ extension AppEnvironment {
         setLogger: { logger in Self.logger = logger },
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
+        storeS3Readme: S3Store.storeReadme(owner:repository:readme:),
         triggerBuild: Gitlab.Builder.triggerBuild,
         twitterCredentials: {
             guard let apiKey = Environment.get("TWITTER_API_KEY"),
@@ -253,13 +264,13 @@ struct FileManager {
     func removeItem(atPath path: String) throws { try removeItem(path) }
 
     static let live: Self = .init(
-        attributesOfItem: Foundation.FileManager.default.attributesOfItem,
-        contentsOfDirectory: Foundation.FileManager.default.contentsOfDirectory,
+        attributesOfItem: Foundation.FileManager.default.attributesOfItem(atPath:),
+        contentsOfDirectory: Foundation.FileManager.default.contentsOfDirectory(atPath:),
         contents: Foundation.FileManager.default.contents(atPath:),
         checkoutsDirectory: { Environment.get("CHECKOUTS_DIR") ?? DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
-        createDirectory: Foundation.FileManager.default.createDirectory,
-        fileExists: Foundation.FileManager.default.fileExists,
-        removeItem: Foundation.FileManager.default.removeItem,
+        createDirectory: Foundation.FileManager.default.createDirectory(atPath:withIntermediateDirectories: attributes:),
+        fileExists: Foundation.FileManager.default.fileExists(atPath:),
+        removeItem: Foundation.FileManager.default.removeItem(atPath:),
         workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
     )
 }

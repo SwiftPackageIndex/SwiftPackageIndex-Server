@@ -25,7 +25,7 @@ extension App.FileManager {
             contentsOfDirectory: { _ in [] },
             contents: { _ in .init() },
             checkoutsDirectory: { DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
-            createDirectory: { path, _, _ in },
+            createDirectory: { _, _, _ in },
             fileExists: { path in fileExists },
             removeItem: { _ in },
             workingDirectory: { DirectoryConfiguration.detect().workingDirectory }

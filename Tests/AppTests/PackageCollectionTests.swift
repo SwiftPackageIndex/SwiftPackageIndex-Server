@@ -259,7 +259,7 @@ class PackageCollectionTests: AppTestCase {
             try Repository(package: p,
                            license: .mit,
                            licenseUrl: "https://foo/mit",
-                           readmeUrl: "readmeUrl",
+                           readmeHtmlUrl: "readmeUrl",
                            summary: "summary")
                 .save(on: app.db).wait()
             let v = try Version(package: p,

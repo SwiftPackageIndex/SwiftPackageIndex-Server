@@ -309,18 +309,37 @@ class GithubTests: AppTestCase {
     func test_fetchReadme() async throws {
         // setup
         Current.githubToken = { "secr3t" }
-        let pkg = Package(url: "https://github.com/daveverwer/leftpad")
-        let data = try XCTUnwrap(try fixtureData(for: "github-readme-response.json"))
-        let client = MockClient { _, resp in
-            resp.status = .ok
-            resp.body = makeBody(data)
+        let pkg = Package(url: "https://github.com/SwiftPackageIndex/SemanticVersion")
+        let requestCount = QueueIsolated(0)
+        let client = MockClient { req, resp in
+            requestCount.increment()
+            switch req.headers[.accept] {
+                case ["application/vnd.github.html+json"]:
+                    resp.status = .ok
+                    resp.body = makeBody("readme html")
+                    resp.headers.add(name: .eTag, value: "etag")
+                case []:
+                    resp.status = .ok
+                    struct Response: Encodable {
+                        var htmlUrl: String
+                    }
+                    resp.body = makeBody(try! JSONEncoder().encode(Response(htmlUrl: "readme url")))
+                default:
+                    XCTFail("unexpected accept header")
+            }
         }
 
         // MUT
         let res = await Github.fetchReadme(client: client, packageUrl: pkg.url)
 
         // validate
-        XCTAssertEqual(res?.downloadUrl, "https://raw.githubusercontent.com/daveverwer/LeftPad/master/README.md")
+        XCTAssertEqual(requestCount.value, 2)
+        XCTAssertEqual(
+            res,
+            .init(etag: "etag",
+                  html: "readme html",
+                  htmlUrl: "readme url")
+        )
     }
 
     func test_fetchReadme_notFound() async throws {
@@ -333,7 +352,7 @@ class GithubTests: AppTestCase {
         let res = await Github.fetchReadme(client: client, packageUrl: pkg.url)
 
         // validate
-        XCTAssertEqual(res?.downloadUrl, nil)
+        XCTAssertEqual(res, nil)
     }
 
 }

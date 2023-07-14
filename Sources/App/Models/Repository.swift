@@ -105,14 +105,14 @@ final class Repository: Model, Content {
     @Field(key: "owner_avatar_url")
     var ownerAvatarUrl: String?
 
-    @Field(key: "readme_url")
-    var readmeUrl: String?
-
     @Field(key: "readme_html_url")
     var readmeHtmlUrl: String?
 
     @Field(key: "releases")
     var releases: [Release]
+    
+    @Field(key: "s3_readme")
+    var s3Readme: S3Readme?
 
     @Field(key: "stars")
     var stars: Int
@@ -147,9 +147,9 @@ final class Repository: Model, Content {
          owner: String? = nil,
          ownerName: String? = nil,
          ownerAvatarUrl: String? = nil,
-         readmeUrl: String? = nil,
          readmeHtmlUrl: String? = nil,
          releases: [Release] = [],
+         s3Readme: S3Readme? = nil,
          stars: Int = 0,
          summary: String? = nil
     ) throws {
@@ -179,14 +179,46 @@ final class Repository: Model, Content {
         self.owner = owner
         self.ownerName = ownerName
         self.ownerAvatarUrl = ownerAvatarUrl
-        self.readmeUrl = readmeUrl
         self.readmeHtmlUrl = readmeHtmlUrl
         self.releases = releases
+        self.s3Readme = s3Readme
         self.stars = stars
     }
 
     init(packageId: Package.Id) {
         self.$package.id = packageId
+        self.authors = nil
+        self.commitCount = 0
+        self.defaultBranch = nil
+        self.firstCommitDate = nil
+        self.forks = 0
+        self.homepageUrl = nil
+        self.isArchived = false
+        self.isInOrganization = false
+        self.keywords = []
+        self.lastCommitDate = nil
+        self.lastIssueClosedAt = nil
+        self.lastPullRequestClosedAt = nil
+        self.license = .none
+        self.licenseUrl = nil
+        self.name = nil
+        self.openIssues = 0
+        self.openPullRequests = 0
+        self.owner = nil
+        self.ownerName = nil
+        self.ownerAvatarUrl = nil
+        self.readmeHtmlUrl = nil
+        self.releases = []
+        self.s3Readme = nil
+        self.stars = 0
+        self.summary = nil
+    }
+
+    static func findOrCreate(on database: Database, for package: Package) async throws -> Repository {
+        let pkgId = try package.requireID()
+        return try await Repository.query(on: database)
+            .filter(\.$package.$id == pkgId)
+            .first() ?? Repository(packageId: pkgId)
     }
 }
 
@@ -200,5 +232,38 @@ extension Repository: Equatable {
 extension Repository {
     var ownerDisplayName: String? {
         ownerName ?? owner
+    }
+}
+
+
+enum S3Readme: Codable, Equatable {
+    case cached(s3ObjectUrl: String, githubEtag: String)
+    case error(String)
+
+    var isCached: Bool {
+        switch self {
+            case .cached:
+                return true
+            case .error:
+                return false
+        }
+    }
+
+    var isError: Bool {
+        switch self {
+            case .cached:
+                return false
+            case .error:
+                return true
+        }
+    }
+
+    func needsUpdate(upstreamEtag: String) -> Bool {
+        switch self {
+            case let .cached(_, githubEtag: existingEtag):
+                return existingEtag != upstreamEtag
+            case .error:
+                return true
+        }
     }
 }
