@@ -24,19 +24,11 @@ class PackageReadmeModelTests: SnapshotTestCase {
         let model = PackageReadme.Model(
             url: "https://example.com/owner/repo/README",
             readme: """
-            <html>
-                <head>
-                    <title>README file</title>
-                </head>
-                <body>
-                    <p>Other page content.</p>
-                    <div id="readme">
-                        <article>
-                            <p>README content.</p>
-                        </article>
-                    </div>
-                </body>
-            </html>
+            <div id="readme">
+                <article>
+                    <p>README content.</p>
+                </article>
+            </div>
             """)
 
         let readme = try XCTUnwrap(model.readme)
@@ -47,25 +39,17 @@ class PackageReadmeModelTests: SnapshotTestCase {
         let model = PackageReadme.Model(
             url: "https://example.com/owner/repo/README",
             readme: """
-            <html>
-                <head>
-                    <title>README file</title>
-                </head>
-                <body>
-                    <p>Other page content.</p>
-                    <div id="readme">
-                        <article>
-                            <p>README content.</p>
-                            <img src="https://example.com/absolute/image/url.png">
-                            <img src="/root/relative/image/url.png">
-                            <img src="relative/image/url.png">
-                            <img src="/url/with/encoded%20spaces.png">
-                            <img src="/url/with/unencoded spaces.png">
-                            <img>
-                        </article>
-                    </div>
-                </body>
-            </html>
+            <div id="readme">
+                <article>
+                    <p>README content.</p>
+                    <img src="https://example.com/absolute/image/url.png">
+                    <img src="/root/relative/image/url.png">
+                    <img src="relative/image/url.png">
+                    <img src="/url/with/encoded%20spaces.png">
+                    <img src="/url/with/unencoded spaces.png">
+                    <img>
+                </article>
+            </div>
             """)
 
         let readme = try XCTUnwrap(model.readme)
@@ -76,26 +60,18 @@ class PackageReadmeModelTests: SnapshotTestCase {
         let model = PackageReadme.Model(
             url: "https://example.com/owner/repo/README",
             readme: """
-            <html>
-                <head>
-                    <title>README file</title>
-                </head>
-                <body>
-                    <p>Other page content.</p>
-                    <div id="readme">
-                        <article>
-                            <p>README content.</p>
-                            <a href="https://example.com/absolute/url">Absolute link.</a>
-                            <a href="/root/relative/url">Root relative link.</a>
-                            <a href="relative/url">Relative link.</a>
-                            <a href="/url/with/encoded%20spaces">Encoded spaces.</a>
-                            <a href="/url/with/unencoded spaces">Unencoded spaces.</a>
-                            <a href="#anchor">Anchor link.</a>
-                            <a>Invalid link.</a>
-                        </article>
-                    </div>
-                </body>
-            </html>
+            <div id="readme">
+                <article>
+                    <p>README content.</p>
+                    <a href="https://example.com/absolute/url">Absolute link.</a>
+                    <a href="/root/relative/url">Root relative link.</a>
+                    <a href="relative/url">Relative link.</a>
+                    <a href="/url/with/encoded%20spaces">Encoded spaces.</a>
+                    <a href="/url/with/unencoded spaces">Unencoded spaces.</a>
+                    <a href="#anchor">Anchor link.</a>
+                    <a>Invalid link.</a>
+                </article>
+            </div>
             """)
 
         let readme = try XCTUnwrap(model.readme)
