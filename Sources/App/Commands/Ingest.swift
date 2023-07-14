@@ -139,7 +139,7 @@ func ingest(client: Client,
                     } catch {
                         // We don't want to fail ingestion in case storing the readme fails - warn and continue.
                         logger.warning("storeS3Readme failed")
-                        s3Readme = .error(error.localizedDescription)
+                        s3Readme = .error("\(error)")
                     }
 
                     try await updateRepository(on: database,
