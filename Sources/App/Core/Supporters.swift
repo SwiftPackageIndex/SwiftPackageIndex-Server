@@ -24,7 +24,12 @@ enum Supporters {
               logo: .init(lightModeUrl: "/images/sponsors/telemetrydeck.png",
                           darkModeUrl: "/images/sponsors/telemetrydeck~dark.png"),
               url: "http://telemetrydeck.com/?utm_source=swiftpackageindex&utm_campaign=swiftpackageindex_0723",
-              advertisingCopy: "Get light-weight, anonymized, privacy-focused usage data analytics for your app.")
+              advertisingCopy: "Get light-weight, anonymized, privacy-focused usage data analytics for your app."),
+        .init(name: "Point-Free",
+              logo: .init(lightModeUrl: "/images/sponsors/point-free.png",
+                          darkModeUrl: "/images/sponsors/point-free~dark.png"),
+              url: "https://www.pointfree.co/?spi-promo",
+              advertisingCopy: "Upgrade your Swift programming skills with advanced, quality videos on architecture, testing, and more.")
     ]
 
     static var infrastructure: [Corporate] = [
