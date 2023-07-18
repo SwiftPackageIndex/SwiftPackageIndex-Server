@@ -320,6 +320,10 @@ requests:
     url: ${base_url}/simonbs/KeyboardToolbar/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /simonbs/Runestone/documentation:
+    url: ${base_url}/simonbs/Runestone/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /sindresorhus/Defaults/documentation:
     url: ${base_url}/sindresorhus/Defaults/documentation
     validation:
