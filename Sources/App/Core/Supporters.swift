@@ -28,7 +28,7 @@ enum Supporters {
         .init(name: "Point-Free",
               logo: .init(lightModeUrl: "/images/sponsors/point-free.png",
                           darkModeUrl: "/images/sponsors/point-free~dark.png"),
-              url: "https://www.pointfree.co/?spi-promo",
+              url: "https://www.pointfree.co/?ref=spi-promo",
               advertisingCopy: "Upgrade your Swift programming skills with advanced, quality videos on architecture, testing, and more.")
     ]
 
