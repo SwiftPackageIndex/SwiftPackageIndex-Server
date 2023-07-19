@@ -365,18 +365,33 @@ enum PackageController {
 
         let pkg = try await Joined<Package, Repository>
             .query(on: req.db, owner: owner, repository: repository).get()
+
+        // For repositories that have no README file at all.
         guard let readmeHtmlUrl = pkg.repository?.readmeHtmlUrl else {
-            return PackageReadme.View(model: .init(url: nil, readme: nil)).document()
+            return PackageReadme.View(model: .init(url: nil,
+                                                   repositoryOwner: nil,
+                                                   repositoryName: nil,
+                                                   defaultBranch: nil,
+                                                   readme: nil)).document()
         }
+
         do {
             let readme = try await Current.fetchS3Readme(req.client, owner, repository)
-            return PackageReadme.View(model: .init(url: readmeHtmlUrl, readme: readme)).document()
+            return PackageReadme.View(model: .init(url: readmeHtmlUrl,
+                                                   repositoryOwner: pkg.repository?.owner,
+                                                   repositoryName: pkg.repository?.name,
+                                                   defaultBranch: pkg.repository?.defaultBranch,
+                                                   readme: readme)).document()
         } catch {
             if let repo = pkg.repository {
                 repo.s3Readme = .error("failed to fetch ")
                 try await repo.update(on: req.db)
             }
-            return PackageReadme.View(model: .init(url: readmeHtmlUrl, readme: nil)).document()
+            return PackageReadme.View(model: .init(url: readmeHtmlUrl,
+                                                   repositoryOwner: nil,
+                                                   repositoryName: nil,
+                                                   defaultBranch: nil,
+                                                   readme: nil)).document()
         }
     }
 
