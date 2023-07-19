@@ -21,6 +21,7 @@ x-shared: &shared
     # docker-compose reads and uses to populate variables
     ALLOW_BUILD_TRIGGERS: ${ALLOW_BUILD_TRIGGERS}
     ALLOW_TWITTER_POSTS: ${ALLOW_TWITTER_POSTS}
+    API_TOKENS: ${API_TOKENS}
     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
     AWS_DOCS_BUCKET: ${AWS_DOCS_BUCKET}
     AWS_README_BUCKET: ${AWS_README_BUCKET}
