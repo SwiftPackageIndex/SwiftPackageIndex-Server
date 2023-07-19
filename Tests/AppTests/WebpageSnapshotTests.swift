@@ -257,7 +257,11 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     // Note: This snapshot test deliberately omits an image snapshot as the HTML being tested has no explicit styling.
     func test_PackageReadmeView_unparseableReadme_noImageSnapshots() throws {
-        let model = PackageReadme.Model(url: "https://example.com/owner/repo/README", readme: nil)
+        let model = PackageReadme.Model(url: "https://example.com/owner/repo/README",
+                                        repositoryOwner: "owner",
+                                        repositoryName: "repo",
+                                        defaultBranch: "main",
+                                        readme: nil)
         let page = { PackageReadme.View(model: model).document() }
 
         assertSnapshot(matching: page, as: .html)
@@ -265,7 +269,11 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     // Note: This snapshot test deliberately omits an image snapshot as the HTML being tested has no explicit styling.
     func test_PackageReadmeView_noReadme_noImageSnapshots() throws {
-        let model = PackageReadme.Model(url: nil, readme: nil)
+        let model = PackageReadme.Model(url: nil,
+                                        repositoryOwner: "owner",
+                                        repositoryName: "repo",
+                                        defaultBranch: "main",
+                                        readme: nil)
         let page = { PackageReadme.View(model: model).document() }
 
         assertSnapshot(matching: page, as: .html)

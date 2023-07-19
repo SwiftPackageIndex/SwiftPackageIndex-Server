@@ -23,6 +23,9 @@ class PackageReadmeModelTests: SnapshotTestCase {
     func test_processReadme_extractReadmeElement() throws {
         let model = PackageReadme.Model(
             url: "https://example.com/owner/repo/README",
+            repositoryOwner: "owner",
+            repositoryName: "repo",
+            defaultBranch: "main",
             readme: """
             <div id="readme">
                 <article>
@@ -38,6 +41,9 @@ class PackageReadmeModelTests: SnapshotTestCase {
     func test_processReadme_processRelativeImages() throws {
         let model = PackageReadme.Model(
             url: "https://example.com/owner/repo/README",
+            repositoryOwner: "owner",
+            repositoryName: "repo",
+            defaultBranch: "main",
             readme: """
             <div id="readme">
                 <article>
@@ -59,6 +65,9 @@ class PackageReadmeModelTests: SnapshotTestCase {
     func test_processReadme_processRelativeLinks() throws {
         let model = PackageReadme.Model(
             url: "https://example.com/owner/repo/README",
+            repositoryOwner: "owner",
+            repositoryName: "repo",
+            defaultBranch: "main",
             readme: """
             <div id="readme">
                 <article>

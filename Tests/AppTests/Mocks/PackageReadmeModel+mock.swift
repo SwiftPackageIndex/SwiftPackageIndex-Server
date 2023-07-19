@@ -21,6 +21,9 @@ extension PackageReadme.Model {
     static var mock: PackageReadme.Model {
         .init(
             url: "https://example.com/owner/repo/README",
+            repositoryOwner: "owner",
+            repositoryName: "repo",
+            defaultBranch: "main",
             readme: """
             <div id="readme">
                 <article>
