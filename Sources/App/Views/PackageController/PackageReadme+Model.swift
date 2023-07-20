@@ -20,10 +20,21 @@ extension PackageReadme {
 
     struct Model: Equatable {
         var url: String?
+        var repositoryOwner: String?
+        var repositoryName: String?
+        var defaultBranch: String?
         private var readmeElement: Element?
 
-        internal init(url: String?, readme: String?) {
+        enum BaseReadmeUrlFileType: String {
+            case raw
+            case blob
+        }
+
+        internal init(url: String?, repositoryOwner: String?, repositoryName: String?, defaultBranch: String?, readme: String?) {
             self.url = url
+            self.repositoryOwner = repositoryOwner
+            self.repositoryName = repositoryName
+            self.defaultBranch = defaultBranch
             self.readmeElement = processReadme(readme)
         }
 
@@ -61,14 +72,9 @@ extension PackageReadme {
             do {
                 let imageElements = try element.select("img")
                 for imageElement in imageElements {
-                    guard let imageUrl = URL(withPotentiallyUnencodedPath: try imageElement.attr("src"))
-                    else { continue }
-
-                    // Assume all images are relative to GitHub as that's the only current source for README data.
-                    if (imageUrl.host == nil && imageUrl.path.starts(with: "/")) {
-                        guard let newImageUrl = URL(string: "https://github.com\(imageUrl.absoluteString)")
-                        else { continue }
-                        try imageElement.attr("src", newImageUrl.absoluteString)
+                    if let imageUrl = URL(withPotentiallyUnencodedPath: try imageElement.attr("src")),
+                       let absoluteUrl = fixRelativeUrl(imageUrl, fileType: .raw) {
+                        try imageElement.attr("src", absoluteUrl)
                     }
                 }
             } catch {
@@ -82,14 +88,9 @@ extension PackageReadme {
             do {
                 let linkElements = try element.select("a")
                 for linkElement in linkElements {
-                    guard let linkUrl = URL(withPotentiallyUnencodedPath: try linkElement.attr("href"))
-                    else { continue }
-
-                    // Assume all links are relative to GitHub as that's the only current source for README data.
-                    if (linkUrl.host == nil && linkUrl.path.starts(with: "/")) {
-                        guard let newLinkUrl = URL(string: "https://github.com\(linkUrl.absoluteString)")
-                        else { continue }
-                        try linkElement.attr("href", newLinkUrl.absoluteString)
+                    if let linkUrl = URL(withPotentiallyUnencodedPath: try linkElement.attr("href")),
+                       let absoluteUrl = fixRelativeUrl(linkUrl, fileType: .blob) {
+                        try linkElement.attr("href", absoluteUrl)
                     }
                 }
             } catch {
@@ -98,6 +99,26 @@ extension PackageReadme {
                 return
             }
         }
+
+        func fixRelativeUrl(_ url: URL, fileType: BaseReadmeUrlFileType) -> String? {
+            // If this is not a relative URL, or if any of the necessary parameters are
+            // missing, return nil so that no link replacement happens.
+            guard url.host == nil && url.path.isEmpty == false,
+                  let repositoryOwner = repositoryOwner,
+                  let repositoryName = repositoryName,
+                  let defaultBranch = defaultBranch
+            else { return nil }
+
+            // Assume all links are relative to GitHub as that's the only current source for README data.
+            let baseUrl = "https://github.com/"
+            let basePath = "\(repositoryOwner)/\(repositoryName)/\(fileType.rawValue)/\(defaultBranch)"
+            if url.path.starts(with: "/") {
+                return baseUrl + basePath + url.absoluteString
+            } else {
+                return baseUrl + basePath + "/" + url.absoluteString
+            }
+        }
+
     }
 }
 
