@@ -26,11 +26,11 @@ extension PackageReadme {
         case cacheLookupFailed(url: String)
 
         init(url: String, repositoryOwner: String, repositoryName: String, defaultBranch: String, readme: String) {
-            let repoTripel = (owner: repositoryOwner, name: repositoryName, branch: defaultBranch)
+            let repoTriple = (owner: repositoryOwner, name: repositoryName, branch: defaultBranch)
             self = .readme(
                 url: url,
-                repoTriple: repoTripel,
-                readmeElement: Self.processReadme(readme, for: repoTripel)
+                repoTriple: repoTriple,
+                readmeElement: Self.processReadme(readme, for: repoTriple)
             )
         }
 
