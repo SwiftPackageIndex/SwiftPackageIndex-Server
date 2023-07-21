@@ -65,6 +65,7 @@ class PackageReadmeModelTests: SnapshotTestCase {
 
         // validate
         let html = try XCTUnwrap(try element?.html())
+        // This assert is a snapshot, because Xcode strips trailing whitespace and the html has blank spaces at the end of each line, breaking the assert.
         assertSnapshot(matching: html, as: .lines)
     }
 
@@ -90,6 +91,7 @@ class PackageReadmeModelTests: SnapshotTestCase {
 
         // validate
         let html = try XCTUnwrap(try element?.html())
+        // This assert is a snapshot, because Xcode strips trailing whitespace and the html has blank spaces at the end of each line, breaking the assert.
         assertSnapshot(matching: html, as: .lines)
     }
 
