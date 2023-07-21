@@ -22,14 +22,13 @@ extension PackageReadme {
 
     enum Model {
         case noReadme
-        case readme(url: String, repoTriple: RepoTriple, readmeElement: Element?)
+        case readme(url: String, readmeElement: Element?)
         case cacheLookupFailed(url: String)
 
         init(url: String, repositoryOwner: String, repositoryName: String, defaultBranch: String, readme: String) {
             let repoTriple = (owner: repositoryOwner, name: repositoryName, branch: defaultBranch)
             self = .readme(
                 url: url,
-                repoTriple: repoTriple,
                 readmeElement: Self.processReadme(readme, for: repoTriple)
             )
         }
@@ -38,7 +37,7 @@ extension PackageReadme {
             switch self {
                 case .noReadme, .cacheLookupFailed:
                     return nil
-                case let .readme(url: _, repoTriple: _, readmeElement: element):
+                case let .readme(url: _, readmeElement: element):
                     return try? element?.html()
             }
         }
@@ -47,7 +46,7 @@ extension PackageReadme {
             switch self {
                 case .noReadme:
                     return nil
-                case let .readme(url: url, repoTriple: _, readmeElement: _), let .cacheLookupFailed(url: url):
+                case let .readme(url: url, readmeElement: _), let .cacheLookupFailed(url: url):
                     return url
             }
         }
