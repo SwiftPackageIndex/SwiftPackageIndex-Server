@@ -373,15 +373,12 @@ enum PackageController {
 
         do {
             let readme = try await Current.fetchS3Readme(req.client, owner, repository)
-            guard let owner = pkg.repository?.owner,
-                  let repo = pkg.repository?.name,
-                  let branch = pkg.repository?.defaultBranch
-            else {
+            guard let branch = pkg.repository?.defaultBranch else {
                 return PackageReadme.View(model: .cacheLookupFailed(url: readmeHtmlUrl)).document()
             }
             return PackageReadme.View(model: .init(url: readmeHtmlUrl,
                                                    repositoryOwner: owner,
-                                                   repositoryName: repo,
+                                                   repositoryName: repository,
                                                    defaultBranch: branch,
                                                    readme: readme)).document()
         } catch {
