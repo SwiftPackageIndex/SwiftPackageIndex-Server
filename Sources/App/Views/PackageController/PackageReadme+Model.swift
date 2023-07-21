@@ -18,45 +18,57 @@ import SwiftSoup
 
 extension PackageReadme {
 
-    struct Model: Equatable {
-        var url: String?
-        var repositoryOwner: String?
-        var repositoryName: String?
-        var defaultBranch: String?
-        private var readmeElement: Element?
+    struct RepoTripel {
+        var owner: String
+        var name: String
+        var branch: String
+    }
+
+    enum Model {
+        case noReadme
+        case readme(url: String, repoTripel: RepoTripel, readmeElement: Element?)
+        case cacheLookupFailed(url: String)
 
         enum BaseReadmeUrlFileType: String {
             case raw
             case blob
         }
 
-        internal init(url: String?, repositoryOwner: String?, repositoryName: String?, defaultBranch: String?, readme: String?) {
-            self.url = url
-            self.repositoryOwner = repositoryOwner
-            self.repositoryName = repositoryName
-            self.defaultBranch = defaultBranch
-            self.readmeElement = processReadme(readme)
+        init(url: String, repositoryOwner: String, repositoryName: String, defaultBranch: String, readme: String) {
+            let repoTripel = RepoTripel(owner: repositoryOwner, name: repositoryName, branch: defaultBranch)
+            self = .readme(
+                url: url,
+                repoTripel: repoTripel,
+                readmeElement: Self.processReadme(readme, repoTripel)
+            )
         }
 
-        var readme: String? {
-            guard let readmeElement = readmeElement else { return nil }
-
-            do {
-                return try readmeElement.html()
-            } catch {
-                return nil
+        var readmeHtml: String? {
+            switch self {
+                case .noReadme, .cacheLookupFailed:
+                    return nil
+                case let .readme(url: _, repoTripel: _, readmeElement: element):
+                    return try? element?.html()
             }
         }
 
-        func processReadme(_ rawReadme: String?) -> Element? {
-            guard let rawReadme = rawReadme else { return nil }
+        var readmeUrl: String? {
+            switch self {
+                case .noReadme:
+                    return nil
+                case let .readme(url: url, repoTripel: _, readmeElement: _), let .cacheLookupFailed(url: url):
+                    return url
+            }
+        }
+
+        static func processReadme(_ rawReadme: String, _ repoTripel: RepoTripel) -> Element? {
             guard let readmeElement = extractReadmeElement(rawReadme) else { return nil }
-            processRelativeImages(readmeElement)
-            processRelativeLinks(readmeElement)
+            processRelativeImages(readmeElement, repoTripel)
+            processRelativeLinks(readmeElement, repoTripel)
             return readmeElement
         }
 
-        func extractReadmeElement(_ rawReadme: String) -> Element? {
+        static func extractReadmeElement(_ rawReadme: String) -> Element? {
             do {
                 let bodyFragment = try SwiftSoup.parseBodyFragment(rawReadme)
                 let readmeElements = try bodyFragment.select("#readme article")
@@ -68,12 +80,12 @@ extension PackageReadme {
             }
         }
 
-        func processRelativeImages(_ element: Element) {
+        static func processRelativeImages(_ element: Element, _ repoTripel: RepoTripel) {
             do {
                 let imageElements = try element.select("img")
                 for imageElement in imageElements {
                     if let imageUrl = URL(withPotentiallyUnencodedPath: try imageElement.attr("src")),
-                       let absoluteUrl = fixRelativeUrl(imageUrl, fileType: .raw) {
+                       let absoluteUrl = fixRelativeUrl(imageUrl, repoTripel, fileType: .raw) {
                         try imageElement.attr("src", absoluteUrl)
                     }
                 }
@@ -84,12 +96,12 @@ extension PackageReadme {
             }
         }
 
-        func processRelativeLinks(_ element: Element) {
+        static func processRelativeLinks(_ element: Element, _ repoTripel: RepoTripel) {
             do {
                 let linkElements = try element.select("a")
                 for linkElement in linkElements {
                     if let linkUrl = URL(withPotentiallyUnencodedPath: try linkElement.attr("href")),
-                       let absoluteUrl = fixRelativeUrl(linkUrl, fileType: .blob) {
+                       let absoluteUrl = fixRelativeUrl(linkUrl, repoTripel, fileType: .blob) {
                         try linkElement.attr("href", absoluteUrl)
                     }
                 }
@@ -100,26 +112,21 @@ extension PackageReadme {
             }
         }
 
-        func fixRelativeUrl(_ url: URL, fileType: BaseReadmeUrlFileType) -> String? {
-            // If this is not a relative URL, or if any of the necessary parameters are
-            // missing, return nil so that no link replacement happens.
-            guard url.host == nil && url.path.isEmpty == false,
-                  let repositoryOwner = repositoryOwner,
-                  let repositoryName = repositoryName,
-                  let defaultBranch = defaultBranch
-            else { return nil }
+        static func fixRelativeUrl(_ url: URL, _ repoTripel: RepoTripel, fileType: BaseReadmeUrlFileType) -> String? {
+            // If this is not a relative URL return nil so that no link replacement happens.
+            guard url.host == nil, url.path.isEmpty == false else { return nil }
 
             // Assume all links are relative to GitHub as that's the only current source for README data.
             let baseUrl = "https://github.com/"
-            let basePath = "\(repositoryOwner)/\(repositoryName)/\(fileType.rawValue)/\(defaultBranch)"
+            let basePath = "\(repoTripel.owner)/\(repoTripel.name)/\(fileType.rawValue)/\(repoTripel.branch)"
             if url.path.starts(with: "/") {
                 return baseUrl + basePath + url.absoluteString
             } else {
                 return baseUrl + basePath + "/" + url.absoluteString
             }
         }
-
     }
+
 }
 
 extension URL {

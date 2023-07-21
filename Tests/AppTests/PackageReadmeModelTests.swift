@@ -34,7 +34,7 @@ class PackageReadmeModelTests: SnapshotTestCase {
             </div>
             """)
 
-        let readme = try XCTUnwrap(model.readme)
+        let readme = try XCTUnwrap(model.readmeHtml)
         assertSnapshot(matching: readme, as: .lines)
     }
 
@@ -58,7 +58,7 @@ class PackageReadmeModelTests: SnapshotTestCase {
             </div>
             """)
 
-        let readme = try XCTUnwrap(model.readme)
+        let readme = try XCTUnwrap(model.readmeHtml)
         assertSnapshot(matching: readme, as: .lines)
     }
 
@@ -83,7 +83,7 @@ class PackageReadmeModelTests: SnapshotTestCase {
             </div>
             """)
 
-        let readme = try XCTUnwrap(model.readme)
+        let readme = try XCTUnwrap(model.readmeHtml)
         assertSnapshot(matching: readme, as: .lines)
     }
 
