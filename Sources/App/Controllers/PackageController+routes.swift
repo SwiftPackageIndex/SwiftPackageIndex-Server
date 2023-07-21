@@ -368,30 +368,25 @@ enum PackageController {
 
         // For repositories that have no README file at all.
         guard let readmeHtmlUrl = pkg.repository?.readmeHtmlUrl else {
-            return PackageReadme.View(model: .init(url: nil,
-                                                   repositoryOwner: nil,
-                                                   repositoryName: nil,
-                                                   defaultBranch: nil,
-                                                   readme: nil)).document()
+            return PackageReadme.View(model: .noReadme).document()
         }
 
         do {
             let readme = try await Current.fetchS3Readme(req.client, owner, repository)
+            guard let branch = pkg.repository?.defaultBranch else {
+                return PackageReadme.View(model: .cacheLookupFailed(url: readmeHtmlUrl)).document()
+            }
             return PackageReadme.View(model: .init(url: readmeHtmlUrl,
-                                                   repositoryOwner: pkg.repository?.owner,
-                                                   repositoryName: pkg.repository?.name,
-                                                   defaultBranch: pkg.repository?.defaultBranch,
+                                                   repositoryOwner: owner,
+                                                   repositoryName: repository,
+                                                   defaultBranch: branch,
                                                    readme: readme)).document()
         } catch {
             if let repo = pkg.repository {
                 repo.s3Readme = .error("failed to fetch ")
                 try await repo.update(on: req.db)
             }
-            return PackageReadme.View(model: .init(url: readmeHtmlUrl,
-                                                   repositoryOwner: nil,
-                                                   repositoryName: nil,
-                                                   defaultBranch: nil,
-                                                   readme: nil)).document()
+            return PackageReadme.View(model: .cacheLookupFailed(url: readmeHtmlUrl)).document()
         }
     }
 

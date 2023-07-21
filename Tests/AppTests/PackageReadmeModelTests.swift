@@ -14,37 +14,39 @@
 
 @testable import App
 
-import XCTVapor
 import SnapshotTesting
+import SwiftSoup
+import XCTVapor
 
 
 class PackageReadmeModelTests: SnapshotTestCase {
 
-    func test_processReadme_extractReadmeElement() throws {
-        let model = PackageReadme.Model(
-            url: "https://example.com/owner/repo/README",
-            repositoryOwner: "owner",
-            repositoryName: "repo",
-            defaultBranch: "main",
-            readme: """
+    func test_Element_extractReadme() throws {
+        let element = Element.extractReadme("""
             <div id="readme">
                 <article>
                     <p>README content.</p>
                 </article>
             </div>
             """)
-
-        let readme = try XCTUnwrap(model.readme)
-        assertSnapshot(matching: readme, as: .lines)
+        XCTAssertEqual(try element?.html(), "<p>README content.</p>")
     }
 
-    func test_processReadme_processRelativeImages() throws {
-        let model = PackageReadme.Model(
-            url: "https://example.com/owner/repo/README",
-            repositoryOwner: "owner",
-            repositoryName: "repo",
-            defaultBranch: "main",
-            readme: """
+    func test_URL_rewriteRelative() throws {
+        let triple = ("owner", "repo", "main")
+        XCTAssertEqual(URL(string: "https://example.com")?.rewriteRelative(to: triple, fileType: .raw), nil)
+        XCTAssertEqual(URL(string: "https://example.com/foo")?.rewriteRelative(to: triple, fileType: .raw), nil)
+        XCTAssertEqual(URL(string: "/foo")?.rewriteRelative(to: triple, fileType: .raw),
+                       "https://github.com/owner/repo/raw/main/foo")
+        XCTAssertEqual(URL(string: "/foo")?.rewriteRelative(to: triple, fileType: .blob),
+                       "https://github.com/owner/repo/blob/main/foo")
+        XCTAssertEqual(URL(string: "/foo/bar?query")?.rewriteRelative(to: triple, fileType: .raw),
+                       "https://github.com/owner/repo/raw/main/foo/bar?query")
+    }
+
+    func test_Element_rewriteRelativeImages() throws {
+        // setup
+        let element = Element.extractReadme("""
             <div id="readme">
                 <article>
                     <p>README content.</p>
@@ -58,17 +60,18 @@ class PackageReadmeModelTests: SnapshotTestCase {
             </div>
             """)
 
-        let readme = try XCTUnwrap(model.readme)
-        assertSnapshot(matching: readme, as: .lines)
+        // MUT
+        element?.rewriteRelativeImages(to: ("owner", "repo", "main"))
+
+        // validate
+        let html = try XCTUnwrap(try element?.html())
+        // This assert is a snapshot, because Xcode strips trailing whitespace and the html has blank spaces at the end of each line, breaking the assert.
+        assertSnapshot(matching: html, as: .lines)
     }
 
-    func test_processReadme_processRelativeLinks() throws {
-        let model = PackageReadme.Model(
-            url: "https://example.com/owner/repo/README",
-            repositoryOwner: "owner",
-            repositoryName: "repo",
-            defaultBranch: "main",
-            readme: """
+    func test_Element_rewriteRelativeLinks() throws {
+        // setup
+        let element = Element.extractReadme("""
             <div id="readme">
                 <article>
                     <p>README content.</p>
@@ -83,11 +86,16 @@ class PackageReadmeModelTests: SnapshotTestCase {
             </div>
             """)
 
-        let readme = try XCTUnwrap(model.readme)
-        assertSnapshot(matching: readme, as: .lines)
+        // MUT
+        element?.rewriteRelativeLinks(to: ("owner", "repo", "main"))
+
+        // validate
+        let html = try XCTUnwrap(try element?.html())
+        // This assert is a snapshot, because Xcode strips trailing whitespace and the html has blank spaces at the end of each line, breaking the assert.
+        assertSnapshot(matching: html, as: .lines)
     }
 
-    func test_url_initWithPotentiallyUnencodedPath() throws {
+    func test_URL_initWithPotentiallyUnencodedPath() throws {
         // Relative URLs
         XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "/root/relative/url")).absoluteString, "/root/relative/url")
         XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "relative/url")).absoluteString, "relative/url")

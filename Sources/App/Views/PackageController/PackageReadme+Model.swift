@@ -18,109 +18,94 @@ import SwiftSoup
 
 extension PackageReadme {
 
-    struct Model: Equatable {
-        var url: String?
-        var repositoryOwner: String?
-        var repositoryName: String?
-        var defaultBranch: String?
-        private var readmeElement: Element?
+    typealias RepoTriple = (owner: String, name: String, branch: String)
 
-        enum BaseReadmeUrlFileType: String {
-            case raw
-            case blob
+    enum Model {
+        case noReadme
+        case readme(url: String, readmeElement: Element?)
+        case cacheLookupFailed(url: String)
+
+        init(url: String, repositoryOwner: String, repositoryName: String, defaultBranch: String, readme: String) {
+            let repoTriple = (owner: repositoryOwner, name: repositoryName, branch: defaultBranch)
+            self = .readme(
+                url: url,
+                readmeElement: Self.processReadme(readme, for: repoTriple)
+            )
         }
 
-        internal init(url: String?, repositoryOwner: String?, repositoryName: String?, defaultBranch: String?, readme: String?) {
-            self.url = url
-            self.repositoryOwner = repositoryOwner
-            self.repositoryName = repositoryName
-            self.defaultBranch = defaultBranch
-            self.readmeElement = processReadme(readme)
-        }
-
-        var readme: String? {
-            guard let readmeElement = readmeElement else { return nil }
-
-            do {
-                return try readmeElement.html()
-            } catch {
-                return nil
+        var readmeHtml: String? {
+            switch self {
+                case .noReadme, .cacheLookupFailed:
+                    return nil
+                case let .readme(url: _, readmeElement: element):
+                    return try? element?.html()
             }
         }
 
-        func processReadme(_ rawReadme: String?) -> Element? {
-            guard let rawReadme = rawReadme else { return nil }
-            guard let readmeElement = extractReadmeElement(rawReadme) else { return nil }
-            processRelativeImages(readmeElement)
-            processRelativeLinks(readmeElement)
+        var readmeUrl: String? {
+            switch self {
+                case .noReadme:
+                    return nil
+                case let .readme(url: url, readmeElement: _), let .cacheLookupFailed(url: url):
+                    return url
+            }
+        }
+
+        static func processReadme(_ rawReadme: String, for repoTriple: RepoTriple) -> Element? {
+            guard let readmeElement = Element.extractReadme(rawReadme) else { return nil }
+            readmeElement.rewriteRelativeImages(to: repoTriple)
+            readmeElement.rewriteRelativeLinks(to: repoTriple)
             return readmeElement
         }
+    }
 
-        func extractReadmeElement(_ rawReadme: String) -> Element? {
-            do {
-                let bodyFragment = try SwiftSoup.parseBodyFragment(rawReadme)
-                let readmeElements = try bodyFragment.select("#readme article")
-                guard let articleElement = readmeElements.first()
-                else { return nil } // There is no README if this element doesn't exist.
-                return articleElement
-            } catch {
-                return nil
-            }
+}
+
+
+extension Element {
+    static func extractReadme(_ rawReadme: String) -> Element? {
+        do {
+            let bodyFragment = try SwiftSoup.parseBodyFragment(rawReadme)
+            let readmeElements = try bodyFragment.select("#readme article")
+            guard let articleElement = readmeElements.first()
+            else { return nil } // There is no README if this element doesn't exist.
+            return articleElement
+        } catch {
+            return nil
         }
+    }
 
-        func processRelativeImages(_ element: Element) {
-            do {
-                let imageElements = try element.select("img")
-                for imageElement in imageElements {
-                    if let imageUrl = URL(withPotentiallyUnencodedPath: try imageElement.attr("src")),
-                       let absoluteUrl = fixRelativeUrl(imageUrl, fileType: .raw) {
-                        try imageElement.attr("src", absoluteUrl)
-                    }
+    func rewriteRelativeImages(to repoTriple: PackageReadme.RepoTriple) {
+        do {
+            let imageElements = try select("img")
+            for imageElement in imageElements {
+                if let imageUrl = URL(withPotentiallyUnencodedPath: try imageElement.attr("src")),
+                   let absoluteUrl = imageUrl.rewriteRelative(to: repoTriple, fileType: .raw) {
+                    try imageElement.attr("src", absoluteUrl)
                 }
-            } catch {
-                // Errors are being intentionally eaten here. The worst that can happen if the
-                // HTML selection/parsing fails is that relative images don't get corrected.
-                return
             }
+        } catch {
+            // Errors are being intentionally eaten here. The worst that can happen if the
+            // HTML selection/parsing fails is that relative images don't get corrected.
         }
+    }
 
-        func processRelativeLinks(_ element: Element) {
-            do {
-                let linkElements = try element.select("a")
-                for linkElement in linkElements {
-                    if let linkUrl = URL(withPotentiallyUnencodedPath: try linkElement.attr("href")),
-                       let absoluteUrl = fixRelativeUrl(linkUrl, fileType: .blob) {
-                        try linkElement.attr("href", absoluteUrl)
-                    }
+    func rewriteRelativeLinks(to repoTriple: PackageReadme.RepoTriple) {
+        do {
+            let linkElements = try select("a")
+            for linkElement in linkElements {
+                if let linkUrl = URL(withPotentiallyUnencodedPath: try linkElement.attr("href")),
+                   let absoluteUrl = linkUrl.rewriteRelative(to: repoTriple, fileType: .blob) {
+                    try linkElement.attr("href", absoluteUrl)
                 }
-            } catch {
-                // Errors are being intentionally eaten here. The worst that can happen if the
-                // HTML selection/parsing fails is that relative links don't get corrected.
-                return
             }
+        } catch {
+            // Errors are being intentionally eaten here. The worst that can happen if the
+            // HTML selection/parsing fails is that relative links don't get corrected.
         }
-
-        func fixRelativeUrl(_ url: URL, fileType: BaseReadmeUrlFileType) -> String? {
-            // If this is not a relative URL, or if any of the necessary parameters are
-            // missing, return nil so that no link replacement happens.
-            guard url.host == nil && url.path.isEmpty == false,
-                  let repositoryOwner = repositoryOwner,
-                  let repositoryName = repositoryName,
-                  let defaultBranch = defaultBranch
-            else { return nil }
-
-            // Assume all links are relative to GitHub as that's the only current source for README data.
-            let baseUrl = "https://github.com/"
-            let basePath = "\(repositoryOwner)/\(repositoryName)/\(fileType.rawValue)/\(defaultBranch)"
-            if url.path.starts(with: "/") {
-                return baseUrl + basePath + url.absoluteString
-            } else {
-                return baseUrl + basePath + "/" + url.absoluteString
-            }
-        }
-
     }
 }
+
 
 extension URL {
     init?(withPotentiallyUnencodedPath string: String) {
@@ -131,6 +116,25 @@ extension URL {
             self = encodedUrl
         } else {
             return nil
+        }
+    }
+
+    enum BaseReadmeUrlFileType: String {
+        case raw
+        case blob
+    }
+
+    func rewriteRelative(to repoTriple: PackageReadme.RepoTriple, fileType: BaseReadmeUrlFileType) -> String? {
+        // If this is not a relative URL return nil so that no link replacement happens.
+        guard host == nil, path.isEmpty == false else { return nil }
+
+        // Assume all links are relative to GitHub as that's the only current source for README data.
+        let baseUrl = "https://github.com/"
+        let basePath = "\(repoTriple.owner)/\(repoTriple.name)/\(fileType.rawValue)/\(repoTriple.branch)"
+        if path.starts(with: "/") {
+            return baseUrl + basePath + absoluteString
+        } else {
+            return baseUrl + basePath + "/" + absoluteString
         }
     }
 }

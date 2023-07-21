@@ -148,7 +148,7 @@ class PackageController_routesTests: AppTestCase {
         // Test readme fragment happy path
         // setup
         let pkg = try savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner", readmeHtmlUrl: "html url")
+        try await Repository(package: pkg, defaultBranch: "main", name: "package", owner: "owner", readmeHtmlUrl: "html url")
             .save(on: app.db)
         try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
         let req = Request(application: app, on: app.eventLoopGroup.next())

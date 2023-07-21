@@ -31,14 +31,14 @@ enum PackageReadme {
         }
 
         override func frameContent() -> Node<HTML.BodyContext> {
-            guard let readme = model.readme
+            guard let readme = model.readmeHtml
             else { return blankReadmePlaceholder() }
 
             return .group(.raw(readme))
         }
 
         func blankReadmePlaceholder() -> Node<HTML.BodyContext> {
-            guard let url = model.url
+            guard let url = model.readmeUrl
             else { return .p("This package does not have a README file.") }
 
             return .p(
