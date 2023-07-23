@@ -192,13 +192,6 @@ extension API.PackageController.GetRoute.Model {
         var lastPullRequestClosedAt: Date?
     }
 
-    @available(*, deprecated)
-    struct ProductCounts: Codable, Equatable {
-        var libraries: Int
-        var executables: Int
-        var plugins: Int
-    }
-
     enum Product: Codable, Equatable {
         case library
         case executable
