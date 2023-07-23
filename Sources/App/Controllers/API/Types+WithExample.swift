@@ -213,7 +213,7 @@ extension API.PackageController.GetRoute.Model: WithExample {
               ),
               history: .example,
               license: .mit,
-              productCounts: .init(libraries: 1, executables: 0, plugins: 0),
+              products: [.library],
               releases: .init(
                 stable: .init(date: .example,
                               link: .init(label: "1.2.3",

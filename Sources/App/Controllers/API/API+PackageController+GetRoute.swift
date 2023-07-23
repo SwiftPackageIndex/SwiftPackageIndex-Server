@@ -47,10 +47,7 @@ extension API.PackageController {
                 let model = try await Self.Model(
                     result: packageResult,
                     history: historyRecord?.historyModel(),
-                    productCounts: .init(
-                        libraries: productTypes.filter(\.isLibrary).count,
-                        executables: productTypes.filter(\.isExecutable).count,
-                        plugins: productTypes.filter(\.isPlugin).count),
+                    products: productTypes.compactMap(Model.Product.init),
                     swiftVersionBuildInfo: buildInfo.swiftVersion,
                     platformBuildInfo: buildInfo.platform,
                     weightedKeywords: weightedKeywords

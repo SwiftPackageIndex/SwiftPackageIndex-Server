@@ -92,7 +92,7 @@ extension API.PackageController.GetRoute.Model {
             ),
             license: .mit,
             licenseUrl: nil,
-            productCounts: .init(libraries: 3, executables: 1, plugins: 0),
+            products: [.library, .library, .executable, .library],
             releases: .init(stable: .init(date: Current.date().adding(days: -12),
                                           link: .init(label: "5.2.0",
                                                       url: "https://github.com/Alamofire/Alamofire/releases/tag/5.2.0")),

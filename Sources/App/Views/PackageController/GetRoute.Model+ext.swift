@@ -288,32 +288,32 @@ extension API.PackageController.GetRoute.Model {
     }
 
     func librariesListItem() -> Node<HTML.ListContext> {
-        guard let productCounts = productCounts
+        guard let products = products
         else { return .empty }
 
         return .li(
             .class("libraries"),
-            .text(productCounts.libraries.labeled("library", plural: "libraries", capitalized: true))
+            .text(products.filter({ $0 == .library }).count.labeled("library", plural: "libraries", capitalized: true))
         )
     }
 
     func executablesListItem() -> Node<HTML.ListContext> {
-        guard let productCounts = productCounts
+        guard let products = products
         else { return .empty }
 
         return .li(
             .class("executables"),
-            .text(productCounts.executables.labeled("executable", capitalized: true))
+            .text(products.filter({ $0 == .executable }).count.labeled("executable", capitalized: true))
         )
     }
 
     func pluginsListItem() -> Node<HTML.ListContext> {
-        guard let productCounts = productCounts
+        guard let products = products
         else { return .empty }
 
         return .li(
             .class("plugins"),
-            .text(productCounts.plugins.labeled("plugin", capitalized: true))
+            .text(products.filter({ $0 == .plugin }).count.labeled("plugin", capitalized: true))
         )
     }
 

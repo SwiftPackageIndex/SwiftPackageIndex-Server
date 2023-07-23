@@ -32,7 +32,7 @@ extension API.PackageController.GetRoute {
         var history: History?
         var license: License
         var licenseUrl: String?
-        var productCounts: ProductCounts?
+        var products: [Product]?
         var releases: ReleaseInfo
         var dependencies: [ResolvedDependency]?
         var stars: Int?
@@ -59,7 +59,7 @@ extension API.PackageController.GetRoute {
                       history: History? = nil,
                       license: License,
                       licenseUrl: String? = nil,
-                      productCounts: ProductCounts? = nil,
+                      products: [Product]? = nil,
                       releases: ReleaseInfo,
                       dependencies: [ResolvedDependency]?,
                       stars: Int? = nil,
@@ -89,7 +89,7 @@ extension API.PackageController.GetRoute {
             self.history = history
             self.license = license
             self.licenseUrl = licenseUrl
-            self.productCounts = productCounts
+            self.products = products
             self.releases = releases
             self.dependencies = dependencies
             self.stars = stars
@@ -116,7 +116,7 @@ extension API.PackageController.GetRoute {
 
         init?(result: API.PackageController.PackageResult,
               history: History?,
-              productCounts: ProductCounts,
+              products: [Product],
               swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?,
               platformBuildInfo: BuildInfo<PlatformResults>?,
               weightedKeywords: [WeightedKeyword] = []) {
@@ -142,7 +142,7 @@ extension API.PackageController.GetRoute {
                 history: history,
                 license: repository.license,
                 licenseUrl: repository.licenseUrl,
-                productCounts: productCounts,
+                products: products,
                 releases: releaseInfo(
                     packageUrl: result.package.url,
                     defaultBranchVersion: result.defaultBranchVersion,
@@ -192,10 +192,30 @@ extension API.PackageController.GetRoute.Model {
         var lastPullRequestClosedAt: Date?
     }
 
+    @available(*, deprecated)
     struct ProductCounts: Codable, Equatable {
         var libraries: Int
         var executables: Int
         var plugins: Int
+    }
+
+    enum Product: Codable, Equatable {
+        case library
+        case executable
+        case plugin
+
+        init?(_ productType: ProductType) {
+            switch productType {
+                case .executable:
+                    self = .executable
+                case .library:
+                    self = .library
+                case .plugin:
+                    self = .plugin
+                case .test:
+                    return nil
+            }
+        }
     }
 
     struct ReleaseInfo: Codable, Equatable {
