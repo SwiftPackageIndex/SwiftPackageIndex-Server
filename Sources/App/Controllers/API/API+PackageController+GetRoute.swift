@@ -36,9 +36,9 @@ extension API.PackageController {
             async let historyRecord = API.PackageController.History.query(on: database,
                                                                           owner: owner,
                                                                           repository: repository)
-            async let products = API.PackageController.ProductCount.query(on: database,
-                                                                          owner: owner,
-                                                                          repository: repository)
+            async let products = API.PackageController.Product.query(on: database,
+                                                                     owner: owner,
+                                                                     repository: repository)
             async let buildInfo = API.PackageController.BuildInfo.query(on: database,
                                                                         owner: owner,
                                                                         repository: repository)
