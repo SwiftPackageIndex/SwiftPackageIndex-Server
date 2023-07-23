@@ -74,13 +74,19 @@ extension API.PackageController {
 
 
 extension API.PackageController {
+#warning("FIXME: rename")
     enum ProductCount {
-        static func query(on database: Database, owner: String, repository: String) async throws -> [ProductType] {
+        static func query(on database: Database, owner: String, repository: String) async throws -> [(String, ProductType)] {
             try await Joined4<Package, Repository, Version, Product>
                 .query(on: database, owner: owner, repository: repository)
                 .field(Product.self, \.$type)
+                .field(Product.self, \.$name)
                 .all()
-                .compactMap(\.product.type)
+                .compactMap {
+                    guard let type = $0.product.type
+                    else { return nil }
+                    return ($0.product.name, type)
+                }
         }
     }
 }

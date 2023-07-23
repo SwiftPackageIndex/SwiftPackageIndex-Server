@@ -36,9 +36,9 @@ extension API.PackageController {
             async let historyRecord = API.PackageController.History.query(on: database,
                                                                           owner: owner,
                                                                           repository: repository)
-            async let productTypes = API.PackageController.ProductCount.query(on: database,
-                                                                              owner: owner,
-                                                                              repository: repository)
+            async let products = API.PackageController.ProductCount.query(on: database,
+                                                                          owner: owner,
+                                                                          repository: repository)
             async let buildInfo = API.PackageController.BuildInfo.query(on: database,
                                                                         owner: owner,
                                                                         repository: repository)
@@ -47,7 +47,7 @@ extension API.PackageController {
                 let model = try await Self.Model(
                     result: packageResult,
                     history: historyRecord?.historyModel(),
-                    products: productTypes.compactMap(Model.Product.init),
+                    products: products.compactMap(Model.Product.init(name:productType:)),
                     swiftVersionBuildInfo: buildInfo.swiftVersion,
                     platformBuildInfo: buildInfo.platform,
                     weightedKeywords: weightedKeywords

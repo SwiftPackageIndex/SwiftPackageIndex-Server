@@ -293,7 +293,7 @@ extension API.PackageController.GetRoute.Model {
 
         return .li(
             .class("libraries"),
-            .text(products.filter({ $0 == .library }).count.labeled("library", plural: "libraries", capitalized: true))
+            .text(products.filter({ $0.type == .library }).count.labeled("library", plural: "libraries", capitalized: true))
         )
     }
 
@@ -303,7 +303,7 @@ extension API.PackageController.GetRoute.Model {
 
         return .li(
             .class("executables"),
-            .text(products.filter({ $0 == .executable }).count.labeled("executable", capitalized: true))
+            .text(products.filter({ $0.type == .executable }).count.labeled("executable", capitalized: true))
         )
     }
 
@@ -313,7 +313,7 @@ extension API.PackageController.GetRoute.Model {
 
         return .li(
             .class("plugins"),
-            .text(products.filter({ $0 == .plugin }).count.labeled("plugin", capitalized: true))
+            .text(products.filter({ $0.type == .plugin }).count.labeled("plugin", capitalized: true))
         )
     }
 

@@ -192,21 +192,37 @@ extension API.PackageController.GetRoute.Model {
         var lastPullRequestClosedAt: Date?
     }
 
-    enum Product: Codable, Equatable {
-        case library
-        case executable
-        case plugin
+    struct Product: Codable, Equatable {
+        var name: String
+        var type: ProductType
 
-        init?(_ productType: ProductType) {
-            switch productType {
-                case .executable:
-                    self = .executable
-                case .library:
-                    self = .library
-                case .plugin:
-                    self = .plugin
-                case .test:
-                    return nil
+        init(name: String, type: ProductType) {
+            self.name = name
+            self.type = type
+        }
+
+        init?(name: String, productType: App.ProductType) {
+            guard let type = ProductType(productType) else { return nil }
+            self.name = name
+            self.type = type
+        }
+
+        enum ProductType: Codable, Equatable {
+            case library
+            case executable
+            case plugin
+            
+            init?(_ productType: App.ProductType) {
+                switch productType {
+                    case .executable:
+                        self = .executable
+                    case .library:
+                        self = .library
+                    case .plugin:
+                        self = .plugin
+                    case .test:
+                        return nil
+                }
             }
         }
     }

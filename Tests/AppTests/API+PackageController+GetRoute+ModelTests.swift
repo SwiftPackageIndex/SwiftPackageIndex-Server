@@ -258,9 +258,9 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         var model = API.PackageController.GetRoute.Model.mock
         model.products = []
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">No libraries</li>")
-        model.products = [.library]
+        model.products = [.init(name: "lib1", type: .library)]
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">1 library</li>")
-        model.products = [.library, .library]
+        model.products = [.init(name: "lib1", type: .library), .init(name: "lib2", type: .library)]
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">2 libraries</li>")
     }
 
@@ -268,9 +268,9 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         var model = API.PackageController.GetRoute.Model.mock
         model.products = []
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">No executables</li>")
-        model.products = [.executable]
+        model.products = [.init(name: "exe1", type: .executable)]
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">1 executable</li>")
-        model.products = [.executable, .executable]
+        model.products = [.init(name: "exe1", type: .executable), .init(name: "exe12", type: .executable)]
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">2 executables</li>")
     }
 
