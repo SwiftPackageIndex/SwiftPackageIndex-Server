@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-kit.git",
       "state" : {
-        "revision" : "763627fbb81f3fdcf5d38db15afae41d7926eee3",
-        "version" : "1.43.0"
+        "revision" : "cee27b81cbda867642604021cdf01aaee8d2b0f0",
+        "version" : "1.43.1"
       }
     },
     {
@@ -113,8 +113,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-nio.git",
       "state" : {
-        "revision" : "061a0836d7c1887e04a975d1d2eaa2ef5fd7dfab",
-        "version" : "1.16.0"
+        "revision" : "aa9273c06a0f42281635eaf0400aa024157c8fa9",
+        "version" : "1.17.0"
       }
     },
     {
@@ -166,8 +166,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soto-project/soto-core.git",
       "state" : {
-        "revision" : "3462ca704a43ded3b5a2903f5df3280dd5fa6b1f",
-        "version" : "6.5.0"
+        "revision" : "1ddc6a9d21fa129e24886a0085e8b6091777f924",
+        "version" : "6.5.1"
       }
     },
     {
@@ -274,8 +274,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-custom-dump.git",
       "state" : {
-        "revision" : "3a35f7892e7cf6ba28a78cd46a703c0be4e0c6dc",
-        "version" : "0.11.0"
+        "revision" : "4a87bb75be70c983a9548597e8783236feb3401e",
+        "version" : "0.11.1"
       }
     },
     {
@@ -284,7 +284,7 @@
       "location" : "https://github.com/apple/swift-driver.git",
       "state" : {
         "branch" : "release/5.9",
-        "revision" : "0363bc6f3a1830aea6e309f0e425079138462503"
+        "revision" : "cdcd4dec50796ff55176cfa783ff1ba4e011d5dd"
       }
     },
     {
@@ -374,7 +374,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "release/5.9",
-        "revision" : "f9c5565c74e67fa75c17dd77510d02c1474d0d8a"
+        "revision" : "44dac060a45668954c9024e104d0a7ec049d3d07"
       }
     },
     {
@@ -427,8 +427,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/MrLotU/SwiftPrometheus.git",
       "state" : {
-        "revision" : "2095e26b2b70f8e04598c7d57ca6268d1221aecd",
-        "version" : "1.0.1"
+        "revision" : "0d4bb1b93f3f8e1025c6f149a06ede0a075f7916",
+        "version" : "1.0.2"
       }
     },
     {
@@ -445,8 +445,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "1baf62327cc55f55a0767c3a9414dec8ebfdff96",
-        "version" : "4.77.1"
+        "revision" : "e98077ddd1e3535bea6c9514f99d57463816c3bd",
+        "version" : "4.77.2"
       }
     },
     {
@@ -472,8 +472,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "4af50b38daf0037cfbab15514a241224c3f62f98",
-        "version" : "0.8.5"
+        "revision" : "50843cbb8551db836adec2290bb4bc6bac5c1865",
+        "version" : "0.9.0"
       }
     },
     {
