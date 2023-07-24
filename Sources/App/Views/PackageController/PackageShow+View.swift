@@ -109,6 +109,7 @@ extension PackageShow {
                         .unwrap(model.packageDependencyCodeSnippet(for: .defaultBranch), {
                             model.spmDependencyForm(link: $0, cssClass: "branch")
                         }),
+                        // FIXME: move this into function
                         .unwrap(model.products, { products in
                                 .group(
                                 .h5("Product clause"),
