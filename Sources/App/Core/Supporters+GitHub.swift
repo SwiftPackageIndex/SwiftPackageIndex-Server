@@ -428,9 +428,9 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/64681110?u=2270894ff05a553bf3039f1d3df1e2dcd2c44cea&v=4"
         ),
         .init(
-            login: "EmergeTools",
+            login: "Emerge-Tools",
             name: "Emerge Tools",
-            avatarUrl: "https://avatars.githubusercontent.com/u/74033486?v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/139188095?v=4"
         ),
         .init(
             login: "TapEnvy-us-LLC",
