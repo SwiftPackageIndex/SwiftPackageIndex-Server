@@ -112,25 +112,25 @@ extension PackageShow {
                         // FIXME: move this into function
                         .unwrap(model.products, { products in
                                 .group(
-                                .h5("Product clause"),
-                                .p(
-                                    .label(.attribute(named: "for", value: "products"), "Choose a product:"),
-                                    " ",
-                                    .select(
-                                        .attribute(named: "name", value: "products"),
-                                        .id("products"),
-                                        .forEach(products, { product in
-                                                .element(named: "option", nodes: [
-                                                    .attribute(named: "value", value: product.name),
-                                                    .text(product.name)
-                                                ])
-                                        })
-                                    )
-                                ),
-                                // FIXME: insert selected product into `valueToCopy`
-                                .copyableInputForm(buttonName: "Copy Code Snippet",
-                                                   eventName: "Copy SwiftPM manifest clause button",
-                                                   valueToCopy: ".product(name: &quot;FIXME&quot;, package: &quot;FIXME&quot;)")
+                                    .h5("Product clause"),
+                                    .p(
+                                        .label(.attribute(named: "for", value: "products"), "Choose a product:"),
+                                        " ",
+                                        .select(
+                                            .attribute(named: "name", value: "products"),
+                                            .id("products"),
+                                            .forEach(products, { product in
+                                                    .element(named: "option", nodes: [
+                                                        .attribute(named: "value", value: product.name),
+                                                        .text(product.name)
+                                                    ])
+                                            })
+                                        )
+                                    ),
+                                    // FIXME: insert selected product into `valueToCopy`
+                                    .copyableInputForm(buttonName: "Copy Code Snippet",
+                                                       eventName: "Copy SwiftPM manifest clause button",
+                                                       valueToCopy: ".product(name: &quot;FIXME&quot;, package: &quot;FIXME&quot;)")
                                 )
                         })
                     )
