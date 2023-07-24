@@ -20,12 +20,13 @@ import SnapshotTesting
 
 class SnapshotTestCase: AppTestCase {
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
 
         Current.date = { Date(timeIntervalSince1970: 0) }
 
         SnapshotTesting.isRecording = false
         SnapshotTesting.diffTool = "ksdiff"
     }
+    
 }

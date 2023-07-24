@@ -25,6 +25,11 @@ import Vapor
 
 class WebpageSnapshotTests: SnapshotTestCase {
 
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        Current.environment = { .production }
+    }
+
     func test_HomeIndexView() throws {
         Supporters.mock()
 
