@@ -38,6 +38,7 @@ extension AppEnvironment {
             collectionSigningPrivateKey: AppEnvironment.live.collectionSigningPrivateKey,
             date: Date.init,
             dbId: { "db-id" },
+            environment: { .development },
             fetchDocumentation: { _, _ in .init(status: .ok) },
             fetchHTTPStatusCode: { _ in .ok },
             fetchPackageList: { _ in

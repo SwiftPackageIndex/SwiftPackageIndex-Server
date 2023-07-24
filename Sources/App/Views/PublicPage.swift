@@ -98,7 +98,7 @@ class PublicPage {
     /// For non-production environments, this will *always* return true.
     /// - Returns: Either nothing, or a <meta> element telling search engines not to index this content.
     final func metaNoIndex() -> Node<HTML.HeadContext> {
-        if Environment.current == .production && allowIndexing() {
+        if Current.environment() == .production && allowIndexing() {
             return .empty
         } else {
             return .meta(
@@ -118,7 +118,7 @@ class PublicPage {
     /// The Plausible analytics code to be inserted into the <head> element.
     /// - Returns: A <script> containing the Plausible script tags.
     final func analyticsHead() -> Node<HTML.HeadContext> {
-        return .if(Environment.current == .production, .raw(PublicPage.analyticsScriptTags))
+        return .if(Current.environment() == .production, .raw(PublicPage.analyticsScriptTags))
     }
 
     static var analyticsScriptTags: String {
@@ -216,7 +216,7 @@ class PublicPage {
     /// - Returns: Either a <div> element, or nothing.
     final func stagingBanner() -> Node<HTML.BodyContext> {
         guard !Current.hideStagingBanner() else { return .empty }
-        if Environment.current == .development {
+        if Current.environment() == .development {
             return .div(
                 .class("staging"),
                 .text("This is a staging environment. For live and up-to-date package information, "),
