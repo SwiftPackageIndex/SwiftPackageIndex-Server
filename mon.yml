@@ -20,7 +20,7 @@ services:
 
   grafana:
     # https://github.com/grafana/grafana/releases
-    image: grafana/grafana:10.0.1
+    image: grafana/grafana:10.0.2
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: 'false'
@@ -42,7 +42,7 @@ services:
 
   loki:
     # https://github.com/grafana/loki/releases
-    image: grafana/loki:2.8.2
+    image: grafana/loki:2.8.3
     command: -config.file=/loki.yml
     configs:
       - source: loki_cfg
@@ -54,7 +54,7 @@ services:
   promtail:
     # https://github.com/grafana/loki/releases
     # (promtail is released in parallel with loki)
-    image: grafana/promtail:2.8.2
+    image: grafana/promtail:2.8.3
     command: -config.file=/promtail.yml
     configs:
       - source: promtail_cfg
@@ -96,7 +96,7 @@ services:
 
   node-exporter:
     # https://github.com/prometheus/node_exporter/releases
-    image: prom/node-exporter:v1.6.0
+    image: prom/node-exporter:v1.6.1
     networks:
       - app_backend
     volumes:
