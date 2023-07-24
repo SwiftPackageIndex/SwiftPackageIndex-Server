@@ -38,6 +38,16 @@ class WebpageSnapshotTests: SnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
     }
 
+    func test_HomeIndexView_development() throws {
+        // Test home page to ensure the dev environment is showing the dev banner and `noindex` for robots
+        Current.environment = { .development }
+        Supporters.mock()
+
+        let page = { HomeIndex.View(path: "/", model: .mock).document() }
+
+        assertSnapshot(matching: page, as: .html)
+    }
+
     func test_PackageShowView() throws {
         // Work-around to set the local time zone for time sensitive
         // tests. Sets the explicit default time zone to UTC for the duration
