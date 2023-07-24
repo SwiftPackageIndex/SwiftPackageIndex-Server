@@ -39,6 +39,7 @@ struct AppEnvironment {
     var collectionSigningPrivateKey: () -> Data?
     var date: () -> Date
     var dbId: () -> String?
+    var environment: () -> Environment
     var fetchDocumentation: (_ client: Client, _ url: URI) async throws -> ClientResponse
     var fetchHTTPStatusCode: (_ url: String) async throws -> HTTPStatus
     var fetchPackageList: (_ client: Client) async throws -> [URL]
@@ -162,6 +163,7 @@ extension AppEnvironment {
         },
         date: Date.init,
         dbId: { Environment.get("DATABASE_ID") },
+        environment: { (try? Environment.detect()) ?? .development },
         fetchDocumentation: { client, url in try await client.get(url) },
         fetchHTTPStatusCode: Networking.fetchHTTPStatusCode,
         fetchPackageList: liveFetchPackageList,

@@ -25,7 +25,22 @@ import Vapor
 
 class WebpageSnapshotTests: SnapshotTestCase {
 
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        Current.environment = { .production }
+    }
+
     func test_HomeIndexView() throws {
+        Supporters.mock()
+
+        let page = { HomeIndex.View(path: "/", model: .mock).document() }
+
+        assertSnapshot(matching: page, as: .html)
+    }
+
+    func test_HomeIndexView_development() throws {
+        // Test home page to ensure the dev environment is showing the dev banner and `noindex` for robots
+        Current.environment = { .development }
         Supporters.mock()
 
         let page = { HomeIndex.View(path: "/", model: .mock).document() }

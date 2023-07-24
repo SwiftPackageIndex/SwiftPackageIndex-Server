@@ -97,7 +97,7 @@ struct DocumentationPageProcessor {
     }
 
     var metaNoIndex: String? {
-        guard Environment.current != .production else { return nil }
+        guard Current.environment() != .production else { return nil }
         return Plot.Node.meta(
             .name("robots"),
             .content("noindex")
@@ -112,7 +112,7 @@ struct DocumentationPageProcessor {
     }
 
     var analyticsScript: String? {
-        guard Environment.current == .production else { return nil }
+        guard Current.environment() == .production else { return nil }
         return PublicPage.analyticsScriptTags
     }
 
@@ -181,7 +181,7 @@ struct DocumentationPageProcessor {
         return Plot.Node.group(
             .header(
                 .class("spi"),
-                .if(Environment.current == .development, stagingBanner()),
+                .if(Current.environment() == .development, stagingBanner()),
                 .div(
                     .class("inner breadcrumbs"),
                     .nav(
@@ -272,7 +272,7 @@ struct DocumentationPageProcessor {
                     .text(".")
                 )
             ),
-            .if(Environment.current == .development, stagingBanner())
+            .if(Current.environment() == .development, stagingBanner())
         ).render()
     }
 
