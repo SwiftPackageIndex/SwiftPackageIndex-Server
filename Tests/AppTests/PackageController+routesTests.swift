@@ -801,7 +801,7 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
-    func test_linkableEntites() throws {
+    func test_linkablePaths() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
                 // embed uri.path in the body as a simple way to test the requested url

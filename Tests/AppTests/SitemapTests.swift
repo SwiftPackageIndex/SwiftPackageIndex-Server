@@ -68,7 +68,7 @@ class SitemapTests: SnapshotTestCase {
         }
     }
 
-    func test_linkableEntityUrls() async throws {
+    func test_linkablePathUrls() async throws {
         // setup
         let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
         try await package.save(on: app.db)
@@ -104,6 +104,47 @@ class SitemapTests: SnapshotTestCase {
         XCTAssertEqual(urls, [
             "https://spi.com/Owner/Repo0/default/documentation/foo/bar/1",
             "https://spi.com/Owner/Repo0/default/documentation/foo/bar/2"
+        ])
+    }
+
+    func test_linkablePathUrls_reference_pathEncoded() async throws {
+        // Ensure branch names with / are properly "path encoded"
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2462
+        // setup
+        let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
+        try await package.save(on: app.db)
+        try await Repository(package: package, defaultBranch: "a/b",
+                             lastCommitDate: Current.date(),
+                             name: "Repo0", owner: "Owner").save(on: app.db)
+        try await Version(package: package,
+                          commit: "123456",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "t1", title: "T1")],
+                          latest: .defaultBranch,
+                          packageName: "SomePackage",
+                          reference: .branch("a/b"),
+                          spiManifest: .init(builder: .init(configs: [.init(documentationTargets: ["t1", "t2"])]))).save(on: app.db)
+        let packageResult = try await PackageController.PackageResult
+            .query(on: app.db, owner: "owner", repository: "repo0")
+        Current.siteURL = { "https://spi.com" }
+        Current.fetchDocumentation = { client, url in
+            guard url.path.hasSuffix("/owner/repo0/a-b/linkable-paths.json") else { throw Abort(.notFound) }
+            return .init(status: .ok,
+                         body: .init(string: """
+                            [
+                                "/documentation/foo/bar/1",
+                                "/documentation/foo/bar/2",
+                            ]
+                            """)
+            )
+        }
+
+        // MUT
+        let urls = await PackageController.linkablePathUrls(client: app.client, packageResult: packageResult)
+
+        XCTAssertEqual(urls, [
+            "https://spi.com/Owner/Repo0/a-b/documentation/foo/bar/1",
+            "https://spi.com/Owner/Repo0/a-b/documentation/foo/bar/2"
         ])
     }
 

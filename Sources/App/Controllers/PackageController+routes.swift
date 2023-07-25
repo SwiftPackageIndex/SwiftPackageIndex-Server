@@ -336,16 +336,17 @@ enum PackageController {
             // is not available, it is better not to include canonical documentation URLs.
             return []
         }
+        let pathEncodedReference = reference.pathEncoded
 
         do {
             let awsResponse = try await awsResponse(client: client, owner: owner, repository: repository,
-                                                    reference: reference, fragment: .linkablePaths, path: "")
+                                                    reference: pathEncodedReference, fragment: .linkablePaths, path: "")
             guard let body = awsResponse.body else { return [] }
 
             let baseUrl = SiteURL.package(.value(owner), .value(repository), .none).absoluteURL()
             return try JSONDecoder()
                 .decode([String].self, from: body)
-                .map { "\(baseUrl)/\(reference)\($0)"  }
+                .map { "\(baseUrl)/\(pathEncodedReference)\($0)"  }
         } catch {
             // Errors here should *never* break the site map. Instead, they should return no
             // linkable paths. The most likely cause of an error here is either a 4xx from
