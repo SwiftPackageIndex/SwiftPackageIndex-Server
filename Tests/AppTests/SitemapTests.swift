@@ -68,7 +68,7 @@ class SitemapTests: SnapshotTestCase {
         }
     }
 
-    func test_linkableEntityUrls() async throws {
+    func test_linkablePathUrls() async throws {
         // setup
         let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
         try await package.save(on: app.db)
