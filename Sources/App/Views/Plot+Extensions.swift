@@ -65,6 +65,7 @@ extension Node where Context: HTML.BodyContext {
         )
     }
     static func spiPanel(buttonText: String,
+                         panelClass: String,
                          _ nodes: Node<HTML.BodyContext>...) -> Node<HTML.BodyContext> {
         .div(
             .data(named: "controller", value: "modal-panel"),
@@ -74,6 +75,7 @@ extension Node where Context: HTML.BodyContext {
                 .text(buttonText)
             ),
             .section(
+                .class(panelClass),
                 .data(named: "modal-panel-target", value: "panel"),
                 .button(
                     .class("close"),
@@ -136,14 +138,18 @@ extension Node where Context: HTML.BodyContext {
         )
     }
 
-    static func copyableInputForm(buttonName: String, eventName: String, valueToCopy: String) -> Self {
+    static func copyableInputForm(buttonName: String,
+                                  eventName: String,
+                                  valueToCopy: String? = nil,
+                                  inputNode: Attribute<HTML.InputContext>? = nil) -> Self {
         .form(
             .class("copyable-input"),
             .input(
                 .type(.text),
+                .unwrap(inputNode) { $0 },
                 .data(named: "button-name", value: buttonName),
                 .data(named: "event-name", value: eventName),
-                .value(valueToCopy),
+                .unwrap(valueToCopy) { .value($0) },
                 .readonly(true)
             )
         )

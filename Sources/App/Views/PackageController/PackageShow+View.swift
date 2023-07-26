@@ -93,45 +93,22 @@ extension PackageShow {
                     ),
                     .spiPanel(
                         buttonText: "Use this Package",
-                        .p(
-                            .text("How you add this package to your project depends on what kind of project you're developing.")
-                        ),
+                        panelClass: "use-this-package",
                         .h4("When working with an Xcode project:"),
                         model.xcodeprojDependencyForm(packageUrl: model.url),
                         .h4("When working with a Swift Package Manager manifest:"),
-                        .h5("Package clause"),
+                        .p("Select a package version:"),
                         .unwrap(model.packageDependencyCodeSnippet(for: .release), {
-                            model.spmDependencyForm(link: $0, cssClass: "stable")
+                            model.spmDependencyPackageForm(link: $0, cssClass: "stable")
                         }),
                         .unwrap(model.packageDependencyCodeSnippet(for: .preRelease), {
-                            model.spmDependencyForm(link: $0, cssClass: "beta")
+                            model.spmDependencyPackageForm(link: $0, cssClass: "beta")
                         }),
                         .unwrap(model.packageDependencyCodeSnippet(for: .defaultBranch), {
-                            model.spmDependencyForm(link: $0, cssClass: "branch")
+                            model.spmDependencyPackageForm(link: $0, cssClass: "branch")
                         }),
-                        // FIXME: move this into function
                         .unwrap(model.products, { products in
-                                .group(
-                                    .h5("Product clause"),
-                                    .p(
-                                        .label(.attribute(named: "for", value: "products"), "Choose a product:"),
-                                        " ",
-                                        .select(
-                                            .attribute(named: "name", value: "products"),
-                                            .id("products"),
-                                            .forEach(products, { product in
-                                                    .element(named: "option", nodes: [
-                                                        .attribute(named: "value", value: product.name),
-                                                        .text(product.name)
-                                                    ])
-                                            })
-                                        )
-                                    ),
-                                    // FIXME: insert selected product into `valueToCopy`
-                                    .copyableInputForm(buttonName: "Copy Code Snippet",
-                                                       eventName: "Copy SwiftPM manifest clause button",
-                                                       valueToCopy: ".product(name: &quot;FIXME&quot;, package: &quot;FIXME&quot;)")
-                                )
+                            model.spmDependencyProductForm(package: model.title, products: products)
                         })
                     )
                 ),

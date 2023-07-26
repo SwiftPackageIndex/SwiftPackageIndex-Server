@@ -374,22 +374,52 @@ extension API.PackageController.GetRoute.Model {
     }
 
     func xcodeprojDependencyForm(packageUrl: String) -> Node<HTML.BodyContext> {
-        .copyableInputForm(buttonName: "Copy Package URL",
+        .copyableInputForm(buttonName: "Copy",
                            eventName: "Copy Xcodeproj Package URL Button",
                            valueToCopy: packageUrl)
     }
 
-    func spmDependencyForm(link: Link, cssClass: String) -> Node<HTML.BodyContext> {
-        .group(
+    func spmDependencyPackageForm(link: Link, cssClass: String) -> Node<HTML.BodyContext> {
+        .div(
+            .class("version"),
             .p(
                 .span(
                     .class(cssClass),
                     .text(link.label)
                 )
             ),
-            .copyableInputForm(buttonName: "Copy Code Snippet",
+            .copyableInputForm(buttonName: "Copy",
                                eventName: "Copy SPM Manifest Code Snippet Button",
                                valueToCopy: link.url)
+        )
+    }
+
+    func spmDependencyProductForm(package: String, products: [Product]) -> Node<HTML.BodyContext> {
+        .div(
+            .data(named: "controller", value: "use-this-package-panel"),
+            .p(
+                .label(
+                    .for("products"),
+                    "Select a product:"
+                ),
+                .select(
+                    .data(named: "use-this-package-panel-target", value: "select"),
+                    .data(named: "action", value: "input->use-this-package-panel#updateProductSnippet"),
+                    .attribute(named: "name", value: "products"),
+                    .id("products"),
+                    .forEach(products, { product in
+                            .option(
+                                .data(named: "package", value: package),
+                                .data(named: "product", value: product.name),
+                                .value(product.name),
+                                .label(product.name)
+                            )
+                    })
+                )
+            ),
+            .copyableInputForm(buttonName: "Copy",
+                               eventName: "Copy SPM Manifest Product Code Snippet Button",
+                               inputNode: .data(named: "use-this-package-panel-target", value: "snippet"))
         )
     }
 

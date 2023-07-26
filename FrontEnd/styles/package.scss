@@ -252,6 +252,24 @@
         }
     }
 
+    .use-this-package {
+        .version {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            align-items: center;
+            width: 100%;
+
+            form {
+                flex-grow: 1;
+            }
+        }
+
+        select {
+            margin-left: 10px;
+        }
+    }
+
     @media screen and (max-width: $mobile-breakpoint) {
         article.details {
             section.main-metadata {
