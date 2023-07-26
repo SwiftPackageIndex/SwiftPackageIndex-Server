@@ -43,6 +43,11 @@ requests:
     url: ${base_url}/GetStream/stream-chat-vapor-swift/documentation
     validation:
       status: .regex((2|3)\d\d)
+  # Build failures across the board
+  # /GetStream/stream-video-swift/documentation:
+  #   url: ${base_url}/GetStream/stream-video-swift/documentation
+  #   validation:
+  #     status: .regex((2|3)\d\d)
   /Lighter-swift/Lighter/documentation:
     url: ${base_url}/Lighter-swift/Lighter/documentation
     validation:
@@ -127,6 +132,10 @@ requests:
     url: ${base_url}/apple/swift-http-structured-headers/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /apple/swift-http-types/documentation:
+    url: ${base_url}/apple/swift-http-types/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /apple/swift-log/documentation:
     url: ${base_url}/apple/swift-log/documentation
     validation:
@@ -199,6 +208,10 @@ requests:
     url: ${base_url}/apple/swift-syntax/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /braintree/braintree_ios/documentation:
+    url: ${base_url}/braintree/braintree_ios/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   # Error while generating docs: No documentation archive found
   # Needs further investigation
   # /calimarkus/JDStatusBarNotification/documentation:
@@ -232,6 +245,10 @@ requests:
       status: .regex((2|3)\d\d)
   /grpc/grpc-swift/documentation:
     url: ${base_url}/grpc/grpc-swift/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /hmlongco/Factory/documentation:
+    url: ${base_url}/hmlongco/Factory/documentation
     validation:
       status: .regex((2|3)\d\d)
   /immobiliare/RealHTTP/documentation:
@@ -316,6 +333,10 @@ requests:
     url: ${base_url}/richardtop/CalendarKit/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /scenee/FloatingPanel/documentation:
+    url: ${base_url}/scenee/FloatingPanel/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /simonbs/KeyboardToolbar/documentation:
     url: ${base_url}/simonbs/KeyboardToolbar/documentation
     validation:
@@ -336,12 +357,20 @@ requests:
     url: ${base_url}/sindresorhus/KeyboardShortcuts/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /siteline/SwiftUI-Introspect/documentation:
+    url: ${base_url}/siteline/SwiftUI-Introspect/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /stackotter/swift-bundler/documentation:
     url: ${base_url}/stackotter/swift-bundler/documentation
     validation:
       status: .regex((2|3)\d\d)
   /swift-server-community/APNSwift/documentation:
     url: ${base_url}/swift-server-community/APNSwift/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /swift-server/RediStack/documentation:
+    url: ${base_url}/swift-server/RediStack/documentation
     validation:
       status: .regex((2|3)\d\d)
   /swift-server/async-http-client/documentation:
@@ -370,6 +399,10 @@ requests:
       status: .regex((2|3)\d\d)
   /swiftwasm/JavaScriptKit/documentation:
     url: ${base_url}/swiftwasm/JavaScriptKit/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /tgrapperon/swift-dependencies-additions/documentation:
+    url: ${base_url}/tgrapperon/swift-dependencies-additions/documentation
     validation:
       status: .regex((2|3)\d\d)
   /vapor-community/HTMLKit/documentation:
