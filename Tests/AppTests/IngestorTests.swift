@@ -70,7 +70,7 @@ class IngestorTests: AppTestCase {
         }
 
         let packages = try await savePackages(on: app.db, ["https://github.com/foo/1",
-                                                           "https://github.com/foo/2"])
+                                                           "https://github.com/foo/2"], processingStage: .reconciliation)
             .map(Joined<Package, Repository>.init(model:))
         Current.fetchMetadata = { _, owner, repository in
             if owner == "foo" && repository == "1" {
@@ -83,12 +83,17 @@ class IngestorTests: AppTestCase {
         // MUT
         await ingest(client: app.client, database: app.db, packages: packages)
 
-        // validate the second package's license is updated
-        let repo = try await Repository.query(on: app.db)
-            .filter(\.$name == "2")
-            .first()
-            .unwrap()
-        XCTAssertEqual(repo.licenseUrl, "license")
+        do {
+            // validate the second package's license is updated
+            let repo = try await Repository.query(on: app.db)
+                .filter(\.$name == "2")
+                .first()
+                .unwrap()
+            XCTAssertEqual(repo.licenseUrl, "license")
+            for pkg in try await Package.query(on: app.db).all() {
+                XCTAssertEqual(pkg.processingStage, .ingestion, "\(pkg.url) must be in ingestion")
+            }
+        }
     }
 
     func test_updateRepository_insert() async throws {
