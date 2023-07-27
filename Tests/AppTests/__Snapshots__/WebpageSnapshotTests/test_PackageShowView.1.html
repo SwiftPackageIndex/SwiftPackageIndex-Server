@@ -92,32 +92,52 @@
           </div>
           <div data-controller="modal-panel">
             <button data-modal-panel-target="button" data-action="click->modal-panel#show">Use this Package</button>
-            <section data-modal-panel-target="panel">
+            <section class="use-this-package" data-modal-panel-target="panel">
               <button class="close" data-action="click->modal-panel#hide">&times;</button>
-              <p>How you add this package to your project depends on what kind of project you're developing.</p>
               <h4>When working with an Xcode project:</h4>
               <form class="copyable-input">
-                <input type="text" data-button-name="Copy Package URL" data-event-name="Copy Xcodeproj Package URL Button" value="https://github.com/Alamofire/Alamofire.git" readonly/>
+                <input type="text" data-button-name="Copy" data-event-name="Copy Xcodeproj Package URL Button" value="https://github.com/Alamofire/Alamofire.git" readonly/>
               </form>
               <h4>When working with a Swift Package Manager manifest:</h4>
-              <p>
-                <span class="stable">5.2.0</span>
-              </p>
-              <form class="copyable-input">
-                <input type="text" data-button-name="Copy Code Snippet" data-event-name="Copy SPM Manifest Code Snippet Button" value=".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.2.0&quot;)" readonly/>
-              </form>
-              <p>
-                <span class="beta">5.3.0-beta.1</span>
-              </p>
-              <form class="copyable-input">
-                <input type="text" data-button-name="Copy Code Snippet" data-event-name="Copy SPM Manifest Code Snippet Button" value=".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.3.0-beta.1&quot;)" readonly/>
-              </form>
-              <p>
-                <span class="branch">main</span>
-              </p>
-              <form class="copyable-input">
-                <input type="text" data-button-name="Copy Code Snippet" data-event-name="Copy SPM Manifest Code Snippet Button" value=".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, branch: &quot;main&quot;)" readonly/>
-              </form>
+              <p>Select a package version:</p>
+              <div class="version">
+                <p>
+                  <span class="stable">5.2.0</span>
+                </p>
+                <form class="copyable-input">
+                  <input type="text" data-button-name="Copy" data-event-name="Copy SPM Manifest Code Snippet Button" value=".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.2.0&quot;)" readonly/>
+                </form>
+              </div>
+              <div class="version">
+                <p>
+                  <span class="beta">5.3.0-beta.1</span>
+                </p>
+                <form class="copyable-input">
+                  <input type="text" data-button-name="Copy" data-event-name="Copy SPM Manifest Code Snippet Button" value=".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.3.0-beta.1&quot;)" readonly/>
+                </form>
+              </div>
+              <div class="version">
+                <p>
+                  <span class="branch">main</span>
+                </p>
+                <form class="copyable-input">
+                  <input type="text" data-button-name="Copy" data-event-name="Copy SPM Manifest Code Snippet Button" value=".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, branch: &quot;main&quot;)" readonly/>
+                </form>
+              </div>
+              <div data-controller="use-this-package-panel">
+                <p>
+                  <label for="products">Select a product:</label>
+                  <select data-use-this-package-panel-target="select" data-action="input->use-this-package-panel#updateProductSnippet" name="products" id="products">
+                    <option data-package="Alamofire" data-product="lib1" value="lib1" label="lib1"/>
+                    <option data-package="Alamofire" data-product="lib2" value="lib2" label="lib2"/>
+                    <option data-package="Alamofire" data-product="exe" value="exe" label="exe"/>
+                    <option data-package="Alamofire" data-product="lib3" value="lib3" label="lib3"/>
+                  </select>
+                </p>
+                <form class="copyable-input">
+                  <input type="text" data-use-this-package-panel-target="snippet" data-button-name="Copy" data-event-name="Copy SPM Manifest Product Code Snippet Button" readonly/>
+                </form>
+              </div>
             </section>
           </div>
         </div>

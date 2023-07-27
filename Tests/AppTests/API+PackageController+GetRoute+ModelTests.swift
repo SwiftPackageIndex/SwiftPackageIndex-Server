@@ -37,7 +37,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         // MUT
         let m = API.PackageController.GetRoute.Model(result: pr,
                                                      history: nil,
-                                                     productCounts: .mock,
+                                                     products: [],
                                                      swiftVersionBuildInfo: nil,
                                                      platformBuildInfo: nil,
                                                      weightedKeywords: [])
@@ -58,7 +58,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         // MUT
         let model = try XCTUnwrap(API.PackageController.GetRoute.Model(result: packageResult,
                                                                        history: nil,
-                                                                       productCounts: .mock,
+                                                                       products: [],
                                                                        swiftVersionBuildInfo: nil,
                                                                        platformBuildInfo: nil,
                                                                        weightedKeywords: []))
@@ -82,7 +82,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         // MUT
         let model = try XCTUnwrap(API.PackageController.GetRoute.Model(result: packageResult,
                                                                        history: nil,
-                                                                       productCounts: .mock,
+                                                                       products: [],
                                                                        swiftVersionBuildInfo: nil,
                                                                        platformBuildInfo: nil,
                                                                        weightedKeywords: []))
@@ -256,21 +256,21 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
     func test_num_libraries_formatting() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.productCounts?.libraries = 0
+        model.products = []
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">No libraries</li>")
-        model.productCounts?.libraries = 1
+        model.products = [.init(name: "lib1", type: .library)]
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">1 library</li>")
-        model.productCounts?.libraries = 2
+        model.products = [.init(name: "lib1", type: .library), .init(name: "lib2", type: .library)]
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">2 libraries</li>")
     }
 
     func test_num_executables_formatting() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.productCounts?.executables = 0
+        model.products = []
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">No executables</li>")
-        model.productCounts?.executables = 1
+        model.products = [.init(name: "exe1", type: .executable)]
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">1 executable</li>")
-        model.productCounts?.executables = 2
+        model.products = [.init(name: "exe1", type: .executable), .init(name: "exe12", type: .executable)]
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">2 executables</li>")
     }
 
@@ -510,10 +510,3 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 // local typealiases / references to make tests more readable
 fileprivate typealias BuildInfo = API.PackageController.GetRoute.Model.BuildInfo
 fileprivate typealias BuildResults = API.PackageController.GetRoute.Model.SwiftVersionResults
-
-
-private extension API.PackageController.GetRoute.Model.ProductCounts {
-    static var mock: Self {
-        .init(libraries: 0, executables: 0, plugins: 0)
-    }
-}

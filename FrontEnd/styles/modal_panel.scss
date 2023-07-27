@@ -37,13 +37,15 @@
         top: 50%;
         left: 50%;
         z-index: 1000;
+        max-width: 80%;
+        min-width: 650px;
         margin-right: -50%;
         padding: 20px;
         padding-top: 0;
         background-color: var(--panel-background);
         border-top: 3px var(--panel-border) solid;
         box-shadow: var(--panel-shadow);
-        transform: translate(-50%, -70%); // Slightly above centre looks best
+        transform: translate(-50%, -70%);
 
         &:not(.visible) {
             display: none;
@@ -60,6 +62,11 @@
             color: var(--page-text);
             background: none;
             border: none;
+        }
+
+        @media screen and (max-width: $mobile-breakpoint) {
+            min-width: initial;
+            transform: translate(-50%, -50%);
         }
     }
 }

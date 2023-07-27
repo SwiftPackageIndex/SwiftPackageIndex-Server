@@ -162,11 +162,11 @@ class API_PackageControllerTests: AppTestCase {
         }
 
         // MUT
-        let res = try await API.PackageController.ProductCount.query(on: app.db, owner: "foo", repository: "bar")
+        let res = try await API.PackageController.Product.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
-        XCTAssertEqual(res.filter(\.isExecutable).count, 1)
-        XCTAssertEqual(res.filter(\.isLibrary).count, 2)
+        XCTAssertEqual(res.filter(\.1.isExecutable).count, 1)
+        XCTAssertEqual(res.filter(\.1.isLibrary).count, 2)
     }
 
     func test_platformBuildResults() throws {

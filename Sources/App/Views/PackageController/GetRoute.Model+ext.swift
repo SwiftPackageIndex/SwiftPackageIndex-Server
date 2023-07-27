@@ -288,32 +288,32 @@ extension API.PackageController.GetRoute.Model {
     }
 
     func librariesListItem() -> Node<HTML.ListContext> {
-        guard let productCounts = productCounts
+        guard let products = products
         else { return .empty }
 
         return .li(
             .class("libraries"),
-            .text(productCounts.libraries.labeled("library", plural: "libraries", capitalized: true))
+            .text(products.filter({ $0.type == .library }).count.labeled("library", plural: "libraries", capitalized: true))
         )
     }
 
     func executablesListItem() -> Node<HTML.ListContext> {
-        guard let productCounts = productCounts
+        guard let products = products
         else { return .empty }
 
         return .li(
             .class("executables"),
-            .text(productCounts.executables.labeled("executable", capitalized: true))
+            .text(products.filter({ $0.type == .executable }).count.labeled("executable", capitalized: true))
         )
     }
 
     func pluginsListItem() -> Node<HTML.ListContext> {
-        guard let productCounts = productCounts
+        guard let products = products
         else { return .empty }
 
         return .li(
             .class("plugins"),
-            .text(productCounts.plugins.labeled("plugin", capitalized: true))
+            .text(products.filter({ $0.type == .plugin }).count.labeled("plugin", capitalized: true))
         )
     }
 
@@ -374,22 +374,52 @@ extension API.PackageController.GetRoute.Model {
     }
 
     func xcodeprojDependencyForm(packageUrl: String) -> Node<HTML.BodyContext> {
-        .copyableInputForm(buttonName: "Copy Package URL",
+        .copyableInputForm(buttonName: "Copy",
                            eventName: "Copy Xcodeproj Package URL Button",
                            valueToCopy: packageUrl)
     }
 
-    func spmDependencyForm(link: Link, cssClass: String) -> Node<HTML.BodyContext> {
-        .group(
+    func spmDependencyPackageForm(link: Link, cssClass: String) -> Node<HTML.BodyContext> {
+        .div(
+            .class("version"),
             .p(
                 .span(
                     .class(cssClass),
                     .text(link.label)
                 )
             ),
-            .copyableInputForm(buttonName: "Copy Code Snippet",
+            .copyableInputForm(buttonName: "Copy",
                                eventName: "Copy SPM Manifest Code Snippet Button",
                                valueToCopy: link.url)
+        )
+    }
+
+    func spmDependencyProductForm(package: String, products: [Product]) -> Node<HTML.BodyContext> {
+        .div(
+            .data(named: "controller", value: "use-this-package-panel"),
+            .p(
+                .label(
+                    .for("products"),
+                    "Select a product:"
+                ),
+                .select(
+                    .data(named: "use-this-package-panel-target", value: "select"),
+                    .data(named: "action", value: "input->use-this-package-panel#updateProductSnippet"),
+                    .attribute(named: "name", value: "products"),
+                    .id("products"),
+                    .forEach(products, { product in
+                            .option(
+                                .data(named: "package", value: package),
+                                .data(named: "product", value: product.name),
+                                .value(product.name),
+                                .label(product.name)
+                            )
+                    })
+                )
+            ),
+            .copyableInputForm(buttonName: "Copy",
+                               eventName: "Copy SPM Manifest Product Code Snippet Button",
+                               inputNode: .data(named: "use-this-package-panel-target", value: "snippet"))
         )
     }
 

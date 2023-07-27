@@ -74,13 +74,18 @@ extension API.PackageController {
 
 
 extension API.PackageController {
-    enum ProductCount {
-        static func query(on database: Database, owner: String, repository: String) async throws -> [ProductType] {
-            try await Joined4<Package, Repository, Version, Product>
+    enum Product {
+        static func query(on database: Database, owner: String, repository: String) async throws -> [(String, ProductType)] {
+            try await Joined4<Package, Repository, Version, App.Product>
                 .query(on: database, owner: owner, repository: repository)
-                .field(Product.self, \.$type)
+                .field(App.Product.self, \.$type)
+                .field(App.Product.self, \.$name)
                 .all()
-                .compactMap(\.product.type)
+                .compactMap {
+                    guard let type = $0.product.type
+                    else { return nil }
+                    return ($0.product.name, type)
+                }
         }
     }
 }
