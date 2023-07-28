@@ -115,6 +115,8 @@ func recordError(database: Database,
             break
         case let .genericError(id, _):
             try await setStatus(id: id, status: .ingestionFailed)
+        case let .ingestionError(id, _):
+            try await setStatus(id: id, status: .ingestionFailed)
         case let .invalidPackageCachePath(id, _):
             try await setStatus(id: id, status: .invalidCachePath)
         case let .cacheDirectoryDoesNotExist(id, _):
