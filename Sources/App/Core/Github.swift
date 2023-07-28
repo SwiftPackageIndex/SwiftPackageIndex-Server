@@ -133,12 +133,12 @@ extension Github {
         let response = try await client.get(uri, headers: defaultHeaders(with: token))
 
         guard !isRateLimited(response) else {
-            Current.logger().critical("rate limited while fetching resource \(T.self)")
+            Current.logger().critical("rate limited while fetching resource \(uri)")
             throw Error.requestFailed(.tooManyRequests)
         }
 
         guard response.status == .ok else {
-            Current.logger().warning("fetchResource request failed with status \(response.status)")
+            Current.logger().warning("fetchResource \(uri) request failed with status \(response.status)")
             throw Error.requestFailed(response.status)
         }
 
