@@ -190,6 +190,9 @@ func updateRepository(on database: Database,
                       readmeInfo: Github.Readme?,
                       s3Readme: S3Readme?) async throws {
     guard let repoMetadata = metadata.repository else {
+        if repository.$package.value == nil {
+            try await repository.$package.load(on: database)
+        }
         throw AppError.genericError(repository.package.id,
                                     "repository metadata is nil for package \(repository.name ?? "unknown")")
     }
