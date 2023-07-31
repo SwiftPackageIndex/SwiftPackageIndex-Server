@@ -254,24 +254,25 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         XCTAssertEqual(model.starsListItem().render(), "<li class=\"stars\">1,000,000 stars</li>")
     }
 
-    func test_num_libraries_formatting() throws {
+    func test_productTypeListItem_formatting() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.products = []
-        XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">No libraries</li>")
-        model.products = [.init(name: "lib1", type: .library)]
-        XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">1 library</li>")
-        model.products = [.init(name: "lib1", type: .library), .init(name: "lib2", type: .library)]
-        XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">2 libraries</li>")
-    }
 
-    func test_num_executables_formatting() throws {
-        var model = API.PackageController.GetRoute.Model.mock
+        // Libraries and plurality
         model.products = []
-        XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">No executables</li>")
-        model.products = [.init(name: "exe1", type: .executable)]
-        XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">1 executable</li>")
-        model.products = [.init(name: "exe1", type: .executable), .init(name: "exe12", type: .executable)]
-        XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">2 executables</li>")
+        XCTAssertEqual(model.productTypeListItem(.library).render(), "<li class=\"libraries\">No libraries</li>")
+
+        model.products = [.init(name: "lib1", type: .library)]
+        XCTAssertEqual(model.productTypeListItem(.library).render(), "<li class=\"libraries\">1 library</li>")
+
+        model.products = [.init(name: "lib1", type: .library), .init(name: "lib2", type: .library)]
+        XCTAssertEqual(model.productTypeListItem(.library).render(), "<li class=\"libraries\">2 libraries</li>")
+
+        // Executables and Plugins
+        model.products = [.init(name: "exe1", type: .executable), .init(name: "exe2", type: .executable)]
+        XCTAssertEqual(model.productTypeListItem(.executable).render(), "<li class=\"executables\">2 executables</li>")
+
+        model.products = [.init(name: "plg1", type: .plugin), .init(name: "plg2", type: .plugin)]
+        XCTAssertEqual(model.productTypeListItem(.plugin).render(), "<li class=\"plugins\">2 plugins</li>")
     }
 
     func test_authorMetadata() throws {
