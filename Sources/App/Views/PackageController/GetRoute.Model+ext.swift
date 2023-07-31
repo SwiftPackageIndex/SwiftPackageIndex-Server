@@ -287,33 +287,14 @@ extension API.PackageController.GetRoute.Model {
         return "This package depends on \(pluralizedCount: dependencies.count, singular: "other package")."
     }
 
-    func librariesListItem() -> Node<HTML.ListContext> {
+    func productTypeListItem(_ type: Product.ProductType) -> Node<HTML.ListContext> {
         guard let products = products
         else { return .empty }
 
         return .li(
-            .class("libraries"),
-            .text(products.filter({ $0.type == .library }).count.labeled("library", plural: "libraries", capitalized: true))
-        )
-    }
-
-    func executablesListItem() -> Node<HTML.ListContext> {
-        guard let products = products
-        else { return .empty }
-
-        return .li(
-            .class("executables"),
-            .text(products.filter({ $0.type == .executable }).count.labeled("executable", capitalized: true))
-        )
-    }
-
-    func pluginsListItem() -> Node<HTML.ListContext> {
-        guard let products = products
-        else { return .empty }
-
-        return .li(
-            .class("plugins"),
-            .text(products.filter({ $0.type == .plugin }).count.labeled("plugin", capitalized: true))
+            .class(type.cssClass),
+            .text(products.filter({ $0.type == type }).count
+                .labeled(type.singularForm, plural: type.pluralForm, capitalized: true))
         )
     }
 
@@ -584,5 +565,31 @@ private extension API.PackageController.GetRoute.Model.BuildResult where T: Buil
 private extension API.PackageController.GetRoute.Model.BuildStatus {
     var cssClass: String {
         self.rawValue
+    }
+}
+
+private extension API.PackageController.GetRoute.Model.Product.ProductType {
+    var cssClass: String {
+        switch self {
+            case .executable: return "executables"
+            case .library: return "libraries"
+            case .plugin: return "plugins"
+        }
+    }
+    
+    var singularForm: String {
+        switch self {
+            case .executable: return "executable"
+            case .library: return "library"
+            case .plugin: return "plugin"
+        }
+    }
+
+    var pluralForm: String {
+        switch self {
+            case .executable: return "executables"
+            case .library: return "libraries"
+            case .plugin: return "plugins"
+        }
     }
 }

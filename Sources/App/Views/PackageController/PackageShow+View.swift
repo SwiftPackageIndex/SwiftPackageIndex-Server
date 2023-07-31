@@ -167,9 +167,9 @@ extension PackageShow {
                     model.dependenciesListItem(),
                     model.licenseListItem(),
                     model.starsListItem(),
-                    model.librariesListItem(),
-                    model.executablesListItem(),
-                    model.pluginsListItem(),
+                    model.productTypeListItem(.library),
+                    model.productTypeListItem(.executable),
+                    model.productTypeListItem(.plugin),
                     model.keywordsListItem()
                 )
             )
