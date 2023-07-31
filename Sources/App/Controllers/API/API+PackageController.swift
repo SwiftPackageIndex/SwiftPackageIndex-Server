@@ -89,3 +89,20 @@ extension API.PackageController {
         }
     }
 }
+
+extension API.PackageController {
+    enum Target {
+        static func query(on database: Database, owner: String, repository: String) async throws -> [(String, TargetType)] {
+            try await Joined4<Package, Repository, Version, App.Target>
+                .query(on: database, owner: owner, repository: repository)
+                .field(App.Target.self, \.$type)
+                .field(App.Target.self, \.$name)
+                .all()
+                .compactMap {
+                    guard let type = $0.target.type
+                    else { return nil }
+                    return ($0.target.name, type)
+                }
+        }
+    }
+}

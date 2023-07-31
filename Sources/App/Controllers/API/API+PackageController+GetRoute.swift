@@ -39,6 +39,9 @@ extension API.PackageController {
             async let products = API.PackageController.Product.query(on: database,
                                                                      owner: owner,
                                                                      repository: repository)
+            async let targets = API.PackageController.Target.query(on: database,
+                                                                   owner: owner,
+                                                                   repository: repository)
             async let buildInfo = API.PackageController.BuildInfo.query(on: database,
                                                                         owner: owner,
                                                                         repository: repository)
@@ -48,6 +51,7 @@ extension API.PackageController {
                     result: packageResult,
                     history: historyRecord?.historyModel(),
                     products: products.compactMap(Model.Product.init(name:productType:)),
+                    targets: targets.compactMap(Model.Target.init(name:targetType:)),
                     swiftVersionBuildInfo: buildInfo.swiftVersion,
                     platformBuildInfo: buildInfo.platform,
                     weightedKeywords: weightedKeywords

@@ -298,6 +298,17 @@ extension API.PackageController.GetRoute.Model {
         )
     }
 
+    func targetTypeListItem(_ type: Target.TargetType) -> Node<HTML.ListContext> {
+        guard let targets = targets
+        else { print("hello"); return .empty }
+
+        return .li(
+            .class(type.cssClass),
+            .text(targets.filter({ $0.type == type }).count
+                .labeled(type.singularForm, plural: type.pluralForm, capitalized: true))
+        )
+    }
+
     func keywordsListItem() -> Node<HTML.ListContext> {
         if let keywords = keywords {
             return .li(
@@ -590,6 +601,26 @@ private extension API.PackageController.GetRoute.Model.Product.ProductType {
             case .executable: return "executables"
             case .library: return "libraries"
             case .plugin: return "plugins"
+        }
+    }
+}
+
+private extension API.PackageController.GetRoute.Model.Target.TargetType {
+    var cssClass: String {
+        switch self {
+            case .macro: return "macros"
+        }
+    }
+
+    var singularForm: String {
+        switch self {
+            case .macro: return "macro"
+        }
+    }
+
+    var pluralForm: String {
+        switch self {
+            case .macro: return "macros"
         }
     }
 }

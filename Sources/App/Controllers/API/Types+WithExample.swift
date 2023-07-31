@@ -224,6 +224,7 @@ extension API.PackageController.GetRoute.Model: WithExample {
               dependencies: nil,
               stars: 123,
               summary: "An example package",
+              targets: [.init(name: "target", type: .macro)],
               title: "LinkedList",
               url: "https://github.com/mona/LinkedList.git",
               isArchived: false,

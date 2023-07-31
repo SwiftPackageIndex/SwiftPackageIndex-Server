@@ -38,6 +38,7 @@ extension API.PackageController.GetRoute {
         var stars: Int?
         var summary: String?
         var title: String
+        var targets: [Target]?
         var url: String
         var score: Int?
         var isArchived: Bool
@@ -64,6 +65,7 @@ extension API.PackageController.GetRoute {
                       dependencies: [ResolvedDependency]?,
                       stars: Int? = nil,
                       summary: String?,
+                      targets: [Target]? = nil,
                       title: String,
                       url: String,
                       score: Int? = nil,
@@ -94,6 +96,7 @@ extension API.PackageController.GetRoute {
             self.dependencies = dependencies
             self.stars = stars
             self.summary = summary
+            self.targets = targets
             self.title = title
             self.url = url
             self.score = score
@@ -117,6 +120,7 @@ extension API.PackageController.GetRoute {
         init?(result: API.PackageController.PackageResult,
               history: History?,
               products: [Product],
+              targets: [Target],
               swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?,
               platformBuildInfo: BuildInfo<PlatformResults>?,
               weightedKeywords: [WeightedKeyword] = []) {
@@ -151,6 +155,7 @@ extension API.PackageController.GetRoute {
                 dependencies: result.defaultBranchVersion.resolvedDependencies,
                 stars: repository.stars,
                 summary: repository.summary,
+                targets: targets,
                 title: result.defaultBranchVersion.packageName ?? repositoryName,
                 url: result.package.url,
                 score: result.package.score,
@@ -221,6 +226,35 @@ extension API.PackageController.GetRoute.Model {
                     case .plugin:
                         self = .plugin
                     case .test:
+                        return nil
+                }
+            }
+        }
+    }
+
+    struct Target: Codable, Equatable {
+        var name: String
+        var type: TargetType
+
+        init(name: String, type: TargetType) {
+            self.name = name
+            self.type = type
+        }
+
+        init?(name: String, targetType: App.TargetType) {
+            guard let type = TargetType(targetType) else { return nil }
+            self.name = name
+            self.type = type
+        }
+
+        enum TargetType: Codable, Equatable {
+            case macro
+
+            init?(_ productType: App.TargetType) {
+                switch productType {
+                    case .macro:
+                        self = .macro
+                    default:
                         return nil
                 }
             }
