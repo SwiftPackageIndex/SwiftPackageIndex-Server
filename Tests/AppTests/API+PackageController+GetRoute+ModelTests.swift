@@ -38,6 +38,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         let m = API.PackageController.GetRoute.Model(result: pr,
                                                      history: nil,
                                                      products: [],
+                                                     targets: [],
                                                      swiftVersionBuildInfo: nil,
                                                      platformBuildInfo: nil,
                                                      weightedKeywords: [])
@@ -59,6 +60,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         let model = try XCTUnwrap(API.PackageController.GetRoute.Model(result: packageResult,
                                                                        history: nil,
                                                                        products: [],
+                                                                       targets: [],
                                                                        swiftVersionBuildInfo: nil,
                                                                        platformBuildInfo: nil,
                                                                        weightedKeywords: []))
@@ -83,6 +85,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         let model = try XCTUnwrap(API.PackageController.GetRoute.Model(result: packageResult,
                                                                        history: nil,
                                                                        products: [],
+                                                                       targets: [],
                                                                        swiftVersionBuildInfo: nil,
                                                                        platformBuildInfo: nil,
                                                                        weightedKeywords: []))
@@ -273,6 +276,20 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
         model.products = [.init(name: "plg1", type: .plugin), .init(name: "plg2", type: .plugin)]
         XCTAssertEqual(model.productTypeListItem(.plugin).render(), "<li class=\"plugins\">2 plugins</li>")
+    }
+
+    func test_targetTypeListItem_formatting() throws {
+        var model = API.PackageController.GetRoute.Model.mock
+
+        // Macros
+        model.targets = []
+        XCTAssertEqual(model.targetTypeListItem(.macro).render(), "<li class=\"macros\">No macros</li>")
+
+        model.targets = [.init(name: "macro1", type: .macro)]
+        XCTAssertEqual(model.targetTypeListItem(.macro).render(), "<li class=\"macros\">1 macro</li>")
+
+        model.targets = [.init(name: "macro1", type: .macro), .init(name: "macro2", type: .macro)]
+        XCTAssertEqual(model.targetTypeListItem(.macro).render(), "<li class=\"macros\">2 macros</li>")
     }
 
     func test_authorMetadata() throws {
