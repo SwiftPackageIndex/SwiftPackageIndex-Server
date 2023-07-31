@@ -12,33 +12,13 @@ All participation in this project, whether contributing code, communicating in d
 
 ## Funding and Sponsorship
 
-The Swift Package Index is a community project that would not be possible without the support of its sponsors. Thank you to everyone who supports this project!
+The Swift Package Index is a community project that would not be possible without the support of its sponsors. Thank you to _everyone_ who supports this project! You can see all of our current corporate, infrastructure, and community sponsors over on our [Supporters page](https://swiftpackageindex.com/supporters).
 
-### Corporate and Infrastructure Sponsors
-
-<div>
-<a href="https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat" target="_blank"><picture><source srcset=".readme-images/stream-logo~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/stream-logo.png" width="175" alt="Stream Logo" /></picture></a> &nbsp;&nbsp;
-<a href="https://www.emergetools.com/?utm_source=spi&utm_medium=sponsor&utm_campaign=emerge" target="_blank"><picture><source srcset=".readme-images/emerge-logo~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/emerge-logo.png" width="175" alt="Emerge Tools Logo" /></picture></a> &nbsp;&nbsp;
-<a href="https://www.macstadium.com/" target="_blank"><img src=".readme-images/macstadium-logo.png"  width="175" alt="MacStadium Logo"/></a> &nbsp;&nbsp;
-<a href="https://azure.microsoft.com/en-us/" target="_blank"><img src=".readme-images/azure-logo.png"  width="175" alt="Microsoft Azure Logo"/></a>
-</div>
-
-Thank you to all of our corporate sponsors for their support.
-
-* [**Stream**](https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat): Build reliable, real-time, in-app chat and messaging in less time.
-* [**Emerge Tools**](https://www.emergetools.com/?utm_source=spi&utm_medium=sponsor&utm_campaign=emerge): Monitor app size, improve startup time, and prevent performance regressions.
-* [**MacStadium**](https://getstream.io/chat/sdk/): Virtualized and bare-metal Macs in the cloud.
-* [**Microsoft Azure**](https://azure.microsoft.com/en-us/): Unify management of all your resources with Azure tools and guidance.
-
-### Community sponsors
-
-The support of this community means everything to us. Thank you to _everyone_ who sponsors this project via [GitHub sponsors](https://github.com/sponsors/SwiftPackageIndex).
-
-<a href="https://github.com/sponsors/SwiftPackageIndex" target="_blank"><picture><source srcset=".readme-images/community-sponsors~dark.png" media="(prefers-color-scheme: dark)"><img src=".readme-images/community-sponsors.png" width="600" alt="Community sponsor profile pictures" /></picture></a>
+If you'd like to help keep this project running, the best way through our [GitHub Sponsors](https://github.com/sponsors/SwiftPackageIndex). Your support directly helps keep this project running and moving forward. Thank you!
 
 ## Contributing
 
-There are many ways to contribute to the Swift Package Index. Whether it's helping to promote the site, suggesting or discussing a new feature, reporting a bug if you find one, through to helping with bug fixing, or the design/development of the software, we'd love to have you as a contributor.
+There are many ways to contribute to the Swift Package Index. Whether it's helping to promote the site, suggesting or discussing a new feature, reporting a bug if you find one, through to helping with bug fixing, or the design/development of the software, we'd love to have you as a contributor. All contributions are subject to our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 To keep our issues list under control, most bug reports or feature requests work best started as a [discussion in our forum](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/discussions). From there, we can promote it into an issue and start work on a pull request. We have plenty of [open issues](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues) if you'd like to get started. We've also tagged some with a [good first issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) label.
 
