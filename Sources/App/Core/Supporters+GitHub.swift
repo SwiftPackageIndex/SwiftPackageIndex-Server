@@ -163,11 +163,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/750912?v=4"
         ),
         .init(
-            login: "krzyzanowskim",
-            name: "Marcin Krzyzanowski",
-            avatarUrl: "https://avatars.githubusercontent.com/u/758033?v=4"
-        ),
-        .init(
             login: "brainray",
             name: "Raymund Beyer",
             avatarUrl: "https://avatars.githubusercontent.com/u/817177?v=4"
