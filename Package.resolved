@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-kit.git",
       "state" : {
-        "revision" : "cee27b81cbda867642604021cdf01aaee8d2b0f0",
-        "version" : "1.43.1"
+        "revision" : "e562a1015a814d42582cbccd3e58f03187d6718c",
+        "version" : "1.44.0"
       }
     },
     {
@@ -104,8 +104,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-kit.git",
       "state" : {
-        "revision" : "b69f427924b00718e8190701e4f410e9c0823770",
-        "version" : "2.11.4"
+        "revision" : "e0f6bc99d9fe3125dec75bb243b362f80bdaaa41",
+        "version" : "2.12.0"
       }
     },
     {
@@ -284,7 +284,7 @@
       "location" : "https://github.com/apple/swift-driver.git",
       "state" : {
         "branch" : "release/5.9",
-        "revision" : "cdcd4dec50796ff55176cfa783ff1ba4e011d5dd"
+        "revision" : "e7b2840dbfb06007874099c6f71db6b46a3daaa1"
       }
     },
     {
@@ -293,7 +293,7 @@
       "location" : "https://github.com/apple/swift-llbuild.git",
       "state" : {
         "branch" : "release/5.9",
-        "revision" : "17a88707e99dc0379eccfcf190ee2361227369fc"
+        "revision" : "d73a305d6e5a82e4bf3bf1727da3d1376e87efab"
       }
     },
     {
@@ -319,8 +319,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "5f542894dd8efbd766d8adf73ef2f947b0cd5e21",
-        "version" : "2.56.0"
+        "revision" : "a2e487b77f17edbce9a65f2b7415f2f479dc8e48",
+        "version" : "2.57.0"
       }
     },
     {
@@ -374,7 +374,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "release/5.9",
-        "revision" : "44dac060a45668954c9024e104d0a7ec049d3d07"
+        "revision" : "9be12c545db2cfdff63d709de59361cfe12cdb92"
       }
     },
     {
