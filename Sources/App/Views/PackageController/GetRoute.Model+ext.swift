@@ -300,7 +300,7 @@ extension API.PackageController.GetRoute.Model {
 
     func targetTypeListItem(_ type: Target.TargetType) -> Node<HTML.ListContext> {
         guard let targets = targets
-        else { print("hello"); return .empty }
+        else { return .empty }
 
         return .li(
             .class(type.cssClass),
