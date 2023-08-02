@@ -172,6 +172,12 @@
             }
         }
 
+        section.main-compatibility .title {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+        }
+
         section.sidebar-versions {
             width: 100%;
 
