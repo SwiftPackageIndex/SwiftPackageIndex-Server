@@ -180,7 +180,7 @@ extension PackageShow {
             .section(
                 .class("main-compatibility"),
                 .div(
-                    .class("two-column v-end"),
+                    .class("title"),
                     .h3("Compatibility"),
                     .a(
                         .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
