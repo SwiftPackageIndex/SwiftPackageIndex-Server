@@ -126,6 +126,10 @@
                 background-image: var(--image-plugins);
             }
 
+            li.macros {
+                background-image: var(--image-macros);
+            }
+
             li.keywords {
                 grid-column-start: span 2;
                 background-image: var(--image-tags);

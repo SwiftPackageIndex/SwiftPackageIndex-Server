@@ -170,6 +170,7 @@ extension PackageShow {
                     model.productTypeListItem(.library),
                     model.productTypeListItem(.executable),
                     model.productTypeListItem(.plugin),
+                    model.targetTypeListItem(.macro),
                     model.keywordsListItem()
                 )
             )

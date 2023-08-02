@@ -36,3 +36,25 @@ extension Joined4 where M == Package, R1 == Repository, R2 == Version, R3 == Pro
             .filter(Repository.self, \.$name, .custom("ilike"), repository)
     }
 }
+
+extension Joined4 where M == Package, R1 == Repository, R2 == Version, R3 == Target {
+    // periphery:ignore
+    var package: Package { model }
+    // Safe to force unwrap all relationshipts due to inner joins
+    // periphery:ignore
+    var repository: Repository { relation1! }
+    // periphery:ignore
+    var version: Version { relation2! }
+    // periphery:ignore
+    var target: Target { relation3! }
+
+    static func query(on database: Database, owner: String, repository: String) -> JoinedQueryBuilder<Self> {
+        query(on: database,
+              join: \Repository.$package.$id == \Package.$id, method: .inner,
+              join: \Version.$package.$id == \Package.$id, method: .inner,
+              join: \Target.$version.$id == \Version.$id, method: .inner)
+        .filter(Version.self, \Version.$latest == .defaultBranch)
+        .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+        .filter(Repository.self, \.$name, .custom("ilike"), repository)
+    }
+}
