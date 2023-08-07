@@ -374,7 +374,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "release/5.9",
-        "revision" : "9be12c545db2cfdff63d709de59361cfe12cdb92"
+        "revision" : "0479d07cb08310224e68f80d6365982d90cc313e"
       }
     },
     {
@@ -445,8 +445,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "e98077ddd1e3535bea6c9514f99d57463816c3bd",
-        "version" : "4.77.2"
+        "revision" : "6b96684e150d3b3afcd53df12fe66e6bd9b67a04",
+        "version" : "4.78.0"
       }
     },
     {
