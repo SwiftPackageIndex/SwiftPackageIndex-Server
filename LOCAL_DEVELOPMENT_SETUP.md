@@ -1,12 +1,16 @@
 ## Configuring a Local Development Environment
 
-To run the project on your local machine, you'll need the [latest non-beta version of Xcode](https://developer.apple.com/xcode/resources/) and [Docker Desktop for macOS](https://www.docker.com/products/docker-desktop) installed.
+To run the project on your local machine, you'll need Xcode and [Docker Desktop for macOS](https://www.docker.com/products/docker-desktop) installed.
+
+**Note:** We usually run close to the latest version of Swift and generally upgrade to major beta versions, so Xcode beta versions should work well. Try running the latest beta first, and fall back to release Xcode if you find issues.
 
 It is not possible to run the [build system](https://blog.swiftpackageindex.com/posts/launching-language-and-platform-package-compatibility/) locally due to its reliance on the infrastructure in which it runs. If you have any feature requests or bug reports relating to the build or compatibility system, [please start a discussion](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/discussions).
 
 ### Setup the Back End
 
 Once you have the project cloned locally, the `Makefile` defines a set of useful commands to get you up and running.
+
+Ensure that the latest version of Xcode is "selected" and not the command line tools. You can check this with `xcode-select -p` and set it with `xcode-select -s`.
 
 You'll need some environment variables configured before you can run the project. There are template files in the repository as `.env.testing.template` and `.env.development.template` and your first step should be to copy these files as `.env.testing` and `.env.development` and review their content in case your setup deviates from the default.
 
@@ -24,19 +28,19 @@ make migrate
 
 Then, either run `make run` to start the server, or in most situations, you'll find working with Xcode easier at this stage. Open the project with Xcode and open the Product menu, select "Scheme" and "Manage Schemes…".
 
-![A screenshot of Xcode showing the Manage Schemes window.](.readme-images/manage-schemes.png)
-
-Then, select the "Run" scheme and click the "Edit…" button. Select the "Run" scheme action from the source list and switch to the "Options" tab. Find the "Working Directory" setting and tick "Use a custom working directory:", then select the directory where you have your working copy of the project.
+Select the "SPI-Server" scheme and click the "Edit…" button. Select the "Run" scheme action from the source list and switch to the "Options" tab. Find the "Working Directory" setting and tick "Use a custom working directory:", then select the directory where you have your working copy of the project.
 
 ![A screenshot of Xcode showing the Edit Scheme window with the Run scheme action selected.](.readme-images/edit-scheme.png)
 
-Close the scheme editor, ensure that the "Run" scheme is selected in the Xcode toolbar and run the project with Xcode! When the development server starts, you should see this output in the Xcode console:
+Close the scheme editor and run the application by selecting "Run" from the Xcode "Product" menu. When the development server starts, you should see this output in the Xcode console:
 
 ```
 [ NOTICE ] Server starting on http://127.0.0.1:8080 [component: server]
 ```
 
-**Note:** When working locally, it's helpful to have a database with pre-populated data from the live system. [Talk to us on Discord](https://discord.gg/vQRb6KkYRw), and we'll supply you with a recent database dump that you can load with `./scripts/load-db.sh`.
+When working locally, it's helpful to have a database with pre-populated data from the live system. [Talk to us on Discord](https://discord.gg/vQRb6KkYRw), and we'll supply you with a recent database dump that you can load with `./scripts/load-db.sh`.
+
+**Note:** Running the `load-db.sh` script requires that the Postgres command line tools are available on your system. The easiest way to get these is with [brew](https://brew.sh/) by running `brew install postgresql`.
 
 ### Setup the Front End
 
