@@ -13,6 +13,7 @@ description: Frequently Asked Questions about the Swift Package Index
 - [How does the Swift Package Index work?](#how-does-it-work)
 - [What about the GitHub Package Registry?](#package-registry)
 - [How is the Swift language and platform support calculated?](#language-and-platforms)
+- [Can the Swift Package Index host my package's documentation?](#documentation)
 - [Why are certain licenses highlighted?](#licenses)
 - [Can I contribute to the Swift Package Index?](#contributing)
 - [Is there an API?](#api)
@@ -80,6 +81,12 @@ The Swift Package Index includes build information which is not able to be deriv
 </picture>
 
 To determine what versions of Swift a package supports, and what platforms it is compatible with, the Swift Package Index runs real-world builds using several Swift compilers targeting several different platforms. You can learn more about how we do this in the [Swift Package Index Build System FAQ](/docs/builds).
+
+---
+
+<h3 id="documentation">Can the Swift Package Index host my package's documentation?</h3>
+
+The Swift Package Index build system can generate and host DocC documentation and make it available from your package’s page in the index. All we need is a little configuration data so that we know how best to build your docs. You can learn more about this feature in this [introductory  post](https://blog.swiftpackageindex.com/posts/auto-generating-auto-hosting-and-auto-updating-docc-documentation/) and [official documentation](https://swiftpackageindex.com/SwiftPackageIndex/SPIManifest//documentation/spimanifest/commonusecases/).
 
 ---
 
