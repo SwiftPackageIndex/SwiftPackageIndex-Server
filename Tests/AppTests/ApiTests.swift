@@ -641,9 +641,10 @@ class ApiTests: AppTestCase {
             })
 
         // ensure API event has been reported
-        await event.withValue {
-            XCTAssertEqual($0, .some(.init(kind: .pageview, path: .badge)))
-        }
+        // API reporting for badges is currently disabled, because it is very noisy
+        //        await event.withValue {
+        //            XCTAssertEqual($0, .some(.init(kind: .pageview, path: .badge)))
+        //        }
     }
 
     func test_package_collections_owner() async throws {
