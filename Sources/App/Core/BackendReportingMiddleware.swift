@@ -17,9 +17,11 @@ import Vapor
 
 struct BackendReportingMiddleware: AsyncMiddleware {
     var path: Plausible.Path
+    var isActive: Bool = true
 
     func respond(to request: Request, chainingTo next: AsyncResponder) async throws -> Response {
         let response = try await next.respond(to: request)
+        guard isActive else { return response }
         let user = try? request.auth.require(User.self)
         Current.postPlausibleEvent(.pageview, path: path, user: user)
         return response
