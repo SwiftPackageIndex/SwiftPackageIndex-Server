@@ -57,9 +57,10 @@ let package = Package(
             .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
             .product(name: "Parsing", package: "swift-parsing"),
             .product(name: "ShellOut", package: "ShellOut"),
-            .product(name: "VaporToOpenAPI", package: "VaporToOpenAPI"),
+            .product(name: "SwiftPMDataModel-auto", package: "swift-package-manager"),
             .product(name: "SwiftPMPackageCollections", package: "swift-package-manager"),
             .product(name: "Vapor", package: "vapor"),
+            .product(name: "VaporToOpenAPI", package: "VaporToOpenAPI"),
         ]),
         .target(name: "S3Store", dependencies: [
             .product(name: "SotoS3", package: "soto"),

@@ -108,7 +108,7 @@ extension PackageShow {
                             model.spmDependencyPackageForm(link: $0, cssClass: "branch")
                         }),
                         .unwrap(model.products, { products in
-                            model.spmDependencyProductForm(package: model.title, products: products)
+                            model.spmDependencyProductForm(package: model.packageIdentity, products: products)
                         })
                     )
                 ),

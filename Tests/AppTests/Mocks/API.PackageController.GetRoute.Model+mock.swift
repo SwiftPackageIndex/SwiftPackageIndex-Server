@@ -116,7 +116,10 @@ extension API.PackageController.GetRoute.Model {
                 .init(name: "macro2", type: .macro)
             ],
             title: "Alamofire",
-            url: "https://github.com/Alamofire/Alamofire.git",
+            url: "https://github.com/Alamofire/Swift-Alamofire.git",  // This is obviously not the real URL but we're
+            // injecting this Swift- prefix to make sure we distinguish uses of the package name vs the URL-based
+            // package identity in tests.
+            // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2541 for details.
             score: 10,
             isArchived: false,
             defaultBranchReference: .branch("main"),
