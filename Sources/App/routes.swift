@@ -124,7 +124,8 @@ func routes(_ app: Application) throws {
                 use: PackageController.maintainerInfo).excludeFromOpenAPI()
 
         // Package specific site map, including all documentation URLs if available.
-        app.group(BackendReportingMiddleware(path: .sitemapPackage)) {
+        // Backend reporting currently disabled to avoid reporting costs for metrics we don't need.
+        app.group(BackendReportingMiddleware(path: .sitemapPackage, isActive: false)) {
             $0.get(SiteURL.package(.key, .key, .siteMap).pathComponents,
                     use: PackageController.siteMap).excludeFromOpenAPI()
         }
@@ -203,7 +204,8 @@ func routes(_ app: Application) throws {
                 )
         }
         
-        app.group(BackendReportingMiddleware(path: .badge)) {
+        // Backend reporting currently disabled to avoid reporting costs for metrics we don't need.
+        app.group(BackendReportingMiddleware(path: .badge, isActive: false)) {
             $0.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
                    use: API.PackageController.badge)
             .openAPI(
