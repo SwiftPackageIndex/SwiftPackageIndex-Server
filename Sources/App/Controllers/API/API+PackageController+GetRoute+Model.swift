@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import DependencyResolution
+import PackageModel
 import Vapor
 
 
@@ -170,6 +171,13 @@ extension API.PackageController.GetRoute {
             )
 
         }
+    }
+}
+
+
+extension API.PackageController.GetRoute.Model {
+    var packageIdentity: String {
+        PackageIdentity(urlString: url).description
     }
 }
 

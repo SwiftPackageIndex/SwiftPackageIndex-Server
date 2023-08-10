@@ -48,6 +48,26 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         XCTAssertEqual(m?.title, "bar")
     }
 
+    func test_init_packageIdentity() async throws {
+        let pkg = try savePackage(on: app.db, URL(string: "https://github.com/foo/swift-bar.git")!)
+        try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
+        let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
+        try await version.save(on: app.db)
+        let packageResult = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
+
+        // MUT
+        let model = try XCTUnwrap(API.PackageController.GetRoute.Model(result: packageResult,
+                                                                       history: nil,
+                                                                       products: [],
+                                                                       targets: [],
+                                                                       swiftVersionBuildInfo: nil,
+                                                                       platformBuildInfo: nil,
+                                                                       weightedKeywords: []))
+
+        // validate
+        XCTAssertEqual(model.packageIdentity, "swift-bar")
+    }
+
     func test_init_generated_documentation() async throws {
         let pkg = try savePackage(on: app.db, "1".url)
         try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
