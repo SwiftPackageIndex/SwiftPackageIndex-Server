@@ -19,11 +19,27 @@ import Vapor
 extension API {
     struct SearchController {
         struct Query: Codable {
-            var query: String? = Self.defaultQuery
-            var page: Int? = Self.defaultPage
+            var query: String = Self.defaultQuery
+            var page: Int = Self.defaultPage
 
             static let defaultQuery = ""
             static let defaultPage = 1
+            
+            enum CodingKeys: CodingKey {
+                case query
+                case page
+            }
+            
+            init(query: String = Self.defaultQuery, page: Int = Self.defaultPage) {
+                self.query = query
+                self.page = page
+            }
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                self.query = try container.decodeIfPresent(String.self, forKey: CodingKeys.query) ?? Self.defaultQuery
+                self.page = try container.decodeIfPresent(Int.self, forKey: CodingKeys.page) ?? Self.defaultPage
+            }
         }
 
         static func get(req: Request) async throws -> Search.Response {
