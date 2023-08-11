@@ -29,7 +29,7 @@ enum SearchController {
         let matchedKeywords = response.results.compactMap { $0.keywordResult?.keyword }
 
         // We're only displaying the keyword sidebar on the first search page.
-        let weightedKeywords = (query.page == 1)
+        let weightedKeywords = (query.page ?? 1 == 1)
         ? try await WeightedKeyword.query(on: req.db, keywords: matchedKeywords)
         : []
 
