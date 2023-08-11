@@ -57,17 +57,16 @@ extension API {
     static func search(database: Database,
                        query: SearchController.Query,
                        pageSize: Int) async throws -> Search.Response {
-        let queryString = query.query ?? SearchController.Query.defaultQuery
-        let terms = queryString.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
+        let terms = query.query.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
         guard !terms.isEmpty else {
             return .init(hasMoreResults: false,
-                         searchTerm: queryString,
+                         searchTerm: query.query,
                          searchFilters: [],
                          results: [])
         }
         return try await Search.fetch(database,
                                       terms,
-                                      page: query.page ?? SearchController.Query.defaultPage,
+                                      page: query.page,
                                       pageSize: pageSize).get()
     }
 }
