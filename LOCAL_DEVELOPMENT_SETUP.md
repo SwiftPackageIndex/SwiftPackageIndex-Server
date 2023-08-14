@@ -40,7 +40,11 @@ Close the scheme editor and run the application by selecting "Run" from the Xcod
 
 When working locally, it's helpful to have a database with pre-populated data from the live system. [Talk to us on Discord](https://discord.gg/vQRb6KkYRw), and we'll supply you with a recent database dump that you can load with `./scripts/load-db.sh`.
 
-**Note:** Running the `load-db.sh` script requires that the Postgres command line tools are available on your system. The easiest way to get these is with [brew](https://brew.sh/) by running `brew install postgresql`.
+**Note:** Running the `load-db.sh` script requires that the PostgreSQL command line tools are available on your system and in your `PATH`. The easiest way to get these is with [brew](https://brew.sh/) by running:
+
+```bash
+brew install postgresql@13 && brew install pgcli && brew link libpq --force
+```
 
 ### Setup the Front End
 
