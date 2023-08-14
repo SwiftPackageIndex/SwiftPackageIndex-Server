@@ -338,11 +338,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/10937719?v=4"
         ),
         .init(
-            login: "tristanbiesecker",
-            name: "Tristan Biesecker",
-            avatarUrl: "https://avatars.githubusercontent.com/u/12146879?u=1ae4c5828a3c133bd139a85da265a20e9f7a0f90&v=4"
-        ),
-        .init(
             login: "marcosgriselli",
             name: "Marcos Griselli",
             avatarUrl: "https://avatars.githubusercontent.com/u/14804033?u=43370bf3b74f17be2fe12c9a80b87b16029512fb&v=4"
@@ -409,7 +404,7 @@ extension Array<Supporters.Community> {
         ),
         .init(
             login: "dotgrid",
-            name: "Paul Farnell",
+            name: "Paul F",
             avatarUrl: "https://avatars.githubusercontent.com/u/48354391?v=4"
         ),
         .init(
@@ -431,11 +426,6 @@ extension Array<Supporters.Community> {
             login: "TapEnvy-us-LLC",
             name: "TapEnvy.us, LLC",
             avatarUrl: "https://avatars.githubusercontent.com/u/88908726?v=4"
-        ),
-        .init(
-            login: "CheekyGhost-Labs",
-            name: "CheekyGhost Labs",
-            avatarUrl: "https://avatars.githubusercontent.com/u/97933915?v=4"
         ),
         .init(
             login: "sparrowcode",
