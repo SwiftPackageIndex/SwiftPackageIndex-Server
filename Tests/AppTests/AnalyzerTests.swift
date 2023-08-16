@@ -198,7 +198,7 @@ class AnalyzerTests: AppTestCase {
         // validate products
         // (2 packages with 3 versions with 1 product each = 6 products)
         let products = try await Product.query(on: app.db).sort(\.$name).all()
-        XCTAssertEqual(products.count, 7)
+        XCTAssertEqual(products.count, 6)
         assertEquals(products, \.name, ["p1", "p1", "p1", "p2", "p2", "p2"])
         assertEquals(products, \.targets,
                      [["t1"], ["t1"], ["t1"], ["t2"], ["t2"], ["t2"]])
