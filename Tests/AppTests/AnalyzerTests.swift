@@ -1010,7 +1010,11 @@ class AnalyzerTests: AppTestCase {
                     json = String(decoding: data, as: UTF8.self)
                 }
             }
-            assertSnapshot(matching: json, as: .init(pathExtension: "json", diffing: .lines))
+#if os(macOS)
+            assertSnapshot(matching: json, as: .init(pathExtension: "json", diffing: .lines), named: "macos")
+#elseif os(Linux)
+            assertSnapshot(matching: json, as: .init(pathExtension: "json", diffing: .lines), named: "linux")
+#endif
         }
     }
 
