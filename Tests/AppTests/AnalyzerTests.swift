@@ -980,6 +980,40 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
+    func test_dumpPackage_format() throws {
+        // Test dump-package JSON format
+        // We decode this JSON output in a number of places and if there are changes in output
+        // (which depend on the compiler version), the respective decoders need to be updated.
+        // If the format has changed, i.e. this test fails, make sure to review the decoders
+        // in (at least) these places:
+        // - SPI-Server: App.Manifest
+        // - Validator: ValidatorCore.Package
+        // - PackageList: validate.swift - Package
+        // NB: If this test fails on macOS make sure xcode-select -p
+        // points to the correct version of Xcode!
+        // setup
+        Current.fileManager = .live
+        Current.shell = .live
+        try withTempDir { tempDir in
+            let fixture = fixturesDirectory()
+                .appendingPathComponent("5.9-Package-swift").path
+            let fname = tempDir.appending("/Package.swift")
+            try ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+            var json = try Current.shell.run(command: .swiftDumpPackage, at: tempDir)
+            do {  // "root" references tempDir's absolute path - replace it to make the test stable
+                if var obj = try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any],
+                   var packageKind = obj["packageKind"] as? [String: Any] {
+                    packageKind["root"] = ["<tempdir>"]
+                    obj["packageKind"] = packageKind
+                    let data = try JSONSerialization.data(withJSONObject: obj,
+                                                          options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])
+                    json = String(decoding: data, as: UTF8.self)
+                }
+            }
+            assertSnapshot(matching: json, as: .init(pathExtension: "json", diffing: .lines))
+        }
+    }
+
     func test_issue_577() async throws {
         // Duplicate "latest release" versions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/577
