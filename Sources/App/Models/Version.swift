@@ -62,6 +62,9 @@ final class Version: Model, Content {
     @Field(key: "package_name")
     var packageName: String?
 
+    @Field(key: "product_dependencies")
+    var productDependencies: [ProductDependency]?
+
     @Field(key: "published_at")
     var publishedAt: Date?
 
@@ -115,6 +118,7 @@ final class Version: Model, Content {
          hasBinaryTargets: Bool = false,
          latest: Kind? = nil,
          packageName: String? = nil,
+         productDependencies: [ProductDependency]? = nil,
          publishedAt: Date? = nil,
          reference: Reference,
          releaseNotes: String? = nil,
@@ -133,6 +137,7 @@ final class Version: Model, Content {
         self.hasBinaryTargets = hasBinaryTargets
         self.latest = latest
         self.packageName = packageName
+        self.productDependencies = productDependencies
         self.publishedAt = publishedAt
         self.reference = reference
         self.releaseNotes = releaseNotes

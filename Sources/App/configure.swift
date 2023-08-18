@@ -300,6 +300,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 067 - remove readmeUrl, readmeHtmlUrl from repositories, add readmeEtag
         app.migrations.add(UpdateRepositoryReadmeChanges())
     }
+    do { // Migration 068 - add product_dependencies to versions
+        app.migrations.add(UpdateVersionAddProductDependencies())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
