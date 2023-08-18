@@ -361,8 +361,7 @@ class SearchTests: AppTestCase {
         do {  // first page
             // MUT
             let res = try await API.search(database: app.db,
-                                           query: .init(query: "foo", page: 1),
-                                           pageSize: 3)
+                                           query: .init(query: "foo", page: 1, pageSize: 3))
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
@@ -373,8 +372,7 @@ class SearchTests: AppTestCase {
         do {  // second page
             // MUT
             let res = try await API.search(database: app.db,
-                                           query: .init(query: "foo", page: 2),
-                                           pageSize: 3)
+                                           query: .init(query: "foo", page: 2, pageSize: 3))
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
@@ -385,8 +383,7 @@ class SearchTests: AppTestCase {
         do {  // third page
             // MUT
             let res = try await API.search(database: app.db,
-                                           query: .init(query: "foo", page: 3),
-                                           pageSize: 3)
+                                           query: .init(query: "foo", page: 3, pageSize: 3))
 
             // validate
             XCTAssertFalse(res.hasMoreResults)
@@ -415,8 +412,7 @@ class SearchTests: AppTestCase {
         do {  // first page
             // MUT
             let res = try await API.search(database: app.db,
-                                           query: .init(query: "foo", page: 1),
-                                           pageSize: 3)
+                                           query: .init(query: "foo", page: 1, pageSize: 3))
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
@@ -427,8 +423,7 @@ class SearchTests: AppTestCase {
         do {  // second page
             // MUT
             let res = try await API.search(database: app.db,
-                                           query: .init(query: "foo", page: 2),
-                                           pageSize: 3)
+                                           query: .init(query: "foo", page: 2, pageSize: 3))
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
@@ -456,8 +451,7 @@ class SearchTests: AppTestCase {
         do {  // page out of bounds (too large)
               // MUT
             let res = try await API.search(database: app.db,
-                                           query: .init(query: "foo", page: 4),
-                                           pageSize: 3)
+                                           query: .init(query: "foo", page: 4, pageSize: 3))
 
             // validate
             XCTAssertFalse(res.hasMoreResults)
@@ -468,8 +462,7 @@ class SearchTests: AppTestCase {
         do {  // page out of bounds (too small - will be clamped to page 1)
               // MUT
             let res = try await API.search(database: app.db,
-                                           query: .init(query: "foo", page: 0),
-                                           pageSize: 3)
+                                           query: .init(query: "foo", page: 0, pageSize: 3))
             XCTAssertTrue(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
                            ["a:foobar", "p:0", "p:1", "p:2"])

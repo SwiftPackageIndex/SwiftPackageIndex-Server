@@ -23,8 +23,7 @@ enum SearchController {
         let query = try req.query.decode(API.SearchController.Query.self)
 
         let response = try await API.search(database: req.db,
-                                            query: query,
-                                            pageSize: Constants.resultsPageSize)
+                                            query: query)
 
         let matchedKeywords = response.results.compactMap { $0.keywordResult?.keyword }
 

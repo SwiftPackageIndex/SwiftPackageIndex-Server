@@ -29,19 +29,30 @@ enum KeywordController {
     }
 
     struct Query: Codable {
-        var page: Int?
+        var page: Int
+        var pageSize: Int
 
         static let defaultPage = 1
+        static let defaultPageSize = 20
+
+        enum CodingKeys: CodingKey {
+            case page
+            case pageSize
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.page = try container.decodeIfPresent(Int.self, forKey: CodingKeys.page) ?? Self.defaultPage
+            self.pageSize = try container.decodeIfPresent(Int.self, forKey: CodingKeys.pageSize) ?? Self.defaultPageSize
+        }
     }
 
     static func show(req: Request) async throws -> HTML {
         guard let keyword = req.parameters.get("keyword") else {
             throw Abort(.notFound)
         }
-        let pageIndex = try req.query.decode(Query.self).page ?? Query.defaultPage
-        let pageSize = Constants.resultsPageSize
-
-        let page = try await Self.query(on: req.db, keyword: keyword, page: pageIndex, pageSize: pageSize).get()
+        let query = try req.query.decode(Query.self)
+        let page = try await Self.query(on: req.db, keyword: keyword, page: query.page, pageSize: query.pageSize).get()
 
         guard !page.results.isEmpty else {
             throw Abort(.notFound)
@@ -52,7 +63,7 @@ enum KeywordController {
         let model = KeywordShow.Model(
             keyword: keyword,
             packages: packageInfo,
-            page: pageIndex,
+            page: query.page,
             hasMoreResults: page.hasMoreResults
         )
 
