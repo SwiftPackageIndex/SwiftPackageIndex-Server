@@ -305,7 +305,7 @@ enum Search {
                       _ sanitizedTerms: [String],
                       filters: [SearchFilterProtocol] = [],
                       page: Int,
-                      pageSize: Int) -> SQLSelectBuilder? {
+                      pageSize: Int = API.SearchController.Query.defaultPageSize) -> SQLSelectBuilder? {
         //  This function assembles results from the different search types (packages,
         //  keywords, ...) into a single query.
         //
