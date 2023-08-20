@@ -42,7 +42,8 @@ enum Analyze {
             let limit = signature.limit ?? defaultLimit
 
             let client = context.application.client
-            let db = context.application.db
+            let eventLoop = context.application.eventLoopGroup.any()
+            let db = context.application._db(.psql, on: eventLoop)
             let logger = Logger(component: "analyze")
             Current.setLogger(logger)
 
@@ -737,3 +738,18 @@ extension Analyze {
 
 
 extension App.FileManager: DependencyResolution.FileManager { }
+
+
+// WIP attempted fix for issue 2227 https://github.com/vapor/async-kit/issues/104#issuecomment-1685273685
+private extension Application {
+    func _db(_ id: DatabaseID?, on eventLoop: any EventLoop) -> any Database {
+        self.databases
+            .database(
+                id,
+                logger: self.logger,
+                on: eventLoop,
+                history: nil,
+                pageSizeLimit: self.fluent.pagination.pageSizeLimit
+            )!
+    }
+}
