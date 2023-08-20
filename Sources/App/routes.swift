@@ -248,6 +248,10 @@ func routes(_ app: Application) throws {
                         responseContentType: .application(.json)
                     )
                 }
+
+                // FIXME: add BackendReportingMiddleware wrapper
+                protected.get(SiteURL.api(.dependencies).pathComponents, use: API.DependencyController.get)
+                // FIXME: add openAPI modifier
             }
         }
 

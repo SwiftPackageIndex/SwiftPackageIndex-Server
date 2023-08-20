@@ -30,6 +30,8 @@ import Vapor
 
 enum Api: Resourceable {
     case builds(_ id: Parameter<UUID>, BuildsPathComponents)
+    // FIXME: rename
+    case dependencies
     case packages(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagesPathComponents)
     case packageCollections
     case search
@@ -42,6 +44,8 @@ enum Api: Resourceable {
                 return "builds/\(id.uuidString)/\(next.path)"
             case .builds(.key, _):
                 fatalError("path must not be called with a name parameter")
+            case .dependencies:
+                return "dependencies"
             case let .packages(.value(owner), .value(repo), next):
                 return "packages/\(owner)/\(repo)/\(next.path)"
             case .packages:
@@ -71,7 +75,7 @@ enum Api: Resourceable {
                 fatalError("pathComponents must not be called with a value parameter")
             case .packageCollections:
                 return ["package-collections"]
-            case .search, .version:
+            case .dependencies, .search, .version:
                 return [.init(stringLiteral: path)]
             case let .versions(.key, remainder):
                 return ["versions", ":id"] + remainder.pathComponents
