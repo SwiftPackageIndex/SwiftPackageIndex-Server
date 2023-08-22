@@ -57,14 +57,6 @@ extension Git {
             .map { Reference.tag($0, $1) }
     }
 
-    static func showDate(_ commit: CommitHash, at path: String) async throws -> Date {
-        let res = try await Current.shell.run(command: .gitShowDate(commit), at: path)
-        guard let timestamp = TimeInterval(res) else {
-            throw GitError.invalidTimestamp
-        }
-        return Date(timeIntervalSince1970: timestamp)
-    }
-
     static func revisionInfo(_ reference: Reference, at path: String) async throws -> RevisionInfo {
         let separator = "-"
         let res = try await Current.shell.run(command: .gitRevisionInfo(reference: reference, separator: separator),

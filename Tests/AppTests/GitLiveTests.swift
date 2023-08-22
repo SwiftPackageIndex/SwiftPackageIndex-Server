@@ -86,12 +86,6 @@ extension GitLiveTests {
         )
     }
 
-    func test_showDate() async throws {
-        try await XCTAssertEqualAsync(try await Git.showDate("178566b112afe6bef3770678f1bbab6e5c626993",
-                                                             at: path).timeIntervalSince1970,
-                                      1554248253)  // April 2 23:37 UTC
-    }
-
     func test_revisionInfo() async throws {
         try await XCTAssertEqualAsync(try await Git.revisionInfo(.tag(0,5,2), at: path),
                                       .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",

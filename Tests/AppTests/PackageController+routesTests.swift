@@ -940,7 +940,6 @@ class PackageController_routesTests: AppTestCase {
             firstCommitDate: { _ in .t0 },
             lastCommitDate: { _ in .t1 },
             getTags: { _ in [] },
-            showDate: { _,_ in fatalError("unused") },
             revisionInfo: { ref, _ in
                 if ref == .branch("main") { return .init(commit: "new-commit", date: .t1) }
                 fatalError("revisionInfo: \(ref)")
