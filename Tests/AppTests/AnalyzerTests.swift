@@ -1190,7 +1190,7 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_issue_2571() async throws {
-        // Ensure bad revision info does not delete existing tag revisions
+        // Ensure bad git commands do not delete existing tag revisions
         let pkgId = UUID()
         let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
         try await pkg.save(on: app.db)
@@ -1214,10 +1214,7 @@ class AnalyzerTests: AppTestCase {
         Current.git.commitCount = { _ in 2 }
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
-        Current.git.getTags = { _ in [.tag(1, 0, 0)] }
-        Current.git.revisionInfo = { ref, _ in
-            throw GitError.invalidRevisionInfo
-        }
+        struct Error: Swift.Error { }
         Current.git.shortlog = { _ in
             """
             1\tPerson 1
@@ -1245,17 +1242,39 @@ class AnalyzerTests: AppTestCase {
             return ""
         }
 
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  logger: app.logger,
-                                  mode: .limit(1))
+        do {  // first scenario: bad getTags
+            Current.git.getTags = { _ in throw Error() }
+            Current.git.revisionInfo = { _, _ in .init(commit: "", date: .t1) }
 
-        // validate versions
-        let p = try await Package.find(pkgId, on: app.db).unwrap()
-        try await p.$versions.load(on: app.db)
-        let versions = p.versions.map(\.reference.description).sorted()
-        XCTAssertEqual(versions, ["1.0.0", "main"])
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      logger: app.logger,
+                                      mode: .limit(1))
+
+            // validate versions
+            let p = try await Package.find(pkgId, on: app.db).unwrap()
+            try await p.$versions.load(on: app.db)
+            let versions = p.versions.map(\.reference.description).sorted()
+            XCTAssertEqual(versions, ["1.0.0", "main"])
+        }
+
+        do {  // second scenario: bad revisionInfo
+            Current.git.getTags = { _ in [.tag(1, 0, 0)] }
+            Current.git.revisionInfo = { _, _ in throw Error() }
+
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      logger: app.logger,
+                                      mode: .limit(1))
+
+            // validate versions
+            let p = try await Package.find(pkgId, on: app.db).unwrap()
+            try await p.$versions.load(on: app.db)
+            let versions = p.versions.map(\.reference.description).sorted()
+            XCTAssertEqual(versions, ["1.0.0", "main"])
+        }
     }
 
 }
