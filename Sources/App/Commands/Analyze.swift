@@ -400,21 +400,11 @@ extension Analyze {
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
-        guard let pkgId = package.model.id else {
-            throw AppError.genericError(nil, "PANIC: package id nil for package \(package.model.url)")
-        }
 
         let defaultBranch = package.repository?.defaultBranch
             .map { Reference.branch($0) }
 
-        let tags: [Reference]
-        do {
-            tags = try Current.git.getTags(cacheDir)
-        } catch {
-            let appError = AppError.genericError(pkgId, "Git.tag failed: \(error.localizedDescription)")
-            logger.report(error: appError)
-            tags = []
-        }
+        let tags = try Current.git.getTags(cacheDir)
 
         let references = [defaultBranch].compactMap { $0 } + tags
         return try references

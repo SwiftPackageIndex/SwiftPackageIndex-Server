@@ -70,7 +70,10 @@ extension Git {
         let res = try Current.shell.run(command: .gitRevisionInfo(reference: reference,
                                                                   separator: separator), at: path)
         let parts = res.components(separatedBy: separator)
-        guard parts.count == 2 else { throw GitError.invalidRevisionInfo }
+        guard parts.count == 2 else {
+            Current.logger().warning("Git.invalidRevisionInfo: \(res)")
+            throw GitError.invalidRevisionInfo
+        }
         let hash = parts[0]
         guard let timestamp = TimeInterval(parts[1]) else { throw GitError.invalidTimestamp }
         let date = Date(timeIntervalSince1970: timestamp)
