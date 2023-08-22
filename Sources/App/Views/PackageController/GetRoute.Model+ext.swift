@@ -361,7 +361,10 @@ extension API.PackageController.GetRoute.Model {
                 )
             ),
             .strong(.text(title)),
-            .small(.text([datePrefix, dateLink.date.relative].joined(separator: " ")))
+            .small(
+                .title(Self.releaseMetadataTooltipDateFormatter.string(from: dateLink.date)),
+                .text([datePrefix, dateLink.date.relative].joined(separator: " "))
+            )
         )
     }
 
@@ -623,4 +626,13 @@ private extension API.PackageController.GetRoute.Model.Target.TargetType {
             case .macro: return "macros"
         }
     }
+}
+
+extension API.PackageController.GetRoute.Model {
+    static let releaseMetadataTooltipDateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d yyyy 'at' HH:mm"
+        formatter.locale = .init(identifier: "en_US_POSIX")
+        return formatter
+    }()
 }
