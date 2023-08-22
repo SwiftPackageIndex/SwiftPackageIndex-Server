@@ -198,7 +198,7 @@ extension Node where Context: HTML.BodyContext {
 
     static func lastUpdatedTime(_ lastUpdated: Date) -> Self {
         .time(
-            .datetime(DateFormatter.lastUpdatedOnDateTimeAttributeFormatter.string(from: lastUpdated)),
+            .datetime(DateFormatter.timeTagDateOnlyFormatter.string(from: lastUpdated)),
             .group(
                 .text("Last updated on "),
                 .text(DateFormatter.lastUpdatedOnDisplayFormatter.string(from: lastUpdated))

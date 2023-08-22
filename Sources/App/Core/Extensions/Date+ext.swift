@@ -22,13 +22,17 @@ extension DateFormatter {
         formatter.locale = .init(identifier: "en_GB")
         return formatter
     }()
-
-    static let lastUpdatedOnDateTimeAttributeFormatter: DateFormatter = {
+    
+    static let timeTagDateOnlyFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = .init(identifier: "en_GB")
         return formatter
     }()
+
+    static func timeTagFormattedDateTime(from date: Date) -> String {
+        ISO8601DateFormatter().string(from: date)
+    }
 }
 
 
