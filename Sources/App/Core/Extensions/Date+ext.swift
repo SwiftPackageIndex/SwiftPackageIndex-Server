@@ -29,10 +29,6 @@ extension DateFormatter {
         formatter.locale = .init(identifier: "en_GB")
         return formatter
     }()
-
-    static func timeTagFormattedDateTime(from date: Date) -> String {
-        ISO8601DateFormatter().string(from: date)
-    }
 }
 
 
