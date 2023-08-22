@@ -1189,6 +1189,75 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(removedPaths, ["/checkouts/foo"])
     }
 
+    func test_issue_2571() async throws {
+        // Ensure bad revision info does not delete existing tag revisions
+        let pkgId = UUID()
+        let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
+        try await pkg.save(on: app.db)
+        try await Repository(package: pkg,
+                             defaultBranch: "main",
+                             name: "1",
+                             owner: "foo").save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "commit0",
+                          commitDate: .t0,
+                          latest: .defaultBranch,
+                          packageName: "foo-1",
+                          reference: .branch("main")).save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "commit0",
+                          commitDate: .t0,
+                          latest: .release,
+                          packageName: "foo-1",
+                          reference: .tag(1, 0, 0)).save(on: app.db)
+        Current.fileManager.fileExists = { _ in true }
+        Current.git.commitCount = { _ in 2 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        Current.git.getTags = { _ in [.tag(1, 0, 0)] }
+        Current.git.revisionInfo = { ref, _ in
+            throw GitError.invalidRevisionInfo
+        }
+        Current.git.shortlog = { _ in
+            """
+            1\tPerson 1
+            1\tPerson 2
+            """
+        }
+        Current.shell.run = { cmd, path in
+            if cmd.string.hasSuffix("package dump-package") {
+                return #"""
+                    {
+                      "name": "foo-1",
+                      "products": [
+                        {
+                          "name": "p1",
+                          "targets": [],
+                          "type": {
+                            "executable": null
+                          }
+                        }
+                      ],
+                      "targets": []
+                    }
+                    """#
+            }
+            return ""
+        }
+
+        // MUT
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  mode: .limit(1))
+
+        // validate versions
+        let p = try await Package.find(pkgId, on: app.db).unwrap()
+        try await p.$versions.load(on: app.db)
+        let versions = p.versions.map(\.reference.description).sorted()
+        XCTAssertEqual(versions, ["1.0.0", "main"])
+    }
+
 }
 
 
