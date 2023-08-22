@@ -372,6 +372,12 @@ extension Analyze {
             .filter(\.$package.$id == pkgId)
             .all()
         let incoming = try await getIncomingVersions(client: client, logger: logger, package: package)
+        // TODO: temporary safe-guard
+        if !existing.isEmpty && incoming.isEmpty {
+            // Sudden loss of versions is suspicious, warn and throw error
+            logger.error("Suspicious loss of versions for package \(pkgId) - aborting analysis")
+            throw AppError.genericError(pkgId, "Suspicious loss of versions")
+        }
 
         let throttled = throttle(
             latestExistingVersion: existing.latestBranchVersion,
@@ -404,19 +410,28 @@ extension Analyze {
         let defaultBranch = package.repository?.defaultBranch
             .map { Reference.branch($0) }
 
-        let tags = try Current.git.getTags(cacheDir)
-
-        let references = [defaultBranch].compactMap { $0 } + tags
-        return try references
-            .map { ref in
-                let revInfo = try Current.git.revisionInfo(ref, cacheDir)
-                let url = package.model.versionUrl(for: ref)
-                return try Version(package: package.model,
-                                   commit: revInfo.commit,
-                                   commitDate: revInfo.date,
-                                   reference: ref,
-                                   url: url)
+        do {
+            let tags = try Current.git.getTags(cacheDir)
+            // TODO: remove temporary logging
+            if tags.isEmpty {
+                logger.warning("getIncomingVersions: no tags found in \(cacheDir)")
             }
+
+            let references = [defaultBranch].compactMap { $0 } + tags
+            return try references
+                .map { ref in
+                    let revInfo = try Current.git.revisionInfo(ref, cacheDir)
+                    let url = package.model.versionUrl(for: ref)
+                    return try Version(package: package.model,
+                                       commit: revInfo.commit,
+                                       commitDate: revInfo.date,
+                                       reference: ref,
+                                       url: url)
+                }
+        } catch {
+            logger.warning("getIncomingVersions: \(error)")
+            throw error
+        }
     }
 
 
