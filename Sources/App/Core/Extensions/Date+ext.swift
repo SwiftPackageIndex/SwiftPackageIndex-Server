@@ -23,7 +23,7 @@ extension DateFormatter {
         return formatter
     }()
 
-    static let lastUpdatedOnDateTimeAttributeFormatter: DateFormatter = {
+    static let timeTagDateOnlyFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = .init(identifier: "en_GB")
