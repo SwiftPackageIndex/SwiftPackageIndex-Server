@@ -22,7 +22,7 @@ export class ReadmeController extends Controller {
             linkElement.setAttribute('data-turbo', 'false')
 
             const linkTarget = linkElement.getAttribute('href')
-            if (linkTarget.charAt(0) === '#') {
+            if (linkTarget?.[0] === '#') {
                 // Fix up anchor URLs with the GitHub specific anchor name
                 linkElement.setAttribute('href', `#user-content-${linkTarget.substring(1)}`)
             }
