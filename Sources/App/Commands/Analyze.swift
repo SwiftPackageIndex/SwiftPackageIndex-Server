@@ -210,6 +210,14 @@ extension Analyze {
 
                 let versionDelta = try await diffVersions(client: client, logger: logger, transaction: tx,
                                                           package: package)
+                let netDeleteCount = versionDelta.toDelete.count - versionDelta.toAdd.count
+                if netDeleteCount > 1 {
+                    // TODO: temporary safe-guard: don't delete more than one version per analysis pass
+                    // Sudden loss of versions is suspicious, warn and throw error
+                    let error = "Suspicious loss of \(netDeleteCount) versions for package \(package.model.id) - aborting analysis"
+                    logger.error("\(error)")  // TODO: this logger should be superfluous but we don't want to miss the message
+                    throw AppError.genericError(package.model.id, error)
+                }
 
                 try await applyVersionDelta(on: tx, delta: versionDelta)
 
@@ -372,12 +380,6 @@ extension Analyze {
             .filter(\.$package.$id == pkgId)
             .all()
         let incoming = try await getIncomingVersions(client: client, logger: logger, package: package)
-        // TODO: temporary safe-guard
-        if !existing.isEmpty && incoming.isEmpty {
-            // Sudden loss of versions is suspicious, warn and throw error
-            logger.error("Suspicious loss of versions for package \(pkgId) - aborting analysis")
-            throw AppError.genericError(pkgId, "Suspicious loss of versions")
-        }
 
         let throttled = throttle(
             latestExistingVersion: existing.latestBranchVersion,
