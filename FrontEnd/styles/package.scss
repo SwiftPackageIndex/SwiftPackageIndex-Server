@@ -17,14 +17,20 @@
 // -------------------------------------------------------------------------
 
 .package {
-    h2 {
-        margin: 0;
-        padding: 0;
-    }
-
     .package-title {
         display: flex;
+        overflow: hidden;
         flex-direction: column;
+
+        h2 {
+            display: -webkit-box;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            white-space: pre-wrap;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 1;
+        }
 
         span {
             margin: 0 2px;
@@ -282,6 +288,10 @@
     }
 
     @media screen and (max-width: $mobile-breakpoint) {
+        .package-title h2 {
+            -webkit-line-clamp: 2;
+        }
+
         article.details {
             section.main-metadata {
                 order: 2;
