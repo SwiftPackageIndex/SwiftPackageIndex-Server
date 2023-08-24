@@ -71,6 +71,7 @@ struct DocumentationPageProcessor {
 
         do {
             document = try SwiftSoup.parse(rawHtml)
+            try document.title("\(packageName) Documentation – Swift Package Index")
             if let metaNoIndex = self.metaNoIndex {
                 try document.head()?.prepend(metaNoIndex)
             }
