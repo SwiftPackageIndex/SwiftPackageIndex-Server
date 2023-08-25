@@ -18,6 +18,7 @@ import ShellOut
 
 
 enum GitError: LocalizedError {
+    case invalidInput
     case invalidInteger
     case invalidTimestamp
     case invalidRevisionInfo
@@ -51,6 +52,9 @@ extension Git {
 
     static func getTags(at path: String) throws -> [Reference] {
         let commandOutput = try Current.shell.run(command: .gitListTags, at: path)
+        guard commandOutput.count >= "x.y.z".count else {
+            throw GitError.invalidInput
+        }
         let tags = commandOutput
             .split(separator: "\n")
             .map(String.init)
