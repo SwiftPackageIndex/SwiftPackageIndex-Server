@@ -409,8 +409,11 @@ extension Analyze {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
-        let defaultBranch = package.repository?.defaultBranch
-            .map { Reference.branch($0) }
+        guard let defaultBranch = package.repository?.defaultBranch
+            .map({ Reference.branch($0) })
+        else {
+            throw AppError.genericError(package.model.id, "Package must have default branch - aborting analysis")
+        }
 
         do {
             let tags = try Current.git.getTags(cacheDir)
@@ -419,7 +422,7 @@ extension Analyze {
                 logger.warning("getIncomingVersions: no tags found in \(cacheDir)")
             }
 
-            let references = [defaultBranch].compactMap { $0 } + tags
+            let references = [defaultBranch] + tags
             return try references
                 .map { ref in
                     let revInfo = try Current.git.revisionInfo(ref, cacheDir)
