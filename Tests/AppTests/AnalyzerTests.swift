@@ -1221,26 +1221,7 @@ class AnalyzerTests: AppTestCase {
             1\tPerson 2
             """
         }
-        Current.shell.run = { cmd, path in
-            if cmd.string.hasSuffix("package dump-package") {
-                return #"""
-                    {
-                      "name": "foo-1",
-                      "products": [
-                        {
-                          "name": "p1",
-                          "targets": [],
-                          "type": {
-                            "executable": null
-                          }
-                        }
-                      ],
-                      "targets": []
-                    }
-                    """#
-            }
-            return ""
-        }
+        Current.shell.run = { cmd, path in "" }
 
         do {  // first scenario: bad getTags
             Current.git.getTags = { _ in throw Error() }
@@ -1262,6 +1243,29 @@ class AnalyzerTests: AppTestCase {
         do {  // second scenario: bad revisionInfo
             Current.git.getTags = { _ in [.tag(1, 0, 0)] }
             Current.git.revisionInfo = { _, _ in throw Error() }
+
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      logger: app.logger,
+                                      mode: .limit(1))
+
+            // validate versions
+            let p = try await Package.find(pkgId, on: app.db).unwrap()
+            try await p.$versions.load(on: app.db)
+            let versions = p.versions.map(\.reference.description).sorted()
+            XCTAssertEqual(versions, ["1.0.0", "main"])
+        }
+
+        do {  // second scenario: bad "git tags" return value
+            Current.shell.run = { cmd, path in
+                if cmd == .gitListTags {
+                    return #"""#
+                }
+                return ""
+            }
+            Current.git.getTags = Git.getTags(at:)
+            Current.git.revisionInfo = { _, _ in .init(commit: "", date: .t1) }
 
             // MUT
             try await Analyze.analyze(client: app.client,
