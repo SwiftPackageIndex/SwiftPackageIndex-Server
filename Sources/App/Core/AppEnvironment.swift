@@ -321,8 +321,23 @@ struct Shell {
     }
 
     static let live: Self = .init(run: { cmd, path in
-        try ShellOut.shellOut(to: cmd, at: path)
+        let stderr = Self.pipe { Current.logger().error("\($0)") }
+        return try ShellOut.shellOut(to: cmd, at: path, errorHandle: stderr.fileHandleForWriting)
     })
+
+    static let logQueue = DispatchQueue(label: "log-queue")
+
+    static func pipe(log: @escaping (String) -> Void) -> Pipe {
+        let pipe = Pipe()
+        pipe.fileHandleForReading.readabilityHandler = { f in
+            let str = String(decoding: f.availableData, as: UTF8.self)
+            guard !str.isEmpty else { return }
+            logQueue.async {
+                log(str)
+            }
+        }
+        return pipe
+    }
 }
 
 
