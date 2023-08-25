@@ -321,7 +321,7 @@ struct Shell {
     }
 
     static let live: Self = .init(run: { cmd, path in
-        let stderr = Self.pipe { Current.logger().error("\($0)") }
+        let stderr = Self.pipe { Current.logger().error("ShellOut stderr: \($0)") }
         return try ShellOut.shellOut(to: cmd, at: path, errorHandle: stderr.fileHandleForWriting)
     })
 
