@@ -18,10 +18,10 @@ import ShellOut
 
 
 enum GitError: LocalizedError {
-    case invalidInput
+    case invalidInput(String)
     case invalidInteger
     case invalidTimestamp
-    case invalidRevisionInfo
+    case invalidRevisionInfo(String)
 }
 
 extension Git {
@@ -53,7 +53,7 @@ extension Git {
     static func getTags(at path: String) throws -> [Reference] {
         let commandOutput = try Current.shell.run(command: .gitListTags, at: path)
         guard commandOutput.count >= "x.y.z".count else {
-            throw GitError.invalidInput
+            throw GitError.invalidInput(commandOutput)
         }
         let tags = commandOutput
             .split(separator: "\n")
@@ -82,7 +82,7 @@ extension Git {
         let parts = res.components(separatedBy: separator)
         guard parts.count == 2 else {
             Current.logger().warning("Git.invalidRevisionInfo: \(res)")
-            throw GitError.invalidRevisionInfo
+            throw GitError.invalidRevisionInfo(res)
         }
         let hash = parts[0]
         guard let timestamp = TimeInterval(parts[1]) else { throw GitError.invalidTimestamp }
