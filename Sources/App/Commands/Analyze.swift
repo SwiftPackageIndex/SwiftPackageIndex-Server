@@ -220,10 +220,6 @@ extension Analyze {
                 }
 
                 try await applyVersionDelta(on: tx, delta: versionDelta)
-                do {
-                    let versions = try await updateLatestVersions(on: tx, package: package)
-                    updateScore(package: package, versions: versions)
-                }
 
                 let newVersions = versionDelta.toAdd
 
@@ -233,14 +229,19 @@ extension Analyze {
                     guard let pkgInfo = try? getPackageInfo(package: package, version: version) else { return nil }
                     return (version, pkgInfo)
                 }
-                if !newVersions.isEmpty && versionsPkgInfo.isEmpty {
-                    throw AppError.noValidVersions(package.model.id, package.model.url)
-                }
 
                 for (version, pkgInfo) in versionsPkgInfo {
                     try await updateVersion(on: tx, version: version, packageInfo: pkgInfo).get()
                     try await recreateProducts(on: tx, version: version, manifest: pkgInfo.packageManifest)
                     try await recreateTargets(on: tx, version: version, manifest: pkgInfo.packageManifest)
+                }
+
+                let versions = try await updateLatestVersions(on: tx, package: package)
+
+                updateScore(package: package, versions: versions)
+
+                if !newVersions.isEmpty && versionsPkgInfo.isEmpty {
+                    throw AppError.noValidVersions(package.model.id, package.model.url)
                 }
 
                 await onNewVersions(client: client, logger: logger, package: package, versions: newVersions)
