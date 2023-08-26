@@ -220,6 +220,10 @@ extension Analyze {
                 }
 
                 try await applyVersionDelta(on: tx, delta: versionDelta)
+                do {
+                    let versions = try await updateLatestVersions(on: tx, package: package)
+                    updateScore(package: package, versions: versions)
+                }
 
                 let newVersions = versionDelta.toAdd
 
@@ -238,10 +242,6 @@ extension Analyze {
                     try await recreateProducts(on: tx, version: version, manifest: pkgInfo.packageManifest)
                     try await recreateTargets(on: tx, version: version, manifest: pkgInfo.packageManifest)
                 }
-
-                let versions = try await updateLatestVersions(on: tx, package: package)
-
-                updateScore(package: package, versions: versions)
 
                 await onNewVersions(client: client, logger: logger, package: package, versions: newVersions)
             }
