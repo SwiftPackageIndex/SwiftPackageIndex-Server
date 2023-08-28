@@ -36,7 +36,9 @@ func updatePackages(client: Client,
         let total = results.count
         let errors = results.filter(\.isError).count
         let errorRate = 100.0 * Double(errors) / Double(total)
-        if errorRate >= 10 {
+        if errorRate < 10 {
+            logger.info("Updating \(total) packages for stage '\(stage)' (errors: \(errors)")
+        } else {
             logger.warning("updatePackages: unusually high error rate: \(errors)/\(total) = \(errorRate)%")
         }
     }
