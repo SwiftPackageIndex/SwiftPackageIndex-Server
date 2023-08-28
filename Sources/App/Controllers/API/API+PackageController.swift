@@ -98,6 +98,7 @@ extension API.PackageController {
                 .field(App.Target.self, \.$type)
                 .field(App.Target.self, \.$name)
                 .all()
+                // TODO: Refactor query to return [Target]
                 .compactMap {
                     guard let type = $0.target.type
                     else { return nil }
