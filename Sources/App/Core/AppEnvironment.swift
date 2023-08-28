@@ -309,6 +309,7 @@ struct Git {
 
 struct Shell {
     var run: (ShellOutCommand, String) throws -> String
+    var runOld: (ShellOutCommand, String) throws -> String
     // also provide pass-through methods to preserve argument labels
     @discardableResult
     func run(command: ShellOutCommand, at path: String = ".") throws -> String {
@@ -320,24 +321,22 @@ struct Shell {
         }
     }
 
-    static let live: Self = .init(run: { cmd, path in
-        let stderr = Self.pipe { Current.logger().error("ShellOut stderr: \($0)") }
-        return try ShellOut.shellOut(to: cmd, at: path, errorHandle: stderr.fileHandleForWriting)
-    })
-
-    static let logQueue = DispatchQueue(label: "log-queue")
-
-    static func pipe(log: @escaping (String) -> Void) -> Pipe {
-        let pipe = Pipe()
-        pipe.fileHandleForReading.readabilityHandler = { f in
-            let str = String(decoding: f.availableData, as: UTF8.self)
-            guard !str.isEmpty else { return }
-            logQueue.async {
-                log(str)
+    static let live: Self = .init(
+        run: {
+            let res = try ShellOut.shellOut(to: $0, at: $1)
+            if !res.stderr.isEmpty {
+                Current.logger().warning("stderr: \(res.stderr)")
             }
+            return res.stdout
+        },
+        runOld: {
+            let res = try ShellOut.shellOutOldVersion(to: $0, at: $1)
+            if !res.stderr.isEmpty {
+                Current.logger().warning("stderr: \(res.stderr)")
+            }
+            return res.stdout
         }
-        return pipe
-    }
+    )
 }
 
 

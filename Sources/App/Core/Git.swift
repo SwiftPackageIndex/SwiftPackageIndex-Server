@@ -51,6 +51,12 @@ extension Git {
 
     static func getTags(at path: String) throws -> [Reference] {
         let tags = try Current.shell.run(command: .gitListTags, at: path)
+        if tags.isEmpty {
+            let oldTags = try? Current.shell.runOld(.gitListTags, path)
+            if tags != oldTags {
+                Current.logger().critical("getTags discrepancy: '\(tags)' vs '\(oldTags)'")
+            }
+        }
         return tags.split(separator: "\n")
             .map(String.init)
             .compactMap { tag in SemanticVersion(tag).map { ($0, tag) } }
@@ -69,6 +75,13 @@ extension Git {
         let separator = "-"
         let res = try Current.shell.run(command: .gitRevisionInfo(reference: reference,
                                                                   separator: separator), at: path)
+        if res.isEmpty {
+            let oldRes = try? Current.shell.runOld(.gitRevisionInfo(reference: reference,
+                                                                    separator: separator), path)
+            if res != oldRes {
+                Current.logger().critical("revisionInfo discrepancy: '\(res)' vs '\(oldRes)'")
+            }
+        }
         let parts = res.components(separatedBy: separator)
         guard parts.count == 2 else {
             Current.logger().warning(#"Git.invalidRevisionInfo: \#(res) for '\#(ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator).string)' at: \#(path)"#)
