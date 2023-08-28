@@ -32,6 +32,14 @@ func updatePackages(client: Client,
                     logger: Logger,
                     results: [Result<Joined<Package, Repository>, Error>],
                     stage: Package.ProcessingStage) async throws {
+    do {
+        let total = results.count
+        let errors = results.filter(\.isError).count
+        let errorRate = 100.0 * Double(errors) / Double(total)
+        if errorRate >= 10 {
+            logger.warning("updatePackages: unusually high error rate: \(errors)/\(total) = \(errorRate)%")
+        }
+    }
     let updates = await withThrowingTaskGroup(of: Void.self) { group in
         for result in results {
             group.addTask {
