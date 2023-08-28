@@ -431,10 +431,6 @@ extension Analyze {
 
         do {
             let tags = try Current.git.getTags(cacheDir)
-            // TODO: remove temporary logging
-            if tags.isEmpty {
-                logger.warning("getIncomingVersions: no tags found in \(cacheDir)")
-            }
 
             let references = [defaultBranch] + tags
             return try references
@@ -448,6 +444,7 @@ extension Analyze {
                                        url: url)
                 }
         } catch {
+            // TODO: temporary additional logging
             logger.warning("getIncomingVersions: \(error)")
             throw error
         }
