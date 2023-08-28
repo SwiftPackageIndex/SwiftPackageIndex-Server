@@ -1240,7 +1240,7 @@ class AnalyzerTests: AppTestCase {
             XCTAssertEqual(versions, ["1.0.0", "main"])
         }
 
-        do {  // second scenario: bad revisionInfo
+        do {  // second scenario: revisionInfo throws
             Current.git.getTags = { _ in [.tag(1, 0, 0)] }
             Current.git.revisionInfo = { _, _ in throw Error() }
 
@@ -1257,13 +1257,8 @@ class AnalyzerTests: AppTestCase {
             XCTAssertEqual(versions, ["1.0.0", "main"])
         }
 
-        do {  // second scenario: bad "git tags" return value
-            Current.shell.run = { cmd, path in
-                if cmd == .gitListTags {
-                    return #"""#
-                }
-                return ""
-            }
+        do {  // second scenario: gitTags throws
+            Current.shell.run = { _, _ in throw Error() }
             Current.git.getTags = Git.getTags(at:)
             Current.git.revisionInfo = { _, _ in .init(commit: "", date: .t1) }
 

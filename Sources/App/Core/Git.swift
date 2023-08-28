@@ -18,7 +18,6 @@ import ShellOut
 
 
 enum GitError: LocalizedError {
-    case invalidInput(String)
     case invalidInteger
     case invalidTimestamp
     case invalidRevisionInfo(String)
@@ -51,20 +50,11 @@ extension Git {
     }
 
     static func getTags(at path: String) throws -> [Reference] {
-        let commandOutput = try Current.shell.run(command: .gitListTags, at: path)
-        guard commandOutput.count >= "x.y.z".count else {
-            throw GitError.invalidInput(commandOutput)
-        }
-        let tags = commandOutput
-            .split(separator: "\n")
+        let tags = try Current.shell.run(command: .gitListTags, at: path)
+        return tags.split(separator: "\n")
             .map(String.init)
             .compactMap { tag in SemanticVersion(tag).map { ($0, tag) } }
             .map { Reference.tag($0, $1) }
-        // TODO: remove temporary logging
-        if tags.isEmpty {
-            Current.logger().warning("getTags: no tags found in output: \(commandOutput)")
-        }
-        return tags
     }
 
     static func showDate(_ commit: CommitHash, at path: String) throws -> Date {

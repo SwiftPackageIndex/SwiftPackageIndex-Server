@@ -381,6 +381,20 @@ extension Analyze {
             .all()
         let incoming = try await getIncomingVersions(client: client, logger: logger, package: package)
 
+        do { // TODO: temporary (?) logging
+            let existingTags = existing.filter(\.isTag).map(\.reference.description).sorted()
+            let incomingTags = incoming.filter(\.isTag).map(\.reference.description).sorted()
+            let removedTags = Set(existingTags).subtracting(incomingTags).sorted()
+            switch removedTags.count {
+                case 1:
+                    Current.logger().warning("1 release removed for package \(pkgId): \(removedTags)")
+                case 2...:
+                    Current.logger().critical("\(removedTags.count) releases removed for package: \(pkgId): \(removedTags)")
+                default:
+                    break
+            }
+        }
+
         let throttled = throttle(
             latestExistingVersion: existing.latestBranchVersion,
             incoming: incoming
