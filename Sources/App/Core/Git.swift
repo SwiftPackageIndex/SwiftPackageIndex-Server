@@ -50,12 +50,15 @@ extension Git {
     }
 
     static func getTags(at path: String) throws -> [Reference] {
-        let oldTags = try? Current.shell.runOld(.gitListTags, path)
         let tags = try Current.shell.run(command: .gitListTags, at: path)
+        let tags2 = try? Current.shell.run(command: .gitListTags, at: path)
         if tags.isEmpty {
-            if tags != oldTags {
-                Current.logger().critical("getTags discrepancy: '\(tags)' vs '\(oldTags)'")
-            }
+            Current.logger().warning("getTags empty 🔴")
+        } else {
+            Current.logger().info("getTags not empty ✅")
+        }
+        if tags != tags2 {
+            Current.logger().critical("getTags discrepancy: '\(tags)' vs '\(tags2)'")
         }
         return tags.split(separator: "\n")
             .map(String.init)
@@ -73,14 +76,17 @@ extension Git {
 
     static func revisionInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
         let separator = "-"
-        let oldRes = try? Current.shell.runOld(.gitRevisionInfo(reference: reference,
-                                                                separator: separator), path)
         let res = try Current.shell.run(command: .gitRevisionInfo(reference: reference,
                                                                   separator: separator), at: path)
+        let res2 = try? Current.shell.run(command: .gitRevisionInfo(reference: reference,
+                                                                    separator: separator), at: path)
         if res.isEmpty {
-            if res != oldRes {
-                Current.logger().critical("revisionInfo discrepancy: '\(res)' vs '\(oldRes)'")
-            }
+            Current.logger().warning("revisionInfo empty 🔴")
+        } else {
+            Current.logger().info("revisionInfo not empty ✅")
+        }
+        if res != res2 {
+            Current.logger().critical("revisionInfo discrepancy: '\(res)' vs '\(res2)'")
         }
         let parts = res.components(separatedBy: separator)
         guard parts.count == 2 else {
