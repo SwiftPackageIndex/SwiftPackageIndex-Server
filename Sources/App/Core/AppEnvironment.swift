@@ -309,6 +309,7 @@ struct Git {
 
 struct Shell {
     var run: (ShellOutCommand, String) throws -> String
+    var run2: (String, [String], String) throws -> String
     var runOld: (ShellOutCommand, String) throws -> String
     // also provide pass-through methods to preserve argument labels
     @discardableResult
@@ -324,6 +325,13 @@ struct Shell {
     static let live: Self = .init(
         run: {
             let res = try ShellOut.shellOut(to: $0, at: $1)
+            if !res.stderr.isEmpty {
+                Current.logger().warning("stderr: \(res.stderr)")
+            }
+            return res.stdout
+        },
+        run2: {
+            let res = try ShellOut.shellOut2(to: $0, arguments: $1, at: $2)
             if !res.stderr.isEmpty {
                 Current.logger().warning("stderr: \(res.stderr)")
             }

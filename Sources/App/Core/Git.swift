@@ -50,7 +50,7 @@ extension Git {
     }
 
     static func getTags(at path: String) throws -> [Reference] {
-        let tags = try Current.shell.run(command: .gitListTags, at: path)
+        let tags = try Current.shell.run2("git", ["tag"], path)
         if tags.isEmpty {
             let oldTags = try? Current.shell.runOld(.gitListTags, path)
             if tags != oldTags {
@@ -73,8 +73,13 @@ extension Git {
 
     static func revisionInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
         let separator = "-"
-        let res = try Current.shell.run(command: .gitRevisionInfo(reference: reference,
-                                                                  separator: separator), at: path)
+        let res = String(
+            try Current.shell.run2("git", ["log", "-n1",
+                                           #"--format=format:"%H\#(separator)%ct""#,
+                                           "\(reference)"], path)
+            .trimmingPrefix { $0 == Character("\"") }
+            .trimmingSuffix { $0 == Character("\"") }
+        )
         if res.isEmpty {
             let oldRes = try? Current.shell.runOld(.gitRevisionInfo(reference: reference,
                                                                     separator: separator), path)

@@ -1349,7 +1349,7 @@ private struct Command: CustomStringConvertible {
                 self.kind = .shortlog
             case _ where command.string.starts(with: #"git show -s --format=%ct"#):
                 self.kind = .showDate
-            case _ where command.string.starts(with: #"git log -n1 --format=format:"%H\#(separator)%ct""#):
+            case _ where command.string.starts(with: #"git log -n1 --format=tformat:"%H\#(separator)%ct""#):
                 let ref = String(command.string.split(separator: " ").last!)
                     .trimmingCharacters(in: quotes)
                 self.kind = .revisionInfo(ref)
