@@ -50,11 +50,12 @@ extension Git {
     }
 
     static func getTags(at path: String) throws -> [Reference] {
-        let tags = try Current.shell.run(command: .gitListTags, at: path)
+        let cmd = ShellOutCommand.gitListTags
+        let tags = try Current.shell.run(command: cmd, at: path)
         if tags.isEmpty {
-            let oldTags = try? Current.shell.runOld(.gitListTags, path)
+            let oldTags = try? Current.shell.runOld(cmd, path)
             if tags != oldTags {
-                Current.logger().critical("getTags discrepancy: '\(tags)' vs '\(oldTags)'")
+                Current.logger().critical("getTags discrepancy: '\(tags)' vs '\(oldTags)' (path: \(path), command: \(cmd.string))")
             }
         }
         return tags.split(separator: "\n")
@@ -73,13 +74,12 @@ extension Git {
 
     static func revisionInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
         let separator = "-"
-        let res = try Current.shell.run(command: .gitRevisionInfo(reference: reference,
-                                                                  separator: separator), at: path)
+        let cmd = ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator)
+        let res = try Current.shell.run(command: cmd, at: path)
         if res.isEmpty {
-            let oldRes = try? Current.shell.runOld(.gitRevisionInfo(reference: reference,
-                                                                    separator: separator), path)
+            let oldRes = try? Current.shell.runOld(cmd, path)
             if res != oldRes {
-                Current.logger().critical("revisionInfo discrepancy: '\(res)' vs '\(oldRes)'")
+                Current.logger().critical("revisionInfo discrepancy: '\(res)' vs '\(oldRes)' (path: \(path), command: \(cmd.string))")
             }
         }
         let parts = res.components(separatedBy: separator)
