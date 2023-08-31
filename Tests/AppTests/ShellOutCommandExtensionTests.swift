@@ -61,17 +61,17 @@ class ShellOutCommandExtensionTests: XCTestCase {
         XCTAssertEqual(
             ShellOutCommand
                 .gitRevisionInfo(reference: .tag(1, 2, 3), separator: dash).string,
-            #"git log -n1 --format=format:"%H\#(dash)%ct" 1.2.3"#
+            #"git log -n1 --format=tformat:"%H\#(dash)%ct" 1.2.3"#
         )
         XCTAssertEqual(
             ShellOutCommand
                 .gitRevisionInfo(reference: .branch("foo"), separator: dash).string,
-            #"git log -n1 --format=format:"%H\#(dash)%ct" foo"#
+            #"git log -n1 --format=tformat:"%H\#(dash)%ct" foo"#
         )
         XCTAssertEqual(
             ShellOutCommand
                 .gitRevisionInfo(reference: .branch("ba\nd"), separator: dash).string,
-            "git log -n1 --format=format:\"%H\(dash)%ct\" 'ba\nd'"
+            "git log -n1 --format=tformat:\"%H\(dash)%ct\" 'ba\nd'"
         )
     }
 
@@ -81,7 +81,7 @@ class ShellOutCommandExtensionTests: XCTestCase {
     }
 
     func test_gitListTags() throws {
-        XCTAssertEqual(ShellOutCommand.gitListTags.string, "git tag")
+        XCTAssertEqual(ShellOutCommand.gitListTags.string, "git tag && echo")
     }
 
     func test_quoting() throws {
@@ -91,7 +91,7 @@ class ShellOutCommandExtensionTests: XCTestCase {
         )
         XCTAssertEqual(
             ShellOutCommand.gitRevisionInfo(reference: .branch("foo ; rm *")).string,
-            #"git log -n1 --format=format:"%H-%ct" 'foo ; rm *'"#
+            #"git log -n1 --format=tformat:"%H-%ct" 'foo ; rm *'"#
         )
         XCTAssertEqual(
             ShellOutCommand.gitShowDate("foo ; rm *").string,
