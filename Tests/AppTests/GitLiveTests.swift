@@ -27,11 +27,15 @@ class GitLiveTests: XCTestCase {
         .appendingPathComponent("\(sampleGitRepoName).zip").path
 
     var path: String { "\(Self.tempDir)/\(Self.sampleGitRepoName)" }
+    static var hasRunSetup = false
 
-    override class func setUp() {
+    override func setUp() async throws {
+        // Simulate a class setUp (which does not exist as an async function)
+        if Self.hasRunSetup { return }
+        Self.hasRunSetup = true
         Current.shell = .live
-        try! Foundation.FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: false, attributes: nil)
-        try! ShellOut.shellOut(to: .init(command: "unzip", arguments: [sampleGitRepoZipFile.quoted]), at: tempDir)
+        try! Foundation.FileManager.default.createDirectory(atPath: Self.tempDir, withIntermediateDirectories: false, attributes: nil)
+        try! await ShellOut.shellOut(to: .init(command: "unzip", arguments: [Self.sampleGitRepoZipFile.quoted]), at: Self.tempDir)
     }
 
     override class func tearDown() {
@@ -43,23 +47,23 @@ class GitLiveTests: XCTestCase {
 // Tests
 extension GitLiveTests {
 
-    func test_commitCount() throws {
-        XCTAssertEqual(try Git.commitCount(at: path), 57)
+    func test_commitCount() async throws {
+        try await XCTAssertEqualAsync(try await Git.commitCount(at: path), 57)
     }
 
-    func test_firstCommitDate() throws {
-        XCTAssertEqual(try Git.firstCommitDate(at: path),
-                       Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
+    func test_firstCommitDate() async throws {
+        try await XCTAssertEqualAsync(try await Git.firstCommitDate(at: path),
+                                      Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
     }
 
-    func test_lastCommitDate() throws {
-        XCTAssertEqual(try Git.lastCommitDate(at: path),
-                       Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
+    func test_lastCommitDate() async throws {
+        try await XCTAssertEqualAsync(try await Git.lastCommitDate(at: path),
+                                      Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
     }
 
-    func test_getTags() throws {
-        XCTAssertEqual(
-            try Git.getTags(at: path),
+    func test_getTags() async throws {
+        try await XCTAssertEqualAsync(
+            try await Git.getTags(at: path),
             [.tag(0,2,0),
              .tag(0,2,1),
              .tag(0,2,2),
@@ -82,23 +86,23 @@ extension GitLiveTests {
         )
     }
 
-    func test_showDate() throws {
-        XCTAssertEqual(try Git.showDate("178566b112afe6bef3770678f1bbab6e5c626993",
-                                        at: path).timeIntervalSince1970,
-                       1554248253)  // April 2 23:37 UTC
+    func test_showDate() async throws {
+        try await XCTAssertEqualAsync(try await Git.showDate("178566b112afe6bef3770678f1bbab6e5c626993",
+                                                             at: path).timeIntervalSince1970,
+                                      1554248253)  // April 2 23:37 UTC
     }
 
-    func test_revisionInfo() throws {
-        XCTAssertEqual(try Git.revisionInfo(.tag(0,5,2), at: path),
-                       .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
-                             date: .init(timeIntervalSince1970: 1554248253)))
-        XCTAssertEqual(try Git.revisionInfo(.branch("master"), at: path),
-                       .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
-                             date: .init(timeIntervalSince1970: 1554248253)))
+    func test_revisionInfo() async throws {
+        try await XCTAssertEqualAsync(try await Git.revisionInfo(.tag(0,5,2), at: path),
+                                      .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
+                                            date: .init(timeIntervalSince1970: 1554248253)))
+        try await XCTAssertEqualAsync(try await Git.revisionInfo(.branch("master"), at: path),
+                                      .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
+                                            date: .init(timeIntervalSince1970: 1554248253)))
     }
 
-    func test_shortlog() throws {
-        XCTAssertEqual(try Git.shortlog(at: path), """
+    func test_shortlog() async throws {
+        try await XCTAssertEqualAsync(try await Git.shortlog(at: path), """
                 36\tNeil Pankey
                 21\tJacob Williams
             """)

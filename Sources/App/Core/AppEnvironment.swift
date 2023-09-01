@@ -287,13 +287,13 @@ extension FileManager {
 
 
 struct Git {
-    var commitCount: (String) throws -> Int
-    var firstCommitDate: (String) throws -> Date
-    var lastCommitDate: (String) throws -> Date
-    var getTags: (String) throws -> [Reference]
-    var showDate: (CommitHash, String) throws -> Date
-    var revisionInfo: (Reference, String) throws -> RevisionInfo
-    var shortlog: (String) throws -> String
+    var commitCount: (String) async throws -> Int
+    var firstCommitDate: (String) async throws -> Date
+    var lastCommitDate: (String) async throws -> Date
+    var getTags: (String) async throws -> [Reference]
+    var showDate: (CommitHash, String) async throws -> Date
+    var revisionInfo: (Reference, String) async throws -> RevisionInfo
+    var shortlog: (String) async throws -> String
 
     static let live: Self = .init(
         commitCount: commitCount(at:),
@@ -308,13 +308,13 @@ struct Git {
 
 
 struct Shell {
-    var run: (ShellOutCommand, String) throws -> String
+    var run: (ShellOutCommand, String) async throws -> String
     var runOld: (ShellOutCommand, String) throws -> String
     // also provide pass-through methods to preserve argument labels
     @discardableResult
-    func run(command: ShellOutCommand, at path: String = ".") throws -> String {
+    func run(command: ShellOutCommand, at path: String = ".") async throws -> String {
         do {
-            return try run(command, path)
+            return try await run(command, path)
         } catch {
             // re-package error to capture more information
             throw AppError.shellCommandFailed(command.string, path, error.localizedDescription)
@@ -323,7 +323,7 @@ struct Shell {
 
     static let live: Self = .init(
         run: {
-            let res = try ShellOut.shellOut(to: $0, at: $1, logger: Current.logger(), eofTimeout: .milliseconds(10))
+            let res = try await ShellOut.shellOut(to: $0, at: $1, logger: Current.logger())
             if !res.stderr.isEmpty {
                 Current.logger().warning("stderr: \(res.stderr)")
             }

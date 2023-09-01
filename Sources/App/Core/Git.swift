@@ -25,33 +25,33 @@ enum GitError: LocalizedError {
 
 extension Git {
 
-    static func commitCount(at path: String) throws -> Int {
-        let res = try Current.shell.run(command: .gitCommitCount, at: path)
+    static func commitCount(at path: String) async throws -> Int {
+        let res = try await Current.shell.run(command: .gitCommitCount, at: path)
         guard let count = Int(res) else {
             throw GitError.invalidInteger
         }
         return count
     }
 
-    static func firstCommitDate(at path: String) throws -> Date {
-        let res = try Current.shell.run(command: .gitFirstCommitDate, at: path)
+    static func firstCommitDate(at path: String) async throws -> Date {
+        let res = try await Current.shell.run(command: .gitFirstCommitDate, at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
         return Date(timeIntervalSince1970: timestamp)
     }
 
-    static func lastCommitDate(at path: String) throws -> Date {
-        let res = try Current.shell.run(command: .gitLastCommitDate, at: path)
+    static func lastCommitDate(at path: String) async throws -> Date {
+        let res = try await Current.shell.run(command: .gitLastCommitDate, at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
         return Date(timeIntervalSince1970: timestamp)
     }
 
-    static func getTags(at path: String) throws -> [Reference] {
+    static func getTags(at path: String) async throws -> [Reference] {
         let cmd = ShellOutCommand.gitListTags
-        let tags = try Current.shell.run(command: cmd, at: path)
+        let tags = try await Current.shell.run(command: cmd, at: path)
         if tags.isEmpty {
             let oldTags = try? Current.shell.runOld(cmd, path)
             if tags != oldTags {
@@ -64,18 +64,18 @@ extension Git {
             .map { Reference.tag($0, $1) }
     }
 
-    static func showDate(_ commit: CommitHash, at path: String) throws -> Date {
-        let res = try Current.shell.run(command: .gitShowDate(commit), at: path)
+    static func showDate(_ commit: CommitHash, at path: String) async throws -> Date {
+        let res = try await Current.shell.run(command: .gitShowDate(commit), at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
         return Date(timeIntervalSince1970: timestamp)
     }
 
-    static func revisionInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
+    static func revisionInfo(_ reference: Reference, at path: String) async throws -> RevisionInfo {
         let separator = "-"
         let cmd = ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator)
-        let res = try Current.shell.run(command: cmd, at: path)
+        let res = try await Current.shell.run(command: cmd, at: path)
         if res.isEmpty {
             let oldRes = try? Current.shell.runOld(cmd, path)
             if res != oldRes {
@@ -93,8 +93,8 @@ extension Git {
         return .init(commit: hash, date: date)
     }
 
-    static func shortlog(at path: String) throws -> String {
-        try Current.shell.run(command: .gitShortlog, at: path)
+    static func shortlog(at path: String) async throws -> String {
+        try await Current.shell.run(command: .gitShortlog, at: path)
     }
 
     struct RevisionInfo: Equatable {
