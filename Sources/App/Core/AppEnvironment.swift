@@ -323,7 +323,7 @@ struct Shell {
 
     static let live: Self = .init(
         run: {
-            let res = try ShellOut.shellOut(to: $0, at: $1, logger: Current.logger())
+            let res = try ShellOut.shellOut(to: $0, at: $1, logger: Current.logger(), eofTimeout: .milliseconds(10))
             if !res.stderr.isEmpty {
                 Current.logger().warning("stderr: \(res.stderr)")
             }
