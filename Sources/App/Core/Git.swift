@@ -50,14 +50,7 @@ extension Git {
     }
 
     static func getTags(at path: String) async throws -> [Reference] {
-        let cmd = ShellOutCommand.gitListTags
-        let tags = try await Current.shell.run(command: cmd, at: path)
-        if tags.isEmpty {
-            let oldTags = try? Current.shell.runOld(cmd, path)
-            if tags != oldTags {
-                Current.logger().critical("getTags discrepancy: '\(tags)' vs '\(oldTags)' (path: \(path), command: \(cmd.string))")
-            }
-        }
+        let tags = try await Current.shell.run(command: .gitListTags, at: path)
         return tags.split(separator: "\n")
             .map(String.init)
             .compactMap { tag in SemanticVersion(tag).map { ($0, tag) } }
@@ -74,14 +67,8 @@ extension Git {
 
     static func revisionInfo(_ reference: Reference, at path: String) async throws -> RevisionInfo {
         let separator = "-"
-        let cmd = ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator)
-        let res = try await Current.shell.run(command: cmd, at: path)
-        if res.isEmpty {
-            let oldRes = try? Current.shell.runOld(cmd, path)
-            if res != oldRes {
-                Current.logger().critical("revisionInfo discrepancy: '\(res)' vs '\(oldRes)' (path: \(path), command: \(cmd.string))")
-            }
-        }
+        let res = try await Current.shell.run(command: .gitRevisionInfo(reference: reference, separator: separator),
+                                              at: path)
         let parts = res.components(separatedBy: separator)
         guard parts.count == 2 else {
             Current.logger().warning(#"Git.invalidRevisionInfo: \#(res) for '\#(ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator).string)' at: \#(path)"#)

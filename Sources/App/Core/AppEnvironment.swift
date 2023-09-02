@@ -309,7 +309,7 @@ struct Git {
 
 struct Shell {
     var run: (ShellOutCommand, String) async throws -> String
-    var runOld: (ShellOutCommand, String) throws -> String
+
     // also provide pass-through methods to preserve argument labels
     @discardableResult
     func run(command: ShellOutCommand, at path: String = ".") async throws -> String {
@@ -324,13 +324,6 @@ struct Shell {
     static let live: Self = .init(
         run: {
             let res = try await ShellOut.shellOut(to: $0, at: $1, logger: Current.logger())
-            if !res.stderr.isEmpty {
-                Current.logger().warning("stderr: \(res.stderr)")
-            }
-            return res.stdout
-        },
-        runOld: {
-            let res = try ShellOut.shellOutOldVersion(to: $0, at: $1)
             if !res.stderr.isEmpty {
                 Current.logger().warning("stderr: \(res.stderr)")
             }
