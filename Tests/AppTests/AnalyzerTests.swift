@@ -405,8 +405,12 @@ class AnalyzerTests: AppTestCase {
                 firstDirCloned = true
             }
 
-            // returning a blank string will cause an exception when trying to
-            // decode it as the manifest result - we use this to simulate errors
+            if cmd == .swiftDumpPackage {
+                // Simulate error when reading the manifest
+                struct Error: Swift.Error { }
+                throw Error()
+            }
+
             return ""
         }
 
