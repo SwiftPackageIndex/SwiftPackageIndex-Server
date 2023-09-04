@@ -18,6 +18,10 @@ import Vapor
 
 @discardableResult
 public func configure(_ app: Application) throws -> String {
+    // The bundle is only loaded if /Applications/InjectionIII.app exists on the local development machine.
+    // Requires InjectionIII 4.7.3 or higher to be compaible with Package.swift files.
+    Bundle(path: "/Applications/InjectionIII.app/Contents/Resources/macOSInjection.bundle")?.load()
+
     app.logger.component = "server"
     Current.setLogger(app.logger)
     Current.setHTTPClient(app.client)
