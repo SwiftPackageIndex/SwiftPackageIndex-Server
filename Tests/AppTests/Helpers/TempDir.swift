@@ -38,7 +38,7 @@ class TempDir {
 }
 
 
-func withTempDir<T>(body: (String) throws -> T) throws -> T {
+func withTempDir<T>(body: (String) async throws -> T) async throws -> T {
     let tmp = try TempDir()
-    return try body(tmp.path)
+    return try await body(tmp.path)
 }

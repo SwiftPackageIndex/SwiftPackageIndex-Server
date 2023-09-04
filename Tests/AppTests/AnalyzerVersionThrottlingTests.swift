@@ -168,7 +168,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         Current.git.getTags = { _ in [.branch("main")] }
         let pkg = Package(url: "1".asGithubUrl.url)
         try await pkg.save(on: app.db)
-        let old = try makeVersion(pkg, "sha_old", .hours(-23), .branch("main"))
+        try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
+        let old = try makeVersion(pkg, "sha_old", .hours(-23), .branch("main"), .defaultBranch)
         try await old.save(on: app.db)
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
@@ -215,6 +216,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         // and checking the diffs are as expected.
         // Leaving tags out of it for simplicity - they are tested specifically
         // in test_throttle_ignore_tags above.
+        Current.git.getTags = { _ in [] }
 
         // Little helper to simulate minimal version reconciliation
         func runVersionReconciliation() async throws -> VersionDelta {
@@ -230,6 +232,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         // setup
         let pkg = Package(url: "1".asGithubUrl.url)
         try await pkg.save(on: app.db)
+        try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
         // start at t0
@@ -237,7 +240,6 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         Current.date = { t }
 
         do {  // start with a branch revision
-            Current.git.getTags = { _ in [.branch("main")] }
             Current.git.revisionInfo = { _, _ in .init(commit: "sha0", date: t ) }
 
             let delta = try await runVersionReconciliation()
@@ -248,7 +250,6 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
         do {  // one hour later a new commit landed - which should be ignored
             t = t.addingTimeInterval(.hours(1))
-            Current.git.getTags = { _ in [.branch("main")] }
             Current.git.revisionInfo = { _, _ in .init(commit: "sha1", date: t ) }
 
             let delta = try await runVersionReconciliation()
@@ -260,7 +261,6 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         do {  // run another 5 commits every four hours - they all should be ignored
             for idx in 1...5 {
                 t = t.addingTimeInterval(.hours(4))
-                Current.git.getTags = { _ in [.branch("main")] }
                 Current.git.revisionInfo = { _, _ in .init(commit: "sha\(idx+1)", date: t ) }
 
                 let delta = try await runVersionReconciliation()
@@ -272,7 +272,6 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
         do {  // advancing another 4 hours should finally create a new version
             t = t.addingTimeInterval(.hours(4))
-            Current.git.getTags = { _ in [.branch("main")] }
             Current.git.revisionInfo = { _, _ in .init(commit: "sha7", date: t ) }
 
             let delta = try await runVersionReconciliation()
@@ -334,12 +333,14 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 private func makeVersion(_ package: Package,
                          _ commit: CommitHash,
                          _ commitDate: TimeInterval,
-                         _ reference: Reference) throws -> Version {
+                         _ reference: Reference,
+                         _ latest: Version.Kind? = nil) throws -> Version {
     try Version(
         id: UUID(),
         package: package,
         commit: commit,
         commitDate: Date(timeIntervalSince1970: commitDate),
+        latest: latest,
         reference: reference
     )
 }

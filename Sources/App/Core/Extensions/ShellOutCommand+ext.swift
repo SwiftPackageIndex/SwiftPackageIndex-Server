@@ -57,7 +57,7 @@ extension ShellOutCommand {
 
     static func gitRevisionInfo(reference: Reference, separator: String = "-") -> Self {
         .init(command: .git, arguments: ["log", "-n1",
-                                         #"--format=format:"%H\#(separator.quoted)%ct""#.verbatim,
+                                         #"--format=tformat:"%H\#(separator.quoted)%ct""#.verbatim,
                                          "\(reference)".quoted])
 
     }

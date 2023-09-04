@@ -21,4 +21,15 @@ extension Result where Failure == Error {
             self = .failure(error)
         }
     }
+
+    var isSucess: Bool {
+        switch self {
+            case .success:
+                return true
+            case .failure:
+                return false
+        }
+    }
+
+    var isError: Bool { return !isSucess }
 }

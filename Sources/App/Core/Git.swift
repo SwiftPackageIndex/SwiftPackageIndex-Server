@@ -20,59 +20,59 @@ import ShellOut
 enum GitError: LocalizedError {
     case invalidInteger
     case invalidTimestamp
-    case invalidRevisionInfo
+    case invalidRevisionInfo(String)
 }
 
 extension Git {
 
-    static func commitCount(at path: String) throws -> Int {
-        let res = try Current.shell.run(command: .gitCommitCount, at: path)
+    static func commitCount(at path: String) async throws -> Int {
+        let res = try await Current.shell.run(command: .gitCommitCount, at: path)
         guard let count = Int(res) else {
             throw GitError.invalidInteger
         }
         return count
     }
 
-    static func firstCommitDate(at path: String) throws -> Date {
-        let res = try Current.shell.run(command: .gitFirstCommitDate, at: path)
+    static func firstCommitDate(at path: String) async throws -> Date {
+        let res = try await Current.shell.run(command: .gitFirstCommitDate, at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
         return Date(timeIntervalSince1970: timestamp)
     }
 
-    static func lastCommitDate(at path: String) throws -> Date {
-        let res = try Current.shell.run(command: .gitLastCommitDate, at: path)
+    static func lastCommitDate(at path: String) async throws -> Date {
+        let res = try await Current.shell.run(command: .gitLastCommitDate, at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
         return Date(timeIntervalSince1970: timestamp)
     }
 
-    static func getTags(at path: String) throws -> [Reference] {
-        let tags = try Current.shell.run(command: .gitListTags, at: path)
+    static func getTags(at path: String) async throws -> [Reference] {
+        let tags = try await Current.shell.run(command: .gitListTags, at: path)
         return tags.split(separator: "\n")
             .map(String.init)
             .compactMap { tag in SemanticVersion(tag).map { ($0, tag) } }
             .map { Reference.tag($0, $1) }
     }
 
-    static func showDate(_ commit: CommitHash, at path: String) throws -> Date {
-        let res = try Current.shell.run(command: .gitShowDate(commit), at: path)
+    static func showDate(_ commit: CommitHash, at path: String) async throws -> Date {
+        let res = try await Current.shell.run(command: .gitShowDate(commit), at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
         return Date(timeIntervalSince1970: timestamp)
     }
 
-    static func revisionInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
+    static func revisionInfo(_ reference: Reference, at path: String) async throws -> RevisionInfo {
         let separator = "-"
-        let res = try Current.shell.run(command: .gitRevisionInfo(reference: reference,
-                                                                  separator: separator), at: path)
+        let res = try await Current.shell.run(command: .gitRevisionInfo(reference: reference, separator: separator),
+                                              at: path)
         let parts = res.components(separatedBy: separator)
         guard parts.count == 2 else {
-            Current.logger().warning("Git.invalidRevisionInfo: \(res)")
-            throw GitError.invalidRevisionInfo
+            Current.logger().warning(#"Git.invalidRevisionInfo: \#(res) for '\#(ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator).string)' at: \#(path)"#)
+            throw GitError.invalidRevisionInfo(res)
         }
         let hash = parts[0]
         guard let timestamp = TimeInterval(parts[1]) else { throw GitError.invalidTimestamp }
@@ -80,8 +80,8 @@ extension Git {
         return .init(commit: hash, date: date)
     }
 
-    static func shortlog(at path: String) throws -> String {
-        try Current.shell.run(command: .gitShortlog, at: path)
+    static func shortlog(at path: String) async throws -> String {
+        try await Current.shell.run(command: .gitShortlog, at: path)
     }
 
     struct RevisionInfo: Equatable {

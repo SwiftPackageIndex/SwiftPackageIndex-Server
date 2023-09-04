@@ -140,7 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/ShellOut.git",
       "state" : {
-        "revision" : "db112a2104eae7fa8412ea80210d0f60b89a377e"
+        "revision" : "5638f21c958d2c85b37cfeb4ac86604a5bccf2c1",
+        "version" : "3.0.0"
       }
     },
     {

@@ -36,8 +36,8 @@ enum PackageContributors {
     ///   - gitCacheDirectoryPath: path to the cache directory where the clone of the package is stored
     ///   - packageID: the UUID of the package
     /// - Returns: PackageAuthors
-    static func extract(gitCacheDirectoryPath: String, packageID: UUID?) throws -> PackageAuthors {
-        let contributorsHistory = try GitShortlog.loadContributors(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
+    static func extract(gitCacheDirectoryPath: String, packageID: UUID?) async throws -> PackageAuthors {
+        let contributorsHistory = try await GitShortlog.loadContributors(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
         let authors = primaryContributors(candidates: contributorsHistory, threshold: 0.6)
 
         return PackageAuthors(authors: authors.map { Author(name: $0.name) },
@@ -54,9 +54,9 @@ enum PackageContributors {
     /// Loads git contributors from repository history
     private struct GitShortlog {
 
-        static func loadContributors(gitCacheDirectoryPath: String, packageID: UUID?) throws -> [Contributor] {
+        static func loadContributors(gitCacheDirectoryPath: String, packageID: UUID?) async throws -> [Contributor] {
             do {
-                let commitHistory = try runShortlog(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
+                let commitHistory = try await runShortlog(gitCacheDirectoryPath: gitCacheDirectoryPath, packageID: packageID)
                 return try parse(logHistory: commitHistory)
             } catch {
                 throw AppError.analysisError(packageID, "loadContributorsHistory failed: \(error.localizedDescription)")
@@ -64,7 +64,7 @@ enum PackageContributors {
         }
 
         /// Gets the git history in a string log
-        private static func runShortlog(gitCacheDirectoryPath: String, packageID: UUID?) throws -> String {
+        private static func runShortlog(gitCacheDirectoryPath: String, packageID: UUID?) async throws -> String {
 
             if Current.fileManager.fileExists(atPath: gitCacheDirectoryPath) == false {
                 throw AppError.cacheDirectoryDoesNotExist(packageID, gitCacheDirectoryPath)
@@ -72,7 +72,7 @@ enum PackageContributors {
 
             // attempt to shortlog
             do {
-                return try Current.git.shortlog(gitCacheDirectoryPath)
+                return try await Current.git.shortlog(gitCacheDirectoryPath)
             } catch {
                 throw AppError.shellCommandFailed("gitShortlog",
                                                   gitCacheDirectoryPath,

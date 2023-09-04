@@ -16,5 +16,5 @@
 
 
 extension App.Shell {
-    static let mock: Self = .init(run: { cmd, path in ""})
+    static let mock: Self = .init(run: { cmd, path in "" })
 }

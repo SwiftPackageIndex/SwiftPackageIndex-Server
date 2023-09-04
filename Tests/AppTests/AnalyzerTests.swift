@@ -443,7 +443,7 @@ class AnalyzerTests: AppTestCase {
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
         // MUT
-        _ = try Analyze.refreshCheckout(logger: app.logger, package: jpr)
+        _ = try await Analyze.refreshCheckout(logger: app.logger, package: jpr)
 
         // validate
         assertSnapshot(matching: commands.value, as: .dump)
@@ -632,7 +632,7 @@ class AnalyzerTests: AppTestCase {
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
         // MUT
-        let info = try Analyze.getPackageInfo(package: jpr, version: version)
+        let info = try await Analyze.getPackageInfo(package: jpr, version: version)
 
         // validation
         XCTAssertEqual(commands.value, [
@@ -880,9 +880,9 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        let res = pkgs.map { pkg in
-            Result {
-                try Analyze.refreshCheckout(logger: self.app.logger, package: pkg)
+        let res = await pkgs.mapAsync { pkg in
+            await Result {
+                try await Analyze.refreshCheckout(logger: self.app.logger, package: pkg)
             }
         }
 
@@ -917,9 +917,9 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        let res = pkgs.map { pkg in
-            Result {
-                try Analyze.refreshCheckout(logger: self.app.logger, package: pkg)
+        let res = await pkgs.mapAsync { pkg in
+            await Result {
+                try await Analyze.refreshCheckout(logger: self.app.logger, package: pkg)
             }
         }
 
@@ -928,24 +928,24 @@ class AnalyzerTests: AppTestCase {
         assertSnapshot(matching: commands.value, as: .dump)
     }
 
-    func test_dumpPackage_5_4() throws {
+    func test_dumpPackage_5_4() async throws {
         // Test parsing a Package.swift that requires a 5.4 toolchain
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
         // setup
         Current.fileManager = .live
         Current.shell = .live
-        try withTempDir { tempDir in
+        try await withTempDir { tempDir in
             let fixture = fixturesDirectory()
                 .appendingPathComponent("5.4-Package-swift").path
             let fname = tempDir.appending("/Package.swift")
-            try ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-            let m = try Analyze.dumpPackage(at: tempDir)
+            try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+            let m = try await Analyze.dumpPackage(at: tempDir)
             XCTAssertEqual(m.name, "VisualEffects")
         }
     }
 
-    func test_dumpPackage_5_5() throws {
+    func test_dumpPackage_5_5() async throws {
         // Test parsing a Package.swift that requires a 5.5 toolchain
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
@@ -953,34 +953,34 @@ class AnalyzerTests: AppTestCase {
         // setup
         Current.fileManager = .live
         Current.shell = .live
-        try withTempDir { tempDir in
+        try await withTempDir { tempDir in
             let fixture = fixturesDirectory()
                 .appendingPathComponent("5.5-Package-swift").path
             let fname = tempDir.appending("/Package.swift")
-            try ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-            let m = try Analyze.dumpPackage(at: tempDir)
+            try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+            let m = try await Analyze.dumpPackage(at: tempDir)
             XCTAssertEqual(m.name, "Firestarter")
         }
     }
 
-    func test_dumpPackage_5_9_macro_target() throws {
+    func test_dumpPackage_5_9_macro_target() async throws {
         // Test parsing a 5.9 Package.swift with a macro target
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
         // setup
         Current.fileManager = .live
         Current.shell = .live
-        try withTempDir { tempDir in
+        try await withTempDir { tempDir in
             let fixture = fixturesDirectory()
                 .appendingPathComponent("5.9-Package-swift").path
             let fname = tempDir.appending("/Package.swift")
-            try ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-            let m = try Analyze.dumpPackage(at: tempDir)
+            try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+            let m = try await Analyze.dumpPackage(at: tempDir)
             XCTAssertEqual(m.name, "StaticMemberIterable")
         }
     }
 
-    func test_dumpPackage_format() throws {
+    func test_dumpPackage_format() async throws {
         // Test dump-package JSON format
         // We decode this JSON output in a number of places and if there are changes in output
         // (which depend on the compiler version), the respective decoders need to be updated.
@@ -994,12 +994,12 @@ class AnalyzerTests: AppTestCase {
         // setup
         Current.fileManager = .live
         Current.shell = .live
-        try withTempDir { tempDir in
+        try await withTempDir { tempDir in
             let fixture = fixturesDirectory()
                 .appendingPathComponent("5.9-Package-swift").path
             let fname = tempDir.appending("/Package.swift")
-            try ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-            var json = try Current.shell.run(command: .swiftDumpPackage, at: tempDir)
+            try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+            var json = try await Current.shell.run(command: .swiftDumpPackage, at: tempDir)
             do {  // "root" references tempDir's absolute path - replace it to make the test stable
                 if var obj = try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any],
                    var packageKind = obj["packageKind"] as? [String: Any] {
@@ -1068,7 +1068,7 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        _ = try Analyze.refreshCheckout(logger: app.logger, package: pkg)
+        _ = try await Analyze.refreshCheckout(logger: app.logger, package: pkg)
 
         // validate
         assertSnapshot(matching: commands.value, as: .dump)
@@ -1221,26 +1221,7 @@ class AnalyzerTests: AppTestCase {
             1\tPerson 2
             """
         }
-        Current.shell.run = { cmd, path in
-            if cmd.string.hasSuffix("package dump-package") {
-                return #"""
-                    {
-                      "name": "foo-1",
-                      "products": [
-                        {
-                          "name": "p1",
-                          "targets": [],
-                          "type": {
-                            "executable": null
-                          }
-                        }
-                      ],
-                      "targets": []
-                    }
-                    """#
-            }
-            return ""
-        }
+        Current.shell.run = { cmd, path in "" }
 
         do {  // first scenario: bad getTags
             Current.git.getTags = { _ in throw Error() }
@@ -1259,9 +1240,27 @@ class AnalyzerTests: AppTestCase {
             XCTAssertEqual(versions, ["1.0.0", "main"])
         }
 
-        do {  // second scenario: bad revisionInfo
+        do {  // second scenario: revisionInfo throws
             Current.git.getTags = { _ in [.tag(1, 0, 0)] }
             Current.git.revisionInfo = { _, _ in throw Error() }
+
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      logger: app.logger,
+                                      mode: .limit(1))
+
+            // validate versions
+            let p = try await Package.find(pkgId, on: app.db).unwrap()
+            try await p.$versions.load(on: app.db)
+            let versions = p.versions.map(\.reference.description).sorted()
+            XCTAssertEqual(versions, ["1.0.0", "main"])
+        }
+
+        do {  // second scenario: gitTags throws
+            Current.shell.run = { _, _ in throw Error() }
+            Current.git.getTags = Git.getTags(at:)
+            Current.git.revisionInfo = { _, _ in .init(commit: "", date: .t1) }
 
             // MUT
             try await Analyze.analyze(client: app.client,
@@ -1350,7 +1349,7 @@ private struct Command: CustomStringConvertible {
                 self.kind = .shortlog
             case _ where command.string.starts(with: #"git show -s --format=%ct"#):
                 self.kind = .showDate
-            case _ where command.string.starts(with: #"git log -n1 --format=format:"%H\#(separator)%ct""#):
+            case _ where command.string.starts(with: #"git log -n1 --format=tformat:"%H\#(separator)%ct""#):
                 let ref = String(command.string.split(separator: " ").last!)
                     .trimmingCharacters(in: quotes)
                 self.kind = .revisionInfo(ref)

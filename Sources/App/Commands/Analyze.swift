@@ -201,7 +201,7 @@ extension Analyze {
                         database: Database,
                         logger: Logger,
                         package: Joined<Package, Repository>) async throws {
-        try refreshCheckout(logger: logger, package: package)
+        try await refreshCheckout(logger: logger, package: package)
 
         let result = try await database.transaction { tx in
             // Wrap in a Result to avoid throwing out of the transaction, causing a roll-back
@@ -210,6 +210,12 @@ extension Analyze {
 
                 let versionDelta = try await diffVersions(client: client, logger: logger, transaction: tx,
                                                           package: package)
+                let netDeleteCount = versionDelta.toDelete.count - versionDelta.toAdd.count
+                if netDeleteCount > 1 {
+                    // Sudden loss of versions is suspicious, warn and throw error
+                    let error = "Suspicious loss of \(netDeleteCount) versions for package \(package.model.id) - aborting analysis"
+                    throw AppError.genericError(package.model.id, error)
+                }
 
                 try await applyVersionDelta(on: tx, delta: versionDelta)
 
@@ -217,9 +223,11 @@ extension Analyze {
 
                 mergeReleaseInfo(package: package, into: newVersions)
 
-                let versionsPkgInfo = newVersions.compactMap { version -> (Version, PackageInfo)? in
-                    guard let pkgInfo = try? getPackageInfo(package: package, version: version) else { return nil }
-                    return (version, pkgInfo)
+                var versionsPkgInfo = [(Version, PackageInfo)]()
+                for version in newVersions {
+                    if let pkgInfo = try? await getPackageInfo(package: package, version: version) {
+                        versionsPkgInfo.append((version, pkgInfo))
+                    }
                 }
                 if !newVersions.isEmpty && versionsPkgInfo.isEmpty {
                     throw AppError.noValidVersions(package.model.id, package.model.url)
@@ -263,10 +271,10 @@ extension Analyze {
     ///   - cacheDir: checkout directory
     ///   - url: url to clone from
     /// - Throws: Shell errors
-    static func clone(logger: Logger, cacheDir: String, url: String) throws {
+    static func clone(logger: Logger, cacheDir: String, url: String) async throws {
         logger.info("cloning \(url) to \(cacheDir)")
-        try Current.shell.run(command: .gitClone(url: URL(string: url)!, to: cacheDir),
-                              at: Current.fileManager.checkoutsDirectory())
+        try await Current.shell.run(command: .gitClone(url: URL(string: url)!, to: cacheDir),
+                                    at: Current.fileManager.checkoutsDirectory())
     }
 
 
@@ -277,23 +285,23 @@ extension Analyze {
     ///   - branch: branch to check out
     ///   - url: url to fetch from
     /// - Throws: Shell errors
-    static func fetch(logger: Logger, cacheDir: String, branch: String, url: String) throws {
+    static func fetch(logger: Logger, cacheDir: String, branch: String, url: String) async throws {
         logger.info("pulling \(url) in \(cacheDir)")
         // clean up stray lock files that might have remained from aborted commands
-        try ["HEAD.lock", "index.lock"].forEach { fileName in
+        for fileName in ["HEAD.lock", "index.lock"] {
             let filePath = cacheDir + "/.git/\(fileName)"
             if Current.fileManager.fileExists(atPath: filePath) {
                 logger.info("Removing stale \(fileName) at path: \(filePath)")
-                try Current.shell.run(command: .removeFile(from: filePath))
+                try await Current.shell.run(command: .removeFile(from: filePath))
             }
         }
         // git reset --hard to deal with stray .DS_Store files on macOS
-        try Current.shell.run(command: .gitReset(hard: true), at: cacheDir)
-        try Current.shell.run(command: .gitClean, at: cacheDir)
-        try Current.shell.run(command: .gitFetchAndPruneTags, at: cacheDir)
-        try Current.shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
-        try Current.shell.run(command: .gitReset(to: branch, hard: true),
-                              at: cacheDir)
+        try await Current.shell.run(command: .gitReset(hard: true), at: cacheDir)
+        try await Current.shell.run(command: .gitClean, at: cacheDir)
+        try await Current.shell.run(command: .gitFetchAndPruneTags, at: cacheDir)
+        try await Current.shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
+        try await Current.shell.run(command: .gitReset(to: branch, hard: true),
+                                    at: cacheDir)
     }
 
 
@@ -301,29 +309,29 @@ extension Analyze {
     /// - Parameters:
     ///   - logger: `Logger` object
     ///   - package: `Package` to refresh
-    static func refreshCheckout(logger: Logger, package: Joined<Package, Repository>) throws {
+    static func refreshCheckout(logger: Logger, package: Joined<Package, Repository>) async throws {
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
         do {
             guard Current.fileManager.fileExists(atPath: cacheDir) else {
-                try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
+                try await clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
                 return
             }
 
             // attempt to fetch - if anything goes wrong we delete the directory
             // and fall back to cloning
             do {
-                try fetch(logger: logger,
-                          cacheDir: cacheDir,
-                          branch: package.repository?.defaultBranch ?? "master",
-                          url: package.model.url)
+                try await fetch(logger: logger,
+                                cacheDir: cacheDir,
+                                branch: package.repository?.defaultBranch ?? "master",
+                                url: package.model.url)
             } catch {
                 logger.info("fetch failed: \(error.localizedDescription)")
                 logger.info("removing directory")
-                try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
-                try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
+                try await Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
+                try await clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
             }
         } catch {
             throw AppError.analysisError(package.model.id, "refreshCheckout failed: \(error.localizedDescription)")
@@ -344,10 +352,10 @@ extension Analyze {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
-        repo.commitCount = (try? Current.git.commitCount(gitDirectory)) ?? 0
-        repo.firstCommitDate = try? Current.git.firstCommitDate(gitDirectory)
-        repo.lastCommitDate = try? Current.git.lastCommitDate(gitDirectory)
-        repo.authors = try? PackageContributors.extract(gitCacheDirectoryPath: gitDirectory, packageID: package.model.id)
+        repo.commitCount = (try? await Current.git.commitCount(gitDirectory)) ?? 0
+        repo.firstCommitDate = try? await Current.git.firstCommitDate(gitDirectory)
+        repo.lastCommitDate = try? await Current.git.lastCommitDate(gitDirectory)
+        repo.authors = try? await PackageContributors.extract(gitCacheDirectoryPath: gitDirectory, packageID: package.model.id)
 
         try await repo.update(on: database)
     }
@@ -401,22 +409,29 @@ extension Analyze {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
-        let defaultBranch = package.repository?.defaultBranch
-            .map { Reference.branch($0) }
+        guard let defaultBranch = package.repository?.defaultBranch
+            .map({ Reference.branch($0) })
+        else {
+            throw AppError.genericError(package.model.id, "Package must have default branch - aborting analysis")
+        }
 
-        let tags = try Current.git.getTags(cacheDir)
+        do {
+            let tags = try await Current.git.getTags(cacheDir)
 
-        let references = [defaultBranch].compactMap { $0 } + tags
-        return try references
-            .map { ref in
-                let revInfo = try Current.git.revisionInfo(ref, cacheDir)
-                let url = package.model.versionUrl(for: ref)
-                return try Version(package: package.model,
-                                   commit: revInfo.commit,
-                                   commitDate: revInfo.date,
-                                   reference: ref,
-                                   url: url)
-            }
+            let references = [defaultBranch] + tags
+            return try await references
+                .mapAsync { ref in
+                    let revInfo = try await Current.git.revisionInfo(ref, cacheDir)
+                    let url = package.model.versionUrl(for: ref)
+                    return try Version(package: package.model,
+                                       commit: revInfo.commit,
+                                       commitDate: revInfo.date,
+                                       reference: ref,
+                                       url: url)
+                }
+        } catch {
+            throw error
+        }
     }
 
 
@@ -508,13 +523,13 @@ extension Analyze {
     ///   - path: path to the pacakge
     /// - Throws: Shell errors or AppError.invalidRevision if there is no Package.swift file
     /// - Returns: `Manifest` data
-    static func dumpPackage(at path: String) throws -> Manifest {
+    static func dumpPackage(at path: String) async throws -> Manifest {
         guard Current.fileManager.fileExists(atPath: path + "/Package.swift") else {
             // It's important to check for Package.swift - otherwise `dump-package` will go
             // up the tree through parent directories to find one
             throw AppError.invalidRevision(nil, "no Package.swift")
         }
-        let json = try Current.shell.run(command: .swiftDumpPackage, at: path)
+        let json = try await Current.shell.run(command: .swiftDumpPackage, at: path)
         return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
     }
 
@@ -531,17 +546,17 @@ extension Analyze {
     ///   - package: `Package` to analyse
     ///   - version: `Version` to check out
     /// - Returns: `Result` with `Manifest` data
-    static func getPackageInfo(package: Joined<Package, Repository>, version: Version) throws -> PackageInfo {
+    static func getPackageInfo(package: Joined<Package, Repository>, version: Version) async throws -> PackageInfo {
         // check out version in cache directory
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id,
                                                    package.model.url)
         }
 
-        try Current.shell.run(command: .gitCheckout(branch: version.reference.description), at: cacheDir)
+        try await Current.shell.run(command: .gitCheckout(branch: version.reference.description), at: cacheDir)
 
         do {
-            let packageManifest = try dumpPackage(at: cacheDir)
+            let packageManifest = try await dumpPackage(at: cacheDir)
             let resolvedDependencies = getResolvedDependencies(Current.fileManager,
                                                                at: cacheDir)
             let spiManifest = Current.loadSPIManifest(cacheDir)

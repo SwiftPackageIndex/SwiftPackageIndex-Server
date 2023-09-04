@@ -190,7 +190,7 @@ enum ReAnalyzeVersions {
             try await database.transaction { tx in
                 guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: pkg.model) else { return }
                 if !Current.fileManager.fileExists(atPath: cacheDir) || refreshCheckouts {
-                    try Analyze.refreshCheckout(logger: logger, package: pkg)
+                    try await Analyze.refreshCheckout(logger: logger, package: pkg)
                 }
 
                 let versions = try await getExistingVersions(client: client,
@@ -207,7 +207,7 @@ enum ReAnalyzeVersions {
                 for version in versions {
                     let pkgInfo: Analyze.PackageInfo
                     do {
-                        pkgInfo = try Analyze.getPackageInfo(package: pkg, version: version)
+                        pkgInfo = try await Analyze.getPackageInfo(package: pkg, version: version)
                     } catch {
                         Current.logger().report(error: error)
                         continue
