@@ -212,10 +212,8 @@ extension Analyze {
                                                           package: package)
                 let netDeleteCount = versionDelta.toDelete.count - versionDelta.toAdd.count
                 if netDeleteCount > 1 {
-                    // TODO: temporary safe-guard: don't delete more than one version per analysis pass
                     // Sudden loss of versions is suspicious, warn and throw error
                     let error = "Suspicious loss of \(netDeleteCount) versions for package \(package.model.id) - aborting analysis"
-                    logger.error("\(error)")  // TODO: this logger should be superfluous but we don't want to miss the message
                     throw AppError.genericError(package.model.id, error)
                 }
 
@@ -383,20 +381,6 @@ extension Analyze {
             .all()
         let incoming = try await getIncomingVersions(client: client, logger: logger, package: package)
 
-        do { // TODO: temporary (?) logging
-            let existingTags = existing.filter(\.isTag).map(\.reference.description).sorted()
-            let incomingTags = incoming.filter(\.isTag).map(\.reference.description).sorted()
-            let removedTags = Set(existingTags).subtracting(incomingTags).sorted()
-            switch removedTags.count {
-                case 1:
-                    Current.logger().warning("1 release removed for package \(pkgId): \(removedTags)")
-                case 2...:
-                    Current.logger().critical("\(removedTags.count) releases removed for package: \(pkgId): \(removedTags)")
-                default:
-                    break
-            }
-        }
-
         let throttled = throttle(
             latestExistingVersion: existing.latestBranchVersion,
             incoming: incoming
@@ -446,8 +430,6 @@ extension Analyze {
                                        url: url)
                 }
         } catch {
-            // TODO: temporary additional logging
-            logger.warning("getIncomingVersions: \(error)")
             throw error
         }
     }

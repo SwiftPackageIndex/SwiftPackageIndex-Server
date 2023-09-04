@@ -81,7 +81,7 @@ class ShellOutCommandExtensionTests: XCTestCase {
     }
 
     func test_gitListTags() throws {
-        XCTAssertEqual(ShellOutCommand.gitListTags.string, "git tag && echo")
+        XCTAssertEqual(ShellOutCommand.gitListTags.string, "git tag")
     }
 
     func test_quoting() throws {

@@ -67,7 +67,7 @@ extension ShellOutCommand {
     }
 
     static var gitListTags: Self {
-        .init(command: .git, arguments: ["tag", "&&".verbatim, "echo"])
+        .init(command: .git, arguments: ["tag"])
     }
 
     static var gitShortlog: Self {

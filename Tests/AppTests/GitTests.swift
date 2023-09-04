@@ -22,7 +22,7 @@ class GitTests: XCTestCase {
     
     
     func test_tag() async throws {
-        Current.shell.run = mock(for: "git tag && echo", """
+        Current.shell.run = mock(for: "git tag", """
             test
             1.0.0-pre
             1.0.0
