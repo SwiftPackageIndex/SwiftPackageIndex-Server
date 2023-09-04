@@ -1258,9 +1258,26 @@ class AnalyzerTests: AppTestCase {
         }
 
         do {  // second scenario: gitTags throws
-            Current.shell.run = { _, _ in throw Error() }
-            Current.git.getTags = Git.getTags(at:)
+            Current.git.getTags = { _ in throw Error() }
             Current.git.revisionInfo = { _, _ in .init(commit: "", date: .t1) }
+
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      logger: app.logger,
+                                      mode: .limit(1))
+
+            // validate versions
+            let p = try await Package.find(pkgId, on: app.db).unwrap()
+            try await p.$versions.load(on: app.db)
+            let versions = p.versions.map(\.reference.description).sorted()
+            XCTAssertEqual(versions, ["1.0.0", "main"])
+        }
+
+        do {  // third scenario: everything throws
+            Current.shell.run = { _, _ in throw Error() }
+            Current.git.getTags = { _ in throw Error() }
+            Current.git.revisionInfo = { _, _ in throw Error() }
 
             // MUT
             try await Analyze.analyze(client: app.client,
