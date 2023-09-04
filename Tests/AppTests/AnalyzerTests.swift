@@ -367,11 +367,9 @@ class AnalyzerTests: AppTestCase {
         }
         var checkoutDir: String? = nil
 
-        var firstDirCloned = false
         Current.fileManager.fileExists = { path in
-            // let the check for the second repo checkout path succedd to simulate pull
+            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-1" { return true }
             if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
-            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-1" { return firstDirCloned }
             if path.hasSuffix("Package.swift") { return true }
             return false
         }
@@ -401,14 +399,30 @@ class AnalyzerTests: AppTestCase {
             }
 
             if let result = mockResults[cmd] { return result }
-            if cmd.string.starts(with: "git clone") {
-                firstDirCloned = true
-            }
 
+            // simulate error in first package
             if cmd == .swiftDumpPackage {
-                // Simulate error when reading the manifest
-                struct Error: Swift.Error { }
-                throw Error()
+                if path.hasSuffix("foo-1") {
+                    // Simulate error when reading the manifest
+                    struct Error: Swift.Error { }
+                    throw Error()
+                } else {
+                    return #"""
+                    {
+                      "name": "foo-2",
+                      "products": [
+                        {
+                          "name": "p1",
+                          "targets": ["t1"],
+                          "type": {
+                            "executable": null
+                          }
+                        }
+                      ],
+                      "targets": [{"name": "t1", "type": "executable"}]
+                    }
+                    """#
+                }
             }
 
             return ""
@@ -421,12 +435,10 @@ class AnalyzerTests: AppTestCase {
                                   mode: .limit(10))
 
         // validation (not in detail, this is just to ensure command count is as expected)
-        // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
-        // which we intentionally broke. Command count must remain the same.
-        XCTAssertEqual(commands.value.count, 34, "was: \(dump(commands.value))")
-        // 2 packages with 2 tags + 1 default branch each -> 6 versions
+        XCTAssertEqual(commands.value.count, 38, "was: \(dump(commands.value))")
+        // 1 packages with 2 tags + 1 default branch each -> 3 versions (the other package fails)
         let versionCount = try await Version.query(on: app.db).count()
-        XCTAssertEqual(versionCount, 6)
+        XCTAssertEqual(versionCount, 3)
     }
 
     @MainActor
