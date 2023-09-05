@@ -70,7 +70,7 @@ Or, if you want to run either the CSS or JavaScript linting steps separately, ru
 
 ### Check Everything Works!
 
-Navigate to `http://127.0.0.1:8080` with a web browser, and the site should be up and running locally with CSS and JavaScript working!
+Navigate to <http://127.0.0.1:8080> with a web browser, and the site should be up and running locally with CSS and JavaScript working!
 
 ## Logging database queries
 
