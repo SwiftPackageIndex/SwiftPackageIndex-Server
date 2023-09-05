@@ -49,8 +49,13 @@ struct ReconcileCommand: AsyncCommand {
 func reconcile(client: Client, database: Database) async throws {
     let start = DispatchTime.now().uptimeNanoseconds
     defer { AppMetrics.reconcileDurationSeconds?.time(since: start) }
-    async let packageList = try Current.fetchPackageList(client)
+    async let sourcePackageList = try Current.fetchPackageList(client)
+    async let sourcePackageDenyList = try Current.fetchPackageDenyList(client)
     async let currentList = try fetchCurrentPackageList(database)
+
+    let packageList = processPackageDenyList(packageList: try await sourcePackageList,
+                                             denyList: try await sourcePackageDenyList)
+
     try await reconcileLists(db: database,
                              source: packageList,
                              target: currentList)
@@ -62,6 +67,24 @@ func liveFetchPackageList(_ client: Client) async throws -> [URL] {
         .get(Constants.packageListUri)
         .content
         .decode([String].self, using: JSONDecoder())
+        .compactMap(URL.init(string:))
+}
+
+
+func liveFetchPackageDenyList(_ client: Client) async throws -> [URL] {
+    struct DeniedPackage: Decodable {
+        var packageUrl: String
+
+        enum CodingKeys: String, CodingKey {
+            case packageUrl = "package_url"
+        }
+    }
+
+    return try await client
+        .get(Constants.packageDenyListUri)
+        .content
+        .decode([DeniedPackage].self, using: JSONDecoder())
+        .map(\.packageUrl)
         .compactMap(URL.init(string:))
 }
 
@@ -91,4 +114,8 @@ func reconcileLists(db: Database, source: [URL], target: [URL]) async throws {
             .filter(by: url)
             .delete()
     }
+}
+
+func processPackageDenyList(packageList: [URL], denyList: [URL]) -> [URL] {
+    return Array(Set(packageList).subtracting(Set(denyList)))
 }
