@@ -291,7 +291,6 @@ struct Git {
     var firstCommitDate: (String) async throws -> Date
     var lastCommitDate: (String) async throws -> Date
     var getTags: (String) async throws -> [Reference]
-    var showDate: (CommitHash, String) async throws -> Date
     var revisionInfo: (Reference, String) async throws -> RevisionInfo
     var shortlog: (String) async throws -> String
 
@@ -300,7 +299,6 @@ struct Git {
         firstCommitDate: firstCommitDate(at:),
         lastCommitDate: lastCommitDate(at:),
         getTags: getTags(at:),
-        showDate: showDate(_:at:),
         revisionInfo: revisionInfo(_:at:),
         shortlog: shortlog(at:)
     )

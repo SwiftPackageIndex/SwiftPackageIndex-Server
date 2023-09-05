@@ -81,7 +81,6 @@ final class AnalyzeErrorTests: AppTestCase {
         Current.git.commitCount = { _ in 1 }
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
-        Current.git.showDate = { _, _ in .t1 }
         Current.git.getTags = { checkoutDir in
             if checkoutDir.hasSuffix("foo-1") { return [] }
             if checkoutDir.hasSuffix("foo-2") { return [.tag(1, 2, 3)] }

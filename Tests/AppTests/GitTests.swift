@@ -39,18 +39,6 @@ class GitTests: XCTestCase {
             ])
     }
     
-    func test_showDate() async throws {
-        Current.shell.run = mock(
-            for: #"git show -s --format=%ct 2c6399a1fa6f3b023bcdeac24b6a46ce3bd89ed0"#, """
-                1536799579
-                """
-        )
-        try await XCTAssertEqualAsync(
-            try await Git.showDate("2c6399a1fa6f3b023bcdeac24b6a46ce3bd89ed0", at: "ignored"),
-            Date(timeIntervalSince1970: 1536799579)
-        )
-    }
-    
     func test_revInfo() async throws {
         Current.shell.run = { cmd, _ in
             if cmd.string == #"git log -n1 --format=tformat:"%H-%ct" 2.2.1"# {
