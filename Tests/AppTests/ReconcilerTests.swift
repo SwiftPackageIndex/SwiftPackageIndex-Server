@@ -77,12 +77,12 @@ class ReconcilerTests: AppTestCase {
             try await Package(url: url).save(on: app.db)
         }
 
-        // New list drops 2 and adds 4, 5
-        let packageList = ["1", "3", "4", "5"]
+        // New list adds two new packages 4, 5
+        let packageList = ["1", "2", "3", "4", "5"]
         Current.fetchPackageList = { _ in packageList.asURLs }
 
-        // Deny list denies 4
-        let packageDenyList = ["4"]
+        // Deny list denies 2 and 4 (one existing and one new)
+        let packageDenyList = ["2", "4"]
         Current.fetchPackageDenyList = { _ in packageDenyList.asURLs }
 
         // MUT
