@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server/async-http-client.git",
       "state" : {
-        "revision" : "78db67e5bf4a8543075787f228e8920097319281",
-        "version" : "1.18.0"
+        "revision" : "16f7e62c08c6969899ce6cc277041e868364e5cf",
+        "version" : "1.19.0"
       }
     },
     {
@@ -113,8 +113,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-nio.git",
       "state" : {
-        "revision" : "aa9273c06a0f42281635eaf0400aa024157c8fa9",
-        "version" : "1.17.0"
+        "revision" : "abca6b390235ae337999d367c40cc40c99629385",
+        "version" : "1.18.1"
       }
     },
     {
@@ -375,7 +375,7 @@
       "location" : "https://github.com/apple/swift-package-manager.git",
       "state" : {
         "branch" : "release/5.9",
-        "revision" : "df487490643cdbec054c3548d651b4971704456a"
+        "revision" : "c50f7533b9625c5a2dabe7ac9901633ebcd3998a"
       }
     },
     {
@@ -392,8 +392,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing.git",
       "state" : {
-        "revision" : "dc46eeb3928a75390651fac6c1ef7f93ad59a73b",
-        "version" : "1.11.1"
+        "revision" : "26ed3a2b4a2df47917ca9b790a57f91285b923fb",
+        "version" : "1.12.0"
       }
     },
     {
@@ -446,8 +446,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "1bb4a2ed94bec7a92f92e82896408c785d068f5c",
-        "version" : "4.79.0"
+        "revision" : "d53f7fdbf6bdaaa4568dc9bf3847aafeaea6c489",
+        "version" : "4.80.0"
       }
     },
     {
