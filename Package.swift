@@ -39,7 +39,6 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
-//        .package(url: "https://github.com/johnno1962/HotReloading.git", branch: "main"),
     ],
     targets: [
         .executableTarget(name: "Run", dependencies: ["App"]),
@@ -52,7 +51,6 @@ let package = Package(
                     "SemanticVersion",
                     "SwiftPrometheus",
                     "SwiftSoup",
-//                    "HotReloading",
                     .product(name: "CustomDump", package: "swift-custom-dump"),
                     .product(name: "DependencyResolution", package: "DependencyResolution"),
                     .product(name: "Fluent", package: "fluent"),
