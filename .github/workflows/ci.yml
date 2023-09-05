@@ -23,7 +23,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:0.12.1
+      image: registry.gitlab.com/finestructure/spi-base:f129c5b1263da8e6260aedc0588ec583c416ff87
     services:
       postgres:
         image: postgres:13.8-alpine
