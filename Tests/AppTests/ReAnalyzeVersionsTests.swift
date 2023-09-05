@@ -194,9 +194,14 @@ class ReAnalyzeVersionsTests: AppTestCase {
             """
         }
         Current.shell.run = { cmd, path in
-            if cmd.string.hasSuffix("swift package dump-package") {
-                // causing error to be thrown during package dump
-                return "bad dump"
+            if cmd == .swiftDumpPackage {
+                return #"""
+                        {
+                          "name": "foo-1",
+                          "products": [],
+                          "targets": [{"name": "t1", "type": "executable"}]
+                        }
+                        """#
             }
             return ""
         }
@@ -209,6 +214,15 @@ class ReAnalyzeVersionsTests: AppTestCase {
             let candidates = try await Package
                 .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10)
             XCTAssertEqual(candidates.count, 1)
+        }
+
+        Current.shell.run = { cmd, path in
+            if cmd == .swiftDumpPackage {
+                // simulate error during package dump
+                struct Error: Swift.Error { }
+                throw Error()
+            }
+            return ""
         }
 
         // MUT

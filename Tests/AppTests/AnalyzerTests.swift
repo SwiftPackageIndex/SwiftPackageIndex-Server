@@ -367,11 +367,9 @@ class AnalyzerTests: AppTestCase {
         }
         var checkoutDir: String? = nil
 
-        var firstDirCloned = false
         Current.fileManager.fileExists = { path in
-            // let the check for the second repo checkout path succedd to simulate pull
+            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-1" { return true }
             if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
-            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-1" { return firstDirCloned }
             if path.hasSuffix("Package.swift") { return true }
             return false
         }
@@ -401,12 +399,32 @@ class AnalyzerTests: AppTestCase {
             }
 
             if let result = mockResults[cmd] { return result }
-            if cmd.string.starts(with: "git clone") {
-                firstDirCloned = true
+
+            // simulate error in first package
+            if cmd == .swiftDumpPackage {
+                if path.hasSuffix("foo-1") {
+                    // Simulate error when reading the manifest
+                    struct Error: Swift.Error { }
+                    throw Error()
+                } else {
+                    return #"""
+                    {
+                      "name": "foo-2",
+                      "products": [
+                        {
+                          "name": "p1",
+                          "targets": ["t1"],
+                          "type": {
+                            "executable": null
+                          }
+                        }
+                      ],
+                      "targets": [{"name": "t1", "type": "executable"}]
+                    }
+                    """#
+                }
             }
 
-            // returning a blank string will cause an exception when trying to
-            // decode it as the manifest result - we use this to simulate errors
             return ""
         }
 
@@ -417,12 +435,10 @@ class AnalyzerTests: AppTestCase {
                                   mode: .limit(10))
 
         // validation (not in detail, this is just to ensure command count is as expected)
-        // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
-        // which we intentionally broke. Command count must remain the same.
-        XCTAssertEqual(commands.value.count, 34, "was: \(dump(commands.value))")
-        // 2 packages with 2 tags + 1 default branch each -> 6 versions
+        XCTAssertEqual(commands.value.count, 38, "was: \(dump(commands.value))")
+        // 1 packages with 2 tags + 1 default branch each -> 3 versions (the other package fails)
         let versionCount = try await Version.query(on: app.db).count()
-        XCTAssertEqual(versionCount, 6)
+        XCTAssertEqual(versionCount, 3)
     }
 
     @MainActor
@@ -1189,8 +1205,9 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(removedPaths, ["/checkouts/foo"])
     }
 
-    func test_issue_2571() async throws {
+    func test_issue_2571_tags() async throws {
         // Ensure bad git commands do not delete existing tag revisions
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
         let pkgId = UUID()
         let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
         try await pkg.save(on: app.db)
@@ -1290,6 +1307,120 @@ class AnalyzerTests: AppTestCase {
             try await p.$versions.load(on: app.db)
             let versions = p.versions.map(\.reference.description).sorted()
             XCTAssertEqual(versions, ["1.0.0", "main"])
+        }
+    }
+
+    func test_issue_2571_latest_version() async throws {
+        // Ensure `latest` remains set in case of AppError.noValidVersions
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
+        let pkgId = UUID()
+        let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
+        try await pkg.save(on: app.db)
+        try await Repository(package: pkg,
+                             defaultBranch: "main",
+                             name: "1",
+                             owner: "foo").save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "commit0",
+                          commitDate: .t0,
+                          latest: .defaultBranch,
+                          packageName: "foo-1",
+                          reference: .branch("main")).save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "commit0",
+                          commitDate: .t0,
+                          latest: .release,
+                          packageName: "foo-1",
+                          reference: .tag(1, 0, 0)).save(on: app.db)
+        Current.fileManager.fileExists = { _ in true }
+        Current.git.commitCount = { _ in 2 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        struct Error: Swift.Error { }
+        Current.git.shortlog = { _ in
+            """
+            1\tPerson 1
+            1\tPerson 2
+            """
+        }
+        Current.git.getTags = { _ in [.tag(1, 0, 0)] }
+        Current.shell.run = { cmd, path in return "" }
+
+        do {  // ensure happy path passes test (no revision changes)
+            Current.git.revisionInfo = { ref, _ in
+                switch ref {
+                    case .tag(.init(1, 0, 0), "1.0.0"):
+                        return .init(commit: "commit0", date: .t0)
+                    case .branch("main"):
+                        return .init(commit: "commit0", date: .t0)
+                    default:
+                        throw Error()
+                }
+            }
+
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      logger: app.logger,
+                                      mode: .limit(1))
+
+            // validate versions
+            let p = try await Package.find(pkgId, on: app.db).unwrap()
+            try await p.$versions.load(on: app.db)
+            let versions = p.versions.sorted(by: { $0.reference.description < $1.reference.description })
+            XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "main"])
+            XCTAssertEqual(versions.map(\.latest), [.release, .defaultBranch])
+        }
+
+        // make package available for analysis again
+        pkg.processingStage = .ingestion
+        try await pkg.save(on: app.db)
+
+        do {  // simulate "main" branch moving forward to ("commit0", .t1)
+            Current.git.revisionInfo = { ref, _ in
+                switch ref {
+                    case .tag(.init(1, 0, 0), "1.0.0"):
+                        return .init(commit: "commit0", date: .t0)
+                    case .branch("main"):
+                        // main branch has new commit
+                        return .init(commit: "commit1", date: .t1)
+                    default:
+                        throw Error()
+                }
+            }
+            Current.shell.run = { cmd, path in
+                // simulate error in getPackageInfo by failing checkout
+                if cmd == .gitCheckout(branch: "main") {
+                    throw Error()
+                }
+                return ""
+            }
+
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      logger: app.logger,
+                                      mode: .limit(1))
+
+            // validate error logs
+            try logger.logs.withValue { logs in
+                XCTAssertEqual(logs.count, 1)
+                let error = try logs.first.unwrap()
+                XCTAssertTrue(
+                    error.message.contains(
+                    #"""
+                    No valid version found for package 'https://github.com/foo/1'
+                    """#
+                    ),
+                    "was: \(error.message)"
+                )
+            }
+            // validate versions
+            let p = try await Package.find(pkgId, on: app.db).unwrap()
+            try await p.$versions.load(on: app.db)
+            let versions = p.versions.sorted(by: { $0.reference.description < $1.reference.description })
+            XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "main"])
+            XCTAssertEqual(versions.map(\.latest), [.release, .defaultBranch])
         }
     }
 

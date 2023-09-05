@@ -203,50 +203,46 @@ extension Analyze {
                         package: Joined<Package, Repository>) async throws {
         try await refreshCheckout(logger: logger, package: package)
 
-        let result = try await database.transaction { tx in
-            // Wrap in a Result to avoid throwing out of the transaction, causing a roll-back
-            await Result {
-                try await updateRepository(on: tx, package: package)
+        try await database.transaction { tx in
+            try await updateRepository(on: tx, package: package)
 
-                let versionDelta = try await diffVersions(client: client, logger: logger, transaction: tx,
-                                                          package: package)
-                let netDeleteCount = versionDelta.toDelete.count - versionDelta.toAdd.count
-                if netDeleteCount > 1 {
-                    // Sudden loss of versions is suspicious, warn and throw error
-                    let error = "Suspicious loss of \(netDeleteCount) versions for package \(package.model.id) - aborting analysis"
-                    throw AppError.genericError(package.model.id, error)
-                }
-
-                try await applyVersionDelta(on: tx, delta: versionDelta)
-
-                let newVersions = versionDelta.toAdd
-
-                mergeReleaseInfo(package: package, into: newVersions)
-
-                var versionsPkgInfo = [(Version, PackageInfo)]()
-                for version in newVersions {
-                    if let pkgInfo = try? await getPackageInfo(package: package, version: version) {
-                        versionsPkgInfo.append((version, pkgInfo))
-                    }
-                }
-                if !newVersions.isEmpty && versionsPkgInfo.isEmpty {
-                    throw AppError.noValidVersions(package.model.id, package.model.url)
-                }
-
-                for (version, pkgInfo) in versionsPkgInfo {
-                    try await updateVersion(on: tx, version: version, packageInfo: pkgInfo).get()
-                    try await recreateProducts(on: tx, version: version, manifest: pkgInfo.packageManifest)
-                    try await recreateTargets(on: tx, version: version, manifest: pkgInfo.packageManifest)
-                }
-
-                let versions = try await updateLatestVersions(on: tx, package: package)
-
-                updateScore(package: package, versions: versions)
-
-                await onNewVersions(client: client, logger: logger, package: package, versions: newVersions)
+            let versionDelta = try await diffVersions(client: client, logger: logger, transaction: tx,
+                                                      package: package)
+            let netDeleteCount = versionDelta.toDelete.count - versionDelta.toAdd.count
+            if netDeleteCount > 1 {
+                // Sudden loss of versions is suspicious, warn and throw error
+                let error = "Suspicious loss of \(netDeleteCount) versions for package \(package.model.id) - aborting analysis"
+                throw AppError.genericError(package.model.id, error)
             }
+
+            try await applyVersionDelta(on: tx, delta: versionDelta)
+
+            let newVersions = versionDelta.toAdd
+
+            mergeReleaseInfo(package: package, into: newVersions)
+
+            var versionsPkgInfo = [(Version, PackageInfo)]()
+            for version in newVersions {
+                if let pkgInfo = try? await getPackageInfo(package: package, version: version) {
+                    versionsPkgInfo.append((version, pkgInfo))
+                }
+            }
+            if !newVersions.isEmpty && versionsPkgInfo.isEmpty {
+                throw AppError.noValidVersions(package.model.id, package.model.url)
+            }
+
+            for (version, pkgInfo) in versionsPkgInfo {
+                try await updateVersion(on: tx, version: version, packageInfo: pkgInfo).get()
+                try await recreateProducts(on: tx, version: version, manifest: pkgInfo.packageManifest)
+                try await recreateTargets(on: tx, version: version, manifest: pkgInfo.packageManifest)
+            }
+
+            let versions = try await updateLatestVersions(on: tx, package: package)
+
+            updateScore(package: package, versions: versions)
+
+            await onNewVersions(client: client, logger: logger, package: package, versions: newVersions)
         }
-        try result.get()
     }
 
 
