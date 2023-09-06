@@ -63,7 +63,8 @@ let package = Package(
                     .product(name: "VaporToOpenAPI", package: "VaporToOpenAPI"),
                 ],
                 linkerSettings: [.unsafeFlags(["-Xlinker", "-interposable"],
-                                              .when(configuration: .debug))]),
+                                              .when(platforms: [.macOS],
+                                                    configuration: .debug))]),
         .target(name: "S3Store", dependencies: [
             .product(name: "SotoS3", package: "soto"),
         ]),
