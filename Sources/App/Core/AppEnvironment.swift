@@ -234,7 +234,7 @@ private enum Networking {
         // We're forcing HTTP/1 due to a bug in Github's HEAD request handling
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1676
         config.httpVersion = .http1Only
-        let client = HTTPClient(eventLoopGroupProvider: .createNew, configuration: config)
+        let client = HTTPClient(eventLoopGroupProvider: .singleton, configuration: config)
         defer { try? client.syncShutdown() }
         var req = HTTPClientRequest(url: url)
         req.method = .HEAD

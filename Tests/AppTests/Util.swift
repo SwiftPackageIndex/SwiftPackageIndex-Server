@@ -148,7 +148,7 @@ func fetch(id: Package.Id?, on db: Database, file: StaticString = #file, line: U
 // MARK: - Client mocking
 
 
-class MockClient: Client {
+class MockClient: Client, @unchecked Sendable {
     let eventLoopGroup: EventLoopGroup
     var updateResponse: (ClientRequest, inout ClientResponse) -> Void
 
