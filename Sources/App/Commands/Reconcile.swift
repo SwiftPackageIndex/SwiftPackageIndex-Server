@@ -117,6 +117,24 @@ func reconcileLists(db: Database, source: [URL], target: [URL]) async throws {
 }
 
 func processPackageDenyList(packageList: [URL], denyList: [URL]) -> [URL] {
-    let lowercaseDenyList = denyList.map { $0.absoluteString.lowercased() }
-    return Array(packageList.filter { lowercaseDenyList.contains($0.absoluteString.lowercased()) == false })
+    struct CaseInsensitiveURL: Equatable, Hashable {
+        var url: URL
+
+        init(_ url: URL) {
+            self.url = url
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(url.absoluteString.lowercased())
+        }
+
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.url.absoluteString.lowercased() == rhs.url.absoluteString.lowercased()
+        }
+    }
+
+    return Array(
+        Set(packageList.map(CaseInsensitiveURL.init))
+            .subtracting(Set(denyList.map(CaseInsensitiveURL.init)))
+    ).map(\.url)
 }
