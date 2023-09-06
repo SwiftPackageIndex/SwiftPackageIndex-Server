@@ -20,6 +20,7 @@ extension DateFormatter {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.locale = .init(identifier: "en_GB")
+        formatter.timeZone = Current.timeZone()
         return formatter
     }()
 
@@ -27,6 +28,7 @@ extension DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = .init(identifier: "en_GB")
+        formatter.timeZone = Current.timeZone()
         return formatter
     }()
 }
@@ -39,7 +41,7 @@ extension Date: LosslessStringConvertible {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.calendar = Calendar(identifier: .iso8601)
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.timeZone = .utc
         return formatter
     }()
 

@@ -58,7 +58,7 @@ enum SiteMapController {
         return try await SiteMapIndex(
             .sitemap(
                 .loc(SiteURL.siteMapStaticPages.absoluteURL()),
-                .lastmod(Current.date()) // The home page updates every day.
+                .lastmod(Current.date(), timeZone: .utc) // The home page updates every day.
             ),
             .group(
                 packages.map { package -> Node<SiteMapIndex.SiteMapIndexContext> in
@@ -66,7 +66,7 @@ enum SiteMapController {
                             .loc(SiteURL.package(.value(package.owner),
                                                  .value(package.repository),
                                                  .siteMap).absoluteURL()),
-                            .unwrap(package.lastActivityAt, { .lastmod($0) })
+                            .unwrap(package.lastActivityAt, { .lastmod($0, timeZone: .utc) })
                         )
                 }
             )
