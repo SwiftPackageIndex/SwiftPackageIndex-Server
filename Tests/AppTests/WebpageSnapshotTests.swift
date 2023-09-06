@@ -28,7 +28,6 @@ class WebpageSnapshotTests: SnapshotTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         Current.environment = { .production }
-        Current.timeZone = { .utc }
     }
 
     func test_HomeIndexView() throws {
