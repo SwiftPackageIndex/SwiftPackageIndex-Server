@@ -18,9 +18,12 @@ import Vapor
 
 @discardableResult
 public func configure(_ app: Application) throws -> String {
+    #if DEBUG && os(macOS)
     // The bundle is only loaded if /Applications/InjectionIII.app exists on the local development machine.
-    // Requires InjectionIII 4.7.3 or higher to be compaible with Package.swift files.
+    // Requires InjectionIII 4.7.3 or higher to be loaded for compatibility with Package.swift files.
+    // Set a value in the `INJECTION_DAEMON` environment variable and quit the InjectionIII.app to disable injection.
     let _ = Bundle(path: "/Applications/InjectionIII.app/Contents/Resources/macOSInjection.bundle")?.load()
+    #endif
 
     app.logger.component = "server"
     Current.setLogger(app.logger)
