@@ -45,6 +45,9 @@ extension AppEnvironment {
                 ["https://github.com/finestructure/Gala",
                  "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"].asURLs
             },
+            fetchPackageDenyList: { _ in
+                ["https://github.com/daveverwer/LeftPad"].asURLs
+            },
             fetchLicense: { _, _ in .init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE") },
             fetchMetadata: { _, _ in .mock },
             fetchReadme: { _, _ in .init(html: "readme html", htmlUrl: "readme html url") },

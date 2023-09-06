@@ -43,6 +43,7 @@ struct AppEnvironment {
     var fetchDocumentation: (_ client: Client, _ url: URI) async throws -> ClientResponse
     var fetchHTTPStatusCode: (_ url: String) async throws -> HTTPStatus
     var fetchPackageList: (_ client: Client) async throws -> [URL]
+    var fetchPackageDenyList: (_ client: Client) async throws -> [URL]
     var fetchLicense: (_ client: Client, _ packageUrl: String) async -> Github.License?
     var fetchMetadata: (_ client: Client, _ packageUrl: String) async throws -> Github.Metadata
     var fetchReadme: (_ client: Client, _ packageUrl: String) async -> Github.Readme?
@@ -167,6 +168,7 @@ extension AppEnvironment {
         fetchDocumentation: { client, url in try await client.get(url) },
         fetchHTTPStatusCode: Networking.fetchHTTPStatusCode,
         fetchPackageList: liveFetchPackageList,
+        fetchPackageDenyList: liveFetchPackageDenyList,
         fetchLicense: Github.fetchLicense(client:packageUrl:),
         fetchMetadata: Github.fetchMetadata(client:packageUrl:),
         fetchReadme: Github.fetchReadme(client:packageUrl:),

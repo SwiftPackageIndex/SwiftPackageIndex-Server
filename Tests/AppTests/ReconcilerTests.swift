@@ -70,4 +70,26 @@ class ReconcilerTests: AppTestCase {
         let packages = try await Package.query(on: app.db).all()
         XCTAssertEqual(packages.map(\.url).sorted(), urls.sorted())
     }
+
+    func test_packageDenyList() async throws {
+        // Save the intial set of packages
+        for url in ["1", "2", "3"].asURLs {
+            try await Package(url: url).save(on: app.db)
+        }
+
+        // New list adds two new packages 4, 5
+        let packageList = ["1", "2", "3", "4", "5"]
+        Current.fetchPackageList = { _ in packageList.asURLs }
+
+        // Deny list denies 2 and 4 (one existing and one new)
+        let packageDenyList = ["2", "4"]
+        Current.fetchPackageDenyList = { _ in packageDenyList.asURLs }
+
+        // MUT
+        try await reconcile(client: app.client, database: app.db)
+
+        // validate
+        let packages = try await Package.query(on: app.db).all()
+        XCTAssertEqual(packages.map(\.url).sorted(), ["1", "3", "5"])
+    }
 }
