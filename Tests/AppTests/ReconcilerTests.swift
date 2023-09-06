@@ -92,4 +92,26 @@ class ReconcilerTests: AppTestCase {
         let packages = try await Package.query(on: app.db).all()
         XCTAssertEqual(packages.map(\.url).sorted(), ["1", "3", "5"])
     }
+
+    func test_packageDenyList_caseSensitivity() async throws {
+        // Save the intial set of packages
+        for url in ["https://example.com/one/one", "https://example.com/two/two"].asURLs {
+            try await Package(url: url).save(on: app.db)
+        }
+
+        // New list adds no new packages
+        let packageList = ["https://example.com/one/one", "https://example.com/two/two"]
+        Current.fetchPackageList = { _ in packageList.asURLs }
+
+        // Deny list denies one/one, but with incorrect casing.
+        let packageDenyList = ["https://example.com/OnE/oNe"]
+        Current.fetchPackageDenyList = { _ in packageDenyList.asURLs }
+
+        // MUT
+        try await reconcile(client: app.client, database: app.db)
+
+        // validate
+        let packages = try await Package.query(on: app.db).all()
+        XCTAssertEqual(packages.map(\.url).sorted(), ["https://example.com/two/two"])
+    }
 }

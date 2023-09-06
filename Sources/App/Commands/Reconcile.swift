@@ -117,5 +117,6 @@ func reconcileLists(db: Database, source: [URL], target: [URL]) async throws {
 }
 
 func processPackageDenyList(packageList: [URL], denyList: [URL]) -> [URL] {
-    return Array(Set(packageList).subtracting(Set(denyList)))
+    let lowercaseDenyList = denyList.map { $0.absoluteString.lowercased() }
+    return Array(packageList.filter { lowercaseDenyList.contains($0.absoluteString.lowercased()) == false })
 }
