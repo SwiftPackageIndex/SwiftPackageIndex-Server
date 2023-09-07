@@ -239,16 +239,13 @@ extension Analyze {
 
             let versions = try await updateLatestVersions(on: tx, package: package)
 
-            let targets: [(String, TargetType)]? = try await {
-                guard let repo = package.repository,
-                      let owner = repo.owner,
-                      let repository = repo.name
-                else { return nil }
-
-//                let thisLineCausesProcessingTestFailure = try await API.PackageController.Target
-//                    .query(on: database, owner: owner, repository: repository)
-
-                return []
+            let targets: [(String, TargetType)]? = await {
+                guard let repo = package.repository, let owner = repo.owner, let repository = repo.name else {
+                    return nil
+                }
+                do {
+                    return try? await API.PackageController.Target.query(on: tx, owner: owner, repository: repository)
+                }
             }()
 
             updateScore(package: package, versions: versions, targets: targets)
