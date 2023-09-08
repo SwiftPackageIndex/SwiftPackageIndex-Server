@@ -29,7 +29,7 @@ let package = Package(
         .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "1.0.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
         .package(url: "https://github.com/SwiftPackageIndex/ShellOut.git",
-                 revision: "d40e0bfaaddcdfa443ac3802a7eb43c4c62ac026"),
+                 revision: "7238f7305e2835843c9103bbc795c2eac5c6cc1a"),
         .package(url: "https://github.com/apple/swift-package-manager.git", branch: "release/5.9"),
         .package(url: "https://github.com/dankinsoid/VaporToOpenAPI.git", from: "4.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "0.10.0"),
