@@ -35,11 +35,17 @@ class GitLiveTests: XCTestCase {
         Self.hasRunSetup = true
         Current.shell = .live
         try! Foundation.FileManager.default.createDirectory(atPath: Self.tempDir, withIntermediateDirectories: false, attributes: nil)
-        try! await ShellOut.shellOut(to: .init(command: "unzip", arguments: [Self.sampleGitRepoZipFile.quoted]), at: Self.tempDir)
+        try! await ShellOut.shellOut(to: .init(command: "unzip", arguments: [Self.sampleGitRepoZipFile]), at: Self.tempDir)
     }
 
     override class func tearDown() {
         try? Foundation.FileManager.default.removeItem(atPath: tempDir)
+    }
+
+    let logger = CapturingLogger()
+
+    override func setUp() {
+        Current.setLogger(.init(label: "test", factory: { _ in logger }))
     }
 }
 

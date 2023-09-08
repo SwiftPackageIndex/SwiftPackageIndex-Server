@@ -19,7 +19,7 @@ import PackageDescription
 let package = Package(
     name: "SPI-Server",
     platforms: [
-        .macOS(.v12)
+        .macOS(.v13)
     ],
     dependencies: [
         .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
