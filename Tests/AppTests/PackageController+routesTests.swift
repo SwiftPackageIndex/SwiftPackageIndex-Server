@@ -947,7 +947,7 @@ class PackageController_routesTests: AppTestCase {
             shortlog: { _ in "2\tauthor" }
         )
         Current.shell.run = { cmd, _ in
-            if cmd.string == "swift package dump-package" { return .mockManifest }
+            if cmd.description == "swift package dump-package" { return .mockManifest }
             return ""
         }
 

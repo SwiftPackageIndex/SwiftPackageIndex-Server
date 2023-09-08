@@ -50,20 +50,20 @@ extension ShellOutCommand {
 
     static func gitReset(to branch: String, hard: Bool) -> Self {
         hard
-        ? .init(command: "git", arguments: ["reset", "origin/\(branch)", "--hard"])
-        : .init(command: "git", arguments: ["reset", "origin/\(branch)"])
+        ? .init(command: "git", arguments: ["reset", "origin/\(branch.quoted)", "--hard"])
+        : .init(command: "git", arguments: ["reset", "origin/\(branch.quoted)"])
 
     }
 
     static func gitRevisionInfo(reference: Reference, separator: String = "-") -> Self {
         .init(command: "git", arguments: ["log", "-n1",
                                           #"--format=tformat:"%H\#(separator)%ct""#,
-                                          "\(reference)"])
+                                          "\(reference.quoted)"])
 
     }
 
     static func gitShowDate(_ commit: CommitHash) -> Self {
-        .init(command: "git", arguments: ["show", "-s", "--format=%ct", commit])
+        .init(command: "git", arguments: ["show", "-s", "--format=%ct", "\(commit.quoted)"])
     }
 
     static var gitListTags: Self {
@@ -83,4 +83,9 @@ extension ShellOutCommand {
     static var swiftDumpPackage: Self {
         .init(command: "swift", arguments: ["package", "dump-package"])
     }
+}
+
+
+extension Reference {
+    var quoted: Argument { description.quoted }
 }

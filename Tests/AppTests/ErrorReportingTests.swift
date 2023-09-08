@@ -50,7 +50,7 @@ class ErrorReportingTests: AppTestCase {
         try await Package(id: .id1, url: "1".asGithubUrl.url, processingStage: .ingestion).save(on: app.db)
         Current.fileManager.fileExists = { _ in true }
         Current.shell.run = { cmd, path in
-            if cmd.string == "git tag" { return "1.0.0" }
+            if cmd.description == "git tag" { return "1.0.0" }
             // returning a blank string will cause an exception when trying to
             // decode it as the manifest result - we use this to simulate errors
             return "invalid"

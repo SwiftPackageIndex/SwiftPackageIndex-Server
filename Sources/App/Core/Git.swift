@@ -72,7 +72,7 @@ extension Git {
         )
         let parts = res.components(separatedBy: separator)
         guard parts.count == 2 else {
-            Current.logger().warning(#"Git.invalidRevisionInfo: \#(res) for '\#(ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator).string)' at: \#(path)"#)
+            Current.logger().warning(#"Git.invalidRevisionInfo: \#(res) for '\#(ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator))' at: \#(path)"#)
             throw GitError.invalidRevisionInfo(res)
         }
         let hash = parts[0]

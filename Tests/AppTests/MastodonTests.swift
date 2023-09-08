@@ -49,7 +49,7 @@ final class MastodonTests: AppTestCase {
         }
 
         Current.shell.run = { cmd, path in
-            if cmd.string.hasSuffix("swift package dump-package") {
+            if cmd.description.hasSuffix("swift package dump-package") {
                 return #"{ "name": "Mock", "products": [], "targets": [] }"#
             }
             return ""

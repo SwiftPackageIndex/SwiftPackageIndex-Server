@@ -82,7 +82,7 @@ class AnalyzerTests: AppTestCase {
             commands.withValue {
                 $0.append(.init(command: cmd, path: trimmedPath)!)
             }
-            if cmd.string.starts(with: "git clone") {
+            if cmd.description.starts(with: "git clone") {
                 firstDirCloned.setValue(true)
             }
             if cmd == .gitListTags && path.hasSuffix("foo-1") {
@@ -275,7 +275,7 @@ class AnalyzerTests: AppTestCase {
         }
 
         Current.shell.run = { cmd, path in
-            if cmd.string.hasSuffix("package dump-package") {
+            if cmd.description.hasSuffix("package dump-package") {
                 return #"""
                     {
                       "name": "foo-1",
@@ -335,11 +335,11 @@ class AnalyzerTests: AppTestCase {
 
         Current.shell.run = { cmd, path in
             // first package fails
-            if cmd.string.hasSuffix("swift package dump-package") && path.hasSuffix("foo-1") {
+            if cmd.description.hasSuffix("swift package dump-package") && path.hasSuffix("foo-1") {
                 return "bad data"
             }
             // second package succeeds
-            if cmd.string.hasSuffix("swift package dump-package") && path.hasSuffix("foo-2") {
+            if cmd.description.hasSuffix("swift package dump-package") && path.hasSuffix("foo-2") {
                 return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
             }
             return ""
@@ -452,7 +452,7 @@ class AnalyzerTests: AppTestCase {
             // mask variable checkout
             let checkoutDir = Current.fileManager.checkoutsDirectory()
             commands.withValue {
-                $0.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
+                $0.append(cmd.description.replacingOccurrences(of: checkoutDir, with: "..."))
             }
             return ""
         }
@@ -631,7 +631,7 @@ class AnalyzerTests: AppTestCase {
         let commands = QueueIsolated<[String]>([])
         Current.shell.run = { cmd, _ in
             commands.withValue {
-                $0.append(cmd.string)
+                $0.append(cmd.description)
             }
             if cmd == .swiftDumpPackage {
                 return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
@@ -829,7 +829,7 @@ class AnalyzerTests: AppTestCase {
             """
         }
         Current.shell.run = { cmd, path in
-            if cmd.string.hasSuffix("swift package dump-package") {
+            if cmd.description.hasSuffix("swift package dump-package") {
                 return #"""
                     {
                       "name": "foo",
@@ -889,7 +889,7 @@ class AnalyzerTests: AppTestCase {
         let commands = QueueIsolated<[String]>([])
         Current.shell.run = { cmd, path in
             commands.withValue {
-                let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "...")
+                let c = cmd.description.replacingOccurrences(of: checkoutDir, with: "...")
                 $0.append(c)
             }
             return ""
@@ -923,7 +923,7 @@ class AnalyzerTests: AppTestCase {
         let commands = QueueIsolated<[String]>([])
         Current.shell.run = { cmd, path in
             commands.withValue {
-                let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
+                let c = cmd.description.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
                 $0.append(c)
             }
             if cmd == .gitCheckout(branch: "master") {
@@ -1077,7 +1077,7 @@ class AnalyzerTests: AppTestCase {
             commands.withValue {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
-                $0.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
+                $0.append(cmd.description.replacingOccurrences(of: checkoutDir, with: "..."))
             }
             if cmd == .gitFetchAndPruneTags { throw TestError.simulatedFetchError }
             return ""
@@ -1431,11 +1431,11 @@ class AnalyzerTests: AppTestCase {
 // but in a test module we can loosen that rule a bit.
 extension ShellOutCommand: Equatable, Hashable {
     public static func == (lhs: ShellOutCommand, rhs: ShellOutCommand) -> Bool {
-        lhs.string == rhs.string
+        lhs.description == rhs.description
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(string)
+        hasher.combine(description)
     }
 }
 
@@ -1466,14 +1466,14 @@ private struct Command: CustomStringConvertible {
         let separator = "-"
         self.path = path
         switch command {
-            case _ where command.string.starts(with: "git checkout"):
-                let ref = String(command.string.split(separator: " ")[2])
+            case _ where command.description.starts(with: "git checkout"):
+                let ref = String(command.description.split(separator: " ")[2])
                     .trimmingCharacters(in: quotes)
                 self.kind = .checkout(ref)
             case .gitClean:
                 self.kind = .clean
-            case _ where command.string.starts(with: "git clone"):
-                let url = String(command.string.split(separator: " ")
+            case _ where command.description.starts(with: "git clone"):
+                let url = String(command.description.split(separator: " ")
                                     .filter { $0.contains("https://") }
                                     .first!)
                 self.kind = .clone(url)
@@ -1489,22 +1489,22 @@ private struct Command: CustomStringConvertible {
                 self.kind = .getTags
             case .gitReset(hard: true):
                 self.kind = .reset
-            case _ where command.string.starts(with: "git reset origin"):
-                let branch = String(command.string.split(separator: " ")[2])
+            case _ where command.description.starts(with: "git reset origin"):
+                let branch = String(command.description.split(separator: " ")[2])
                     .trimmingCharacters(in: quotes)
                 self.kind = .resetToBranch(branch)
             case .gitShortlog:
                 self.kind = .shortlog
-            case _ where command.string.starts(with: #"git show -s --format=%ct"#):
+            case _ where command.description.starts(with: #"git show -s --format=%ct"#):
                 self.kind = .showDate
-            case _ where command.string.starts(with: #"git log -n1 --format=tformat:"%H\#(separator)%ct""#):
-                let ref = String(command.string.split(separator: " ").last!)
+            case _ where command.description.starts(with: #"git log -n1 --format=tformat:"%H\#(separator)%ct""#):
+                let ref = String(command.description.split(separator: " ").last!)
                     .trimmingCharacters(in: quotes)
                 self.kind = .revisionInfo(ref)
             case .swiftDumpPackage:
                 self.kind = .dumpPackage
             default:
-                print("unmatched command: \(command.string)")
+                print("unmatched command: \(command.description)")
                 return nil
         }
     }
