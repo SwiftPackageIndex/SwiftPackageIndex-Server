@@ -27,6 +27,7 @@ struct Platform: Codable, Equatable {
         case macos
         case openbsd
         case tvos
+        case visionos
         case wasi
         case watchos
         case windows
@@ -71,6 +72,8 @@ extension Platform: CustomStringConvertible {
                 return "OpenBSD \(version)"
             case .tvos:
                 return "tvOS \(version)"
+            case .visionos:
+                return "visionOS \(version)"
             case .wasi:
                 return "WASI \(version)"
             case .watchos:

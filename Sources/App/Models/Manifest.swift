@@ -45,6 +45,7 @@ struct Manifest: Decodable, Equatable {
             case macos
             case openbsd      // from 5.8
             case tvos
+            case visionos     // from 5.9
             case wasi         // from 5.3
             case watchos
             case windows      // from 5.2
