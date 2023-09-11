@@ -19,7 +19,7 @@ import PackageDescription
 let package = Package(
     name: "SPI-Server",
     platforms: [
-        .macOS(.v12)
+        .macOS(.v13)
     ],
     dependencies: [
         .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
@@ -28,7 +28,7 @@ let package = Package(
         .package(url: "https://github.com/SwiftPackageIndex/DependencyResolution", from: "1.0.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "1.0.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
-        .package(url: "https://github.com/SwiftPackageIndex/ShellOut.git", from: "3.0.0"),
+        .package(url: "https://github.com/SwiftPackageIndex/ShellOut.git", from: "3.1.0"),
         .package(url: "https://github.com/apple/swift-package-manager.git", branch: "release/5.9"),
         .package(url: "https://github.com/dankinsoid/VaporToOpenAPI.git", from: "4.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "0.10.0"),

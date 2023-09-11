@@ -61,7 +61,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
             }
             """#
         Current.shell.run = { cmd, path in
-            if cmd.string.hasSuffix("swift package dump-package") {
+            if cmd.description.hasSuffix("swift package dump-package") {
                 return pkgDump
             }
             return ""

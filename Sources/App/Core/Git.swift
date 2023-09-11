@@ -34,7 +34,10 @@ extension Git {
     }
 
     static func firstCommitDate(at path: String) async throws -> Date {
-        let res = try await Current.shell.run(command: .gitFirstCommitDate, at: path)
+        let res = String(
+            try await Current.shell.run(command: .gitFirstCommitDate, at: path)
+                .trimming { $0 == Character("\"") }
+        )
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
@@ -42,7 +45,10 @@ extension Git {
     }
 
     static func lastCommitDate(at path: String) async throws -> Date {
-        let res = try await Current.shell.run(command: .gitLastCommitDate, at: path)
+        let res = String(
+            try await Current.shell.run(command: .gitLastCommitDate, at: path)
+                .trimming { $0 == Character("\"") }
+        )
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
@@ -59,11 +65,14 @@ extension Git {
 
     static func revisionInfo(_ reference: Reference, at path: String) async throws -> RevisionInfo {
         let separator = "-"
-        let res = try await Current.shell.run(command: .gitRevisionInfo(reference: reference, separator: separator),
-                                              at: path)
+        let res = String(
+            try await Current.shell.run(command: .gitRevisionInfo(reference: reference, separator: separator),
+                                        at: path)
+                .trimming { $0 == Character("\"") }
+        )
         let parts = res.components(separatedBy: separator)
         guard parts.count == 2 else {
-            Current.logger().warning(#"Git.invalidRevisionInfo: \#(res) for '\#(ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator).string)' at: \#(path)"#)
+            Current.logger().warning(#"Git.invalidRevisionInfo: \#(res) for '\#(ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator))' at: \#(path)"#)
             throw GitError.invalidRevisionInfo(res)
         }
         let hash = parts[0]

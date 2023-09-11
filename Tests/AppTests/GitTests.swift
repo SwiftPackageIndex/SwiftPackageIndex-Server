@@ -41,7 +41,7 @@ class GitTests: XCTestCase {
     
     func test_revInfo() async throws {
         Current.shell.run = { cmd, _ in
-            if cmd.string == #"git log -n1 --format=tformat:"%H-%ct" 2.2.1"# {
+            if cmd.description == #"git log -n1 --format=tformat:"%H-%ct" 2.2.1"# {
                 return "63c973f3c2e632a340936c285e94d59f9ffb01d5-1536799579"
             }
             throw TestError.unknownCommand
@@ -55,7 +55,7 @@ class GitTests: XCTestCase {
         // Ensure we look up by tag name and not semver
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/139
         Current.shell.run = { cmd, _ in
-            if cmd.string == #"git log -n1 --format=tformat:"%H-%ct" v2.2.1"# {
+            if cmd.description == #"git log -n1 --format=tformat:"%H-%ct" v2.2.1"# {
                 return "63c973f3c2e632a340936c285e94d59f9ffb01d5-1536799579"
             }
             throw TestError.unknownCommand
@@ -75,7 +75,7 @@ private enum TestError: Error {
 
 func mock(for command: String, _ result: String) -> (ShellOutCommand, String) throws -> String {
     return { cmd, path in
-        guard cmd.string == command else { throw TestError.unknownCommand }
+        guard cmd.description == command else { throw TestError.unknownCommand }
         return result
     }
 }

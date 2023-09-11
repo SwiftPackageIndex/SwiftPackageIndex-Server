@@ -21,38 +21,38 @@ import ShellOut
 class ShellOutCommandExtensionTests: XCTestCase {
 
     func test_gitClean() throws {
-        XCTAssertEqual(ShellOutCommand.gitClean.string, "git clean -fdx")
+        XCTAssertEqual(ShellOutCommand.gitClean.description, "git clean -fdx")
     }
 
     func test_gitCommitCount() throws {
-        XCTAssertEqual(ShellOutCommand.gitCommitCount.string, "git rev-list --count HEAD")
+        XCTAssertEqual(ShellOutCommand.gitCommitCount.description, "git rev-list --count HEAD")
     }
 
     func test_gitFetch() throws {
-        XCTAssertEqual(ShellOutCommand.gitFetchAndPruneTags.string, "git fetch --tags --prune-tags --prune")
+        XCTAssertEqual(ShellOutCommand.gitFetchAndPruneTags.description, "git fetch --tags --prune-tags --prune")
     }
 
     func test_gitFirstCommitDate() throws {
-        XCTAssertEqual(ShellOutCommand.gitFirstCommitDate.string,
+        XCTAssertEqual(ShellOutCommand.gitFirstCommitDate.description,
                        #"git log --max-parents=0 -n1 --format=format:"%ct""#)
     }
 
     func test_gitLastCommitDate() throws {
-        XCTAssertEqual(ShellOutCommand.gitLastCommitDate.string,
+        XCTAssertEqual(ShellOutCommand.gitLastCommitDate.description,
                        #"git log -n1 --format=format:"%ct""#)
     }
 
     func test_gitReset() throws {
-        XCTAssertEqual(ShellOutCommand.gitReset(hard: true).string,
+        XCTAssertEqual(ShellOutCommand.gitReset(hard: true).description,
                        "git reset --hard")
-        XCTAssertEqual(ShellOutCommand.gitReset(hard: false).string,
+        XCTAssertEqual(ShellOutCommand.gitReset(hard: false).description,
                        "git reset")
     }
 
     func test_gitReset_branch() throws {
-        XCTAssertEqual(ShellOutCommand.gitReset(to: "foo", hard: true).string,
+        XCTAssertEqual(ShellOutCommand.gitReset(to: "foo", hard: true).description,
                        "git reset origin/foo --hard")
-        XCTAssertEqual(ShellOutCommand.gitReset(to: "foo", hard: false).string,
+        XCTAssertEqual(ShellOutCommand.gitReset(to: "foo", hard: false).description,
                        "git reset origin/foo")
     }
 
@@ -60,41 +60,41 @@ class ShellOutCommandExtensionTests: XCTestCase {
         let dash = "-"
         XCTAssertEqual(
             ShellOutCommand
-                .gitRevisionInfo(reference: .tag(1, 2, 3), separator: dash).string,
+                .gitRevisionInfo(reference: .tag(1, 2, 3), separator: dash).description,
             #"git log -n1 --format=tformat:"%H\#(dash)%ct" 1.2.3"#
         )
         XCTAssertEqual(
             ShellOutCommand
-                .gitRevisionInfo(reference: .branch("foo"), separator: dash).string,
+                .gitRevisionInfo(reference: .branch("foo"), separator: dash).description,
             #"git log -n1 --format=tformat:"%H\#(dash)%ct" foo"#
         )
         XCTAssertEqual(
             ShellOutCommand
-                .gitRevisionInfo(reference: .branch("ba\nd"), separator: dash).string,
+                .gitRevisionInfo(reference: .branch("ba\nd"), separator: dash).description,
             "git log -n1 --format=tformat:\"%H\(dash)%ct\" 'ba\nd'"
         )
     }
 
     func test_gitShowDate() throws {
-        XCTAssertEqual(ShellOutCommand.gitShowDate("abc").string,
+        XCTAssertEqual(ShellOutCommand.gitShowDate("abc").description,
                        #"git show -s --format=%ct abc"#)
     }
 
     func test_gitListTags() throws {
-        XCTAssertEqual(ShellOutCommand.gitListTags.string, "git tag")
+        XCTAssertEqual(ShellOutCommand.gitListTags.description, "git tag")
     }
 
     func test_quoting() throws {
         XCTAssertEqual(
-            ShellOutCommand.gitReset(to: "foo ; rm *", hard: false).string,
+            ShellOutCommand.gitReset(to: "foo ; rm *", hard: false).description,
             "git reset origin/'foo ; rm *'"
         )
         XCTAssertEqual(
-            ShellOutCommand.gitRevisionInfo(reference: .branch("foo ; rm *")).string,
+            ShellOutCommand.gitRevisionInfo(reference: .branch("foo ; rm *")).description,
             #"git log -n1 --format=tformat:"%H-%ct" 'foo ; rm *'"#
         )
         XCTAssertEqual(
-            ShellOutCommand.gitShowDate("foo ; rm *").string,
+            ShellOutCommand.gitShowDate("foo ; rm *").description,
             #"git show -s --format=%ct 'foo ; rm *'"#
         )
     }

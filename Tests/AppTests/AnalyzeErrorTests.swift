@@ -112,7 +112,7 @@ final class AnalyzeErrorTests: AppTestCase {
         // setup
         Current.shell.run = { cmd, path in
             switch cmd {
-                case _ where cmd.string.contains("git clone https://github.com/foo/1"):
+                case _ where cmd.description.contains("git clone https://github.com/foo/1"):
                     throw SimulatedError()
 
                 case .gitFetchAndPruneTags where path.hasSuffix("foo-1"):

@@ -319,7 +319,7 @@ struct Shell {
             return try await run(command, path)
         } catch {
             // re-package error to capture more information
-            throw AppError.shellCommandFailed(command.string, path, error.localizedDescription)
+            throw AppError.shellCommandFailed(command.description, path, error.localizedDescription)
         }
     }
 
