@@ -78,11 +78,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/85322?u=686384227a6f3796b5c80ab6f310da95bdce973c&v=4"
         ),
         .init(
-            login: "kharrison",
-            name: "Keith Harrison",
-            avatarUrl: "https://avatars.githubusercontent.com/u/118883?u=de8fd879d92a1bd73e044f038afca22cddec3b8b&v=4"
-        ),
-        .init(
             login: "rayfix",
             name: "Ray Fix",
             avatarUrl: "https://avatars.githubusercontent.com/u/137963?v=4"
