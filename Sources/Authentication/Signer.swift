@@ -31,7 +31,7 @@ public struct Signer {
         for subject: String,
         expiringOn expiryDate: Date = .distantFuture,
         contact: String,
-        tier: Tier
+        tier: Tier<V1>
     ) throws -> String {
         let key = APIKey(sub: .init(value: subject),
                          iat: .init(value: .now),

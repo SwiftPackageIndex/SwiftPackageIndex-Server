@@ -13,9 +13,13 @@
 // limitations under the License.
 
 
-public enum Tier: String, Codable, CaseIterable {
+public enum V1 { }
+
+public enum Tier<V1>: String, Codable, CaseIterable {
     case tier1         // search API only
-    case tier2         // the above + package, package-collection API
+    case tier2
+    case tier3         // the above + package, package-collection API
+    case tier4
     case `internal`    // the above + build reporting and other internal API
 }
 

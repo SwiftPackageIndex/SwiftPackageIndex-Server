@@ -45,7 +45,7 @@ final class APIKeyTests: XCTestCase {
 
 
 extension APIKey {
-    static func mock(issuedAt: Date = .now, expiresAt: Date = .distantFuture, tier: Tier) -> Self {
+    static func mock(issuedAt: Date = .now, expiresAt: Date = .distantFuture, tier: Tier<V1>) -> Self {
         .init(sub: .init(value: ""),
               iat: .init(value: issuedAt),
               exp: .init(value: expiresAt),

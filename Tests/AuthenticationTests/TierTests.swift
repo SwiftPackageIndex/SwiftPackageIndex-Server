@@ -20,13 +20,13 @@ import XCTest
 final class TierTests: XCTestCase {
 
     func test_Comparable() throws {
-        XCTAssertTrue(Tier.tier1 < Tier.tier2)
-        XCTAssertTrue(Tier.tier2 < Tier.internal)
+        XCTAssertTrue(Tier<V1>.tier1 < Tier<V1>.tier2)
+        XCTAssertTrue(Tier<V1>.tier2 < Tier<V1>.internal)
 
-        XCTAssertFalse(Tier.tier1 > Tier.tier2)
-        
-        XCTAssertTrue(Tier.tier1 <= Tier.tier1)
-        XCTAssertTrue(Tier.tier1 >= Tier.tier1)
+        XCTAssertFalse(Tier<V1>.tier1 > Tier<V1>.tier2)
+
+        XCTAssertTrue(Tier<V1>.tier1 <= Tier<V1>.tier1)
+        XCTAssertTrue(Tier<V1>.tier1 >= Tier<V1>.tier1)
     }
 
 }

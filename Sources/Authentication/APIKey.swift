@@ -20,11 +20,11 @@ public struct APIKey {
     public var iat: IssuedAtClaim
     public var exp: ExpirationClaim
     public var contact: String
-    public var tier: Tier
+    public var tier: Tier<V1>
 }
 
 extension APIKey {
-    public func isAuthorized(for tier: Tier) -> Bool {
+    public func isAuthorized(for tier: Tier<V1>) -> Bool {
         self.tier >= tier
     }
 }
