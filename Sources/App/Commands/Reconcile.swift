@@ -117,6 +117,9 @@ func reconcileLists(db: Database, source: [URL], target: [URL]) async throws {
 }
 
 func processPackageDenyList(packageList: [URL], denyList: [URL]) -> [URL] {
+    // Note: If the implementation of this function ever changes, the `RemoveDenyList`
+    // command in the Validator will also need updating to match.
+
     struct CaseInsensitiveURL: Equatable, Hashable {
         var url: URL
 
