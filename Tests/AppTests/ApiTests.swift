@@ -29,7 +29,13 @@ class ApiTests: AppTestCase {
     }
 
     func test_search_noQuery() throws {
-        try app.test(.GET, "api/search", afterResponse: { res in
+        // setup
+        Current.apiSigningKey = { "secret" }
+
+        // MUT
+        try app.test(.GET, "api/search",
+                     headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier1)),
+                     afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(try res.content.decode(Search.Response.self),
                            .init(hasMoreResults: false,
@@ -41,6 +47,7 @@ class ApiTests: AppTestCase {
 
     func test_search_basic_param() async throws {
         // setup
+        Current.apiSigningKey = { "secret" }
         let p1 = Package(id: .id0, url: "1")
         try await p1.save(on: app.db)
         let p2 = Package(id: .id1, url: "2")
@@ -65,7 +72,9 @@ class ApiTests: AppTestCase {
         }
 
         // MUT
-        try app.test(.GET, "api/search?query=foo%20bar", afterResponse: { res in
+        try app.test(.GET, "api/search?query=foo%20bar",
+                     headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier1)),
+                     afterResponse: { res in
             // validation
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(
@@ -651,7 +660,7 @@ class ApiTests: AppTestCase {
         try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         // setup
         Current.date = { .t0 }
-        Current.apiTokens = { Set(["api-token"]) }
+        Current.apiSigningKey = { "secret" }
         let p1 = Package(id: .id1, url: "1")
         try await p1.save(on: app.db)
         try await Repository(package: p1,
@@ -694,7 +703,7 @@ class ApiTests: AppTestCase {
                 """)
 
             try app.test(.POST, "api/package-collections",
-                         headers: .bearerApplicationJSON("api-token"),
+                         headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier3)),
                          body: body,
                          afterResponse: { res in
                 // validation
@@ -717,7 +726,7 @@ class ApiTests: AppTestCase {
         // setup
         let refDate = Date(timeIntervalSince1970: 0)
         Current.date = { refDate }
-        Current.apiTokens = { Set(["api-token"]) }
+        Current.apiSigningKey = { "secret" }
         let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
                          url: "1")
         try p1.save(on: app.db).wait()
@@ -777,7 +786,7 @@ class ApiTests: AppTestCase {
 
             try app.test(.POST,
                          "api/package-collections",
-                         headers: .bearerApplicationJSON("api-token"),
+                         headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
                          body: body,
                          afterResponse: { res in
                             // validation
@@ -789,7 +798,7 @@ class ApiTests: AppTestCase {
     }
 
     func test_package_collections_packageURLs_limit() throws {
-        Current.apiTokens = { Set(["api-token"]) }
+        Current.apiSigningKey = { "secret" }
         let dto = API.PostPackageCollectionDTO(
             // request 21 urls - this should raise a 400
             selection: .packageURLs((0...20).map(String.init))
@@ -798,7 +807,7 @@ class ApiTests: AppTestCase {
 
         try app.test(.POST,
                      "api/package-collections",
-                     headers: .bearerApplicationJSON("api-token"),
+                     headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
                      body: body,
                      afterResponse: { res in
                         // validation
@@ -808,7 +817,7 @@ class ApiTests: AppTestCase {
 
     func test_package_collections_unauthorized() throws {
         // setup
-        Current.apiTokens = { Set(["api-token"]) }
+        Current.apiSigningKey = { "secret" }
 
         do {  // MUT - happy path
             let body: ByteBuffer = .init(string: """
@@ -829,8 +838,18 @@ class ApiTests: AppTestCase {
                 }
                 """)
 
+            // Test with bad token
             try app.test(.POST, "api/package-collections",
                          headers: .bearerApplicationJSON("bad token"),
+                         body: body,
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+            })
+
+            // Test with wrong tier
+            try app.test(.POST, "api/package-collections",
+                         headers: .bearerApplicationJSON(.apiToken(secretKey: "secret", tier: .tier1)),
                          body: body,
                          afterResponse: { res in
                 // validation
@@ -841,7 +860,7 @@ class ApiTests: AppTestCase {
 
     func test_packages_get() async throws {
         // setup
-        Current.apiTokens = { Set(["api-token"]) }
+        Current.apiSigningKey = { "secret" }
         let owner = "owner"
         let repo = "repo"
         let p = try savePackage(on: app.db, "1")
@@ -855,7 +874,7 @@ class ApiTests: AppTestCase {
 
         do {  // MUT - happy path
             try app.test(.GET, "api/packages/owner/repo",
-                         headers: .bearerApplicationJSON("api-token"),
+                         headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier3)),
                          afterResponse: { res in
                 // validation
                 XCTAssertEqual(res.status, .ok)
@@ -884,7 +903,7 @@ class ApiTests: AppTestCase {
 
         do {  // MUT - package not found
             try app.test(.GET, "api/packages/unknown/package",
-                         headers: .bearerApplicationJSON("api-token"),
+                         headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
                          afterResponse: { res in
                 // validation
                 XCTAssertEqual(res.status, .notFound)
@@ -910,5 +929,14 @@ extension ApiTests {
     struct TestEvent: Equatable {
         var kind: Plausible.Event.Kind
         var path: Plausible.Path
+    }
+}
+
+
+import Authentication
+extension String {
+    static func apiToken(secretKey: String, tier: Tier<V1>) throws -> String {
+        let s = Signer(secretSigningKey: secretKey)
+        return try s.generateToken(for: "", contact: "", tier: tier)
     }
 }

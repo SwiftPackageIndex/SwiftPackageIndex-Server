@@ -29,23 +29,4 @@ class AppEnvironmentTests: XCTestCase {
         XCTAssertEqual(Current.fileManager.checkoutsDirectory(), "/tmp/foo")
     }
 
-    func test_isValidAPIToken() throws {
-        do {
-            Current.apiTokens = { .init(arrayLiteral: "foo") }
-            XCTAssertEqual(Current.isValidAPIToken("foo"), true)
-            XCTAssertEqual(Current.isValidAPIToken("bar"), false)
-            XCTAssertEqual(Current.isValidAPIToken("Foo"), false)
-        }
-        do {
-            Current.apiTokens = { .init() }
-            XCTAssertEqual(Current.isValidAPIToken("foo"), false)
-        }
-        do {
-            Current.apiTokens = { .init(arrayLiteral: "foo", "bar") }
-            XCTAssertEqual(Current.isValidAPIToken("foo"), true)
-            XCTAssertEqual(Current.isValidAPIToken("bar"), true)
-            XCTAssertEqual(Current.isValidAPIToken("baz"), false)
-        }
-    }
-
 }

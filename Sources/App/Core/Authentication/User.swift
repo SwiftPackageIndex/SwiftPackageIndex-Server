@@ -30,21 +30,14 @@ extension User {
         .init(name: "api", identifier: String(token.sha256Checksum.prefix(8)))
     }
 
-    struct APIAuthenticator: AsyncBearerAuthenticator {
-        func authenticate(bearer: BearerAuthorization, for request: Request) async throws {
-            if Current.isValidAPIToken(bearer.token) {
-                request.auth.login(User.api(for: bearer.token))
-            }
-        }
-    }
-
     struct APITierAuthenticator: AsyncBearerAuthenticator {
         var tier: Tier<V1>
 
         func authenticate(bearer: BearerAuthorization, for request: Request) async throws {
-            let signer = Signer(secretSigningKey: "")
+            guard let signingKey = Current.apiSigningKey() else { throw AppError.envVariableNotSet("API_SIGNING_KEY") }
+            let signer = Signer(secretSigningKey: signingKey)
             let key = try signer.verifyToken(bearer.token)
-            guard key.isAuthorized(for: tier) else { throw Abort(.forbidden) }
+            guard key.isAuthorized(for: tier) else { throw Abort(.unauthorized) }
             request.auth.login(User.api(for: bearer.token))
         }
     }
