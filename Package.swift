@@ -81,6 +81,8 @@ let package = Package(
                     ],
                     exclude: ["__Snapshots__", "Fixtures"]
                    ),
+        .testTarget(name: "AuthenticationTests",
+                    dependencies: [.target(name: "Authentication")]),
         .testTarget(name: "S3StoreTests",
                     dependencies: [.target(name: "S3Store")])
     ],
