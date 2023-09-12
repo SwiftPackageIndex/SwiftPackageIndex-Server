@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Authentication
 import Vapor
 import VaporToOpenAPI
 
@@ -34,6 +35,17 @@ extension User {
             if Current.isValidAPIToken(bearer.token) {
                 request.auth.login(User.api(for: bearer.token))
             }
+        }
+    }
+
+    struct APITierAuthenticator: AsyncBearerAuthenticator {
+        var tier: Tier<V1>
+
+        func authenticate(bearer: BearerAuthorization, for request: Request) async throws {
+            let signer = Signer(secretSigningKey: "")
+            let key = try signer.verifyToken(bearer.token)
+            guard key.isAuthorized(for: tier) else { throw Abort(.forbidden) }
+            request.auth.login(User.api(for: bearer.token))
         }
     }
 }
