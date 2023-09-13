@@ -21,6 +21,10 @@ let package = Package(
     platforms: [
         .macOS(.v13)
     ],
+    products: [
+        .library(name: "Authentication", targets: ["Authentication"]),
+        .library(name: "S3Store", targets: ["S3Store"]),
+    ],
     dependencies: [
         .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
         .package(url: "https://github.com/daveverwer/Plot.git", branch: "sitemapindex"),
