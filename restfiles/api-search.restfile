@@ -3,6 +3,8 @@ requests:
     url: ${base_url}/api/search
     query:
       query: 'networking platform:ios'
+    headers:
+      Authorization: Bearer ${api_token}
     validation:
       status: .regex((2|3)\d\d)
     log: json
