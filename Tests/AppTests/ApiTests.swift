@@ -105,6 +105,18 @@ class ApiTests: AppTestCase {
         }
     }
 
+    func test_search_unauthenticated() async throws {
+        // setup
+        Current.apiSigningKey = { "secret" }
+
+        // MUT
+        try app.test(.GET, "api/search?query=test",
+                     afterResponse: { res in
+            // validation
+            XCTAssertEqual(res.status, .unauthorized)
+        })
+    }
+
     func test_post_buildReport() throws {
         // setup
         Current.builderToken = { "secr3t" }
