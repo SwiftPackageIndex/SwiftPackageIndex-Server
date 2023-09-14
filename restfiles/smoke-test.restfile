@@ -29,7 +29,7 @@ requests:
         query:
             query: alamo
         headers:
-            Authorization: Bearer ${API_TOKEN}
+            Authorization: Bearer ${api_token}
         validation:
             status: 200
             json:

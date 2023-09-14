@@ -177,7 +177,7 @@ smoke-test:
     - spi-server-deploy
   script: |
     rester() {
-      docker run --rm -t -e base_url="$SITE_URL" -v $PWD:/host -w /host finestructure/rester:0.8.1 "$1"
+      docker run --rm -t -e base_url="$SITE_URL" -e api_token="$api_token" -v $PWD:/host -w /host finestructure/rester:0.8.1 "$1"
     }
     echo Testing with SITE_URL: ${SITE_URL}
     rester restfiles/smoke-test.restfile
