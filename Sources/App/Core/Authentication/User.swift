@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Authentication
+import JWTKit
 import Vapor
 import VaporToOpenAPI
 
@@ -36,9 +37,14 @@ extension User {
         func authenticate(bearer: BearerAuthorization, for request: Request) async throws {
             guard let signingKey = Current.apiSigningKey() else { throw AppError.envVariableNotSet("API_SIGNING_KEY") }
             let signer = Signer(secretSigningKey: signingKey)
-            let key = try signer.verifyToken(bearer.token)
-            guard key.isAuthorized(for: tier) else { throw Abort(.unauthorized) }
-            request.auth.login(User.api(for: bearer.token))
+            do {
+                let key = try signer.verifyToken(bearer.token)
+                guard key.isAuthorized(for: tier) else { throw Abort(.unauthorized) }
+                request.auth.login(User.api(for: bearer.token))
+            } catch let error as JWTError {
+                Current.logger().warning("\(error)")
+                throw Abort(.unauthorized)
+            }
         }
     }
 }
