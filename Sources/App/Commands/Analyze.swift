@@ -175,12 +175,8 @@ extension Analyze {
         ) { group in
             for pkg in packages {
                 group.addTask {
-                    // sas 2023-09-15: Gwynne suggests wrapping `withConnection` to try and fix the analysis hangs
-                    // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2227
-                    try await database.withConnection { connection in
-                        try await analyze(client: client, database: connection, logger: logger, package: pkg)
-                        return pkg
-                    }
+                    try await analyze(client: client, database: database, logger: logger, package: pkg)
+                    return pkg
                 }
             }
 
