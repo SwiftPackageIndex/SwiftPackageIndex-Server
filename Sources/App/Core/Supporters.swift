@@ -23,7 +23,7 @@ enum Supporters {
         .init(name: "TelemetryDeck",
               logo: .init(lightModeUrl: "/images/sponsors/telemetrydeck.png",
                           darkModeUrl: "/images/sponsors/telemetrydeck~dark.png"),
-              url: "http://telemetrydeck.com/?utm_source=swiftpackageindex&utm_campaign=swiftpackageindex_0723",
+              url: "http://telemetrydeck.com/swift?utm_source=swiftpackageindex&utm_campaign=swiftpackageindex_0923",
               advertisingCopy: "Get light-weight, anonymized, privacy-focused usage data analytics for your app."),
         .init(name: "Point-Free",
               logo: .init(lightModeUrl: "/images/sponsors/point-free.png",
