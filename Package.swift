@@ -21,6 +21,10 @@ let package = Package(
     platforms: [
         .macOS(.v13)
     ],
+    products: [
+        .library(name: "Authentication", targets: ["Authentication"]),
+        .library(name: "S3Store", targets: ["S3Store"]),
+    ],
     dependencies: [
         .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
         .package(url: "https://github.com/daveverwer/Plot.git", branch: "sitemapindex"),
@@ -38,12 +42,14 @@ let package = Package(
         .package(url: "https://github.com/soto-project/soto.git", from: "6.0.0"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/jwt-kit", from: "4.13.0"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
     ],
     targets: [
         .executableTarget(name: "Run", dependencies: ["App"]),
         .target(name: "App",
                 dependencies: [
+                    "Authentication",
                     "Ink",
                     "Plot",
                     "S3Store",
@@ -68,6 +74,9 @@ let package = Package(
         .target(name: "S3Store", dependencies: [
             .product(name: "SotoS3", package: "soto"),
         ]),
+        .target(name: "Authentication", dependencies: [
+            .product(name: "JWTKit", package: "jwt-kit")
+        ]),
         .testTarget(name: "AppTests",
                     dependencies: [
                         .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
@@ -76,6 +85,8 @@ let package = Package(
                     ],
                     exclude: ["__Snapshots__", "Fixtures"]
                    ),
+        .testTarget(name: "AuthenticationTests",
+                    dependencies: [.target(name: "Authentication")]),
         .testTarget(name: "S3StoreTests",
                     dependencies: [.target(name: "S3Store")])
     ],

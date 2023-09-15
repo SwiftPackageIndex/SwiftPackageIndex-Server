@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
 
-import Vapor
-import XCTest
+public enum V1 { }
 
+public enum Tier<V1>: String, Codable, CaseIterable {
+    case tier1         // search API only
+    case tier2
+    case tier3         // the above + package, package-collection API
+    case tier4
+    case `internal`    // the above + build reporting and other internal API
+}
 
-class AppEnvironmentTests: XCTestCase {
+extension Tier: Comparable {
+    var ordinal: Int { Tier.allCases.firstIndex(of: self)! }
 
-    func test_Filemanager_checkoutsDirectory() throws {
-        Current.fileManager = .live
-        unsetenv("CHECKOUTS_DIR")
-        XCTAssertEqual(Current.fileManager.checkoutsDirectory(),
-                       DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts")
-        setenv("CHECKOUTS_DIR", "/tmp/foo", 1)
-        XCTAssertEqual(Current.fileManager.checkoutsDirectory(), "/tmp/foo")
+    public static func < (lhs: Tier, rhs: Tier) -> Bool {
+        lhs.ordinal < rhs.ordinal
     }
-
 }

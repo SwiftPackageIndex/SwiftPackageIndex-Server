@@ -25,7 +25,7 @@ import FoundationNetworking
 struct AppEnvironment {
     var allowBuildTriggers: () -> Bool
     var allowTwitterPosts: () -> Bool
-    var apiTokens: () -> Set<String>
+    var apiSigningKey: () -> String?
     var appVersion: () -> String?
     var awsAccessKeyId: () -> String?
     var awsDocsBucket: () -> String?
@@ -91,8 +91,6 @@ extension AppEnvironment {
         return random(0...1) < Current.buildTriggerLatestSwiftVersionDownscaling()
     }
 
-    func isValidAPIToken(_ token: String) -> Bool { apiTokens().contains(token) }
-
     func postPlausibleEvent(_ event: Plausible.Event.Kind, path: Plausible.Path, user: User?) {
         Task {
             do {
@@ -106,12 +104,6 @@ extension AppEnvironment {
 
 
 extension AppEnvironment {
-    static let _apiTokens = {
-        Environment.get("API_TOKENS")
-            .map { Data($0.utf8) }
-            .flatMap { try? JSONDecoder().decode([String].self, from: $0) }
-            .map { Set($0) } ?? .init()
-    }()
     static var httpClient: Client!
     static var logger: Logger!
 
@@ -126,7 +118,7 @@ extension AppEnvironment {
                 .flatMap(\.asBool)
                 ?? Constants.defaultAllowTwitterPosts
         },
-        apiTokens: { _apiTokens },
+        apiSigningKey: { Environment.get("API_SIGNING_KEY") },
         appVersion: { App.appVersion },
         awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },
         awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },

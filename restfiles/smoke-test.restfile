@@ -28,6 +28,8 @@ requests:
         url: ${base_url}/api/search
         query:
             query: alamo
+        headers:
+            Authorization: Bearer ${api_token}
         validation:
             status: 200
             json:

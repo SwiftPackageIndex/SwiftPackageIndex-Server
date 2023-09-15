@@ -12,21 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-
-import Vapor
-import XCTest
+import JWTKit
 
 
-class AppEnvironmentTests: XCTestCase {
+public struct APIKey {
+    public var sub: SubjectClaim
+    public var iat: IssuedAtClaim
+    public var exp: ExpirationClaim
+    public var contact: String
+    public var tier: Tier<V1>
+}
 
-    func test_Filemanager_checkoutsDirectory() throws {
-        Current.fileManager = .live
-        unsetenv("CHECKOUTS_DIR")
-        XCTAssertEqual(Current.fileManager.checkoutsDirectory(),
-                       DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts")
-        setenv("CHECKOUTS_DIR", "/tmp/foo", 1)
-        XCTAssertEqual(Current.fileManager.checkoutsDirectory(), "/tmp/foo")
+extension APIKey {
+    public func isAuthorized(for tier: Tier<V1>) -> Bool {
+        self.tier >= tier
     }
+}
 
+extension APIKey: JWTPayload {
+    public func verify(using signer: JWTKit.JWTSigner) throws {
+        try exp.verifyNotExpired()
+    }
 }

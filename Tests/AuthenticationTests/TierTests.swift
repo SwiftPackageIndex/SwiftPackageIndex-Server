@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-
-import Vapor
 import XCTest
 
+@testable import Authentication
 
-class AppEnvironmentTests: XCTestCase {
 
-    func test_Filemanager_checkoutsDirectory() throws {
-        Current.fileManager = .live
-        unsetenv("CHECKOUTS_DIR")
-        XCTAssertEqual(Current.fileManager.checkoutsDirectory(),
-                       DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts")
-        setenv("CHECKOUTS_DIR", "/tmp/foo", 1)
-        XCTAssertEqual(Current.fileManager.checkoutsDirectory(), "/tmp/foo")
+final class TierTests: XCTestCase {
+
+    func test_Comparable() throws {
+        XCTAssertTrue(Tier<V1>.tier1 < Tier<V1>.tier2)
+        XCTAssertTrue(Tier<V1>.tier2 < Tier<V1>.internal)
+
+        XCTAssertFalse(Tier<V1>.tier1 > Tier<V1>.tier2)
+
+        XCTAssertTrue(Tier<V1>.tier1 <= Tier<V1>.tier1)
+        XCTAssertTrue(Tier<V1>.tier1 >= Tier<V1>.tier1)
     }
 
 }

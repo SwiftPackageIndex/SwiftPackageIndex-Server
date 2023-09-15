@@ -193,17 +193,34 @@ func routes(_ app: Application) throws {
             responseContentType: .application(.json)
         )
 
-        app.group(BackendReportingMiddleware(path: .search)) {
-            $0.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
-                .openAPI(
-                    summary: "/api/search",
-                    description: "Execute a search.",
-                    query: .type(of: API.SearchController.Query.example),
-                    response: .type(of: Search.Response.example),
-                    responseContentType: .application(.json)
-                )
+        if Current.environment() == .development { // For now, only protect search API on dev
+            app.group(User.APITierAuthenticator(tier: .tier1), User.guardMiddleware()) {
+                $0.groupedOpenAPI(auth: .apiBearerToken).group(tags: []) { protected in
+                    protected.group(BackendReportingMiddleware(path: .search)) {
+                        $0.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
+                            .openAPI(
+                                summary: "/api/search",
+                                description: "Execute a search.",
+                                query: .type(of: API.SearchController.Query.example),
+                                response: .type(of: Search.Response.example),
+                                responseContentType: .application(.json)
+                            )
+                    }
+                }
+            }
+        } else {
+            app.group(BackendReportingMiddleware(path: .search)) {
+                $0.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
+                    .openAPI(
+                        summary: "/api/search",
+                        description: "Execute a search.",
+                        query: .type(of: API.SearchController.Query.example),
+                        response: .type(of: Search.Response.example),
+                        responseContentType: .application(.json)
+                    )
+            }
         }
-        
+
         // Backend reporting currently disabled to avoid reporting costs for metrics we don't need.
         app.group(BackendReportingMiddleware(path: .badge, isActive: false)) {
             $0.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
@@ -218,7 +235,7 @@ func routes(_ app: Application) throws {
         }
 
         // api token protected routes
-        app.group(User.APIAuthenticator(), User.guardMiddleware()) {
+         app.group(User.APITierAuthenticator(tier: .tier3), User.guardMiddleware()) {
             $0.groupedOpenAPI(auth: .apiBearerToken).group(tags: []) { protected in
                 protected.group(BackendReportingMiddleware(path: .package)) {
                     $0.get("api", "packages", ":owner", ":repository", use: API.PackageController.get)
