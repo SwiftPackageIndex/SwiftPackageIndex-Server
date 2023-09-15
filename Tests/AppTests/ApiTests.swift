@@ -913,6 +913,14 @@ class ApiTests: AppTestCase {
             })
         }
 
+        do {  // MUT - unauthorized (signed with wrong key)
+            try app.test(.GET, "api/packages/unknown/package",
+                         headers: .bearerApplicationJSON((try .apiToken(secretKey: "wrong", tier: .tier3))),
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+            })
+        }
         do {  // MUT - package not found
             try app.test(.GET, "api/packages/unknown/package",
                          headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
