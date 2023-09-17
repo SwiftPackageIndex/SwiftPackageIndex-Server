@@ -834,69 +834,78 @@ class BuildTriggerTests: AppTestCase {
         }
     }
 
-    func test_trimBuilds() async throws {
+    func test_trimBuilds_significant_version() async throws {
         // setup
         let pkgId = UUID()
         let p = Package(id: pkgId, url: "1")
         try await p.save(on: app.db)
-        // v1 is a significant version, only old triggered builds should be deleted
-        let v1 = try Version(package: p, latest: .defaultBranch)
-        try await v1.save(on: app.db)
-        // v2 is not a significant version - all its builds should be deleted
-        let v2 = try Version(package: p)
-        try await v2.save(on: app.db)
+        // significant version - latest = 'default_branch'
+        let v = try Version(package: p, latest: .defaultBranch)
+        try await v.save(on: app.db)
 
-        let deleteId1 = UUID()
-        let keepBuildId1 = UUID()
-        let keepBuildId2 = UUID()
-
-        do {  // v1 builds
+        do {  // set up builds
             // old triggered build (delete)
-            try await Build(id: deleteId1,
-                      version: v1, platform: .iOS, status: .triggered, swiftVersion: .v2)
+            try await Build(id: .id0, version: v, platform: .iOS, status: .triggered, swiftVersion: .v2)
                 .save(on: app.db)
             // new triggered build (keep)
-            try await Build(id: keepBuildId1,
-                      version: v1, platform: .iOS, status: .triggered, swiftVersion: .v3)
+            try await Build(id: .id1, version: v, platform: .iOS, status: .triggered, swiftVersion: .v3)
                 .save(on: app.db)
             // old non-triggered build (keep)
-            try await Build(id: keepBuildId2,
-                      version: v1, platform: .iOS, status: .ok, swiftVersion: .v1)
+            try await Build(id: .id2, version: v, platform: .iOS, status: .ok, swiftVersion: .v1)
                 .save(on: app.db)
 
-            // make old builds "old" by resetting "created_at"
-            try [deleteId1, keepBuildId2].forEach { id in
+            // make old builds "old" by resetting "created_at" to before the trimBuilds window (4h)
+            for id in [UUID.id0, .id2] {
                 let sql = "update builds set created_at = created_at - interval '5 hours' where id = '\(id.uuidString)'"
-                try (app.db as! SQLDatabase).raw(.init(sql)).run().wait()
+                try await (app.db as! SQLDatabase).raw(.init(sql)).run()
             }
         }
 
-        do {  // v2 builds (should all be deleted)
-            // old triggered build
-            try await Build(id: UUID(),
-                      version: v2, platform: .iOS, status: .triggered, swiftVersion: .v2)
-                .save(on: app.db)
-            // new triggered build
-            try await Build(id: UUID(),
-                      version: v2, platform: .iOS, status: .triggered, swiftVersion: .v3)
-                .save(on: app.db)
-            // old non-triggered build
-            try await Build(id: UUID(),
-                      version: v2, platform: .iOS, status: .ok, swiftVersion: .v1)
-                .save(on: app.db)
-        }
-
-        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 6)
+        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 3)
 
         // MUT
         let deleteCount = try await trimBuilds(on: app.db)
 
         // validate
-        XCTAssertEqual(deleteCount, 4)
-        let buildCount = try await Build.query(on: app.db).count()
-        XCTAssertEqual(buildCount, 2)
-        let buildIds = try await Build.query(on: app.db).all().map(\.id)
-        XCTAssertEqual(buildIds, [keepBuildId1, keepBuildId2])
+        XCTAssertEqual(deleteCount, 1)
+        try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id), [.id1, .id2])
+    }
+
+    func test_trimBuilds_non_significant_version() async throws {
+        // setup
+        let pkgId = UUID()
+        let p = Package(id: pkgId, url: "1")
+        try await p.save(on: app.db)
+        // not a significant version - latest = nil
+        let v = try Version(package: p, latest: nil)
+        try await v.save(on: app.db)
+
+        do {  // set up builds
+            // old triggered build (delete)
+            try await Build(id: .id0, version: v, platform: .iOS, status: .triggered, swiftVersion: .v2)
+                .save(on: app.db)
+            // new triggered build (keep)
+            try await Build(id: .id1, version: v, platform: .iOS, status: .triggered, swiftVersion: .v3)
+                .save(on: app.db)
+            // old non-triggered build (delete)
+            try await Build(id: .id2, version: v, platform: .iOS, status: .ok, swiftVersion: .v1)
+                .save(on: app.db)
+
+            // make old builds "old" by resetting "created_at" to before the trimBuilds window (4h)
+            for id in [UUID.id0, .id2] {
+                let sql = "update builds set created_at = created_at - interval '5 hours' where id = '\(id.uuidString)'"
+                try await (app.db as! SQLDatabase).raw(.init(sql)).run()
+            }
+        }
+
+        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 3)
+
+        // MUT
+        let deleteCount = try await trimBuilds(on: app.db)
+
+        // validate
+        XCTAssertEqual(deleteCount, 3)
+        try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id), [])
     }
 
     func test_trimBuilds_bindParam() async throws {
