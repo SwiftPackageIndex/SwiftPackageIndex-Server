@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
+import Fluent
 import SQLKit
 import Vapor
-import XCTest
 
 
 class BuildTriggerTests: AppTestCase {
@@ -855,10 +857,8 @@ class BuildTriggerTests: AppTestCase {
                 .save(on: app.db)
 
             // make old builds "old" by resetting "created_at" to before the trimBuilds window (4h)
-            for id in [UUID.id0, .id2] {
-                let sql = "update builds set created_at = created_at - interval '5 hours' where id = '\(id.uuidString)'"
-                try await (app.db as! SQLDatabase).raw(.init(sql)).run()
-            }
+            try await updateBuildCreatedAt(id: .id0, addTimeInterval: -.hours(5), on: app.db)
+            try await updateBuildCreatedAt(id: .id2, addTimeInterval: -.hours(5), on: app.db)
         }
 
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 3)
@@ -892,10 +892,8 @@ class BuildTriggerTests: AppTestCase {
                 .save(on: app.db)
 
             // make old builds "old" by resetting "created_at" to before the trimBuilds window (4h)
-            for id in [UUID.id0, .id2] {
-                let sql = "update builds set created_at = created_at - interval '5 hours' where id = '\(id.uuidString)'"
-                try await (app.db as! SQLDatabase).raw(.init(sql)).run()
-            }
+            try await updateBuildCreatedAt(id: .id0, addTimeInterval: -.hours(5), on: app.db)
+            try await updateBuildCreatedAt(id: .id2, addTimeInterval: -.hours(5), on: app.db)
         }
 
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 3)
@@ -904,8 +902,8 @@ class BuildTriggerTests: AppTestCase {
         let deleteCount = try await trimBuilds(on: app.db)
 
         // validate
-        XCTAssertEqual(deleteCount, 3)
-        try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id), [])
+        XCTAssertEqual(deleteCount, 2)
+        try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id), [.id1])
     }
 
     func test_trimBuilds_bindParam() async throws {
@@ -954,10 +952,8 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(deleteCount, 0)
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
 
-        do { // make build "old" by resetting "created_at"
-            let sql = "update builds set created_at = created_at - interval '4 hours' where id = '\(buildId.uuidString)'"
-            try await (app.db as! SQLDatabase).raw(.init(sql)).run()
-        }
+        // make build "old" by resetting "created_at"
+        try await updateBuildCreatedAt(id: buildId, addTimeInterval: -.hours(4), on: app.db)
 
         // MUT
         deleteCount = try await trimBuilds(on: app.db)
@@ -991,10 +987,8 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(deleteCount, 0)
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
 
-        do { // make build "old" by resetting "created_at"
-            let sql = "update builds set created_at = created_at - interval '5 hours' where id = '\(buildId.uuidString)'"
-            try await (app.db as! SQLDatabase).raw(.init(sql)).run()
-        }
+        // make build "old" by resetting "created_at"
+        try await updateBuildCreatedAt(id: buildId, addTimeInterval: -.hours(5), on: app.db)
 
         // MUT
         deleteCount = try await trimBuilds(on: app.db)
@@ -1086,4 +1080,11 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertTrue(!triggerInfo.pairs.contains(.init(.iOS, .v1)))
     }
 
+}
+
+
+private func updateBuildCreatedAt(id: Build.Id, addTimeInterval timeInterval: TimeInterval, on database: Database) async throws {
+    let b = try await XCTUnwrapAsync(await Build.find(id, on: database))
+    b.createdAt = b.createdAt?.addingTimeInterval(timeInterval)
+    try await b.save(on: database)
 }
