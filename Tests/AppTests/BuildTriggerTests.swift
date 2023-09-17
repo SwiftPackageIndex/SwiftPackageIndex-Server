@@ -566,21 +566,21 @@ class BuildTriggerTests: AppTestCase {
 
         let client = MockClient { _, _ in }
 
-        let pkgId = UUID()
-        let versionId = UUID()
-        let p = Package(id: pkgId, url: "2")
+        let p = Package(id: .id0, url: "2")
         try await p.save(on: app.db)
-        let v = try Version(id: versionId, package: p, latest: nil, reference: .branch("main"))
+        let v = try Version(id: .id1, package: p, latest: nil, reference: .branch("main"))
         try await v.save(on: app.db)
-        try await Build(id: UUID(), version: v, platform: .iOS, status: .triggered, swiftVersion: .v2)
+        try await Build(id: .id2, version: v, platform: .iOS, status: .triggered, swiftVersion: .v2)
             .save(on: app.db)
+        // shift createdAt back to make build eligible from trimming
+        try await updateBuildCreatedAt(id: .id2, addTimeInterval: -.hours(5), on: app.db)
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
 
         // MUT
         try await triggerBuilds(on: app.db,
                                 client: client,
                                 logger: app.logger,
-                                mode: .packageId(pkgId, force: false))
+                                mode: .packageId(p.id!, force: false))
 
         // validate
         let count = try await Build.query(on: app.db).count()
