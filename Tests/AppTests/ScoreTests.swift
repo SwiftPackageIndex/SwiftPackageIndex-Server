@@ -190,7 +190,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: true)),
-                       122)
+                       112)
     }
 
     func test_compute_package_versions() async throws {
