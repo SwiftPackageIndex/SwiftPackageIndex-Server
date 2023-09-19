@@ -87,7 +87,7 @@ enum Score {
             default: score += 10
         }
         
-        if candidate.hasTestTargets { score += 15 }
+        if candidate.hasTestTargets { score += 5 }
 
         return score
     }
