@@ -242,7 +242,7 @@ extension Analyze {
             let targets = await fetchTargets(on: tx, package: package)
 
             updateScore(package: package, versions: versions, targets: targets)
-            
+
             await onNewVersions(client: client, logger: logger, package: package, versions: newVersions)
         }
     }
@@ -259,7 +259,7 @@ extension Analyze {
         return try? await API.PackageController.Target.query(on: database, owner: owner, repository: repository)
     }
 
-    
+
     static func createCheckoutsDirectory(client: Client,
                                          logger: Logger,
                                          path: String) async throws {
