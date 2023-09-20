@@ -14,19 +14,19 @@
 
 import Fluent
 
-struct UpdateVersionAddResolvedDependencies: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("versions")
-            .field("resolved_dependencies",
+struct UpdateVersionAddProductDependencies: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.schema("versions")
+            .field("product_dependencies",
                    .array(of: .json),
                    .sql(.default("{}"))
             )
             .update()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("versions")
-            .deleteField("resolved_dependencies")
+    func revert(on database: Database) async throws {
+        try await database.schema("versions")
+            .deleteField("product_dependencies")
             .update()
     }
 }

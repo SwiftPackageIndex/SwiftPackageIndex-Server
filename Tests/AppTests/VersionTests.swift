@@ -34,6 +34,7 @@ class VersionTests: AppTestCase {
         v.commit = "commit"
         v.latest = .defaultBranch
         v.packageName = "pname"
+        v.productDependencies = [.init(identity: "foo", name: "Foo", url: "https://github.com/foo/Foo.git", dependencies: [])]
         v.publishedAt = Date(timeIntervalSince1970: 1)
         v.reference = .branch("branch")
         v.releaseNotes = "release notes"
@@ -51,6 +52,8 @@ class VersionTests: AppTestCase {
             XCTAssertEqual(v.commit, "commit")
             XCTAssertEqual(v.latest, .defaultBranch)
             XCTAssertEqual(v.packageName, "pname")
+            XCTAssertEqual(v.productDependencies,
+                           [.init(identity: "foo", name: "Foo", url: "https://github.com/foo/Foo.git", dependencies: [])])
             XCTAssertEqual(v.publishedAt, Date(timeIntervalSince1970: 1))
             XCTAssertEqual(v.reference, .branch("branch"))
             XCTAssertEqual(v.releaseNotes, "release notes")
