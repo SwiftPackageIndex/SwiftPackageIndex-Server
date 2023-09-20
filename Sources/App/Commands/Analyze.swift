@@ -238,11 +238,25 @@ extension Analyze {
             }
 
             let versions = try await updateLatestVersions(on: tx, package: package)
+            
+            let targets = await fetchTargets(on: tx, package: package)
 
-            updateScore(package: package, versions: versions)
+            updateScore(package: package, versions: versions, targets: targets)
 
             await onNewVersions(client: client, logger: logger, package: package, versions: newVersions)
         }
+    }
+    
+    /// Fetch targets for a given `Package`
+    /// - Parameters:
+    ///   - database: `Database` object
+    ///   - package: `Package` object
+    /// - Returns: targets associated with package
+    private static func fetchTargets(on database: Database, package: Joined<Package, Repository>) async -> [(String, TargetType)]? {
+        guard let repo = package.repository, let owner = repo.owner, let repository = repo.name else {
+            return nil
+        }
+        return try? await API.PackageController.Target.query(on: database, owner: owner, repository: repository)
     }
 
 
@@ -709,8 +723,8 @@ extension Analyze {
     /// - Parameters:
     ///   - package: `Package` input
     ///   - versions: `[Version]` input
-    static func updateScore(package: Joined<Package, Repository>, versions: [Version]) {
-        package.model.score = Score.compute(package: package, versions: versions)
+    static func updateScore(package: Joined<Package, Repository>, versions: [Version], targets: [(String, TargetType)]? = nil) {
+        package.model.score = Score.compute(package: package, versions: versions, targets: targets)
     }
 
 

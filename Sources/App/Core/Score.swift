@@ -24,6 +24,7 @@ enum Score {
         var lastActivityAt: Date?
         var hasDocumentation: Bool
         var numberOfContributors: Int
+        var hasTestTargets: Bool
     }
 
     static func compute(_ candidate: Input) -> Int {
@@ -85,11 +86,13 @@ enum Score {
             case 5..<20: score += 5
             default: score += 10
         }
+        
+        if candidate.hasTestTargets { score += 5 }
 
         return score
     }
 
-    static func compute(package: Joined<Package, Repository>, versions: [Version]) -> Int {
+    static func compute(package: Joined<Package, Repository>, versions: [Version], targets: [(String, TargetType)]? = []) -> Int {
         guard
             let defaultVersion = versions.latest(for: .defaultBranch),
             let repo = package.repository
@@ -105,7 +108,9 @@ enum Score {
             guard let authors = repo.authors else { return 0 }
             return authors.authors.count + authors.numberOfContributors
         }()
-
+        
+        let hasTestTargets = !(targets?.filter { $0.1 == App.TargetType.test }.isEmpty ?? false)
+        
         return Score.compute(
             .init(licenseKind: repo.license.licenseKind,
                   releaseCount: versions.releases.count,
@@ -114,7 +119,9 @@ enum Score {
                   numberOfDependencies: defaultVersion.resolvedDependencies?.count,
                   lastActivityAt: repo.lastActivityAt,
                   hasDocumentation: hasDocumentation,
-                  numberOfContributors: numberOfContributors)
+                  numberOfContributors: numberOfContributors,
+                  hasTestTargets: hasTestTargets
+            )
         )
     }
 }
