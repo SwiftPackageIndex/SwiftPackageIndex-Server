@@ -573,7 +573,6 @@ class BuildTriggerTests: AppTestCase {
         try await Build(id: .id2, version: v, platform: .iOS, status: .triggered, swiftVersion: .v2)
             .save(on: app.db)
         // shift createdAt back to make build eligible from trimming
-        try await updateBuildCreatedAt(id: .id2, addTimeInterval: -.hours(5), on: app.db)
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
 
         // MUT
@@ -884,7 +883,7 @@ class BuildTriggerTests: AppTestCase {
             // old triggered build (delete)
             try await Build(id: .id0, version: v, platform: .iOS, status: .triggered, swiftVersion: .v2)
                 .save(on: app.db)
-            // new triggered build (keep)
+            // new triggered build (delete)
             try await Build(id: .id1, version: v, platform: .iOS, status: .triggered, swiftVersion: .v3)
                 .save(on: app.db)
             // old non-triggered build (delete)
@@ -902,8 +901,8 @@ class BuildTriggerTests: AppTestCase {
         let deleteCount = try await trimBuilds(on: app.db)
 
         // validate
-        XCTAssertEqual(deleteCount, 2)
-        try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id), [.id1])
+        XCTAssertEqual(deleteCount, 3)
+        try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id), [])
     }
 
     func test_trimBuilds_bindParam() async throws {
