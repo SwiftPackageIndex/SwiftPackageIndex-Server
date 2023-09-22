@@ -922,24 +922,24 @@ class BuildTriggerTests: AppTestCase {
 
         do {  // set up builds
             try await [
-                // recent, release, ok (keep)
+                // ✅ recent, release, ok
                 Build(id: .id0, version: release, platform: .iOS, status: .ok, swiftVersion: .latest),
-                // recent, release, triggered (keep)
+                // ✅ recent, release, triggered
                 Build(id: .id1, version: release, platform: .linux, status: .triggered, swiftVersion: .latest),
-                // recent, nonSignificant, ok (delete)
+                // ❌ recent, nonSignificant, ok
                 Build(id: .id2, version: nonSignificant, platform: .iOS, status: .ok, swiftVersion: .latest),
-                // recent, nonSignificant, triggered (delete)
+                // ❌ recent, nonSignificant, triggered
                 Build(id: .id3, version: nonSignificant, platform: .linux, status: .triggered, swiftVersion: .latest),
             ].save(on: app.db)
 
             let oldBuilds = try [
-                // old, release, ok (keep)
+                // ✅ old, release, ok
                 Build(id: .id4, version: release, platform: .watchOS, status: .ok, swiftVersion: .latest),
-                // old, release, triggered (delete)
+                // ❌ old, release, triggered
                 Build(id: .id5, version: release, platform: .tvOS, status: .triggered, swiftVersion: .latest),
-                // old, nonSignificant, ok (delete)
+                // ❌ old, nonSignificant, ok
                 Build(id: .id6, version: nonSignificant, platform: .watchOS, status: .ok, swiftVersion: .latest),
-                // old, nonSignificant, triggered (delete)
+                // ❌ old, nonSignificant, triggered
                 Build(id: .id7, version: nonSignificant, platform: .tvOS, status: .triggered, swiftVersion: .latest),
             ]
             try await oldBuilds.save(on: app.db)
