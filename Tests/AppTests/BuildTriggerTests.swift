@@ -906,7 +906,7 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_trimBuilds_allVariants() async throws {
-        // trimBuilds is acting on three properties with two status each:
+        // trimBuilds is acting on three properties with two states each:
         // created_at: within 4h / older
         // status: triggered or infrastructureError / otherwise
         // latest: not null / null
