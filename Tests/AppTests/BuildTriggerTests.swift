@@ -905,6 +905,61 @@ class BuildTriggerTests: AppTestCase {
         try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id), [])
     }
 
+    func test_trimBuilds_allVariants() async throws {
+        // trimBuilds is acting on three properties with two status each:
+        // created_at: within 4h / older
+        // status: triggered or infrastructureError / otherwise
+        // latest: not null / null
+        // This test sets up 8 builds covering all combinations to confirm whether the build is
+        // being trimmed or not.
+        // setup
+        let p = Package(url: "1")
+        try await p.save(on: app.db)
+        let release = try Version(package: p, latest: .release)
+        try await release.save(on: app.db)
+        let nonSignificant = try Version(package: p, latest: nil)
+        try await nonSignificant.save(on: app.db)
+
+        do {  // set up builds
+            try await [
+                // recent, release, ok (keep)
+                Build(id: .id0, version: release, platform: .iOS, status: .ok, swiftVersion: .latest),
+                // recent, release, triggered (keep)
+                Build(id: .id1, version: release, platform: .linux, status: .triggered, swiftVersion: .latest),
+                // recent, nonSignificant, ok (delete)
+                Build(id: .id2, version: nonSignificant, platform: .iOS, status: .ok, swiftVersion: .latest),
+                // recent, nonSignificant, triggered (delete)
+                Build(id: .id3, version: nonSignificant, platform: .linux, status: .triggered, swiftVersion: .latest),
+            ].save(on: app.db)
+
+            let oldBuilds = try [
+                // old, release, ok (keep)
+                Build(id: .id4, version: release, platform: .watchOS, status: .ok, swiftVersion: .latest),
+                // old, release, triggered (delete)
+                Build(id: .id5, version: release, platform: .tvOS, status: .triggered, swiftVersion: .latest),
+                // old, nonSignificant, ok (delete)
+                Build(id: .id6, version: nonSignificant, platform: .watchOS, status: .ok, swiftVersion: .latest),
+                // old, nonSignificant, triggered (delete)
+                Build(id: .id7, version: nonSignificant, platform: .tvOS, status: .triggered, swiftVersion: .latest),
+            ]
+            try await oldBuilds.save(on: app.db)
+
+            // make old builds "old" by resetting "created_at" to before the trimBuilds window (4h)
+            for id in oldBuilds.map(\.id) {
+                try await updateBuildCreatedAt(id: id!, addTimeInterval: -.hours(5), on: app.db)
+            }
+        }
+
+        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 8)
+
+        // MUT
+        let deleteCount = try await trimBuilds(on: app.db)
+
+        // validate
+        XCTAssertEqual(deleteCount, 5)
+        try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id), [.id0, .id1, .id4])
+    }
+
     func test_trimBuilds_bindParam() async throws {
         // Bind parameter issue regression test, details:
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/909
