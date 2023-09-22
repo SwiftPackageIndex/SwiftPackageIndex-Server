@@ -573,6 +573,7 @@ class BuildTriggerTests: AppTestCase {
         try await Build(id: .id2, version: v, platform: .iOS, status: .triggered, swiftVersion: .v2)
             .save(on: app.db)
         // shift createdAt back to make build eligible from trimming
+        try await updateBuildCreatedAt(id: .id2, addTimeInterval: -.hours(5), on: app.db)
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
 
         // MUT
@@ -883,7 +884,7 @@ class BuildTriggerTests: AppTestCase {
             // old triggered build (delete)
             try await Build(id: .id0, version: v, platform: .iOS, status: .triggered, swiftVersion: .v2)
                 .save(on: app.db)
-            // new triggered build (delete)
+            // new triggered build (keep)
             try await Build(id: .id1, version: v, platform: .iOS, status: .triggered, swiftVersion: .v3)
                 .save(on: app.db)
             // old non-triggered build (delete)
@@ -901,8 +902,8 @@ class BuildTriggerTests: AppTestCase {
         let deleteCount = try await trimBuilds(on: app.db)
 
         // validate
-        XCTAssertEqual(deleteCount, 3)
-        try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id), [])
+        XCTAssertEqual(deleteCount, 2)
+        try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id), [.id1])
     }
 
     func test_trimBuilds_allVariants() async throws {
@@ -926,9 +927,9 @@ class BuildTriggerTests: AppTestCase {
                 Build(id: .id0, version: release, platform: .iOS, status: .ok, swiftVersion: .latest),
                 // ✅ recent, release, triggered
                 Build(id: .id1, version: release, platform: .linux, status: .triggered, swiftVersion: .latest),
-                // ❌ recent, nonSignificant, ok
+                // ✅ recent, nonSignificant, ok
                 Build(id: .id2, version: nonSignificant, platform: .iOS, status: .ok, swiftVersion: .latest),
-                // ❌ recent, nonSignificant, triggered
+                // ✅ recent, nonSignificant, triggered
                 Build(id: .id3, version: nonSignificant, platform: .linux, status: .triggered, swiftVersion: .latest),
             ].save(on: app.db)
 
@@ -956,8 +957,9 @@ class BuildTriggerTests: AppTestCase {
         let deleteCount = try await trimBuilds(on: app.db)
 
         // validate
-        XCTAssertEqual(deleteCount, 5)
-        try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id), [.id0, .id1, .id4])
+        XCTAssertEqual(deleteCount, 3)
+        try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id),
+                                      [.id0, .id1, .id2, .id3, .id4])
     }
 
     func test_trimBuilds_bindParam() async throws {
