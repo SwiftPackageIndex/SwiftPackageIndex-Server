@@ -28,13 +28,17 @@ WORKDIR /build
 # as long as your Package.swift/Package.resolved
 # files do not change.
 COPY ./Package.* ./
-RUN swift package resolve
+RUN swift package resolve --skip-update \
+"$([ -f ./Package.resolved ] && echo "--force-resolved-versions" || true)"
 
 # Copy entire repo into container
 COPY . .
 
 # Compile with optimizations
-RUN swift build -c release --static-swift-stdlib
+RUN swift build -c release --static-swift-stdlib \
+    # Workaround for https://github.com/apple/swift/pull/68669
+    # This can be removed as soon as 5.9.1 is released, but is harmless if left in.
+    -Xlinker -u -Xlinker _swift_backtrace_isThunkFunction
 
 # Switch to the staging area
 WORKDIR /staging
@@ -71,6 +75,9 @@ WORKDIR /app
 # NB sas 2022-09-23: See above why we're not using the `vapor` user
 # COPY --from=build --chown=vapor:vapor /staging /app
 COPY --from=build /staging /app
+
+# Provide configuration needed by the built-in crash reporter and some sensible default behaviors.
+ENV SWIFT_ROOT=/usr SWIFT_BACKTRACE=enable=yes,sanitize=yes,threads=all,images=all,interactive=no
 
 # Ensure all further commands run as the vapor user
 # NB sas 2022-09-23: See above why we're not using the `vapor` user
