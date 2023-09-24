@@ -42,20 +42,11 @@ func updatePackages(client: Client,
             logger.critical("updatePackages: unusually high error rate: \(errors)/\(total) = \(errorRate)%")
         }
     }
-    let updates = await withThrowingTaskGroup(of: Void.self) { group in
-        for result in results {
-            group.addTask {
-                try await updatePackage(client: client,
-                                        database: database,
-                                        logger: logger,
-                                        result: result,
-                                        stage: stage)
-            }
-        }
-        return await group.results()
+    for result in results {
+        try await updatePackage(client: client, database: database, logger: logger, result: result, stage: stage)
     }
 
-    logger.debug("updateStatus ops: \(updates.count)")
+    logger.debug("updateStatus ops: \(results.count)")
 }
 
 
