@@ -28,7 +28,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        20)
         XCTAssertEqual(Score.compute(.init(licenseKind: .incompatibleWithAppStore,
                                            releaseCount: 0,
@@ -38,7 +38,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        23)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 0,
@@ -48,7 +48,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        30)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 10,
@@ -58,7 +58,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        40)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 10,
@@ -68,7 +68,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        50)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 10,
@@ -78,7 +78,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        30)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
@@ -88,7 +88,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        87)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
@@ -98,7 +98,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        89)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
@@ -108,7 +108,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        92)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
@@ -119,7 +119,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        92)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
@@ -130,7 +130,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        97)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
@@ -141,7 +141,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        102)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
@@ -152,7 +152,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        107)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
@@ -163,7 +163,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: true,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        122)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
@@ -174,7 +174,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: true,
                                            hasReadme: false,
                                            numberOfContributors: 5,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        127)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
@@ -185,7 +185,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: true,
                                            hasReadme: false,
                                            numberOfContributors: 20,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        132)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
@@ -196,7 +196,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        107)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
@@ -207,7 +207,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: false,
                                            numberOfContributors: 0,
-                                           hasTestTargets: true)),
+                                           hasTestTargets: true)).score,
                        112)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
@@ -218,7 +218,7 @@ class ScoreTests: AppTestCase {
                                            hasDocumentation: false,
                                            hasReadme: true,
                                            numberOfContributors: 0,
-                                           hasTestTargets: false)),
+                                           hasTestTargets: false)).score,
                        122)
     }
 
@@ -239,7 +239,6 @@ class ScoreTests: AppTestCase {
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         // MUT
-        XCTAssertEqual(Score.compute(package: jpr, versions: versions), 97)
+        XCTAssertEqual(Score.compute(repo: jpr.repository, versions: versions).score, 97)
     }
-
 }

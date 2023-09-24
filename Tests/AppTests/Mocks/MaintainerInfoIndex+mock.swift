@@ -17,11 +17,36 @@
 import Foundation
 
 extension MaintainerInfoIndex.Model {
-
     static var mock: MaintainerInfoIndex.Model {
         .init(packageName: "Example Package",
               repositoryOwner: "example",
               repositoryOwnerName: "Example Owner",
-              repositoryName: "package")
+              repositoryName: "package",
+              score: 10,
+              scoreDetails: Score.ScoreDetails(
+                candidate: Score.Input(
+                    licenseKind: .compatibleWithAppStore,
+                    releaseCount: 10,
+                    likeCount: 30,
+                    isArchived: false,
+                    hasDocumentation: true,
+                    hasReadme: true,
+                    numberOfContributors: 20,
+                    hasTestTargets: false
+                ),
+                scoreBreakdown: [
+                    .archive: 20,
+                    .license: 20,
+                    .releases: 20,
+                    .stars: 20,
+                    .dependencies: 20,
+                    .maintenance: 20,
+                    .documentation: 20,
+                    .readme: 20,
+                    .contributors: 20,
+                    .tests: 20
+                ]
+              )
+        )
     }
 }

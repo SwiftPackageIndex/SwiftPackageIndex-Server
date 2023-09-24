@@ -372,7 +372,7 @@
     {
       "identity" : "swift-numerics",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-numerics.git",
+      "location" : "https://github.com/apple/swift-numerics",
       "state" : {
         "revision" : "0a5bc04095a675662cf24757cc0640aa2204253b",
         "version" : "1.0.2"
@@ -429,7 +429,7 @@
       "location" : "https://github.com/apple/swift-tools-support-core.git",
       "state" : {
         "branch" : "release/5.9",
-        "revision" : "5665fc7641ce1a971ad06faaa476862b222ef44b"
+        "revision" : "279be8ac3fe7829cc15e93693c45931a1bf7f112"
       }
     },
     {

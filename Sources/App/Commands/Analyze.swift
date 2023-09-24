@@ -728,7 +728,7 @@ extension Analyze {
     ///   - package: `Package` input
     ///   - versions: `[Version]` input
     static func updateScore(package: Joined<Package, Repository>, versions: [Version], targets: [(String, TargetType)]? = nil) {
-        package.model.score = Score.compute(package: package, versions: versions, targets: targets)
+        package.model.score = Score.compute(repo: package.repository, versions: versions, targets: targets).score
     }
 
 

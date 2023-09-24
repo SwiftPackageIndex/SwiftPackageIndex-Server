@@ -177,6 +177,27 @@ enum MaintainerInfoIndex {
                         .text("online manifest validation helper")
                     ),
                     " to validate your ", .code(".spi.yml"), "file."
+                ),
+                .h3("Package Score"),
+                .p(
+                    "Based on our analysis, this package has the total score of \(model.score). In combination with the relevancy of a search query, we use the package score to partially influence the ordering of search results on the Swift Package Index."
+                ),
+                .p(
+                    "The score is currently evaluated based on \(model.scoreCategories.count) traits and the breakdown of each trait is shown below."
+                ),
+                .div(
+                    .class("package-score"),
+                    .text("Total – \(model.score) points")
+                ),
+                .div(
+                    .class("container"),
+                    model.packageScoreCategories()
+                ),
+                .p("If you are interested in providing feedback for the package score, please submit ideas in the ",
+                    .a(
+                        .href(model.packageScoreDiscussionURL),
+                        "discussion thread."
+                    )
                 )
             )
         }
