@@ -788,7 +788,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(targets.map(\.type), [.regular, .executable])
     }
 
-    func test_updatePackage() async throws {
+    func test_updatePackages() async throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
             .map(Joined<Package, Repository>.init(model:))
