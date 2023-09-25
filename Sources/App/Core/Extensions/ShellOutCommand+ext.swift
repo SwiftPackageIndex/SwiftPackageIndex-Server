@@ -38,6 +38,10 @@ extension ShellOutCommand {
         .init(command: "git", arguments: ["log", "--max-parents=0", "-n1", #"--format=format:"%ct""#])
     }
 
+    static func gitHasBranch(_ branch: String) -> Self {
+        .init(command: "git", arguments: ["show-ref", "--verify", "--quiet", "refs/heads/\(branch.quoted)"])
+    }
+
     static var gitLastCommitDate: Self {
         .init(command: "git", arguments: ["log", "-n1", #"--format=format:"%ct""#])
     }

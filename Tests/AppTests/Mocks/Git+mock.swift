@@ -21,7 +21,8 @@ extension Git {
         firstCommitDate: { _ in fatalError("not initialized") },
         lastCommitDate: { _ in fatalError("not initialized") },
         getTags: { _ in fatalError("not initialized") },
-        revisionInfo: { _,_ in fatalError("not initialized") },
+        hasBranch: { _, _ in fatalError("not initialized") },
+        revisionInfo: { _, _ in fatalError("not initialized") },
         shortlog: { _ in fatalError("not initialized") }
     )
 }
