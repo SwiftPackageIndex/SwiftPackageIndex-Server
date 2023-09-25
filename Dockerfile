@@ -43,6 +43,10 @@ RUN swift build -c release --static-swift-stdlib \
 # Switch to the staging area
 WORKDIR /staging
 
+# temporary, to help with crash symbolification
+RUN cp -Ra /build/.build ./
+RUN cp -Ra /build/* ./
+
 # Copy main executable to staging area
 RUN cp "$(swift build --package-path /build -c release --show-bin-path)/Run" ./
 
