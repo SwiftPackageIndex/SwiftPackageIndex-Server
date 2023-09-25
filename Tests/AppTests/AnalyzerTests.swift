@@ -312,6 +312,43 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(versions.map(\.commit), ["commit1", "commit2", "commit3"])
     }
 
+    func test_forward_progress_on_analysisError() async throws {
+        // Ensure a package that fails analysis goes back to ingesting and isn't stuck in an analysis loop
+        // setup
+        do {
+            let pkg = try savePackage(on: app.db, "https://github.com/foo/1", processingStage: .ingestion)
+            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
+        }
+
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        Current.git.hasBranch = { _, _ in false }
+        Current.git.shortlog = { _ in "" }
+
+        // Ensure candidate selection is as expected
+        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
+        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 1)
+
+        // MUT
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  mode: .limit(10))
+
+        // Ensure candidate selection is now zero for analysis
+        // (and also for ingestion, as we're immediately after analysis)
+        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
+        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 0)
+
+        // Advance time beyond reIngestionDeadtime
+        Current.date = { .now.addingTimeInterval(Constants.reIngestionDeadtime) }
+
+        // Ensure candidate selection has flipped to ingestion
+        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 1)
+        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 0)
+    }
+
     func test_package_status() async throws {
         // Ensure packages record success/error status
         // setup
@@ -940,7 +977,7 @@ class AnalyzerTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/70
         // setup
         try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
-        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).get()
+        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which
@@ -974,7 +1011,7 @@ class AnalyzerTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
         // setup
         try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
-        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).get()
+        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which

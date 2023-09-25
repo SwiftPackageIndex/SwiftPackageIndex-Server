@@ -140,7 +140,7 @@ extension Analyze {
 
             case .limit(let limit):
                 logger.info("Analyzing (limit: \(limit)) ...")
-                let packages = try await Package.fetchCandidates(database, for: .analysis, limit: limit).get()
+                let packages = try await Package.fetchCandidates(database, for: .analysis, limit: limit)
                 try await analyze(client: client,
                                   database: database,
                                   logger: logger,

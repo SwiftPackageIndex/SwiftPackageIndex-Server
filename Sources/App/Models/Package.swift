@@ -280,8 +280,8 @@ extension Package {
 
     static func fetchCandidates(_ database: Database,
                                 for stage: ProcessingStage,
-                                limit: Int) -> EventLoopFuture<[Joined<Package, Repository>]> {
-        Joined.query(on: database)
+                                limit: Int) async throws -> [Joined<Package, Repository>] {
+        try await Joined.query(on: database)
             .filter(for: stage)
             .sort(.sql(raw: "status != 'new'"))
             .sort(\.$updatedAt)
