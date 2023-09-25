@@ -166,6 +166,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         var t: Date = .t0
         Current.date = { t }
         Current.git.getTags = { _ in [.branch("main")] }
+        Current.git.hasBranch = { _, _ in true }
         let pkg = Package(url: "1".asGithubUrl.url)
         try await pkg.save(on: app.db)
         try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
@@ -217,6 +218,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         // Leaving tags out of it for simplicity - they are tested specifically
         // in test_throttle_ignore_tags above.
         Current.git.getTags = { _ in [] }
+        Current.git.hasBranch = { _, _ in true }
 
         // Little helper to simulate minimal version reconciliation
         func runVersionReconciliation() async throws -> VersionDelta {

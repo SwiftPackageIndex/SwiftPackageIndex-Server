@@ -140,6 +140,7 @@ class PipelineTests: AppTestCase {
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
         Current.git.getTags = { _ in [] }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.git.shortlog = { _ in
             """

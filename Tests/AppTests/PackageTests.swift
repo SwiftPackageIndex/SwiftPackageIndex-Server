@@ -277,6 +277,7 @@ final class PackageTests: AppTestCase {
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in Date(timeIntervalSince1970: 0) }
         Current.git.getTags = { _ in [] }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.lastCommitDate = { _ in Date(timeIntervalSince1970: 1) }
         Current.git.revisionInfo = { _, _ in
             .init(commit: "sha",

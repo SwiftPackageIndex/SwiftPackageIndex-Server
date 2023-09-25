@@ -86,6 +86,7 @@ final class AnalyzeErrorTests: AppTestCase {
             if checkoutDir.hasSuffix("foo-2") { return [.tag(1, 2, 3)] }
             throw SetupError()
         }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.revisionInfo = { ref, checkoutDir in
             if checkoutDir.hasSuffix("foo-1") { return .init(commit: "commit \(ref)", date: .t1) }
             if checkoutDir.hasSuffix("foo-2") { return .init(commit: "commit \(ref)", date: .t1) }

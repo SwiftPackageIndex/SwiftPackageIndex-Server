@@ -1,8 +1,9 @@
-▿ 14 elements
+▿ 15 elements
   - "./github.com-foo-1: commitCount"
   - "./github.com-foo-1: firstCommitDate"
   - "./github.com-foo-1: lastCommitDate"
   - "./github.com-foo-1: shortlog"
+  - "./github.com-foo-1: hasBranch main"
   - "./github.com-foo-1: getTags"
   - "./github.com-foo-1: revisionInfo for main"
   - "./github.com-foo-1: revisionInfo for 1.0.0"

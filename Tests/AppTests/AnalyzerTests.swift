@@ -157,7 +157,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         let outDir = try checkoutDir.value.unwrap()
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-        XCTAssertEqual(commands.value.count, 34)
+        XCTAssertEqual(commands.value.count, 36)
 
         // Snapshot for each package individually to avoid ordering issues when
         // concurrent processing causes commands to interleave between packages.
@@ -251,6 +251,7 @@ class AnalyzerTests: AppTestCase {
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t2 }
         Current.git.getTags = { _ in [.tag(1, 0, 0), .tag(1, 1, 1)] }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.revisionInfo = { ref, _ in
             // simulate the following scenario:
             //   - main branch has moved from commit0 -> commit3 (timestamp t3)
@@ -325,6 +326,7 @@ class AnalyzerTests: AppTestCase {
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
         Current.git.getTags = { _ in [.tag(1, 0, 0)] }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.git.shortlog = { _ in
             """
@@ -435,7 +437,7 @@ class AnalyzerTests: AppTestCase {
                                   mode: .limit(10))
 
         // validation (not in detail, this is just to ensure command count is as expected)
-        XCTAssertEqual(commands.value.count, 38, "was: \(dump(commands.value))")
+        XCTAssertEqual(commands.value.count, 40, "was: \(dump(commands.value))")
         // 1 packages with 2 tags + 1 default branch each -> 3 versions (the other package fails)
         let versionCount = try await Version.query(on: app.db).count()
         XCTAssertEqual(versionCount, 3)
@@ -497,6 +499,7 @@ class AnalyzerTests: AppTestCase {
     func test_getIncomingVersions() async throws {
         // setup
         Current.git.getTags = { _ in [.tag(1, 2, 3)] }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.revisionInfo = { ref, _ in .init(commit: "sha-\(ref)", date: .t0) }
         do {
             let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
@@ -553,6 +556,7 @@ class AnalyzerTests: AppTestCase {
     func test_diffVersions() async throws {
         //setup
         Current.git.getTags = { _ in [.tag(1, 2, 3)] }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.revisionInfo = { ref, _ in
             if ref == .branch("main") { return . init(commit: "sha.main", date: .t0) }
             if ref == .tag(1, 2, 3) { return .init(commit: "sha.1.2.3", date: .t1) }
@@ -877,6 +881,7 @@ class AnalyzerTests: AppTestCase {
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
         Current.git.getTags = { _ in [.tag(1, 0, 0), .tag(2, 0, 0)] }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.git.shortlog = { _ in
             """
@@ -1286,6 +1291,7 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.fileExists = { _ in true }
         Current.git.commitCount = { _ in 2 }
         Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.lastCommitDate = { _ in .t1 }
         struct Error: Swift.Error { }
         Current.git.shortlog = { _ in
@@ -1391,6 +1397,7 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.fileExists = { _ in true }
         Current.git.commitCount = { _ in 2 }
         Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.lastCommitDate = { _ in .t1 }
         struct Error: Swift.Error { }
         Current.git.shortlog = { _ in
@@ -1510,6 +1517,7 @@ private struct Command: CustomStringConvertible {
         case firstCommitDate
         case lastCommitDate
         case getTags
+        case hasBranch(String)
         case reset
         case resetToBranch(String)
         case shortlog
@@ -1539,6 +1547,9 @@ private struct Command: CustomStringConvertible {
                 self.kind = .fetch
             case .gitFirstCommitDate:
                 self.kind = .firstCommitDate
+            case _ where command.description.starts(with: "git show-ref --verify --quiet refs/heads/"):
+                let branch = String(command.description.split(separator: "/").last!)
+                self.kind = .hasBranch(branch)
             case .gitLastCommitDate:
                 self.kind = .lastCommitDate
             case .gitListTags:
@@ -1573,6 +1584,8 @@ private struct Command: CustomStringConvertible {
                 return "\(path): checkout \(ref)"
             case .clone(let url):
                 return "\(path): clone \(url)"
+            case let .hasBranch(branch):
+                return "\(path): hasBranch \(branch)"
             case .resetToBranch(let branch):
                 return "\(path): reset to \(branch)"
             case .revisionInfo(let ref):
