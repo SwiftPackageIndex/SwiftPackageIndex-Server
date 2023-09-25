@@ -339,7 +339,6 @@ extension Analyze {
                                 url: package.model.url)
             } catch {
                 logger.info("fetch failed: \(error.localizedDescription)")
-                logger.info("removing directory")
                 try await Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
                 try await clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
             }
@@ -418,30 +417,26 @@ extension Analyze {
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
-
+        
         guard let defaultBranch = package.repository?.defaultBranch
             .map({ Reference.branch($0) })
         else {
             throw AppError.genericError(package.model.id, "Package must have default branch - aborting analysis")
         }
-
-        do {
-            let tags = try await Current.git.getTags(cacheDir)
-
-            let references = [defaultBranch] + tags
-            return try await references
-                .mapAsync { ref in
-                    let revInfo = try await Current.git.revisionInfo(ref, cacheDir)
-                    let url = package.model.versionUrl(for: ref)
-                    return try Version(package: package.model,
-                                       commit: revInfo.commit,
-                                       commitDate: revInfo.date,
-                                       reference: ref,
-                                       url: url)
-                }
-        } catch {
-            throw error
-        }
+        
+        let tags = try await Current.git.getTags(cacheDir)
+        
+        let references = [defaultBranch] + tags
+        return try await references
+            .mapAsync { ref in
+                let revInfo = try await Current.git.revisionInfo(ref, cacheDir)
+                let url = package.model.versionUrl(for: ref)
+                return try Version(package: package.model,
+                                   commit: revInfo.commit,
+                                   commitDate: revInfo.date,
+                                   reference: ref,
+                                   url: url)
+            }
     }
 
 

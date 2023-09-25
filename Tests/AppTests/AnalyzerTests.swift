@@ -494,6 +494,24 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(repo?.authors, PackageAuthors(authors: [Author(name: "Person 1")], numberOfContributors: 1))
     }
 
+    func test_getIncomingVersions() async throws {
+        // setup
+        Current.git.getTags = { _ in [.tag(1, 2, 3)] }
+        Current.git.revisionInfo = { ref, _ in .init(commit: "sha-\(ref)", date: .t0) }
+        do {
+            let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
+            try await pkg.save(on: app.db)
+            try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
+        }
+        let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
+
+        // MUT
+        let versions = try await Analyze.getIncomingVersions(client: app.client, logger: app.logger, package: pkg)
+
+        // validate
+        XCTAssertEqual(versions.map(\.commit).sorted(), ["sha-1.2.3", "sha-main"])
+    }
+
     func test_diffVersions() async throws {
         //setup
         Current.git.getTags = { _ in [.tag(1, 2, 3)] }
