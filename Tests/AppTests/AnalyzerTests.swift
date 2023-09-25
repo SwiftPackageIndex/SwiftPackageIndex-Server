@@ -323,7 +323,7 @@ class AnalyzerTests: AppTestCase {
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
-        Current.git.hasBranch = { _, _ in false }
+        Current.git.hasBranch = { _, _ in false }  // simulate analysis error via branch mismatch
         Current.git.shortlog = { _ in "" }
 
         // Ensure candidate selection is as expected
