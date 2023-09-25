@@ -66,7 +66,28 @@ make lint-front-end
 
 Or, if you want to run either the CSS or JavaScript linting steps separately, run the `run-stylelint` or `run-prettier` commands individually. Versions of these commands also exist that can automatically fix common problems that cause the lint to fail. Run `make lint-front-end-auto-fix` to run both `run-stylelint-auto-fix` and `run-prettier-auto-fix` and fix all automatically fixable problems.
 
-**Note:** If you are doing extensive work with the front end, you may want to install `node` and `yarn` locally rather than running them via Docker. You may also want to set up `stylelint` and `prettier` to run from within your code editor, rather than waiting for CI to find errors.
+## Developing Front End Code
+
+**Note:** This section is completely optional and is only even applicable if you want to do front-end (CSS/JavaScript) work on the project.
+
+If you are doing anything more than a quick tweak to a front-end files, you will want to install `node` and `yarn` locally rather than running them via Docker. You may also want to set up `stylelint` and `prettier` to run from within your code editor, rather than waiting for CI or the `make` commands to find errors.
+
+### Installing Front End Tools Locally
+
+It is best to install node and yarn with `nvm`, which you can install by running `brew install nvm`. Then, install the latest stable node release with `nvm install stable` and `nvm use stable`. Then, check that you can run `node --version` and `npm --version` and that they show the same version numbers as you just installed.
+
+Finally, install `yarn` globally (for this installation of `node`) by running `npm install yarn -g`.Run `yarn` with no parameters to install all front-end dependencies, then run `yarn build` and you should see no error messages.
+
+### Setting up VS Code to Automatically Run the Yarn Server
+
+If you use Visual Studio Code for front-end development, there are some useful template files in `.vscode`:
+
+* `settings.json.template` includes settings to automatically configure Visual Studio code to autoformat and lint on every save.
+* `tasks.json.template` will start up a yarn server to regenerate all front-end files on every save.
+
+If you do not have a `settings.json` or `tasks.json` file in your `.vscode` directory, just remove the `.template` extensions. If you have existring files, you will need to merge the two files manually.
+
+**Note:** You will need the [Prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) installed for these settings to work.
 
 ### Check Everything Works!
 
