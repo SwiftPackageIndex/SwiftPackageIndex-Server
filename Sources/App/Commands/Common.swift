@@ -43,7 +43,11 @@ func updatePackages(client: Client,
         }
     }
     for result in results {
-        try await updatePackage(client: client, database: database, logger: logger, result: result, stage: stage)
+        do {
+            try await updatePackage(client: client, database: database, logger: logger, result: result, stage: stage)
+        } catch {
+            logger.critical("updatePackage failed: \(error)")
+        }
     }
 
     logger.debug("updateStatus ops: \(results.count)")

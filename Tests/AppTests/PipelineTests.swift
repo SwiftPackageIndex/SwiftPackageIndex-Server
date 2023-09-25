@@ -25,107 +25,107 @@ import XCTest
 // - error recording
 class PipelineTests: AppTestCase {
 
-    func test_fetchCandidates_ingestion_fifo() throws {
+    func test_fetchCandidates_ingestion_fifo() async throws {
         // oldest first
-        try [
+        try await [
             Package(url: "1", status: .ok, processingStage: .reconciliation),
             Package(url: "2", status: .ok, processingStage: .reconciliation),
-        ].save(on: app.db).wait()
+        ].save(on: app.db)
         // fast forward our clock by the deadtime interval
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
-        let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
+        let batch = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10)
         XCTAssertEqual(batch.map(\.model.url), ["1", "2"])
     }
 
-    func test_fetchCandidates_ingestion_limit() throws {
-        try [
+    func test_fetchCandidates_ingestion_limit() async throws {
+        try await [
             Package(url: "1", status: .ok, processingStage: .reconciliation),
             Package(url: "2", status: .ok, processingStage: .reconciliation),
-        ].save(on: app.db).wait()
+        ].save(on: app.db)
         // fast forward our clock by the deadtime interval
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
-        let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 1).wait()
+        let batch = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 1)
         XCTAssertEqual(batch.map(\.model.url), ["1"])
     }
 
-    func test_fetchCandidates_ingestion_correct_stage() throws {
+    func test_fetchCandidates_ingestion_correct_stage() async throws {
         // only pick up from reconciliation stage
-        try [
+        try await [
             Package(url: "1", status: .ok, processingStage: nil),
             Package(url: "2", status: .ok, processingStage: .reconciliation),
             Package(url: "3", status: .ok, processingStage: .analysis),
-        ].save(on: app.db).wait()
-        let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
+        ].save(on: app.db)
+        let batch = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10)
         XCTAssertEqual(batch.map(\.model.url), ["2"])
     }
 
-    func test_fetchCandidates_ingestion_prefer_new() throws {
+    func test_fetchCandidates_ingestion_prefer_new() async throws {
         // make sure records with status = new come first, then least recent
-        try [
+        try await [
             Package(url: "1", status: .notFound, processingStage: .reconciliation),
             Package(url: "2", status: .new, processingStage: .reconciliation),
             Package(url: "3", status: .ok, processingStage: .reconciliation),
-        ].save(on: app.db).wait()
+        ].save(on: app.db)
         // fast forward our clock by the deadtime interval
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
-        let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
+        let batch = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10)
         XCTAssertEqual(batch.map(\.model.url), ["2", "1", "3"])
     }
 
-    func test_fetchCandidates_ingestion_eventual_refresh() throws {
+    func test_fetchCandidates_ingestion_eventual_refresh() async throws {
         // Make sure packages in .analysis stage get re-ingested after a while to
         // check for upstream package changes
-        try [
+        try await [
             Package(url: "1", status: .ok, processingStage: .analysis),
             Package(url: "2", status: .ok, processingStage: .analysis),
-        ].save(on: app.db).wait()
-        let p2 = try Package.query(on: app.db).filter(by: "2").first().wait()!
-        try (app.db as! SQLDatabase).raw(
+        ].save(on: app.db)
+        let p2 = try await Package.query(on: app.db).filter(by: "2").first()!
+        try await (app.db as! SQLDatabase).raw(
             "update packages set updated_at = updated_at - interval '91 mins' where id = \(bind: p2.id)"
-        ).run().wait()
-        let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
+        ).run()
+        let batch = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10)
         XCTAssertEqual(batch.map(\.model.url), ["2"])
     }
 
-    func test_fetchCandidates_ingestion_refresh_analysis_only() throws {
+    func test_fetchCandidates_ingestion_refresh_analysis_only() async throws {
         // Ensure we only pick up .analysis stage records on the refresh cycle *) - we don't
         // want to refresh .ingestion stage records that have lagged in analysis, because it
         // resets their `.new` state prematurely.
         //
         // *) in addition to the .reconciliation ones, which we always pick up, regardless of
         // ingestion dead time.
-        try [
+        try await [
             Package(url: "1", status: .new, processingStage: .reconciliation),
             Package(url: "2", status: .new, processingStage: .ingestion),
             Package(url: "3", status: .new, processingStage: .analysis),
-        ].save(on: app.db).wait()
+        ].save(on: app.db)
         // fast forward our clock by the deadtime interval
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
-        let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
+        let batch = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10)
         XCTAssertEqual(batch.map(\.model.url), ["1", "3"])
     }
 
-    func test_fetchCandidates_analysis_correct_stage() throws {
+    func test_fetchCandidates_analysis_correct_stage() async throws {
         // only pick up from ingestion stage
-        try [
+        try await [
             Package(url: "1", status: .ok, processingStage: nil),
             Package(url: "2", status: .ok, processingStage: .reconciliation),
             Package(url: "3", status: .ok, processingStage: .ingestion),
             Package(url: "4", status: .ok, processingStage: .analysis),
-        ].save(on: app.db).wait()
-        let batch = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
+        ].save(on: app.db)
+        let batch = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
         XCTAssertEqual(batch.map(\.model.url), ["3"])
     }
 
-    func test_fetchCandidates_analysis_prefer_new() throws {
+    func test_fetchCandidates_analysis_prefer_new() async throws {
         // Test pick up from ingestion stage with status = new first, then FIFO
-        try [
+        try await [
             Package(url: "1", status: .notFound, processingStage: .ingestion),
             Package(url: "2", status: .ok, processingStage: .ingestion),
             Package(url: "3", status: .analysisFailed, processingStage: .ingestion),
             Package(url: "4", status: .new, processingStage: .ingestion),
-        ].save(on: app.db).wait()
-        let batch = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
+        ].save(on: app.db)
+        let batch = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
         XCTAssertEqual(batch.map(\.model.url), ["4", "1", "2", "3"])
     }
 
@@ -140,6 +140,7 @@ class PipelineTests: AppTestCase {
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
         Current.git.getTags = { _ in [] }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.git.shortlog = { _ in
             """

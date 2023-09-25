@@ -157,7 +157,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         let outDir = try checkoutDir.value.unwrap()
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-        XCTAssertEqual(commands.value.count, 34)
+        XCTAssertEqual(commands.value.count, 36)
 
         // Snapshot for each package individually to avoid ordering issues when
         // concurrent processing causes commands to interleave between packages.
@@ -251,6 +251,7 @@ class AnalyzerTests: AppTestCase {
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t2 }
         Current.git.getTags = { _ in [.tag(1, 0, 0), .tag(1, 1, 1)] }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.revisionInfo = { ref, _ in
             // simulate the following scenario:
             //   - main branch has moved from commit0 -> commit3 (timestamp t3)
@@ -311,6 +312,43 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(versions.map(\.commit), ["commit1", "commit2", "commit3"])
     }
 
+    func test_forward_progress_on_analysisError() async throws {
+        // Ensure a package that fails analysis goes back to ingesting and isn't stuck in an analysis loop
+        // setup
+        do {
+            let pkg = try savePackage(on: app.db, "https://github.com/foo/1", processingStage: .ingestion)
+            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
+        }
+
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        Current.git.hasBranch = { _, _ in false }  // simulate analysis error via branch mismatch
+        Current.git.shortlog = { _ in "" }
+
+        // Ensure candidate selection is as expected
+        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
+        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 1)
+
+        // MUT
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  mode: .limit(10))
+
+        // Ensure candidate selection is now zero for analysis
+        // (and also for ingestion, as we're immediately after analysis)
+        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
+        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 0)
+
+        // Advance time beyond reIngestionDeadtime
+        Current.date = { .now.addingTimeInterval(Constants.reIngestionDeadtime) }
+
+        // Ensure candidate selection has flipped to ingestion
+        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 1)
+        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 0)
+    }
+
     func test_package_status() async throws {
         // Ensure packages record success/error status
         // setup
@@ -325,6 +363,7 @@ class AnalyzerTests: AppTestCase {
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
         Current.git.getTags = { _ in [.tag(1, 0, 0)] }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.git.shortlog = { _ in
             """
@@ -435,7 +474,7 @@ class AnalyzerTests: AppTestCase {
                                   mode: .limit(10))
 
         // validation (not in detail, this is just to ensure command count is as expected)
-        XCTAssertEqual(commands.value.count, 38, "was: \(dump(commands.value))")
+        XCTAssertEqual(commands.value.count, 40, "was: \(dump(commands.value))")
         // 1 packages with 2 tags + 1 default branch each -> 3 versions (the other package fails)
         let versionCount = try await Version.query(on: app.db).count()
         XCTAssertEqual(versionCount, 3)
@@ -494,9 +533,67 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(repo?.authors, PackageAuthors(authors: [Author(name: "Person 1")], numberOfContributors: 1))
     }
 
+    func test_getIncomingVersions() async throws {
+        // setup
+        Current.git.getTags = { _ in [.tag(1, 2, 3)] }
+        Current.git.hasBranch = { _, _ in true }
+        Current.git.revisionInfo = { ref, _ in .init(commit: "sha-\(ref)", date: .t0) }
+        do {
+            let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
+            try await pkg.save(on: app.db)
+            try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
+        }
+        let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
+
+        // MUT
+        let versions = try await Analyze.getIncomingVersions(client: app.client, logger: app.logger, package: pkg)
+
+        // validate
+        XCTAssertEqual(versions.map(\.commit).sorted(), ["sha-1.2.3", "sha-main"])
+    }
+
+    func test_getIncomingVersions_default_branch_mismatch() async throws {
+        // setup
+        Current.git.hasBranch = { _, _ in false}  // simulate branch mismatch
+        do {
+            let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
+            try await pkg.save(on: app.db)
+            try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
+        }
+        let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
+
+        // MUT
+        do {
+            _ = try await Analyze.getIncomingVersions(client: app.client, logger: app.logger, package: pkg)
+            XCTFail("expected an analysisError to be thrown")
+        } catch let AppError.analysisError(.some(pkgId), msg) {
+            // validate
+            XCTAssertEqual(pkgId, .id0)
+            XCTAssertEqual(msg, "Default branch 'main' does not exist in checkout")
+        }
+    }
+    
+    func test_getIncomingVersions_no_default_branch() async throws {
+        // setup
+        // saving Package without Repository means it has no default branch
+        try await Package(id: .id0, url: "1".asGithubUrl.url).save(on: app.db)
+        let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
+
+        // MUT
+        do {
+            _ = try await Analyze.getIncomingVersions(client: app.client, logger: app.logger, package: pkg)
+            XCTFail("expected an analysisError to be thrown")
+        } catch let AppError.analysisError(.some(pkgId), msg) {
+            // validate
+            XCTAssertEqual(pkgId, .id0)
+            XCTAssertEqual(msg, "Package must have default branch")
+        }
+    }
+
     func test_diffVersions() async throws {
         //setup
         Current.git.getTags = { _ in [.tag(1, 2, 3)] }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.revisionInfo = { ref, _ in
             if ref == .branch("main") { return . init(commit: "sha.main", date: .t0) }
             if ref == .tag(1, 2, 3) { return .init(commit: "sha.1.2.3", date: .t1) }
@@ -788,7 +885,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(targets.map(\.type), [.regular, .executable])
     }
 
-    func test_updatePackage() async throws {
+    func test_updatePackages() async throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
             .map(Joined<Package, Repository>.init(model:))
@@ -821,6 +918,7 @@ class AnalyzerTests: AppTestCase {
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
         Current.git.getTags = { _ in [.tag(1, 0, 0), .tag(2, 0, 0)] }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.git.shortlog = { _ in
             """
@@ -879,7 +977,7 @@ class AnalyzerTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/70
         // setup
         try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
-        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).get()
+        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which
@@ -913,7 +1011,7 @@ class AnalyzerTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
         // setup
         try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
-        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).get()
+        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which
@@ -1230,6 +1328,7 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.fileExists = { _ in true }
         Current.git.commitCount = { _ in 2 }
         Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.lastCommitDate = { _ in .t1 }
         struct Error: Swift.Error { }
         Current.git.shortlog = { _ in
@@ -1335,6 +1434,7 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.fileExists = { _ in true }
         Current.git.commitCount = { _ in 2 }
         Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.hasBranch = { _, _ in true }
         Current.git.lastCommitDate = { _ in .t1 }
         struct Error: Swift.Error { }
         Current.git.shortlog = { _ in
@@ -1454,6 +1554,7 @@ private struct Command: CustomStringConvertible {
         case firstCommitDate
         case lastCommitDate
         case getTags
+        case hasBranch(String)
         case reset
         case resetToBranch(String)
         case shortlog
@@ -1483,6 +1584,9 @@ private struct Command: CustomStringConvertible {
                 self.kind = .fetch
             case .gitFirstCommitDate:
                 self.kind = .firstCommitDate
+            case _ where command.description.starts(with: "git show-ref --verify --quiet refs/heads/"):
+                let branch = String(command.description.split(separator: "/").last!)
+                self.kind = .hasBranch(branch)
             case .gitLastCommitDate:
                 self.kind = .lastCommitDate
             case .gitListTags:
@@ -1517,6 +1621,8 @@ private struct Command: CustomStringConvertible {
                 return "\(path): checkout \(ref)"
             case .clone(let url):
                 return "\(path): clone \(url)"
+            case let .hasBranch(branch):
+                return "\(path): hasBranch \(branch)"
             case .resetToBranch(let branch):
                 return "\(path): reset to \(branch)"
             case .revisionInfo(let ref):
