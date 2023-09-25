@@ -63,9 +63,10 @@ extension Git {
             .map { Reference.tag($0, $1) }
     }
 
-    static func hasBranch(_ branch: String, at path: String) async throws -> Bool {
+    static func hasBranch(_ reference: Reference, at path: String) async throws -> Bool {
+        guard let branchName = reference.branchName else { return false }
         do {
-            _ = try await Current.shell.run(command: .gitHasBranch(branch), at: path)
+            _ = try await Current.shell.run(command: .gitHasBranch(branchName), at: path)
             return true
         } catch {
             return false

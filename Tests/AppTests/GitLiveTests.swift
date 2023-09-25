@@ -93,8 +93,8 @@ extension GitLiveTests {
     }
 
     func test_hasBranch() async throws {
-        try await XCTAssertEqualAsync(try await Git.hasBranch("master", at: path), true)
-        try await XCTAssertEqualAsync(try await Git.hasBranch("main", at: path), false)
+        try await XCTAssertEqualAsync(try await Git.hasBranch(.branch("master"), at: path), true)
+        try await XCTAssertEqualAsync(try await Git.hasBranch(.branch("main"), at: path), false)
     }
 
     func test_revisionInfo() async throws {

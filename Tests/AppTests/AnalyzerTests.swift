@@ -512,6 +512,27 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(versions.map(\.commit).sorted(), ["sha-1.2.3", "sha-main"])
     }
 
+    func test_getIncomingVersions_default_branch_mismatch() async throws {
+        // setup
+        Current.git.hasBranch = { _, _ in false}  // simulate branch mismatch
+        do {
+            let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
+            try await pkg.save(on: app.db)
+            try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
+        }
+        let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
+
+        // MUT
+        do {
+            _ = try await Analyze.getIncomingVersions(client: app.client, logger: app.logger, package: pkg)
+            XCTFail("expected an analysisError to be thrown")
+        } catch let AppError.analysisError(.some(pkgId), msg) {
+            // validate
+            XCTAssertEqual(pkgId, .id0)
+            XCTAssertEqual(msg, "Default branch 'main' does not exist in checkout")
+        }
+    }
+
     func test_diffVersions() async throws {
         //setup
         Current.git.getTags = { _ in [.tag(1, 2, 3)] }

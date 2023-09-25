@@ -287,7 +287,7 @@ struct Git {
     var firstCommitDate: (String) async throws -> Date
     var lastCommitDate: (String) async throws -> Date
     var getTags: (String) async throws -> [Reference]
-    var hasBranch: (String, String) async throws -> Bool
+    var hasBranch: (Reference, String) async throws -> Bool
     var revisionInfo: (Reference, String) async throws -> RevisionInfo
     var shortlog: (String) async throws -> String
 

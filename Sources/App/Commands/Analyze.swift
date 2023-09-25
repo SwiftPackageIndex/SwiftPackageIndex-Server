@@ -417,15 +417,19 @@ extension Analyze {
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
-        
+
         guard let defaultBranch = package.repository?.defaultBranch
             .map({ Reference.branch($0) })
         else {
-            throw AppError.genericError(package.model.id, "Package must have default branch - aborting analysis")
+            throw AppError.analysisError(package.model.id, "Package must have default branch - aborting analysis")
         }
-        
+
+        guard try await Current.git.hasBranch(defaultBranch, cacheDir) else {
+            throw AppError.analysisError(package.model.id, "Default branch '\(defaultBranch)' does not exist in checkout")
+        }
+
         let tags = try await Current.git.getTags(cacheDir)
-        
+
         let references = [defaultBranch] + tags
         return try await references
             .mapAsync { ref in
