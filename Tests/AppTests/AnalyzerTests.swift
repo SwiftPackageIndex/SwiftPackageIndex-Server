@@ -532,6 +532,23 @@ class AnalyzerTests: AppTestCase {
             XCTAssertEqual(msg, "Default branch 'main' does not exist in checkout")
         }
     }
+    
+    func test_getIncomingVersions_no_default_branch() async throws {
+        // setup
+        // saving Package without Repository means it has no default branch
+        try await Package(id: .id0, url: "1".asGithubUrl.url).save(on: app.db)
+        let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
+
+        // MUT
+        do {
+            _ = try await Analyze.getIncomingVersions(client: app.client, logger: app.logger, package: pkg)
+            XCTFail("expected an analysisError to be thrown")
+        } catch let AppError.analysisError(.some(pkgId), msg) {
+            // validate
+            XCTAssertEqual(pkgId, .id0)
+            XCTAssertEqual(msg, "Package must have default branch")
+        }
+    }
 
     func test_diffVersions() async throws {
         //setup

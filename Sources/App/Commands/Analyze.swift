@@ -421,7 +421,7 @@ extension Analyze {
         guard let defaultBranch = package.repository?.defaultBranch
             .map({ Reference.branch($0) })
         else {
-            throw AppError.analysisError(package.model.id, "Package must have default branch - aborting analysis")
+            throw AppError.analysisError(package.model.id, "Package must have default branch")
         }
 
         guard try await Current.git.hasBranch(defaultBranch, cacheDir) else {
