@@ -224,9 +224,7 @@ extension Analyze {
                                                       package: package)
             let netDeleteCount = versionDelta.toDelete.count - versionDelta.toAdd.count
             if netDeleteCount > 1 {
-                // Sudden loss of versions is suspicious, warn and throw error
-                let error = "Suspicious loss of \(netDeleteCount) versions for package \(package.model.id) - aborting analysis"
-                throw AppError.genericError(package.model.id, error)
+                logger.warning("Suspicious loss of \(netDeleteCount) versions for package \(package.model.id)")
             }
 
             try await applyVersionDelta(on: tx, delta: versionDelta)
