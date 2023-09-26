@@ -67,7 +67,16 @@ enum BuildShow {
                         .text(model.packageName)
                     ),
                     .text(" with "),
-                    .strong(.text(model.buildInfo.swiftVersion.longDisplayName)),
+                    .strong(
+                        .text(model.buildInfo.swiftVersion.longDisplayName),
+                        .unwrap(model.buildInfo.swiftVersion.note, { note in
+                                .group(
+                                    .text(" ("),
+                                    .text(note),
+                                    .text(")")
+                                )
+                        })
+                    ),
                     .text(" for "),
                     .strong(.text(model.buildInfo.platform.displayName)),
                     .unwrap(model.buildInfo.xcodeVersion) {
