@@ -172,7 +172,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         let old = try makeVersion(pkg, "sha_old", .hours(-23), .branch("main"), .defaultBranch)
         try await old.save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         do {  // keep old version if too soon
             Current.git.revisionInfo = { _, _ in
@@ -235,7 +235,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let pkg = Package(url: "1".asGithubUrl.url)
         try await pkg.save(on: app.db)
         try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         // start at t0
         var t = Date.t0

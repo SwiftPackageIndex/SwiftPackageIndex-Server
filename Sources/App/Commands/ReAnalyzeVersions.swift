@@ -118,7 +118,7 @@ enum ReAnalyzeVersions {
                                   versionsLastUpdatedBefore cutOffDate: Date,
                                   refreshCheckouts: Bool,
                                   packageId: Package.Id) async throws {
-        let pkg = try await Package.fetchCandidate(database, id: packageId).get()
+        let pkg = try await Package.fetchCandidate(database, id: packageId)
         try await reAnalyzeVersions(client: client,
                                     database: database,
                                     logger: logger,

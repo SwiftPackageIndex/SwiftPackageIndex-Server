@@ -115,7 +115,7 @@ class TwitterTests: AppTestCase {
                              summary: "This is a test package").save(on: app.db)
         let v = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try await v.save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
         }
