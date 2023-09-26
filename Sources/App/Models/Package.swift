@@ -278,10 +278,17 @@ extension Package {
     }
 
     static func fetchCandidate(_ database: Database, url: String) async throws -> Joined<Package, Repository> {
-        try await Joined.query(on: database)
+        let res = try await Joined.query(on: database)
             .filter(Package.self, \.$url, .custom("ilike"), "%\(url)%")
-            .first()
-            .unwrap(or: Abort(.notFound))
+            .limit(2)
+            .all()
+        guard res.count > 0 else {
+            throw Abort(.notFound)
+        }
+        guard res.count < 2 else {
+            throw AppError.genericError(nil, "Multiple matches found for partial url '\(url)'")
+        }
+        return res.first!
     }
 
     static func fetchCandidates(_ database: Database,
