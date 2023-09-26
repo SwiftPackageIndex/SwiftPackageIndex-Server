@@ -19,7 +19,7 @@ import XCTVapor
 
 class PackageReleasesModelTests: AppTestCase {
 
-    func test_initialise() throws {
+    func test_initialise() async throws {
         // Setup
 
         // Work-around to set the local time zone for time sensitive
@@ -34,16 +34,16 @@ class PackageReleasesModelTests: AppTestCase {
 
         Current.date = { .spiBirthday }
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
 
-        try Repository(package: pkg, releases: [
+        try await Repository(package: pkg, releases: [
             .mock(description: "Release Notes", descriptionHTML: "Release Notes",
                   publishedAt: 2, tagName: "1.0.0", url: "some url"),
 
             .mock(description: nil, descriptionHTML: nil,
                   publishedAt: 1, tagName: "0.0.1", url: "some url"),
-        ]).save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        ]).save(on: app.db)
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
 
         // MUT

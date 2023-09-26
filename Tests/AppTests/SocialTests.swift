@@ -129,7 +129,7 @@ class SocialTests: AppTestCase {
                              summary: "This is a test package").save(on: app.db)
         let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try await version.save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         // MUT
         let res = Social.firehoseMessage(package: jpr,
@@ -154,7 +154,7 @@ class SocialTests: AppTestCase {
                              summary: "This is a test package").save(on: app.db)
         let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try await version.save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         // MUT
         let res = Social.firehoseMessage(package: jpr,
@@ -186,7 +186,7 @@ class SocialTests: AppTestCase {
                           reference: .tag(2, 0, 0, "b1")).save(on: app.db)
         try await Version(package: pkg, packageName: "MyPackage", reference: .branch("main"))
             .save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         Current.twitterCredentials = {
@@ -218,7 +218,7 @@ class SocialTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: pkg, packageName: "MyPackage", reference: .tag(2, 0, 0))
             .save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         Current.twitterCredentials = {

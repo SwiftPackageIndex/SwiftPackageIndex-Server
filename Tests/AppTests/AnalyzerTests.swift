@@ -495,7 +495,7 @@ class AnalyzerTests: AppTestCase {
             }
             return ""
         }
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         // MUT
         _ = try await Analyze.refreshCheckout(logger: app.logger, package: jpr)
@@ -521,7 +521,7 @@ class AnalyzerTests: AppTestCase {
         try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
 
         do {  // MUT
-            let pkg = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+            let pkg = try await Package.fetchCandidate(app.db, id: pkg.id!)
             try await Analyze.updateRepository(on: app.db, package: pkg)
         }
 
@@ -543,7 +543,7 @@ class AnalyzerTests: AppTestCase {
             try await pkg.save(on: app.db)
             try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
         }
-        let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
+        let pkg = try await Package.fetchCandidate(app.db, id: .id0)
 
         // MUT
         let versions = try await Analyze.getIncomingVersions(client: app.client, logger: app.logger, package: pkg)
@@ -560,7 +560,7 @@ class AnalyzerTests: AppTestCase {
             try await pkg.save(on: app.db)
             try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
         }
-        let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
+        let pkg = try await Package.fetchCandidate(app.db, id: .id0)
 
         // MUT
         do {
@@ -577,7 +577,7 @@ class AnalyzerTests: AppTestCase {
         // setup
         // saving Package without Repository means it has no default branch
         try await Package(id: .id0, url: "1".asGithubUrl.url).save(on: app.db)
-        let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
+        let pkg = try await Package.fetchCandidate(app.db, id: .id0)
 
         // MUT
         do {
@@ -606,7 +606,7 @@ class AnalyzerTests: AppTestCase {
             try await pkg.save(on: app.db)
             try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         }
-        let pkg = try await Package.fetchCandidate(app.db, id: pkgId).get()
+        let pkg = try await Package.fetchCandidate(app.db, id: pkgId)
 
         // MUT
         let delta = try await Analyze.diffVersions(client: app.client,
@@ -627,18 +627,18 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(delta.toDelete, [])
     }
 
-    func test_mergeReleaseInfo() throws {
+    func test_mergeReleaseInfo() async throws {
         // setup
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, releases:[
+        try await pkg.save(on: app.db)
+        try await Repository(package: pkg, releases:[
             .mock(description: "rel 1.2.3", publishedAt: 1, tagName: "1.2.3"),
             .mock(description: "rel 2.0.0", publishedAt: 2, tagName: "2.0.0"),
             // 2.1.0 release note is missing on purpose
             .mock(description: "rel 2.2.0", isDraft: true, publishedAt: 3, tagName: "2.2.0"),
             .mock(description: "rel 2.3.0", publishedAt: 4, tagName: "2.3.0", url: "some url"),
             .mock(description: nil, tagName: "2.4.0")
-        ]).save(on: app.db).wait()
+        ]).save(on: app.db)
         let versions: [Version] = try [
             (Date(timeIntervalSince1970: 0), Reference.tag(1, 2, 3)),
             (Date(timeIntervalSince1970: 1), Reference.tag(2, 0, 0)),
@@ -655,7 +655,7 @@ class AnalyzerTests: AppTestCase {
             try v.save(on: app.db).wait()
             return v
         }
-        let jpr = try Package.fetchCandidate(app.db, id: .id0).wait()
+        let jpr = try await Package.fetchCandidate(app.db, id: .id0)
 
         // MUT
         Analyze.mergeReleaseInfo(package: jpr, into: versions)
@@ -742,7 +742,7 @@ class AnalyzerTests: AppTestCase {
         try await Repository(package: pkg, name: "1", owner: "foo").save(on: app.db)
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
         try await version.save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         // MUT
         let info = try await Analyze.getPackageInfo(package: jpr, version: version)
@@ -1146,7 +1146,7 @@ class AnalyzerTests: AppTestCase {
         // new, not yet considered release version
         try await Version(package: pkg, packageName: "foo", reference: .tag(1, 3, 0))
             .save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         // MUT
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
@@ -1168,7 +1168,7 @@ class AnalyzerTests: AppTestCase {
             let pkg = try savePackage(on: app.db, id: .id0, "1".asGithubUrl.url)
             try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         }
-        let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
+        let pkg = try await Package.fetchCandidate(app.db, id: .id0)
         Current.fileManager.fileExists = { _ in true }
         let commands = QueueIsolated<[String]>([])
         Current.shell.run = { cmd, _ in
@@ -1200,7 +1200,7 @@ class AnalyzerTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: pkg, commitDate: t(1), packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
             .save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         // MUT
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
@@ -1238,7 +1238,7 @@ class AnalyzerTests: AppTestCase {
                     packageName: "foo",
                     reference: .tag(2, 0, 0, "rc1"))
             .save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         // MUT
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)

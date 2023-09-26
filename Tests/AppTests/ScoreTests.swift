@@ -205,7 +205,7 @@ class ScoreTests: AppTestCase {
             try Version(package: pkg, reference: .tag(.init($0, 0, 0)))
                 .save(on: app.db).wait()
         }
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
         // update versions
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 

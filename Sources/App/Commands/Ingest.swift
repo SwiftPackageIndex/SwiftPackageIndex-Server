@@ -87,7 +87,7 @@ func ingest(client: Client,
     switch mode {
         case .id(let id):
             logger.info("Ingesting (id: \(id)) ...")
-            let pkg = try await Package.fetchCandidate(database, id: id).get()
+            let pkg = try await Package.fetchCandidate(database, id: id)
             await ingest(client: client,
                          database: database,
                          logger: logger,

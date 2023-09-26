@@ -22,13 +22,17 @@ import Vapor
 enum Analyze {
 
     struct Command: AsyncCommand {
-        let defaultLimit = 1
+        static let defaultLimit = 1
 
         struct Signature: CommandSignature {
             @Option(name: "limit", short: "l")
             var limit: Int?
+
             @Option(name: "id")
             var id: UUID?
+
+            @Option(name: "url")
+            var url: String?
         }
 
         var help: String { "Run package analysis (fetching git repository and inspecting content)" }
@@ -36,11 +40,22 @@ enum Analyze {
         enum Mode {
             case id(Package.Id)
             case limit(Int)
+            case url(String)
+
+            init(signature: Signature) {
+                if let id = signature.id {
+                    self = .id(id)
+                } else if let url = signature.url {
+                    self = .url(url)
+                } else if let limit = signature.limit {
+                    self = .limit(limit)
+                } else {
+                    self = .limit(Command.defaultLimit)
+                }
+            }
         }
 
         func run(using context: CommandContext, signature: Signature) async throws {
-            let limit = signature.limit ?? defaultLimit
-
             let client = context.application.client
             let eventLoop = context.application.eventLoopGroup.any()
             let db = context.application._db(.psql, on: eventLoop)
@@ -49,7 +64,7 @@ enum Analyze {
 
             Analyze.resetMetrics()
 
-            let mode = signature.id.map(Mode.id) ?? .limit(limit)
+            let mode = Mode(signature: signature)
 
             do {
                 try await analyze(client: client,
@@ -132,19 +147,18 @@ extension Analyze {
         switch mode {
             case .id(let id):
                 logger.info("Analyzing (id: \(id)) ...")
-                let pkg = try await Package.fetchCandidate(database, id: id).get()
-                try await analyze(client: client,
-                                  database: database,
-                                  logger: logger,
-                                  packages: [pkg])
+                let pkg = try await Package.fetchCandidate(database, id: id)
+                try await analyze(client: client, database: database, logger: logger, packages: [pkg])
 
             case .limit(let limit):
                 logger.info("Analyzing (limit: \(limit)) ...")
                 let packages = try await Package.fetchCandidates(database, for: .analysis, limit: limit)
-                try await analyze(client: client,
-                                  database: database,
-                                  logger: logger,
-                                  packages: packages)
+                try await analyze(client: client, database: database, logger: logger, packages: packages)
+
+            case .url(let url):
+                logger.info("Analyzing (url: \(url)) ...")
+                let pkg = try await Package.fetchCandidate(database, url: url)
+                try await analyze(client: client, database: database, logger: logger, packages: [pkg])
         }
     }
 

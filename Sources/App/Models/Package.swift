@@ -270,10 +270,16 @@ extension QueryBuilder where Model == Package {
 
 
 extension Package {
-    static func fetchCandidate(_ database: Database,
-                               id: Id) -> EventLoopFuture<Joined<Package, Repository>> {
-        Joined.query(on: database)
+    static func fetchCandidate(_ database: Database, id: Id) async throws -> Joined<Package, Repository> {
+        try await Joined.query(on: database)
             .filter(\.$id == id)
+            .first()
+            .unwrap(or: Abort(.notFound))
+    }
+
+    static func fetchCandidate(_ database: Database, url: String) async throws -> Joined<Package, Repository> {
+        try await Joined.query(on: database)
+            .filter(Package.self, \.$url, .custom("ilike"), "%\(url)%")
             .first()
             .unwrap(or: Abort(.notFound))
     }
