@@ -74,14 +74,23 @@ enum BuildIndex {
                     "."
                 ),
                 .forEach(SwiftVersion.allActive.reversed()) { swiftVersion in
-                    .group(
-                        .hr(),
-                        .h3(.text(swiftVersion.longDisplayName)),
-                        .ul(
-                            .class("matrix builds"),
-                            .group(model.buildMatrix[swiftVersion].map(\.node))
+                        .group(
+                            .hr(),
+                            .h3(
+                                .text(swiftVersion.longDisplayName),
+                                .unwrap(swiftVersion.note, { note in
+                                        .group(
+                                            .text(" ("),
+                                            .text(note),
+                                            .text(")")
+                                        )
+                                })
+                            ),
+                            .ul(
+                                .class("matrix builds"),
+                                .group(model.buildMatrix[swiftVersion].map(\.node))
+                            )
                         )
-                    )
                 }
             )
         }
