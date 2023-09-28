@@ -95,6 +95,7 @@ func ingest(client: Client,
         case .limit(let limit):
             logger.info("Ingesting (limit: \(limit)) ...")
             let packages = try await Package.fetchCandidates(database, for: .ingestion, limit: limit)
+            logger.info("Candidate count: \(packages.count)")
             await ingest(client: client,
                          database: database,
                          logger: logger,
