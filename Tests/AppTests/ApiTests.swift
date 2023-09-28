@@ -132,7 +132,8 @@ class ApiTests: AppTestCase {
                 jobUrl: "https://example.com/jobs/1",
                 logUrl: "log url",
                 platform: .macosXcodebuild,
-                resolvedDependencies: nil,
+                productDependencies: [.init(identity: "identity", name: "name", url: "url", dependencies: [])],
+                resolvedDependencies: [.init(packageName: "packageName", repositoryURL: "repositoryURL")],
                 runnerId: "some-runner",
                 status: .failed,
                 swiftVersion: .init(5, 2, 0)
@@ -158,7 +159,12 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(b.status, .failed)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
                     let v = try Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound)).wait()
-                    XCTAssertEqual(v.resolvedDependencies, [])
+                    XCTAssertEqual(v.productDependencies, [.init(identity: "identity",
+                                                                 name: "name",
+                                                                 url: "url",
+                                                                 dependencies: [])])
+                    XCTAssertEqual(v.resolvedDependencies, [.init(packageName: "packageName",
+                                                                  repositoryURL: "repositoryURL")])
                     // build failed, hence no package platform compatibility yet
                     let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
                     XCTAssertEqual(p.platformCompatibility, [])

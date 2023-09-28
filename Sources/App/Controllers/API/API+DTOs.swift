@@ -29,6 +29,7 @@ extension API {
         var jobUrl: String?
         var logUrl: String?
         var platform: Build.Platform
+        var productDependencies: [ProductDependency]?
         var resolvedDependencies: [ResolvedDependency]?
         var runnerId: String?
         var status: Build.Status

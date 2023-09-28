@@ -71,15 +71,18 @@ extension API {
             }
 
             do {  // update version and package
-                if let dependencies = dto.resolvedDependencies {
-                    version.resolvedDependencies = dependencies
-                    try await version.save(on: req.db)
+                switch (dto.productDependencies, dto.resolvedDependencies) {
+                    case (.none, .none):
+                        break
+                    case let (productDependencies, resolvedDependencies):
+                        version.productDependencies = productDependencies
+                        version.resolvedDependencies = resolvedDependencies
+                        try await version.save(on: req.db)
                 }
 
                 // it's ok to reach through $package to get its id, because `$package.id`
                 // is actually `versions.package_id` and therefore loaded
-                try await Package
-                    .updatePlatformCompatibility(for: version.$package.id, on: req.db)
+                try await Package.updatePlatformCompatibility(for: version.$package.id, on: req.db)
             }
 
             return .noContent
