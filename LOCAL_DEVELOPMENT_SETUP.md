@@ -74,9 +74,9 @@ If you are doing anything more than a quick tweak to a front-end files, you will
 
 ### Installing Front End Tools Locally
 
-It is best to install node and yarn with `nvm`, which you can install by running `brew install nvm`. Then, install the latest stable node release with `nvm install stable` and `nvm use stable`. Then, check that you can run `node --version` and `npm --version` and that they show the same version numbers as you just installed.
+It is best to install node and yarn with `nvm`, which you can install by running `brew install nvm`. Be sure to add the lines to your `.profile` or `.zprofile` that will be shown during the `brew` installation that enable access to the `node` and `npm` tools. Then, install the latest stable node release with `nvm install stable` and `nvm use stable`. Then, check that you can run `node --version` and `npm --version` and that they show the same version numbers as you just installed.
 
-Finally, install `yarn` globally (for this installation of `node`) by running `npm install yarn -g`.Run `yarn` with no parameters to install all front-end dependencies, then run `yarn build` and you should see no error messages.
+Then, from the project directory, install `yarn` by running `npm install yarn -g`, and finally, run `yarn` with no parameters to install all front-end dependencies, then run `yarn build` and you should see no error messages.
 
 ### Setting up VS Code to Automatically Run the Yarn Server
 
