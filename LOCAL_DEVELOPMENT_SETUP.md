@@ -85,7 +85,7 @@ If you use Visual Studio Code for front-end development, there are some useful t
 * `settings.json.template` includes settings to automatically configure Visual Studio code to autoformat and lint on every save.
 * `tasks.json.template` will start up a yarn server to regenerate all front-end files on every save.
 
-If you do not have a `settings.json` or `tasks.json` file in your `.vscode` directory, just remove the `.template` extensions. If you have existring files, you will need to merge the two files manually.
+If you do not have a `settings.json` or `tasks.json` file in your `.vscode` directory, just remove the `.template` extensions. If you have existing files, you will need to merge the two files manually.
 
 **Note:** You will need the [Prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) installed for these settings to work.
 
