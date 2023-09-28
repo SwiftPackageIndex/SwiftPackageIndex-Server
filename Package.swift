@@ -1,4 +1,4 @@
-// swift-tools-version:5.8
+// swift-tools-version:5.9
 
 // Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
@@ -30,7 +30,7 @@ let package = Package(
         .package(url: "https://github.com/daveverwer/Plot.git", branch: "sitemapindex"),
         .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
         .package(url: "https://github.com/SwiftPackageIndex/DependencyResolution", from: "1.1.2"),
-        .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "1.0.0"),
+        .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "1.1.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
         .package(url: "https://github.com/SwiftPackageIndex/ShellOut.git", from: "3.1.0"),
         .package(url: "https://github.com/apple/swift-package-manager.git", branch: "release/5.9"),
