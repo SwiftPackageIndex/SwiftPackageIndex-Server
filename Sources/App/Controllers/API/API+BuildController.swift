@@ -82,8 +82,7 @@ extension API {
 
                 // it's ok to reach through $package to get its id, because `$package.id`
                 // is actually `versions.package_id` and therefore loaded
-                try await Package
-                    .updatePlatformCompatibility(for: version.$package.id, on: req.db)
+                try await Package.updatePlatformCompatibility(for: version.$package.id, on: req.db)
             }
 
             return .noContent
