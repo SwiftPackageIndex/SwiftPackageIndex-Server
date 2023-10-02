@@ -145,7 +145,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "Timac",
             name: "Alexandre Colucci",
-            avatarUrl: "https://avatars.githubusercontent.com/u/738543?u=eb968502ed1ce5a2761bb7ca64847bbd258ef3f6&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/738543?u=e9931d90bdd605eab906b85d0299ce636032374d&v=4"
         ),
         .init(
             login: "alexito4",
