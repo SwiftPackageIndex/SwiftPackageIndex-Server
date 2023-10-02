@@ -74,7 +74,7 @@ services:
     image: prom/prometheus:v2.47.0
     volumes:
       - prometheus_data:/prometheus
-    command: --config.file=/prometheus.yml
+    command: --config.file=/prometheus.yml --storage.tsdb.retention.time=30d
     configs:
       - source: prometheus_cfg
         target: /prometheus.yml
