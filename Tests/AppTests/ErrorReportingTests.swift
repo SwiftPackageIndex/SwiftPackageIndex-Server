@@ -41,7 +41,7 @@ class ErrorReportingTests: AppTestCase {
 
         // validation
         logger.logs.withValue {
-            XCTAssertEqual($0, [.init(level: .warning, message: "Invalid packge URL: foo (id: nil)")])
+            XCTAssertEqual($0, [.init(level: .warning, message: #"App.AppError.invalidPackageUrl(nil, "foo")"#)])
         }
     }
 
@@ -65,7 +65,7 @@ class ErrorReportingTests: AppTestCase {
         // validation
         logger.logs.withValue {
             XCTAssertEqual($0, [
-                .init(level: .warning, message: "Error: updateRepository: no repository (id: \(UUID.id1))")
+                .init(level: .warning, message: #"App.AppError.genericError(Optional(\#(UUID.id1)), "updateRepository: no repository")"#)
             ])
         }
     }
