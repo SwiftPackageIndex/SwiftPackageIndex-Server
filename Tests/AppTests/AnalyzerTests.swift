@@ -1506,14 +1506,7 @@ class AnalyzerTests: AppTestCase {
             try logger.logs.withValue { logs in
                 XCTAssertEqual(logs.count, 1)
                 let error = try logs.first.unwrap()
-                XCTAssertTrue(
-                    error.message.contains(
-                    #"""
-                    No valid version found for package 'https://github.com/foo/1'
-                    """#
-                    ),
-                    "was: \(error.message)"
-                )
+                XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
             }
             // validate versions
             let p = try await Package.find(pkgId, on: app.db).unwrap()

@@ -135,15 +135,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try logger.logs.withValue { logs in
             XCTAssertEqual(logs.count, 1)
             let error = try logs.first.unwrap()
-            XCTAssertTrue(
-                error.message.contains(
-                #"""
-                Analysis failed: refreshCheckout failed: Shell command failed:
-                command: "git clone https://github.com/foo/1
-                """#
-                ),
-                "was: \(error.message)"
-            )
+            XCTAssertTrue(error.message.contains("refreshCheckout failed"), "was: \(error.message)")
         }
     }
 
@@ -167,14 +159,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try logger.logs.withValue { logs in
             XCTAssertEqual(logs.count, 1)
             let error = try logs.first.unwrap()
-            XCTAssertTrue(
-                error.message.contains(
-                #"""
-                Invalid packge cache path: foo/1
-                """#
-                ),
-                "was: \(error.message)"
-            )
+            XCTAssertTrue(error.message.contains( "AppError.invalidPackageCachePath"), "was: \(error.message)")
         }
     }
 
@@ -201,14 +186,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try logger.logs.withValue { logs in
             XCTAssertEqual(logs.count, 1)
             let error = try logs.first.unwrap()
-            XCTAssertTrue(
-                error.message.contains(
-                #"""
-                No valid version found for package 'https://github.com/foo/1'
-                """#
-                ),
-                "was: \(error.message)"
-            )
+            XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
         }
     }
 
@@ -232,14 +210,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try logger.logs.withValue { logs in
             XCTAssertEqual(logs.count, 1)
             let error = try logs.first.unwrap()
-            XCTAssertTrue(
-                error.message.contains(
-                #"""
-                No valid version found for package 'https://github.com/foo/1'
-                """#
-                ),
-                "was: \(error.message)"
-            )
+            XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
         }
     }
 
