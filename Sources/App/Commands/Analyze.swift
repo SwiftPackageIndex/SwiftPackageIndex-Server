@@ -183,18 +183,11 @@ extension Analyze {
             try await createCheckoutsDirectory(client: client, logger: logger, path: checkoutDir)
         }
 
-        let packageResults = await withThrowingTaskGroup(
-            of: (Joined<Package, Repository>).self,
-            returning: [Result<(Joined<Package, Repository>), Error>].self
-        ) { group in
-            for pkg in packages {
-                group.addTask {
-                    try await analyze(client: client, database: database, logger: logger, package: pkg)
-                    return pkg
-                }
+        let packageResults = await packages.mapAsync { pkg in
+            await Result {
+                try await analyze(client: client, database: database, logger: logger, package: pkg)
+                return pkg
             }
-
-            return await group.results()
         }
 
         try await updatePackages(client: client,
