@@ -12,13 +12,13 @@
         "normalize.css": "^8.0.1"
     },
     "devDependencies": {
-        "esbuild": "^0.18.11",
-        "esbuild-sass-plugin": "^2.10.0",
-        "postcss": "^8.4.25",
-        "prettier": "^3.0.0",
-        "stylelint": "^15.10.1",
-        "stylelint-config-standard-scss": "^10.0.0",
+        "esbuild": "^0.19.4",
+        "esbuild-sass-plugin": "^2.16.0",
+        "postcss": "^8.4.31",
+        "prettier": "^3.0.3",
+        "stylelint": "^15.10.3",
+        "stylelint-config-standard-scss": "^11.0.0",
         "stylelint-order": "^6.0.3",
-        "stylelint-scss": "^5.0.1"
+        "stylelint-scss": "^5.2.1"
     }
 }
