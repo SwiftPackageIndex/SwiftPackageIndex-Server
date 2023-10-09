@@ -1520,19 +1520,6 @@ class AnalyzerTests: AppTestCase {
 }
 
 
-// We shouldn't be conforming a type we don't own to protocols we don't own
-// but in a test module we can loosen that rule a bit.
-extension ShellOutCommand: Equatable, Hashable {
-    public static func == (lhs: ShellOutCommand, rhs: ShellOutCommand) -> Bool {
-        lhs.description == rhs.description
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(description)
-    }
-}
-
-
 private struct Command: CustomStringConvertible {
     var kind: Kind
     var path: String

@@ -149,8 +149,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/ShellOut.git",
       "state" : {
-        "revision" : "79bc247323691d6689a358b4bbb24e5ef952e73f",
-        "version" : "3.1.3"
+        "revision" : "e862e8866c9d5d3fbc394aefdc8428f31c99355c",
+        "version" : "3.1.4"
       }
     },
     {
@@ -167,8 +167,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soto-project/soto.git",
       "state" : {
-        "revision" : "939e61467a9adfd78520b46eddf756a09291f7e1",
-        "version" : "6.7.0"
+        "revision" : "c28c3efa72e6beceae6f38f8c8fe18e7c57e3418",
+        "version" : "6.8.0"
       }
     },
     {
@@ -185,8 +185,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SPIManifest.git",
       "state" : {
-        "revision" : "0cbefa29ada12cfb4544073c70b3b1bfaf77c04b",
-        "version" : "1.1.0"
+        "revision" : "b2da637b069e5b224047fe11820356d919d776f5",
+        "version" : "1.1.1"
       }
     },
     {
@@ -203,8 +203,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-algorithms.git",
       "state" : {
-        "revision" : "b14b7f4c528c942f121c8b860b9410b2bf57825e",
-        "version" : "1.0.0"
+        "revision" : "bcd4f369ac962bc3e5244c9df778739f8f5bdbf1",
+        "version" : "1.1.0"
       }
     },
     {
@@ -392,8 +392,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing.git",
       "state" : {
-        "revision" : "506b6052384d8e97a4bb16fe8680325351c23c64",
-        "version" : "1.14.0"
+        "revision" : "5b356adceabff6ca027f6574aac79e9fee145d26",
+        "version" : "1.14.1"
       }
     },
     {
@@ -455,8 +455,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "c17d9b90d1e94cffa2a10cba63ec5b97147f7472",
-        "version" : "4.84.3"
+        "revision" : "e38dfe4877cd376e2af84e5a35c163cf73f41bb8",
+        "version" : "4.84.4"
       }
     },
     {
