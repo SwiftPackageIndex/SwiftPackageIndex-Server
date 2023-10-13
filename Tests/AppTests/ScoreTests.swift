@@ -26,6 +26,7 @@ class ScoreTests: AppTestCase {
                                            isArchived: false,
                                            numberOfDependencies: nil,
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        20)
@@ -35,6 +36,7 @@ class ScoreTests: AppTestCase {
                                            isArchived: false,
                                            numberOfDependencies: nil,
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        23)
@@ -44,6 +46,7 @@ class ScoreTests: AppTestCase {
                                            isArchived: false,
                                            numberOfDependencies: nil,
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        30)
@@ -53,6 +56,7 @@ class ScoreTests: AppTestCase {
                                            isArchived: false,
                                            numberOfDependencies: nil,
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        40)
@@ -62,6 +66,7 @@ class ScoreTests: AppTestCase {
                                            isArchived: false,
                                            numberOfDependencies: nil,
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        50)
@@ -71,6 +76,7 @@ class ScoreTests: AppTestCase {
                                            isArchived: true,
                                            numberOfDependencies: nil,
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        30)
@@ -80,6 +86,7 @@ class ScoreTests: AppTestCase {
                                            isArchived: false,
                                            numberOfDependencies: nil,
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        87)
@@ -89,6 +96,7 @@ class ScoreTests: AppTestCase {
                                            isArchived: false,
                                            numberOfDependencies: 4,
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        89)
@@ -98,6 +106,7 @@ class ScoreTests: AppTestCase {
                                            isArchived: false,
                                            numberOfDependencies: 2,
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        92)
@@ -108,6 +117,7 @@ class ScoreTests: AppTestCase {
                                            numberOfDependencies: 2,
                                            lastActivityAt: Current.date().adding(days: -400),
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        92)
@@ -118,6 +128,7 @@ class ScoreTests: AppTestCase {
                                            numberOfDependencies: 2,
                                            lastActivityAt: Current.date().adding(days: -300),
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        97)
@@ -128,6 +139,7 @@ class ScoreTests: AppTestCase {
                                            numberOfDependencies: 2,
                                            lastActivityAt: Current.date().adding(days: -100),
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        102)
@@ -138,6 +150,7 @@ class ScoreTests: AppTestCase {
                                            numberOfDependencies: 2,
                                            lastActivityAt: Current.date().adding(days: -10),
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        107)
@@ -148,6 +161,7 @@ class ScoreTests: AppTestCase {
                                            numberOfDependencies: 2,
                                            lastActivityAt: Current.date().adding(days: -10),
                                            hasDocumentation: true,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        122)
@@ -158,6 +172,7 @@ class ScoreTests: AppTestCase {
                                            numberOfDependencies: 2,
                                            lastActivityAt: Current.date().adding(days: -10),
                                            hasDocumentation: true,
+                                           hasReadme: false,
                                            numberOfContributors: 5,
                                            hasTestTargets: false)),
                        127)
@@ -168,6 +183,7 @@ class ScoreTests: AppTestCase {
                                            numberOfDependencies: 2,
                                            lastActivityAt: Current.date().adding(days: -10),
                                            hasDocumentation: true,
+                                           hasReadme: false,
                                            numberOfContributors: 20,
                                            hasTestTargets: false)),
                        132)
@@ -178,6 +194,7 @@ class ScoreTests: AppTestCase {
                                            numberOfDependencies: 2,
                                            lastActivityAt: Current.date().adding(days: -10),
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: false)),
                        107)
@@ -188,9 +205,21 @@ class ScoreTests: AppTestCase {
                                            numberOfDependencies: 2,
                                            lastActivityAt: Current.date().adding(days: -10),
                                            hasDocumentation: false,
+                                           hasReadme: false,
                                            numberOfContributors: 0,
                                            hasTestTargets: true)),
                        112)
+        XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
+                                           releaseCount: 20,
+                                           likeCount: 20_000,
+                                           isArchived: false,
+                                           numberOfDependencies: 2,
+                                           lastActivityAt: Current.date().adding(days: -10),
+                                           hasDocumentation: false,
+                                           hasReadme: true,
+                                           numberOfContributors: 0,
+                                           hasTestTargets: false)),
+                       122)
     }
 
     func test_compute_package_versions() async throws {

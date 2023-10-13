@@ -23,6 +23,7 @@ enum Score {
         var numberOfDependencies: Int?
         var lastActivityAt: Date?
         var hasDocumentation: Bool
+        var hasReadme: Bool
         var numberOfContributors: Int
         var hasTestTargets: Bool
     }
@@ -80,6 +81,10 @@ enum Score {
         if candidate.hasDocumentation {
             score += 15
         }
+        
+        if candidate.hasReadme {
+            score += 15
+        }
 
         switch candidate.numberOfContributors {
             case   ..<5: break
@@ -119,6 +124,7 @@ enum Score {
                   numberOfDependencies: defaultVersion.resolvedDependencies?.count,
                   lastActivityAt: repo.lastActivityAt,
                   hasDocumentation: hasDocumentation,
+                  hasReadme: repo.readmeHtmlUrl != nil,
                   numberOfContributors: numberOfContributors,
                   hasTestTargets: hasTestTargets
             )
