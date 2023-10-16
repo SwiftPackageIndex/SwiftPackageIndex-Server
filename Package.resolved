@@ -131,8 +131,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/routing-kit.git",
       "state" : {
-        "revision" : "e0539da5b60a60d7381f44cdcf04036f456cee2f",
-        "version" : "4.8.0"
+        "revision" : "88077f2c9d12777dcc89562fa581888ff7ba14ae",
+        "version" : "4.8.1"
       }
     },
     {
@@ -392,8 +392,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing.git",
       "state" : {
-        "revision" : "5b356adceabff6ca027f6574aac79e9fee145d26",
-        "version" : "1.14.1"
+        "revision" : "bb0ea08db8e73324fe6c3727f755ca41a23ff2f4",
+        "version" : "1.14.2"
       }
     },
     {
