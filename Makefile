@@ -160,4 +160,5 @@ periphery:
 	periphery scan --quiet
 
 update-doc-test:
+	@echo ⚠️ Make sure to load a new db snapshot!
 	swift run Run create-restfile docs > restfiles/doc-test.restfile
