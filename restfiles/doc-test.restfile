@@ -5,14 +5,16 @@ requests:
     url: ${base_url}/AudioKit/AudioKit/documentation
     validation:
       status: .regex((2|3)\d\d)
-  # Package requests docs with default platform macOS but is iOS only
-  # Change proposed: https://github.com/Blackjacx/SHSearchBar/pull/59
-  # /Blackjacx/SHSearchBar/documentation:
-  #   url: ${base_url}/Blackjacx/SHSearchBar/documentation
-  #   validation:
-  #     status: .regex((2|3)\d\d)
+  /Blackjacx/SHSearchBar/documentation:
+    url: ${base_url}/Blackjacx/SHSearchBar/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /ChimeHQ/ConcurrencyPlus/documentation:
     url: ${base_url}/ChimeHQ/ConcurrencyPlus/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /ChimeHQ/Meter/documentation:
+    url: ${base_url}/ChimeHQ/Meter/documentation
     validation:
       status: .regex((2|3)\d\d)
   /ChimeHQ/Neon/documentation:
@@ -48,6 +50,10 @@ requests:
   #   url: ${base_url}/GetStream/stream-video-swift/documentation
   #   validation:
   #     status: .regex((2|3)\d\d)
+  /GottaGetSwifty/CodableWrappers/documentation:
+    url: ${base_url}/GottaGetSwifty/CodableWrappers/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /Lighter-swift/Lighter/documentation:
     url: ${base_url}/Lighter-swift/Lighter/documentation
     validation:
@@ -58,6 +64,10 @@ requests:
       status: .regex((2|3)\d\d)
   /MarkCodable/MarkCodable/documentation:
     url: ${base_url}/MarkCodable/MarkCodable/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /Matejkob/swift-spyable/documentation:
+    url: ${base_url}/Matejkob/swift-spyable/documentation
     validation:
       status: .regex((2|3)\d\d)
   /MessageKit/MessageKit/documentation:
@@ -72,6 +82,14 @@ requests:
     url: ${base_url}/RevenueCat/purchases-ios/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /SwiftyLab/MetaCodable/documentation:
+    url: ${base_url}/SwiftyLab/MetaCodable/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /TootSDK/TootSDK/documentation:
+    url: ${base_url}/TootSDK/TootSDK/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /airbnb/epoxy-ios/documentation:
     url: ${base_url}/airbnb/epoxy-ios/documentation
     validation:
@@ -80,12 +98,24 @@ requests:
     url: ${base_url}/airbnb/lottie-ios/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /apple/swift-algorithms/documentation:
+    url: ${base_url}/apple/swift-algorithms/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /apple/swift-argument-parser/documentation:
     url: ${base_url}/apple/swift-argument-parser/documentation
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-asn1/documentation:
     url: ${base_url}/apple/swift-asn1/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /apple/swift-async-algorithms/documentation:
+    url: ${base_url}/apple/swift-async-algorithms/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /apple/swift-async-dns-resolver/documentation:
+    url: ${base_url}/apple/swift-async-dns-resolver/documentation
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-atomics/documentation:
@@ -176,6 +206,10 @@ requests:
     url: ${base_url}/apple/swift-nio/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /apple/swift-numerics/documentation:
+    url: ${base_url}/apple/swift-numerics/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /apple/swift-openapi-generator/documentation:
     url: ${base_url}/apple/swift-openapi-generator/documentation
     validation:
@@ -208,6 +242,15 @@ requests:
     url: ${base_url}/apple/swift-syntax/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /apple/swift-testing/documentation:
+    url: ${base_url}/apple/swift-testing/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  # Currently failing due to config issue, PR raised https://github.com/audulus/vger/pull/14
+  # /audulus/vger/documentation:
+  #   url: ${base_url}/audulus/vger/documentation
+  #   validation:
+  #     status: .regex((2|3)\d\d)
   /braintree/braintree_ios/documentation:
     url: ${base_url}/braintree/braintree_ios/documentation
     validation:
@@ -218,17 +261,20 @@ requests:
   #   url: ${base_url}/calimarkus/JDStatusBarNotification/documentation
   #   validation:
   #     status: .regex((2|3)\d\d)
-  # Bad .spi.yml, PR to address here: https://github.com/carekit-apple/CareKit/pull/697
-  # /carekit-apple/CareKit/documentation:
-  #   url: ${base_url}/carekit-apple/CareKit/documentation
-  #   validation:
-  #     status: .regex((2|3)\d\d)
+  /carekit-apple/CareKit/documentation:
+    url: ${base_url}/carekit-apple/CareKit/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /crelies/AdvancedList/documentation:
     url: ${base_url}/crelies/AdvancedList/documentation
     validation:
       status: .regex((2|3)\d\d)
   /davdroman/swiftui-navigation-transitions/documentation:
     url: ${base_url}/davdroman/swiftui-navigation-transitions/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /exPHAT/SwiftWhisper/documentation:
+    url: ${base_url}/exPHAT/SwiftWhisper/documentation
     validation:
       status: .regex((2|3)\d\d)
   /gonzalezreal/swift-markdown-ui/documentation:
@@ -249,6 +295,10 @@ requests:
       status: .regex((2|3)\d\d)
   /hmlongco/Factory/documentation:
     url: ${base_url}/hmlongco/Factory/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /hylo-lang/hylo/documentation:
+    url: ${base_url}/hylo-lang/hylo/documentation
     validation:
       status: .regex((2|3)\d\d)
   /immobiliare/RealHTTP/documentation:
@@ -325,6 +375,10 @@ requests:
     url: ${base_url}/pointfreeco/swift-composable-architecture/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /pointfreeco/swift-snapshot-testing/documentation:
+    url: ${base_url}/pointfreeco/swift-snapshot-testing/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /pointfreeco/swift-url-routing/documentation:
     url: ${base_url}/pointfreeco/swift-url-routing/documentation
     validation:
@@ -357,8 +411,8 @@ requests:
     url: ${base_url}/sindresorhus/KeyboardShortcuts/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /siteline/SwiftUI-Introspect/documentation:
-    url: ${base_url}/siteline/SwiftUI-Introspect/documentation
+  /siteline/swiftui-introspect/documentation:
+    url: ${base_url}/siteline/swiftui-introspect/documentation
     validation:
       status: .regex((2|3)\d\d)
   /stackotter/swift-bundler/documentation:
@@ -389,6 +443,10 @@ requests:
     url: ${base_url}/swift-server/swift-openapi-async-http-client/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /swift-server/swift-prometheus/documentation:
+    url: ${base_url}/swift-server/swift-prometheus/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /swift-server/swift-service-lifecycle/documentation:
     url: ${base_url}/swift-server/swift-service-lifecycle/documentation
     validation:
@@ -397,8 +455,16 @@ requests:
     url: ${base_url}/swift-server/webauthn-swift/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /swiftcsv/SwiftCSV/documentation:
+    url: ${base_url}/swiftcsv/SwiftCSV/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /swiftwasm/JavaScriptKit/documentation:
     url: ${base_url}/swiftwasm/JavaScriptKit/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /swiftyfinch/Rugby/documentation:
+    url: ${base_url}/swiftyfinch/Rugby/documentation
     validation:
       status: .regex((2|3)\d\d)
   /tgrapperon/swift-dependencies-additions/documentation:
