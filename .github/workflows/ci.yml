@@ -40,7 +40,7 @@ jobs:
           --health-retries 5
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install unzip
         run: apt-get update && apt-get install -y unzip
       - name: Run tests
@@ -68,7 +68,7 @@ jobs:
   #         --health-timeout 5s
   #         --health-retries 5
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
   #     - name: Select Xcode 11.4
   #       run: sudo xcode-select -s /Applications/Xcode_11.4.app
   #     - name: Log Xcode version
