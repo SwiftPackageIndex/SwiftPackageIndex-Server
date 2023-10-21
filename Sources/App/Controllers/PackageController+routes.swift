@@ -296,11 +296,11 @@ enum PackageController {
         let packageResult = try await PackageResult.query(on: req.db, owner: owner, repository: repository)
         let urls = await linkablePathUrls(client: req.client, packageResult: packageResult)
 
-        return try await siteMap(packageResult: packageResult, linkableEntityUrls: urls)
+        return try await siteMap(packageResult: packageResult, linkablePathUrls: urls)
             .encodeResponse(for: req)
     }
 
-    static func siteMap(packageResult: PackageResult, linkableEntityUrls: [String]) async throws -> SiteMap {
+    static func siteMap(packageResult: PackageResult, linkablePathUrls: [String]) async throws -> SiteMap {
         guard let canonicalOwner = packageResult.repository.owner,
               let canonicalRepository = packageResult.repository.name
         else {
@@ -319,7 +319,7 @@ enum PackageController {
                                      .none).absoluteURL()),
                 lastmod
             ),
-            .forEach(linkableEntityUrls, { url in
+            .forEach(linkablePathUrls, { url in
                     .url(.loc(url), lastmod)
             })
         )
