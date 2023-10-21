@@ -47,6 +47,9 @@ final class Build: Model, Content {
     @Field(key: "build_command")
     var buildCommand: String?
 
+    @Field(key: "builder_version")
+    var builderVersion: String?
+
     @Field(key: "job_url")
     var jobUrl: String?
 

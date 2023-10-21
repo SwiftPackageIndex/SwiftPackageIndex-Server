@@ -303,6 +303,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 068 - add product_dependencies to versions
         app.migrations.add(UpdateVersionAddProductDependencies())
     }
+    do { // Migration 069 - add builder_version to builds
+        app.migrations.add(UpdateBuildAddBuilderVersion())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

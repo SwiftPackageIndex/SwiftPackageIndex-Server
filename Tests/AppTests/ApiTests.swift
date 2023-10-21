@@ -128,6 +128,7 @@ class ApiTests: AppTestCase {
         do {  // MUT - initial insert
             let dto: API.PostBuildReportDTO = .init(
                 buildCommand: "xcodebuild -scheme Foo",
+                builderVersion: "1.2.3",
                 buildId: .id0,
                 jobUrl: "https://example.com/jobs/1",
                 logUrl: "log url",
@@ -152,6 +153,7 @@ class ApiTests: AppTestCase {
                     let b = try builds.first.unwrap()
                     XCTAssertEqual(b.id, .id0)
                     XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
+                    XCTAssertEqual(b.builderVersion, "1.2.3")
                     XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
                     XCTAssertEqual(b.logUrl, "log url")
                     XCTAssertEqual(b.platform, .macosXcodebuild)
