@@ -162,7 +162,7 @@ class SitemapTests: SnapshotTestCase {
             .query(on: app.db, owner: "owner", repository: "repo0")
 
         // MUT
-        let sitemap = try await PackageController.siteMap(packageResult: packageResult, linkableEntityUrls: [])
+        let sitemap = try await PackageController.siteMap(packageResult: packageResult, linkablePathUrls: [])
         let xml = sitemap.render(indentedBy: .spaces(2))
 
         // Validation
@@ -181,7 +181,7 @@ class SitemapTests: SnapshotTestCase {
                           reference: .branch("default")).save(on: app.db)
         let packageResult = try await PackageController.PackageResult
             .query(on: app.db, owner: "owner", repository: "repo0")
-        let linkableEntitiesUlrs = [
+        let linkablePathUrls = [
             "/documentation/semanticversion/semanticversion/minor",
             "/documentation/semanticversion/semanticversion/_(_:_:)-4ftn7",
             "/documentation/semanticversion/semanticversion/'...(_:)-40b95"
@@ -189,7 +189,7 @@ class SitemapTests: SnapshotTestCase {
 
         // MUT
         let sitemap = try await PackageController.siteMap(packageResult: packageResult,
-                                                          linkableEntityUrls: linkableEntitiesUlrs)
+                                                          linkablePathUrls: linkablePathUrls)
         let xml = sitemap.render(indentedBy: .spaces(2))
 
         // Validation
