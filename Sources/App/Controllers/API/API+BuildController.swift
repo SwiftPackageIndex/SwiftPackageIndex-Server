@@ -37,6 +37,7 @@ extension API {
                          status: dto.status,
                          swiftVersion: dto.swiftVersion)
                 build.buildCommand = dto.buildCommand
+                build.builderVersion = dto.builderVersion
                 build.jobUrl = dto.jobUrl
                 build.logUrl = dto.logUrl
                 build.platform = dto.platform

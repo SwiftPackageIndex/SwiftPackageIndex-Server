@@ -239,7 +239,8 @@ extension API.PackageController.GetRoute.Model: WithExample {
 
 extension API.PostBuildReportDTO: WithExample {
     static var example: Self {
-        .init(buildId: .example,
+        .init(builderVersion: "1.2.3",
+              buildId: .example,
               platform: .iOS,
               status: .ok,
               swiftVersion: .v5_8)
