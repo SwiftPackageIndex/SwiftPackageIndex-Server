@@ -388,6 +388,11 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/48354391?v=4"
         ),
         .init(
+            login: "TelemTobi",
+            name: "Telem Tobi",
+            avatarUrl: "https://avatars.githubusercontent.com/u/51072238?u=5803cd7e3b04e647e9b87124edf82deefcae3442&v=4"
+        ),
+        .init(
             login: "Fleuronic",
             name: "Fleuronic",
             avatarUrl: "https://avatars.githubusercontent.com/u/51964521?v=4"
