@@ -192,7 +192,7 @@ enum MaintainerInfoIndex {
                         .text("Total – \(model.score) points")
                     ),
                     .div(
-                        .class("container"),
+                        .class("package-score-breakdown"),
                         model.packageScoreCategories()
                     ),
                     .p("If you are interested in providing feedback for the package score, please submit ideas in the ",

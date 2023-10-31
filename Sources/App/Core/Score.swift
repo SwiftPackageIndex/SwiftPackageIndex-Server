@@ -40,46 +40,6 @@ enum Score {
             case readme
             case contributors
             case tests
-            
-            var title: String {
-                switch self {
-                case .archive: return "Archived"
-                case .license: return "License"
-                case .releases: return "Releases"
-                case .stars: return "Stars"
-                case .dependencies: return "Dependencies"
-                case .maintenance: return "Last Activity"
-                case .documentation: return "Documentation"
-                case .readme: return "README"
-                case .contributors: return "Contributors"
-                case .tests: return "Tests"
-                }
-            }
-            
-            func description(candidate: Input) -> String {
-                switch self {
-                case .archive:
-                    "Repository is \(candidate.isArchived ? "" : "not") archived."
-                case .license:
-                    "OSI-compatible license \(candidate.licenseKind == .compatibleWithAppStore ? "" : "not") which is compatible with the App Store."
-                case .releases:
-                    "Has \(pluralizedCount: candidate.releaseCount, singular: "release")."
-                case .stars:
-                    "Has \(pluralizedCount: candidate.likeCount, singular: "star")."
-                case .dependencies:
-                    "\(candidate.numberOfDependencies ?? 0 < 1 ? "Has no dependencies." : "Depends on \(pluralizedCount: candidate.numberOfDependencies ?? 0, singular: "package", plural: "packages").")"
-                case .maintenance:
-                    "The last maintenance activity was \(candidate.lastActivityAt?.relative)."
-                case .documentation:
-                    "\(candidate.hasDocumentation ? "Includes " : "Has no") documentation."
-                case .readme:
-                    "\(candidate.hasReadme ? "Has a" : "Does not have a") README file."
-                case .contributors:
-                    "Has \(pluralizedCount: candidate.numberOfContributors, singular: "contributor")."
-                case .tests:
-                    "Has \(candidate.hasTestTargets ? "" : "no") test targets."
-                }
-            }
         }
 
         var candidate: Input?

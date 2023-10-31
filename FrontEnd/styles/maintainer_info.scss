@@ -45,12 +45,12 @@
     border: 1px solid var(--score-category-background);
 }
 
-.container {
+.package-score-breakdown {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 10px;
 
-    .category {
+    .score-trait {
         display: grid;
         grid-template-rows: 2fr 3fr;
         border: 1px solid var(--score-category-background);

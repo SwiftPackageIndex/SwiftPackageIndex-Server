@@ -53,7 +53,7 @@ extension MaintainerInfoIndex {
         func packageScoreCategories() -> Node<HTML.BodyContext> {
             .forEach(0..<scoreCategories.count, { index in
                     .div(
-                        .class("category"),
+                        .class("score-trait"),
                         .p("\(scoreCategories[index].title)"),
                         .p("\(scoreCategories[index].score) points"),
                         .p("\(scoreCategories[index].description)")
@@ -75,6 +75,48 @@ extension MaintainerInfoIndex {
                 }
                 return PackageScore(title: $0.title, score: scoreDetails.scoreBreakdown[$0] ?? 0, description: description)
             }
+        }
+    }
+}
+
+private extension Score.ScoreDetails.ScoreCategory {
+    var title: String {
+        switch self {
+        case .archive: return "Archived"
+        case .license: return "License"
+        case .releases: return "Releases"
+        case .stars: return "Stars"
+        case .dependencies: return "Dependencies"
+        case .maintenance: return "Last Activity"
+        case .documentation: return "Documentation"
+        case .readme: return "README"
+        case .contributors: return "Contributors"
+        case .tests: return "Tests"
+        }
+    }
+    
+    func description(candidate: Score.Input) -> String {
+        switch self {
+        case .archive:
+            "Repository is \(candidate.isArchived ? "" : "not") archived."
+        case .license:
+            "\(candidate.licenseKind == .compatibleWithAppStore ? "" : "No ")OSI-compatible license which is compatible with the App Store."
+        case .releases:
+            "Has \(pluralizedCount: candidate.releaseCount, singular: "release")."
+        case .stars:
+            "Has \(pluralizedCount: candidate.likeCount, singular: "star")."
+        case .dependencies:
+            "\(candidate.numberOfDependencies ?? 0 < 1 ? "Has no dependencies." : "Depends on \(pluralizedCount: candidate.numberOfDependencies ?? 0, singular: "package", plural: "packages").")"
+        case .maintenance:
+            if candidate.lastActivityAt != nil { "The last maintenance activity was \(candidate.lastActivityAt?.relative)." } else { "No data available."}
+        case .documentation:
+            "\(candidate.hasDocumentation ? "Includes " : "Has no") documentation."
+        case .readme:
+            "\(candidate.hasReadme ? "Has a" : "Does not have a") README file."
+        case .contributors:
+            "Has \(pluralizedCount: candidate.numberOfContributors, singular: "contributor")."
+        case .tests:
+            "Has \(candidate.hasTestTargets ? "" : "no") test targets."
         }
     }
 }

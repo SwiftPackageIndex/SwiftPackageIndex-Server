@@ -22,13 +22,15 @@ extension MaintainerInfoIndex.Model {
               repositoryOwner: "example",
               repositoryOwnerName: "Example Owner",
               repositoryName: "package",
-              score: 10,
+              score: 117,
               scoreDetails: Score.ScoreDetails(
                 candidate: Score.Input(
                     licenseKind: .compatibleWithAppStore,
                     releaseCount: 10,
-                    likeCount: 30,
+                    likeCount: 300,
                     isArchived: false,
+                    numberOfDependencies: 3,
+                    lastActivityAt: Current.date() + 10,
                     hasDocumentation: true,
                     hasReadme: true,
                     numberOfContributors: 20,
@@ -36,15 +38,15 @@ extension MaintainerInfoIndex.Model {
                 ),
                 scoreBreakdown: [
                     .archive: 20,
-                    .license: 20,
-                    .releases: 20,
+                    .license: 10,
+                    .releases: 10,
                     .stars: 20,
-                    .dependencies: 20,
-                    .maintenance: 20,
-                    .documentation: 20,
-                    .readme: 20,
-                    .contributors: 20,
-                    .tests: 20
+                    .dependencies: 2,
+                    .maintenance: 15,
+                    .documentation: 15,
+                    .readme: 15,
+                    .contributors: 10,
+                    .tests: 0
                 ]
               )
         )
