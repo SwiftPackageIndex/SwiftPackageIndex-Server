@@ -21,7 +21,7 @@ enum Score {
         var likeCount: Int
         var isArchived: Bool
         var numberOfDependencies: Int?
-        var lastActivityAt: Date?
+        var lastActivityAt: Date
         var hasDocumentation: Bool
         var hasReadme: Bool
         var numberOfContributors: Int
@@ -102,19 +102,17 @@ enum Score {
         }
 
         // Last maintenance activity
-        if let lastActivityAt = candidate.lastActivityAt {
-            // Note: This is not the most accurate method to calculate the number of days between
-            // two dates, but is more than good enough for the purposes of this calculation.
-            let dateDifference = Calendar.current.dateComponents([.day], from: lastActivityAt, to: Current.date())
-            switch dateDifference.day {
-                case .some(..<30):
-                    scoreBreakdown[.maintenance] = 15
-                case .some(30..<180):
-                    scoreBreakdown[.maintenance] = 10
-                case .some(180..<360):
-                    scoreBreakdown[.maintenance] = 5
-                default: break
-            }
+        // Note: This is not the most accurate method to calculate the number of days between
+        // two dates, but is more than good enough for the purposes of this calculation.
+        let dateDifference = Calendar.current.dateComponents([.day], from: candidate.lastActivityAt, to: Current.date())
+        switch dateDifference.day {
+            case .some(..<30):
+                scoreBreakdown[.maintenance] = 15
+            case .some(30..<180):
+                scoreBreakdown[.maintenance] = 10
+            case .some(180..<360):
+                scoreBreakdown[.maintenance] = 5
+            default: break
         }
 
         // Documentation and README checks
@@ -169,7 +167,7 @@ enum Score {
                   likeCount: repo.stars,
                   isArchived: repo.isArchived,
                   numberOfDependencies: defaultVersion.resolvedDependencies?.count,
-                  lastActivityAt: repo.lastActivityAt,
+                  lastActivityAt: repo.lastActivityAt ?? Date(timeIntervalSince1970: 0),
                   hasDocumentation: hasDocumentation,
                   hasReadme: repo.readmeHtmlUrl != nil,
                   numberOfContributors: numberOfContributors,

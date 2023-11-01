@@ -96,27 +96,31 @@ private extension Score.ScoreDetails.ScoreCategory {
     }
     
     func description(candidate: Score.Input) -> String {
+        // Using 750 days as it's just more than two years, meaning it should be possible to say "Last maintenance activity two years ago".
+        // The final nil-coalesce in this should never fire as it should always be possible to subtract two years from the current date.
+        let maintainedRecently = candidate.lastActivityAt > Calendar.current.date(byAdding: .init(day: -750), to: Current.date()) ?? Current.date()
+
         switch self {
             case .archive:
-                "Repository is \(candidate.isArchived ? "" : "not") archived."
+                return "Repository is \(candidate.isArchived ? "" : "not") archived."
             case .license:
-                "\(candidate.licenseKind == .compatibleWithAppStore ? "" : "No ")OSI-compatible license which is compatible with the App Store."
+                return "\(candidate.licenseKind == .compatibleWithAppStore ? "" : "No ")OSI-compatible license which is compatible with the App Store."
             case .releases:
-                "Has \(pluralizedCount: candidate.releaseCount, singular: "release")."
+                return "Has \(pluralizedCount: candidate.releaseCount, singular: "release")."
             case .stars:
-                "Has \(pluralizedCount: candidate.likeCount, singular: "star")."
+                return "Has \(pluralizedCount: candidate.likeCount, singular: "star")."
             case .dependencies:
-                "\(candidate.numberOfDependencies ?? 0 < 1 ? "Has no dependencies." : "Depends on \(pluralizedCount: candidate.numberOfDependencies ?? 0, singular: "package", plural: "packages").")"
+                return "\(candidate.numberOfDependencies ?? 0 < 1 ? "Has no dependencies." : "Depends on \(pluralizedCount: candidate.numberOfDependencies ?? 0, singular: "package", plural: "packages").")"
             case .maintenance:
-                if candidate.lastActivityAt != nil { "The last maintenance activity was \(candidate.lastActivityAt?.relative)." } else { "No data available."}
+                if maintainedRecently { return "Last maintenance activity \(candidate.lastActivityAt.relative)." } else { return "No recent maintenance activity." }
             case .documentation:
-                "\(candidate.hasDocumentation ? "Includes " : "Has no") documentation."
+                return "\(candidate.hasDocumentation ? "Includes " : "Has no") documentation."
             case .readme:
-                "\(candidate.hasReadme ? "Has a" : "Does not have a") README file."
+                return "\(candidate.hasReadme ? "Has a" : "Does not have a") README file."
             case .contributors:
-                "Has \(pluralizedCount: candidate.numberOfContributors, singular: "contributor")."
+                return "Has \(pluralizedCount: candidate.numberOfContributors, singular: "contributor")."
             case .tests:
-                "Has \(candidate.hasTestTargets ? "" : "no") test targets."
+                return "Has \(candidate.hasTestTargets ? "" : "no") test targets."
         }
     }
 }
