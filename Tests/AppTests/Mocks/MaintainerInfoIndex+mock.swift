@@ -30,7 +30,7 @@ extension MaintainerInfoIndex.Model {
                     likeCount: 300,
                     isArchived: false,
                     numberOfDependencies: 3,
-                    lastActivityAt: Current.date() + 10,
+                    lastActivityAt: Current.date().adding(days: -10),
                     hasDocumentation: true,
                     hasReadme: true,
                     numberOfContributors: 20,
