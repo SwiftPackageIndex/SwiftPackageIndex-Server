@@ -182,10 +182,10 @@ enum MaintainerInfoIndex {
                     .id("package-score"),
                     .h3("Package Score"),
                     .p(
-                        "Based on our analysis, this package has the total score of \(model.score). In combination with the relevancy of a search query, we use the package score to partially influence the ordering of search results on the Swift Package Index."
+                        "This package has a total score of \(model.score) points. The Swift Package Index uses package score in combination with the relevancy of a search query to influence the ordering of search results."
                     ),
                     .p(
-                        "The score is currently evaluated based on \(model.scoreCategories.count) traits and the breakdown of each trait is shown below."
+                        "The score is currently evaluated based on \(model.scoreCategories.count) traits, and the breakdown of each trait is shown below."
                     ),
                     .div(
                         .class("package-score"),
@@ -195,11 +195,13 @@ enum MaintainerInfoIndex {
                         .class("package-score-breakdown"),
                         model.packageScoreCategories()
                     ),
-                    .p("If you are interested in providing feedback for the package score, please submit ideas in the ",
+                    .p(
+                        "The package score is a work in progress. We have an ",
                        .a(
                         .href(model.packageScoreDiscussionURL),
-                        "discussion thread."
-                       )
+                        "always-open discussion thread"
+                       ),
+                       .text(" if you are interested in providing feedback on existing traits or would like to propose new ones.")
                     )
                 )
             )
