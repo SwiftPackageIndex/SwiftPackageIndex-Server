@@ -178,30 +178,32 @@ enum MaintainerInfoIndex {
                     ),
                     " to validate your ", .code(".spi.yml"), "file."
                 ),
-                .div(
-                    .id("package-score"),
-                    .h3("Package Score"),
-                    .p(
-                        "This package has a total score of \(model.score) points. The Swift Package Index uses package score in combination with the relevancy of a search query to influence the ordering of search results."
-                    ),
-                    .p(
-                        "The score is currently evaluated based on \(model.scoreCategories.count) traits, and the breakdown of each trait is shown below."
-                    ),
+                .if(Current.environment() != .production,
                     .div(
-                        .class("package-score"),
-                        .text("Total – \(model.score) points")
-                    ),
-                    .div(
-                        .class("package-score-breakdown"),
-                        model.packageScoreCategories()
-                    ),
-                    .p(
-                        "The package score is a work in progress. We have an ",
-                       .a(
-                        .href(model.packageScoreDiscussionURL),
-                        "always-open discussion thread"
-                       ),
-                       .text(" if you are interested in providing feedback on existing traits or would like to propose new ones.")
+                        .id("package-score"),
+                        .h3("Package Score"),
+                        .p(
+                            "This package has a total score of \(model.score) points. The Swift Package Index uses package score in combination with the relevancy of a search query to influence the ordering of search results."
+                        ),
+                        .p(
+                            "The score is currently evaluated based on \(model.scoreCategories.count) traits, and the breakdown of each trait is shown below."
+                        ),
+                        .div(
+                            .class("package-score"),
+                            .text("Total – \(model.score) points")
+                        ),
+                        .div(
+                            .class("package-score-breakdown"),
+                            model.packageScoreCategories()
+                        ),
+                        .p(
+                            "The package score is a work in progress. We have an ",
+                            .a(
+                                .href(model.packageScoreDiscussionURL),
+                                "always-open discussion thread"
+                            ),
+                            .text(" if you are interested in providing feedback on existing traits or would like to propose new ones.")
+                        )
                     )
                 )
             )
