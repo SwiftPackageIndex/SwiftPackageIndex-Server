@@ -76,11 +76,11 @@ enum MaintainerInfoIndex {
                 ),
                 .h3("Compatibility Badges"),
                 .p("You can add ",
-                    .a(
-                        .href("https://shields.io"),
-                        "shields.io"
-                    ),
-                    " badges to your package's README file. Display your package's compatibility with recent versions of Swift, or with different platforms, or both!"
+                   .a(
+                    .href("https://shields.io"),
+                    "shields.io"
+                   ),
+                   " badges to your package's README file. Display your package's compatibility with recent versions of Swift, or with different platforms, or both!"
                 ),
                 .strong("Swift Version Compatibility Badge"),
                 .div(
@@ -101,8 +101,8 @@ enum MaintainerInfoIndex {
                     )
                 ),
                 .p("Copy the Markdown above into your package's README file to show always-up-to-date compatibility status for your package."),
-
-                .h3("Manifest File"),
+                
+                    .h3("Manifest File"),
                 .p(
                     "You can control more aspects of how the Swift Package Index treats your package repository, including improving build compatibility results and opting into automated DocC documentation hosting."
                 ),

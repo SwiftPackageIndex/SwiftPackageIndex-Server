@@ -78,13 +78,13 @@ enum Score {
 
         // Stars count
         switch candidate.likeCount {
-            case      ..<25    :
+            case ..<25:
                 break
-            case    25..<100   :
+            case 25..<100:
                 scoreBreakdown[.stars] = 10
-            case   100..<500   :
+            case 100..<500:
                 scoreBreakdown[.stars] = 20
-            case   500..<5_000 :
+            case 500..<5_000:
                 scoreBreakdown[.stars] = 30
             case 5_000..<10_000:
                 scoreBreakdown[.stars] = 35
@@ -107,16 +107,17 @@ enum Score {
             // two dates, but is more than good enough for the purposes of this calculation.
             let dateDifference = Calendar.current.dateComponents([.day], from: lastActivityAt, to: Current.date())
             switch dateDifference.day {
-                case .some(..<30) :
+                case .some(..<30):
                     scoreBreakdown[.maintenance] = 15
-                case .some(30..<180) :
+                case .some(30..<180):
                     scoreBreakdown[.maintenance] = 10
-                case .some(180..<360) :
+                case .some(180..<360):
                     scoreBreakdown[.maintenance] = 5
                 default: break
             }
         }
 
+        // Documentation and README checks
         if candidate.hasDocumentation {
             scoreBreakdown[.documentation] = 15
         }
@@ -125,15 +126,19 @@ enum Score {
             scoreBreakdown[.readme] = 15
         }
 
+        // Collaboration checks
         switch candidate.numberOfContributors {
-            case   ..<5: break
+            case ..<5: break
             case 5..<20:
                 scoreBreakdown[.contributors] = 5
             default:
                 scoreBreakdown[.contributors] = 10
         }
-        
-        if candidate.hasTestTargets { scoreBreakdown[.tests] = 5 }
+
+        // Target/product checks
+        if candidate.hasTestTargets {
+            scoreBreakdown[.tests] = 5
+        }
 
         let scoreDetails = ScoreDetails(candidate: candidate, scoreBreakdown: scoreBreakdown)
         return scoreDetails
@@ -169,7 +174,7 @@ enum Score {
                   hasReadme: repo.readmeHtmlUrl != nil,
                   numberOfContributors: numberOfContributors,
                   hasTestTargets: hasTestTargets
-            )
+                 )
         )
     }
 }
