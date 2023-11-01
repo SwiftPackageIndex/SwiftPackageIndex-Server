@@ -76,11 +76,11 @@ enum MaintainerInfoIndex {
                 ),
                 .h3("Compatibility Badges"),
                 .p("You can add ",
-                    .a(
-                        .href("https://shields.io"),
-                        "shields.io"
-                    ),
-                    " badges to your package's README file. Display your package's compatibility with recent versions of Swift, or with different platforms, or both!"
+                   .a(
+                    .href("https://shields.io"),
+                    "shields.io"
+                   ),
+                   " badges to your package's README file. Display your package's compatibility with recent versions of Swift, or with different platforms, or both!"
                 ),
                 .strong("Swift Version Compatibility Badge"),
                 .div(
@@ -101,8 +101,8 @@ enum MaintainerInfoIndex {
                     )
                 ),
                 .p("Copy the Markdown above into your package's README file to show always-up-to-date compatibility status for your package."),
-
-                .h3("Manifest File"),
+                
+                    .h3("Manifest File"),
                 .p(
                     "You can control more aspects of how the Swift Package Index treats your package repository, including improving build compatibility results and opting into automated DocC documentation hosting."
                 ),
@@ -177,6 +177,32 @@ enum MaintainerInfoIndex {
                         .text("online manifest validation helper")
                     ),
                     " to validate your ", .code(".spi.yml"), "file."
+                ),
+                .div(
+                    .id("package-score"),
+                    .h3("Package Score"),
+                    .p(
+                        "This package has a total score of \(model.score) points. The Swift Package Index uses package score in combination with the relevancy of a search query to influence the ordering of search results."
+                    ),
+                    .p(
+                        "The score is currently evaluated based on \(model.scoreCategories.count) traits, and the breakdown of each trait is shown below."
+                    ),
+                    .div(
+                        .class("package-score"),
+                        .text("Total – \(model.score) points")
+                    ),
+                    .div(
+                        .class("package-score-breakdown"),
+                        model.packageScoreCategories()
+                    ),
+                    .p(
+                        "The package score is a work in progress. We have an ",
+                       .a(
+                        .href(model.packageScoreDiscussionURL),
+                        "always-open discussion thread"
+                       ),
+                       .text(" if you are interested in providing feedback on existing traits or would like to propose new ones.")
+                    )
                 )
             )
         }

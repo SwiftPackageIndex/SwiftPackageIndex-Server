@@ -33,3 +33,45 @@
         align-items: flex-start;
     }
 }
+
+.package-score {
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 25px;
+    font-weight: bold;
+    text-align: center;
+    color: var(--score-header-text);
+    background-color: var(--score-background);
+    border: 1px solid var(--score-category-background);
+}
+
+.package-score-breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+
+    .score-trait {
+        display: grid;
+        grid-template-rows: 2fr 3fr;
+        border: 1px solid var(--score-category-background);
+
+        p {
+            margin: 0;
+            padding: 10px;
+        }
+
+        :not(:last-child) {
+            font-weight: 600;
+            color: var(--score-text);
+            background-color: var(--score-category-background);
+        }
+
+        :nth-child(2) {
+            text-align: right;
+        }
+
+        :last-child {
+            grid-column: span 2;
+        }
+    }
+}

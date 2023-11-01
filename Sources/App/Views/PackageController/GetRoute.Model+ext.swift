@@ -609,18 +609,21 @@ private extension API.PackageController.GetRoute.Model.Target.TargetType {
     var cssClass: String {
         switch self {
             case .macro: return "macros"
+            case .test: return "tests"
         }
     }
 
     var singularForm: String {
         switch self {
             case .macro: return "macro"
+            case .test: return "test"
         }
     }
 
     var pluralForm: String {
         switch self {
             case .macro: return "macros"
+            case .test: return "tests"
         }
     }
 }

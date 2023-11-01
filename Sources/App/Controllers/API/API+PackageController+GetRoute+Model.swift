@@ -48,6 +48,7 @@ extension API.PackageController.GetRoute {
         var documentationTarget: DocumentationTarget? = nil
         var weightedKeywords: [WeightedKeyword]
         var releaseReferences: [App.Version.Kind: App.Reference]
+        var repository: Repository?
 
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
@@ -77,7 +78,9 @@ extension API.PackageController.GetRoute {
                       weightedKeywords: [WeightedKeyword] = [],
                       defaultBranchReference: App.Reference,
                       releaseReference: App.Reference?,
-                      preReleaseReference: App.Reference?) {
+                      preReleaseReference: App.Reference?,
+                      repository: Repository? = nil
+            ) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
             self.repositoryOwnerName = repositoryOwnerName
@@ -116,6 +119,7 @@ extension API.PackageController.GetRoute {
                 }
                 return refs
             }()
+            self.repository = repository
         }
 
         init?(result: API.PackageController.PackageResult,
@@ -167,7 +171,8 @@ extension API.PackageController.GetRoute {
                 weightedKeywords: weightedKeywords,
                 defaultBranchReference: result.defaultBranchVersion.reference,
                 releaseReference: result.releaseVersion?.reference,
-                preReleaseReference: result.preReleaseVersion?.reference
+                preReleaseReference: result.preReleaseVersion?.reference,
+                repository: result.repository
             )
 
         }
@@ -257,13 +262,25 @@ extension API.PackageController.GetRoute.Model {
 
         enum TargetType: Codable, Equatable {
             case macro
-
+            case test
+            
             init?(_ productType: App.TargetType) {
                 switch productType {
-                    case .macro:
-                        self = .macro
-                    default:
-                        return nil
+                case .macro:
+                    self = .macro
+                case .test:
+                    self = .test
+                default:
+                    return nil
+                }
+            }
+            
+            var targetType: App.TargetType {
+                switch self {
+                case .macro:
+                    return .macro
+                case .test:
+                    return .test
                 }
             }
         }

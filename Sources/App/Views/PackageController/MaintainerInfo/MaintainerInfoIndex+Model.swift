@@ -15,6 +15,7 @@
 import Foundation
 import Plot
 
+typealias ScoreCategory = Score.ScoreDetails.ScoreCategory
 
 extension MaintainerInfoIndex {
     struct Model {
@@ -22,7 +23,15 @@ extension MaintainerInfoIndex {
         var repositoryOwner: String
         var repositoryOwnerName: String
         var repositoryName: String
-
+        var score: Int
+        var scoreDetails: Score.ScoreDetails
+        
+        struct PackageScore {
+            var title: String
+            var score: Int
+            var description: String
+        }
+        
         func badgeURL(for type: BadgeType) -> String {
             let characterSet = CharacterSet.urlHostAllowed.subtracting(.init(charactersIn: "=:"))
             let url = SiteURL.api(.packages(.value(repositoryOwner), .value(repositoryName), .badge)).absoluteURL(parameters: [QueryParameter(key: "type", value: type.rawValue)])
@@ -39,6 +48,79 @@ extension MaintainerInfoIndex {
             .copyableInputForm(buttonName: "Copy Markdown",
                                eventName: "Copy Markdown Button",
                                valueToCopy: badgeMarkdown(for: type))
+        }
+        
+        func packageScoreCategories() -> Node<HTML.BodyContext> {
+            .forEach(0..<scoreCategories.count, { index in
+                    .div(
+                        .class("score-trait"),
+                        .p("\(scoreCategories[index].title)"),
+                        .p("\(scoreCategories[index].score) points"),
+                        .p("\(scoreCategories[index].description)")
+                    )
+            })
+        }
+        
+        var packageScoreDiscussionURL: String {
+            "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/discussions/2591"
+        }
+        
+        var scoreCategories: [PackageScore] {
+            let categories = Score.ScoreDetails.ScoreCategory.allCases.sorted { $0.title < $1.title }
+            return categories.compactMap {
+                let description = if let candidate = scoreDetails.candidate {
+                    $0.description(candidate: candidate)
+                } else {
+                    "Unable to retrieve package input data."
+                }
+                return PackageScore(title: $0.title, score: scoreDetails.scoreBreakdown[$0] ?? 0, description: description)
+            }
+        }
+    }
+}
+
+private extension Score.ScoreDetails.ScoreCategory {
+    var title: String {
+        switch self {
+            case .archive: return "Archived"
+            case .license: return "License"
+            case .releases: return "Releases"
+            case .stars: return "Stars"
+            case .dependencies: return "Dependencies"
+            case .maintenance: return "Last Activity"
+            case .documentation: return "Documentation"
+            case .readme: return "README"
+            case .contributors: return "Contributors"
+            case .tests: return "Tests"
+        }
+    }
+    
+    func description(candidate: Score.Input) -> String {
+        // Using 750 days as it's just more than two years, meaning it should be possible to say "Last maintenance activity two years ago".
+        // The final nil-coalesce in this should never fire as it should always be possible to subtract two years from the current date.
+        let maintainedRecently = candidate.lastActivityAt > Calendar.current.date(byAdding: .init(day: -750), to: Current.date()) ?? Current.date()
+
+        switch self {
+            case .archive:
+                return "Repository is \(candidate.isArchived ? "" : "not") archived."
+            case .license:
+                return "\(candidate.licenseKind == .compatibleWithAppStore ? "" : "No ")OSI-compatible license which is compatible with the App Store."
+            case .releases:
+                return "Has \(pluralizedCount: candidate.releaseCount, singular: "release")."
+            case .stars:
+                return "Has \(pluralizedCount: candidate.likeCount, singular: "star")."
+            case .dependencies:
+                return "\(candidate.numberOfDependencies ?? 0 < 1 ? "Has no dependencies." : "Depends on \(pluralizedCount: candidate.numberOfDependencies ?? 0, singular: "package", plural: "packages").")"
+            case .maintenance:
+                if maintainedRecently { return "Last maintenance activity \(candidate.lastActivityAt.relative)." } else { return "No recent maintenance activity." }
+            case .documentation:
+                return "\(candidate.hasDocumentation ? "Includes " : "Has no") documentation."
+            case .readme:
+                return "\(candidate.hasReadme ? "Has a" : "Does not have a") README file."
+            case .contributors:
+                return "Has \(pluralizedCount: candidate.numberOfContributors, singular: "contributor")."
+            case .tests:
+                return "Has \(candidate.hasTestTargets ? "" : "no") test targets."
         }
     }
 }
