@@ -296,7 +296,7 @@ func routes(_ app: Application) throws {
         }
     }
 
-    do { // Site map index and site maps
+    do { // Site map index and static page site map
         app.group(BackendReportingMiddleware(path: .sitemapIndex)) {
             $0.get(SiteURL.siteMapIndex.pathComponents, use: SiteMapController.index)
                 .excludeFromOpenAPI()
