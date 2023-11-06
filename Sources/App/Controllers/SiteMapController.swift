@@ -45,6 +45,10 @@ enum SiteMapController {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
+        // Only serve sitemaps in production.
+        guard Current.environment() == .production
+        else { throw Abort(.notFound) }
+
         // Drive sitemap from the search view as it only includes presentable packages.
         let query = db.select()
             .column(Search.repoOwner, as: "owner")
@@ -74,7 +78,11 @@ enum SiteMapController {
     }
 
     static func staticPages(req: Request) async throws -> Response {
-        try await SiteMap(.group(
+        // Only serve sitemaps in production.
+        guard Current.environment() == .production
+        else { throw Abort(.notFound) }
+
+        return try await SiteMap(.group(
             staticRoutes.map { page -> Node<SiteMap.URLSetContext> in
                     .url(
                         .loc(page.absoluteURL())

@@ -293,6 +293,10 @@ enum PackageController {
             let repository = req.parameters.get("repository")
         else { throw Abort(.notFound) }
 
+        // Only serve sitemaps in production.
+        guard Current.environment() == .production
+        else { throw Abort(.notFound) }
+
         // Temporarily limit documentation in package sitemaps with an allow list to convince
         // Google we have not been hacked! This should take us from ~460,000 URLs to < 20,000.
         let allowList = [
