@@ -293,8 +293,28 @@ enum PackageController {
             let repository = req.parameters.get("repository")
         else { throw Abort(.notFound) }
 
+        // Temporarily limit documentation in package sitemaps with an allow list to convince
+        // Google we have not been hacked! This should take us from ~460,000 URLs to < 20,000.
+        let allowList = [
+            // Page is not indexed: Crawled - currently not indexed
+            (owner: "swiftpackageindex", repository: "semanticversion"), // 60 urls
+            (owner: "liuliu", repository: "dflat"),                      // 1,039 urls
+            (owner: "onevcat", repository: "kingfisher"),                // 1,674 urls
+            (owner: "apple", repository: "swift-docc"),                  // 5,404 urls
+            // Page is not indexed: Discovered – currently not indexed
+            (owner: "siteline", repository: "swiftui-introspect"),       // 600 urls
+            (owner: "apple", repository: "swift-collections"),           // 951 urls
+        ]
+
         let packageResult = try await PackageResult.query(on: req.db, owner: owner, repository: repository)
-        let urls = await linkablePathUrls(client: req.client, packageResult: packageResult)
+        let urls = if allowList.contains(where: {
+            owner.lowercased() == $0.owner.lowercased() &&
+            repository.lowercased() == $0.repository.lowercased()
+        }) {
+            await linkablePathUrls(client: req.client, packageResult: packageResult)
+        } else {
+            [String]()
+        }
 
         return try await siteMap(packageResult: packageResult, linkablePathUrls: urls)
             .encodeResponse(for: req)
