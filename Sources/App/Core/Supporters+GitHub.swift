@@ -135,7 +135,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "bitwit",
             name: "Kyle Newsome",
-            avatarUrl: "https://avatars.githubusercontent.com/u/707507?u=3640b922b6c35ce0b05630b1da85527a42cf1f1a&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/707507?u=8a97af8d9d65cde8361e1c39c6288276bd87d0bb&v=4"
         ),
         .init(
             login: "Timac",
@@ -201,11 +201,6 @@ extension Array<Supporters.Community> {
             login: "thomasRademaker",
             name: "Thomas Rademaker",
             avatarUrl: "https://avatars.githubusercontent.com/u/1885323?u=236e99eb7cb909bff3a7e9f5c85f120dc458fd27&v=4"
-        ),
-        .init(
-            login: "davdroman",
-            name: "David Roman",
-            avatarUrl: "https://avatars.githubusercontent.com/u/2538074?u=c551ce1436629fad2394e90c361b7f169c7a65d4&v=4"
         ),
         .init(
             login: "bdrelling",
@@ -285,7 +280,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "omaralbeik",
             name: "Omar Albeik",
-            avatarUrl: "https://avatars.githubusercontent.com/u/8127757?u=3efffbcf80bb1a7b5bf3549f793361b75e60016a&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/8127757?u=d0feba58848c4d7572c22aa38680b08434b16130&v=4"
         ),
         .init(
             login: "hassila",
@@ -360,7 +355,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "PSchmiedmayer",
             name: "Paul Schmiedmayer",
-            avatarUrl: "https://avatars.githubusercontent.com/u/28656495?u=6f9cd6a7c9cd624ae85123450353abfdf223242f&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/28656495?u=6bd258345f9f19b6329ba3cdfe27b67b5b335482&v=4"
         ),
         .init(
             login: "imjhk03",
