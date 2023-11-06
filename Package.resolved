@@ -140,8 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SemanticVersion",
       "state" : {
-        "revision" : "45e2ec89fee3b76cd6dde3f9a507e4348f194b79",
-        "version" : "0.3.7"
+        "revision" : "0f1351be86fd84b487c32ed3b996fa7ca64a5264",
+        "version" : "0.3.8"
       }
     },
     {
@@ -464,8 +464,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "288d73a368ac0d0e228dd9b81eecc576b50b9d6d",
-        "version" : "4.84.6"
+        "revision" : "0fa646e517dff34aa5d0ae12d221021ec07a801d",
+        "version" : "4.85.1"
       }
     },
     {
