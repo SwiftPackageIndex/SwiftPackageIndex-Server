@@ -55,6 +55,7 @@ class SitemapTests: SnapshotTestCase {
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
+    @MainActor
     func test_siteMap_basic_request() async throws {
         // Test basic sitemap request
         // setup
@@ -75,7 +76,7 @@ class SitemapTests: SnapshotTestCase {
 
         // Validation
         assertSnapshot(matching: siteMap.render(indentedBy: .spaces(2)),
-                       as: .init(pathExtension: "xml", diffing: .lines), record: true)
+                       as: .init(pathExtension: "xml", diffing: .lines))
     }
 
     func test_linkablePathUrls() async throws {
