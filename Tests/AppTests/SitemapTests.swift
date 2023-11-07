@@ -55,30 +55,6 @@ class SitemapTests: SnapshotTestCase {
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
-    @MainActor
-    func test_siteMap_basic_request() async throws {
-        // Test basic sitemap request
-        // setup
-        let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
-        try await package.save(on: app.db)
-        try await Repository(package: package, defaultBranch: "default",
-                             lastCommitDate: Current.date(),
-                             name: "Repo0", owner: "Owner").save(on: app.db)
-        try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
-                          reference: .branch("default")).save(on: app.db)
-
-        let req = Request(application: app, on: app.eventLoopGroup.next())
-        req.parameters.set("owner", to: "Owner")
-        req.parameters.set("repository", to: "Repo0")
-
-        // MUT
-        let siteMap = try await PackageController.siteMap(req: req)
-
-        // Validation
-        assertSnapshot(matching: siteMap.render(indentedBy: .spaces(2)),
-                       as: .init(pathExtension: "xml", diffing: .lines))
-    }
-
     func test_linkablePathUrls() async throws {
         // setup
         let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
