@@ -17,6 +17,46 @@ import Plot
 
 enum SiteMapView {
 
+    static var staticRoutes: [SiteURL] = [
+        .home,
+        .addAPackage,
+        .faq,
+        .supporters,
+        .buildMonitor,
+        .privacy
+    ]
+
+    static func siteMapIndex(packages: [SiteMapController.Package]) -> SiteMapIndex {
+        SiteMapIndex(
+            .sitemap(
+                .loc(SiteURL.siteMapStaticPages.absoluteURL()),
+                .lastmod(Current.date(), timeZone: .utc) // The home page updates every day.
+            ),
+            .group(
+                packages.map { package -> Node<SiteMapIndex.SiteMapIndexContext> in
+                        .sitemap(
+                            .loc(SiteURL.package(.value(package.owner),
+                                                 .value(package.repository),
+                                                 .siteMap).absoluteURL()),
+                            .unwrap(package.lastActivityAt, { .lastmod($0, timeZone: .utc) })
+                        )
+                }
+            )
+        )
+    }
+
+    static func staticPagesSiteMap() -> SiteMap {
+        SiteMap(
+            .group(
+                staticRoutes.map { page -> Node<SiteMap.URLSetContext> in
+                        .url(
+                            .loc(page.absoluteURL())
+                        )
+                }
+            )
+        )
+    }
+
     static func packageSiteMap(owner: String?,
                                repository: String?,
                                lastActivityAt: Date?,

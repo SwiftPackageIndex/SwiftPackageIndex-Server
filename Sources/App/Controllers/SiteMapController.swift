@@ -31,15 +31,6 @@ enum SiteMapController {
         }
     }
 
-    static var staticRoutes: [SiteURL] = [
-        .home,
-        .addAPackage,
-        .faq,
-        .supporters,
-        .buildMonitor,
-        .privacy
-    ]
-
     static func index(req: Request) async throws -> Response {
         guard let db = req.db as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
@@ -59,22 +50,7 @@ enum SiteMapController {
             .orderBy(Search.repoName)
 
         let packages = try await query.all(decoding: Package.self)
-        return try await SiteMapIndex(
-            .sitemap(
-                .loc(SiteURL.siteMapStaticPages.absoluteURL()),
-                .lastmod(Current.date(), timeZone: .utc) // The home page updates every day.
-            ),
-            .group(
-                packages.map { package -> Node<SiteMapIndex.SiteMapIndexContext> in
-                        .sitemap(
-                            .loc(SiteURL.package(.value(package.owner),
-                                                 .value(package.repository),
-                                                 .siteMap).absoluteURL()),
-                            .unwrap(package.lastActivityAt, { .lastmod($0, timeZone: .utc) })
-                        )
-                }
-            )
-        ).encodeResponse(for: req)
+        return try await SiteMapView.siteMapIndex(packages: packages).encodeResponse(for: req)
     }
 
     static func staticPages(req: Request) async throws -> Response {
@@ -82,12 +58,6 @@ enum SiteMapController {
         guard Current.environment() == .production
         else { throw Abort(.notFound) }
 
-        return try await SiteMap(.group(
-            staticRoutes.map { page -> Node<SiteMap.URLSetContext> in
-                    .url(
-                        .loc(page.absoluteURL())
-                    )
-            }
-        )).encodeResponse(for: req)
+        return try await SiteMapView.staticPagesSiteMap().encodeResponse(for: req)
     }
 }
