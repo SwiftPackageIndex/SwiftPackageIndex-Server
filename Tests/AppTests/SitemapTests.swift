@@ -33,22 +33,26 @@ class SitemapTests: SnapshotTestCase {
                                              reference: .branch("default")) }.save(on: app.db)
         try await Search.refresh(on: app.db).get()
 
+        let req = Request(application: app, on: app.eventLoopGroup.next())
+
         // MUT
-        try app.test(.GET, "/sitemap.xml") { res in
-            // Validation
-            XCTAssertEqual(res.status, .ok)
-            assertSnapshot(matching: res.body.asString(), as: .init(pathExtension: "xml", diffing: .lines))
-        }
+        let siteMapIndex = try await SiteMapController.index(req: req)
+
+        // Validation
+        assertSnapshot(matching: siteMapIndex.render(indentedBy: .spaces(2)),
+                       as: .init(pathExtension: "xml", diffing: .lines))
     }
 
     @MainActor
     func test_siteMapStaticPages() async throws {
+        let req = Request(application: app, on: app.eventLoopGroup.next())
+
         // MUT
-        try app.test(.GET, "/sitemap-static-pages.xml") { res in
-            // Validation
-            XCTAssertEqual(res.status, .ok)
-            assertSnapshot(matching: res.body.asString(), as: .init(pathExtension: "xml", diffing: .lines))
-        }
+        let siteMap = try await SiteMapController.staticPages(req: req)
+
+        // Validation
+        assertSnapshot(matching: siteMap.render(indentedBy: .spaces(2)),
+                       as: .init(pathExtension: "xml", diffing: .lines))
     }
 
     func test_siteMap_basic_request() async throws {
@@ -62,10 +66,16 @@ class SitemapTests: SnapshotTestCase {
         try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
                           reference: .branch("default")).save(on: app.db)
 
+        let req = Request(application: app, on: app.eventLoopGroup.next())
+        req.parameters.set("owner", to: "Owner")
+        req.parameters.set("repository", to: "Repo0")
+
         // MUT
-        try app.test(.GET, "/owner/repo0/sitemap.xml") { res in
-            XCTAssertEqual(res.status, .ok)
-        }
+        let siteMap = try await PackageController.siteMap(req: req)
+
+        // Validation
+        assertSnapshot(matching: siteMap.render(indentedBy: .spaces(2)),
+                       as: .init(pathExtension: "xml", diffing: .lines), record: true)
     }
 
     func test_linkablePathUrls() async throws {
