@@ -320,10 +320,10 @@ enum PackageController {
             [String]()
         }
 
-        return try await SiteMapView.packageSiteMap(owner: packageResult.repository.owner,
-                                                    repository: packageResult.repository.name,
-                                                    lastActivityAt: packageResult.repository.lastActivityAt,
-                                                    linkablePathUrls: urls).encodeResponse(for: req)
+        return try await SiteMapView.package(owner: packageResult.repository.owner,
+                                             repository: packageResult.repository.name,
+                                             lastActivityAt: packageResult.repository.lastActivityAt,
+                                             linkablePathUrls: urls).encodeResponse(for: req)
     }
 
     static func linkablePathUrls(client: Client, packageResult: PackageResult) async -> [String] {

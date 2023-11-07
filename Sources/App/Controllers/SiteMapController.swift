@@ -50,7 +50,7 @@ enum SiteMapController {
             .orderBy(Search.repoName)
 
         let packages = try await query.all(decoding: Package.self)
-        return try await SiteMapView.siteMapIndex(packages: packages).encodeResponse(for: req)
+        return try await SiteMapView.index(packages: packages).encodeResponse(for: req)
     }
 
     static func staticPages(req: Request) async throws -> Response {
@@ -58,6 +58,6 @@ enum SiteMapController {
         guard Current.environment() == .production
         else { throw Abort(.notFound) }
 
-        return try await SiteMapView.staticPagesSiteMap().encodeResponse(for: req)
+        return try await SiteMapView.staticPages().encodeResponse(for: req)
     }
 }

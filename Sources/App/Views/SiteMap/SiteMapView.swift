@@ -26,7 +26,7 @@ enum SiteMapView {
         .privacy
     ]
 
-    static func siteMapIndex(packages: [SiteMapController.Package]) -> SiteMapIndex {
+    static func index(packages: [SiteMapController.Package]) -> SiteMapIndex {
         SiteMapIndex(
             .sitemap(
                 .loc(SiteURL.siteMapStaticPages.absoluteURL()),
@@ -45,7 +45,7 @@ enum SiteMapView {
         )
     }
 
-    static func staticPagesSiteMap() -> SiteMap {
+    static func staticPages() -> SiteMap {
         SiteMap(
             .group(
                 staticRoutes.map { page -> Node<SiteMap.URLSetContext> in
@@ -57,10 +57,10 @@ enum SiteMapView {
         )
     }
 
-    static func packageSiteMap(owner: String?,
-                               repository: String?,
-                               lastActivityAt: Date?,
-                               linkablePathUrls: [String]) async throws -> SiteMap {
+    static func package(owner: String?,
+                        repository: String?,
+                        lastActivityAt: Date?,
+                        linkablePathUrls: [String]) async throws -> SiteMap {
         guard let owner,
               let repository
         else {
