@@ -320,33 +320,10 @@ enum PackageController {
             [String]()
         }
 
-        return try await siteMap(packageResult: packageResult, linkablePathUrls: urls)
-            .encodeResponse(for: req)
-    }
-
-    static func siteMap(packageResult: PackageResult, linkablePathUrls: [String]) async throws -> SiteMap {
-        guard let canonicalOwner = packageResult.repository.owner,
-              let canonicalRepository = packageResult.repository.name
-        else {
-            // This should never happen, but we should return an empty
-            // sitemap instead of an incorrect one.
-            return SiteMap()
-        }
-
-        // See SwiftPackageIndex-Server#2485 for context on the performance implications of this
-        let lastmod: Node<SiteMap.URLContext> = packageResult.repository.lastActivityAt
-            .map { .lastmod($0, timeZone: .utc) } ?? .empty
-        return SiteMap(
-            .url(
-                .loc(SiteURL.package(.value(canonicalOwner),
-                                     .value(canonicalRepository),
-                                     .none).absoluteURL()),
-                lastmod
-            ),
-            .forEach(linkablePathUrls, { url in
-                    .url(.loc(url), lastmod)
-            })
-        )
+        return try await SiteMapView.packageSiteMap(owner: packageResult.repository.owner,
+                                                    repository: packageResult.repository.name,
+                                                    lastActivityAt: packageResult.repository.lastActivityAt,
+                                                    linkablePathUrls: urls).encodeResponse(for: req)
     }
 
     static func linkablePathUrls(client: Client, packageResult: PackageResult) async -> [String] {

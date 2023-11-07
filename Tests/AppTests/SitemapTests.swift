@@ -162,7 +162,10 @@ class SitemapTests: SnapshotTestCase {
             .query(on: app.db, owner: "owner", repository: "repo0")
 
         // MUT
-        let sitemap = try await PackageController.siteMap(packageResult: packageResult, linkablePathUrls: [])
+        let sitemap = try await SiteMapView.packageSiteMap(owner: packageResult.repository.owner,
+                                                           repository: packageResult.repository.name,
+                                                           lastActivityAt: packageResult.repository.lastActivityAt,
+                                                           linkablePathUrls: [])
         let xml = sitemap.render(indentedBy: .spaces(2))
 
         // Validation
@@ -188,8 +191,10 @@ class SitemapTests: SnapshotTestCase {
         ]
 
         // MUT
-        let sitemap = try await PackageController.siteMap(packageResult: packageResult,
-                                                          linkablePathUrls: linkablePathUrls)
+        let sitemap = try await SiteMapView.packageSiteMap(owner: packageResult.repository.owner,
+                                                           repository: packageResult.repository.name,
+                                                           lastActivityAt: packageResult.repository.lastActivityAt,
+                                                           linkablePathUrls: linkablePathUrls)
         let xml = sitemap.render(indentedBy: .spaces(2))
 
         // Validation
