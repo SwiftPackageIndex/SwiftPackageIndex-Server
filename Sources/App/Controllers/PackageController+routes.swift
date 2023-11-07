@@ -287,7 +287,7 @@ enum PackageController {
         return response
     }
 
-    static func siteMap(req: Request) async throws -> Response {
+    static func siteMap(req: Request) async throws -> SiteMap {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -319,7 +319,7 @@ enum PackageController {
         return try await SiteMapView.package(owner: packageResult.repository.owner,
                                              repository: packageResult.repository.name,
                                              lastActivityAt: packageResult.repository.lastActivityAt,
-                                             linkablePathUrls: urls).encodeResponse(for: req)
+                                             linkablePathUrls: urls)
     }
 
     static func linkablePathUrls(client: Client, packageResult: PackageResult) async -> [String] {

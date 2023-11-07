@@ -31,7 +31,7 @@ enum SiteMapController {
         }
     }
 
-    static func index(req: Request) async throws -> Response {
+    static func index(req: Request) async throws -> SiteMapIndex {
         guard let db = req.db as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
@@ -46,10 +46,10 @@ enum SiteMapController {
             .orderBy(Search.repoName)
 
         let packages = try await query.all(decoding: Package.self)
-        return try await SiteMapView.index(packages: packages).encodeResponse(for: req)
+        return SiteMapView.index(packages: packages)
     }
 
-    static func staticPages(req: Request) async throws -> Response {
-        return try await SiteMapView.staticPages().encodeResponse(for: req)
+    static func staticPages(req: Request) async throws -> SiteMap {
+        return SiteMapView.staticPages()
     }
 }
