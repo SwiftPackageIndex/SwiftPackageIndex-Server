@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Vapor
+import Yams
 
 
 enum Github {
@@ -84,6 +85,7 @@ extension Github {
     enum Resource: String {
         case license
         case readme
+        case funding
     }
 
     static func apiUri(for packageUrl: String,
@@ -97,6 +99,8 @@ extension Github {
         switch resource {
             case .license, .readme:
                 return URI(string: "https://api.github.com/repos/\(trunk)/\(resource.rawValue)\(queryString)")
+            case .funding:
+                return URI(string: "https://api.github.com/repos/\(trunk)/contents/FUNDING.yml")
         }
     }
 
@@ -173,6 +177,25 @@ extension Github {
         return .init(etag: readme?.etag, html: html, htmlUrl: htmlUrl)
     }
 
+    static func fetchFunding(client: Client, packageUrl: String) async -> Funding? {
+        guard let uri = try? Github.apiUri(for: packageUrl, resource: .funding)
+        else { return nil }
+
+        // Fetch the raw YML contents of FUNDING.yml
+        let fetchResult = try? await Github.fetch(client: client, uri: uri, headers: [
+            ("Accept", "application/vnd.github.raw")
+        ])
+        guard let fundingYml = fetchResult?.content else { return nil }
+
+        do {
+            let parsedYml = try Yams.load(yaml: fundingYml) as? [String: Any]
+            print(parsedYml)
+        } catch {
+            return nil
+        }
+
+        return .init()
+    }
 }
 
 
@@ -247,6 +270,19 @@ extension Github {
         var etag: String?
         var html: String
         var htmlUrl: String
+    }
+
+    struct Funding: Decodable {
+        var communityBridge: String?
+        var githubSponsors: [String]?
+        var issueHunt: String?
+        var koFi: String?
+        var liberaPay: String?
+        var openCollective: String?
+        var otechie: String?
+        var patreon: String?
+        var tideLift: String?
+        var customUrls: [String]?
     }
 
     struct Metadata: Decodable, Equatable {
