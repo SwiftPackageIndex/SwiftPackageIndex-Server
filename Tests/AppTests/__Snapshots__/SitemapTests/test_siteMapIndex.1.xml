@@ -1,1 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>http://localhost:8080/sitemap-static-pages.xml</loc><lastmod>1970-01-01</lastmod></sitemap><sitemap><loc>http://localhost:8080/foo/0/sitemap.xml</loc><lastmod>1970-01-01</lastmod></sitemap><sitemap><loc>http://localhost:8080/foo/1/sitemap.xml</loc><lastmod>1970-01-01</lastmod></sitemap><sitemap><loc>http://localhost:8080/foo/2/sitemap.xml</loc><lastmod>1970-01-01</lastmod></sitemap></sitemapindex>
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>http://localhost:8080/sitemap-static-pages.xml</loc>
+    <lastmod>1970-01-01</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>http://localhost:8080/foo/0/sitemap.xml</loc>
+    <lastmod>1970-01-01</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>http://localhost:8080/foo/1/sitemap.xml</loc>
+    <lastmod>1970-01-01</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>http://localhost:8080/foo/2/sitemap.xml</loc>
+    <lastmod>1970-01-01</lastmod>
+  </sitemap>
+</sitemapindex>

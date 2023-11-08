@@ -33,39 +33,26 @@ class SitemapTests: SnapshotTestCase {
                                              reference: .branch("default")) }.save(on: app.db)
         try await Search.refresh(on: app.db).get()
 
+        let req = Request(application: app, on: app.eventLoopGroup.next())
+
         // MUT
-        try app.test(.GET, "/sitemap.xml") { res in
-            // Validation
-            XCTAssertEqual(res.status, .ok)
-            assertSnapshot(matching: res.body.asString(), as: .init(pathExtension: "xml", diffing: .lines))
-        }
+        let siteMapIndex = try await SiteMapController.index(req: req)
+
+        // Validation
+        assertSnapshot(matching: siteMapIndex.render(indentedBy: .spaces(2)),
+                       as: .init(pathExtension: "xml", diffing: .lines))
     }
 
     @MainActor
     func test_siteMapStaticPages() async throws {
-        // MUT
-        try app.test(.GET, "/sitemap-static-pages.xml") { res in
-            // Validation
-            XCTAssertEqual(res.status, .ok)
-            assertSnapshot(matching: res.body.asString(), as: .init(pathExtension: "xml", diffing: .lines))
-        }
-    }
-
-    func test_siteMap_basic_request() async throws {
-        // Test basic sitemap request
-        // setup
-        let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
-        try await package.save(on: app.db)
-        try await Repository(package: package, defaultBranch: "default",
-                             lastCommitDate: Current.date(),
-                             name: "Repo0", owner: "Owner").save(on: app.db)
-        try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
-                          reference: .branch("default")).save(on: app.db)
+        let req = Request(application: app, on: app.eventLoopGroup.next())
 
         // MUT
-        try app.test(.GET, "/owner/repo0/sitemap.xml") { res in
-            XCTAssertEqual(res.status, .ok)
-        }
+        let siteMap = try await SiteMapController.staticPages(req: req)
+
+        // Validation
+        assertSnapshot(matching: siteMap.render(indentedBy: .spaces(2)),
+                       as: .init(pathExtension: "xml", diffing: .lines))
     }
 
     func test_linkablePathUrls() async throws {
@@ -162,7 +149,10 @@ class SitemapTests: SnapshotTestCase {
             .query(on: app.db, owner: "owner", repository: "repo0")
 
         // MUT
-        let sitemap = try await PackageController.siteMap(packageResult: packageResult, linkablePathUrls: [])
+        let sitemap = try await SiteMapView.package(owner: packageResult.repository.owner,
+                                                    repository: packageResult.repository.name,
+                                                    lastActivityAt: packageResult.repository.lastActivityAt,
+                                                    linkablePathUrls: [])
         let xml = sitemap.render(indentedBy: .spaces(2))
 
         // Validation
@@ -188,8 +178,10 @@ class SitemapTests: SnapshotTestCase {
         ]
 
         // MUT
-        let sitemap = try await PackageController.siteMap(packageResult: packageResult,
-                                                          linkablePathUrls: linkablePathUrls)
+        let sitemap = try await SiteMapView.package(owner: packageResult.repository.owner,
+                                                    repository: packageResult.repository.name,
+                                                    lastActivityAt: packageResult.repository.lastActivityAt,
+                                                    linkablePathUrls: linkablePathUrls)
         let xml = sitemap.render(indentedBy: .spaces(2))
 
         // Validation

@@ -123,11 +123,14 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.package(.key, .key, .maintainerInfo).pathComponents,
                 use: PackageController.maintainerInfo).excludeFromOpenAPI()
 
-        // Package specific site map, including all documentation URLs if available.
-        // Backend reporting currently disabled to avoid reporting costs for metrics we don't need.
-        app.group(BackendReportingMiddleware(path: .sitemapPackage, isActive: false)) {
-            $0.get(SiteURL.package(.key, .key, .siteMap).pathComponents,
-                    use: PackageController.siteMap).excludeFromOpenAPI()
+        // Only serve sitemaps in production.
+        if Current.environment() == .production {
+            // Package specific site map, including all documentation URLs if available.
+            // Backend reporting currently disabled to avoid reporting costs for metrics we don't need.
+            app.group(BackendReportingMiddleware(path: .sitemapPackage, isActive: false)) {
+                $0.get(SiteURL.package(.key, .key, .siteMap).pathComponents,
+                       use: PackageController.siteMap).excludeFromOpenAPI()
+            }
         }
     }
 
@@ -296,15 +299,18 @@ func routes(_ app: Application) throws {
         }
     }
 
-    do { // Site map index and site maps
-        app.group(BackendReportingMiddleware(path: .sitemapIndex)) {
-            $0.get(SiteURL.siteMapIndex.pathComponents, use: SiteMapController.index)
-                .excludeFromOpenAPI()
-        }
+    // Only serve sitemaps in production.
+    if Current.environment() == .production {
+        do { // Site map index and static page site map
+            app.group(BackendReportingMiddleware(path: .sitemapIndex)) {
+                $0.get(SiteURL.siteMapIndex.pathComponents, use: SiteMapController.index)
+                    .excludeFromOpenAPI()
+            }
 
-        app.group(BackendReportingMiddleware(path: .sitemapStaticPages)) {
-            $0.get(SiteURL.siteMapStaticPages.pathComponents, use: SiteMapController.staticPages)
-                .excludeFromOpenAPI()
+            app.group(BackendReportingMiddleware(path: .sitemapStaticPages)) {
+                $0.get(SiteURL.siteMapStaticPages.pathComponents, use: SiteMapController.staticPages)
+                    .excludeFromOpenAPI()
+            }
         }
     }
 
