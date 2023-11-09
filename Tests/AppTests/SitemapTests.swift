@@ -52,15 +52,6 @@ class SitemapTests: SnapshotTestCase {
         let prodApp = try await setup(.production)
         defer { prodApp.shutdown() }
 
-        let packages = (0..<3).map { Package(url: "\($0)".url) }
-        try await packages.save(on: app.db)
-        try await packages.map { try Repository(package: $0, defaultBranch: "default",
-                                                lastCommitDate: Current.date(), name: $0.url,
-                                                owner: "foo") }.save(on: app.db)
-        try await packages.map { try Version(package: $0, packageName: "foo",
-                                             reference: .branch("default")) }.save(on: app.db)
-        try await Search.refresh(on: app.db).get()
-
         // MUT
         try prodApp.test(.GET, "/sitemap.xml") { res in
             // Validation
@@ -72,14 +63,6 @@ class SitemapTests: SnapshotTestCase {
         // Ensure we don't serve sitemaps in dev
         // Setup
         Current.environment = { .development }
-        let packages = (0..<3).map { Package(url: "\($0)".url) }
-        try await packages.save(on: app.db)
-        try await packages.map { try Repository(package: $0, defaultBranch: "default",
-                                                lastCommitDate: Current.date(), name: $0.url,
-                                                owner: "foo") }.save(on: app.db)
-        try await packages.map { try Version(package: $0, packageName: "foo",
-                                             reference: .branch("default")) }.save(on: app.db)
-        try await Search.refresh(on: app.db).get()
 
         // MUT
         try app.test(.GET, "/sitemap.xml") { res in
