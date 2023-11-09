@@ -43,6 +43,51 @@ class SitemapTests: SnapshotTestCase {
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
+    func test_siteMapIndex_prod() async throws {
+        // Ensure sitemap routing is configured in prod
+        // Setup
+        Current.environment = { .production }
+        // We also need to set up a new app that's configured for production,
+        // because app.test is not affected by Current overrides.
+        let prodApp = try await setup(.production)
+        defer { prodApp.shutdown() }
+
+        let packages = (0..<3).map { Package(url: "\($0)".url) }
+        try await packages.save(on: app.db)
+        try await packages.map { try Repository(package: $0, defaultBranch: "default",
+                                                lastCommitDate: Current.date(), name: $0.url,
+                                                owner: "foo") }.save(on: app.db)
+        try await packages.map { try Version(package: $0, packageName: "foo",
+                                             reference: .branch("default")) }.save(on: app.db)
+        try await Search.refresh(on: app.db).get()
+
+        // MUT
+        try prodApp.test(.GET, "/sitemap.xml") { res in
+            // Validation
+            XCTAssertEqual(res.status, .ok)
+        }
+    }
+
+    func test_siteMapIndex_dev() async throws {
+        // Ensure we don't serve sitemaps in dev
+        // Setup
+        Current.environment = { .development }
+        let packages = (0..<3).map { Package(url: "\($0)".url) }
+        try await packages.save(on: app.db)
+        try await packages.map { try Repository(package: $0, defaultBranch: "default",
+                                                lastCommitDate: Current.date(), name: $0.url,
+                                                owner: "foo") }.save(on: app.db)
+        try await packages.map { try Version(package: $0, packageName: "foo",
+                                             reference: .branch("default")) }.save(on: app.db)
+        try await Search.refresh(on: app.db).get()
+
+        // MUT
+        try app.test(.GET, "/sitemap.xml") { res in
+            // Validation
+            XCTAssertEqual(res.status, .notFound)
+        }
+    }
+
     @MainActor
     func test_siteMapStaticPages() async throws {
         let req = Request(application: app, on: app.eventLoopGroup.next())
