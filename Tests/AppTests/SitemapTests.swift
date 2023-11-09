@@ -43,6 +43,33 @@ class SitemapTests: SnapshotTestCase {
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
+    func test_siteMapIndex_prod() async throws {
+        // Ensure sitemap routing is configured in prod
+        // Setup
+        Current.environment = { .production }
+        // We also need to set up a new app that's configured for production,
+        // because app.test is not affected by Current overrides.
+        let prodApp = try await setup(.production)
+        defer { prodApp.shutdown() }
+
+        // MUT
+        try prodApp.test(.GET, "/sitemap.xml") { res in
+            // Validation
+            XCTAssertEqual(res.status, .ok)
+        }
+    }
+
+    func test_siteMapIndex_dev() async throws {
+        // Ensure we don't serve sitemaps in dev
+        // app and Current.environment are configured for .development by default
+
+        // MUT
+        try app.test(.GET, "/sitemap.xml") { res in
+            // Validation
+            XCTAssertEqual(res.status, .notFound)
+        }
+    }
+
     @MainActor
     func test_siteMapStaticPages() async throws {
         let req = Request(application: app, on: app.eventLoopGroup.next())
@@ -53,6 +80,32 @@ class SitemapTests: SnapshotTestCase {
         // Validation
         assertSnapshot(matching: siteMap.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
+    }
+
+    func test_siteMapStaticPages_prod() async throws {
+        // Ensure sitemap routing is configured in prod
+        Current.environment = { .production }
+        // We also need to set up a new app that's configured for production,
+        // because app.test is not affected by Current overrides.
+        let prodApp = try await setup(.production)
+        defer { prodApp.shutdown() }
+
+        // MUT
+        try prodApp.test(.GET, "/sitemap-static-pages.xml") { res in
+            // Validation
+            XCTAssertEqual(res.status, .ok)
+        }
+    }
+
+    func test_siteMapStaticPages_dev() async throws {
+        // Ensure we don't serve sitemaps in dev
+        // app and Current.environment are configured for .development by default
+
+        // MUT
+        try app.test(.GET, "/sitemap-static-pages.xml") { res in
+            // Validation
+            XCTAssertEqual(res.status, .notFound)
+        }
     }
 
     func test_linkablePathUrls() async throws {
@@ -149,10 +202,10 @@ class SitemapTests: SnapshotTestCase {
             .query(on: app.db, owner: "owner", repository: "repo0")
 
         // MUT
-        let sitemap = try await SiteMapView.package(owner: packageResult.repository.owner,
-                                                    repository: packageResult.repository.name,
-                                                    lastActivityAt: packageResult.repository.lastActivityAt,
-                                                    linkablePathUrls: [])
+        let sitemap = try await SiteMapController.package(owner: packageResult.repository.owner,
+                                                          repository: packageResult.repository.name,
+                                                          lastActivityAt: packageResult.repository.lastActivityAt,
+                                                          linkablePathUrls: [])
         let xml = sitemap.render(indentedBy: .spaces(2))
 
         // Validation
@@ -178,10 +231,10 @@ class SitemapTests: SnapshotTestCase {
         ]
 
         // MUT
-        let sitemap = try await SiteMapView.package(owner: packageResult.repository.owner,
-                                                    repository: packageResult.repository.name,
-                                                    lastActivityAt: packageResult.repository.lastActivityAt,
-                                                    linkablePathUrls: linkablePathUrls)
+        let sitemap = try await SiteMapController.package(owner: packageResult.repository.owner,
+                                                          repository: packageResult.repository.name,
+                                                          lastActivityAt: packageResult.repository.lastActivityAt,
+                                                          linkablePathUrls: linkablePathUrls)
         let xml = sitemap.render(indentedBy: .spaces(2))
 
         // Validation

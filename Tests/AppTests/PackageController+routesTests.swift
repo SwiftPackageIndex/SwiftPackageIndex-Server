@@ -915,6 +915,49 @@ class PackageController_routesTests: AppTestCase {
         XCTAssertEqual(latestMajorRerefences, ["1.1.2", "2.1.1", "3.0.0"])
     }
 
+    func test_siteMap_prod() async throws {
+        // Ensure sitemap routing is configured in prod
+        // Setup
+        Current.environment = { .production }
+        // We also need to set up a new app that's configured for production,
+        // because app.test is not affected by Current overrides.
+        let prodApp = try await setup(.production)
+        defer { prodApp.shutdown() }
+
+        // setup
+        let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
+        try await package.save(on: app.db)
+        try await Repository(package: package, defaultBranch: "default",
+                             lastCommitDate: Current.date(),
+                             name: "Repo0", owner: "Owner").save(on: app.db)
+        try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
+                          reference: .branch("default")).save(on: app.db)
+
+        // MUT
+        try prodApp.test(.GET, "/owner/repo0/sitemap.xml") { res in
+            XCTAssertEqual(res.status, .ok)
+        }
+    }
+
+    func test_siteMap_dev() async throws {
+        // Ensure we don't serve sitemaps in dev
+        // app and Current.environment are configured for .development by default
+
+        // setup
+        let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
+        try await package.save(on: app.db)
+        try await Repository(package: package, defaultBranch: "default",
+                             lastCommitDate: Current.date(),
+                             name: "Repo0", owner: "Owner").save(on: app.db)
+        try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
+                          reference: .branch("default")).save(on: app.db)
+
+        // MUT
+        try app.test(.GET, "/owner/repo0/sitemap.xml") { res in
+            XCTAssertEqual(res.status, .notFound)
+        }
+    }
+
     func test_issue_2288() async throws {
         // Ensures default branch updates don't introduce a "documentation gap"
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
