@@ -19,6 +19,15 @@ import Plot
 
 enum SiteMapController {
 
+    static var staticRoutes: [SiteURL] = [
+        .home,
+        .addAPackage,
+        .faq,
+        .supporters,
+        .buildMonitor,
+        .privacy
+    ]
+
     struct Package: Equatable, Decodable {
         var owner: String
         var repository: String
@@ -31,6 +40,9 @@ enum SiteMapController {
         }
     }
 
+    /// Generate a sitemap index page for a given request
+    /// - Parameter req: `Request`
+    /// - Returns: `SiteMapIndex`
     static func index(req: Request) async throws -> SiteMapIndex {
         guard let db = req.db as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
@@ -46,10 +58,76 @@ enum SiteMapController {
             .orderBy(Search.repoName)
 
         let packages = try await query.all(decoding: Package.self)
-        return SiteMapView.index(packages: packages)
+        return index(packages: packages)
+    }
+
+    /// Generate a sitemap index page for a given list of packages
+    /// - Parameter packages: list of packages
+    /// - Returns: `SiteMapIndex`
+    static func index(packages: [SiteMapController.Package]) -> SiteMapIndex {
+        SiteMapIndex(
+            .sitemap(
+                .loc(SiteURL.siteMapStaticPages.absoluteURL()),
+                .lastmod(Current.date(), timeZone: .utc) // The home page updates every day.
+            ),
+            .group(
+                packages.map { package -> Node<SiteMapIndex.SiteMapIndexContext> in
+                        .sitemap(
+                            .loc(SiteURL.package(.value(package.owner),
+                                                 .value(package.repository),
+                                                 .siteMap).absoluteURL()),
+                            .unwrap(package.lastActivityAt, { .lastmod($0, timeZone: .utc) })
+                        )
+                }
+            )
+        )
+    }
+
+    /// Generate a sitemap for a specific package
+    /// - Parameters:
+    ///   - owner: package owner (author)
+    ///   - repository: repository name
+    ///   - lastActivityAt: last activity
+    ///   - linkablePathUrls: list of linkable path urls
+    /// - Returns: `SiteMap`
+    static func package(owner: String?,
+                        repository: String?,
+                        lastActivityAt: Date?,
+                        linkablePathUrls: [String]) async throws -> SiteMap {
+        guard let owner,
+              let repository
+        else {
+            // This should never happen, but we should return an empty
+            // sitemap instead of an incorrect one.
+            return SiteMap()
+        }
+
+        // See SwiftPackageIndex-Server#2485 for context on the performance implications of this
+        let lastmod: Node<SiteMap.URLContext> = lastActivityAt.map { .lastmod($0, timeZone: .utc) } ?? .empty
+
+        return SiteMap(
+            .url(
+                .loc(SiteURL.package(.value(owner),
+                                     .value(repository),
+                                     .none).absoluteURL()),
+                lastmod
+            ),
+            .forEach(linkablePathUrls, { url in
+                    .url(.loc(url), lastmod)
+            })
+        )
     }
 
     static func staticPages(req: Request) async throws -> SiteMap {
-        return SiteMapView.staticPages()
+        SiteMap(
+            .group(
+                staticRoutes.map { page -> Node<SiteMap.URLSetContext> in
+                        .url(
+                            .loc(page.absoluteURL())
+                        )
+                }
+            )
+        )
     }
+
 }
