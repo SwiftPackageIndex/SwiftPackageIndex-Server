@@ -61,8 +61,7 @@ class SitemapTests: SnapshotTestCase {
 
     func test_siteMapIndex_dev() async throws {
         // Ensure we don't serve sitemaps in dev
-        // Setup
-        Current.environment = { .development }
+        // app and Current.environment are configured for .development by default
 
         // MUT
         try app.test(.GET, "/sitemap.xml") { res in
@@ -81,6 +80,32 @@ class SitemapTests: SnapshotTestCase {
         // Validation
         assertSnapshot(matching: siteMap.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
+    }
+
+    func test_siteMapStaticPages_prod() async throws {
+        // Ensure sitemap routing is configured in prod
+        Current.environment = { .production }
+        // We also need to set up a new app that's configured for production,
+        // because app.test is not affected by Current overrides.
+        let prodApp = try await setup(.production)
+        defer { prodApp.shutdown() }
+
+        // MUT
+        try prodApp.test(.GET, "/sitemap-static-pages.xml") { res in
+            // Validation
+            XCTAssertEqual(res.status, .ok)
+        }
+    }
+
+    func test_siteMapStaticPages_dev() async throws {
+        // Ensure we don't serve sitemaps in dev
+        // app and Current.environment are configured for .development by default
+
+        // MUT
+        try app.test(.GET, "/sitemap-static-pages.xml") { res in
+            // Validation
+            XCTAssertEqual(res.status, .notFound)
+        }
     }
 
     func test_linkablePathUrls() async throws {
