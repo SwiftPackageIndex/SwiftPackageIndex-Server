@@ -508,9 +508,9 @@ class IngestorTests: AppTestCase {
         let client = MockClient { _, resp in resp.status = .notFound }
 
         // MUT
-//        let (_, license, _, _) = try await fetchMetadata(client: client, package: pkg)
+        let (_, license, _, _) = try await fetchMetadata(client: client, package: pkg)
 
         // validate
-//        XCTAssertEqual(license, nil)
+        XCTAssertEqual(license, nil)
     }
 }
