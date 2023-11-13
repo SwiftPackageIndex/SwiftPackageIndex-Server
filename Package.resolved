@@ -122,8 +122,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-nio.git",
       "state" : {
-        "revision" : "21473f547ab195da56dca4bd203d7d2f150c48c1",
-        "version" : "1.19.0"
+        "revision" : "036931d968aab819f5e380a932237118ac4e87ba",
+        "version" : "1.19.1"
       }
     },
     {
@@ -131,8 +131,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/routing-kit.git",
       "state" : {
-        "revision" : "88077f2c9d12777dcc89562fa581888ff7ba14ae",
-        "version" : "4.8.1"
+        "revision" : "17a7a3facce8285fd257aa7c72d5e480351e7698",
+        "version" : "4.8.2"
       }
     },
     {
@@ -372,7 +372,7 @@
     {
       "identity" : "swift-numerics",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-numerics.git",
+      "location" : "https://github.com/apple/swift-numerics",
       "state" : {
         "revision" : "0a5bc04095a675662cf24757cc0640aa2204253b",
         "version" : "1.0.2"
@@ -437,8 +437,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/SwiftOpenAPI.git",
       "state" : {
-        "revision" : "0a790b493edb4450ccc78b11919498cc5085ab28",
-        "version" : "2.18.1"
+        "revision" : "dca73b6901e9ab25f11fc0ebdef7c66c85a244f2",
+        "version" : "2.18.3"
       }
     },
     {
@@ -473,8 +473,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/VaporToOpenAPI.git",
       "state" : {
-        "revision" : "0ba6581199d11fdbfe5dc6e7a24a5e69aeef0651",
-        "version" : "4.3.10"
+        "revision" : "d13e8e63dbcf4ebd7479c8c0bc107574e1815d24",
+        "version" : "4.3.11"
       }
     },
     {
