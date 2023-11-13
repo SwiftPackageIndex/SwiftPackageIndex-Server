@@ -201,10 +201,9 @@ func updateRepository(on database: Database,
                                     "repository metadata is nil for package \(repository.name ?? "unknown")")
     }
 
-    #warning("Add funding info to repository")
-
     repository.defaultBranch = repoMetadata.defaultBranch
     repository.forks = repoMetadata.forkCount
+    repository.funding = fundingInfo
     repository.homepageUrl = repoMetadata.homepageUrl?.trimmed
     repository.isArchived = repoMetadata.isArchived
     repository.isInOrganization = repoMetadata.isInOrganization
