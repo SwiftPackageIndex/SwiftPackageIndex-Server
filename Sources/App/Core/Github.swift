@@ -194,7 +194,7 @@ extension Github {
             return nil
         }
 
-        return .init()
+        return nil
     }
 }
 
@@ -272,9 +272,10 @@ extension Github {
         var htmlUrl: String
     }
 
-    struct Funding: Decodable {
+    struct Funding: Codable, Equatable {
         var communityBridge: String?
-        var githubSponsors: [String]?
+        var customUrls: [String]?
+        var github: [String]?
         var issueHunt: String?
         var koFi: String?
         var liberaPay: String?
@@ -282,7 +283,71 @@ extension Github {
         var otechie: String?
         var patreon: String?
         var tideLift: String?
-        var customUrls: [String]?
+
+        enum CodingKeys: String, CodingKey {
+            case communityBridge = "community_bridge"
+            case customUrls = "custom"
+            case github
+            case issueHunt = "issuehunt"
+            case koFi = "ko_fi"
+            case liberaPay = "liberapay"
+            case openCollective = "open_collective"
+            case otechie
+            case patreon
+            case tideLift = "tidelift"
+        }
+
+        init(communityBridge: String? = nil,
+             customUrls: [String]? = nil,
+             github: [String]? = nil,
+             issueHunt: String? = nil,
+             koFi: String? = nil,
+             liberaPay: String? = nil,
+             openCollective: String? = nil,
+             otechie: String? = nil,
+             patreon: String? = nil,
+             tideLift: String? = nil
+        ) {
+            self.communityBridge = communityBridge
+            self.customUrls = customUrls
+            self.github = github
+            self.issueHunt = issueHunt
+            self.koFi = koFi
+            self.liberaPay = liberaPay
+            self.openCollective = openCollective
+            self.otechie = otechie
+            self.patreon = patreon
+            self.tideLift = tideLift
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+
+            // Most entries in the YML can only hold a single type.
+            communityBridge = try container.decodeIfPresent(String.self, forKey: .communityBridge)
+            issueHunt = try container.decodeIfPresent(String.self, forKey: .issueHunt)
+            koFi = try container.decodeIfPresent(String.self, forKey: .koFi)
+            liberaPay = try container.decodeIfPresent(String.self, forKey: .liberaPay)
+            openCollective = try container.decodeIfPresent(String.self, forKey: .openCollective)
+            otechie = try container.decodeIfPresent(String.self, forKey: .otechie)
+            patreon = try container.decodeIfPresent(String.self, forKey: .patreon)
+            tideLift = try container.decodeIfPresent(String.self, forKey: .tideLift)
+
+            // Except these two, which can hold either a string or an array of strings!
+            customUrls = try decodeArrayOrString(from: container, forKey: .customUrls)
+            github = try decodeArrayOrString(from: container, forKey: .github)
+        }
+
+        // Some properties can be either an array of strings, or a single optional string.
+        private func decodeArrayOrString(from container: KeyedDecodingContainer<CodingKeys>, forKey key: CodingKeys) throws -> [String]? {
+            if let array = try? container.decode([String].self, forKey: key) {
+                return array
+            } else if let string = try? container.decode(String.self, forKey: key) {
+                return [string]
+            } else {
+                return nil
+            }
+        }
     }
 
     struct Metadata: Decodable, Equatable {
