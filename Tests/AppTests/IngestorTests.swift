@@ -491,6 +491,22 @@ class IngestorTests: AppTestCase {
         }
     }
 
+    func test_ingest_storeFunding() async throws {
+        // Setup
+        let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
+        try await pkg.save(on: app.db)
+
+        Current.fetchFunding = { _, _ in .mock }
+
+        // MUT
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+
+        // Validation
+        try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+        let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+        XCTAssertEqual(repo.funding, .init(customUrls: ["example.com/funding/link"], github: ["GitHubUsername"]))
+    }
+
     func test_issue_761_no_license() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup

@@ -98,3 +98,7 @@ extension Github.Metadata {
         )
     }
 }
+
+extension Github.Funding {
+    static let mock: Self = .init(customUrls: ["example.com/funding/link"], github: ["GitHubUsername"])
+}
