@@ -185,16 +185,13 @@ extension Github {
         let fetchResult = try? await Github.fetch(client: client, uri: uri, headers: [
             ("Accept", "application/vnd.github.raw")
         ])
-        guard let fundingYml = fetchResult?.content else { return nil }
+        guard let yaml = fetchResult?.content else { return nil }
 
         do {
-            let parsedYml = try Yams.load(yaml: fundingYml) as? [String: Any]
-            print(parsedYml)
+            return try YAMLDecoder().decode(Github.Funding.self, from: yaml)
         } catch {
             return nil
         }
-
-        return nil
     }
 }
 
