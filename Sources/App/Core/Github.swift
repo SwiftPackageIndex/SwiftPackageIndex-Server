@@ -389,7 +389,7 @@ extension Github {
             var defaultBranchRef: DefaultBranchRef?
             var description: String?
             var forkCount: Int
-            var fundingLinks: [FundingLink]
+            var fundingLinks: [FundingLink]?
             var homepageUrl: String?
             var isArchived: Bool
             // periphery:ignore
