@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Vapor
-import Yams
 
 
 enum Github {
@@ -85,7 +84,6 @@ extension Github {
     enum Resource: String {
         case license
         case readme
-        case funding
     }
 
     static func apiUri(for packageUrl: String,
@@ -99,8 +97,6 @@ extension Github {
         switch resource {
             case .license, .readme:
                 return URI(string: "https://api.github.com/repos/\(trunk)/\(resource.rawValue)\(queryString)")
-            case .funding:
-                return URI(string: "https://api.github.com/repos/\(trunk)/contents/FUNDING.yml")
         }
     }
 
@@ -176,6 +172,7 @@ extension Github {
 
         return .init(etag: readme?.etag, html: html, htmlUrl: htmlUrl)
     }
+
 }
 
 
@@ -267,7 +264,7 @@ extension Github {
             case patreon
             case tideLift
 
-            static let gitHubApiEncodings: [String: Platform] = [
+            private static let gitHubApiEncodings: [String: Platform] = [
                 "COMMUNITY_BRIDGE": .communityBridge,
                 "CUSTOM": .customUrl,
                 "GITHUB": .gitHub,

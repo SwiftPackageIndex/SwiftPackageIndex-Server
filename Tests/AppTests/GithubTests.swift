@@ -16,7 +16,6 @@
 
 import Vapor
 import XCTest
-import Yams
 
 
 class GithubTests: AppTestCase {
@@ -393,4 +392,5 @@ class GithubTests: AppTestCase {
         // validate
         XCTAssertEqual(res, nil)
     }
+
 }
