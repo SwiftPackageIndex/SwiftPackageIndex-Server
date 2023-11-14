@@ -46,13 +46,51 @@ class GithubTests: AppTestCase {
         }
         do {
             let data = """
-            {"data":{"repository":{"closedIssues":{"nodes":[]},"closedPullRequests":{"nodes":[]},"createdAt":"2019-04-23T09:26:22Z","defaultBranchRef":{"name":"master"},"description":null,"forkCount":0,"isArchived":false,"isFork":false,"licenseInfo":null,"mergedPullRequests":{"nodes":[]},"name":"CRToastSwift","openIssues":{"totalCount":0},"openPullRequests":{"totalCount":0},"owner":{"login":"krugazor","avatarUrl": "https://avatars.githubusercontent.com/u/2742179?u=28d2ccb6a27c975e663738fe86af579ff74203ac&v=4","name": "Nicolas Zinovieff"},"releases":{"nodes":[]},"repositoryTopics":{"totalCount":0,"nodes":[]},"stargazerCount":3,"isInOrganization":false},"rateLimit":{"remaining":4753}}}
+            {
+                "data": {
+                "repository": {
+                    "closedIssues": { "nodes": [] },
+                    "closedPullRequests": { "nodes": [] },
+                    "createdAt": "2019-04-23T09:26:22Z",
+                    "defaultBranchRef": { "name": "master" },
+                    "description": null,
+                    "forkCount": 0,
+                    "isArchived": false,
+                    "isFork": false,
+                    "licenseInfo": null,
+                    "mergedPullRequests": { "nodes": [] },
+                    "name": "CRToastSwift",
+                    "openIssues": { "totalCount": 0 },
+                    "openPullRequests": { "totalCount": 0 },
+                    "owner": {
+                        "login": "krugazor",
+                        "avatarUrl": "https://avatars.githubusercontent.com/u/2742179?u=28d2ccb6a27c975e663738fe86af579ff74203ac&v=4",
+                        "name": "Nicolas Zinovieff"
+                    },
+                    "releases": { "nodes": [] },
+                    "repositoryTopics": { "totalCount": 0, "nodes": [] },
+                    "stargazerCount": 3,
+                    "isInOrganization": false
+                    },
+                    "rateLimit": { "remaining": 4753 }
+                }
+            }
             """
             _ = try Github.decoder.decode(Response.self, from: Data(data.utf8))
         }
         do {  // no repository at all (can happen)
             let data = """
-                {"data":{"repository":null,"rateLimit":{"remaining":4986}},"errors":[{"type":"NOT_FOUND","path":["repository"],"locations":[{"line":2,"column":3}],"message":"Could not resolve to a Repository with the name 'IBM-Swift/kitura-mustachetemplateengine'."}]}
+            {
+                "data": { "repository": null, "rateLimit": { "remaining": 4986 } },
+                "errors": [
+                    {
+                        "type": "NOT_FOUND",
+                        "path": ["repository"],
+                        "locations": [{ "line": 2, "column": 3 }],
+                        "message": "Could not resolve to a Repository with the name 'IBM-Swift/kitura-mustachetemplateengine'."
+                    }
+                ]
+            }
             """
             _ = try Github.decoder.decode(Response.self, from: Data(data.utf8))
         }
