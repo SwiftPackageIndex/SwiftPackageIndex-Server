@@ -176,23 +176,6 @@ extension Github {
 
         return .init(etag: readme?.etag, html: html, htmlUrl: htmlUrl)
     }
-
-    static func fetchFunding(client: Client, packageUrl: String) async -> Funding? {
-        guard let uri = try? Github.apiUri(for: packageUrl, resource: .funding)
-        else { return nil }
-
-        // Fetch the raw YML contents of FUNDING.yml
-        let fetchResult = try? await Github.fetch(client: client, uri: uri, headers: [
-            ("Accept", "application/vnd.github.raw")
-        ])
-        guard let yaml = fetchResult?.content else { return nil }
-
-        do {
-            return try YAMLDecoder().decode(Github.Funding.self, from: yaml)
-        } catch {
-            return nil
-        }
-    }
 }
 
 
@@ -269,82 +252,51 @@ extension Github {
         var htmlUrl: String
     }
 
-    struct Funding: Codable, Equatable {
-        var communityBridge: String?
-        var customUrls: [String]?
-        var github: [String]?
-        var issueHunt: String?
-        var koFi: String?
-        var liberaPay: String?
-        var openCollective: String?
-        var otechie: String?
-        var patreon: String?
-        var tideLift: String?
+    struct FundingLink: Codable, Equatable {
 
-        enum CodingKeys: String, CodingKey {
-            case communityBridge = "community_bridge"
-            case customUrls = "custom"
-            case github
-            case issueHunt = "issuehunt"
-            case koFi = "ko_fi"
-            case liberaPay = "liberapay"
-            case openCollective = "open_collective"
+        enum Platform: String, Codable {
+            case communityBridge
+            case customUrl
+            case gitHub
+            case issueHunt
+            case koFi
+            case lfxCrowdfunding
+            case liberaPay
+            case openCollective
             case otechie
             case patreon
-            case tideLift = "tidelift"
-        }
+            case tideLift
 
-        init(communityBridge: String? = nil,
-             customUrls: [String]? = nil,
-             github: [String]? = nil,
-             issueHunt: String? = nil,
-             koFi: String? = nil,
-             liberaPay: String? = nil,
-             openCollective: String? = nil,
-             otechie: String? = nil,
-             patreon: String? = nil,
-             tideLift: String? = nil
-        ) {
-            self.communityBridge = communityBridge
-            self.customUrls = customUrls
-            self.github = github
-            self.issueHunt = issueHunt
-            self.koFi = koFi
-            self.liberaPay = liberaPay
-            self.openCollective = openCollective
-            self.otechie = otechie
-            self.patreon = patreon
-            self.tideLift = tideLift
-        }
+            static let gitHubApiEncodings: [String: Platform] = [
+                "COMMUNITY_BRIDGE": .communityBridge,
+                "CUSTOM": .customUrl,
+                "GITHUB": .gitHub,
+                "ISSUEHUNT": .issueHunt,
+                "KO_FI": .koFi,
+                "LFX_CROWDFUNDING": .lfxCrowdfunding,
+                "LIBERAPAY": .liberaPay,
+                "OPEN_COLLECTIVE": .openCollective,
+                "OTECHIE": .otechie,
+                "PATREON": .patreon,
+                "TIDELIFT": .tideLift
+            ]
 
-        init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
+            init(from decoder: Decoder) throws {
+                let container = try decoder.singleValueContainer()
+                let stringValue = try container.decode(String.self)
 
-            // Most entries in the YML can only hold a single type.
-            communityBridge = try container.decodeIfPresent(String.self, forKey: .communityBridge)
-            issueHunt = try container.decodeIfPresent(String.self, forKey: .issueHunt)
-            koFi = try container.decodeIfPresent(String.self, forKey: .koFi)
-            liberaPay = try container.decodeIfPresent(String.self, forKey: .liberaPay)
-            openCollective = try container.decodeIfPresent(String.self, forKey: .openCollective)
-            otechie = try container.decodeIfPresent(String.self, forKey: .otechie)
-            patreon = try container.decodeIfPresent(String.self, forKey: .patreon)
-            tideLift = try container.decodeIfPresent(String.self, forKey: .tideLift)
-
-            // Except these two, which can hold either a string or an array of strings!
-            customUrls = try decodeArrayOrString(from: container, forKey: .customUrls)
-            github = try decodeArrayOrString(from: container, forKey: .github)
-        }
-
-        // Some properties can be either an array of strings, or a single optional string.
-        private func decodeArrayOrString(from container: KeyedDecodingContainer<CodingKeys>, forKey key: CodingKeys) throws -> [String]? {
-            if let array = try? container.decode([String].self, forKey: key) {
-                return array
-            } else if let string = try? container.decode(String.self, forKey: key) {
-                return [string]
-            } else {
-                return nil
+                if let value = Platform(rawValue: stringValue) {
+                    self = value
+                } else if let value = Platform.gitHubApiEncodings[stringValue] {
+                    self = value
+                } else {
+                    throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unable to decode \(stringValue)")
+                }
             }
         }
+
+        var platform: Platform
+        var url: String
     }
 
     struct Metadata: Decodable, Equatable {
@@ -374,6 +326,10 @@ extension Github {
                     }
                     description
                     forkCount
+                    fundingLinks {
+                      platform
+                      url
+                    }
                     homepageUrl
                     isArchived
                     isFork
@@ -436,6 +392,7 @@ extension Github {
             var defaultBranchRef: DefaultBranchRef?
             var description: String?
             var forkCount: Int
+            var fundingLinks: [FundingLink]
             var homepageUrl: String?
             var isArchived: Bool
             // periphery:ignore

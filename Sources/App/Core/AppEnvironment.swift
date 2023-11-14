@@ -47,7 +47,6 @@ struct AppEnvironment {
     var fetchLicense: (_ client: Client, _ packageUrl: String) async -> Github.License?
     var fetchMetadata: (_ client: Client, _ packageUrl: String) async throws -> Github.Metadata
     var fetchReadme: (_ client: Client, _ packageUrl: String) async -> Github.Readme?
-    var fetchFunding: (_ client: Client, _ packageUrl: String) async -> Github.Funding?
     var fetchS3Readme: (_ client: Client, _ owner: String, _ repository: String) async throws -> String
     var fileManager: FileManager
     var getStatusCount: (_ client: Client,
@@ -166,7 +165,6 @@ extension AppEnvironment {
         fetchLicense: Github.fetchLicense(client:packageUrl:),
         fetchMetadata: Github.fetchMetadata(client:packageUrl:),
         fetchReadme: Github.fetchReadme(client:packageUrl:),
-        fetchFunding: Github.fetchFunding(client:packageUrl:),
         fetchS3Readme: S3Store.fetchReadme(client:owner:repository:),
         fileManager: .live,
         getStatusCount: { client, status in

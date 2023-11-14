@@ -95,9 +95,7 @@ class IngestorTests: AppTestCase {
                                    metadata: .mock(for: pkg.url),
                                    licenseInfo: .init(htmlUrl: ""),
                                    readmeInfo: .init(html: "", htmlUrl: ""),
-                                   fundingInfo: nil,
                                    s3Readme: nil)
-#warning("Add funding information here")
 
         // validate
         do {
@@ -112,6 +110,11 @@ class IngestorTests: AppTestCase {
         let repo = Repository(packageId: try pkg.requireID())
         let md: Github.Metadata = .init(defaultBranch: "main",
                                         forks: 1,
+                                        fundingLinks: [
+                                            .init(platform: .gitHub, url: "https://github.com/username"),
+                                            .init(platform: .customUrl, url: "https://example.com/username1"),
+                                            .init(platform: .customUrl, url: "https://example.com/username2")
+                                        ],
                                         homepageUrl: "https://swiftpackageindex.com/Alamofire/Alamofire",
                                         isInOrganization: true,
                                         issuesClosedAtDates: [
@@ -147,9 +150,7 @@ class IngestorTests: AppTestCase {
                                    metadata: md,
                                    licenseInfo: .init(htmlUrl: "license url"),
                                    readmeInfo: .init(etag: "etag", html: "readme html", htmlUrl: "readme html url"),
-                                   fundingInfo: nil,
                                    s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"))
-#warning("Add funding information here")
 
         // validate
         do {
@@ -157,6 +158,11 @@ class IngestorTests: AppTestCase {
             let repo = try await Repository.query(on: app.db).first().unwrap()
             XCTAssertEqual(repo.defaultBranch, "main")
             XCTAssertEqual(repo.forks, 1)
+            XCTAssertEqual(repo.fundingLinks, [
+                .init(platform: .gitHub, url: "https://github.com/username"),
+                .init(platform: .customUrl, url: "https://example.com/username1"),
+                .init(platform: .customUrl, url: "https://example.com/username2")
+            ])
             XCTAssertEqual(repo.homepageUrl, "https://swiftpackageindex.com/Alamofire/Alamofire")
             XCTAssertEqual(repo.isInOrganization, true)
             XCTAssertEqual(repo.keywords, ["bar", "baz", "foo"])
@@ -211,7 +217,6 @@ class IngestorTests: AppTestCase {
                                    metadata: md,
                                    licenseInfo: .init(htmlUrl: "license url"),
                                    readmeInfo: .init(html: "readme html", htmlUrl: "readme html url"),
-                                   fundingInfo: nil,
                                    s3Readme: nil)
 
         // validate
@@ -491,22 +496,6 @@ class IngestorTests: AppTestCase {
         }
     }
 
-    func test_ingest_storeFunding() async throws {
-        // Setup
-        let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
-        try await pkg.save(on: app.db)
-
-        Current.fetchFunding = { _, _ in .mock }
-
-        // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
-
-        // Validation
-        try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
-        let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
-        XCTAssertEqual(repo.funding, .init(customUrls: ["example.com/funding/link"], github: ["GitHubUsername"]))
-    }
-
     func test_issue_761_no_license() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup
@@ -524,7 +513,7 @@ class IngestorTests: AppTestCase {
         let client = MockClient { _, resp in resp.status = .notFound }
 
         // MUT
-        let (_, license, _, _) = try await fetchMetadata(client: client, package: pkg)
+        let (_, license, _) = try await fetchMetadata(client: client, package: pkg)
 
         // validate
         XCTAssertEqual(license, nil)

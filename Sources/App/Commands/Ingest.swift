@@ -122,7 +122,7 @@ func ingest(client: Client,
         for pkg in packages {
             group.addTask {
                 let result = await Result {
-                    let (metadata, license, readme, funding) = try await fetchMetadata(client: client, package: pkg)
+                    let (metadata, license, readme) = try await fetchMetadata(client: client, package: pkg)
                     let repo = try await Repository.findOrCreate(on: database, for: pkg.model)
 
                     let s3Readme: S3Readme?
@@ -148,7 +148,6 @@ func ingest(client: Client,
                                                metadata: metadata,
                                                licenseInfo: license,
                                                readmeInfo: readme,
-                                               fundingInfo: funding,
                                                s3Readme: s3Readme)
                     return pkg
                 }
@@ -171,12 +170,11 @@ func ingest(client: Client,
 }
 
 
-func fetchMetadata(client: Client, package: Joined<Package, Repository>) async throws -> (Github.Metadata, Github.License?, Github.Readme?, Github.Funding?) {
+func fetchMetadata(client: Client, package: Joined<Package, Repository>) async throws -> (Github.Metadata, Github.License?, Github.Readme?) {
     async let metadata = try await Current.fetchMetadata(client, package.model.url)
     async let license = await Current.fetchLicense(client, package.model.url)
     async let readme = await Current.fetchReadme(client, package.model.url)
-    async let funding = await Current.fetchFunding(client, package.model.url)
-    return try await (metadata, license, readme, funding)
+    return try await (metadata, license, readme)
 }
 
 
@@ -191,7 +189,6 @@ func updateRepository(on database: Database,
                       metadata: Github.Metadata,
                       licenseInfo: Github.License?,
                       readmeInfo: Github.Readme?,
-                      fundingInfo: Github.Funding?,
                       s3Readme: S3Readme?) async throws {
     guard let repoMetadata = metadata.repository else {
         if repository.$package.value == nil {
@@ -203,7 +200,7 @@ func updateRepository(on database: Database,
 
     repository.defaultBranch = repoMetadata.defaultBranch
     repository.forks = repoMetadata.forkCount
-    repository.funding = fundingInfo
+    repository.fundingLinks = repoMetadata.fundingLinks
     repository.homepageUrl = repoMetadata.homepageUrl?.trimmed
     repository.isArchived = repoMetadata.isArchived
     repository.isInOrganization = repoMetadata.isInOrganization

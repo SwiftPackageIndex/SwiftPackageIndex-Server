@@ -20,6 +20,11 @@ import Foundation
 extension Github.Metadata {
     static let mock: Self = .init(defaultBranch: "main",
                                   forks: 1,
+                                  fundingLinks: [
+                                    .init(platform: .gitHub, url: "https://github.com/username1"),
+                                    .init(platform: .gitHub, url: "https://github.com/username2"),
+                                    .init(platform: .customUrl, url: "https://example.com/username")
+                                  ],
                                   homepageUrl: nil,
                                   isInOrganization: false,
                                   issuesClosedAtDates: [],
@@ -38,6 +43,11 @@ extension Github.Metadata {
         let (owner, name) = try! Github.parseOwnerName(url: packageUrl)
         return .init(defaultBranch: "main",
                      forks: packageUrl.count,
+                     fundingLinks: [
+                        .init(platform: .gitHub, url: "https://github.com/username1"),
+                        .init(platform: .gitHub, url: "https://github.com/username2"),
+                        .init(platform: .customUrl, url: "https://example.com/username")
+                     ],
                      homepageUrl: nil,
                      isInOrganization: false,
                      issuesClosedAtDates: [],
@@ -55,6 +65,7 @@ extension Github.Metadata {
 
     init(defaultBranch: String,
          forks: Int,
+         fundingLinks: [Github.FundingLink] = [],
          homepageUrl: String?,
          isInOrganization: Bool,
          issuesClosedAtDates: [Date],
@@ -81,6 +92,7 @@ extension Github.Metadata {
                               defaultBranchRef: .init(name: defaultBranch),
                               description: summary,
                               forkCount: forks,
+                              fundingLinks: fundingLinks,
                               homepageUrl: homepageUrl,
                               isArchived: false,
                               isFork: false,
@@ -97,8 +109,4 @@ extension Github.Metadata {
                               stargazerCount: stars)
         )
     }
-}
-
-extension Github.Funding {
-    static let mock: Self = .init(customUrls: ["example.com/funding/link"], github: ["GitHubUsername"])
 }

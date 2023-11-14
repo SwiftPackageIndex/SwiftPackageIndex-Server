@@ -57,8 +57,8 @@ final class Repository: Model, Content {
     @Field(key: "forks")
     var forks: Int
 
-    @Field(key: "funding")
-    var funding: Github.Funding?
+    @Field(key: "funding_links")
+    var fundingLinks: [Github.FundingLink]
 
     @Field(key: "homepage_url")
     var homepageUrl: String?
