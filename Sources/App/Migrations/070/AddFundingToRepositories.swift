@@ -18,7 +18,7 @@ import Fluent
 struct AddFundingToRepositories: AsyncMigration {
     func prepare(on database: Database) async throws {
         try await database.schema("repositories")
-            .field("funding_links", .json)
+            .field("funding_links", .array(of: .json), .sql(.default("{}")))
             .update()
     }
 

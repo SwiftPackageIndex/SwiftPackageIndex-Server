@@ -20,11 +20,6 @@ import Foundation
 extension Github.Metadata {
     static let mock: Self = .init(defaultBranch: "main",
                                   forks: 1,
-                                  fundingLinks: [
-                                    .init(platform: .gitHub, url: "https://github.com/username1"),
-                                    .init(platform: .gitHub, url: "https://github.com/username2"),
-                                    .init(platform: .customUrl, url: "https://example.com/username")
-                                  ],
                                   homepageUrl: nil,
                                   isInOrganization: false,
                                   issuesClosedAtDates: [],
@@ -43,11 +38,6 @@ extension Github.Metadata {
         let (owner, name) = try! Github.parseOwnerName(url: packageUrl)
         return .init(defaultBranch: "main",
                      forks: packageUrl.count,
-                     fundingLinks: [
-                        .init(platform: .gitHub, url: "https://github.com/username1"),
-                        .init(platform: .gitHub, url: "https://github.com/username2"),
-                        .init(platform: .customUrl, url: "https://example.com/username")
-                     ],
                      homepageUrl: nil,
                      isInOrganization: false,
                      issuesClosedAtDates: [],
