@@ -55,7 +55,7 @@ extension Github.Metadata {
 
     init(defaultBranch: String,
          forks: Int,
-         fundingLinks: [Github.FundingLink] = [],
+         fundingLinks: [FundingLinkNode] = [],
          homepageUrl: String?,
          isInOrganization: Bool,
          issuesClosedAtDates: [Date],

@@ -249,53 +249,6 @@ extension Github {
         var htmlUrl: String
     }
 
-    struct FundingLink: Codable, Equatable {
-
-        enum Platform: String, Codable {
-            case communityBridge
-            case customUrl
-            case gitHub
-            case issueHunt
-            case koFi
-            case lfxCrowdfunding
-            case liberaPay
-            case openCollective
-            case otechie
-            case patreon
-            case tideLift
-
-            private static let gitHubApiEncodings: [String: Platform] = [
-                "COMMUNITY_BRIDGE": .communityBridge,
-                "CUSTOM": .customUrl,
-                "GITHUB": .gitHub,
-                "ISSUEHUNT": .issueHunt,
-                "KO_FI": .koFi,
-                "LFX_CROWDFUNDING": .lfxCrowdfunding,
-                "LIBERAPAY": .liberaPay,
-                "OPEN_COLLECTIVE": .openCollective,
-                "OTECHIE": .otechie,
-                "PATREON": .patreon,
-                "TIDELIFT": .tideLift
-            ]
-
-            init(from decoder: Decoder) throws {
-                let container = try decoder.singleValueContainer()
-                let stringValue = try container.decode(String.self)
-
-                if let value = Platform(rawValue: stringValue) {
-                    self = value
-                } else if let value = Platform.gitHubApiEncodings[stringValue] {
-                    self = value
-                } else {
-                    throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unable to decode \(stringValue)")
-                }
-            }
-        }
-
-        var platform: Platform
-        var url: String
-    }
-
     struct Metadata: Decodable, Equatable {
         static func query(owner: String, repository: String) -> GraphQLQuery {
             // Go to https://developer.github.com/v4/explorer/ to run query manually
@@ -389,7 +342,7 @@ extension Github {
             var defaultBranchRef: DefaultBranchRef?
             var description: String?
             var forkCount: Int
-            var fundingLinks: [FundingLink]?
+            var fundingLinks: [FundingLinkNode]?
             var homepageUrl: String?
             var isArchived: Bool
             // periphery:ignore
@@ -415,6 +368,25 @@ extension Github {
             var topics: [String] {
                 repositoryTopics.nodes.map(\.topic.name)
             }
+        }
+
+        struct FundingLinkNode: Codable, Equatable {
+            enum Platform: String, Codable {
+                case communityBridge = "COMMUNITYBRIDGE"
+                case customUrl = "CUSTOMURL"
+                case gitHub = "GITHUB"
+                case issueHunt = "ISSUEHUNT"
+                case koFi = "KOFI"
+                case lfxCrowdfunding = "LFXCROWDFUNDING"
+                case liberaPay = "LIBERAPAY"
+                case openCollective = "OPENCOLLECTIVE"
+                case otechie = "OTECHIE"
+                case patreon = "PATREON"
+                case tideLift = "TIDELIFT"
+            }
+
+            var platform: Platform
+            var url: String
         }
 
         struct IssueNodes: Decodable, Equatable {

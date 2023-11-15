@@ -58,7 +58,7 @@ final class Repository: Model, Content {
     var forks: Int
 
     @Field(key: "funding_links")
-    var fundingLinks: [Github.FundingLink]
+    var fundingLinks: [FundingLink]
 
     @Field(key: "homepage_url")
     var homepageUrl: String?
@@ -134,7 +134,7 @@ final class Repository: Model, Content {
          defaultBranch: String? = nil,
          firstCommitDate: Date? = nil,
          forks: Int = 0,
-         fundingLinks: [Github.FundingLink] = [],
+         fundingLinks: [FundingLink] = [],
          forkedFrom: Repository? = nil,
          homepageUrl: String? = nil,
          isArchived: Bool = false,
