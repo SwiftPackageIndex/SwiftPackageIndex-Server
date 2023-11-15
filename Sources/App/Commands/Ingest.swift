@@ -217,8 +217,7 @@ func updateRepository(on database: Database,
     repository.ownerAvatarUrl = repoMetadata.owner.avatarUrl
     repository.s3Readme = s3Readme
     repository.readmeHtmlUrl = readmeInfo?.htmlUrl
-    repository.releases = metadata.repository?.releases.nodes
-        .map(Release.init(from:)) ?? []
+    repository.releases = repoMetadata.releases.nodes.map(Release.init(from:))
     repository.stars = repoMetadata.stargazerCount
     repository.summary = repoMetadata.description
 
