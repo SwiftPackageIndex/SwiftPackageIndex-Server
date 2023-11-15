@@ -620,8 +620,8 @@
           "url": "https://github.com/Alamofire"
         },
         {
-          "platform": "GITHUB",
-          "url": "https://github.com/jshier"
+          "platform": "LFX_CROWDFUNDING",
+          "url": "https://crowdfunding.lfx.linuxfoundation.org/projects/alamofire"
         }
       ],
       "isArchived": false,

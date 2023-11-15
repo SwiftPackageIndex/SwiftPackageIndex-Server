@@ -138,7 +138,7 @@ class GithubTests: AppTestCase {
         XCTAssertEqual(res.repository?.forkCount, 6727)
         XCTAssertEqual(res.repository?.fundingLinks, [
             .init(platform: .gitHub, url: "https://github.com/Alamofire"),
-            .init(platform: .gitHub, url: "https://github.com/jshier"),
+            .init(platform: .lfxCrowdfunding, url: "https://crowdfunding.lfx.linuxfoundation.org/projects/alamofire"),
         ])
         XCTAssertEqual(res.repository?.mergedPullRequests.nodes.first!.closedAt,
                        iso8601.date(from: "2021-06-07T22:47:01Z"))
