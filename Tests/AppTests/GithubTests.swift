@@ -136,6 +136,10 @@ class GithubTests: AppTestCase {
         XCTAssertEqual(res.repository?.closedPullRequests.nodes.first!.closedAt,
                        iso8601.date(from: "2021-05-28T15:50:17Z"))
         XCTAssertEqual(res.repository?.forkCount, 6727)
+        XCTAssertEqual(res.repository?.fundingLinks, [
+            .init(platform: .gitHub, url: "https://github.com/Alamofire"),
+            .init(platform: .gitHub, url: "https://github.com/jshier"),
+        ])
         XCTAssertEqual(res.repository?.mergedPullRequests.nodes.first!.closedAt,
                        iso8601.date(from: "2021-06-07T22:47:01Z"))
         XCTAssertEqual(res.repository?.name, "Alamofire")
