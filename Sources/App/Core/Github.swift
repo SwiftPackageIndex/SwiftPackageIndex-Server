@@ -372,14 +372,14 @@ extension Github {
 
         struct FundingLinkNode: Codable, Equatable {
             enum Platform: String, Codable {
-                case communityBridge = "COMMUNITYBRIDGE"
-                case customUrl = "CUSTOMURL"
+                case communityBridge = "COMMUNITY_BRIDGE"
+                case customUrl = "CUSTOM"
                 case gitHub = "GITHUB"
                 case issueHunt = "ISSUEHUNT"
-                case koFi = "KOFI"
-                case lfxCrowdfunding = "LFXCROWDFUNDING"
+                case koFi = "KO_FI"
+                case lfxCrowdfunding = "LFX_CROWDFUNDING"
                 case liberaPay = "LIBERAPAY"
-                case openCollective = "OPENCOLLECTIVE"
+                case openCollective = "OPEN_COLLECTIVE"
                 case otechie = "OTECHIE"
                 case patreon = "PATREON"
                 case tideLift = "TIDELIFT"
