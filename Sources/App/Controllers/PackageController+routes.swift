@@ -421,36 +421,38 @@ enum PackageController {
         return BuildIndex.View(path: req.url.path, model: model).document()
     }
 
-    static func maintainerInfo(req: Request) async throws -> HTML {
+    static func maintainerInfo(req: Request) throws -> EventLoopFuture<HTML> {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
         else {
-            throw Abort(.notFound)
+            return req.eventLoop.future(error: Abort(.notFound))
         }
-        
-        let (model, schema) = try await API.PackageController.GetRoute
-            .query(on: req.db, owner: owner, repository: repository)
-        
-        let versions = try await Version.query(on: req.db)
-            .with(\.$builds)
-            .filter(\.$package.$id == model.packageId)
-            .all()
-        
-        let targets = model.targets?.map { ($0.name, $0.type.targetType) }
-        
-        let scoreDetails = Score.compute(repo: model.repository, versions: versions, targets: targets)
-    
-        let maintainerModel = MaintainerInfoIndex.Model(
-            packageName: schema.name,
-            repositoryOwner: model.repositoryOwner,
-            repositoryOwnerName: model.repositoryOwnerName,
-            repositoryName: model.repositoryName,
-            score: model.score ?? 0,
-            scoreDetails: scoreDetails
-        )
-        
-        return MaintainerInfoIndex.View(path: req.url.path, model: maintainerModel).document()
+
+        return Joined3<Package, Repository, Version>
+            .query(on: req.db, owner: owner, repository: repository, version: .defaultBranch)
+            .field(Version.self, \.$packageName)
+            .field(Repository.self, \.$owner)
+            .field(Repository.self, \.$ownerName)
+            .field(Repository.self, \.$name)
+            .first()
+            .unwrap(or: Abort(.notFound))
+            .flatMapThrowing { result in
+                guard let repositoryOwner = result.repository.owner,
+                      let repositoryName = result.repository.name else {
+                          throw Abort(.notFound)
+                      }
+#warning("FIXME: hard-coded values")
+                return MaintainerInfoIndex.Model(
+                    packageName: result.version.packageName ?? repositoryName,
+                    repositoryOwner: repositoryOwner,
+                    repositoryOwnerName: result.repository.ownerName ?? repositoryOwner,
+                    repositoryName: repositoryName,
+                    score: 42,
+                    scoreDetails: .init(scoreBreakdown: [:])
+                )
+            }
+            .map { MaintainerInfoIndex.View(path: req.url.path, model: $0).document() }
     }
 }
 
