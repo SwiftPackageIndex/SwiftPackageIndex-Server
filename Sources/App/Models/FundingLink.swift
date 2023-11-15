@@ -17,19 +17,57 @@ import Foundation
 
 struct FundingLink: Codable, Equatable {
     enum Platform: String, Codable {
-        case communityBridge = "COMMUNITYBRIDGE"
-        case customUrl = "CUSTOMURL"
-        case gitHub = "GITHUB"
-        case issueHunt = "ISSUEHUNT"
-        case koFi = "KOFI"
-        case lfxCrowdfunding = "LFXCROWDFUNDING"
-        case liberaPay = "LIBERAPAY"
-        case openCollective = "OPENCOLLECTIVE"
-        case otechie = "OTECHIE"
-        case patreon = "PATREON"
-        case tideLift = "TIDELIFT"
+        case communityBridge
+        case customUrl
+        case gitHub
+        case issueHunt
+        case koFi
+        case lfxCrowdfunding
+        case liberaPay
+        case openCollective
+        case otechie
+        case patreon
+        case tideLift
     }
 
     var platform: Platform
     var url: String
+}
+
+
+extension FundingLink {
+    init(from node: Github.Metadata.FundingLinkNode) {
+        platform = .init(from: node.platform)
+        url = node.url
+    }
+}
+
+
+extension FundingLink.Platform {
+    init(from platform: Github.Metadata.FundingLinkNode.Platform) {
+        switch platform {
+            case .communityBridge:
+                self = .communityBridge
+            case .customUrl:
+                self = .customUrl
+            case .gitHub:
+                self = .gitHub
+            case .issueHunt:
+                self = .issueHunt
+            case .koFi:
+                self = .koFi
+            case .lfxCrowdfunding:
+                self = .lfxCrowdfunding
+            case .liberaPay:
+                self = .liberaPay
+            case .openCollective:
+                self = .openCollective
+            case .otechie:
+                self = .otechie
+            case .patreon:
+                self = .patreon
+            case .tideLift:
+                self = .tideLift
+        }
+    }
 }

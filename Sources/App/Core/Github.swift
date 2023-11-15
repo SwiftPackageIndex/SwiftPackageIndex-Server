@@ -342,7 +342,7 @@ extension Github {
             var defaultBranchRef: DefaultBranchRef?
             var description: String?
             var forkCount: Int
-            var fundingLinks: [FundingLink]?
+            var fundingLinks: [FundingLinkNode]?
             var homepageUrl: String?
             var isArchived: Bool
             // periphery:ignore
@@ -368,6 +368,25 @@ extension Github {
             var topics: [String] {
                 repositoryTopics.nodes.map(\.topic.name)
             }
+        }
+
+        struct FundingLinkNode: Codable, Equatable {
+            enum Platform: String, Codable {
+                case communityBridge = "COMMUNITYBRIDGE"
+                case customUrl = "CUSTOMURL"
+                case gitHub = "GITHUB"
+                case issueHunt = "ISSUEHUNT"
+                case koFi = "KOFI"
+                case lfxCrowdfunding = "LFXCROWDFUNDING"
+                case liberaPay = "LIBERAPAY"
+                case openCollective = "OPENCOLLECTIVE"
+                case otechie = "OTECHIE"
+                case patreon = "PATREON"
+                case tideLift = "TIDELIFT"
+            }
+
+            var platform: Platform
+            var url: String
         }
 
         struct IssueNodes: Decodable, Equatable {
