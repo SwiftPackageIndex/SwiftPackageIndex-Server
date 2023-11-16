@@ -146,7 +146,7 @@ enum License: String, Codable, Equatable, CaseIterable {
         }
     }
 
-    enum Kind: String {
+    enum Kind: String, Codable {
         case none
         case other
         case incompatibleWithAppStore = "incompatible"

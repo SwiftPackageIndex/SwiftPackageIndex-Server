@@ -48,7 +48,6 @@ extension API.PackageController.GetRoute {
         var documentationTarget: DocumentationTarget? = nil
         var weightedKeywords: [WeightedKeyword]
         var releaseReferences: [App.Version.Kind: App.Reference]
-        var repository: Repository?
 
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
@@ -119,7 +118,6 @@ extension API.PackageController.GetRoute {
                 }
                 return refs
             }()
-            self.repository = repository
         }
 
         init?(result: API.PackageController.PackageResult,

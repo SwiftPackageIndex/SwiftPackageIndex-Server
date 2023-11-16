@@ -15,7 +15,7 @@
 import Foundation
 
 enum Score {
-    struct Input {
+    struct Details: Codable, Equatable {
         var licenseKind: License.Kind
         var releaseCount: Int
         var likeCount: Int
@@ -26,31 +26,26 @@ enum Score {
         var hasReadme: Bool
         var numberOfContributors: Int
         var hasTestTargets: Bool
+
+        var scoreBreakdown: [Category: Int] { Score.computeBreakdown(self) }
+        var score: Int { scoreBreakdown.score }
     }
     
-    struct ScoreDetails {
-        enum ScoreCategory: CaseIterable {
-            case archive
-            case license
-            case releases
-            case stars
-            case dependencies
-            case maintenance
-            case documentation
-            case readme
-            case contributors
-            case tests
-        }
-
-        var candidate: Input?
-        var scoreBreakdown: [ScoreCategory: Int]
-        var score: Int {
-            return scoreBreakdown.compactMap { $0.value }.reduce(0, +)
-        }
+    enum Category: CaseIterable {
+        case archive
+        case license
+        case releases
+        case stars
+        case dependencies
+        case maintenance
+        case documentation
+        case readme
+        case contributors
+        case tests
     }
 
-    static func compute(_ candidate: Input) -> ScoreDetails {
-        var scoreBreakdown: [ScoreDetails.ScoreCategory: Int] = [:]
+    static func computeBreakdown(_ candidate: Details) -> [Category: Int] {
+        var scoreBreakdown: [Category: Int] = [:]
         
         // Is the package archived and no longer receiving updates?
         if candidate.isArchived == false {
@@ -138,15 +133,14 @@ enum Score {
             scoreBreakdown[.tests] = 5
         }
 
-        let scoreDetails = ScoreDetails(candidate: candidate, scoreBreakdown: scoreBreakdown)
-        return scoreDetails
+        return scoreBreakdown
     }
 
-    static func compute(repo: Repository?, versions: [Version], targets: [(String, TargetType)]? = []) -> ScoreDetails {
+    static func computeDetails(repo: Repository?, versions: [Version], targets: [(String, TargetType)]? = []) -> Details? {
         guard
             let defaultVersion = versions.latest(for: .defaultBranch),
             let repo
-        else { return ScoreDetails(candidate: nil, scoreBreakdown: [:]) }
+        else { return nil }
 
         let hasDocumentation = [
             defaultVersion,
@@ -161,18 +155,17 @@ enum Score {
         
         let hasTestTargets = !(targets?.filter { $0.1 == App.TargetType.test }.isEmpty ?? false)
         
-        return Score.compute(
-            .init(licenseKind: repo.license.licenseKind,
-                  releaseCount: versions.releases.count,
-                  likeCount: repo.stars,
-                  isArchived: repo.isArchived,
-                  numberOfDependencies: defaultVersion.resolvedDependencies?.count,
-                  lastActivityAt: repo.lastActivityAt ?? Date(timeIntervalSince1970: 0),
-                  hasDocumentation: hasDocumentation,
-                  hasReadme: repo.readmeHtmlUrl != nil,
-                  numberOfContributors: numberOfContributors,
-                  hasTestTargets: hasTestTargets
-                 )
+        return .init(
+            licenseKind: repo.license.licenseKind,
+            releaseCount: versions.releases.count,
+            likeCount: repo.stars,
+            isArchived: repo.isArchived,
+            numberOfDependencies: defaultVersion.resolvedDependencies?.count,
+            lastActivityAt: repo.lastActivityAt ?? Date(timeIntervalSince1970: 0),
+            hasDocumentation: hasDocumentation,
+            hasReadme: repo.readmeHtmlUrl != nil,
+            numberOfContributors: numberOfContributors,
+            hasTestTargets: hasTestTargets
         )
     }
 }
@@ -184,4 +177,9 @@ private extension Array where Element == Version {
     }
 
     var releases: Self { filter { $0.reference.isTag } }
+}
+
+
+extension [Score.Category: Int] {
+    var score: Int { compactMap { $0.value }.reduce(0, +) }
 }

@@ -45,6 +45,9 @@ final class Package: Model, Content {
     @Field(key: "score")
     var score: Int
 
+    @Field(key: "score_details")
+    var scoreDetails: Score.Details?
+
     @Enum(key: "status")
     var status: Status
 
@@ -64,12 +67,14 @@ final class Package: Model, Content {
     init(id: UUID? = nil,
          url: URL,
          score: Int = 0,
+         scoreDetails: Score.Details? = nil,
          status: Status = .new,
          platformCompatibility: Set<PlatformCompatibility> = .init(),
          processingStage: ProcessingStage? = nil) {
         self.id = id
         self.url = url.absoluteString
         self.score = score
+        self.scoreDetails = scoreDetails
         self.status = status
         self.platformCompatibility = platformCompatibility
         self.processingStage = processingStage
