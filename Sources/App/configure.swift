@@ -306,7 +306,7 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 069 - add builder_version to builds
         app.migrations.add(UpdateBuildAddBuilderVersion())
     }
-    do { // Migration 070 - Add `funding` JSON field to `repositories`
+    do { // Migration 071 - Add `funding` JSON field to `repositories`
         app.migrations.add(AddFundingToRepositories())
     }
 
