@@ -57,9 +57,6 @@ final class Repository: Model, Content {
     @Field(key: "forks")
     var forks: Int
 
-    @Field(key: "funding_links")
-    var fundingLinks: [FundingLink]
-
     @Field(key: "homepage_url")
     var homepageUrl: String?
 
@@ -134,7 +131,6 @@ final class Repository: Model, Content {
          defaultBranch: String? = nil,
          firstCommitDate: Date? = nil,
          forks: Int = 0,
-         fundingLinks: [FundingLink] = [],
          forkedFrom: Repository? = nil,
          homepageUrl: String? = nil,
          isArchived: Bool = false,
@@ -167,7 +163,6 @@ final class Repository: Model, Content {
         if let forkId = forkedFrom?.id {
             self.$forkedFrom.id = forkId
         }
-        self.fundingLinks = fundingLinks
         self.homepageUrl = homepageUrl
         self.isArchived = isArchived
         self.isInOrganization = isInOrganization
@@ -197,7 +192,6 @@ final class Repository: Model, Content {
         self.defaultBranch = nil
         self.firstCommitDate = nil
         self.forks = 0
-        self.fundingLinks = []
         self.homepageUrl = nil
         self.isArchived = false
         self.isInOrganization = false

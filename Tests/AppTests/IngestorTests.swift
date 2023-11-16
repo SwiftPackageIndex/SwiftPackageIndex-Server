@@ -110,11 +110,6 @@ class IngestorTests: AppTestCase {
         let repo = Repository(packageId: try pkg.requireID())
         let md: Github.Metadata = .init(defaultBranch: "main",
                                         forks: 1,
-                                        fundingLinks: [
-                                            .init(platform: .gitHub, url: "https://github.com/username"),
-                                            .init(platform: .customUrl, url: "https://example.com/username1"),
-                                            .init(platform: .customUrl, url: "https://example.com/username2")
-                                        ],
                                         homepageUrl: "https://swiftpackageindex.com/Alamofire/Alamofire",
                                         isInOrganization: true,
                                         issuesClosedAtDates: [
@@ -158,11 +153,6 @@ class IngestorTests: AppTestCase {
             let repo = try await Repository.query(on: app.db).first().unwrap()
             XCTAssertEqual(repo.defaultBranch, "main")
             XCTAssertEqual(repo.forks, 1)
-            XCTAssertEqual(repo.fundingLinks, [
-                .init(platform: .gitHub, url: "https://github.com/username"),
-                .init(platform: .customUrl, url: "https://example.com/username1"),
-                .init(platform: .customUrl, url: "https://example.com/username2")
-            ])
             XCTAssertEqual(repo.homepageUrl, "https://swiftpackageindex.com/Alamofire/Alamofire")
             XCTAssertEqual(repo.isInOrganization, true)
             XCTAssertEqual(repo.keywords, ["bar", "baz", "foo"])

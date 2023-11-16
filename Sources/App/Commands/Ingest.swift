@@ -200,7 +200,6 @@ func updateRepository(on database: Database,
 
     repository.defaultBranch = repoMetadata.defaultBranch
     repository.forks = repoMetadata.forkCount
-    repository.fundingLinks = repoMetadata.fundingLinks?.map(FundingLink.init(from:)) ?? []
     repository.homepageUrl = repoMetadata.homepageUrl?.trimmed
     repository.isArchived = repoMetadata.isArchived
     repository.isInOrganization = repoMetadata.isInOrganization
@@ -217,7 +216,8 @@ func updateRepository(on database: Database,
     repository.ownerAvatarUrl = repoMetadata.owner.avatarUrl
     repository.s3Readme = s3Readme
     repository.readmeHtmlUrl = readmeInfo?.htmlUrl
-    repository.releases = repoMetadata.releases.nodes.map(Release.init(from:))
+    repository.releases = metadata.repository?.releases.nodes
+        .map(Release.init(from:)) ?? []
     repository.stars = repoMetadata.stargazerCount
     repository.summary = repoMetadata.description
 
