@@ -23,32 +23,24 @@ extension MaintainerInfoIndex.Model {
               repositoryOwnerName: "Example Owner",
               repositoryName: "package",
               score: 117,
-              scoreDetails: Score.ScoreDetails(
-                candidate: Score.Input(
-                    licenseKind: .compatibleWithAppStore,
-                    releaseCount: 10,
-                    likeCount: 300,
-                    isArchived: false,
-                    numberOfDependencies: 3,
-                    lastActivityAt: Current.date().adding(days: -10),
-                    hasDocumentation: true,
-                    hasReadme: true,
-                    numberOfContributors: 20,
-                    hasTestTargets: false
-                ),
-                scoreBreakdown: [
-                    .archive: 20,
-                    .license: 10,
-                    .releases: 10,
-                    .stars: 20,
-                    .dependencies: 2,
-                    .maintenance: 15,
-                    .documentation: 15,
-                    .readme: 15,
-                    .contributors: 10,
-                    .tests: 0
-                ]
-              )
+              scoreDetails: .mock
+        )
+    }
+}
+
+extension Score.Details {
+    static var mock: Self {
+        .init(
+            licenseKind: .compatibleWithAppStore,
+            releaseCount: 10,
+            likeCount: 300,
+            isArchived: false,
+            numberOfDependencies: 3,
+            lastActivityAt: Current.date().adding(days: -10),
+            hasDocumentation: true,
+            hasReadme: true,
+            numberOfContributors: 20,
+            hasTestTargets: false
         )
     }
 }
