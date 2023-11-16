@@ -614,6 +614,16 @@
       },
       "description": "Elegant HTTP Networking in Swift",
       "forkCount": 6727,
+      "fundingLinks": [
+        {
+          "platform": "GITHUB",
+          "url": "https://github.com/Alamofire"
+        },
+        {
+          "platform": "LFX_CROWDFUNDING",
+          "url": "https://crowdfunding.lfx.linuxfoundation.org/projects/alamofire"
+        }
+      ],
       "isArchived": false,
       "isFork": false,
       "licenseInfo": {
