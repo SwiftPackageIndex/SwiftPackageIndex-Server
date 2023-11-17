@@ -10,15 +10,17 @@ updates:
       dependencies:
         patterns:
           - "*"
-  # - package-ecosystem: "swift"
-  #   directory: "/"
-  #   schedule:
-  #     interval: "weekly"
-  #     time: "02:00"
-  #   groups:
-  #     dependencies:
-  #       patterns:
-  #         - "*"
+  - package-ecosystem: "swift"
+    directory: "/"
+    allow:
+      - dependency-type: all
+    schedule:
+      interval: "weekly"
+      time: "02:00"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
