@@ -3,6 +3,8 @@ enable-beta-ecosystems: true
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
+    commit-message:
+      prefix: "GitHub Actions:"
     schedule:
       interval: "weekly"
       time: "02:00"
@@ -14,6 +16,8 @@ updates:
     directory: "/"
     allow:
       - dependency-type: all
+    commit-message:
+      prefix: "Swift:"
     schedule:
       interval: "weekly"
       time: "02:00"
@@ -23,6 +27,8 @@ updates:
           - "*"
   - package-ecosystem: "npm"
     directory: "/"
+    commit-message:
+      prefix: "NPM:"
     schedule:
       interval: "weekly"
       time: "02:00"
