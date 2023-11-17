@@ -16,8 +16,7 @@ updates:
     directory: "/"
     allow:
       - dependency-type: all
-    commit-message:
-      prefix: "Swift:"
+    commit-message: "Swift package update"
     schedule:
       interval: "weekly"
       time: "02:00"
