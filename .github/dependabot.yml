@@ -3,8 +3,7 @@ enable-beta-ecosystems: true
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
-    commit-message:
-      prefix: "GitHub Actions:"
+    commit-message: "GitHub Actions update"
     schedule:
       interval: "weekly"
       time: "02:00"
