@@ -38,7 +38,7 @@ final class AnalyzeErrorTests: AppTestCase {
     let badPackageID: Package.Id = .id0
     let goodPackageID: Package.Id = .id1
 
-    let tweets = ActorIsolated<[String]>([])
+    let socialPosts = ActorIsolated<[String]>([])
 
     static var defaultShellRun: (ShellOutCommand, String) throws -> String = { cmd, path in
         switch cmd {
@@ -59,7 +59,7 @@ final class AnalyzeErrorTests: AppTestCase {
     override func setUp() async throws {
         try await super.setUp()
 
-        await tweets.setValue([])
+        await socialPosts.setValue([])
 
         let pkgs = [
             Package(id: badPackageID,
@@ -104,8 +104,8 @@ final class AnalyzeErrorTests: AppTestCase {
 
         Current.shell.run = Self.defaultShellRun
 
-        Current.twitterPost = { client, message in
-            await self.tweets.withValue { $0.append(message) }
+        Current.mastodonPost = { _, message in
+            await self.socialPosts.withValue { $0.append(message) }
         }
     }
 
@@ -226,7 +226,7 @@ extension AnalyzeErrorTests {
         XCTAssertEqual(versions.count, 2)
         XCTAssertEqual(versions.filter(\.isBranch).first?.latest, .defaultBranch)
         XCTAssertEqual(versions.filter(\.isTag).first?.latest, .release)
-        await tweets.withValue { tweets in
+        await socialPosts.withValue { tweets in
             XCTAssertEqual(tweets, [
             """
             ⬆️ foo just released foo-2 v1.2.3

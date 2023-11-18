@@ -19,7 +19,7 @@ enum Mastodon {
 
     private static let instance = "mas.to"
     private static let apiURL = "https://\(instance)/api/v1/statuses"
-    private static let postMaxLength = 490  // 500, leaving some buffer for unicode accounting oddities
+    static let postMaxLength = 490  // 500, leaving some buffer for unicode accounting oddities
 
     struct Credentials {
         var accessToken: String
