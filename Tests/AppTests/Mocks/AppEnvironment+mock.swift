@@ -77,9 +77,7 @@ extension AppEnvironment {
             timeZone: { .utc },
             triggerBuild: { _, _, _, _, _, _, _, _ in
                 eventLoop.future(.init(status: .ok, webUrl: "http://web_url"))
-            },
-            twitterCredentials: { nil },
-            twitterPost: { _, _ in }
+            }
         )
     }
 }

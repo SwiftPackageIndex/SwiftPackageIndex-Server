@@ -17,6 +17,7 @@ import Vapor
 
 
 enum Social {
+    static let postMaxLength = Mastodon.postMaxLength
 
     enum Error: LocalizedError {
         case invalidMessage
@@ -100,11 +101,10 @@ enum Social {
         }
         guard let message = firehoseMessage(package: package,
                                             version: version,
-                                            maxLength: Twitter.tweetMaxLength) else {
+                                            maxLength: postMaxLength) else {
             throw Error.invalidMessage
         }
         // Ignore errors from here for now to keep concurrency simpler
-        async let _ = try? await Current.twitterPost(client, message)
         async let _ = try? await Current.mastodonPost(client, message)
     }
 
