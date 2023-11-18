@@ -90,13 +90,13 @@ class SocialTests: AppTestCase {
             repositoryOwnerName: "owner",
             url: "http://localhost:8080/owner/SuperAwesomePackage",
             version: .init(2, 6, 4),
-            summary: String(repeating: "x", count: 280),
+            summary: String(repeating: "x", count: 500),
             maxLength: Social.postMaxLength
         )
 
-        XCTAssertEqual(msg.count, 260)
+        XCTAssertEqual(msg.count, 490)
         XCTAssertEqual(msg, """
-            ⬆️ owner just released packageName v2.6.4 – xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…
+            ⬆️ owner just released packageName v2.6.4 – xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…
 
             http://localhost:8080/owner/SuperAwesomePackage#releases
             """)
@@ -198,7 +198,7 @@ class SocialTests: AppTestCase {
                                         versions: versions)
 
         // validate
-        try await XCTAssertEqualAsync(await posted.value, 4)
+        try await XCTAssertEqualAsync(await posted.value, 2)
     }
 
     func test_postToFirehose_only_latest() async throws {
@@ -229,7 +229,7 @@ class SocialTests: AppTestCase {
                                          versions: versions)
 
         // validate
-        try await XCTAssertEqualAsync(await posted.value, 2)
+        try await XCTAssertEqualAsync(await posted.value, 1)
     }
 
 }
