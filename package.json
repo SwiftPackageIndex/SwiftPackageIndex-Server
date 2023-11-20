@@ -12,7 +12,7 @@
         "normalize.css": "^8.0.1"
     },
     "devDependencies": {
-        "esbuild": "^0.19.5",
+        "esbuild": "^0.19.6",
         "esbuild-sass-plugin": "^2.16.0",
         "postcss": "^8.4.31",
         "prettier": "^3.1.0",
