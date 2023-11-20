@@ -15,7 +15,6 @@
 import Foundation
 import Plot
 
-typealias ScoreCategory = Score.ScoreDetails.ScoreCategory
 
 extension MaintainerInfoIndex {
     struct Model {
@@ -24,8 +23,8 @@ extension MaintainerInfoIndex {
         var repositoryOwnerName: String
         var repositoryName: String
         var score: Int
-        var scoreDetails: Score.ScoreDetails
-        
+        var scoreDetails: Score.Details?
+
         struct PackageScore {
             var title: String
             var score: Int
@@ -66,20 +65,19 @@ extension MaintainerInfoIndex {
         }
         
         var scoreCategories: [PackageScore] {
-            let categories = Score.ScoreDetails.ScoreCategory.allCases.sorted { $0.title < $1.title }
-            return categories.compactMap {
-                let description = if let candidate = scoreDetails.candidate {
-                    $0.description(candidate: candidate)
-                } else {
-                    "Unable to retrieve package input data."
+            guard let scoreDetails else { return [] }
+            return Score.Category.allCases
+                .sorted { $0.title < $1.title }
+                .compactMap { category in
+                    PackageScore(title: category.title,
+                                 score: scoreDetails.scoreBreakdown[category] ?? 0,
+                                 description: scoreDetails.description(for: category))
                 }
-                return PackageScore(title: $0.title, score: scoreDetails.scoreBreakdown[$0] ?? 0, description: description)
-            }
         }
     }
 }
 
-private extension Score.ScoreDetails.ScoreCategory {
+private extension Score.Category {
     var title: String {
         switch self {
             case .archive: return "Archived"
@@ -94,33 +92,38 @@ private extension Score.ScoreDetails.ScoreCategory {
             case .tests: return "Tests"
         }
     }
-    
-    func description(candidate: Score.Input) -> String {
-        // Using 750 days as it's just more than two years, meaning it should be possible to say "Last maintenance activity two years ago".
-        // The final nil-coalesce in this should never fire as it should always be possible to subtract two years from the current date.
-        let maintainedRecently = candidate.lastActivityAt > Calendar.current.date(byAdding: .init(day: -750), to: Current.date()) ?? Current.date()
+}
 
-        switch self {
+
+private extension Score.Details {
+    func description(for category: Score.Category) -> String {
+        switch category {
             case .archive:
-                return "Repository is \(candidate.isArchived ? "" : "not") archived."
+                return "Repository is \(isArchived ? "" : "not") archived."
             case .license:
-                return "\(candidate.licenseKind == .compatibleWithAppStore ? "" : "No ")OSI-compatible license which is compatible with the App Store."
+                return "\(licenseKind == .compatibleWithAppStore ? "" : "No ")OSI-compatible license which is compatible with the App Store."
             case .releases:
-                return "Has \(pluralizedCount: candidate.releaseCount, singular: "release")."
+                return "Has \(pluralizedCount: releaseCount, singular: "release")."
             case .stars:
-                return "Has \(pluralizedCount: candidate.likeCount, singular: "star")."
+                return "Has \(pluralizedCount: likeCount, singular: "star")."
             case .dependencies:
-                return "\(candidate.numberOfDependencies ?? 0 < 1 ? "Has no dependencies." : "Depends on \(pluralizedCount: candidate.numberOfDependencies ?? 0, singular: "package", plural: "packages").")"
+                return "\(numberOfDependencies ?? 0 < 1 ? "Has no dependencies." : "Depends on \(pluralizedCount: numberOfDependencies ?? 0, singular: "package", plural: "packages").")"
             case .maintenance:
-                if maintainedRecently { return "Last maintenance activity \(candidate.lastActivityAt.relative)." } else { return "No recent maintenance activity." }
+                // Using 750 days as it's just more than two years, meaning it should be possible to say "Last maintenance activity two years ago".
+                // The final nil-coalesce in this should never fire as it should always be possible to subtract two years from the current date.
+                let maintainedRecently = lastActivityAt > Calendar.current.date(byAdding: .init(day: -750),
+                                                                                to: Current.date()) ?? Current.date()
+                return maintainedRecently
+                ? "Last maintenance activity \(lastActivityAt.relative)."
+                : "No recent maintenance activity."
             case .documentation:
-                return "\(candidate.hasDocumentation ? "Includes " : "Has no") documentation."
+                return "\(hasDocumentation ? "Includes " : "Has no") documentation."
             case .readme:
-                return "\(candidate.hasReadme ? "Has a" : "Does not have a") README file."
+                return "\(hasReadme ? "Has a" : "Does not have a") README file."
             case .contributors:
-                return "Has \(pluralizedCount: candidate.numberOfContributors, singular: "contributor")."
+                return "Has \(pluralizedCount: numberOfContributors, singular: "contributor")."
             case .tests:
-                return "Has \(candidate.hasTestTargets ? "" : "no") test targets."
+                return "Has \(hasTestTargets ? "" : "no") test targets."
         }
     }
 }

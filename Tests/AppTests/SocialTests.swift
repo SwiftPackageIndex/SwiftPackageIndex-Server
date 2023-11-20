@@ -27,7 +27,7 @@ class SocialTests: AppTestCase {
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: "This is a test package",
-                maxLength: Twitter.tweetMaxLength),
+                maxLength: Social.postMaxLength),
             """
             ⬆️ owner just released packageName v2.6.4 – This is a test package
 
@@ -43,7 +43,7 @@ class SocialTests: AppTestCase {
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: nil,
-                maxLength: Twitter.tweetMaxLength),
+                maxLength: Social.postMaxLength),
             """
             ⬆️ owner just released packageName v2.6.4
 
@@ -59,7 +59,7 @@ class SocialTests: AppTestCase {
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: "",
-                maxLength: Twitter.tweetMaxLength),
+                maxLength: Social.postMaxLength),
             """
             ⬆️ owner just released packageName v2.6.4
 
@@ -75,7 +75,7 @@ class SocialTests: AppTestCase {
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: " \n",
-                maxLength: Twitter.tweetMaxLength),
+                maxLength: Social.postMaxLength),
             """
             ⬆️ owner just released packageName v2.6.4
 
@@ -90,13 +90,13 @@ class SocialTests: AppTestCase {
             repositoryOwnerName: "owner",
             url: "http://localhost:8080/owner/SuperAwesomePackage",
             version: .init(2, 6, 4),
-            summary: String(repeating: "x", count: 280),
-            maxLength: Twitter.tweetMaxLength
+            summary: String(repeating: "x", count: 500),
+            maxLength: Social.postMaxLength
         )
 
-        XCTAssertEqual(msg.count, 260)
+        XCTAssertEqual(msg.count, 490)
         XCTAssertEqual(msg, """
-            ⬆️ owner just released packageName v2.6.4 – xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…
+            ⬆️ owner just released packageName v2.6.4 – xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…
 
             http://localhost:8080/owner/SuperAwesomePackage#releases
             """)
@@ -109,7 +109,7 @@ class SocialTests: AppTestCase {
                 repositoryOwnerName: "owner",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 summary: "This is a test package",
-                maxLength: Twitter.tweetMaxLength
+                maxLength: Social.postMaxLength
             ),
             """
             📦 owner just added a new package, packageName – This is a test package
@@ -134,7 +134,7 @@ class SocialTests: AppTestCase {
         // MUT
         let res = Social.firehoseMessage(package: jpr,
                                          version: version,
-                                         maxLength: Twitter.tweetMaxLength)
+                                         maxLength: Social.postMaxLength)
 
         // validate
         XCTAssertEqual(res, """
@@ -159,7 +159,7 @@ class SocialTests: AppTestCase {
         // MUT
         let res = Social.firehoseMessage(package: jpr,
                                          version: version,
-                                         maxLength: Twitter.tweetMaxLength)
+                                         maxLength: Social.postMaxLength)
 
         // validate
         XCTAssertEqual(res, """
@@ -189,11 +189,7 @@ class SocialTests: AppTestCase {
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
-        Current.twitterCredentials = {
-            .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
-        }
         let posted = ActorIsolated(0)
-        Current.twitterPost = { _, _ in await posted.increment() }
         Current.mastodonPost = { _, _ in await posted.increment() }
 
         // MUT
@@ -202,7 +198,7 @@ class SocialTests: AppTestCase {
                                         versions: versions)
 
         // validate
-        try await XCTAssertEqualAsync(await posted.value, 4)
+        try await XCTAssertEqualAsync(await posted.value, 2)
     }
 
     func test_postToFirehose_only_latest() async throws {
@@ -221,14 +217,7 @@ class SocialTests: AppTestCase {
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
-        Current.twitterCredentials = {
-            .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
-        }
         let posted = ActorIsolated(0)
-        Current.twitterPost = { _, msg in
-            XCTAssertTrue(msg.contains("v2.0.0"))
-            await posted.increment()
-        }
         Current.mastodonPost = { _, msg in
             XCTAssertTrue(msg.contains("v2.0.0"))
             await posted.increment()
@@ -240,7 +229,7 @@ class SocialTests: AppTestCase {
                                          versions: versions)
 
         // validate
-        try await XCTAssertEqualAsync(await posted.value, 2)
+        try await XCTAssertEqualAsync(await posted.value, 1)
     }
 
 }

@@ -258,8 +258,8 @@ struct DocumentationPageProcessor {
                         ),
                         .li(
                             .a(
-                                .href("https://twitter.com/swiftpackages"),
-                                "Twitter"
+                                .href(ExternalURL.mastodon),
+                                "Mastodon"
                             )
                         )
                     )

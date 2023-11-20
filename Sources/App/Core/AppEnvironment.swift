@@ -80,8 +80,6 @@ struct AppEnvironment {
                        _ reference: Reference,
                        _ swiftVersion: SwiftVersion,
                        _ versionID: Version.Id) -> EventLoopFuture<Build.TriggerResponse>
-    var twitterCredentials: () -> Twitter.Credentials?
-    var twitterPost: (_ client: Client, _ tweet: String) async throws -> Void
 }
 
 
@@ -205,17 +203,7 @@ extension AppEnvironment {
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
         storeS3Readme: S3Store.storeReadme(owner:repository:readme:),
         timeZone: { .current },
-        triggerBuild: Gitlab.Builder.triggerBuild,
-        twitterCredentials: {
-            guard let apiKey = Environment.get("TWITTER_API_KEY"),
-                  let apiKeySecret = Environment.get("TWITTER_API_SECRET"),
-                  let accessToken = Environment.get("TWITTER_ACCESS_TOKEN_KEY"),
-                  let accessTokenSecret = Environment.get("TWITTER_ACCESS_TOKEN_SECRET")
-            else { return nil }
-            return .init(apiKey: (key: apiKey, secret: apiKeySecret),
-                         accessToken: (key: accessToken, secret: accessTokenSecret))
-        },
-        twitterPost: Twitter.post(client:tweet:)
+        triggerBuild: Gitlab.Builder.triggerBuild
     )
 }
 

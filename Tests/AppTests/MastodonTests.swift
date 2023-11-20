@@ -75,13 +75,13 @@ final class MastodonTests: AppTestCase {
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
 
-        // MUT - analyze, triggering tweets if any
+        // MUT - analyze, triggering posts if any
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
                                   mode: .limit(10))
 
-        // validate - there are no new tweets to send
+        // validate - there are no new posts to send
         XCTAssertNil(message)
 
         // Now simulate receiving a package update: version 2.0.0

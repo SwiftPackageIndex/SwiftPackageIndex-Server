@@ -428,29 +428,33 @@ enum PackageController {
         else {
             throw Abort(.notFound)
         }
-        
-        let (model, schema) = try await API.PackageController.GetRoute
-            .query(on: req.db, owner: owner, repository: repository)
-        
-        let versions = try await Version.query(on: req.db)
-            .with(\.$builds)
-            .filter(\.$package.$id == model.packageId)
-            .all()
-        
-        let targets = model.targets?.map { ($0.name, $0.type.targetType) }
-        
-        let scoreDetails = Score.compute(repo: model.repository, versions: versions, targets: targets)
-    
-        let maintainerModel = MaintainerInfoIndex.Model(
-            packageName: schema.name,
-            repositoryOwner: model.repositoryOwner,
-            repositoryOwnerName: model.repositoryOwnerName,
-            repositoryName: model.repositoryName,
-            score: model.score ?? 0,
-            scoreDetails: scoreDetails
+
+        guard let result = try await Joined3<Package, Repository, Version>
+            .query(on: req.db, owner: owner, repository: repository, version: .defaultBranch)
+            .field(Package.self, \.$score)
+            .field(Package.self, \.$scoreDetails)
+            .field(Repository.self, \.$owner)
+            .field(Repository.self, \.$ownerName)
+            .field(Repository.self, \.$name)
+            .field(Version.self, \.$packageName)
+            .first()
+        else { throw Abort(.notFound) }
+
+        guard let repositoryOwner = result.repository.owner,
+              let repositoryName = result.repository.name else {
+            throw Abort(.notFound)
+        }
+
+        let model = MaintainerInfoIndex.Model(
+            packageName: result.version.packageName ?? repositoryName,
+            repositoryOwner: repositoryOwner,
+            repositoryOwnerName: result.repository.ownerName ?? repositoryOwner,
+            repositoryName: repositoryName,
+            score: result.model.score,
+            scoreDetails: result.model.scoreDetails
         )
         
-        return MaintainerInfoIndex.View(path: req.url.path, model: maintainerModel).document()
+        return MaintainerInfoIndex.View(path: req.url.path, model: model).document()
     }
 }
 
