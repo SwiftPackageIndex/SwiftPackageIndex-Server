@@ -203,6 +203,11 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/1885323?u=236e99eb7cb909bff3a7e9f5c85f120dc458fd27&v=4"
         ),
         .init(
+            login: "dokun1",
+            name: "David Okun",
+            avatarUrl: "https://avatars.githubusercontent.com/u/2584705?u=775c6272e145b256cb41057716e1b8ba8677742c&v=4"
+        ),
+        .init(
             login: "bdrelling",
             name: "Brian Drelling",
             avatarUrl: "https://avatars.githubusercontent.com/u/3022693?u=2c13a2938360ecd59ba05b4aeadb2e972071091d&v=4"
