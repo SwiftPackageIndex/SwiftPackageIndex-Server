@@ -17,12 +17,6 @@ import Vapor
 import Dispatch
 import Logging
 
-#if swift(>=5.9.1)
-// For lack of a better place to put this reminder about Dockerfile changes
-// https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/2636
-#warning("Review backtrace changes in Dockerfile")
-#endif
-
 /// This extension is temporary and can be removed once Vapor gets this support.
 private extension Vapor.Application {
     static let baseExecutionQueue = DispatchQueue(label: "vapor.codes.entrypoint")
