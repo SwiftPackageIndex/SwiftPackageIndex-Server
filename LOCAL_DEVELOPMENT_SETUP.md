@@ -255,3 +255,16 @@ If you use this mechanism frequently, rather than editing `.env.development` or 
 ```
  /app/Run serve --env docker --hostname 0.0.0.0 --port 8080
 ```
+
+## Debugging database access inside the container
+
+Run the following commands in order to test database access from within the docker container:
+
+```
+apt-get update
+apt-get install postgresql-client-14
+# check connection for spi_test database:
+psql 'postgres://spi_test@host.docker.internal:5432/spi_test' -c 'select count(*) from packages;'
+# check connection for spi_dev database:
+psql 'postgres://spi_dev@host.docker.internal:6432/spi_dev' -c 'select count(*) from packages;'
+```
