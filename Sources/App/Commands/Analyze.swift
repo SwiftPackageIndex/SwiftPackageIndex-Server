@@ -22,40 +22,11 @@ import Vapor
 enum Analyze {
 
     struct Command: AsyncCommand {
-        static let defaultLimit = 1
-
-        struct Signature: CommandSignature {
-            @Option(name: "limit", short: "l")
-            var limit: Int?
-
-            @Option(name: "id")
-            var id: UUID?
-
-            @Option(name: "url")
-            var url: String?
-        }
+        typealias Signature = SPICommand.Signature
 
         var help: String { "Run package analysis (fetching git repository and inspecting content)" }
 
-        enum Mode {
-            case id(Package.Id)
-            case limit(Int)
-            case url(String)
-
-            init(signature: Signature) {
-                if let id = signature.id {
-                    self = .id(id)
-                } else if let url = signature.url {
-                    self = .url(url)
-                } else if let limit = signature.limit {
-                    self = .limit(limit)
-                } else {
-                    self = .limit(Command.defaultLimit)
-                }
-            }
-        }
-
-        func run(using context: CommandContext, signature: Signature) async throws {
+        func run(using context: CommandContext, signature: SPICommand.Signature) async throws {
             let client = context.application.client
             let eventLoop = context.application.eventLoopGroup.any()
             let db = context.application._db(.psql, on: eventLoop)
@@ -64,13 +35,11 @@ enum Analyze {
 
             Analyze.resetMetrics()
 
-            let mode = Mode(signature: signature)
-
             do {
                 try await analyze(client: client,
                                   database: db,
                                   logger: logger,
-                                  mode: mode)
+                                  mode: .init(signature: signature))
             } catch {
                 logger.error("\(error.localizedDescription)")
             }
@@ -140,7 +109,7 @@ extension Analyze {
     static func analyze(client: Client,
                         database: Database,
                         logger: Logger,
-                        mode: Analyze.Command.Mode) async throws {
+                        mode: SPICommand.Mode) async throws {
         let start = DispatchTime.now().uptimeNanoseconds
         defer { AppMetrics.analyzeDurationSeconds?.time(since: start) }
 
