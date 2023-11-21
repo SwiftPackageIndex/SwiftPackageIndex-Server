@@ -18,7 +18,7 @@ import Fluent
 
 struct IngestCommand: AsyncCommand {
     typealias Signature = SPICommand.Signature
-    
+
     var help: String { "Run package ingestion (fetching repository metadata)" }
 
     func run(using context: CommandContext, signature: SPICommand.Signature) async throws {
@@ -28,10 +28,8 @@ struct IngestCommand: AsyncCommand {
 
         Self.resetMetrics()
 
-        let mode = SPICommand.Mode(signature: signature)
-
         do {
-            try await ingest(client: client, database: db, logger: logger, mode: mode)
+            try await ingest(client: client, database: db, logger: logger, mode: .init(signature: signature))
         } catch {
             logger.error("\(error.localizedDescription)")
         }
