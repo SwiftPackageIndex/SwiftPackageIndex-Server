@@ -19,13 +19,13 @@ enum SPICommand {
     static let defaultLimit = 1
 
     struct Signature: CommandSignature {
-        @Option(name: "limit", short: "l")
+        @Option(name: "limit", short: "l", help: "Number of packages to import in one batch.")
         var limit: Int?
 
-        @Option(name: "id", help: "package id")
+        @Option(name: "id", help: "The database ID for the package.")
         var id: Package.Id?
 
-        @Option(name: "url")
+        @Option(name: "url", help: "Package URL or fragment. For example owner/repo.")
         var url: String?
     }
 
