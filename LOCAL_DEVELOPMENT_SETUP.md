@@ -223,7 +223,7 @@ NB: if you are on an Apple Silicon Mac you will have to [build the base image's 
 Next, launch a shell inside the container:
 
 ```
-docker run --rm -it -v $PWD:/host -w /host --network="host" --entrypoint sh registry.gitlab.com/finestructure/swiftpackageindex:be565ca16725d4836efbb2517fd0285fddbe9da0
+docker run --rm -it -v $PWD:/host -w /host --network="host" --entrypoint sh registry.gitlab.com/finestructure/spi-base:0.14.1
 ```
 
 The image version will typically be the current commit of the repository and you can see the full image name at the end of the `docker build` output:
