@@ -115,7 +115,7 @@ func ingest(client: Client,
             database: Database,
             logger: Logger,
             packages: [Joined<Package, Repository>]) async {
-    logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
+    logger.info("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
 
     await withTaskGroup(of: Void.self) { group in
