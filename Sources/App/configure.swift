@@ -310,7 +310,7 @@ public func configure(_ app: Application) throws -> String {
         app.migrations.add(UpdatePackageAddScoreDetails())
     }
     do { // Migraation 071 - Remove defaults from product_dependencies, reset resolved_dependencies
-        app.migrations.add(UpdateVersionUpdateProductDependencies())
+        app.migrations.add(UpdateVersionResetProductDependenciesWithDefault())
         app.migrations.add(UpdateVersionResetResolvedDependencies())
     }
 

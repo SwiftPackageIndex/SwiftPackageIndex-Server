@@ -16,7 +16,7 @@ import Fluent
 import SQLKit
 
 
-struct UpdateVersionUpdateProductDependencies: AsyncMigration {
+struct UpdateVersionResetProductDependenciesWithDefault: AsyncMigration {
     func prepare(on database: Database) async throws {
         // re-create field without default
         try await database.schema("versions")
