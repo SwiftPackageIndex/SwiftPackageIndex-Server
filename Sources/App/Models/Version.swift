@@ -123,7 +123,7 @@ final class Version: Model, Content {
          reference: Reference,
          releaseNotes: String? = nil,
          releaseNotesHTML: String? = nil,
-         resolvedDependencies: [ResolvedDependency] = [],
+         resolvedDependencies: [ResolvedDependency]? = nil,
          spiManifest: SPIManifest.Manifest? = nil,
          supportedPlatforms: [Platform] = [],
          swiftVersions: [SwiftVersion] = [],

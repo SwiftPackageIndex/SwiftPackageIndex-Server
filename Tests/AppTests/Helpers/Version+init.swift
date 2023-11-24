@@ -18,7 +18,7 @@ extension Version {
                      reference: Reference = .branch("main"),
                      releaseNotes: String? = nil,
                      releaseNotesHTML: String? = nil,
-                     resolvedDependencies: [ResolvedDependency] = [],
+                     resolvedDependencies: [ResolvedDependency]? = nil,
                      supportedPlatforms: [Platform] = [],
                      swiftVersions: [SwiftVersion] = [],
                      toolsVersion: String? = nil,
