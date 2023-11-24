@@ -16,25 +16,19 @@ import Fluent
 import SQLKit
 
 
-struct UpdateVersionUpdateProductDependencies: AsyncMigration {
+struct UpdateVersionResetResolvedDependencies: AsyncMigration {
     func prepare(on database: Database) async throws {
-        // re-create field without default
+        // reset field values by dropping and re-creating the field
         try await database.schema("versions")
-            .deleteField("product_dependencies")
+            .deleteField("resolved_dependencies")
             .update()
         try await database.schema("versions")
-            .field("product_dependencies",
+            .field("resolved_dependencies",
                    .array(of: .json))
             .update()
     }
 
     func revert(on database: Database) async throws {
-        guard let db = database as? SQLDatabase else {
-            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
-        }
-
-        // set default on product_dependencies
-        // we can't revert the field reset so we just leave the values as they are
-        try await db.raw(#"ALTER TABLE versions ALTER COLUMN product_dependencies SET DEFAULT '{}'"#).run()
+        // we cannot revert the column reset, so this revert is blank
     }
 }

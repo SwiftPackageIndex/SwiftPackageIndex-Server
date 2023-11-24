@@ -309,8 +309,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 070 - Add score_details to packages
         app.migrations.add(UpdatePackageAddScoreDetails())
     }
-    do { // Migraation 071 - Remove defaults from product_dependencies
+    do { // Migraation 071 - Remove defaults from product_dependencies, reset resolved_dependencies
         app.migrations.add(UpdateVersionUpdateProductDependencies())
+        app.migrations.add(UpdateVersionResetResolvedDependencies())
     }
 
     app.commands.use(Analyze.Command(), as: "analyze")
