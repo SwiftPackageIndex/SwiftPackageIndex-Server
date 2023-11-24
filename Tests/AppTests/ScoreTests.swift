@@ -248,6 +248,18 @@ class ScoreTests: AppTestCase {
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         // MUT
-        XCTAssertEqual(Score.computeDetails(repo: jpr.repository, versions: versions)?.score, 97)
+        let details = Score.computeDetails(repo: jpr.repository, versions: versions)
+
+        do { // validate
+            let details = try XCTUnwrap(details)
+            XCTAssertEqual(details.scoreBreakdown, [
+                .archive: 20,
+                .dependencies: 5,
+                .documentation: 15,
+                .releases: 20,
+                .stars: 37,
+            ])
+            XCTAssertEqual(details.score, 97)
+        }
     }
 }
