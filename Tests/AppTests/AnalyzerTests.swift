@@ -211,7 +211,7 @@ class AnalyzerTests: AppTestCase {
 
         // validate score
         XCTAssertEqual(pkg1.score, 35)
-        XCTAssertEqual(pkg2.score, 45)
+        XCTAssertEqual(pkg2.score, 40)
 
         // ensure stats, recent packages, and releases are refreshed
         try await XCTAssertEqualAsync(try await Stats.fetch(on: app.db).get(), .init(packageCount: 2))

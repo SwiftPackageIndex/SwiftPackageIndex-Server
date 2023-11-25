@@ -309,6 +309,10 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 070 - Add score_details to packages
         app.migrations.add(UpdatePackageAddScoreDetails())
     }
+    do { // Migraation 071 - Remove default from product_dependencies, reset product_dependencies and resolved_dependencies
+        app.migrations.add(UpdateVersionResetProductDependenciesWithDefault())
+        app.migrations.add(UpdateVersionResetResolvedDependencies())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

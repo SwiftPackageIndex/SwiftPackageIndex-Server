@@ -176,6 +176,21 @@ class VersionTests: AppTestCase {
         XCTAssertEqual(latest?.id, vid)
     }
 
+    func test_defaults() async throws {
+        // setup
+        let pkg = try await savePackageAsync(on: app.db, "1".asGithubUrl.url)
+        let v = try Version(package: pkg)
+
+        // MUT
+        try await v.save(on: app.db)
+
+        do { // validate
+            let v = try await XCTUnwrapAsync(try await Version.find(v.id, on: app.db))
+            XCTAssertEqual(v.resolvedDependencies, nil)
+            XCTAssertEqual(v.productDependencies, nil)
+        }
+    }
+
 }
 
 
