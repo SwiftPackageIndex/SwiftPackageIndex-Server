@@ -720,9 +720,6 @@ extension Analyze {
 }
 
 
-extension App.FileManager: DependencyResolution.FileManager { }
-
-
 // WIP attempted fix for issue 2227 https://github.com/vapor/async-kit/issues/104#issuecomment-1685273685
 private extension Application {
     func _db(_ id: DatabaseID?, on eventLoop: any EventLoop) -> any Database {
