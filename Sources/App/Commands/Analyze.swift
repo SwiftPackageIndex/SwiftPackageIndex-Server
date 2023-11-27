@@ -28,8 +28,7 @@ enum Analyze {
 
         func run(using context: CommandContext, signature: SPICommand.Signature) async throws {
             let client = context.application.client
-            let eventLoop = context.application.eventLoopGroup.any()
-            let db = context.application._db(.psql, on: eventLoop)
+            let db = context.application.db
             let logger = Logger(component: "analyze")
             Current.setLogger(logger)
 
@@ -717,19 +716,4 @@ extension Analyze {
         }
     }
 
-}
-
-
-// WIP attempted fix for issue 2227 https://github.com/vapor/async-kit/issues/104#issuecomment-1685273685
-private extension Application {
-    func _db(_ id: DatabaseID?, on eventLoop: any EventLoop) -> any Database {
-        self.databases
-            .database(
-                id,
-                logger: self.logger,
-                on: eventLoop,
-                history: nil,
-                pageSizeLimit: self.fluent.pagination.pageSizeLimit
-            )!
-    }
 }
