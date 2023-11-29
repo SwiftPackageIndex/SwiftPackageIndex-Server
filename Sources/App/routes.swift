@@ -273,6 +273,7 @@ func routes(_ app: Application) throws {
                     summary: "/api/versions/{id}/build-report",
                     description: "Send a build report.",
                     body: .type(of: API.PostBuildReportDTO.example),
+                    response: .type(HTTPStatus.self),
                     responseContentType: .application(.json)
                 )
 
@@ -282,6 +283,7 @@ func routes(_ app: Application) throws {
                     summary: "/api/builds/{id}/doc-report",
                     description: "Send a documentation generation report.",
                     body: .type(of: API.PostDocReportDTO.example),
+                    response: .type(HTTPStatus.self),
                     responseContentType: .application(.json)
                 )
             }
