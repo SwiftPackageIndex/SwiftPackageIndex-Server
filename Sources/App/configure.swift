@@ -313,6 +313,9 @@ public func configure(_ app: Application) throws -> String {
         app.migrations.add(UpdateVersionResetProductDependenciesWithDefault())
         app.migrations.add(UpdateVersionResetResolvedDependencies())
     }
+    do { // Migration 072 - Update has_docs to include external documentation
+        app.migrations.add(UpdateSearchUpdateHasDocs())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

@@ -119,7 +119,7 @@ class QueryPerformanceTests: XCTestCase {
             return
         }
         let query = db.raw("""
-            -- v11
+            -- v12
             SELECT
               p.id AS package_id,
               p.platform_compatibility,
@@ -133,7 +133,10 @@ class QueryPerformanceTests: XCTestCase {
               r.last_activity_at,
               r.summary,
               v.package_name,
-              array_length(doc_archives, 1) >= 1 AS has_docs,
+              (
+                ARRAY_LENGTH(doc_archives, 1) >= 1
+                OR spi_manifest->'external_links'->'documentation' IS NOT NULL
+              ) AS has_docs,
               ARRAY(
                 SELECT DISTINCT JSONB_OBJECT_KEYS(type) FROM products WHERE products.version_id = v.id
                 UNION

@@ -1503,6 +1503,31 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), [])
     }
 
+    func test_hasDocs_external_docs() async throws {
+        // Ensure external docs as listed as having docs
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2702
+        let pkg = Package(url: "1")
+        try await pkg.save(on: app.db)
+        try await Repository(package: pkg,
+                             defaultBranch: "main",
+                             name: "1",
+                             owner: "foo").save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "sha",
+                          commitDate: .t0,
+                          packageName: "1",
+                          reference: .branch("main"),
+                          spiManifest: .init(externalLinks: .init(documentation: "doc link")))
+            .save(on: app.db)
+        try await Search.refresh(on: app.db).get()
+
+        // MUT
+        let res = try await Search.fetch(app.db, ["1"], page: 1, pageSize: 20).get()
+
+        // validate
+        XCTAssertEqual(res.results.first?.package?.hasDocs, true)
+    }
+    
 }
 
 
