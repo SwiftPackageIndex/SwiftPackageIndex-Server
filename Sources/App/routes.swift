@@ -196,31 +196,18 @@ func routes(_ app: Application) throws {
             responseContentType: .application(.json)
         )
 
-        if Current.environment() == .development { // For now, only protect search API on dev
-            app.group(User.APITierAuthenticator(tier: .tier1), User.guardMiddleware()) {
-                $0.groupedOpenAPI(auth: .apiBearerToken).group(tags: []) { protected in
-                    protected.group(BackendReportingMiddleware(path: .search)) {
-                        $0.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
-                            .openAPI(
-                                summary: "/api/search",
-                                description: "Execute a search.",
-                                query: .type(of: API.SearchController.Query.example),
-                                response: .type(of: Search.Response.example),
-                                responseContentType: .application(.json)
-                            )
-                    }
+        app.group(User.APITierAuthenticator(tier: .tier1), User.guardMiddleware()) {
+            $0.groupedOpenAPI(auth: .apiBearerToken).group(tags: []) { protected in
+                protected.group(BackendReportingMiddleware(path: .search)) {
+                    $0.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
+                        .openAPI(
+                            summary: "/api/search",
+                            description: "Execute a search.",
+                            query: .type(of: API.SearchController.Query.example),
+                            response: .type(of: Search.Response.example),
+                            responseContentType: .application(.json)
+                        )
                 }
-            }
-        } else {
-            app.group(BackendReportingMiddleware(path: .search)) {
-                $0.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
-                    .openAPI(
-                        summary: "/api/search",
-                        description: "Execute a search.",
-                        query: .type(of: API.SearchController.Query.example),
-                        response: .type(of: Search.Response.example),
-                        responseContentType: .application(.json)
-                    )
             }
         }
 
