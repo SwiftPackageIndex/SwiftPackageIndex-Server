@@ -18,7 +18,7 @@ set -eu
 
 TARFILE=$1
 DUMPFILE=$2
-PG_IMAGE=postgres:13.8-alpine
+PG_IMAGE=postgres:13.11-alpine
 
 [[ -n $DATABASE_PASSWORD ]]  || (echo "DATABASE_PASSWORD not set" && exit 1)
 [[ -n $DB_BACKUP_DIR ]]      || (echo "DB_BACKUP_DIR not set" && exit 1)
