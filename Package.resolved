@@ -437,8 +437,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/SwiftOpenAPI.git",
       "state" : {
-        "revision" : "2746032ae58a058e2961bc7030b94ee358e2fd97",
-        "version" : "2.19.4"
+        "revision" : "2ee6c2ad3da09601a1979bd51e6f76c0517369f5",
+        "version" : "2.18.4"
       }
     },
     {
@@ -473,8 +473,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/VaporToOpenAPI.git",
       "state" : {
-        "revision" : "68893454e81773f4a89850ae151c2609b8b2964f",
-        "version" : "4.4.4"
+        "revision" : "7c5d60a5a7574564d44dfbc39006d21b0a6386ff",
+        "version" : "4.3.12"
       }
     },
     {
