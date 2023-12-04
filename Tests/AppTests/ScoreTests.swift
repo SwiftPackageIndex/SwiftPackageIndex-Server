@@ -238,6 +238,7 @@ class ScoreTests: AppTestCase {
         try await Version(package: pkg,
                           docArchives: [.init(name: "archive1", title: "Archive One")],
                           reference: .branch("default"),
+                          resolvedDependencies: [],
                           swiftVersions: ["5"].asSwiftVersions).save(on: app.db)
         try (0..<20).forEach {
             try Version(package: pkg, reference: .tag(.init($0, 0, 0)))
@@ -248,6 +249,52 @@ class ScoreTests: AppTestCase {
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         // MUT
-        XCTAssertEqual(Score.computeDetails(repo: jpr.repository, versions: versions)?.score, 97)
+        let details = Score.computeDetails(repo: jpr.repository, versions: versions)
+
+        do { // validate
+            let details = try XCTUnwrap(details)
+            XCTAssertEqual(details.scoreBreakdown, [
+                .archive: 20,
+                .dependencies: 5,
+                .documentation: 15,
+                .releases: 20,
+                .stars: 37,
+            ])
+            XCTAssertEqual(details.score, 97)
+        }
     }
+
+    func test_computeDetails_unknown_resolvedDependencies() async throws {
+        // setup
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        try await Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db)
+        try await Version(package: pkg,
+                          docArchives: [.init(name: "archive1", title: "Archive One")],
+                          reference: .branch("default"),
+                          resolvedDependencies: nil,
+                          swiftVersions: ["5"].asSwiftVersions).save(on: app.db)
+        try (0..<20).forEach {
+            try Version(package: pkg, reference: .tag(.init($0, 0, 0)))
+                .save(on: app.db).wait()
+        }
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
+        // update versions
+        let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
+
+        // MUT
+        let details = Score.computeDetails(repo: jpr.repository, versions: versions)
+
+        do { // validate
+            let details = try XCTUnwrap(details)
+            XCTAssertEqual(details.scoreBreakdown, [
+                .archive: 20,
+                // no .dependencies category
+                .documentation: 15,
+                .releases: 20,
+                .stars: 37,
+            ])
+            XCTAssertEqual(details.score, 92)
+        }
+    }
+
 }

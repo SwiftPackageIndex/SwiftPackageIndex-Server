@@ -22,55 +22,23 @@ import Vapor
 enum Analyze {
 
     struct Command: AsyncCommand {
-        static let defaultLimit = 1
-
-        struct Signature: CommandSignature {
-            @Option(name: "limit", short: "l")
-            var limit: Int?
-
-            @Option(name: "id")
-            var id: UUID?
-
-            @Option(name: "url")
-            var url: String?
-        }
+        typealias Signature = SPICommand.Signature
 
         var help: String { "Run package analysis (fetching git repository and inspecting content)" }
 
-        enum Mode {
-            case id(Package.Id)
-            case limit(Int)
-            case url(String)
-
-            init(signature: Signature) {
-                if let id = signature.id {
-                    self = .id(id)
-                } else if let url = signature.url {
-                    self = .url(url)
-                } else if let limit = signature.limit {
-                    self = .limit(limit)
-                } else {
-                    self = .limit(Command.defaultLimit)
-                }
-            }
-        }
-
-        func run(using context: CommandContext, signature: Signature) async throws {
+        func run(using context: CommandContext, signature: SPICommand.Signature) async throws {
             let client = context.application.client
-            let eventLoop = context.application.eventLoopGroup.any()
-            let db = context.application._db(.psql, on: eventLoop)
+            let db = context.application.db
             let logger = Logger(component: "analyze")
             Current.setLogger(logger)
 
             Analyze.resetMetrics()
 
-            let mode = Mode(signature: signature)
-
             do {
                 try await analyze(client: client,
                                   database: db,
                                   logger: logger,
-                                  mode: mode)
+                                  mode: .init(signature: signature))
             } catch {
                 logger.error("\(error.localizedDescription)")
             }
@@ -140,7 +108,7 @@ extension Analyze {
     static func analyze(client: Client,
                         database: Database,
                         logger: Logger,
-                        mode: Analyze.Command.Mode) async throws {
+                        mode: SPICommand.Mode) async throws {
         let start = DispatchTime.now().uptimeNanoseconds
         defer { AppMetrics.analyzeDurationSeconds?.time(since: start) }
 
@@ -550,7 +518,6 @@ extension Analyze {
 
     struct PackageInfo: Equatable {
         var packageManifest: Manifest
-        var dependencies: [ResolvedDependency]?
         var spiManifest: SPIManifest.Manifest?
     }
 
@@ -571,12 +538,9 @@ extension Analyze {
 
         do {
             let packageManifest = try await dumpPackage(at: cacheDir)
-            let resolvedDependencies = getResolvedDependencies(Current.fileManager,
-                                                               at: cacheDir)
             let spiManifest = Current.loadSPIManifest(cacheDir)
 
             return PackageInfo(packageManifest: packageManifest,
-                               dependencies: resolvedDependencies,
                                spiManifest: spiManifest)
         } catch let AppError.invalidRevision(_, msg) {
             // re-package error to attach version.id
@@ -596,10 +560,6 @@ extension Analyze {
                               packageInfo: PackageInfo) -> EventLoopFuture<Void> {
         let manifest = packageInfo.packageManifest
         version.packageName = manifest.name
-        if let resolvedDependencies = packageInfo.dependencies {
-            // Don't overwrite information provided by the build system unless it's a non-nil (i.e. valid) value
-            version.resolvedDependencies = resolvedDependencies
-        }
         version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
         version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
         version.toolsVersion = manifest.toolsVersion?.version
@@ -756,22 +716,4 @@ extension Analyze {
         }
     }
 
-}
-
-
-extension App.FileManager: DependencyResolution.FileManager { }
-
-
-// WIP attempted fix for issue 2227 https://github.com/vapor/async-kit/issues/104#issuecomment-1685273685
-private extension Application {
-    func _db(_ id: DatabaseID?, on eventLoop: any EventLoop) -> any Database {
-        self.databases
-            .database(
-                id,
-                logger: self.logger,
-                on: eventLoop,
-                history: nil,
-                pageSizeLimit: self.fluent.pagination.pageSizeLimit
-            )!
-    }
 }

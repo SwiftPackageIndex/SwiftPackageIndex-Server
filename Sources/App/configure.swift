@@ -309,7 +309,14 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 070 - Add score_details to packages
         app.migrations.add(UpdatePackageAddScoreDetails())
     }
-    do { // Migration 071 - Add `funding` JSON field to `repositories`
+    do { // Migraation 071 - Remove default from product_dependencies, reset product_dependencies and resolved_dependencies
+        app.migrations.add(UpdateVersionResetProductDependenciesWithDefault())
+        app.migrations.add(UpdateVersionResetResolvedDependencies())
+    }
+    do { // Migration 072 - Update has_docs to include external documentation
+        app.migrations.add(UpdateSearchUpdateHasDocs())
+    }
+    do { // Migration 073 - Add `funding` JSON field to `repositories`
         app.migrations.add(AddFundingToRepositories())
     }
 

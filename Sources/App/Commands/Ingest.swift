@@ -17,36 +17,19 @@ import Fluent
 
 
 struct IngestCommand: AsyncCommand {
-    let defaultLimit = 1
-
-    struct Signature: CommandSignature {
-        @Option(name: "limit", short: "l")
-        var limit: Int?
-
-        @Option(name: "id", help: "package id")
-        var id: Package.Id?
-    }
+    typealias Signature = SPICommand.Signature
 
     var help: String { "Run package ingestion (fetching repository metadata)" }
 
-    enum Mode {
-        case id(Package.Id)
-        case limit(Int)
-    }
-
-    func run(using context: CommandContext, signature: Signature) async throws {
-        let limit = signature.limit ?? defaultLimit
-
+    func run(using context: CommandContext, signature: SPICommand.Signature) async throws {
         let client = context.application.client
         let db = context.application.db
         let logger = Logger(component: "ingest")
 
         Self.resetMetrics()
 
-        let mode = signature.id.map(Mode.id) ?? .limit(limit)
-
         do {
-            try await ingest(client: client, database: db, logger: logger, mode: mode)
+            try await ingest(client: client, database: db, logger: logger, mode: .init(signature: signature))
         } catch {
             logger.error("\(error.localizedDescription)")
         }
@@ -80,7 +63,7 @@ extension IngestCommand {
 func ingest(client: Client,
             database: Database,
             logger: Logger,
-            mode: IngestCommand.Mode) async throws {
+            mode: SPICommand.Mode) async throws {
     let start = DispatchTime.now().uptimeNanoseconds
     defer { AppMetrics.ingestDurationSeconds?.time(since: start) }
 
@@ -88,18 +71,18 @@ func ingest(client: Client,
         case .id(let id):
             logger.info("Ingesting (id: \(id)) ...")
             let pkg = try await Package.fetchCandidate(database, id: id)
-            await ingest(client: client,
-                         database: database,
-                         logger: logger,
-                         packages: [pkg])
+            await ingest(client: client, database: database, logger: logger, packages: [pkg])
+
         case .limit(let limit):
             logger.info("Ingesting (limit: \(limit)) ...")
             let packages = try await Package.fetchCandidates(database, for: .ingestion, limit: limit)
             logger.info("Candidate count: \(packages.count)")
-            await ingest(client: client,
-                         database: database,
-                         logger: logger,
-                         packages: packages)
+            await ingest(client: client, database: database, logger: logger, packages: packages)
+
+        case .url(let url):
+            logger.info("Ingesting (url: \(url)) ...")
+            let pkg = try await Package.fetchCandidate(database, url: url)
+            await ingest(client: client, database: database, logger: logger, packages: [pkg])
     }
 }
 

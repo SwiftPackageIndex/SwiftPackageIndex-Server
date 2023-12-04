@@ -12,9 +12,9 @@
         "normalize.css": "^8.0.1"
     },
     "devDependencies": {
-        "esbuild": "^0.19.6",
+        "esbuild": "^0.19.8",
         "esbuild-sass-plugin": "^2.16.0",
-        "postcss": "^8.4.31",
+        "postcss": "^8.4.32",
         "prettier": "^3.1.0",
         "stylelint": "^15.11.0",
         "stylelint-config-standard-scss": "^11.1.0",

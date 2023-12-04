@@ -138,7 +138,6 @@ extension Github {
         }
 
         guard response.status == .ok else {
-            Current.logger().warning("fetchResource \(uri) request failed with status \(response.status)")
             throw Error.requestFailed(response.status)
         }
 
