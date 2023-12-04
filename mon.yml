@@ -20,7 +20,7 @@ services:
 
   grafana:
     # https://github.com/grafana/grafana/releases
-    image: grafana/grafana:10.2.0
+    image: grafana/grafana:10.2.2
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: 'false'
@@ -71,7 +71,7 @@ services:
 
   prometheus:
     # https://github.com/prometheus/prometheus/releases
-    image: prom/prometheus:v2.47.2
+    image: prom/prometheus:v2.48.0
     volumes:
       - prometheus_data:/prometheus
     command: --config.file=/prometheus.yml --storage.tsdb.retention.time=30d
@@ -96,7 +96,7 @@ services:
 
   node-exporter:
     # https://github.com/prometheus/node_exporter/releases
-    image: prom/node-exporter:v1.6.1
+    image: prom/node-exporter:v1.7.0
     networks:
       - app_backend
     volumes:
