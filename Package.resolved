@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/console-kit.git",
       "state" : {
-        "revision" : "2e3e205e8d7563d5c1a6f1c8992616d337f632e6",
-        "version" : "4.11.0"
+        "revision" : "18262d24c98c4b76aed2d6def3544b58d0cbad63",
+        "version" : "4.13.0"
       }
     },
     {
@@ -140,8 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SemanticVersion",
       "state" : {
-        "revision" : "0f1351be86fd84b487c32ed3b996fa7ca64a5264",
-        "version" : "0.3.8"
+        "revision" : "ea8eea9d89842a29af1b8e6c7677f1c86e72fa42",
+        "version" : "0.4.0"
       }
     },
     {
@@ -293,8 +293,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-http-types",
       "state" : {
-        "revision" : "99d066e29effa8845e4761dd3f2f831edfdf8925",
-        "version" : "1.0.0"
+        "revision" : "1827dc94bdab2eb5f2fc804e9b0cb43574282566",
+        "version" : "1.0.2"
       }
     },
     {
@@ -401,8 +401,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing.git",
       "state" : {
-        "revision" : "4862d48562483d274a2ac7522d905c9237a31a48",
-        "version" : "1.15.0"
+        "revision" : "59b663f68e69f27a87b45de48cb63264b8194605",
+        "version" : "1.15.1"
       }
     },
     {
@@ -437,8 +437,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/SwiftOpenAPI.git",
       "state" : {
-        "revision" : "2ee6c2ad3da09601a1979bd51e6f76c0517369f5",
-        "version" : "2.18.4"
+        "revision" : "2746032ae58a058e2961bc7030b94ee358e2fd97",
+        "version" : "2.19.4"
       }
     },
     {
@@ -464,8 +464,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "da9c2805b1b93751b1922bbbf343aa120e9942c8",
-        "version" : "4.87.1"
+        "revision" : "c710b8f4412aaa69ab03e77b4be27ce799f5fc1e",
+        "version" : "4.88.0"
       }
     },
     {
@@ -473,8 +473,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/VaporToOpenAPI.git",
       "state" : {
-        "revision" : "7c5d60a5a7574564d44dfbc39006d21b0a6386ff",
-        "version" : "4.3.12"
+        "revision" : "68893454e81773f4a89850ae151c2609b8b2964f",
+        "version" : "4.4.4"
       }
     },
     {
