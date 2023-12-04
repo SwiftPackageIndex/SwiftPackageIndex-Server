@@ -27,7 +27,7 @@ updates:
           - "*"
     ignore:
       - dependency-name: "VaporToOpenAPI"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
   - package-ecosystem: "npm"
     directory: "/"
     commit-message:
