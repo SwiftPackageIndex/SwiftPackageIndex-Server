@@ -136,6 +136,7 @@ extension PackageShow {
                 .class("details two-column"),
                 .section(
                     mainColumnMetadata(),
+                    packageSponsorship(),
                     .hr(
                         .class("minor")
                     ),
@@ -172,6 +173,19 @@ extension PackageShow {
                     model.productTypeListItem(.plugin),
                     model.targetTypeListItem(.macro),
                     model.keywordsListItem()
+                )
+            )
+        }
+
+        func packageSponsorship() -> Node<HTML.BodyContext> {
+            // For only one sponsorship link
+            .p(
+                .class("package-sponsorship"),
+                .text("This package accepts sponsorship via "),
+                .a(
+                    .class("github"),
+                    .href("https://example.com/sponsor-url"),
+                    .text("GitHub Sponsors")
                 )
             )
         }
@@ -326,6 +340,70 @@ extension PackageShow {
                                         .releases).relativeURL(),
                 .div(.spinner())
             )
+        }
+    }
+}
+
+// TODO: Test this
+extension API.PackageController.GetRoute.Model {
+    func fundingLinkListNodes() -> Node<HTML.ListContext> {
+        .group(
+            fundingLinks.map { fundingLink in
+                    .li(
+                        .class(fundingLink.platform.cssClass),
+                        .a(
+                            .href(fundingLink.url),
+                            .unwrap(fundingLink.customUrlDomain, { .text($0) },
+                                    else: .text(fundingLink.platform.name))
+                        )
+                    )
+            })
+    }
+}
+
+// TODO: Test this
+extension FundingLink {
+    var customUrlDomain: String? {
+        guard platform == .customUrl,
+              let parsedUrl = URL(string: url)
+        else { return nil }
+        return parsedUrl.host
+    }
+}
+
+extension FundingLink.Platform {
+    var cssClass: String {
+        switch self {
+            case .communityBridge: return "community-bridge"
+            case .customUrl: return "custom-url"
+            case .gitHub: return "github"
+            case .issueHunt: return "issue-hunt"
+            case .koFi: return "ko-fi"
+            case .lfxCrowdfunding: return "lfx-crowdfunding"
+            case .liberaPay: return "liberapay"
+            case .openCollective: return "open-collective"
+            case .otechie: return "otechie"
+            case .patreon: return "patreon"
+            case .tideLift: return "tide-lift"
+        }
+    }
+
+    var name: String {
+        switch self {
+            case .communityBridge: return "LFX Mentorship"
+            case .gitHub: return "GitHub"
+            case .issueHunt: return "IssueHunt"
+            case .koFi: return "Ko-fi"
+            case .lfxCrowdfunding: return "lfx-crowdfunding"
+            case .liberaPay: return "Liberapay"
+            case .openCollective: return "Open Collective"
+            case .otechie: return "Otechie"
+            case .patreon: return "Patreon"
+            case .tideLift: return "Tidelift"
+
+            // The `name` for the `customUrl` case should never be used, as we display the domain name instead of static text.
+            // The only situation where this wording would be displayed is if the `fundingUrl` was not able to be parsed as a URL.
+            case .customUrl: return "Link"
         }
     }
 }
