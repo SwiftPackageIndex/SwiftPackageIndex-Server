@@ -316,6 +316,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 072 - Update has_docs to include external documentation
         app.migrations.add(UpdateSearchUpdateHasDocs())
     }
+    do { // Migration 073 - Add `funding` JSON field to `repositories`
+        app.migrations.add(AddFundingToRepositories())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
