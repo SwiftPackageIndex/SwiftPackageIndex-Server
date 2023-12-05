@@ -48,6 +48,7 @@ extension API.PackageController.GetRoute {
         var documentationTarget: DocumentationTarget? = nil
         var weightedKeywords: [WeightedKeyword]
         var releaseReferences: [App.Version.Kind: App.Reference]
+        var fundingLinks: [FundingLink]
 
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
@@ -78,7 +79,8 @@ extension API.PackageController.GetRoute {
                       defaultBranchReference: App.Reference,
                       releaseReference: App.Reference?,
                       preReleaseReference: App.Reference?,
-                      repository: Repository? = nil
+                      repository: Repository? = nil,
+                      fundingLinks: [FundingLink]
             ) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
@@ -118,6 +120,7 @@ extension API.PackageController.GetRoute {
                 }
                 return refs
             }()
+            self.fundingLinks = fundingLinks
         }
 
         init?(result: API.PackageController.PackageResult,
@@ -170,7 +173,8 @@ extension API.PackageController.GetRoute {
                 defaultBranchReference: result.defaultBranchVersion.reference,
                 releaseReference: result.releaseVersion?.reference,
                 preReleaseReference: result.preReleaseVersion?.reference,
-                repository: result.repository
+                repository: result.repository,
+                fundingLinks: result.repository.fundingLinks
             )
 
         }
