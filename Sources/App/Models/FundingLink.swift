@@ -23,11 +23,11 @@ struct FundingLink: Codable, Equatable {
         case issueHunt
         case koFi
         case lfxCrowdfunding
-        case liberaPay
+        case liberapay
         case openCollective
         case otechie
         case patreon
-        case tideLift
+        case tidelift
     }
 
     var platform: Platform
@@ -58,16 +58,16 @@ extension FundingLink.Platform {
                 self = .koFi
             case .lfxCrowdfunding:
                 self = .lfxCrowdfunding
-            case .liberaPay:
-                self = .liberaPay
+            case .liberapay:
+                self = .liberapay
             case .openCollective:
                 self = .openCollective
             case .otechie:
                 self = .otechie
             case .patreon:
                 self = .patreon
-            case .tideLift:
-                self = .tideLift
+            case .tidelift:
+                self = .tidelift
         }
     }
 }
