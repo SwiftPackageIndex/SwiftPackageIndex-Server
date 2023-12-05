@@ -380,11 +380,11 @@ extension FundingLink.Platform {
             case .issueHunt: return "issue-hunt"
             case .koFi: return "ko-fi"
             case .lfxCrowdfunding: return "lfx-crowdfunding"
-            case .liberaPay: return "liberapay"
+            case .liberapay: return "liberapay"
             case .openCollective: return "open-collective"
             case .otechie: return "otechie"
             case .patreon: return "patreon"
-            case .tideLift: return "tide-lift"
+            case .tidelift: return "tide-lift"
         }
     }
 
@@ -394,12 +394,12 @@ extension FundingLink.Platform {
             case .gitHub: return "GitHub"
             case .issueHunt: return "IssueHunt"
             case .koFi: return "Ko-fi"
-            case .lfxCrowdfunding: return "lfx-crowdfunding"
-            case .liberaPay: return "Liberapay"
+            case .lfxCrowdfunding: return "LFX Crowdfunding"
+            case .liberapay: return "Liberapay"
             case .openCollective: return "Open Collective"
             case .otechie: return "Otechie"
             case .patreon: return "Patreon"
-            case .tideLift: return "Tidelift"
+            case .tidelift: return "Tidelift"
 
             // The `name` for the `customUrl` case should never be used, as we display the domain name instead of static text.
             // The only situation where this wording would be displayed is if the `fundingUrl` was not able to be parsed as a URL.
