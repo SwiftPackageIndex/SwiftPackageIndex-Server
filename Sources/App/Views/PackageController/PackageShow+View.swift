@@ -178,9 +178,9 @@ extension PackageShow {
         }
 
         func packageSponsorship() -> Node<HTML.BodyContext> {
-            // For only one sponsorship link
-            .p(
+            .div(
                 .class("package-sponsorship"),
+                
                 .text("This package accepts sponsorship via "),
                 .a(
                     .class("github"),
@@ -188,6 +188,21 @@ extension PackageShow {
                     .text("GitHub Sponsors")
                 )
             )
+
+            if  {
+                // Multiple links in a list
+                return .div(
+                    .class("package-sponsorship"),
+                    .text("This package accepts sponsorship via "),
+                    .a(
+                        .class("github"),
+                        .href("https://example.com/sponsor-url"),
+                        .text("GitHub Sponsors")
+                    )
+                )
+            } else {
+                return .p()
+            }
         }
 
         func mainColumnCompatibility() -> Node<HTML.BodyContext> {
