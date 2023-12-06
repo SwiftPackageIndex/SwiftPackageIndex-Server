@@ -503,10 +503,10 @@ class AnalyzerTests: AppTestCase {
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try await pkg.save(on: app.db)
         try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
+        var jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         do {  // MUT
-            try await Analyze.updateRepository(on: app.db, package: jpr)
+            jpr = try await Analyze.updateRepository(on: app.db, package: jpr)
         }
 
         // validate
