@@ -62,21 +62,32 @@ class JoinedTests: AppTestCase {
         XCTAssertNil(jpr.model.$repositories.value)
     }
 
-    func test_repository_update() throws {
+    func test_repository_update() async throws {
         // Test updating the repository through the join
         // setup
         let p = try savePackage(on: app.db, "1")
-        try Repository(package: p).save(on: app.db).wait()
-        let repo = try XCTUnwrap(JPR.query(on: app.db).first().wait()?.repository)
+        try await Repository(package: p).save(on: app.db)
+
+        let jpr = try await XCTUnwrapAsync(try await JPR.query(on: app.db).first())
+        let repo = try XCTUnwrap(jpr.repository)
         XCTAssertEqual(repo.name, nil)
         repo.name = "foo"
 
         // MUT
-        try repo.update(on: app.db).wait()
+        try await repo.update(on: app.db)
 
         // validate
-        let r = try XCTUnwrap(Repository.query(on: app.db).first().wait())
-        XCTAssertEqual(r.name, "foo")
+        do { // test in-place updates
+            XCTAssertEqual(repo.name, "foo")
+            XCTAssertEqual(jpr.repository?.name, nil) // repository relation does not get updated in place
+                                                      // requires a re-fetch of JPR
+            let reloadedJPR = try await XCTUnwrapAsync(try await JPR.query(on: app.db).first())
+            XCTAssertEqual(reloadedJPR.repository?.name, "foo")
+        }
+        do { // ensure value is persisted
+            let r = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
+            XCTAssertEqual(r.name, "foo")
+        }
     }
 
 }
