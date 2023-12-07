@@ -179,7 +179,7 @@ extension Analyze {
         try await refreshCheckout(logger: logger, package: package)
 
         try await database.transaction { tx in
-            let package = try await updateRepository(on: tx, package: package)
+            try await updateRepository(on: tx, package: package)
 
             let versionDelta = try await diffVersions(client: client, logger: logger, transaction: tx,
                                                       package: package)
@@ -326,7 +326,7 @@ extension Analyze {
     ///   - database: `Database` object
     ///   - package: `Package` to update
     /// - Returns: result future
-    static func updateRepository(on database: Database, package: Joined<Package, Repository>) async throws -> Joined<Package, Repository> {
+    static func updateRepository(on database: Database, package: Joined<Package, Repository>) async throws {
         guard let repo = package.repository else {
             throw AppError.genericError(package.model.id, "updateRepository: no repository")
         }
@@ -340,7 +340,6 @@ extension Analyze {
         repo.authors = try? await PackageContributors.extract(gitCacheDirectoryPath: gitDirectory, packageID: package.model.id)
 
         try await repo.update(on: database)
-        return try await Joined<Package, Repository>.query(on: database, packageId: package.model.requireID())
     }
 
 
