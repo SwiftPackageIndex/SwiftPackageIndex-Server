@@ -505,24 +505,23 @@ class AnalyzerTests: AppTestCase {
         try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
-        do {  // MUT
-            try await Analyze.updateRepository(on: app.db, package: jpr)
-        }
+        // MUT
+        try await Analyze.updateRepository(on: app.db, package: jpr)
 
         // validate
-        do { // ensure changes are persisted
-            let repo = try await Repository.find(.id1, on: app.db)
-            XCTAssertEqual(repo?.commitCount, 12)
-            XCTAssertEqual(repo?.firstCommitDate, .t0)
-            XCTAssertEqual(repo?.lastCommitDate, .t1)
-            XCTAssertEqual(repo?.authors, PackageAuthors(authors: [Author(name: "Person 1")], numberOfContributors: 1))
-        }
         do { // ensure JPR relation is updated
             XCTAssertEqual(jpr.repository?.commitCount, 12)
             XCTAssertEqual(jpr.repository?.firstCommitDate, .t0)
             XCTAssertEqual(jpr.repository?.lastCommitDate, .t1)
             XCTAssertEqual(jpr.repository?.authors, PackageAuthors(authors: [Author(name: "Person 1")],
                                                                    numberOfContributors: 1))
+        }
+        do { // ensure changes are persisted
+            let repo = try await Repository.find(.id1, on: app.db)
+            XCTAssertEqual(repo?.commitCount, 12)
+            XCTAssertEqual(repo?.firstCommitDate, .t0)
+            XCTAssertEqual(repo?.lastCommitDate, .t1)
+            XCTAssertEqual(repo?.authors, PackageAuthors(authors: [Author(name: "Person 1")], numberOfContributors: 1))
         }
     }
 
