@@ -79,14 +79,13 @@ class JoinedTests: AppTestCase {
         // validate
         do { // test in-place updates
             XCTAssertEqual(repo.name, "foo")
-            XCTAssertEqual(jpr.repository?.name, nil) // repository relation does not get updated in place
-                                                      // requires a re-fetch of JPR
-            let reloadedJPR = try await XCTUnwrapAsync(try await JPR.query(on: app.db).first())
-            XCTAssertEqual(reloadedJPR.repository?.name, "foo")
+            XCTAssertEqual(jpr.repository?.name, "foo")
         }
         do { // ensure value is persisted
             let r = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
             XCTAssertEqual(r.name, "foo")
+            let reloadedJPR = try await XCTUnwrapAsync(try await JPR.query(on: app.db).first())
+            XCTAssertEqual(reloadedJPR.repository?.name, "foo")
         }
     }
 
