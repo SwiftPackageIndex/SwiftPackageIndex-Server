@@ -17,6 +17,12 @@ import FluentKit
 
 struct Joined<M: Model, R: Model>: ModelInitializable {
     private(set) var model: M
+    private(set) var relation: R?
+
+    init(model: M) {
+        self.model = model
+        self.relation = try? model.joined(R.self)
+    }
 }
 
 
@@ -28,6 +34,4 @@ extension Joined {
             .init(queryBuilder: M.query(on: database)
                     .join(R.self, on: joinFilter, method: method))
     }
-
-    var relation: R? { try? model.joined(R.self) }
 }
