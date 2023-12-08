@@ -36,4 +36,28 @@ class MaintainerInfoIndexModelTests: SnapshotTestCase {
         let badgeURL = model.badgeURL(for: .swiftVersions)
         XCTAssertEqual(model.badgeMarkdown(for: .swiftVersions), "[![](\(badgeURL))](https://spi.com/example/package)")
     }
+
+    func test_scoreCategories_dependencies() throws {
+        // setup
+        var model = MaintainerInfoIndex.Model.mock
+
+        do {
+            model.scoreDetails?.numberOfDependencies = 0
+            let categories = model.scoreCategories
+            XCTAssertEqual(categories["Dependencies"]?.description, "Has no dependencies.")
+        }
+        do {
+            model.scoreDetails?.numberOfDependencies = nil
+            let categories = model.scoreCategories
+            XCTAssertEqual(categories["Dependencies"]?.description, "No dependency information available.")
+        }
+    }
+
+}
+
+
+extension [MaintainerInfoIndex.Model.PackageScore] {
+    subscript(title: String) -> Element? {
+        first { $0.title == title }
+    }
 }

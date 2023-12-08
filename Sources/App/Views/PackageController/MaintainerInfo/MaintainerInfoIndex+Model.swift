@@ -107,7 +107,11 @@ private extension Score.Details {
             case .stars:
                 return "Has \(pluralizedCount: likeCount, singular: "star")."
             case .dependencies:
-                return "\(numberOfDependencies ?? 0 < 1 ? "Has no dependencies." : "Depends on \(pluralizedCount: numberOfDependencies ?? 0, singular: "package", plural: "packages").")"
+                if let numberOfDependencies {
+                    return "\(numberOfDependencies < 1 ? "Has no dependencies." : "Depends on \(pluralizedCount: numberOfDependencies, singular: "package", plural: "packages").")"
+                } else {
+                    return "No dependency information available."
+                }
             case .maintenance:
                 // Using 750 days as it's just more than two years, meaning it should be possible to say "Last maintenance activity two years ago".
                 // The final nil-coalesce in this should never fire as it should always be possible to subtract two years from the current date.
