@@ -19,6 +19,15 @@
       }
     },
     {
+      "identity" : "canonicalpackageurls",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftPackageIndex/CanonicalPackageURLs",
+      "state" : {
+        "revision" : "0c0a71c754d35aba379920f32425322108aec4ad",
+        "version" : "0.0.2"
+      }
+    },
+    {
       "identity" : "console-kit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/console-kit.git",
