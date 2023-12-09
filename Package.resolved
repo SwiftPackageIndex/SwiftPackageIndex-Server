@@ -19,12 +19,12 @@
       }
     },
     {
-      "identity" : "canonicalpackageurls",
+      "identity" : "canonicalpackageurl",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SwiftPackageIndex/CanonicalPackageURLs",
+      "location" : "https://github.com/SwiftPackageIndex/CanonicalPackageURL.git",
       "state" : {
-        "revision" : "0c0a71c754d35aba379920f32425322108aec4ad",
-        "version" : "0.0.2"
+        "revision" : "55625b49d4f16c96689a078a80fcc0c236b807aa",
+        "version" : "0.0.3"
       }
     },
     {
