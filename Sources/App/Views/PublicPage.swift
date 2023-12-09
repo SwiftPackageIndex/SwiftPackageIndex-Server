@@ -49,7 +49,7 @@ class PublicPage {
             .description(description()),
             .twitterCardType(.summary),
             .socialImageLink(SiteURL.images("logo.png").absoluteURL()),
-            .favicon(SiteURL.images("logo-small.png").relativeURL()),
+            .favicon(SiteURL.images("logo-tiny.png").relativeURL()),
             .link(
                 .rel(.stylesheet),
                 .href(SiteURL.stylesheets("main").relativeURL() + "?" + ResourceReloadIdentifier.value),
@@ -127,16 +127,16 @@ class PublicPage {
         <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
         """
     }
-    
+
     /// The canonical URL for the current page, as determined by the page's `path`.
     /// - Returns: A string indicating the canonical URL for the current page.
     final func canonicalURL() -> String {
         guard let pageCanonicalURL = pageCanonicalURL()
         else { return SiteURL.absoluteURL(path) }
-        
+
         return pageCanonicalURL
     }
-    
+
     /// The canonical URL for the current page, as determined by the page.
     /// - Returns: A string indicating the canonical URL for the current page.
     func pageCanonicalURL() -> String? {
