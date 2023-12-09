@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/CanonicalPackageURL.git",
       "state" : {
-        "revision" : "55625b49d4f16c96689a078a80fcc0c236b807aa",
-        "version" : "0.0.3"
+        "revision" : "a45186e97ab01714fd606db13d704934f14eca0d",
+        "version" : "0.0.4"
       }
     },
     {
