@@ -22,7 +22,7 @@ extension API {
         struct DTO: Content, Equatable {
             var id: Package.Id
             var url: String
-            var resolvedDependency: String
+            var resolvedDependency: String?
         }
 
         static func get(req: Request) async throws -> [DTO] {
@@ -34,11 +34,11 @@ extension API {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
             return try await db.raw(#"""
-                SELECT p.id, p.url AS "url", UNNEST(resolved_dependencies)->'repositoryURL'->>0 AS "resolvedDependency"
+                SELECT
+                 p.id, p.url AS "url", dep->'repositoryURL'->>0 AS "resolvedDependency"
                 FROM versions v
-                JOIN packages p ON v.package_id = p.id
-                WHERE latest = 'default_branch'
-                AND resolved_dependencies != '{}'
+                JOIN packages p ON v.package_id = p.id AND v.latest = 'default_branch'
+                LEFT JOIN LATERAL UNNEST(v.resolved_dependencies) as dep ON true
                 """#)
             .all(decoding: DTO.self)
         }
