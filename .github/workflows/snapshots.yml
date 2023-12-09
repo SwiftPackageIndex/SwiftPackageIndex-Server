@@ -48,7 +48,7 @@ jobs:
       - name: Run Percy
         if: steps.front-end-changes.outputs.matching-files != '0'
         run: |
-          npm install -g @percy/cli
+          npm install -g @percy/cli@1.27.4
           echo "=== Installed Percy Version ==="
           npx percy --version
           echo "=== Running Snapshots ==="
