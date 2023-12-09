@@ -29,7 +29,7 @@ let package = Package(
         .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
         .package(url: "https://github.com/daveverwer/Plot.git", branch: "sitemapindex"),
         .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
-        .package(url: "https://github.com/SwiftPackageIndex/CanonicalPackageURL.git", from: "0.0.4"),
+        .package(url: "https://github.com/SwiftPackageIndex/CanonicalPackageURL.git", from: "0.0.5"),
         .package(url: "https://github.com/SwiftPackageIndex/DependencyResolution.git", from: "1.1.2"),
         .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "1.1.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion.git", from: "0.3.0"),
