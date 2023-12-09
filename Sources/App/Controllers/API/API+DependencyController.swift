@@ -33,6 +33,7 @@ extension API {
             guard let db = database as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
+#warning("consider fetching structures resolved_dependencies instead so we can differentiate between NULL and {}")
             return try await db.raw(#"""
                 SELECT
                  p.id, p.url AS "url", dep->'repositoryURL'->>0 AS "resolvedDependency"
