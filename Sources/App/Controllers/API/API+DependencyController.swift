@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import CanonicalPackageURL
+import DependencyResolution
 import Fluent
 import SQLKit
 import Vapor
@@ -23,37 +24,38 @@ extension API {
         struct PackageRecord: Content, Equatable {
             var id: Package.Id
             var url: CanonicalPackageURL
-            var resolvedDependency: CanonicalPackageURL?
+            var resolvedDependencies: [CanonicalPackageURL]?
         }
 
         static func get(req: Request) async throws -> [PackageRecord] {
             try await query(on: req.db)
         }
 
+#warning("add test")
         static func query(on database: Database) async throws -> [PackageRecord] {
             struct DTO: Content, Equatable {
                 var id: Package.Id
                 var url: String
-                var resolvedDependency: String?
+                var resolvedDependencies: [ResolvedDependency]?
 
                 var record: PackageRecord? {
                     guard let url = CanonicalPackageURL(url) else { return nil }
-                    return PackageRecord(id: id,
-                                         url: url,
-                                         resolvedDependency: resolvedDependency.flatMap(CanonicalPackageURL.init))
+                    return PackageRecord(
+                        id: id,
+                        url: url,
+                        resolvedDependencies: resolvedDependencies
+                            .map { $0.map(\.repositoryURL).compactMap(CanonicalPackageURL.init) }
+                    )
                 }
             }
 
             guard let db = database as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
-#warning("consider fetching structures resolved_dependencies instead so we can differentiate between NULL and {}")
             return try await db.raw(#"""
-                SELECT
-                 p.id, p.url AS "url", dep->'repositoryURL'->>0 AS "resolvedDependency"
+                SELECT p.id AS "id", p.url AS "url", to_jsonb(v.resolved_dependencies) AS "resolvedDependencies"
                 FROM versions v
-                JOIN packages p ON v.package_id = p.id AND v.latest = 'default_branch'
-                LEFT JOIN LATERAL UNNEST(v.resolved_dependencies) as dep ON true
+                JOIN packages p ON v.package_id = p.id and v.latest = 'default_branch'
                 """#)
             .all(decoding: DTO.self)
             .compactMap(\.record)
