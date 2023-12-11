@@ -939,6 +939,32 @@ class ApiTests: AppTestCase {
         }
     }
 
+    func test_dependencies_get() async throws {
+        // setup
+        Current.apiSigningKey = { "secret" }
+        let pkg = try savePackage(on: app.db, id: .id0, "http://github.com/foo/bar")
+        try await Repository(package: pkg,
+                             defaultBranch: "default",
+                             name: "bar",
+                             owner: "foo").save(on: app.db)
+        try await Version(package: pkg,
+                          commitDate: .t0,
+                          latest: .defaultBranch,
+                          reference: .branch("default"),
+                          resolvedDependencies: [])
+            .save(on: app.db)
+
+        // MUT
+        try app.test(.GET, "api/dependencies",
+                     headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
+                     afterResponse: { res in
+            // validation
+            XCTAssertEqual(res.status, .ok)
+            XCTAssert(res.body.asString().count > 0)
+        })
+    }
+
+
 }
 
 

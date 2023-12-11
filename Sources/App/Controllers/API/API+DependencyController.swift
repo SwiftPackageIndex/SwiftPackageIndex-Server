@@ -31,7 +31,6 @@ extension API {
             try await query(on: req.db)
         }
 
-#warning("add test")
         static func query(on database: Database) async throws -> [PackageRecord] {
             struct DTO: Content, Equatable {
                 var id: Package.Id
