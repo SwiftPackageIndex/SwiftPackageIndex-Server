@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CanonicalPackageURL
 import Fluent
 import SQLKit
 import Vapor
@@ -19,17 +20,30 @@ import Vapor
 
 extension API {
     enum DependencyController {
-        struct DTO: Content, Equatable {
+        struct PackageRecord: Content, Equatable {
             var id: Package.Id
-            var url: String
-            var resolvedDependency: String?
+            var url: CanonicalPackageURL
+            var resolvedDependency: CanonicalPackageURL?
         }
 
-        static func get(req: Request) async throws -> [DTO] {
+        static func get(req: Request) async throws -> [PackageRecord] {
             try await query(on: req.db)
         }
 
-        static func query(on database: Database) async throws -> [DTO] {
+        static func query(on database: Database) async throws -> [PackageRecord] {
+            struct DTO: Content, Equatable {
+                var id: Package.Id
+                var url: String
+                var resolvedDependency: String?
+
+                var record: PackageRecord? {
+                    guard let url = CanonicalPackageURL(url) else { return nil }
+                    return PackageRecord(id: id,
+                                         url: url,
+                                         resolvedDependency: resolvedDependency.flatMap(CanonicalPackageURL.init))
+                }
+            }
+
             guard let db = database as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
@@ -42,6 +56,7 @@ extension API {
                 LEFT JOIN LATERAL UNNEST(v.resolved_dependencies) as dep ON true
                 """#)
             .all(decoding: DTO.self)
+            .compactMap(\.record)
         }
     }
 }
