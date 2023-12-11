@@ -473,8 +473,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/VaporToOpenAPI.git",
       "state" : {
-        "revision" : "b1e804e0c1300a785316c5a3f2f73522b4c0c043",
-        "version" : "4.4.6"
+        "branch" : "4.3.12",
+        "revision" : "7c5d60a5a7574564d44dfbc39006d21b0a6386ff"
       }
     },
     {
