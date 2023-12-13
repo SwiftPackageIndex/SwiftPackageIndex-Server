@@ -30,7 +30,6 @@ import Vapor
 
 enum Api: Resourceable {
     case builds(_ id: Parameter<UUID>, BuildsPathComponents)
-    // FIXME: rename
     case dependencies
     case packages(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagesPathComponents)
     case packageCollections
