@@ -38,7 +38,7 @@ extension SwiftVersion {
             case .v5_8:
                 return "Xcode 14.3"
             case .v5_9:
-                return "Xcode 15.0"
+                return "Xcode 15.2b1"
             default:
                 return nil
         }
