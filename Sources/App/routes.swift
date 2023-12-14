@@ -248,6 +248,16 @@ func routes(_ app: Application) throws {
                         responseContentType: .application(.json)
                     )
                 }
+
+                protected.group(BackendReportingMiddleware(path: .dependencies)) {
+                    $0.get(SiteURL.api(.dependencies).pathComponents, use: API.DependencyController.get)
+                        .openAPI(
+                            summary: "/api/dependencies",
+                            description: "Return the full resolved dependencies graph across all packages.",
+                            response: .type(of: [API.DependencyController.PackageRecord.example]),
+                            responseContentType: .application(.json)
+                        )
+                }
             }
         }
 

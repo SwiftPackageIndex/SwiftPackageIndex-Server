@@ -1,0 +1,8 @@
+requests:
+  get-dependencies:
+    url: ${base_url}/api/dependencies
+    headers:
+      Authorization: Bearer ${api_token}
+    validation:
+      status: .regex((2|3)\d\d)
+    log: json

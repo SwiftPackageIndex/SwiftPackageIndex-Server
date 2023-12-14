@@ -258,3 +258,14 @@ extension API.PostDocReportDTO: WithExample {
               status: .ok)
     }
 }
+
+
+// MARK: - Dependency types
+
+extension API.DependencyController.PackageRecord: WithExample {
+    static var example: Self {
+        .init(id: .example,
+              url: .init("https://github.com/foo/bar")!,
+              resolvedDependencies: [.init("https://github.com/foo/dependency")!])
+    }
+}
