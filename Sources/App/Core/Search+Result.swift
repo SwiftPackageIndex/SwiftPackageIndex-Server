@@ -16,7 +16,7 @@ import Vapor
 
 
 extension Search {
-    enum Result: Codable, Equatable {
+    enum Result: Codable, Hashable, Equatable {
         case author(AuthorResult)
         case keyword(KeywordResult)
         case package(PackageResult)
@@ -84,15 +84,15 @@ extension Search {
         }
     }
 
-    struct AuthorResult: Codable, Equatable {
+    struct AuthorResult: Codable, Hashable, Equatable {
         var name: String
     }
 
-    struct KeywordResult: Codable, Equatable {
+    struct KeywordResult: Codable, Hashable, Equatable {
         var keyword: String
     }
 
-    struct PackageResult: Codable, Equatable {
+    struct PackageResult: Codable, Hashable, Equatable {
         var packageId: Package.Id
         var packageName: String?
         var packageURL: String

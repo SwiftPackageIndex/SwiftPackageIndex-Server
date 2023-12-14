@@ -390,6 +390,8 @@ enum Search {
         return query.all(decoding: DBRecord.self)
             .mapEachCompact(Result.init)
             .map { results in
+                SearchLogger.log(query: sanitizedTerms.joined(separator: " "), results: Array(results.prefix(10)))
+                
                 let hasMoreResults = results.filter(\.isPackage).count > pageSize
                 // first page has non-package results prepended, extend prefix for them
                 let keep = (page == 1)
