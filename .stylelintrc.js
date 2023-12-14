@@ -19,6 +19,7 @@ module.exports = {
         'declaration-block-no-redundant-longhand-properties': null,
         'declaration-empty-line-before': 'never',
         'font-family-no-duplicate-names': null,
+        'max-line-length': null,
         'media-feature-range-notation': 'prefix',
         'no-descending-specificity': null,
         'number-max-precision': null,
