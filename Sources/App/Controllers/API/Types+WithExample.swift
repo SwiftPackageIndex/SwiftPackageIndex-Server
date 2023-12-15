@@ -1,7 +1,7 @@
 import Foundation
 
 import VaporToOpenAPI
-
+import DependencyResolution
 
 // MARK: - External types
 
@@ -242,6 +242,12 @@ extension API.PostBuildReportDTO: WithExample {
         .init(builderVersion: "1.2.3",
               buildId: .example,
               platform: .iOS,
+              productDependencies: [
+                  ProductDependency(identity: "1",
+                                    name: "name",
+                                    url: "http://vapor.com",
+                                    dependencies: [])
+              ],
               status: .ok,
               swiftVersion: .v5_8)
     }
