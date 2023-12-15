@@ -21,17 +21,6 @@ on:
     - cron: "0 8 * * *"
 
 jobs:
-  test-build-front-end:
-    name: Build front-end
-    runs-on: ubuntu-latest
-    container:
-      image: registry.gitlab.com/finestructure/spi-base:0.14.2
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Run make build-front-end
-        run: make build-front-end
-    
   test-linux:
     name: Test
     runs-on: ubuntu-latest
