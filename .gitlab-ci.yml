@@ -42,8 +42,7 @@ build:
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
     echo 'let appVersion: String? = "'${VERSION}'"' > ./Sources/App/Core/AppVersion.swift
 
-    docker run --rm -v $PWD:/host -w /host --user $(id -u):$(id -g) node:16-alpine yarn
-    docker run --rm -v $PWD:/host -w /host --user $(id -u):$(id -g) node:16-alpine yarn build
+    make build-front-end
 
     # Login in again in case the previous steps were slow and made the token time out
     docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
