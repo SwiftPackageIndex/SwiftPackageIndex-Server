@@ -82,6 +82,7 @@ let package = Package(
         .testTarget(name: "AppTests",
                     dependencies: [
                         .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
+                        .product(name: "InlineSnapshotTesting", package: "swift-snapshot-testing"),
                         .product(name: "XCTVapor", package: "vapor"),
                         .target(name: "App"),
                     ],
