@@ -1,7 +1,7 @@
 <p>README content.</p> 
-<img src="https://example.com/absolute/image/url.png"> 
-<img src="https://github.com/owner/repo/raw/main/root/relative/image/url.png"> 
-<img src="https://github.com/owner/repo/raw/main/relative/image/url.png"> 
-<img src="https://github.com/owner/repo/raw/main/url/with/encoded%20spaces.png"> 
-<img src="https://github.com/owner/repo/raw/main/url/with/unencoded%20spaces.png"> 
-<img>
+<img src="https://example.com/absolute/image/url.png" /> 
+<img src="https://github.com/owner/repo/raw/main/root/relative/image/url.png" /> 
+<img src="https://github.com/owner/repo/raw/main/relative/image/url.png" /> 
+<img src="https://github.com/owner/repo/raw/main/url/with/encoded%20spaces.png" /> 
+<img src="https://github.com/owner/repo/raw/main/url/with/unencoded%20spaces.png" /> 
+<img />
