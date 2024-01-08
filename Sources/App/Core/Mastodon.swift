@@ -25,7 +25,7 @@ enum Mastodon {
         var accessToken: String
     }
 
-    // NG: _testEncodedURL is a callback that exists purely to be able to regression test the encoded value
+    // NB: _testEncodedURL is a callback that exists purely to be able to regression test the encoded value
     static func post(client: Client, message: String, _testEncodedURL: (String) -> Void = { _ in }) async throws {
         guard let credentials = Current.mastodonCredentials() else {
             throw Social.Error.missingCredentials
