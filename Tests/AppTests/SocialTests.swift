@@ -14,6 +14,7 @@
 
 @testable import App
 
+import InlineSnapshotTesting
 import XCTVapor
 
 
@@ -230,6 +231,28 @@ class SocialTests: AppTestCase {
 
         // validate
         try await XCTAssertEqualAsync(await posted.value, 1)
+    }
+
+    func test_urlEncoding() async throws {
+        // setup
+        Current.mastodonCredentials = { .init(accessToken: "fakeToken") }
+        let message = Social.versionUpdateMessage(
+            packageName: "packageName",
+            repositoryOwnerName: "owner",
+            url: "http://localhost:8080/owner/SuperAwesomePackage",
+            version: .init(2, 6, 4),
+            summary: nil,
+            maxLength: Social.postMaxLength
+        )
+
+        // MUT
+        try? await Mastodon.post(client: app.client, message: message) { encoded in
+            assertInlineSnapshot(of: encoded, as: .lines) {
+                """
+                https://mas.to/api/v1/statuses?status=%E2%AC%86%EF%B8%8F%20owner%20just%20released%20packageName%20v2.6.4%0A%0Ahttp://localhost:8080/owner/SuperAwesomePackage%23releases
+                """
+            }
+        }
     }
 
 }

@@ -192,7 +192,7 @@ extension AppEnvironment {
             Environment.get("MASTODON_ACCESS_TOKEN")
                 .map(Mastodon.Credentials.init(accessToken:))
         },
-        mastodonPost: Mastodon.post(client:message:),
+        mastodonPost: { client, message in try await Mastodon.post(client: client, message: message) },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },
         postPlausibleEvent: Plausible.postEvent,
