@@ -375,7 +375,8 @@ class ApiTests: AppTestCase {
         let data = try fixtureData(for: "large-build-report.json")
         XCTAssert(data.count > 16_000, "was: \(data.count) bytes")
         let body: ByteBuffer = .init(data: data)
-        try app.testable(method: .running).test(
+        let outOfTheWayPort = 12_345
+        try app.testable(method: .running(port: outOfTheWayPort)).test(
             .POST,
             "api/versions/\(versionId)/build-report",
             headers: .bearerApplicationJSON("secr3t"),
