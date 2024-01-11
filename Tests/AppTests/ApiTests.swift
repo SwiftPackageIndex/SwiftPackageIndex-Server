@@ -361,6 +361,31 @@ class ApiTests: AppTestCase {
         )
     }
 
+    func test_post_buildReport_large() throws {
+        // Ensure we can handle large build reports
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2825
+        // setup
+        Current.builderToken = { "secr3t" }
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, latest: .defaultBranch)
+        try v.save(on: app.db).wait()
+        let versionId = try v.requireID()
+
+        // MUT
+        let data = try fixtureData(for: "large-build-report.json")
+        XCTAssert(data.count > 16_000, "was: \(data.count) bytes")
+        let body: ByteBuffer = .init(data: data)
+        try app.testable(method: .running).test(
+            .POST,
+            "api/versions/\(versionId)/build-report",
+            headers: .bearerApplicationJSON("secr3t"),
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .noContent)
+            })
+    }
+
     func test_post_docReport() async throws {
         // setup
         Current.builderToken = { "secr3t" }
