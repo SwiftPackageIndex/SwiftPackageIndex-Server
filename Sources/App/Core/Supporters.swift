@@ -20,16 +20,11 @@ enum Supporters {
                                           url: "http://apple.com")
 
     static var corporate: [Corporate] = [
-        .init(name: "TelemetryDeck",
-              logo: .init(lightModeUrl: "/images/sponsors/telemetrydeck.png",
-                          darkModeUrl: "/images/sponsors/telemetrydeck~dark.png"),
-              url: "http://telemetrydeck.com/swift?utm_source=swiftpackageindex&utm_campaign=swiftpackageindex_0923",
-              advertisingCopy: "Get light-weight, anonymized, privacy-focused usage data analytics for your app."),
-        .init(name: "Point-Free",
-              logo: .init(lightModeUrl: "/images/sponsors/point-free.png",
-                          darkModeUrl: "/images/sponsors/point-free~dark.png"),
-              url: "https://www.pointfree.co/?ref=spi-promo",
-              advertisingCopy: "Upgrade your Swift programming skills with advanced, quality videos on architecture, testing, and more.")
+        .init(name: "Emerge Tools",
+              logo: .init(lightModeUrl: "/images/sponsors/emerge-tools.png",
+                          darkModeUrl: "/images/sponsors/emerge-tools~dark.png"),
+              url: "https://www.emergetools.com/?utm_source=spi2&utm_medium=sponsor&utm_campaign=emerge",
+              advertisingCopy: "Join the future of mobile development."),
     ]
 
     static var infrastructure: [Corporate] = [
