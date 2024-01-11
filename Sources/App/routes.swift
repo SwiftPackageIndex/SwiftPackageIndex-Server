@@ -265,6 +265,7 @@ func routes(_ app: Application) throws {
         app.group(User.BuilderAuthenticator(), User.guardMiddleware()) {
             $0.groupedOpenAPI(auth: .builderBearerToken).group(tags: []) { protected in
                 protected.on(.POST, SiteURL.api(.versions(.key, .buildReport)).pathComponents,
+                             body: .collect(maxSize: 100_000),
                              use: API.BuildController.buildReport)
                 .openAPI(
                     summary: "/api/versions/{id}/build-report",
@@ -275,6 +276,7 @@ func routes(_ app: Application) throws {
                 )
 
                 protected.on(.POST, SiteURL.api(.builds(.key, .docReport)).pathComponents,
+                             body: .collect(maxSize: 100_000),
                              use: API.BuildController.docReport)
                 .openAPI(
                     summary: "/api/builds/{id}/doc-report",
