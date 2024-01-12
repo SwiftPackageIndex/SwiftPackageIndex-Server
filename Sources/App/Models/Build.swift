@@ -47,6 +47,9 @@ final class Build: Model, Content {
     @Field(key: "build_command")
     var buildCommand: String?
 
+    @Field(key: "build_duration")
+    var buildDuration: Double?
+
     @Field(key: "builder_version")
     var builderVersion: String?
 
@@ -73,6 +76,7 @@ final class Build: Model, Content {
     init(id: Id? = nil,
          versionId: Version.Id,
          buildCommand: String? = nil,
+         buildDuration: Double? = nil,
          jobUrl: String? = nil,
          logUrl: String? = nil,
          platform: Platform,
@@ -82,6 +86,7 @@ final class Build: Model, Content {
         self.id = id
         self.$version.id = versionId
         self.buildCommand = buildCommand
+        self.buildDuration = buildDuration
         self.jobUrl = jobUrl
         self.logUrl = logUrl
         self.platform = platform
@@ -93,6 +98,7 @@ final class Build: Model, Content {
     convenience init(id: Id? = nil,
                      version: Version,
                      buildCommand: String? = nil,
+                     buildDuration: Double? = nil,
                      jobUrl: String? = nil,
                      logUrl: String? = nil,
                      platform: Platform,
@@ -102,6 +108,7 @@ final class Build: Model, Content {
         self.init(id: id,
                   versionId: try version.requireID(),
                   buildCommand: buildCommand,
+                  buildDuration: buildDuration,
                   jobUrl: jobUrl,
                   logUrl: logUrl,
                   platform: platform,
