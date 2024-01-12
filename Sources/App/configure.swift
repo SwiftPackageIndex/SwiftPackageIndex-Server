@@ -319,6 +319,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 073 - Add `funding` JSON field to `repositories`
         app.migrations.add(AddFundingToRepositories())
     }
+    do { // Migration 074 - Add `build_duration` field to `builds`
+        app.migrations.add(UpdateBuildAddBuildDuration())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
