@@ -192,8 +192,7 @@ extension PackageShow {
                         listPhrase(nodes: model.fundingLinks.map { fundingLink in
                                 .a(
                                     .href(fundingLink.url),
-                                    .unwrap(fundingLink.customUrlDomain, { .text($0) },
-                                            else: .text(fundingLink.platform.name))
+                                    .text(fundingLink.label)
                                 )
                         }, closing: .text(". "))
                     ),
@@ -356,20 +355,12 @@ extension PackageShow {
     }
 }
 
-// TODO: Test this
 extension FundingLink {
-    var customUrlDomain: String? {
-        guard platform == .customUrl,
-              let parsedUrl = URL(string: url)
-        else { return nil }
-        return parsedUrl.host
-    }
-}
-
-extension FundingLink.Platform {
-    var name: String {
-        switch self {
+    // TODO: Test this
+    var label: String {
+        switch platform {
             case .communityBridge: return "LFX Mentorship"
+            case .customUrl: return URL(string: url)?.host ?? url
             case .gitHub: return "GitHub Sponsors"
             case .issueHunt: return "IssueHunt"
             case .koFi: return "Ko-fi"
@@ -379,10 +370,6 @@ extension FundingLink.Platform {
             case .otechie: return "Otechie"
             case .patreon: return "Patreon"
             case .tidelift: return "Tidelift"
-
-            // The `name` for the `customUrl` case should never be used, as we display the domain name instead of static text.
-            // The only situation where this wording would be displayed is if the `fundingUrl` was not able to be parsed as a URL.
-            case .customUrl: return "Link"
         }
     }
 }
