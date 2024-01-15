@@ -206,6 +206,9 @@ private extension QueryPerformanceTests {
 
         switch parsedPlan.cost.total {
             case ..<10.0:
+                if isRunningInCI {
+                    print("::error file=\(filePath),line=\(lineNumber),title=\(testName)::Cost very low \(parsedPlan.cost.total) - did you run the query against an empty database?")
+                }
                 XCTFail("""
                         Cost very low \(parsedPlan.cost.total) - did you run the query against an empty database?
 
@@ -213,11 +216,15 @@ private extension QueryPerformanceTests {
                         """,
                         file: filePath,
                         line: lineNumber)
-            case ..<(expectedCost + variation):
+            case ..<expectedCost:
                 break
+            case ..<(expectedCost + variation):
+                if isRunningInCI {
+                    print("::warning file=\(filePath),line=\(lineNumber),title=\(testName)::Total cost of \(parsedPlan.cost.total) above threshold of \(expectedCost + variation) (within variation)")
+                }
             default:
                 if isRunningInCI {
-                    print("::error file=\(filePath),line=\(lineNumber)::Total cost of \(parsedPlan.cost.total) above threshold of \(expectedCost + variation) (incl variation)")
+                    print("::error file=\(filePath),line=\(lineNumber),title=\(testName)::Total cost of \(parsedPlan.cost.total) above threshold of \(expectedCost + variation) (incl variation)")
                 }
                 XCTFail("""
                         Total cost of \(parsedPlan.cost.total) above threshold of \(expectedCost + variation) (incl variation)
