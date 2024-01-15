@@ -217,7 +217,7 @@ private extension QueryPerformanceTests {
                 break
             default:
                 if isRunningInCI {
-                "::error file=\(filePath),line=\(lineNumber)::Total cost of \(parsedPlan.cost.total) above threshold of \(expectedCost + variation) (incl variation)"
+                    print("::error file=\(filePath),line=\(lineNumber)::Total cost of \(parsedPlan.cost.total) above threshold of \(expectedCost + variation) (incl variation)")
                 }
                 XCTFail("""
                         Total cost of \(parsedPlan.cost.total) above threshold of \(expectedCost + variation) (incl variation)
