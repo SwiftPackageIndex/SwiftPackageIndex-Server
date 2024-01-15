@@ -367,22 +367,6 @@ extension FundingLink {
 }
 
 extension FundingLink.Platform {
-    var cssClass: String {
-        switch self {
-            case .communityBridge: return "community-bridge"
-            case .customUrl: return "custom-url"
-            case .gitHub: return "github"
-            case .issueHunt: return "issue-hunt"
-            case .koFi: return "ko-fi"
-            case .lfxCrowdfunding: return "lfx-crowdfunding"
-            case .liberapay: return "liberapay"
-            case .openCollective: return "open-collective"
-            case .otechie: return "otechie"
-            case .patreon: return "patreon"
-            case .tidelift: return "tide-lift"
-        }
-    }
-
     var name: String {
         switch self {
             case .communityBridge: return "LFX Mentorship"
