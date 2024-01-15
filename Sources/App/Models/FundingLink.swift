@@ -42,13 +42,12 @@ extension FundingLink {
         // Some URLs come back from the GitHub API without a scheme. In every circumstance I have
         // observed, prepending `https://` would fix the issue. We should try that simple fix, but
         // if it's still won't parse as a URL, we should discard that funding link entirely.
-        switch node.url {
-            case let url where URL(string: url)?.scheme != nil:
-                self.url = url
-            case let url where URL(string: "https://\(url)") != nil:
-                self.url = "https://\(url)"
-            default:
-                return nil
+        if let url = URL(string: node.url), url.scheme != nil, url.host != nil {
+            self.url = url.absoluteString
+        } else if let url = URL(string: "https://\(node.url)"), url.host != nil {
+            self.url = url.absoluteString
+        } else {
+            return nil
         }
     }
 }
