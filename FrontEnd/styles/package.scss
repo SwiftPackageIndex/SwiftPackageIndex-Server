@@ -287,38 +287,25 @@
         }
     }
 
-    .funding-links {
-        .community-bridge {
+    .package-funding {
+        position: relative;
+        padding: 10px;
+        background-color: var(--package-funding-background);
+
+        p {
+            margin: 0;
         }
 
-        .custom-url {
-        }
-
-        .github {
-        }
-
-        .issue-hunt {
-        }
-
-        .ko-fi {
-        }
-
-        .lfx-crowdfunding {
-        }
-
-        .liberapay {
-        }
-
-        .open-collective {
-        }
-
-        .otechie {
-        }
-
-        .patreon {
-        }
-
-        .tide-lift {
+        &::after {
+            content: '';
+            position: absolute;
+            top: -15px;
+            right: 0;
+            width: 25px;
+            height: 100%;
+            background-repeat: no-repeat;
+            background-image: var(--image-heart);
+            transform: rotate(22deg);
         }
     }
 
