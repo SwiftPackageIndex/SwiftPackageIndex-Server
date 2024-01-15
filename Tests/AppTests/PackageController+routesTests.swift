@@ -499,7 +499,7 @@ class PackageController_routesTests: AppTestCase {
             )
             // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
             XCTAssertTrue($0.body.asString()
-                    .contains(#"<link rel="stylesheet" href="/docc.css?test">"#),
+                    .contains(#"<link rel="stylesheet" href="/docc.css?test" />"#),
                           "was: \($0.body.asString())")
         }
 
@@ -847,7 +847,7 @@ class PackageController_routesTests: AppTestCase {
             )
             // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
             XCTAssertTrue($0.body.asString()
-                    .contains(#"<link rel="stylesheet" href="/docc.css?test">"#),
+                    .contains(#"<link rel="stylesheet" href="/docc.css?test" />"#),
                           "was: \($0.body.asString())")
         }
 
