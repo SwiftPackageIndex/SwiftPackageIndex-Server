@@ -178,31 +178,28 @@ extension PackageShow {
         }
 
         func packageSponsorship() -> Node<HTML.BodyContext> {
-            .div(
-                .class("package-sponsorship"),
-                
-                .text("This package accepts sponsorship via "),
-                .a(
-                    .class("github"),
-                    .href("https://example.com/sponsor-url"),
-                    .text("GitHub Sponsors")
+            guard model.fundingLinks.count > 0
+            else { return .empty }
+
+            return .section(
+                .class("package-funding"),
+                .p(
+                    .text(model.repositoryOwnerName),
+                    .text(" accepts support for "),
+                    .text(model.title),
+                    .text(" through "),
+                    .group(
+                        listPhrase(nodes: model.fundingLinks.map { fundingLink in
+                                .a(
+                                    .href(fundingLink.url),
+                                    .unwrap(fundingLink.customUrlDomain, { .text($0) },
+                                            else: .text(fundingLink.platform.name))
+                                )
+                        }, closing: .text(". "))
+                    ),
+                    .text("If you find this package useful, please consider supporting it.")
                 )
             )
-
-            if  {
-                // Multiple links in a list
-                return .div(
-                    .class("package-sponsorship"),
-                    .text("This package accepts sponsorship via "),
-                    .a(
-                        .class("github"),
-                        .href("https://example.com/sponsor-url"),
-                        .text("GitHub Sponsors")
-                    )
-                )
-            } else {
-                return .p()
-            }
         }
 
         func mainColumnCompatibility() -> Node<HTML.BodyContext> {
@@ -360,23 +357,6 @@ extension PackageShow {
 }
 
 // TODO: Test this
-extension API.PackageController.GetRoute.Model {
-    func fundingLinkListNodes() -> Node<HTML.ListContext> {
-        .group(
-            fundingLinks.map { fundingLink in
-                    .li(
-                        .class(fundingLink.platform.cssClass),
-                        .a(
-                            .href(fundingLink.url),
-                            .unwrap(fundingLink.customUrlDomain, { .text($0) },
-                                    else: .text(fundingLink.platform.name))
-                        )
-                    )
-            })
-    }
-}
-
-// TODO: Test this
 extension FundingLink {
     var customUrlDomain: String? {
         guard platform == .customUrl,
@@ -406,7 +386,7 @@ extension FundingLink.Platform {
     var name: String {
         switch self {
             case .communityBridge: return "LFX Mentorship"
-            case .gitHub: return "GitHub"
+            case .gitHub: return "GitHub Sponsors"
             case .issueHunt: return "IssueHunt"
             case .koFi: return "Ko-fi"
             case .lfxCrowdfunding: return "LFX Crowdfunding"
