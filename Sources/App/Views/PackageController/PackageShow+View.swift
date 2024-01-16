@@ -15,6 +15,7 @@
 import Ink
 import Vapor
 import Plot
+import TLDExtract
 
 
 extension PackageShow {
@@ -359,7 +360,7 @@ extension FundingLink {
     var label: String {
         switch platform {
             case .communityBridge: return "LFX Mentorship"
-            case .customUrl: return URL(string: url)?.host ?? url
+            case .customUrl: return TLDExtract().parse(url)?.rootDomain ?? URL(string: url)?.host ?? url
             case .gitHub: return "GitHub Sponsors"
             case .issueHunt: return "IssueHunt"
             case .koFi: return "Ko-fi"
