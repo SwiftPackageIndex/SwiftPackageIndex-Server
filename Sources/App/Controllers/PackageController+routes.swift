@@ -235,7 +235,7 @@ enum PackageController {
                   let canonicalRepository = documentationMetadata.repository,
                   let canonicalTarget = documentationMetadata.canonicalTarget
             else { return nil }
-            
+
             return Self.canonicalDocumentationUrl(from: "\(req.url)",
                                                   owner: canonicalOwner,
                                                   repository: canonicalRepository,
@@ -298,13 +298,56 @@ enum PackageController {
         let allowList = [
             // Page is not indexed: Crawled - currently not indexed
             (owner: "swiftpackageindex", repository: "semanticversion"), // 60 urls
-            (owner: "liuliu", repository: "dflat"),                      // 1,039 urls
-            (owner: "onevcat", repository: "kingfisher"),                // 1,674 urls
-            (owner: "apple", repository: "swift-docc"),                  // 5,404 urls
+            (owner: "liuliu", repository: "dflat"), // 1,039 urls
+            (owner: "onevcat", repository: "kingfisher"), // 1,674 urls
+            (owner: "apple", repository: "swift-docc"), // 5,404 urls
             // Page is not indexed: Discovered – currently not indexed
-            (owner: "siteline", repository: "swiftui-introspect"),       // 600 urls
-            (owner: "apple", repository: "swift-collections"),           // 951 urls
+            (owner: "siteline", repository: "swiftui-introspect"), // 600 urls
+            (owner: "apple", repository: "swift-collections"), // 951 urls
+            // First expansion after successful indexing - Total expansion of 13380 urls
+            (owner: "alexslee", repository: "FlexSeal"), // 525 urls
+            (owner: "Northwind-swift", repository: "NorthwindSwiftData"), // 555 urls
+            (owner: "orlandos-nl", repository: "MongoKitten"), // 521 urls
+            (owner: "StanfordBDHG", repository: "OMHModels"), // 696 urls
+            (owner: "gonzalezreal", repository: "NetworkImage"), // 643 urls
+            (owner: "AudioKit", repository: "Waveform"), // 620 urls
+            (owner: "GoodHatsLLC", repository: "StateTree"), // 584 urls
+            (owner: "jordanbaird", repository: "ColorWellKit"), // 714 urls
+            (owner: "jordanbaird", repository: "ColorWell"), // 726 urls
+            (owner: "apple", repository: "swift-nio-extras"), // 699 urls
+            (owner: "edonv", repository: "QLThumbnail"), // 639 urls
+            (owner: "edonv", repository: "SwiftUIMessage"), // 983 urls
+            (owner: "apple", repository: "swift-openapi-runtime"), // 587 urls
+            (owner: "lorenzofiamingo", repository: "swiftui-cached-async-image"), // 608 urls
+            (owner: "bdrelling", repository: "Structure"), // 937 urls
+            (owner: "jagreenwood", repository: "open-weather-kit"), // 554 urls
+            (owner: "marcoarment", repository: "Blackbird"), // 687 urls
+            (owner: "dirtyhenry", repository: "swift-blocks"), // 947 urls
+            (owner: "FlineDev", repository: "HandySwift"), // 533 urls
+            (owner: "FelixHerrmann", repository: "swift-package-list"), // 622 urls
         ]
+
+        // For future expansion of the above list, this query is useful:
+        // -----------------
+        // SELECT
+        //   p.id,
+        //   r.name,
+        //   r.owner,
+        //   v.reference,
+        //   d.linkable_paths_count
+        // FROM
+        //   packages p
+        //   INNER JOIN repositories r ON p.id = r.package_id
+        //   INNER JOIN versions v ON p.id = v.package_id
+        //   INNER JOIN builds b ON v.id = b.version_id
+        //   INNER JOIN doc_uploads d ON b.id = d.build_id
+        // WHERE
+        //   v.latest = 'default_branch'
+        //   AND d.linkable_paths_count BETWEEN 500 AND 1000
+        // ORDER BY
+        //   random()
+        // LIMIT 20;
+        // -----------------
 
         let packageResult = try await PackageResult.query(on: req.db, owner: owner, repository: repository)
         let urls = if allowList.contains(where: {
@@ -453,7 +496,7 @@ enum PackageController {
             score: result.model.score,
             scoreDetails: result.model.scoreDetails
         )
-        
+
         return MaintainerInfoIndex.View(path: req.url.path, model: model).document()
     }
 }
