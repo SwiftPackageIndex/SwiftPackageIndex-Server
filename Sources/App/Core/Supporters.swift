@@ -25,6 +25,11 @@ enum Supporters {
                           darkModeUrl: "/images/sponsors/emerge-tools~dark.png"),
               url: "https://www.emergetools.com/?utm_source=spi2&utm_medium=sponsor&utm_campaign=emerge",
               advertisingCopy: "Join the future of mobile development."),
+        .init(name: "Genius Scan SDK",
+              logo: .init(lightModeUrl: "/images/sponsors/genius-scan.png",
+                          darkModeUrl: "/images/sponsors/genius-scan~dark.png"),
+              url: "https://geniusscansdk.com/?utm_source=swiftpackageindex&utm_medium=referral&utm_campaign=spi_2024_jan_jun",
+              advertisingCopy: "Embed a reliable, high-quality, privacy-focused document scanner in your app."),
     ]
 
     static var infrastructure: [Corporate] = [
