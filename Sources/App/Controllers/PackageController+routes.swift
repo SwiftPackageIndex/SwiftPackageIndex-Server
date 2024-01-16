@@ -335,6 +335,7 @@ enum PackageController {
         //   r.owner,
         //   v.reference,
         //   d.linkable_paths_count
+	    //   '(owner: "' || r.owner || '", repository: "' || r.name || '"), // ' || d.linkable_paths_count || ' urls'
         // FROM
         //   packages p
         //   INNER JOIN repositories r ON p.id = r.package_id
