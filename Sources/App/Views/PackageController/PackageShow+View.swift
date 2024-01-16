@@ -356,7 +356,6 @@ extension PackageShow {
 }
 
 extension FundingLink {
-    // TODO: Test this
     var label: String {
         switch platform {
             case .communityBridge: return "LFX Mentorship"
