@@ -1035,6 +1035,7 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
+    @MainActor
     func test_dumpPackage_format() async throws {
         // Test dump-package JSON format
         // We decode this JSON output in a number of places and if there are changes in output
