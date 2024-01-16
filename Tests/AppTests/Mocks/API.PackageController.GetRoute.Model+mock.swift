@@ -124,13 +124,7 @@ extension API.PackageController.GetRoute.Model {
             isArchived: false,
             defaultBranchReference: .branch("main"),
             releaseReference: .tag(5, 2, 0),
-            preReleaseReference: .tag(5, 3, 0, "beta.1"),
-            fundingLinks: [
-                .init(platform: .gitHub, url: "https://github.com/sponsor-url"),
-                .init(platform: .koFi, url: "https://ko-fi.com/sponsor-url"),
-                .init(platform: .customUrl, url: "https://example.com/sponsor-url"),
-                .init(platform: .customUrl, url: "subdomain.example.com/sponsor-url"),
-            ]
+            preReleaseReference: .tag(5, 3, 0, "beta.1")
         )
     }
 }
