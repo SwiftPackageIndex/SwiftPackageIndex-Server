@@ -185,7 +185,7 @@ extension PackageShow {
                 .class("package-funding"),
                 .p(
                     .text(model.repositoryOwnerName),
-                    .text(" accepts support for "),
+                    .text(" welcomes support for "),
                     .text(model.title),
                     .text(" through "),
                     .group(
