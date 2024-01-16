@@ -230,8 +230,7 @@ extension API.PackageController.GetRoute.Model: WithExample {
               isArchived: false,
               defaultBranchReference: .branch("main"),
               releaseReference: .tag(1, 2, 3, "1.2.3"),
-              preReleaseReference: nil,
-              fundingLinks: [])
+              preReleaseReference: nil)
     }
 }
 

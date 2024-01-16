@@ -79,8 +79,7 @@ extension API.PackageController.GetRoute {
                       defaultBranchReference: App.Reference,
                       releaseReference: App.Reference?,
                       preReleaseReference: App.Reference?,
-                      repository: Repository? = nil,
-                      fundingLinks: [FundingLink]
+                      repository: Repository? = nil
             ) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
@@ -120,7 +119,7 @@ extension API.PackageController.GetRoute {
                 }
                 return refs
             }()
-            self.fundingLinks = fundingLinks
+            self.fundingLinks = repository?.fundingLinks ?? []
         }
 
         init?(result: API.PackageController.PackageResult,
@@ -173,8 +172,7 @@ extension API.PackageController.GetRoute {
                 defaultBranchReference: result.defaultBranchVersion.reference,
                 releaseReference: result.releaseVersion?.reference,
                 preReleaseReference: result.preReleaseVersion?.reference,
-                repository: result.repository,
-                fundingLinks: result.repository.fundingLinks
+                repository: result.repository
             )
 
         }
