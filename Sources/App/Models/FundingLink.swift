@@ -36,9 +36,19 @@ struct FundingLink: Codable, Equatable {
 
 
 extension FundingLink {
-    init(from node: Github.Metadata.FundingLinkNode) {
+    init?(from node: Github.Metadata.FundingLinkNode) {
         platform = .init(from: node.platform)
-        url = node.url
+
+        // Some URLs come back from the GitHub API without a scheme. In every circumstance I have
+        // observed, prepending `https://` would fix the issue. We should try that simple fix, but
+        // if it's still won't parse as a URL, we should discard that funding link entirely.
+        if let url = URL(string: node.url), url.scheme != nil, url.host != nil {
+            self.url = url.absoluteString
+        } else if let url = URL(string: "https://\(node.url)"), url.host != nil {
+            self.url = url.absoluteString
+        } else {
+            return nil
+        }
     }
 }
 
