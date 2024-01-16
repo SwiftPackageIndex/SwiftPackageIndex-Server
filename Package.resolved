@@ -469,6 +469,15 @@
       }
     },
     {
+      "identity" : "tldextractswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/MarcoEidinger/TLDExtractSwift.git",
+      "state" : {
+        "revision" : "c9c2400af9a564e8ed55cf58779cfbb18e2bd695",
+        "version" : "2.3.8"
+      }
+    },
+    {
       "identity" : "vapor",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
