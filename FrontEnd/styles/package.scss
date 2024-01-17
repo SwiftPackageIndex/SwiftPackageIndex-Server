@@ -287,6 +287,28 @@
         }
     }
 
+    .package-funding {
+        position: relative;
+        padding: 10px;
+        background-color: var(--package-funding-background);
+
+        p {
+            margin: 0;
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 5px;
+            width: 25px;
+            height: 100%;
+            background-repeat: no-repeat;
+            background-image: var(--image-heart);
+            transform: rotate(22deg);
+        }
+    }
+
     @media screen and (max-width: $mobile-breakpoint) {
         .package-title h2 {
             -webkit-line-clamp: 2;

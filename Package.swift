@@ -45,6 +45,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/jwt-kit", from: "4.13.0"),
         .package(url: "https://github.com/vapor/vapor.git", revision: "4.89.3"),
+        .package(url: "https://github.com/MarcoEidinger/TLDExtractSwift.git", from: "2.3.8"),
     ],
     targets: [
         .executableTarget(name: "Run", dependencies: ["App"]),
@@ -69,6 +70,7 @@ let package = Package(
                     .product(name: "SwiftPMPackageCollections", package: "swift-package-manager"),
                     .product(name: "Vapor", package: "vapor"),
                     .product(name: "VaporToOpenAPI", package: "VaporToOpenAPI"),
+                    .product(name: "TLDExtract", package: "tldextractswift"),
                 ],
                 linkerSettings: [.unsafeFlags(["-Xlinker", "-interposable"],
                                               .when(platforms: [.macOS],
