@@ -37,6 +37,13 @@ extension String {
         return self
     }
 
+    func removingPrefix(_ prefix: String) -> Self {
+        if lowercased().hasPrefix(prefix.lowercased()) {
+            return String(self.dropFirst(prefix.count))
+        }
+        return self
+    }
+
     var trimmed: String? {
         let trimmedString = trimmingCharacters(in: .whitespaces)
         if trimmedString.isEmpty { return nil }
