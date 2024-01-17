@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import TLDExtract
 
 
 struct FundingLink: Codable, Equatable {
@@ -32,6 +33,7 @@ struct FundingLink: Codable, Equatable {
 
     var platform: Platform
     var url: String
+    var urlLabel: String
 }
 
 
@@ -49,6 +51,18 @@ extension FundingLink {
         } else {
             return nil
         }
+
+        urlLabel = Self.urlLabel(from: url)
+    }
+
+    init(platform: Platform, url: String) {
+        self.platform = platform
+        self.url = url
+        self.urlLabel = Self.urlLabel(from: url)
+    }
+
+    static func urlLabel(from url: String) -> String {
+        TLDExtract().parse(url)?.rootDomain ?? URL(string: url)?.host ?? url
     }
 }
 
