@@ -377,11 +377,11 @@ extension Github {
                 case issueHunt = "ISSUEHUNT"
                 case koFi = "KO_FI"
                 case lfxCrowdfunding = "LFX_CROWDFUNDING"
-                case liberapay = "LIBERAPAY"
+                case liberaPay = "LIBERAPAY"
                 case openCollective = "OPEN_COLLECTIVE"
                 case otechie = "OTECHIE"
                 case patreon = "PATREON"
-                case tidelift = "TIDELIFT"
+                case tideLift = "TIDELIFT"
             }
 
             var platform: Platform
