@@ -30,9 +30,16 @@ extension String {
         return self
     }
 
-    func removingSuffix(_ suffix: String) -> String {
+    func removingSuffix(_ suffix: String) -> Self {
         if lowercased().hasSuffix(suffix.lowercased()) {
             return String(self.dropLast(suffix.count))
+        }
+        return self
+    }
+
+    func removingPrefix(_ prefix: String) -> Self {
+        if lowercased().hasPrefix(prefix.lowercased()) {
+            return String(self.dropFirst(prefix.count))
         }
         return self
     }

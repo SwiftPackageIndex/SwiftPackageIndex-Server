@@ -136,6 +136,7 @@ extension PackageShow {
                 .class("details two-column"),
                 .section(
                     mainColumnMetadata(),
+                    packageSponsorship(),
                     .hr(
                         .class("minor")
                     ),
@@ -172,6 +173,30 @@ extension PackageShow {
                     model.productTypeListItem(.plugin),
                     model.targetTypeListItem(.macro),
                     model.keywordsListItem()
+                )
+            )
+        }
+
+        func packageSponsorship() -> Node<HTML.BodyContext> {
+            guard model.fundingLinks.count > 0
+            else { return .empty }
+
+            return .section(
+                .class("package-funding"),
+                .p(
+                    .text(model.repositoryOwnerName),
+                    .text(" welcomes support for "),
+                    .text(model.title),
+                    .text(" through "),
+                    .group(
+                        listPhrase(nodes: model.fundingLinks.map { fundingLink in
+                                .a(
+                                    .href(fundingLink.url),
+                                    .text(fundingLink.label)
+                                )
+                        }, closing: .text(". "))
+                    ),
+                    .text("If you find this package useful, please consider supporting it.")
                 )
             )
         }
@@ -326,6 +351,24 @@ extension PackageShow {
                                         .releases).relativeURL(),
                 .div(.spinner())
             )
+        }
+    }
+}
+
+extension FundingLink {
+    var label: String {
+        switch platform {
+            case .communityBridge: return "LFX Mentorship"
+            case .customUrl: return URL(string: url)?.host?.removingPrefix("www.").removingPrefix("blog.") ?? url
+            case .gitHub: return "GitHub Sponsors"
+            case .issueHunt: return "IssueHunt"
+            case .koFi: return "Ko-fi"
+            case .lfxCrowdfunding: return "LFX Crowdfunding"
+            case .liberapay: return "Liberapay"
+            case .openCollective: return "Open Collective"
+            case .otechie: return "Otechie"
+            case .patreon: return "Patreon"
+            case .tidelift: return "Tidelift"
         }
     }
 }
