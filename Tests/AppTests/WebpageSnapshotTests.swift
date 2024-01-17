@@ -167,6 +167,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
             .init(platform: .gitHub, url: "https://github.com/sponsor-url"),
             .init(platform: .koFi, url: "https://ko-fi.com/sponsor-url"),
             .init(platform: .customUrl, url: "https://example.com/sponsor-url"),
+            .init(platform: .customUrl, url: "https://www.example.com/sponsor-url"),
             .init(platform: .customUrl, url: "subdomain.example.com/sponsor-url"),
         ]
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
