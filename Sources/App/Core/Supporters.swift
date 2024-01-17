@@ -24,7 +24,7 @@ enum Supporters {
               logo: .init(lightModeUrl: "/images/sponsors/emerge-tools.png",
                           darkModeUrl: "/images/sponsors/emerge-tools~dark.png"),
               url: "https://www.emergetools.com/?utm_source=spi2&utm_medium=sponsor&utm_campaign=emerge",
-              advertisingCopy: "Join the future of mobile development."),
+              advertisingCopy: "Join the future of mobile development. Trusted by top companies like Duolingo, Square, DoorDash & more…"),
         .init(name: "Genius Scan SDK",
               logo: .init(lightModeUrl: "/images/sponsors/genius-scan.png",
                           darkModeUrl: "/images/sponsors/genius-scan~dark.png"),
