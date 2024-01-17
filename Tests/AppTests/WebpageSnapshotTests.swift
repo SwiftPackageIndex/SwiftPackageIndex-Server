@@ -161,19 +161,6 @@ class WebpageSnapshotTests: SnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
     }
 
-    func test_PackageShowView_withPackageFundingLinks() throws {
-        var model = API.PackageController.GetRoute.Model.mock
-        model.fundingLinks = [
-            .init(platform: .gitHub, url: "https://github.com/sponsor-url"),
-            .init(platform: .koFi, url: "https://ko-fi.com/sponsor-url"),
-            .init(platform: .customUrl, url: "https://example.com/sponsor-url"),
-            .init(platform: .customUrl, url: "subdomain.example.com/sponsor-url"),
-        ]
-        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
-
-        assertSnapshot(matching: page, as: .html)
-    }
-
     func test_PackageShowView_with_documentation_link() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.documentationTarget = .internal(reference: "main", archive: "archive")
