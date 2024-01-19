@@ -322,6 +322,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 074 - Add `build_duration` field to `builds`
         app.migrations.add(UpdateBuildAddBuildDuration())
     }
+    do { // Migration 075 - Reset repositories.funding_links
+        app.migrations.add(UpdateRepositoryResetFundingLinks())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
