@@ -234,7 +234,7 @@ struct DocumentationPageProcessor {
                     .ul(
                         .li(
                             .a(
-                                .href(ExternalURL.projectBlog),
+                                .href(SiteURL.blog.relativeURL()),
                                 "Blog"
                             )
                         ),
