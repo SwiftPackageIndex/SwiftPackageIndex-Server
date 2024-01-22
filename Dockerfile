@@ -77,7 +77,8 @@ WORKDIR /app
 COPY --from=build /staging /app
 
 # Provide configuration needed by the built-in crash reporter and some sensible default behaviors.
-ENV SWIFT_ROOT=/usr SWIFT_BACKTRACE=enable=yes,sanitize=yes,threads=all,images=all,interactive=no
+# NB: SWIFT_BACKTRACE is being set via our environment variables so it can be changed without a rebuild
+ENV SWIFT_ROOT=/usr
 
 # Ensure all further commands run as the vapor user
 # NB sas 2022-09-23: See above why we're not using the `vapor` user
