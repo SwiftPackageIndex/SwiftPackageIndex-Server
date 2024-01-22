@@ -1,170 +1,170 @@
 ---
-- post: say-hello-to-the-swift-package-index-blog.md
+- slug: say-hello-to-the-swift-package-index-blog
   title: Say Hello to the Swift Package Index Blog
   summary: It’s always hard to know when to ship v1 of a project. Which features get included? Are there things that can wait? It’s a balancing act. You’re excited to show the world what you built, but is it good enough?
   date: 2020-08-16
   published: true
-- post: launching-language-and-platform-package-compatibility.md
+- slug: launching-language-and-platform-package-compatibility
   title: Launching Language and Platform Package Compatibility
   summary: We decided that one of the most important pieces of information we could provide on a package metadata page was what versions of Swift, and what platforms it was compatible with. Building that feature turned out to be quite an epic journey.
   date: 2020-08-20
   published: true
-- post: building-3238-packages-for-apple-silicon.md
+- slug: building-3238-packages-for-apple-silicon
   title: Building 3,238 Swift Packages for Apple Silicon
   summary: As part of the Swift Package Index build system, we have processed what must be the most extensive test of Apple Silicon compatibility outside of Apple. Here’s what we found.
   date: 2020-09-09
   published: true
-- post: funding-the-future-of-the-swift-package-index.md
+- slug: funding-the-future-of-the-swift-package-index
   title: Funding the Future of the Swift Package Index
   summary: Many open-source projects are just code and don’t need constant attention. The Swift Package Index is a little different, so we are opening up GitHub sponors for the project. We’d love your support.
   date: 2020-10-12
   published: true
-- post: the-swift-package-index-metadata-file-first-steps.md
+- slug: the-swift-package-index-metadata-file-first-steps
   title: The Swift Package Index Metadata File – First Steps
   summary: The Swift Package Index gathers most of the metadata about a package from external sources. The package manifest, the git repository, and GitHub. But, there are some things we need to know that are specific to the Swift Package Index. Learn how to take advantage of the extra settings available to your package.
   date: 2020-10-30
   published: true
-- post: keeping-up-to-date-with-swift-packages.md
+- slug: keeping-up-to-date-with-swift-packages
   title: Keeping Up To Date with Swift Packages
   summary: How do you keep up with new releases of the packages you use? How do you discover new packages? It’s a tough challenge to keep up to date with everything that the community releases, so we have some announcements today that can help you stay informed!
   date: 2020-11-25
   published: true
-- post: inline-readme-files.md
+- slug: inline-readme-files
   title: Inline README Files!
   summary: Where’s the most important source of information for deciding whether a package is suitable for your needs? It’s in the README file!
   date: 2020-12-24
   published: true
-- post: whats-next-february-2021.md
+- slug: whats-next-february-2021
   title: What’s Next? - February 2021
   summary: It’s been about seven months since we launched the Swift Package Index and we’ve been hard at work implementing a few major updates. Are we done? No, we are not!
   date: 2021-02-02
   published: true
-- post: hosting-the-swift-package-index.md
+- slug: hosting-the-swift-package-index
   title: Hosting the Swift Package Index
   summary: Making any open-source project sustainable for the long term is challenging in many ways, but with the Swift Package Index we also need significant hardware resources to keep it available.
   date: 2021-03-30
   published: true
-- post: launching-the-swift-package-index-playgrounds-app-for-macos.md
+- slug: launching-the-swift-package-index-playgrounds-app-for-macos
   title: Launching the Swift Package Index Playgrounds app for macOS
   summary: Try out any Swift package in Xcode with just a couple of clicks. It’s the launch of the first native app from the Swift Package Index!
   date: 2021-05-05
   published: true
-- post: how-the-swift-package-index-project-got-started.md
+- slug: how-the-swift-package-index-project-got-started
   title: How the Swift Package Index project got started because of a button
   summary: How did the Swift Package Index project get started, and why does a button feature so prominently in the story? Read on to find out.
   date: 2021-05-05
   published: true
-- post: using-the-spi-playgrounds-app-to-file-better-bug-reports.md
+- slug: using-the-spi-playgrounds-app-to-file-better-bug-reports
   title: Using the SPI Playgrounds app to file better bug reports
   summary: If you’ve been wondering why we created the SPI Playgrounds app, read on for a story where we used a playground to file a better bug report in the Vapor project.
   date: 2021-05-17
   published: true
-- post: progress-update-may-2021.md
+- slug: progress-update-may-2021
   title: Progress Report - May 2021
   summary: Three months ago, we published a list of areas that we wanted to focus on next. We’re just about to update that list for the next few months, but before we do that, let’s check-in quickly with how well we stayed on track since February!
   date: 2021-05-18
   published: true
-- post: whats-next-may-2021.md
+- slug: whats-next-may-2021
   title: What’s Next? - May 2021
   summary:
   date: 2021-05-18
   published: true
-- post: launching-swift-package-collections.md
+- slug: launching-swift-package-collections
   title: Launching Swift Package Collections
   summary: What are package collections? JSON descriptions of Swift package metadata. What does the Swift Package Index have in droves? Metadata about Swift packages! As soon as we heard about package collections in Swift 5.5, we knew we had to support it.
   date: 2021-06-09
   published: true
-- post: package-dependencies-step-one.md
+- slug: package-dependencies-step-one
   title: Package Dependencies - Step One
   summary: In pursuit of helping you make better decisions about the packages you depend on, we’re taking a step towards exposing dependency information for all packages!
   date: 2021-10-18
   published: true
-- post: m1-pro-and-m1-max-build-and-test-benchmarks.md
+- slug: m1-pro-and-m1-max-build-and-test-benchmarks
   title: M1 Pro and M1 Max Xcode Build and Test Benchmarks
   summary: We’ve run real-world performance benchmarks with the new M1 MacBook Pro machines against M1 and Intel machines.
   date: 2021-11-01
   published: true
-- post: improvements-to-package-search.md
+- slug: improvements-to-package-search
   title: Improvements to package search
   summary: Recently, we’ve been focusing our attention on improving search here on the Swift Package Index, and it’s time to let you all know what we’ve implemented!
   date: 2021-12-15
   published: true
-- post: keeping-up-with-dependency-changes.md
+- slug: keeping-up-with-dependency-changes
   title: Keeping up with dependency changes
   summary: How often do you update your package dependencies, and when you do, do you check what’s new or changed? We have a new tool that can help!
   date: 2022-01-25
   published: true
-- post: we-support-ukraine.md
+- slug: we-support-ukraine
   title: We support Ukraine
   summary: Russia’s invasion of Ukraine is appalling and we support Ukraine.
   date: 2022-02-26
   published: true
-- post: two-years-of-the-swift-package-index.md
+- slug: two-years-of-the-swift-package-index
   title: Two years of the Swift Package Index
   summary: It’s been exactly two years since the first commit of the Swift Package Index! More than 950 pull requests and 5,000 commits later, we now index and compatibility test over 4,500 packages!
   date: 2022-04-25
   published: true
-- post: auto-generating-auto-hosting-and-auto-updating-docc-documentation.md
+- slug: auto-generating-auto-hosting-and-auto-updating-docc-documentation
   title: Auto-generating, Auto-hosting, and Auto-updating DocC Documentation
   summary: DocC is Apple’s recommended way to provide documentation for your packages, and launching today, the Swift Package Index can generate, host, and update package documentation for any package in the index!
   date: 2022-06-03
   published: true
-- post: we-need-your-help-to-fund-this-project.md
+- slug: we-need-your-help-to-fund-this-project
   title: We need your help to fund this project
   summary: As an open-source project without the backing of a big company, we need your help to keep this project going.
   date: 2022-07-11
   published: true
-- post: searching-for-plugins.md
+- slug: searching-for-plugins
   title: Searching for plugins?
   summary: With Swift 5.6, Xcode and the Swift Package Manager gained a new product type, plugins, and we’re delighted to announce we now have support for filtering search results by whether or not they include a plugin.
   date: 2022-07-12
   published: true
-- post: versioned-docc-documentation.md
+- slug: versioned-docc-documentation
   title: Versioned DocC Documentation
   summary: We rolled out auto-generating DocC documentation exactly two months ago, and now we’re rolling out phase two. Versioned documentation!
   date: 2022-08-05
   published: true
-- post: externally-hosted-package-documentation.md
+- slug: externally-hosted-package-documentation
   title: Externally hosted package documentation
   summary: Using auto-hosted documentation remains the easiest way to get your package’s documentation available on the web, but we now also support documentation for projects that have more complex requirements or well-established documentation that already lives on the web.
   date: 2022-10-17
   published: true
-- post: recognising-package-authors.md
+- slug: recognising-package-authors
   title: Recognising Package Authors
   summary: The Swift Package Index now recognises primary contributors to open-source Swift packages by including author information alongside package metadata. Thank you to everyone who contributes to open-source Swift software!
   date: 2022-12-14
   published: true
-- post: welcoming-apple-as-a-supporter-of-the-swift-package-index.md
+- slug: welcoming-apple-as-a-supporter-of-the-swift-package-index
   title: Welcoming Apple as a supporter of the Swift Package Index
   summary: As we approach our third anniversary working on the Swift Package Index, we are thrilled to announce that Apple is adding their public and financial support to the project.
   date: 2023-03-14
   published: true
-- post: supporting-swift-58.md
+- slug: supporting-swift-58
   title: Supporting Swift 5.8
   summary: Last Thursday, Apple released Swift 5.8, and today we are delighted to announce that the Swift Package Index already has full support for parsing and processing Swift packages using Xcode 14.3 and Swift 5.8 across all our supported platforms.
   date: 2023-04-03
   published: true
-- post: validating-spi-manifest-files.md
+- slug: validating-spi-manifest-files
   title: Validating Swift Package Index Manifest Files
   summary: Swift Package Index Manifest files are YAML files that configure how the package index processes your package. With our online validator you can now confirm the format is correct without having to wait for reprocessing.
   date: 2023-04-24
   published: true
-- post: supporting-swift-59.md
+- slug: supporting-swift-59
   title: Supporting Swift 5.9 Betas
   summary: How could we improve on adding support for a new Swift version after just one week of it being available? We could add support for Swift 5.9 one week after the release of the first beta version!
   date: 2023-06-12
   published: true
-- post: supporting-visionos.md
+- slug: supporting-visionos
   title: Supporting visionOS
   summary: We’ve added support for visionOS to our compatibility testing, showing it on the package pages and build badges.
   date: 2023-06-29
   published: true
-- post: revealing-and-explaining-package-scores.md
+- slug: revealing-and-explaining-package-scores
   title: Revealing and explaining package scores
   summary: When you search the Swift Package Index, the order in which the search results are displayed is determined by a combination of the relevance of text in the package name and description, and an internal score based on various metrics. Today, we’re adding a feature that
   date: 2023-10-31
   published: true
-- post: highlighting-package-funding-links.md
+- slug: highlighting-package-funding-links
   title: Highlighting package funding links
   summary:
   date: 2024-01-18
