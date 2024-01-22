@@ -1,4 +1,8 @@
----
+# The order of posts in this file matters, and posts are displayed on the blog page
+# in reverse but with the order specified in this file, *not* in `published_at` order.
+# The `slug` field is used to generate the URL for the post and must be unique.
+# The `published` field is used to control whether a post shows in production.
+
 - slug: say-hello-to-the-swift-package-index-blog
   title: Say Hello to the Swift Package Index Blog
   summary: It’s always hard to know when to ship v1 of a project. Which features get included? Are there things that can wait? It’s a balancing act. You’re excited to show the world what you built, but is it good enough?
