@@ -34,12 +34,15 @@ enum BlogIndex {
                 .appending("Resources/Blog/posts.yml")
             do {
                 let yml = try String(contentsOfFile: blogIndexYmlPath)
-                let allSummaries = try YAMLDecoder().decode([PostSummary].self, from: yml)
+                let decodedSummaries = try YAMLDecoder().decode([PostSummary].self, from: yml)
+
+                // Post order should be as exists in the file, but reversed.
+                let allSummaries = Array(decodedSummaries.reversed())
                 summaries = if Current.environment() == .production {
                     // Only "published" posts show in production.
                     allSummaries.filter { $0.published }
                 } else {
-                    // Also show draft posts in staging.
+                    // Show *everything* in development and on staging.
                     allSummaries
                 }
             } catch {
