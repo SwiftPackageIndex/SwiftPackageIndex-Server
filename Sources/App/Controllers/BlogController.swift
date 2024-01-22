@@ -22,16 +22,16 @@ enum BlogController {
                                    model: BlogActions.Model()).document()
     }
 
-    static func indexFeed(req: Request) async throws -> RSSFeed {
+    static func indexFeed(req: Request) async throws -> RSS {
         let model = try BlogActions.Model()
-        return .init(title: "The Swift Package Index Blog",
-                     description: model.blogDescription,
-                     link: SiteURL.home.absoluteURL(),
-                     items: model.summaries.map { summary -> Node<RSS.ChannelContext> in
+        return RSSFeed(title: "The Swift Package Index Blog",
+                       description: model.blogDescription,
+                       link: SiteURL.home.absoluteURL(),
+                       items: model.summaries.map { summary -> Node<RSS.ChannelContext> in
                 .item(
                     .title(summary.title)
                 )
-        })
+        }).rss
     }
 
     static func show(req: Request) async throws -> HTML {

@@ -109,6 +109,7 @@ enum SiteURL: Resourceable {
     case api(Api)
     case author(_ owner: Parameter<String>)
     case blog
+    case blogFeed
     case blogPost(_ slug: Parameter<String>)
     case buildMonitor
     case builds(_ id: Parameter<UUID>)
@@ -148,6 +149,9 @@ enum SiteURL: Resourceable {
 
             case .blog:
                 return "blog"
+
+            case .blogFeed:
+                return "blog/feed.xml"
 
             case let .blogPost(.value(slug)):
                 return "blog/\(slug)"
@@ -239,9 +243,9 @@ enum SiteURL: Resourceable {
 
     var pathComponents: [PathComponent] {
         switch self {
-            case .addAPackage, .blog, .buildMonitor, .faq, .home, .packageCollections, .privacy, .rssPackages,
-                    .rssReleases, .search, .siteMapIndex, .siteMapStaticPages, .supporters, .tryInPlayground,
-                    .validateSPIManifest:
+            case .addAPackage, .blog, .blogFeed, .buildMonitor, .faq, .home, .packageCollections, .privacy,
+                    .rssPackages, .rssReleases, .search, .siteMapIndex, .siteMapStaticPages, .supporters,
+                    .tryInPlayground, .validateSPIManifest:
                 return [.init(stringLiteral: path)]
 
             case let .api(next):
