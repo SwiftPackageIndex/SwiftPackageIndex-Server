@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
 import Plot
 
 extension BlogIndex {
@@ -41,21 +42,41 @@ extension BlogIndex {
         }
         
         override func content() -> Node<HTML.BodyContext> {
-            .ul(
-                .group(
-                    model.summaries.map({ summary -> Node<HTML.ListContext> in
-                            .li(
-                                .a(
-                                    .href(summary.slug),
-                                    .text(summary.title)
+            .group(
+                .h2(
+                    .text("The Swift Package Index Blog")
+                ),
+                .ul(
+                    .class("blog-posts"),
+                    .group(
+                        model.summaries.map({ summary -> Node<HTML.ListContext> in
+                                .li(
+                                    .a(
+                                        .href(summary.slug),
+                                        .h3(.text(summary.title)),
+                                        .p(
+                                            .text(summary.summary)
+                                        ),
+                                        .div(
+                                            .class("read-full-post"),
+                                            .small(
+                                                "Posted on ",
+                                                .text(DateFormatter.longDateFormatter.string(from: summary.publishedAt))
+                                            ),
+                                            .p(
+                                                .text("Read full post&hellip;")
+                                            )
+                                        )
+                                    ),
+                                    .hr()
                                 )
-                            )
-                    })
+                        })
 
+                    )
                 )
             )
         }
-        
+
         override func navMenuItems() -> [NavMenuItem] {
             [.supporters, .addPackage, .faq]
         }
