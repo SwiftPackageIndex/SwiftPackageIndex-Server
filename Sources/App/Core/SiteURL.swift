@@ -152,7 +152,7 @@ enum SiteURL: Resourceable {
             case let .blogPost(.value(slug)):
                 return "blog/\(slug)"
 
-            case .blogPost(.key):
+            case .blogPost:
                 fatalError("invalid path: \(self)")
 
             case let .builds(.value(id)):
@@ -250,11 +250,8 @@ enum SiteURL: Resourceable {
             case .author:
                 return [":owner"]
 
-            case .blogPost(.key):
-                return ["blog", ":identifier"]
-
-            case .blogPost(.value):
-                fatalError("pathComponents must not be called with a value parameter")
+            case .blogPost:
+                return ["blog", ":slug"]
 
             case .builds(.key):
                 return ["builds", ":id"]

@@ -149,7 +149,7 @@ func routes(_ app: Application) throws {
 
     do { // Blog index and post pages
         app.get(SiteURL.blog.pathComponents, use: BlogController.index).excludeFromOpenAPI()
-//        app.get(SiteURL.blog(.key).pathComponents, use: BlogController.post).excludeFromOpenAPI()
+        app.get(SiteURL.blogPost(.key).pathComponents, use: BlogController.show).excludeFromOpenAPI()
     }
 
     do { // Build monitor page
