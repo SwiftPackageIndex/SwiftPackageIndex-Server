@@ -243,9 +243,9 @@ enum SiteURL: Resourceable {
 
     var pathComponents: [PathComponent] {
         switch self {
-            case .addAPackage, .blog, .blogFeed, .buildMonitor, .faq, .home, .packageCollections, .privacy,
-                    .rssPackages, .rssReleases, .search, .siteMapIndex, .siteMapStaticPages, .supporters,
-                    .tryInPlayground, .validateSPIManifest:
+            case .addAPackage, .blog, .buildMonitor, .faq, .home, .packageCollections, .privacy, .rssPackages,
+                    .rssReleases, .search, .siteMapIndex, .siteMapStaticPages, .supporters, .tryInPlayground,
+                    .validateSPIManifest:
                 return [.init(stringLiteral: path)]
 
             case let .api(next):
@@ -253,6 +253,9 @@ enum SiteURL: Resourceable {
 
             case .author:
                 return [":owner"]
+
+            case .blogFeed:
+                return ["blog", "feed.xml"]
 
             case .blogPost:
                 return ["blog", ":slug"]
