@@ -34,7 +34,14 @@ enum BlogIndex {
                 .appending("Resources/Blog/posts.yml")
             do {
                 let yml = try String(contentsOfFile: blogIndexYmlPath)
-                summaries = try YAMLDecoder().decode([PostSummary].self, from: yml)
+                let allSummaries = try YAMLDecoder().decode([PostSummary].self, from: yml)
+                summaries = if Current.environment() == .production {
+                    // Only "published" posts show in production.
+                    allSummaries.filter { $0.published }
+                } else {
+                    // Also show draft posts in staging.
+                    allSummaries
+                }
             } catch {
                 Current.logger().report(error: error)
                 summaries = []

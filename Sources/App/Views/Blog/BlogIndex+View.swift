@@ -63,7 +63,7 @@ extension BlogIndex {
                                                 "Published on ",
                                                 .text(DateFormatter.longDateFormatter.string(from: summary.publishedAt))
                                             ), else: .small(
-                                                "DRAFT POST - NOT YET PUBLISHED"
+                                                .strong("DRAFT POST")
                                             )),
                                             .p(
                                                 .text(summary.published ? "Read full post" : "Read draft post" ),
