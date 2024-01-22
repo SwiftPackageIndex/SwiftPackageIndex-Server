@@ -170,6 +170,6 @@
   published: true
 - slug: highlighting-package-funding-links
   title: Highlighting package funding links
-  summary:
+  summary: Are services like GitHub Sponsors, Open Collective, Patreon, and Ko-fi the best way to fund open-source software development? They may not be a perfect solution, but they are the best “one size fits all” solution we have, so let’s highlight them
   published_at: 2024-01-18
   published: true
