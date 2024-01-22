@@ -59,12 +59,15 @@ extension BlogIndex {
                                         ),
                                         .div(
                                             .class("read-full-post"),
-                                            .small(
-                                                "Posted on ",
+                                            .if(summary.published, .small(
+                                                "Published on ",
                                                 .text(DateFormatter.longDateFormatter.string(from: summary.publishedAt))
-                                            ),
+                                            ), else: .small(
+                                                "DRAFT POST - NOT YET PUBLISHED"
+                                            )),
                                             .p(
-                                                .text("Read full post&hellip;")
+                                                .text(summary.published ? "Read full post" : "Read draft post" ),
+                                                .text("&hellip;")
                                             )
                                         )
                                     ),
