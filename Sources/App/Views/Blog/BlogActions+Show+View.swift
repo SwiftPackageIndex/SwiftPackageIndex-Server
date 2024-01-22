@@ -39,7 +39,7 @@ extension BlogActions {
             override func breadcrumbs() -> [Breadcrumb] {
                 [
                     Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
-                    Breadcrumb(title: "Blog", url: SiteURL.blogIndex.relativeURL()),
+                    Breadcrumb(title: "Blog", url: SiteURL.blog.relativeURL()),
                     Breadcrumb(title: model.title)
                 ]
             }

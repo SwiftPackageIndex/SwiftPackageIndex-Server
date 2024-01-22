@@ -54,7 +54,7 @@ extension BlogActions {
                             model.summaries.map({ summary -> Node<HTML.ListContext> in
                                     .li(
                                         .a(
-                                            .href(SiteURL.blog(.value(summary.slug)).relativeURL()),
+                                            .href(SiteURL.blogPost(.value(summary.slug)).relativeURL()),
                                             .h3(.text(summary.title)),
                                             .p(
                                                 .text(summary.summary)

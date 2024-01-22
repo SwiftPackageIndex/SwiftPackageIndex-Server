@@ -108,8 +108,8 @@ enum SiteURL: Resourceable {
     case addAPackage
     case api(Api)
     case author(_ owner: Parameter<String>)
-    case blog(_ postIdentifier: Parameter<String>)
-    case blogIndex
+    case blog
+    case blogPost(_ slug: Parameter<String>)
     case buildMonitor
     case builds(_ id: Parameter<UUID>)
     case docs(Docs)
@@ -146,13 +146,13 @@ enum SiteURL: Resourceable {
             case .author:
                 fatalError("invalid path: \(self)")
 
-            case .blogIndex:
+            case .blog:
                 return "blog"
 
-            case let .blog(.value(postIdentifier)):
-                return "blog/\(postIdentifier)"
+            case let .blogPost(.value(slug)):
+                return "blog/\(slug)"
 
-            case .blog(.key):
+            case .blogPost(.key):
                 fatalError("invalid path: \(self)")
 
             case let .builds(.value(id)):
@@ -239,7 +239,7 @@ enum SiteURL: Resourceable {
 
     var pathComponents: [PathComponent] {
         switch self {
-            case .addAPackage, .blogIndex, .buildMonitor, .faq, .home, .packageCollections, .privacy, .rssPackages,
+            case .addAPackage, .blog, .buildMonitor, .faq, .home, .packageCollections, .privacy, .rssPackages,
                     .rssReleases, .search, .siteMapIndex, .siteMapStaticPages, .supporters, .tryInPlayground,
                     .validateSPIManifest:
                 return [.init(stringLiteral: path)]
@@ -250,10 +250,10 @@ enum SiteURL: Resourceable {
             case .author:
                 return [":owner"]
 
-            case .blog(.key):
+            case .blogPost(.key):
                 return ["blog", ":identifier"]
 
-            case .blog(.value):
+            case .blogPost(.value):
                 fatalError("pathComponents must not be called with a value parameter")
 
             case .builds(.key):
