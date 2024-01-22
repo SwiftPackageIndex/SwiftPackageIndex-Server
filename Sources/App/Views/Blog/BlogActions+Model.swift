@@ -13,10 +13,11 @@
 // limitations under the License.
 
 import Foundation
+import Plot
 import Yams
 import Ink
 
-enum BlogIndex {
+enum BlogActions {
 
     struct Model {
 
@@ -67,10 +68,36 @@ enum BlogIndex {
                 return "The Markdown for \(slug) is not available."
             }
         }
+
+        var blogDescription: String {
+            """
+            Find news and updates from the Swift Package Index on our blog. Read more about the
+            latest features, our efforts in the community, and any other updates that affect the site.
+            """
+        }
     }
 }
 
-extension BlogIndex.Model.PostSummary: Decodable {
+extension BlogActions.Model.PostSummary {
+
+    func publishInformation() -> Plot.Node<HTML.BodyContext> {
+        let formattedDate = DateFormatter.longDateFormatter.string(from: publishedAt)
+        if published {
+            return .group(
+                .text("Published on "),
+                .text(formattedDate)
+            )
+        } else {
+            return .group(
+                .strong("DRAFT POST - Dated "),
+                .text(formattedDate)
+            )
+        }
+    }
+
+}
+
+extension BlogActions.Model.PostSummary: Decodable {
 
     enum CodingKeys: String, CodingKey {
         case slug

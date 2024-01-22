@@ -16,17 +16,35 @@ import Vapor
 import Plot
 
 enum BlogController {
+
     static func index(req: Request) async throws -> HTML {
-        try BlogIndex.View(path: req.url.path,
-                           model: BlogIndex.Model()).document()
+        try BlogActions.Index.View(path: req.url.path,
+                                   model: BlogActions.Model()).document()
+    }
+
+    static func indexFeed(req: Request) async throws -> RSSFeed {
+        let model = try BlogActions.Model()
+        return .init(title: "The Swift Package Index Blog",
+                     description: model.blogDescription,
+                     link: SiteURL.home.absoluteURL(),
+                     items: model.summaries.map { summary -> Node<RSS.ChannelContext> in
+                .item(
+                    .title(summary.title)
+                )
+        })
     }
 
     static func show(req: Request) async throws -> HTML {
-        guard let slug = req.parameters.get("slug"),
+        guard let slug = req.parameters.get("slug")
         else { throw Abort(.notFound) }
 
-        let summary = BlogIndex.Model().summaries.filter { $0.slug == slug }
-        try BlogShow.View(path: req.url.path,
-                          summary: summary).document()
+        let model = try BlogActions.Model()
+        if let summary = model.summaries.first(where: { $0.slug == slug }) {
+            return BlogActions.Show.View(path: req.url.path,
+                                         model: summary).document()
+        } else {
+            throw Abort(.notFound)
+        }
     }
+
 }
