@@ -95,6 +95,10 @@ extension BlogActions.Model.PostSummary {
         }
     }
 
+    func postUrl() -> SiteURL {
+        SiteURL.blogPost(.value(slug))
+    }
+
 }
 
 extension BlogActions.Model.PostSummary: Decodable {

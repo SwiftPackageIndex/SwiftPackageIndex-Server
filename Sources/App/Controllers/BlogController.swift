@@ -24,14 +24,35 @@ enum BlogController {
 
     static func indexFeed(req: Request) async throws -> RSS {
         let model = try BlogActions.Model()
+        let items = model.summaries.map { summary -> Node <RSS.ChannelContext> in
+                .item(
+                    .guid(
+                        .text(summary.postUrl().absoluteURL()),
+                        .isPermaLink(true)
+                    ),
+                    .title(summary.title),
+                    .link(summary.postUrl().absoluteURL()),
+                    .pubDate(summary.publishedAt, timeZone: .utc),
+                    .description(
+                        .article(
+                            .p(
+                                .text(summary.summary)
+                            ),
+                            .p(
+                                .a(
+                                    .href(summary.postUrl().absoluteURL()),
+                                    "Read the full article..."
+                                )
+                            )
+                        )
+                    )
+                )
+        }
+
         return RSSFeed(title: "The Swift Package Index Blog",
                        description: model.blogDescription,
-                       link: SiteURL.home.absoluteURL(),
-                       items: model.summaries.map { summary -> Node<RSS.ChannelContext> in
-                .item(
-                    .title(summary.title)
-                )
-        }).rss
+                       link: SiteURL.blog.absoluteURL(),
+                       items: items).rss
     }
 
     static func show(req: Request) async throws -> HTML {
