@@ -44,14 +44,14 @@
   summary: Making any open-source project sustainable for the long term is challenging in many ways, but with the Swift Package Index we also need significant hardware resources to keep it available.
   date: 2021-03-30
   published: true
-- post: how-the-swift-package-index-project-got-started.md
-  title: How the Swift Package Index project got started because of a button
-  summary: How did the Swift Package Index project get started, and why does a button feature so prominently in the story? Read on to find out.
-  date: 2021-05-05
-  published: true
 - post: launching-the-swift-package-index-playgrounds-app-for-macos.md
   title: Launching the Swift Package Index Playgrounds app for macOS
   summary: Try out any Swift package in Xcode with just a couple of clicks. It’s the launch of the first native app from the Swift Package Index!
+  date: 2021-05-05
+  published: true
+- post: how-the-swift-package-index-project-got-started.md
+  title: How the Swift Package Index project got started because of a button
+  summary: How did the Swift Package Index project get started, and why does a button feature so prominently in the story? Read on to find out.
   date: 2021-05-05
   published: true
 - post: using-the-spi-playgrounds-app-to-file-better-bug-reports.md
@@ -104,40 +104,10 @@
   summary: It’s been exactly two years since the first commit of the Swift Package Index! More than 950 pull requests and 5,000 commits later, we now index and compatibility test over 4,500 packages!
   date: 2022-04-25
   published: true
-- post: swift-package-indexing-episode-1.md
-  title: Swift Package Indexing - Episode 1
-  summary: We tried something new for the Swift Package Index this week, a public discussion using Twitter spaces where we talked about some of the package releases from the community.
-  date: 2022-04-29
-  published: true
-- post: swift-package-indexing-episode-2.md
-  title: Swift Package Indexing - Episode 2
-  summary: We just finished our second Twitter space, where we talked about some recent package releases that caught our eye since the inaugural episode two weeks ago. This week, we talked about eleven wonderful packages.
-  date: 2022-05-12
-  published: true
-- post: swift-package-indexing-episode-3.md
-  title: Swift Package Indexing - Episode 3
-  summary: We just finished our third Twitter space, where we had Simon Støvring join us to talk about his recently released package Runestone, as well as some other package releases that caught our eye since the last episode. This time we covered six packages.
-  date: 2022-05-26
-  published: true
 - post: auto-generating-auto-hosting-and-auto-updating-docc-documentation.md
   title: Auto-generating, Auto-hosting, and Auto-updating DocC Documentation
   summary: DocC is Apple’s recommended way to provide documentation for your packages, and launching today, the Swift Package Index can generate, host, and update package documentation for any package in the index!
   date: 2022-06-03
-  published: true
-- post: swift-package-indexing-episode-4.md
-  title: Swift Package Indexing - Episode 4
-  summary: Here are the show notes for Episode 4 of our little bi-weekly Twitter space discussing everything Swift Package Manager and Swift Package Index. Give it a listen!
-  date: 2022-06-09
-  published: true
-- post: swift-package-indexing-episode-5.md
-  title: Swift Package Indexing - Episode 5
-  summary: This week we talked with Corey E. Baker about Parse, developing open-source, and what the next generation of computer science students are interested in. We also had some package recommendations, as always!
-  date: 2022-06-23
-  published: true
-- post: swift-package-indexing-episode-6.md
-  title: Swift Package Indexing - Episode 6
-  summary: No guest this week, so the show was back to Dave and Sven talking about all things Swift packages! We discussed some of the open-source contributions we’ve recently received, had a Swift Package Index quiz, and of course some package recommendations.
-  date: 2022-07-07
   published: true
 - post: we-need-your-help-to-fund-this-project.md
   title: We need your help to fund this project
@@ -149,50 +119,15 @@
   summary: With Swift 5.6, Xcode and the Swift Package Manager gained a new product type, plugins, and we’re delighted to announce we now have support for filtering search results by whether or not they include a plugin.
   date: 2022-07-12
   published: true
-- post: swift-package-indexing-episode-7.md
-  title: Swift Package Indexing - Episode 7
-  summary: We just wrapped up another episode of Swift Package Indexing! We talked again about the progress we’ve made working towards versioned documentation hosting. Sven had more quiz questions for Dave, and of course, we talked about community packages!
-  date: 2022-07-21
-  published: true
-- post: swift-package-indexing-episode-8.md
-  title: Swift Package Indexing - Episode 8
-  summary: We just wrapped up another episode of Swift Package Indexing with the usual mix of news, Swift Package Index progress, and other interesting bits from the last couple of weeks.
-  date: 2022-08-04
-  published: true
 - post: versioned-docc-documentation.md
   title: Versioned DocC Documentation
   summary: We rolled out auto-generating DocC documentation exactly two months ago, and now we’re rolling out phase two. Versioned documentation!
   date: 2022-08-05
   published: true
-- post: swift-package-indexing-episode-9.md
-  title: Swift Package Indexing - Episode 9
-  summary: We just wrapped up Episode 9 of Swift Package Indexing, which was another chat about what’s going on in the world of Swift packages!
-  date: 2022-08-18
-  published: true
-- post: swift-package-indexing-episode-10.md
-  title: Swift Package Indexing - Episode 10
-  summary: Another episode of Swift Package Indexing just finished, and we managed to keep the chatter about next week’s announcements from Apple limited to a couple of terrible jokes!
-  date: 2022-09-01
-  published: true
-- post: swift-package-indexing-episode-11.md
-  title: Swift Package Indexing - Episode 11
-  summary: We just wrapped up our latest Twitter Space. This is becoming a habit! We discussed Swift 5.6 backlogs, virtualisation of macOS, and of course had some package recommendations!
-  date: 2022-09-15
-  published: true
-- post: swift-package-indexing-episode-12.md
-  title: Swift Package Indexing - Episode 12
-  summary: This week’s show had more hosted documentation talk, 5.7 build processing news, package registry talk, and of course the usual mix of community packages!
-  date: 2022-10-06
-  published: true
 - post: externally-hosted-package-documentation.md
   title: Externally hosted package documentation
   summary: Using auto-hosted documentation remains the easiest way to get your package’s documentation available on the web, but we now also support documentation for projects that have more complex requirements or well-established documentation that already lives on the web.
   date: 2022-10-17
-  published: true
-- post: swift-package-indexing-episode-13.md
-  title: Swift Package Indexing - Episode 13
-  summary: All the updates, news, recommendations, and chat from the last couple of weeks in the Swift Package Index.
-  date: 2022-10-20
   published: true
 - post: recognising-package-authors.md
   title: Recognising Package Authors
