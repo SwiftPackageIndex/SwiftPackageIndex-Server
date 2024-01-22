@@ -14,6 +14,7 @@
 
 import Foundation
 import Yams
+import Ink
 
 enum BlogIndex {
 
@@ -48,6 +49,22 @@ enum BlogIndex {
             } catch {
                 Current.logger().report(error: error)
                 summaries = []
+            }
+        }
+
+        func postMarkdown(for slug: String) -> String {
+            let markdownPath = Current.fileManager.workingDirectory()
+                .appending("Resources/Blog/Posts/")
+                .appending(slug)
+                .appending(".md")
+            if let markdownData = Current.fileManager.contents(atPath: markdownPath),
+               let markdown = String(data: markdownData, encoding: .utf8)
+            {
+                let parsedMarkdown = MarkdownParser().parse(markdown)
+                let html = parsedMarkdown.html
+                return html
+            } else {
+                return "The Markdown for \(slug) is not available."
             }
         }
     }

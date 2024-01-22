@@ -17,8 +17,16 @@ import Plot
 
 enum BlogController {
     static func index(req: Request) async throws -> HTML {
-        
-        return try BlogIndex.View(path: req.url.path,
-                                  model: BlogIndex.Model()).document()
+        try BlogIndex.View(path: req.url.path,
+                           model: BlogIndex.Model()).document()
+    }
+
+    static func show(req: Request) async throws -> HTML {
+        guard let slug = req.parameters.get("slug"),
+        else { throw Abort(.notFound) }
+
+        let summary = BlogIndex.Model().summaries.filter { $0.slug == slug }
+        try BlogShow.View(path: req.url.path,
+                          summary: summary).document()
     }
 }
