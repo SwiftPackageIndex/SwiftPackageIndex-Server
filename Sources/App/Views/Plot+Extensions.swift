@@ -201,7 +201,7 @@ extension Node where Context: HTML.BodyContext {
             .datetime(DateFormatter.yearMonthDayDateFormatter.string(from: lastUpdated)),
             .group(
                 .text("Last updated on "),
-                .text(DateFormatter.lastUpdatedOnDisplayFormatter.string(from: lastUpdated))
+                .text(DateFormatter.mediumDateFormatter.string(from: lastUpdated))
             )
         )
     }

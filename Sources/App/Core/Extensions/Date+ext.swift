@@ -16,9 +16,17 @@ import Foundation
 
 
 extension DateFormatter {
-    static let lastUpdatedOnDisplayFormatter: DateFormatter = {
+    static let mediumDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
+        formatter.locale = .init(identifier: "en_GB")
+        formatter.timeZone = Current.timeZone()
+        return formatter
+    }()
+
+    static let longDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
         formatter.locale = .init(identifier: "en_GB")
         formatter.timeZone = Current.timeZone()
         return formatter
