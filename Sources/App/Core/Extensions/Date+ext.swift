@@ -24,7 +24,7 @@ extension DateFormatter {
         return formatter
     }()
 
-    static let timeTagDateOnlyFormatter: DateFormatter = {
+    static let yearMonthDayDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = .init(identifier: "en_GB")
