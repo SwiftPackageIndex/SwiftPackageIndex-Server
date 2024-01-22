@@ -45,7 +45,6 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/jwt-kit", from: "4.13.0"),
         .package(url: "https://github.com/vapor/vapor.git", revision: "4.89.3"),
-        .package(url: "https://github.com/heckj/SPISearchResult.git", from: "0.5.1"),
     ],
     targets: [
         .executableTarget(name: "Run", dependencies: ["App"]),
