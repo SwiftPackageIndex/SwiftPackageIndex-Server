@@ -41,7 +41,7 @@ enum NavMenuItem {
             case .blog:
                 return .li(
                     .a(
-                        .href(ExternalURL.projectBlog),
+                        .href(SiteURL.blog.relativeURL()),
                         "Blog"
                     )
                 )
