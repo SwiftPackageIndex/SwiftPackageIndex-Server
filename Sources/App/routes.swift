@@ -147,6 +147,11 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.keywords(.key).pathComponents, use: KeywordController.show).excludeFromOpenAPI()
     }
 
+    do { // Blog index and post pages
+        app.get(SiteURL.blogIndex.pathComponents, use: BlogController.index).excludeFromOpenAPI()
+//        app.get(SiteURL.blog(.key).pathComponents, use: BlogController.post).excludeFromOpenAPI()
+    }
+
     do { // Build monitor page
         app.get(SiteURL.buildMonitor.pathComponents, use: BuildMonitorController.index).excludeFromOpenAPI()
     }
