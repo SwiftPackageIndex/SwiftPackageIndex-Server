@@ -1,0 +1,189 @@
+---
+- filename: auto-generating-auto-hosting-and-auto-updating-docc-documentation.md
+  title: Auto-generating, Auto-hosting, and Auto-updating DocC Documentation
+  summary:
+  date: 2022-06-03 12:00
+- filename: building-3238-packages-for-apple-silicon.md
+  title: Building 3,238 Swift Packages for Apple Silicon
+  summary:
+  date: 2020-09-09 12:00
+- filename: externally-hosted-package-documentation.md
+  title: Externally hosted package documentation
+  summary:
+  date: 2022-10-17 12:00
+- filename: funding-the-future-of-the-swift-package-index.md
+  title: Funding the Future of the Swift Package Index
+  summary:
+  date: 2020-10-12 12:00
+- filename: highlighting-package-funding-links.md
+  title: Highlighting package funding links
+  summary:
+  date: 2024-01-18 12:00
+- filename: hosting-the-swift-package-index.md
+  title: Hosting the Swift Package Index
+  summary:
+  date: 2021-03-30 12:00
+- filename: how-the-swift-package-index-project-got-started.md
+  title: How the Swift Package Index project got started because of a button
+  summary:
+  date: 2021-05-05 12:00
+- filename: improvements-to-package-search.md
+  title: Improvements to package search
+  summary:
+  date: 2021-12-15 12:00
+- filename: inline-readme-files.md
+  title: Inline README Files!
+  summary:
+  date: 2020-12-24 12:00
+- filename: keeping-up-to-date-with-swift-packages.md
+  title: Keeping Up To Date with Swift Packages
+  summary:
+  date: 2020-11-25 12:00
+- filename: keeping-up-with-dependency-changes.md
+  title: Keeping up with dependency changes
+  summary:
+  date: 2022-01-25 12:00
+- filename: launching-language-and-platform-package-compatibility.md
+  title: Launching Language and Platform Package Compatibility
+  summary:
+  date: 2020-08-20 12:00
+- filename: launching-swift-package-collections.md
+  title: Launching Swift Package Collections
+  summary:
+  date: 2021-06-09 12:00
+- filename: launching-the-swift-package-index-playgrounds-app-for-macos.md
+  title: Launching the Swift Package Index Playgrounds app for macOS
+  summary:
+  date: 2021-05-05 13:00
+- filename: m1-pro-and-m1-max-build-and-test-benchmarks.md
+  title: M1 Pro and M1 Max Xcode Build and Test Benchmarks
+  summary:
+  date: 2021-11-01 12:00
+- filename: package-dependencies-step-one.md
+  title: Package Dependencies - Step One
+  summary:
+  date: 2021-10-18 12:00
+- filename: progress-update-may-2021.md
+  title: Progress Report - May 2021
+  summary:
+  date: 2021-05-18 12:00
+- filename: recognising-package-authors.md
+  title: Recognising Package Authors
+  summary:
+  date: 2022-12-14 12:00
+- filename: revealing-and-explaining-package-scores.md
+  title: Revealing and explaining package scores
+  summary:
+  date: 2023-10-31 12:00
+- filename: say-hello-to-the-swift-package-index-blog.md
+  title: Say Hello to the Swift Package Index Blog
+  summary:
+  date: 2020-08-16 12:00
+- filename: searching-for-plugins.md
+  title: Searching for plugins?
+  summary:
+  date: 2022-07-12 12:00
+- filename: supporting-swift-58.md
+  title: Supporting Swift 5.8
+  summary:
+  date: 2023-04-03 12:00
+- filename: supporting-swift-59.md
+  title: Supporting Swift 5.9 Betas
+  summary:
+  date: 2023-06-12 12:00
+- filename: supporting-visionos.md
+  title: Supporting visionOS
+  summary:
+  date: 2023-06-29 12:00
+- filename: swift-package-indexing-episode-1.md
+  title: Swift Package Indexing - Episode 1
+  summary:
+  date: 2022-04-29 12:00
+- filename: swift-package-indexing-episode-10.md
+  title: Swift Package Indexing - Episode 10
+  summary:
+  date: 2022-09-01 12:00
+- filename: swift-package-indexing-episode-11.md
+  title: Swift Package Indexing - Episode 11
+  summary:
+  date: 2022-09-15 12:00
+- filename: swift-package-indexing-episode-12.md
+  title: Swift Package Indexing - Episode 12
+  summary:
+  date: 2022-10-06 12:00
+- filename: swift-package-indexing-episode-13.md
+  title: Swift Package Indexing - Episode 13
+  summary:
+  date: 2022-10-20 12:00
+- filename: swift-package-indexing-episode-2.md
+  title: Swift Package Indexing - Episode 2
+  summary:
+  date: 2022-05-12 12:00
+- filename: swift-package-indexing-episode-3.md
+  title: Swift Package Indexing - Episode 3
+  summary:
+  date: 2022-05-26 12:00
+- filename: swift-package-indexing-episode-4.md
+  title: Swift Package Indexing - Episode 4
+  summary:
+  date: 2022-06-09 12:00
+- filename: swift-package-indexing-episode-5.md
+  title: Swift Package Indexing - Episode 5
+  summary:
+  date: 2022-06-23 12:00
+- filename: swift-package-indexing-episode-6.md
+  title: Swift Package Indexing - Episode 6
+  summary:
+  date: 2022-07-07 12:00
+- filename: swift-package-indexing-episode-7.md
+  title: Swift Package Indexing - Episode 7
+  summary:
+  date: 2022-07-21 12:00
+- filename: swift-package-indexing-episode-8.md
+  title: Swift Package Indexing - Episode 8
+  summary:
+  date: 2022-08-04 12:00
+- filename: swift-package-indexing-episode-9.md
+  title: Swift Package Indexing - Episode 9
+  summary:
+  date: 2022-08-18 12:00
+- filename: the-swift-package-index-metadata-file-first-steps.md
+  title: The Swift Package Index Metadata File – First Steps
+  summary:
+  date: 2020-10-30 12:00
+- filename: two-years-of-the-swift-package-index.md
+  title: Two years of the Swift Package Index
+  summary:
+  date: 2022-04-25 12:00
+- filename: using-the-spi-playgrounds-app-to-file-better-bug-reports.md
+  title: Using the SPI Playgrounds app to file better bug reports
+  summary:
+  date: 2021-05-17 12:00
+- filename: validating-spi-manifest-files.md
+  title: Validating Swift Package Index Manifest Files
+  summary:
+  date: 2023-04-24 12:00
+- filename: versioned-docc-documentation.md
+  title: Versioned DocC Documentation
+  summary:
+  date: 2022-08-05 12:00
+- filename: we-need-your-help-to-fund-this-project.md
+  title: We need your help to fund this project
+  summary:
+  date: 2022-07-11 12:00
+- filename: we-support-ukraine.md
+  title: We support Ukraine
+  summary:
+  date: 2022-02-26 12:00
+- filename: welcoming-apple-as-a-supporter-of-the-swift-package-index.md
+  title: Welcoming Apple as a supporter of the Swift Package Index
+  summary:
+  date: 2023-03-14 12:00
+- filename: whats-next-february-2021.md
+  title: What’s Next? - February 2021
+  summary:
+  date: 2021-02-02 12:00
+- filename: whats-next-may-2021.md
+  title: What’s Next? - May 2021
+  summary:
+  date: 2021-05-18 13:00
