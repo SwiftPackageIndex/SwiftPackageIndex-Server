@@ -28,7 +28,11 @@ extension BlogIndex {
         override func pageTitle() -> String? {
             return "The Swift Package Index Blog"
         }
-        
+
+        override func bodyClass() -> String? {
+            "blog"
+        }
+
         override func breadcrumbs() -> [Breadcrumb] {
             [
                 Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
@@ -37,7 +41,19 @@ extension BlogIndex {
         }
         
         override func content() -> Node<HTML.BodyContext> {
-            .empty
+            .ul(
+                .group(
+                    model.summaries.map({ summary -> Node<HTML.ListContext> in
+                            .li(
+                                .a(
+                                    .href(summary.slug),
+                                    .text(summary.title)
+                                )
+                            )
+                    })
+
+                )
+            )
         }
         
         override func navMenuItems() -> [NavMenuItem] {

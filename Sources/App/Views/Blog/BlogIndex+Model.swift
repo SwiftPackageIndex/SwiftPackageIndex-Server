@@ -20,27 +20,51 @@ enum BlogIndex {
     struct Model {
 
         struct PostSummary {
+            var slug: String
             var title: String
-            var postUrl: String
-            var postedAt: Date
             var summary: String
+            var publishedAt: Date
+            var published: Bool
         }
 
         var summaries: [PostSummary]
 
-        init() {
-            summaries = []
-        }
-
-        func markdownFilePaths() -> [String]? {
-            let pathToPosts = Current.fileManager.workingDirectory()
-                .appending("Resources/Blog/Posts/")
+        init() throws {
+            let blogIndexYmlPath = Current.fileManager.workingDirectory()
+                .appending("Resources/Blog/posts.yml")
             do {
-                return try Current.fileManager.contentsOfDirectory(atPath: pathToPosts)
-                    .filter { $0.hasSuffix(".md") }
+                let yml = try String(contentsOfFile: blogIndexYmlPath)
+                summaries = try YAMLDecoder().decode([PostSummary].self, from: yml)
             } catch {
-                return nil
+                Current.logger().report(error: error)
+                summaries = []
             }
         }
+    }
+}
+
+extension BlogIndex.Model.PostSummary: Decodable {
+
+    enum CodingKeys: String, CodingKey {
+        case slug
+        case title
+        case summary
+        case publishedAt = "published_at"
+        case published
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.slug = try container.decode(String.self, forKey: .slug)
+        self.title = try container.decode(String.self, forKey: .title)
+        self.summary = try container.decode(String.self, forKey: .summary)
+        self.published = try container.decode(Bool.self, forKey: .published)
+
+        let dateString = try container.decode(String.self, forKey: .publishedAt)
+        guard let date = DateFormatter.yearMonthDayDateFormatter.date(from: dateString) else {
+            throw DecodingError.dataCorruptedError(forKey: .publishedAt, in: container,
+                                                   debugDescription: "Could not parse the publish date for \(slug)")
+        }
+        self.publishedAt = date
     }
 }

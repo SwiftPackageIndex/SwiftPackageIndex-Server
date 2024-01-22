@@ -17,8 +17,8 @@ import Plot
 
 enum BlogController {
     static func index(req: Request) async throws -> HTML {
-        return BlogIndex.View(path: req.url.path,
-                              model: BlogIndex.Model())
-        .document()
+        
+        return try BlogIndex.View(path: req.url.path,
+                                  model: BlogIndex.Model()).document()
     }
 }
