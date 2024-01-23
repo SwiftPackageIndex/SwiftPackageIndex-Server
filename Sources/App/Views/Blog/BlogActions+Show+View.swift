@@ -51,6 +51,10 @@ extension BlogActions {
                     ),
                     .small(
                         model.publishInformation()
+                    ),
+                    .article(
+                        .class("blog-post"),
+                        .raw(model.postMarkdown)
                     )
                 )
             }

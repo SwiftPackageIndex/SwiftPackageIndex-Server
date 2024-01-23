@@ -53,22 +53,6 @@ enum BlogActions {
             }
         }
 
-        func postMarkdown(for slug: String) -> String {
-            let markdownPath = Current.fileManager.workingDirectory()
-                .appending("Resources/Blog/Posts/")
-                .appending(slug)
-                .appending(".md")
-            if let markdownData = Current.fileManager.contents(atPath: markdownPath),
-               let markdown = String(data: markdownData, encoding: .utf8)
-            {
-                let parsedMarkdown = MarkdownParser().parse(markdown)
-                let html = parsedMarkdown.html
-                return html
-            } else {
-                return "The Markdown for \(slug) is not available."
-            }
-        }
-
         var blogDescription: String {
             """
             Find news and updates from the Swift Package Index on our blog. Read more about the
@@ -79,6 +63,22 @@ enum BlogActions {
 }
 
 extension BlogActions.Model.PostSummary {
+
+    var postMarkdown: String {
+        let markdownPath = Current.fileManager.workingDirectory()
+            .appending("Resources/Blog/Posts/")
+            .appending(slug)
+            .appending(".md")
+        if let markdownData = Current.fileManager.contents(atPath: markdownPath),
+           let markdown = String(data: markdownData, encoding: .utf8)
+        {
+            let parsedMarkdown = MarkdownParser().parse(markdown)
+            let html = parsedMarkdown.html
+            return html
+        } else {
+            return "The Markdown for \(slug) is not available."
+        }
+    }
 
     func publishInformation() -> Plot.Node<HTML.BodyContext> {
         let formattedDate = DateFormatter.longDateFormatter.string(from: publishedAt)
