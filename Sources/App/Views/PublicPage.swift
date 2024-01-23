@@ -91,8 +91,8 @@ class PublicPage {
                 .data(named: "turbolinks-track", value: "reload"),
                 .defer()
             ),
-            analyticsHead()
-            postHead(),
+            analyticsHead(),
+            postHead()
         )
     }
 
