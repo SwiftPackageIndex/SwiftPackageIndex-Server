@@ -198,11 +198,18 @@ class PublicPage {
         nil
     }
 
+    /// Additional attributes that should be added to the `<body>` element.
+    /// - Returns: A set of Plot `Attributes` that should be inserted onto the `<body>` element.
+    func bodyAttributes() -> [Attribute<HTML.BodyContext>] {
+        []
+    }
+
     /// The page body.
     /// - Returns: A <body> element.
     final func body() -> Node<HTML.DocumentContext> {
         .body(
             .class(bodyClass() ?? ""),
+            .forEach(bodyAttributes(), { .attribute($0) }),
             preBody(),
             bodyComments(),
             stagingBanner(),
