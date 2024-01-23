@@ -32,6 +32,10 @@ extension BlogActions {
                 return "The Swift Package Index Blog"
             }
 
+            override func pageDescription() -> String? {
+                model.blogDescription
+            }
+
             override func bodyClass() -> String? {
                 "blog"
             }

@@ -32,6 +32,10 @@ extension BlogActions {
                 return "\(model.title) on the Swift Package Index Blog"
             }
 
+            override func pageDescription() -> String? {
+                model.summary
+            }
+
             override func postHead() -> Node<HTML.HeadContext> {
                 .group(
                     .link(
