@@ -10,7 +10,7 @@ You’ll have seen benchmarks appearing on [various sites](https://www.anandtech
 
 The [Swift Package Index](https://swiftpackageindex.com) is a sizeable open source project and makes for a good test when assessing the new chips, so we’ve created [a benchmark tool](https://github.com/SwiftPackageIndex/spi-benchmark) to give some real-world results.
 
-## The Tests
+### The Tests
 
 We are testing two performance aspects: building the project (clean build) and running the tests. These tasks might seem similar, but they stress the machine in quite different ways. A clean build will typically utilise all available cores, where this project’s tests use a dockerised database running on the same machine and are not heavily multi-threaded.
 
@@ -28,7 +28,7 @@ If you’re considering upgrading from an Intel machine to an M1 Pro or Max, you
 
 The results are much less dramatic when running the tests. The M1 Max’s extra cores don’t help much, and the best time between the regular M1 and the Pro/Max is inconsequential. Just less than 27 seconds on the M1 MacBook Air and just less than 26 seconds on the Mac Book Pro.
 
-## M1 Pro vs M1 Max, 32Gb vs 64Gb, and 8-core vs 10-core
+### M1 Pro vs M1 Max, 32Gb vs 64Gb, and 8-core vs 10-core
 
 You may have noticed no difference between the benchmarks when switching between the M1 Pro and the M1 Max. The GPU is not used for compilation or in these tests, so it makes perfect sense, but it’s worth mentioning. It’s also worth noting that we saw no difference between an M1 Max with 32Gb and one with 64Gb, difference of 0.2 seconds on builds and 0.6 seconds on tests is well within the error margins.
 
@@ -36,7 +36,7 @@ There _was_ a noticeable difference between the M1 Pro 8-core and the M1 Pro 10-
 
 There are plenty of reasons to get a machine with a Max chip and 64Gb, but compiling your code faster is not one of them!
 
-## M1 MacBook Air Thermals
+### M1 MacBook Air Thermals
 
 If there’s one thing where the MacBook Air suffers, it’s the sensitivity to a warm environment. The fact that the machine comes without a fan is excellent for its guaranteed silence but leads to a noticeable slow-down when used in warm weather, direct sunshine, or when you stress the CPU over extended periods.
 
@@ -46,7 +46,7 @@ You can even see a little of the effect by observing the slight upwards slope of
 
 During the 15 minutes that this benchmark ran for, the machine got quite warm to the touch, and the chart shows that it’s starting to throttle a bit.
 
-## Verdict
+### Verdict
 
 If you’re using an Intel machine, even the very fastest ones that Apple ever made, it looks like you can expect your builds to be at least **twice as fast**. Add to that the larger and better screen, the ports, and other minor improvements, and this feels like the best upgrade we’ve seen for developers who prefer a laptop in at least a decade.
 
@@ -56,11 +56,11 @@ All of that said, it’s worth remembering one thing, especially if you’re on 
 
 There was a time where if you recommended a low-end MacBook to a developer who was just getting started, you’d know that it would be adequate but never great. That’s no longer true, and even the lowest-end M1 machine will have comparable performance to the highest-end laptops.
 
-## What should you buy?
+### What should you buy?
 
 If you have a budget of less than $2,500, buy an M1 MacBook Air (not the 13" Pro. The MacBook Air is the bargain here!). If you have more than $2,500, then buy the 10-core M1 Pro.
 
-## Thanks
+### Thanks
 
 Thanks to [Christian Weinberger](https://twitter.com/_cweinberger), [Toby Herbert](https://twitter.com/tobyaherbert), [Greg Spiers](https://twitter.com/gspiers), and [Cameron Cooke](https://twitter.com/camsoft2000) for taking the time to run the benchmarks that covered the configurations that we didn’t have available!
 

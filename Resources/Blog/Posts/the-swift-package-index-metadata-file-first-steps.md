@@ -8,7 +8,7 @@ The vast majority of the information you see in [the package index][1] is genera
 
 From that URL we gather data from the repository itself, the package manifest, the GitHub API (yes, it’s GitHub only for now, but [we do plan to support other hosts][2]), and from running builds of the package to check compatibility with operating systems and Swift versions.
 
-## Edge cases
+### Edge cases
 
 Of course, as with everything in software development, it’s not long before you find yourself talking about edge cases.
 
@@ -16,13 +16,13 @@ While creating [the build system][3], we quickly encountered packages where watc
 
 The only way to have these builds succeed is for our build system to use a specific scheme, rather than an automatically created one. Many packages already have schemes for this purpose, but as package authors can give schemes any name, it’s not possible to easily discover them.
 
-## Enter the Swift Package Index configuration file
+### Enter the Swift Package Index configuration file
 
 Rather than trying to keep the build system 100% generic, we needed a mechanism for package authors to specify some configuration information, such as the scheme name to use to build watchOS targets.
 
 We support this via a configuration file, `.spi.yml` which we will look for in the root of your Swift package repository.
 
-### Schemes for watchOS
+#### Schemes for watchOS
 
 You can see the popular package [`swift-composable-architecture`][4] by [Pointfree][5] making use of [this config file][6]:
 
@@ -36,7 +36,7 @@ builder:
 
 Our build servers look for this file and use any scheme information we find for each platform. If a platform isn’t listed, we use our default heuristics to determine the scheme as outlined in our [build FAQ][7].
 
-### Images for Linux
+#### Images for Linux
 
 Custom schemes aren’t all we support though. Package authors can also use the `.spi.yml` file to configure custom docker base images for our Linux builds.
 
@@ -72,7 +72,7 @@ builder:
     image: adamfowlerphoto/aws-sdk-swift:5.3
 ```
 
-## Future direction
+### Future direction
 
 It’s early days for this configuration file. We created it to solve issues which package authors were facing trying to make sure that the language and platform compatibility we report reflects reality.
 
@@ -85,7 +85,7 @@ We expect this file to evolve, which is why it carries a version number. Here ar
 
 More metadata possibilities are under discussion in [this GitHub issue][12]. This is a great place to chime in if you have suggestions.
 
-## File format
+### File format
 
 We chose `YAML` as the file format because it is an uncontroversial, universally beloved format that is entirely [free of issues][13]. 😬
 

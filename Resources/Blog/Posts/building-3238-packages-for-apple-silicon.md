@@ -10,7 +10,7 @@ At the time of writing, we currently have 12,942 Apple Silicon builds in our dat
 
 I’m sure that many of the Apple Silicon DTK machines Apple shipped around the world are working very hard, testing apps for compatibility, but I’m not sure any of them have worked quite as hard as ours has. 🚀
 
-## What did we find?
+### What did we find?
 
 As you might expect, there’s plenty of good news. For packages with successful Intel builds, the _vast majority_ also successfully build for Apple Silicon. 👍
 
@@ -27,7 +27,7 @@ There are a few common errors that we’re observing in these failures, and most
 
 Even though 139 failing packages might sound like a lot, it’s not that bad, especially when you consider that many of the failures all fail due to an issue in a common base dependency, [`PerfectLib`](https://swiftpackageindex.com/PerfectlySoft/Perfect).
 
-## Where do we go from here?
+### Where do we go from here?
 
 Even though the results are generally positive, it does show that there’s a bit of work that the community need to do to ensure the transition to Apple Silicon is as smooth as possible.
 

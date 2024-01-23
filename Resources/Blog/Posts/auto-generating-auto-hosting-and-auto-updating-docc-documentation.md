@@ -14,7 +14,7 @@ Of course, having a directory full of HTML is only half the battle. Your next ta
 
 That’s where our latest feature will come in handy, and we’re launching it today!
 
-## Auto-generated, auto-hosted, and auto-updating
+### Auto-generated, auto-hosted, and auto-updating
 
 Our build system can now generate and host DocC documentation and make it available from your package’s page in the index. All we need is a little configuration data so that we know how best to build your docs.
 
@@ -65,7 +65,7 @@ This file tells our build system to generate documentation for the target `Targe
 
 You can also specify multiple targets, and we’ll add a target switcher in the hosted documentation so people can easily find _all_ your documentation!
 
-## Documentation platform
+### Documentation platform
 
 By default, we will generate documentation using macOS. If your package requires the documentation generation to be run for a certain platform such as iOS, you can also specify a platform:
 
@@ -77,7 +77,7 @@ builder:
       documentation_targets: [Target]
 ```
 
-## Auto-updating frequency
+### Auto-updating frequency
 
 To keep the amount of processing that our build servers perform under control, we only build the default branch for each package at most once every 24 hours. So, when you push the configuration file live, the system will generate that set of documentation, but it will then be 24 hours until the generation process runs again. If there have been any commits during that period, we’ll create docs from the latest commit when the period resets.
 
@@ -86,7 +86,7 @@ To keep the amount of processing that our build servers perform under control, w
   <img src="/images/blog/hosted-docc-documentation~light.png" alt="Hosted documentation for the DocC package shown in the context of the Swift Package Index with a header above the documentation.">
 </picture>
 
-## Initial adopters!
+### Initial adopters!
 
 **Note:** We'd like to thank the following package authors for coming on board with our documentation hosting feature so early. The feature is fully released and stable now and available for *all* package authors. for more information, see our [SPIManifest documentation](https://swiftpackageindex.com/swiftpackageindex/spimanifest/0.13.0/documentation/spimanifest/commonusecases).
 
@@ -111,7 +111,7 @@ You may have seen a [call for package authors with DocC compatible documentation
 
 If you maintain one of the 4,600+ packages we have in the index, please add your configuration file to opt-in to having your documentation hosted on the Swift Package Index, and we’ll take care of everything else. If you have any issues, please [join us on Discord](https://discord.gg/vQRb6KkYRw) or [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose).
 
-## Next steps
+### Next steps
 
 We’re proud of what we have built here, but we’re not done with this feature yet.
 
