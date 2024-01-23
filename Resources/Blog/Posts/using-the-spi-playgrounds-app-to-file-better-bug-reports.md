@@ -16,7 +16,7 @@ Recently, looking at [one of the issues](https://github.com/SwiftPackageIndex/Sw
 
 We started by running Arena as follows:
 
-```bash
+```shell
 arena https://github.com/vapor/vapor https://github.com/vapor/fluent https://github.com/vapor/fluent-postgres-driver -o ssl-error-repro
 ```
 

@@ -34,6 +34,13 @@ body.blog {
         font-size: 30px;
     }
 
+    // We use a different style on the blog and import highlight.js directly, so
+    // the background for a code snipplet here needs to match the background colour
+    // of the theme specified in `FrontEnd/styles/main.css`.
+    pre {
+        background-color: #282c34;
+    }
+
     .blog-columns {
         display: grid;
         grid-template-columns: 2fr 1fr;

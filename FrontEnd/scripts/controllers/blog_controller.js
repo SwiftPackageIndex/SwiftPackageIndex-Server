@@ -13,11 +13,16 @@
 // limitations under the License.
 
 import { Controller } from '@hotwired/stimulus'
+import hljs from 'highlight.js/lib/core'
+import swift from 'highlight.js/lib/languages/swift'
+import yaml from 'highlight.js/lib/languages/yaml'
+import shell from 'highlight.js/lib/languages/shell'
 
 export class BlogController extends Controller {
     connect() {
-        console.log('BlogController#connect')
-        console.log(hljs)
+        hljs.registerLanguage('swift', swift)
+        hljs.registerLanguage('yaml', yaml)
+        hljs.registerLanguage('shell', shell)
         hljs.highlightAll()
     }
 }

@@ -42,7 +42,7 @@ Custom schemes aren’t all we support though. Package authors can also use the 
 
 We build packages for Linux with docker commands, selecting between the [various base images that Apple provide][8].
 
-```bash
+```shell
 /usr/local/bin/docker run --rm -v "$PWD":/host -w /host swiftlang/swift:5.2.4 swift build --enable-test-discovery
 ```
 
