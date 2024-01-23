@@ -16,7 +16,7 @@ If you’re a package author and would like to configure your package page to li
 
 Here’s how to do it:
 
-```
+```yaml
 version: 1
 external_links:
   documentation: "https://example.com/package/documentation/"

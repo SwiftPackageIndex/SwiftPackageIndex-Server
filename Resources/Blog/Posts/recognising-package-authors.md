@@ -23,7 +23,7 @@ All this information comes from git history, and the automated mechanism and alg
 
 Adding a top-level `metadata` key with an `authors` key below it will override any automatic author information entirely. For example:
 
-```yml
+```yaml
 version: 1
 metadata:
   authors: “Written by Person One, Person Two, and other contributors.”
