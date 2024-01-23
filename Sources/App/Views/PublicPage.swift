@@ -40,6 +40,7 @@ class PublicPage {
     /// - Returns: A <head> element.
     final func head() -> Node<HTML.DocumentContext> {
         .head(
+            preHead(),
             metaNoIndex(),
             .viewport(.accordingToDevice, initialScale: 1),
             .meta(.charset(.utf8)),
@@ -91,7 +92,18 @@ class PublicPage {
                 .defer()
             ),
             analyticsHead()
+            postHead(),
         )
+    }
+
+    /// Any additional tags that should be inserted as the *first* tags in the `<head>`.
+    func preHead() -> Node<HTML.HeadContext> {
+        return .empty
+    }
+
+    /// Any additional tags that should be inserted as the *last* tags in the `<head>`.
+    func postHead() -> Node<HTML.HeadContext> {
+        return .empty
     }
 
     /// if a search engine requests the page, we can tell it not to index it by including this meta tag.
