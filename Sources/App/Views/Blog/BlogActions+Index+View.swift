@@ -94,7 +94,7 @@ extension BlogActions {
             }
 
             override func navMenuItems() -> [NavMenuItem] {
-                [.supporters, .addPackage, .faq]
+                [.supporters, .searchLink, .addPackage, .faq]
             }
         }
 
