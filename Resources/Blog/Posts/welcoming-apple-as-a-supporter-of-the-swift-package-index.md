@@ -4,7 +4,7 @@ title: Welcoming Apple as a supporter of the Swift Package Index
 description: As we approach our third anniversary working on the Swift Package Index, we are thrilled to announce that Apple is adding their public and financial support to the project.
 ---
 
-![The Swift Package Index logo next to the Apple logo](/images/swift-package-index-and-apple-logos.png)
+![The Swift Package Index logo next to the Apple logo](/images/blog/swift-package-index-and-apple-logos.png)
 
 As we approach our third anniversary working on the Swift Package Index, it’s great to see the project grow. We’ve continued adding features and working with the community to showcase the incredible work that open-source package authors contribute to the Swift ecosystem.
 

@@ -13,8 +13,8 @@ It was pointed out to us recently that while package pages contain more Swift-sp
 We’re happy to say that we now have got around to it! You’ll see links to any funding platforms directly underneath package metadata.
 
 <picture>
-  <source srcset="/images/package-funding-cta~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/package-funding-cta~light.png" alt="Package funding links for the Vapor package on Swift Package Index.">
+  <source srcset="/images/blog/package-funding-cta~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/package-funding-cta~light.png" alt="Package funding links for the Vapor package on Swift Package Index.">
 </picture>
 
 Adding this feature also made us curious about how many open-source packages are seeking funding, so we did a little digging through the data, and there are 256 individuals or organisations accepting funding for 718 packages. That’s more than 10% of all packages in the index!

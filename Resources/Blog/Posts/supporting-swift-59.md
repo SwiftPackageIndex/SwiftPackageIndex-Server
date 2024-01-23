@@ -11,8 +11,8 @@ How could we improve on adding support for a new Swift version after just one we
 So, that’s the announcement! The Swift Package Index **now supports Swift 5.9 packages** and will [soon show macro products](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2426) contained within them.
 
 <picture>
-  <source srcset="/images/swift59-build-results~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/swift59-build-results~light.png" alt="A build compatibility matrix showing compatibility with Swift 5.9.">
+  <source srcset="/images/blog/swift59-build-results~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/swift59-build-results~light.png" alt="A build compatibility matrix showing compatibility with Swift 5.9.">
 </picture>
 
 We also support building documentation with Swift 5.9, but as it’s still in beta, we have made that opt-in for now. If you’d like to build your package documentation with 5.9, you can [let us know via a `.spi.yml` manifest file](https://github.com/fruitcoder/extract-case-value/pull/1/files) in your package’s repository.

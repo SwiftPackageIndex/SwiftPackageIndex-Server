@@ -16,9 +16,9 @@ We want to find a way to make sure that we can continue to give this site the ti
 
 If you (or your company) would like to support the site, we would be thrilled to be able to make this a community-funded effort for years to come.
 
-[![A screenshot of our GitHub sponsors goal showing 1% of 100 sponsors.](/images/sponsorship-goal-100-sponsors.png)](https://github.com/sponsors/SwiftPackageIndex)
+[![A screenshot of our GitHub sponsors goal showing 1% of 100 sponsors.](/images/blog/sponsorship-goal-100-sponsors.png)](https://github.com/sponsors/SwiftPackageIndex)
 
 Also, a huge thanks to [Oliver](https://twitter.com/cocoanetics), who beat us to even announcing this by sponsoring the project yesterday! Thanks for being our very first sponsor. 😍
 
-Thank you!  
+Thank you!
 Dave & Sven

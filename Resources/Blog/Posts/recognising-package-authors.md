@@ -13,8 +13,8 @@ We never returned to author information. Until now!
 The Swift Package Index project participated in the [Swift Mentorship Program](https://www.swift.org/mentorship/) again this year, and we’re delighted to say that [Javier Cuesta](https://github.com/jcubit) has done outstanding work resurrecting this feature from the depths of the issue backlog!
 
 <picture class="shadow">
-  <source srcset="/images/author-metadata~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/author-metadata~light.png" alt="The Swift Package Index site showing author metadata for the fastlane package.">
+  <source srcset="/images/blog/author-metadata~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/author-metadata~light.png" alt="The Swift Package Index site showing author metadata for the fastlane package.">
 </picture>
 
 By default, we try to determine who has contributed the most to a package and include their name(s). Then, if there are more contributors, we’ll say how many.

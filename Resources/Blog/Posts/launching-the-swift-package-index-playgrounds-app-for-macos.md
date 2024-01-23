@@ -15,15 +15,15 @@ What if you could click a button and open Xcode with a Swift playground that has
 Once you have installed the app, click “Try in a Playground” from any package page.
 
 <picture class="shadow">
-  <source srcset="/images/try-in-a-playground-package-page~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/try-in-a-playground-package-page~light.png" alt="The Swift Package Index site with the Try in a Playground button highlighted">
+  <source srcset="/images/blog/try-in-a-playground-package-page~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/try-in-a-playground-package-page~light.png" alt="The Swift Package Index site with the Try in a Playground button highlighted">
 </picture>
 
 Then click "Create Playground" when the app launches.
 
 <picture>
-  <source srcset="/images/spi-playgrounds-app~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/spi-playgrounds-app~light.png" alt="The Swift Package Index Playgrounds app running on macOS">
+  <source srcset="/images/blog/spi-playgrounds-app~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/spi-playgrounds-app~light.png" alt="The Swift Package Index Playgrounds app running on macOS">
 </picture>
 
 Choose where to save it, and a few seconds later, the playground will open in Xcode, ready for experimentation and testing! We’d love to know if this is a helpful feature, so be sure to [let us know on Twitter](https://twitter.com/SwiftPackages).

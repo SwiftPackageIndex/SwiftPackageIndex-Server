@@ -17,8 +17,8 @@ We've written up the details of [how to access collections on the Swift Package 
 However, that wasn't the only surprise this week had in store for us! As we watched [Nicole Jacque](https://twitter.com/racer_girl27) talk about [What's new in Swift](https://developer.apple.com/videos/play/wwdc2021/10192/), we were amazed to see a screenshot of the Swift Package Index appear on the screen and hear Nicole start to talk about it. Remarkable!
 
 <picture class="shadow">
-  <source srcset="/images/swift-package-index-whats-new-in-swift-wwdc-2021~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/swift-package-index-whats-new-in-swift-wwdc-2021~light.png" alt="The Swift Package Index site being presented in What's new in Swift at WWDC 2021">
+  <source srcset="/images/blog/swift-package-index-whats-new-in-swift-wwdc-2021~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/swift-package-index-whats-new-in-swift-wwdc-2021~light.png" alt="The Swift Package Index site being presented in What's new in Swift at WWDC 2021">
 </picture>
 
 We're so happy that Apple sees what we've been working on here as important enough to mention in a WWDC session, and we'd like to thank everyone who was involved in that decision for including us. It's a great honour and one that we do not take lightly.

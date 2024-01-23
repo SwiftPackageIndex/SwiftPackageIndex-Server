@@ -13,6 +13,6 @@ Everyone’s favourite config file format YAML of course, comes without any shar
 We hope this helps package authors successfully set up their Swift Package Index manifests!
 
 <picture>
-  <source srcset="/images/spi-manifest-validation~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/spi-manifest-validation~light.png" alt="The Swift Package Index manifest validation page.">
+  <source srcset="/images/blog/spi-manifest-validation~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/spi-manifest-validation~light.png" alt="The Swift Package Index manifest validation page.">
 </picture>

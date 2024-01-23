@@ -11,6 +11,6 @@ Please feel free to [add any packages](https://swiftpackageindex.com/add-a-packa
 **Note:** For the next few days, you may see question mark icons against Swift 5.8 in the compatibility matrix. Please bear with us while our systems process the almost 67,000 builds needed to determine package compatibility with a new version of Swift!
 
 <picture>
-  <source srcset="/images/swift58-build-results-pending~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/swift58-build-results-pending~light.png" alt="A build compatibility matrix showing an unknown compatibility state against Swift 5.8.">
+  <source srcset="/images/blog/swift58-build-results-pending~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/swift58-build-results-pending~light.png" alt="A build compatibility matrix showing an unknown compatibility state against Swift 5.8.">
 </picture>

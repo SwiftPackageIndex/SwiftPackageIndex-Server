@@ -21,8 +21,8 @@ Until now, this score was not publicly visible on the site, but as of today, we 
 In combination with the relevancy of a search query, we use a package score to partially influence the ordering of search results on the Swift Package Index. The new information gives package authors and maintainers insight into how we calculate package scores, and the metrics that calculation relies on, such as how actively maintained a package is, whether it has documentation, tests, and various other factors.
 
 <picture class="shadow">
-  <source srcset="/images/package-maintainers-score-section~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/package-maintainers-score-section~light.png" alt="The package score section on the package maintainer's page showing a breakdown of package score for a package.">
+  <source srcset="/images/blog/package-maintainers-score-section~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/package-maintainers-score-section~light.png" alt="The package score section on the package maintainer's page showing a breakdown of package score for a package.">
 </picture>
 
 While the algorithm for calculating package scores [has always been publicly available](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/Sources/App/Core/Score.swift), it’s unreasonable to expect people to browse the source code to see how we score packages. Today’s release makes the scoring process much more transparent.
@@ -54,8 +54,8 @@ There is always room for further improvement to the package score, and these ten
 As a package author, if you’d like to see the breakdown of your package score, find the “Do you maintain this package?” section at the bottom of the right-hand sidebar on your package page, and you’ll find the score breakdown at the end.
 
 <picture class="shadow">
-  <source srcset="/images/find-package-maintainers-page~dark.png“ media=“(prefers-color-scheme: dark)">
-  <img src="/images/find-package-maintainers-page~light.png" alt="The location of the Learn More link that takes package authors to the package maintainer’s page for their package.">
+  <source srcset="/images/blog/find-package-maintainers-page~dark.png“ media=“(prefers-color-scheme: dark)">
+  <img src="/images/blog/find-package-maintainers-page~light.png" alt="The location of the Learn More link that takes package authors to the package maintainer’s page for their package.">
 </picture>
 
 If you have any feedback regarding the package score or suggestions on how we can improve it, we would love to hear your thoughts in our [discussion forum](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/discussions/2591). We appreciate any contributions as we continue to enhance the package score system.

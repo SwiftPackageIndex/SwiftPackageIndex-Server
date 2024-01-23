@@ -11,8 +11,8 @@ In pursuit of that goal, we just launched a new feature that shows you how many 
 Even better, it doesn’t just give you the number of top-level dependencies that a package declares in its `Package.swift` file. Instead, we inspect the `Package.resolved` file after the [build system](/posts/launching-language-and-platform-package-compatibility) has done the hard work of dependency resolution.
 
 <picture class="shadow">
-  <source srcset="/images/dependency-metadata~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/dependency-metadata~light.png" alt="Package metadata showing that the package being inspected depends on nine other packages.">
+  <source srcset="/images/blog/dependency-metadata~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/dependency-metadata~light.png" alt="Package metadata showing that the package being inspected depends on nine other packages.">
 </picture>
 
 That said, while this feature adds value and we’re happy to get it launched, this is step one towards where we’d like to be with dependency metadata. Some things to note:

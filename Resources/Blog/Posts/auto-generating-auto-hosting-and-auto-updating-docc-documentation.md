@@ -21,8 +21,8 @@ Our build system can now generate and host DocC documentation and make it availa
 Once configured, you will see a new “Documentation” link in the sidebar and never have to worry about your documentation again!
 
 <picture class="shadow">
-  <source srcset="/images/documentation-menu-link~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/documentation-menu-link~light.png" alt="The DocC package page showing a link to the auto-generated and hosted documentation.">
+  <source srcset="/images/blog/documentation-menu-link~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/documentation-menu-link~light.png" alt="The DocC package page showing a link to the auto-generated and hosted documentation.">
 </picture>
 
 As a package author or maintainer, there are only ~~three~~two things you need to do for the Swift Package Index to build and host your documentation.
@@ -82,8 +82,8 @@ builder:
 To keep the amount of processing that our build servers perform under control, we only build the default branch for each package at most once every 24 hours. So, when you push the configuration file live, the system will generate that set of documentation, but it will then be 24 hours until the generation process runs again. If there have been any commits during that period, we’ll create docs from the latest commit when the period resets.
 
 <picture class="shadow">
-  <source srcset="/images/hosted-docc-documentation~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/hosted-docc-documentation~light.png" alt="Hosted documentation for the DocC package shown in the context of the Swift Package Index with a header above the documentation.">
+  <source srcset="/images/blog/hosted-docc-documentation~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/hosted-docc-documentation~light.png" alt="Hosted documentation for the DocC package shown in the context of the Swift Package Index with a header above the documentation.">
 </picture>
 
 ## Initial adopters!

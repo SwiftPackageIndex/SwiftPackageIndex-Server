@@ -11,8 +11,8 @@ Recently, we’ve been focusing our attention on improving search here on the Sw
 First up, we improved the information you’ll see when you see search results or any list of packages:
 
 <picture class="shadow">
-  <source srcset="/images/search-results~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/search-results~light.png" alt="Search results that include the number of stars a package has and when the repository last had maintenance activity, in addition to the standard metadata.">
+  <source srcset="/images/blog/search-results~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/search-results~light.png" alt="Search results that include the number of stars a package has and when the repository last had maintenance activity, in addition to the standard metadata.">
 </picture>
 
 All package lists across the whole site now include the number of stars and how recently a package has had maintenance activity so you can start making some decisions before you even open a package page. You can see examples of this in [search results](https://swiftpackageindex.com/search?query=http), [keyword results](https://swiftpackageindex.com/keywords/rxswift), and [owner/author pages](https://swiftpackageindex.com/apple).
@@ -31,8 +31,8 @@ We’ve also added filters so you can refine any set of search results. The best
 [Head over to the documentation](https://swiftpackageindex.com/faq#search-filters) for more information on all the fields you can filter on and more information on this significant feature.
 
 <picture class="shadow">
-  <source srcset="/images/search-filters~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/search-filters~light.png" alt="Search results that have filters applied to narrow down the results based on last maintenance activity and platform compatibility.">
+  <source srcset="/images/blog/search-filters~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/search-filters~light.png" alt="Search results that have filters applied to narrow down the results based on last maintenance activity and platform compatibility.">
 </picture>
 
 We’re [not entirely done with updates to search](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/projects/9) yet, but what we have is certainly significant enough for an update post!

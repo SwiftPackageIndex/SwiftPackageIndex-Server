@@ -13,8 +13,8 @@ Every contribution helps, whether it’s a one-time or monthly donation. Every s
 We’re in this for the long term to build the package index that the Swift package ecosystem needs, but we need your help. Please consider joining the 99 other people who [sponsor this project through GitHub sponsors](https://github.com/sponsors/SwiftPackageIndex).
 
 <picture>
-  <source srcset="/images/99-github-sponsors~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/99-github-sponsors~light.png" alt="A grid of profile pictures showing the current sponsors of the Swift Package Index.">
+  <source srcset="/images/blog/99-github-sponsors~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/99-github-sponsors~light.png" alt="A grid of profile pictures showing the current sponsors of the Swift Package Index.">
 </picture>
 
 Thank you so much!

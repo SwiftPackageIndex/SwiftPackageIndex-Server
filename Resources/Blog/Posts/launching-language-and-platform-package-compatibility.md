@@ -15,8 +15,8 @@ The problem is that neither of those properties is perfect. `swiftLanguageVersio
 Wouldn’t it be fantastic if you could see a matrix like this for _every_ package? 😍
 
 <picture class="shadow">
-  <source srcset="/images/promisekit-language-and-platform-metadata~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/promisekit-language-and-platform-metadata~light.png" alt="The language and platform compatibility matrix for PromiseKit.">
+  <source srcset="/images/blog/promisekit-language-and-platform-metadata~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/promisekit-language-and-platform-metadata~light.png" alt="The language and platform compatibility matrix for PromiseKit.">
 </picture>
 
 Look at how information-rich that matrix is. You can instantly see that the latest stable version of [PromiseKit](https://swiftpackageindex.com/mxcl/PromiseKit) is compatible with every version of Swift back to 4.2, and every platform, including Linux. Then, you can see that the alpha version in development drops support for iOS, tvOS, and watchOS, and Swift 4.2. That seems suspicious, right? Keep looking, and you’ll see that the default branch fixes all those issues and restores compatibility. I’m confident looking at that matrix that when 7.0.0 is released, it’ll have green ticks across the board, but I also know to not depend on this current alpha. That’s practical, actionable information.
@@ -56,7 +56,7 @@ In practice, it’s less than that as most packages don’t have a current beta 
 
 If you’ve been following [these tweets](https://twitter.com/daveverwer/status/1291808885259620353), it should be obvious what all that processing was! Let’s take a look at the last **30 days** of CPU graphs for our production server, a 2018 Mac mini with 32Gb RAM and a 6-core i7 CPU:
 
-![A graph showing a few spikes of CPU activity, followed by a sustained 100% CPU load.](/images/production-server-thirty-day-cpu-graph.png)
+![A graph showing a few spikes of CPU activity, followed by a sustained 100% CPU load.](/images/blog/production-server-thirty-day-cpu-graph.png)
 
 You can see a few of our final test runs in that graph, and then we started processing for real. Since then, we’ve kept the CPU completely pegged for more than two weeks. We’ve also had our staging Mac mini, a spare 2016 MacBook Pro, and a DTK working on builds too.
 
@@ -64,7 +64,7 @@ You can see a few of our final test runs in that graph, and then we started proc
 
 Providing compatibility information on this site is one thing, but everyone loves adorning their packages pages with [shields.io](https://shields.io) badges, don’t they? If you maintain an open-source project, wouldn’t you like to show off real compatibility status in your README file, like this?
 
-![A screenshot of a GitHub page with badges that show the Swift and platform compatibility for the package.](/images/rester-readme-with-spi-badges.png)
+![A screenshot of a GitHub page with badges that show the Swift and platform compatibility for the package.](/images/blog/rester-readme-with-spi-badges.png)
 
 If you’re a package author, click the “Copy badge” button below each of the compatibility matrices and you’ll have a Markdown image link in your clipboard, ready to use.
 
