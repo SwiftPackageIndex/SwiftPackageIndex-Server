@@ -196,12 +196,13 @@ extension Node where Context: HTML.BodyContext {
         )
     }
 
-    static func lastUpdatedTime(_ lastUpdated: Date) -> Self {
+    static func publishedTime(_ publishedAt: Date, label: String) -> Self {
         .time(
-            .datetime(DateFormatter.yearMonthDayDateFormatter.string(from: lastUpdated)),
+            .datetime(DateFormatter.yearMonthDayDateFormatter.string(from: publishedAt)),
             .group(
-                .text("Last updated on "),
-                .text(DateFormatter.mediumDateFormatter.string(from: lastUpdated))
+                .text(label),
+                .text(" "),
+                .text(DateFormatter.mediumDateFormatter.string(from: publishedAt))
             )
         )
     }

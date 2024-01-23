@@ -83,14 +83,12 @@ extension BlogActions.Model.PostSummary {
     func publishInformation() -> Plot.Node<HTML.BodyContext> {
         let formattedDate = DateFormatter.longDateFormatter.string(from: publishedAt)
         if published {
-            return .group(
-                .text("Published on "),
-                .text(formattedDate)
-            )
+            return .publishedTime(publishedAt, label: "Published on")
         } else {
             return .group(
-                .strong("DRAFT POST - Dated "),
-                .text(formattedDate)
+                .strong("DRAFT POST"),
+                .text(" – "),
+                .publishedTime(publishedAt, label: "Dated")
             )
         }
     }

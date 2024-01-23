@@ -75,7 +75,7 @@ extension BlogActions {
                                                         summary.publishInformation()
                                                     ),
                                                     .p(
-                                                        .text(summary.published ? "Read full post" : "Read draft post" ),
+                                                        .text("Read full post"),
                                                         .text("&rarr;")
                                                     )
                                                 )

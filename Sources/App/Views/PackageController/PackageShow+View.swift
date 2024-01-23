@@ -321,7 +321,7 @@ extension PackageShow {
                 .section(
                     .hr(),
                     .p(
-                        .lastUpdatedTime(dates.dateModified)
+                        .publishedTime(dates.dateModified, label: "Last updated on")
                     )
                 )
             }
