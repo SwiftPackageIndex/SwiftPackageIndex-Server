@@ -51,7 +51,7 @@ enum BlogController {
 
         return RSSFeed(title: "The Swift Package Index Blog",
                        description: model.blogDescription,
-                       link: SiteURL.blog.absoluteURL(),
+                       link: SiteURL.blogFeed.absoluteURL(),
                        items: items).rss
     }
 
