@@ -62,7 +62,7 @@ enum NavMenuItem {
                 return .li(
                     .a(
                         .href(SiteURL.home.relativeURL()),
-                        "Search for Packages"
+                        "Search Packages"
                     )
                 )
         }
