@@ -40,18 +40,18 @@ enum SearchLogger {
         let baseQuery = SearchQuery(searchID: uniqueSearchID, query: query)
         do {
             let stringdata = String(decoding: try jsonEncoder.encode(baseQuery), as: UTF8.self)
-            AppEnvironment.logger.info("search: \(stringdata)")
+            AppEnvironment.logger.info("SearchLogger: search: \(stringdata)")
         } catch {
-            AppEnvironment.logger.warning("unable to encode search query: \(error)")
+            AppEnvironment.logger.warning("SearchLogger: unable to encode search query: \(error)")
         }
 
         for (idx, result) in results.enumerated() {
             let fragment = SearchResultFragment(searchID: uniqueSearchID, result: result)
             do {
                 let stringdata = String(decoding: try jsonEncoder.encode(fragment), as: UTF8.self)
-                AppEnvironment.logger.info("searchresult[\(idx)]: \(stringdata)")
+                AppEnvironment.logger.info("SearchLogger: searchresult[\(idx)]: \(stringdata)")
             } catch {
-                AppEnvironment.logger.warning("unable to encode search fragment: \(error)")
+                AppEnvironment.logger.warning("SearchLogger: unable to encode search fragment: \(error)")
             }
         }
     }
