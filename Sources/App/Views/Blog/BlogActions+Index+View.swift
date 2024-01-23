@@ -43,6 +43,10 @@ extension BlogActions {
                 ]
             }
 
+            override func pageCanonicalURL() -> String? {
+                SiteURL.blog.absoluteURL()
+            }
+
             override func content() -> Node<HTML.BodyContext> {
                 .group(
                     .h2(
