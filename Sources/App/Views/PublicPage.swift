@@ -59,31 +59,37 @@ class PublicPage {
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .title("Swift Package Index – Recently Added"),
+                .title("Swift Package Index Blog"),
+                .href(SiteURL.blogFeed.absoluteURL())
+            ),
+            .link(
+                .rel(.alternate),
+                .type("application/rss+xml"),
+                .title("Swift Package Index – Recently Added Packages"),
                 .href(SiteURL.rssPackages.absoluteURL())
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .title("Swift Package Index – Recent Releases"),
+                .title("Swift Package Index – Recent Package Releases"),
                 .href(SiteURL.rssReleases.absoluteURL())
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .title("Swift Package Index – Recent Major Releases"),
+                .title("Swift Package Index – Recent Major Package Releases"),
                 .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true")]))
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .title("Swift Package Index – Recent Major & Minor Releases"),
+                .title("Swift Package Index – Recent Major & Minor Package Releases"),
                 .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true"), QueryParameter(key: "minor", value: "true")]))
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .title("Swift Package Index – Recent Pre-Releases"),
+                .title("Swift Package Index – Recent Package Pre-Releases"),
                 .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "pre", value: "true")]))
             ),
             .script(
