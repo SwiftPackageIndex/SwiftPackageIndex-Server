@@ -48,11 +48,12 @@ extension BlogActions {
                 )
             }
 
-            override func postBody() -> Node<HTML.BodyContext> {
-                .script(
-                    .raw("hljs.highlightAll();")
-                )
+            override func bodyAttributes() -> [Attribute<HTML.BodyContext>] {
+                [
+                    .data(named: "controller", value: "blog")
+                ]
             }
+
 
             override func bodyClass() -> String? {
                 "blog"
