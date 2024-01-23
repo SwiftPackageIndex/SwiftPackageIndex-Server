@@ -42,7 +42,7 @@ If there’s one thing where the MacBook Air suffers, it’s the sensitivity to 
 
 You can even see a little of the effect by observing the slight upwards slope of the build benchmarks for the M1 MacBook Air.
 
-![A chart showing just the build benchmarks for the M1-based MacBook Air](/images/m1-macbook-air-thermal-throttling.png)
+![A chart showing just the build benchmarks for the M1-based MacBook Air](/images/blog/m1-macbook-air-thermal-throttling.png)
 
 During the 15 minutes that this benchmark ran for, the machine got quite warm to the touch, and the chart shows that it’s starting to throttle a bit.
 
