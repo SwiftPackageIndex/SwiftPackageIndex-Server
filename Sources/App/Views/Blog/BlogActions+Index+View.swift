@@ -48,35 +48,46 @@ extension BlogActions {
                     .h2(
                         .text("The Swift Package Index Blog")
                     ),
-                    .ul(
-                        .class("blog-posts"),
-                        .group(
-                            model.summaries.map({ summary -> Node<HTML.ListContext> in
-                                    .li(
-                                        .a(
-                                            .href(summary.postUrl().relativeURL()),
-                                            .h3(.text(summary.title)),
-                                            .p(
-                                                .text(summary.summary)
-                                            ),
-                                            .div(
-                                                .class("read-full-post"),
-                                                .if(summary.published, .small(
-                                                    "Published on ",
-                                                    .text(DateFormatter.longDateFormatter.string(from: summary.publishedAt))
-                                                ), else: .small(
-                                                    .strong("DRAFT POST")
-                                                )),
+                    .section(
+                        .class("blog-columns"),
+                        .ul(
+                            .class("blog-posts"),
+                            .group(
+                                model.summaries.map({ summary -> Node<HTML.ListContext> in
+                                        .li(
+                                            .a(
+                                                .href(summary.postUrl().relativeURL()),
+                                                .h3(.text(summary.title)),
                                                 .p(
-                                                    .text(summary.published ? "Read full post" : "Read draft post" ),
-                                                    .text("&hellip;")
+                                                    .text(summary.summary)
+                                                ),
+                                                .div(
+                                                    .class("read-full-post"),
+                                                    .small(
+                                                        summary.publishInformation()
+                                                    ),
+                                                    .p(
+                                                        .text(summary.published ? "Read full post" : "Read draft post" ),
+                                                        .text("&rarr;")
+                                                    )
                                                 )
-                                            )
-                                        ),
-                                        .hr()
-                                    )
-                            })
+                                            ),
+                                            .hr()
+                                        )
+                                })
 
+                            )
+                        ),
+                        .section(
+                            .panelButton(cssClass: "podcast",
+                                         linkUrl: ExternalURL.podcast,
+                                         bodyNode: .podcastPanelBody(includeHeading: true),
+                                         cta: "Listen Now",
+                                         analyticsEvent: "Blog - Podcast CTA"),
+                            .panelButton(cssClass: "scta",
+                                         linkUrl: SiteURL.supporters.relativeURL(),
+                                         bodyNode: .sponsorsCtaBody(),
+                                         analyticsEvent: "Home - Supporters CTA")
                         )
                     )
                 )
@@ -86,7 +97,7 @@ extension BlogActions {
                 [.supporters, .addPackage, .faq]
             }
         }
-        
+
     }
 
 }

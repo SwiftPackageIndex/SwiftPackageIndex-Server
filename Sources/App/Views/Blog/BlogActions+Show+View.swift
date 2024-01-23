@@ -65,14 +65,34 @@ extension BlogActions {
             override func content() -> Node<HTML.BodyContext> {
                 .group(
                     .h2(
+                        .class("post-title"),
                         .text(model.title)
                     ),
                     .small(
                         model.publishInformation()
                     ),
+                    .hr(
+                        .class("post-title")
+                    ),
                     .article(
                         .class("blog-post"),
                         .raw(model.postMarkdown)
+                    ),
+                    .hr(),
+                    .section(
+                        .class("about-this-blog"),
+                        .h3("About this blog"),
+                        .text("The "),
+                        .a(
+                            .href(SiteURL.home.relativeURL()),
+                            "Swift Package Index"
+                        ),
+                        .text(" is a search engine and metadata index for Swift packages. Our main goal is to help you make better decisions about the dependencies you include in your apps and projects. If you're new here, the best place to get started is "),
+                        .a(
+                            .href(SiteURL.home.relativeURL()),
+                            "by searching"
+                        ),
+                        .text(".")
                     )
                 )
             }

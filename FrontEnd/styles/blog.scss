@@ -17,40 +17,69 @@
 // -------------------------------------------------------------------------
 
 body.blog {
+    hr {
+        width: 80%;
+        margin: 40px;
+
+        &.post-title {
+            width: 100%;
+            height: 1px;
+            margin: 5px 0 10px;
+            background-color: var(--rule-thin-background);
+        }
+    }
+
+    h2.post-title {
+        margin: 0;
+        font-size: 30px;
+    }
+
+    .blog-columns {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
+
+        @media screen and (max-width: $mobile-breakpoint) {
+            grid-template-columns: 1fr;
+        }
+    }
+
     ul.blog-posts {
         padding: 0;
         list-style: none;
 
-        li > a {
-            display: block;
-            align-items: center;
-
-            h3 {
-                margin: 0;
-            }
-
-            p,
-            small {
-                color: var(--page-text);
-            }
-
-            p {
-                margin: 5px 0;
-            }
-
-            .read-full-post {
-                display: flex;
+        li {
+            & > a {
+                display: block;
                 align-items: center;
-                justify-content: space-between;
+
+                h3 {
+                    margin: 0;
+                }
+
+                p,
+                small {
+                    color: var(--page-text);
+                }
 
                 p {
-                    color: inherit;
+                    margin: 5px 0;
+                }
+
+                .read-full-post {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+
+                    p {
+                        color: inherit;
+                    }
                 }
             }
         }
     }
 
-    article.blog-post {
+    .blog-post {
         picture.shadow img {
             box-shadow: 0 3px 8px 2px rgba(100, 100, 100, 20%);
         }
@@ -59,6 +88,18 @@ body.blog {
             display: block;
             max-width: 80%;
             margin: 40px auto;
+        }
+    }
+
+    .about-this-blog {
+        margin-bottom: 30px;
+        padding: 15px;
+        background-color: var(--panel-background);
+        border: 1px solid var(--panel-border);
+
+        h3 {
+            margin: 0 0 10px;
+            font-size: 20px;
         }
     }
 }
