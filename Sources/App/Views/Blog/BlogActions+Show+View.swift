@@ -87,7 +87,7 @@ extension BlogActions {
                         .text(" is a search engine and metadata index for Swift packages. Our main goal is to help you make better decisions about the dependencies you include in your apps and projects. If you're new here, the best place to get started is "),
                         .a(
                             .href(SiteURL.home.relativeURL()),
-                            "by searching"
+                            "by searching for packages"
                         ),
                         .text(".")
                     )
