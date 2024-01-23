@@ -36,18 +36,6 @@ extension BlogActions {
                 model.summary
             }
 
-            override func postHead() -> Node<HTML.HeadContext> {
-                .group(
-                    .link(
-                        .rel(.stylesheet),
-                        .href("https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css")
-                    ),
-                    .script(
-                        .src("https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js")
-                    )
-                )
-            }
-
             override func bodyAttributes() -> [Attribute<HTML.BodyContext>] {
                 [
                     .data(named: "controller", value: "blog")
