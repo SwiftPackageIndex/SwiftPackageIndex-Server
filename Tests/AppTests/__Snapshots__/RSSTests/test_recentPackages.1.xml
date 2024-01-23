@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Swift Package Index – Recently Added</title>
-    <description>List of recently added Swift packages</description>
+    <description>List of packages recently added to the Swift Package Index.</description>
     <link>http://localhost:8080/packages.rss</link>
     <ttl>60</ttl>
     <atom:link href="http://localhost:8080/packages.rss" rel="self" type="application/rss+xml"/>
