@@ -70,7 +70,7 @@
   published: true
 - slug: whats-next-may-2021
   title: What’s Next? - May 2021
-  summary:
+  summary: Authors, keywords, dependencies, a home page redesign, package collections, and more! Will we ever get all of this done? We’re going to try!
   published_at: 2021-05-18
   published: true
 - slug: launching-swift-package-collections
