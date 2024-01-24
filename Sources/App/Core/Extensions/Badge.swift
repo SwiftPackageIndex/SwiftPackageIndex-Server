@@ -41,7 +41,7 @@ struct Badge: Content, Equatable {
         let label: String
         switch badgeType {
             case .platforms:
-                label = "Platform"
+                label = "Platforms"
             case .swiftVersions:
                 label = "Swift"
         }
