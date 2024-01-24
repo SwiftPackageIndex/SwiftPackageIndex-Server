@@ -41,9 +41,9 @@ struct Badge: Content, Equatable {
         let label: String
         switch badgeType {
             case .platforms:
-                label = "Platform Compatibility"
+                label = "Platform"
             case .swiftVersions:
-                label = "Swift Compatibility"
+                label = "Swift"
         }
 
         let (message, success) = Self.badgeMessage(significantBuilds: significantBuilds,

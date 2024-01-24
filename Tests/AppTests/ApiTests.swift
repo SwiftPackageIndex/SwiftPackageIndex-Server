@@ -671,7 +671,7 @@ class ApiTests: AppTestCase {
 
                 let badge = try res.content.decode(Badge.self)
                 XCTAssertEqual(badge.schemaVersion, 1)
-                XCTAssertEqual(badge.label, "Swift Compatibility")
+                XCTAssertEqual(badge.label, "Swift")
                 XCTAssertEqual(badge.message, "5.7 | 5.6")
                 XCTAssertEqual(badge.isError, false)
                 XCTAssertEqual(badge.color, "F05138")
@@ -689,7 +689,7 @@ class ApiTests: AppTestCase {
 
                 let badge = try res.content.decode(Badge.self)
                 XCTAssertEqual(badge.schemaVersion, 1)
-                XCTAssertEqual(badge.label, "Platform Compatibility")
+                XCTAssertEqual(badge.label, "Platform")
                 XCTAssertEqual(badge.message, "macOS | Linux")
                 XCTAssertEqual(badge.isError, false)
                 XCTAssertEqual(badge.color, "F05138")
