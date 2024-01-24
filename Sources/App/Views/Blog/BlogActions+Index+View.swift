@@ -56,6 +56,12 @@ extension BlogActions {
                     .h2(
                         .text("The Swift Package Index Blog")
                     ),
+                    .a(
+                        .class("subscribe"),
+                        .href(SiteURL.blogFeed.relativeURL()),
+                        .title("Subscribe with RSS"),
+                        .text("Subscribe")
+                    ),
                     .section(
                         .class("blog-container"),
                         .section(

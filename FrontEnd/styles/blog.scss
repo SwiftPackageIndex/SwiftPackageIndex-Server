@@ -41,8 +41,34 @@ body.blog {
         background-color: #282c34;
     }
 
+    .subscribe {
+        display: inline-flex;
+        flex-direction: row;
+        gap: 5px;
+        align-items: center;
+        padding: 2px 6px;
+        font-size: 14px;
+        color: white;
+        background-color: var(--rss-subscribe-color);
+        border-radius: 4px;
+        transform: translateY(-25px);
+
+        &::before {
+            content: '';
+            display: block;
+            width: 12px;
+            height: 12px;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-image: var(--image-rss);
+        }
+    }
+
     .sidebar {
         float: right;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
         width: 320px;
         padding: 0 0 10px 40px;
         background-color: var(--page-background);
