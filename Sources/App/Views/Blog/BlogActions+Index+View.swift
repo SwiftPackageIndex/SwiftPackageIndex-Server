@@ -57,7 +57,19 @@ extension BlogActions {
                         .text("The Swift Package Index Blog")
                     ),
                     .section(
-                        .class("blog-columns"),
+                        .class("blog-container"),
+                        .section(
+                            .class("sidebar"),
+                            .panelButton(cssClass: "podcast",
+                                         linkUrl: ExternalURL.podcast,
+                                         bodyNode: .podcastPanelBody(includeHeading: true),
+                                         cta: "Listen Now",
+                                         analyticsEvent: "Blog - Podcast CTA"),
+                            .panelButton(cssClass: "scta",
+                                         linkUrl: SiteURL.supporters.relativeURL(),
+                                         bodyNode: .sponsorsCtaBody(),
+                                         analyticsEvent: "Home - Supporters CTA")
+                        ),
                         .ul(
                             .class("blog-posts"),
                             .group(
@@ -80,17 +92,6 @@ extension BlogActions {
                                 })
 
                             )
-                        ),
-                        .section(
-                            .panelButton(cssClass: "podcast",
-                                         linkUrl: ExternalURL.podcast,
-                                         bodyNode: .podcastPanelBody(includeHeading: true),
-                                         cta: "Listen Now",
-                                         analyticsEvent: "Blog - Podcast CTA"),
-                            .panelButton(cssClass: "scta",
-                                         linkUrl: SiteURL.supporters.relativeURL(),
-                                         bodyNode: .sponsorsCtaBody(),
-                                         analyticsEvent: "Home - Supporters CTA")
                         )
                     )
                 )
