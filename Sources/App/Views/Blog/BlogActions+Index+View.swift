@@ -66,21 +66,16 @@ extension BlogActions {
                                             .a(
                                                 .href(summary.postUrl().relativeURL()),
                                                 .h3(.text(summary.title)),
+                                                .small(
+                                                    summary.publishInformation()
+                                                ),
+                                                .hr(
+                                                    .class("post-title")
+                                                ),
                                                 .p(
                                                     .text(summary.summary)
-                                                ),
-                                                .div(
-                                                    .class("read-full-post"),
-                                                    .small(
-                                                        summary.publishInformation()
-                                                    ),
-                                                    .p(
-                                                        .text("Read full post"),
-                                                        .text("&rarr;")
-                                                    )
                                                 )
-                                            ),
-                                            .hr()
+                                            )
                                         )
                                 })
 
