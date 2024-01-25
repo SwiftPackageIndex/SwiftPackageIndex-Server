@@ -51,46 +51,11 @@ class PublicPage {
             .twitterCardType(.summary),
             .socialImageLink(SiteURL.images("logo.png").absoluteURL()),
             .favicon(SiteURL.images("logo-tiny.png").relativeURL()),
+            rssFeeds(),
             .link(
                 .rel(.stylesheet),
                 .href(SiteURL.stylesheets("main").relativeURL() + "?" + ResourceReloadIdentifier.value),
                 .data(named: "turbolinks-track", value: "reload")
-            ),
-            .link(
-                .rel(.alternate),
-                .type("application/rss+xml"),
-                .title("Swift Package Index Blog"),
-                .href(SiteURL.blogFeed.absoluteURL())
-            ),
-            .link(
-                .rel(.alternate),
-                .type("application/rss+xml"),
-                .title("Swift Package Index – Recently Added Packages"),
-                .href(SiteURL.rssPackages.absoluteURL())
-            ),
-            .link(
-                .rel(.alternate),
-                .type("application/rss+xml"),
-                .title("Swift Package Index – Recent Package Releases"),
-                .href(SiteURL.rssReleases.absoluteURL())
-            ),
-            .link(
-                .rel(.alternate),
-                .type("application/rss+xml"),
-                .title("Swift Package Index – Recent Major Package Releases"),
-                .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true")]))
-            ),
-            .link(
-                .rel(.alternate),
-                .type("application/rss+xml"),
-                .title("Swift Package Index – Recent Major & Minor Package Releases"),
-                .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true"), QueryParameter(key: "minor", value: "true")]))
-            ),
-            .link(
-                .rel(.alternate),
-                .type("application/rss+xml"),
-                .title("Swift Package Index – Recent Package Pre-Releases"),
-                .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "pre", value: "true")]))
             ),
             .script(
                 .src(SiteURL.javascripts("main").relativeURL() + "?" + ResourceReloadIdentifier.value),
@@ -131,6 +96,62 @@ class PublicPage {
     /// - Returns: A booleam indicating whether the page should be indexed.
     func allowIndexing() -> Bool {
         return true
+    }
+
+    /// The `<head>` tags for any RSS or other feeds.
+    /// - Returns: A collection of `<link>` tags.
+    final func rssFeeds() -> Node<HTML.HeadContext> {
+        let feedsToInclude = pageRssFeeds()
+        return .group(
+            .if(feedsToInclude.contains(.blog),
+                .link(
+                    .rel(.alternate),
+                    .type("application/rss+xml"),
+                    .title("Swift Package Index Blog"),
+                    .href(SiteURL.blogFeed.absoluteURL())
+                )
+            ),
+            .if(feedsToInclude.contains(.packages),
+                .group(
+                    .link(
+                        .rel(.alternate),
+                        .type("application/rss+xml"),
+                        .title("Swift Package Index – Recently Added Packages"),
+                        .href(SiteURL.rssPackages.absoluteURL())
+                    ),
+                    .link(
+                        .rel(.alternate),
+                        .type("application/rss+xml"),
+                        .title("Swift Package Index – Recent Package Releases"),
+                        .href(SiteURL.rssReleases.absoluteURL())
+                    ),
+                    .link(
+                        .rel(.alternate),
+                        .type("application/rss+xml"),
+                        .title("Swift Package Index – Recent Major Package Releases"),
+                        .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true")]))
+                    ),
+                    .link(
+                        .rel(.alternate),
+                        .type("application/rss+xml"),
+                        .title("Swift Package Index – Recent Major & Minor Package Releases"),
+                        .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true"), QueryParameter(key: "minor", value: "true")]))
+                    ),
+                    .link(
+                        .rel(.alternate),
+                        .type("application/rss+xml"),
+                        .title("Swift Package Index – Recent Package Pre-Releases"),
+                        .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "pre", value: "true")]))
+                    )
+                )
+            )
+        )
+    }
+
+    /// Override to customise which RSS feeds should be included on a specific page.
+    /// - Returns: One or more categories of feed to include.
+    func pageRssFeeds() -> [RSSFeedCategory] {
+        return [.blog, .packages]
     }
 
     /// The Plausible analytics code to be inserted into the <head> element.
@@ -432,6 +453,15 @@ class PublicPage {
                 )
             )
         )
+    }
+
+}
+
+extension PublicPage {
+
+    enum RSSFeedCategory {
+        case blog
+        case packages
     }
 
 }
