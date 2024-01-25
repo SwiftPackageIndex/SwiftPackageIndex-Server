@@ -543,4 +543,25 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
         assertSnapshot(matching: page, as: .html)
     }
+
+    func test_Blog_index() {
+        Supporters.mock()
+        let model = BlogActions.Model.mock
+        let page = { BlogActions.Index.View(path: "", model: model).document() }
+
+        assertSnapshot(matching: page, as: .html)
+    }
+
+    func test_Blog_show() {
+        Current.fileManager.contents = { _ in
+            """
+            This is some Markdown with [a link](https://example.com) and some _formatting_.
+            """.data(using: .utf8)
+        }
+
+        let model = BlogActions.Model.PostSummary.mock()
+        let page = { BlogActions.Show.View(path: "", model: model).document() }
+
+        assertSnapshot(matching: page, as: .html)
+    }
 }
