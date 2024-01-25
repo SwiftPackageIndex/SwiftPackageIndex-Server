@@ -21,6 +21,10 @@ enum BlogActions {
 
     struct Model {
 
+        static var blogIndexYmlPath: String {
+            Current.fileManager.workingDirectory().appending("Resources/Blog/posts.yml")
+        }
+
         struct PostSummary: Equatable {
             var slug: String
             var title: String
@@ -32,16 +36,8 @@ enum BlogActions {
         var summaries: [PostSummary]
 
         init() {
-            let blogIndexYmlPath = Current.fileManager.workingDirectory()
-                .appending("Resources/Blog/posts.yml")
             do {
-                let allSummaries = if let ymlData = Current.fileManager.contents(atPath: blogIndexYmlPath),
-                    let ymlString = String(data: ymlData, encoding: .utf8) {
-                        // Post order should be as exists in the file, but reversed.
-                        try Array(YAMLDecoder().decode([PostSummary].self, from: ymlString).reversed())
-                    } else {
-                        Array<PostSummary>()
-                    }
+                let allSummaries = try Self.allSummaries()
 
                 summaries = if Current.environment() == .production {
                     // Only "published" posts show in production.
@@ -66,6 +62,17 @@ enum BlogActions {
             latest features, our efforts in the community, and any other updates that affect the site.
             """
         }
+
+        static func allSummaries() throws -> [PostSummary] {
+            guard let data = Current.fileManager.contents(atPath: Self.blogIndexYmlPath) else {
+                throw AppError.genericError(nil, "failed to read posts.yml")
+            }
+
+            // Post order should be as exists in the file, but reversed.
+            return try YAMLDecoder().decode([PostSummary].self, from: String(decoding: data, as: UTF8.self))
+                .reversed()
+        }
+        
     }
 }
 
