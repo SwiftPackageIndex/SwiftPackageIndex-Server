@@ -63,4 +63,15 @@ class BlogActionsModelTests: AppTestCase {
         XCTAssertEqual(markdown, "<p>This is some Markdown with <a href=\"https://example.com\">a link</a> and some <em>formatting</em>.</p>")
     }
 
+    func test_decode_posts_yml() async throws {
+        // setup
+        Current.fileManager = .live
+
+        // MUT
+        let summaries = try BlogActions.Model.allSummaries()
+
+        // validate
+        XCTAssert(summaries.count > 0)
+    }
+
 }
