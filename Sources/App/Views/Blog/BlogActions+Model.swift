@@ -31,7 +31,7 @@ enum BlogActions {
 
         var summaries: [PostSummary]
 
-        init() throws {
+        init() {
             let blogIndexYmlPath = Current.fileManager.workingDirectory()
                 .appending("Resources/Blog/posts.yml")
             do {
