@@ -61,7 +61,7 @@ enum HomeIndex {
                 .section(
                     .panelButton(cssClass: "podcast",
                                  linkUrl: ExternalURL.podcast,
-                                 bodyNode: podcastPanelBody(),
+                                 bodyNode: .podcastPanelBody(includeHeading: false),
                                  cta: "Listen Now",
                                  analyticsEvent: "Home - Podcast CTA"),
                     .section(
@@ -82,33 +82,11 @@ enum HomeIndex {
                     .class("supporter-ctas"),
                     .panelButton(cssClass: "scta",
                                  linkUrl: SiteURL.supporters.relativeURL(),
-                                 bodyNode: sctaBodyNode(),
+                                 bodyNode: .sponsorsCtaBody(),
                                  analyticsEvent: "Home - Supporters CTA"),
                     .group(
                         Supporters.corporate.shuffled().map(\.advertisementNode)
                     )
-                )
-            )
-        }
-
-        func podcastPanelBody() -> Node<HTML.AnchorContext> {
-            .text("Join Dave and Sven every two weeks for a chat about ongoing Swift Package Index development and a selection of package recommendations on the Swift Package Indexing podcast.")
-        }
-
-        func sctaBodyNode() -> Node<HTML.AnchorContext> {
-            .group(
-                .text("Join the companies and individuals that make running this site possible."),
-                .div(
-                    .class("avatars"),
-                    .forEach(Supporters.community.randomSample(count: 27), { sponsor in
-                            .img(
-                                .src(sponsor.avatarUrl),
-                                .unwrap(sponsor.name, { .title($0) }),
-                                .alt("Profile picture for \(sponsor.name ?? sponsor.login)"),
-                                .width(20),
-                                .height(20)
-                            )
-                    })
                 )
             )
         }

@@ -16,7 +16,6 @@ import Plot
 
 enum ExternalURL: URLRepresentable {
     case mastodon
-    case projectBlog
     case projectGitHub
     case projectSponsorship
     case raiseNewIssue
@@ -28,8 +27,6 @@ enum ExternalURL: URLRepresentable {
         switch(self) {
             case .mastodon:
                 return "https://mas.to/@SwiftPackageIndex"
-            case .projectBlog:
-                return "https://blog.swiftpackageindex.com"
             case .projectGitHub:
                 return "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"
             case .projectSponsorship:

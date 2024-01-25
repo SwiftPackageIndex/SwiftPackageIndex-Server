@@ -18,12 +18,13 @@
     <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
     <meta property="og:image" content="http://localhost:8080/images/logo.png"/>
     <link rel="shortcut icon" href="/images/logo-tiny.png" type="image/png"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index Blog" href="http://localhost:8080/blog/feed.xml"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recently Added Packages" href="http://localhost:8080/packages.rss"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Package Releases" href="http://localhost:8080/releases.rss"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major Package Releases" href="http://localhost:8080/releases.rss?major=true"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major & Minor Package Releases" href="http://localhost:8080/releases.rss?major=true&minor=true"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Package Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
     <link rel="stylesheet" href="/main.css?test" data-turbolinks-track="reload"/>
-    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recently Added" href="http://localhost:8080/packages.rss"/>
-    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Releases" href="http://localhost:8080/releases.rss"/>
-    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major Releases" href="http://localhost:8080/releases.rss?major=true"/>
-    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major & Minor Releases" href="http://localhost:8080/releases.rss?major=true&minor=true"/>
-    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
     <script src="/main.js?test" data-turbolinks-track="reload" defer></script>
   </head>
   <body class="home">
@@ -46,7 +47,7 @@
               <a href="/add-a-package">Add a Package</a>
             </li>
             <li>
-              <a href="https://blog.swiftpackageindex.com">Blog</a>
+              <a href="/blog">Blog</a>
             </li>
             <li>
               <a href="/faq">FAQ</a>
@@ -73,7 +74,7 @@
           <section>
             <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Podcast CTA" class="panel-button podcast">
               <a data-action="click->panel-button#click" href="https://swiftpackageindexing.transistor.fm">
-                <div class="body">Join Dave and Sven every two weeks for a chat about ongoing Swift Package Index development and a selection of package recommendations on the Swift Package Indexing podcast.</div>
+                <div class="body">Join Dave and Sven for a chat about ongoing Swift Package Index development and package recommendations from the community on the Swift Package Indexing podcast.</div>
                 <div class="cta">Listen Now &rarr;</div>
               </a>
             </div>
@@ -153,7 +154,7 @@
           <section class="supporter-ctas">
             <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Supporters CTA" class="panel-button scta">
               <a data-action="click->panel-button#click" href="/supporters">
-                <div class="body">Join the companies and individuals that make running this site possible.
+                <div class="body">Join the companies and individuals who support this site and keep it running.
                   <div class="avatars">
                     <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
                     <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
@@ -204,7 +205,7 @@
         <nav>
           <ul>
             <li>
-              <a href="https://blog.swiftpackageindex.com">Blog</a>
+              <a href="/blog">Blog</a>
             </li>
             <li>
               <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">GitHub</a>

@@ -75,7 +75,7 @@ extension RSSFeed {
         let items = try await RecentPackage.fetch(on: database, limit: limit)
             .map(\.rssItem)
         return RSSFeed(title: "Swift Package Index – Recently Added",
-                        description: "List of recently added Swift packages",
+                        description: "List of packages recently added to the Swift Package Index.",
                         link: SiteURL.rssPackages.absoluteURL(),
                         items: items)
     }
@@ -86,7 +86,7 @@ extension RSSFeed {
         let items = try await RecentRelease.fetch(on: database, limit: limit, filter: filter)
             .map(\.rssItem)
         return RSSFeed(title: "Swift Package Index – Recent Releases",
-                       description: "List of recent Swift packages releases",
+                       description: "List of recent Swift package releases.",
                        link: SiteURL.rssReleases.absoluteURL(),
                        items: items)
     }

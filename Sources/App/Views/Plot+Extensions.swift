@@ -196,12 +196,13 @@ extension Node where Context: HTML.BodyContext {
         )
     }
 
-    static func lastUpdatedTime(_ lastUpdated: Date) -> Self {
+    static func publishedTime(_ publishedAt: Date, label: String) -> Self {
         .time(
-            .datetime(DateFormatter.timeTagDateOnlyFormatter.string(from: lastUpdated)),
+            .datetime(DateFormatter.yearMonthDayDateFormatter.string(from: publishedAt)),
             .group(
-                .text("Last updated on "),
-                .text(DateFormatter.lastUpdatedOnDisplayFormatter.string(from: lastUpdated))
+                .text(label),
+                .text(" "),
+                .text(DateFormatter.mediumDateFormatter.string(from: publishedAt))
             )
         )
     }
@@ -303,6 +304,35 @@ extension Node where Context == HTML.ListContext {
             )
         )
     }
+}
+
+extension Node where Context == HTML.AnchorContext {
+
+    static func podcastPanelBody(includeHeading: Bool) -> Self {
+        .group(
+            .if(includeHeading, .h3("The Swift Package Indexing Podcast")),
+            .text("Join Dave and Sven for a chat about ongoing Swift Package Index development and package recommendations from the community on the Swift Package Indexing podcast.")
+        )
+    }
+
+    static func sponsorsCtaBody() -> Node<HTML.AnchorContext> {
+        .group(
+            .text("Join the companies and individuals who support this site and keep it running."),
+            .div(
+                .class("avatars"),
+                .forEach(Supporters.community.randomSample(count: 27), { sponsor in
+                        .img(
+                            .src(sponsor.avatarUrl),
+                            .unwrap(sponsor.name, { .title($0) }),
+                            .alt("Profile picture for \(sponsor.name ?? sponsor.login)"),
+                            .width(20),
+                            .height(20)
+                        )
+                })
+            )
+        )
+    }
+
 }
 
 // Custom attributes specific to the Swift Package Index

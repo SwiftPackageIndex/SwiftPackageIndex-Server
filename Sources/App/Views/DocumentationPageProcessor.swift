@@ -229,12 +229,12 @@ struct DocumentationPageProcessor {
             .class("spi"),
             .div(
                 .class("inner"),
-                .lastUpdatedTime(updatedAt),
+                .publishedTime(updatedAt, label: "Last updated on"),
                 .nav(
                     .ul(
                         .li(
                             .a(
-                                .href(ExternalURL.projectBlog),
+                                .href(SiteURL.blog.relativeURL()),
                                 "Blog"
                             )
                         ),
