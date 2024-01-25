@@ -36,6 +36,10 @@ extension BlogActions {
                 model.blogDescription
             }
 
+            override func pageRssFeeds() -> [PublicPage.RSSFeedCategory] {
+                [.blog]
+            }
+
             override func bodyClass() -> String? {
                 "blog"
             }

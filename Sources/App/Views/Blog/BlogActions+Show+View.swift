@@ -36,12 +36,15 @@ extension BlogActions {
                 model.summary
             }
 
+            override func pageRssFeeds() -> [PublicPage.RSSFeedCategory] {
+                [.blog]
+            }
+
             override func bodyAttributes() -> [Attribute<HTML.BodyContext>] {
                 [
                     .data(named: "controller", value: "blog")
                 ]
             }
-
 
             override func bodyClass() -> String? {
                 "blog"
