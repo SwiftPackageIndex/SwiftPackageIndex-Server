@@ -18,11 +18,11 @@ import Plot
 enum BlogController {
 
     static func index(req: Request) async throws -> HTML {
-        BlogActions.Index.View(path: req.url.path, model: BlogActions.Model()).document()
+        BlogActions.Index.View(path: req.url.path, model: try BlogActions.Model()).document()
     }
 
     static func indexFeed(req: Request) async throws -> RSS {
-        let model = BlogActions.Model()
+        let model = try BlogActions.Model()
         let items = model.summaries.map { summary -> Node <RSS.ChannelContext> in
                 .item(
                     .guid(
@@ -58,7 +58,7 @@ enum BlogController {
         guard let slug = req.parameters.get("slug")
         else { throw Abort(.notFound) }
 
-        let model = BlogActions.Model()
+        let model = try BlogActions.Model()
         if let summary = model.summaries.first(where: { $0.slug == slug }) {
             return BlogActions.Show.View(path: req.url.path,
                                          model: summary).document()

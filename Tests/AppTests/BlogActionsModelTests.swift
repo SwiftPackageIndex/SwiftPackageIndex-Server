@@ -38,7 +38,7 @@ class BlogActionsModelTests: AppTestCase {
             Current.environment = { .development }
 
             // MUT
-            let summaries = BlogActions.Model().summaries
+            let summaries = try BlogActions.Model().summaries
 
             XCTAssertEqual(summaries.count, 2)
             XCTAssertEqual(summaries.map(\.slug), ["post-2", "post-1"])
@@ -59,7 +59,7 @@ class BlogActionsModelTests: AppTestCase {
             Current.environment = { .production }
 
             // MUT
-            let summaries = BlogActions.Model().summaries
+            let summaries = try BlogActions.Model().summaries
 
             // validate
             XCTAssertEqual(summaries.map(\.slug), ["post-1"])

@@ -35,20 +35,15 @@ enum BlogActions {
 
         var summaries: [PostSummary]
 
-        init() {
-            do {
-                let allSummaries = try Self.allSummaries()
+        init() throws {
+            let allSummaries = try Self.allSummaries()
 
-                summaries = if Current.environment() == .production {
-                    // Only "published" posts show in production.
-                    allSummaries.filter { $0.published }
-                } else {
-                    // Show *everything* in development and on staging.
-                    allSummaries
-                }
-            } catch {
-                Current.logger().report(error: error)
-                summaries = []
+            summaries = if Current.environment() == .production {
+                // Only "published" posts show in production.
+                allSummaries.filter { $0.published }
+            } else {
+                // Show *everything* in development and on staging.
+                allSummaries
             }
         }
 
