@@ -21,7 +21,7 @@ enum BlogActions {
 
     struct Model {
 
-        struct PostSummary {
+        struct PostSummary: Equatable {
             var slug: String
             var title: String
             var summary: String
@@ -35,11 +35,14 @@ enum BlogActions {
             let blogIndexYmlPath = Current.fileManager.workingDirectory()
                 .appending("Resources/Blog/posts.yml")
             do {
-                let yml = try String(contentsOfFile: blogIndexYmlPath)
-                let decodedSummaries = try YAMLDecoder().decode([PostSummary].self, from: yml)
+                let allSummaries = if let ymlData = Current.fileManager.contents(atPath: blogIndexYmlPath),
+                    let ymlString = String(data: ymlData, encoding: .utf8) {
+                        // Post order should be as exists in the file, but reversed.
+                        try Array(YAMLDecoder().decode([PostSummary].self, from: ymlString).reversed())
+                    } else {
+                        Array<PostSummary>()
+                    }
 
-                // Post order should be as exists in the file, but reversed.
-                let allSummaries = Array(decodedSummaries.reversed())
                 summaries = if Current.environment() == .production {
                     // Only "published" posts show in production.
                     allSummaries.filter { $0.published }
@@ -51,6 +54,10 @@ enum BlogActions {
                 Current.logger().report(error: error)
                 summaries = []
             }
+        }
+
+        init(summaries: [PostSummary]) {
+            self.summaries = summaries
         }
 
         var blogDescription: String {
