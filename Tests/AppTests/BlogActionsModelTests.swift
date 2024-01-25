@@ -34,19 +34,37 @@ class BlogActionsModelTests: AppTestCase {
             """.data(using: .utf8)
         }
 
-        // MUT
-        let summaries = try BlogActions.Model().summaries
+        do { // Ensure dev shows all summaries
+            Current.environment = { .development }
 
-        XCTAssertEqual(summaries.count, 2)
-        let firstSummary = try XCTUnwrap(summaries).first
+            // MUT
+            let summaries = BlogActions.Model().summaries
 
-        // Note that we are testing that the first item in this list is the *last* item in the source YAML
-        // as the init should reverse the order of posts so that they display in reverse chronological order
-        XCTAssertEqual(firstSummary, BlogActions.Model.PostSummary(slug: "post-2",
-                                                                   title: "Blog post title two",
-                                                                   summary: "Summary of blog post two",
-                                                                   publishedAt: DateFormatter.yearMonthDayDateFormatter.date(from: "2024-01-02")!,
-                                                                   published: false))
+            XCTAssertEqual(summaries.count, 2)
+            XCTAssertEqual(summaries.map(\.slug), ["post-2", "post-1"])
+            XCTAssertEqual(summaries.map(\.published), [false, true])
+
+            let firstSummary = try XCTUnwrap(summaries).first
+
+            // Note that we are testing that the first item in this list is the *last* item in the source YAML
+            // as the init should reverse the order of posts so that they display in reverse chronological order
+            XCTAssertEqual(firstSummary, BlogActions.Model.PostSummary(slug: "post-2",
+                                                                       title: "Blog post title two",
+                                                                       summary: "Summary of blog post two",
+                                                                       publishedAt: DateFormatter.yearMonthDayDateFormatter.date(from: "2024-01-02")!,
+                                                                       published: false))
+        }
+
+        do { // Ensure prod shows only published summaries
+            Current.environment = { .production }
+
+            // MUT
+            let summaries = BlogActions.Model().summaries
+
+            // validate
+            XCTAssertEqual(summaries.map(\.slug), ["post-1"])
+            XCTAssertEqual(summaries.map(\.published), [true])
+        }
     }
 
     func test_postSummary_postMarkdown_load() async throws {
