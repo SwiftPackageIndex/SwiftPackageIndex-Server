@@ -37,7 +37,7 @@ enum ValidateSPIManifestController {
 
     static func validationResult(manifest: String) -> ValidateSPIManifest.ValidationResult {
         do {
-            return .valid(try SPIManifest.Manifest(yml: manifest))
+            return .valid(try SPIManifest.Manifest.load(data: Data(manifest.utf8)))
         } catch let error as DecodingError {
             return .invalid("\(error)")
         } catch {

@@ -29,7 +29,7 @@ enum ValidateSPIManifest {
             """
     }
 
-    enum ValidationResult {
+    enum ValidationResult: Equatable {
         case valid(SPIManifest.Manifest)
         case invalid(String)
 
@@ -39,6 +39,15 @@ enum ValidateSPIManifest {
                     return "valid"
                 case .invalid:
                     return "invalid"
+            }
+        }
+
+        var isValid: Bool {
+            switch self {
+                case .valid:
+                    return true
+                case .invalid:
+                    return false
             }
         }
     }
