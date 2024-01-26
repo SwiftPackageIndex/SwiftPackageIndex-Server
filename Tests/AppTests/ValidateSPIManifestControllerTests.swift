@@ -40,7 +40,7 @@ final class ValidateSPIManifestControllerTests: XCTestCase {
         let res = ValidateSPIManifestController.validationResult(manifest: yml)
 
         // validate
-        XCTAssertEqual(res.isValid, false)
+        XCTAssertEqual(res, .invalid("Decoding failed: Key not found: 'version'."))
     }
 
     func test_validationResult_tooLarge() throws {
@@ -58,6 +58,7 @@ final class ValidateSPIManifestControllerTests: XCTestCase {
 
         // validate
         XCTAssertEqual(res.isValid, false)
+        XCTAssertEqual(res, .invalid("File must not exceed \(SPIManifest.Manifest.maxByteSize) bytes. File size: \(yml.count) bytes."))
     }
 
 }
