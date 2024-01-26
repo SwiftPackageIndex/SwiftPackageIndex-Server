@@ -29,7 +29,7 @@ enum ValidateSPIManifest {
             """
     }
 
-    enum ValidationResult {
+    enum ValidationResult: Equatable {
         case valid(SPIManifest.Manifest)
         case invalid(String)
 

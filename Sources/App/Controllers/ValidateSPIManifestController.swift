@@ -37,9 +37,11 @@ enum ValidateSPIManifestController {
 
     static func validationResult(manifest: String) -> ValidateSPIManifest.ValidationResult {
         do {
-            return .valid(try SPIManifest.Manifest(yml: manifest))
-        } catch let error as DecodingError {
-            return .invalid("\(error)")
+            return .valid(try SPIManifest.Manifest.load(data: Data(manifest.utf8)))
+        } catch let ManifestError.decodingError(error) {
+            return .invalid("Decoding failed: \(error)")
+        } catch let ManifestError.fileTooLarge(size: size) {
+            return .invalid("File must not exceed \(SPIManifest.Manifest.maxByteSize) bytes. File size: \(size) bytes.")
         } catch {
             return .invalid(error.localizedDescription)
         }
