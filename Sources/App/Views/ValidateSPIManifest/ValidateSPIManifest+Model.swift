@@ -41,14 +41,5 @@ enum ValidateSPIManifest {
                     return "invalid"
             }
         }
-
-        var isValid: Bool {
-            switch self {
-                case .valid:
-                    return true
-                case .invalid:
-                    return false
-            }
-        }
     }
 }

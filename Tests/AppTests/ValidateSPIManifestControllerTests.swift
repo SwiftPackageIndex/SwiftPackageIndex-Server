@@ -57,7 +57,6 @@ final class ValidateSPIManifestControllerTests: XCTestCase {
         let res = ValidateSPIManifestController.validationResult(manifest: yml)
 
         // validate
-        XCTAssertEqual(res.isValid, false)
         XCTAssertEqual(res, .invalid("File must not exceed \(SPIManifest.Manifest.maxByteSize) bytes. File size: \(yml.count) bytes."))
     }
 
