@@ -67,8 +67,8 @@ extension ValidateSPIManifest {
                                         .autofocus(true),
                                         .rows(15),
                                         .text(model.manifest),
-                                        // allow more than maxByteSize so we can correctly report on files that are too large
-                                        .attribute(named: "maxlength", value: "\(SPIManifest.Manifest.maxByteSize)")
+                                        // The limit here is just to stop abuse, the check for size is done on the server.
+                                        .attribute(named: "maxlength", value: "500000")
                                     )
                                 ),
                                 .button(
