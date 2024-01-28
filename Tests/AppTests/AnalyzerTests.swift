@@ -1459,6 +1459,64 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
+    func test_issue_2873() async throws {
+        // setup
+        let pkg = try await savePackageAsync(on: app.db, id: .id0, "https://github.com/foo/1".url, processingStage: .ingestion)
+        try await Repository(package: pkg,
+                             defaultBranch: "main",
+                             name: "1",
+                             owner: "foo",
+                             stars: 100).save(on: app.db)
+        Current.git.commitCount = { _ in 12 }
+        Current.git.getTags = { _ in [] }
+        Current.git.hasBranch = { _, _ in true }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        Current.git.revisionInfo = { _, _ in .init(commit: "sha1", date: .t0) }
+        Current.git.shortlog = { _ in "10\tPerson 1" }
+        Current.shell.run = { cmd, path in
+            if cmd == .swiftDumpPackage { return .packageDump(name: "foo1") }
+            return ""
+        }
+
+        // MUT and validation
+
+        // first analysis pass
+        try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, mode: .id(.id0))
+        do { // validate
+            let pkg = try await Package.query(on: app.db).first()
+            // numberOfDependencies is nil here, because we've not yet received the info back from the build
+            XCTAssertEqual(pkg?.scoreDetails?.numberOfDependencies, nil)
+        }
+        
+        do { // receive build report - we could send an actual report here via the API but let's just update
+             // the field directly instead, we're not testing build reporting after all
+            let version = try await Version.query(on: app.db).first()
+            version?.resolvedDependencies = .some([.init(packageName: "dep",
+                                                         repositoryURL: "https://github.com/some/dep")])
+            try await version?.save(on: app.db)
+        }
+        
+        // second analysis pass
+        try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, mode: .id(.id0))
+        do { // validate
+            let pkg = try await Package.query(on: app.db).first()
+            // numberOfDependencies is 1 now, because we see the updated version
+            XCTAssertEqual(pkg?.scoreDetails?.numberOfDependencies, 1)
+        }
+        
+        // now we simulate a new version on the default branch
+        Current.git.revisionInfo = { _, _ in .init(commit: "sha2", date: .t1) }
+        
+        // third analysis pass
+        try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, mode: .id(.id0))
+        do { // validate
+            let pkg = try await Package.query(on: app.db).first()
+            // numberOfDependencies must be preserved as 1, even though we've not built this version yet
+            XCTAssertEqual(pkg?.scoreDetails?.numberOfDependencies, 1)
+        }
+    }
+
 }
 
 
@@ -1558,4 +1616,25 @@ private enum TestError: Error {
     case simulatedCheckoutError
     case simulatedFetchError
     case unknownCommand
+}
+
+
+private extension String {
+    static func packageDump(name: String) -> Self {
+        #"""
+        {
+          "name": "\#(name)",
+          "products": [
+            {
+              "name": "p1",
+              "targets": ["t1"],
+              "type": {
+                "executable": null
+              }
+            }
+          ],
+          "targets": [{"name": "t1", "type": "executable"}]
+        }
+        """#
+    }
 }
