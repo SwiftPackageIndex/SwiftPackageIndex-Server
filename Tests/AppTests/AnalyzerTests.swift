@@ -1460,6 +1460,8 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_issue_2873() async throws {
+        // Ensure we preserve dependency counts from previous default branch version
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2873
         // setup
         let pkg = try await savePackageAsync(on: app.db, id: .id0, "https://github.com/foo/1".url, processingStage: .ingestion)
         try await Repository(package: pkg,
