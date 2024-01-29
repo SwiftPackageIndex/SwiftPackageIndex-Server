@@ -34,8 +34,10 @@ class GitlabBuilderTests: XCTestCase {
         try req.query.encode(dto)
 
         // validate
+        // Gitlab accepts both `variables[FOO]=bar` and `variables%5BFOO%5D=bar` for the [] encoding.
+        // Since Vapor 4.92.1 this is now encoded as `variables%5BFOO%5D=bar`.
         XCTAssertEqual(req.url.query?.split(separator: "&").sorted(),
-                       ["ref=ref", "token=token", "variables[FOO]=bar"])
+                       ["ref=ref", "token=token", "variables%5BFOO%5D=bar"])
     }
 
     func test_triggerBuild() throws {
