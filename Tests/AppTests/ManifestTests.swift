@@ -192,4 +192,17 @@ class ManifestTests: XCTestCase {
         ])
     }
 
+    func test_issue_2875() throws {
+        // Support decoding custom platform with different capitalisation
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2875
+        let data = try fixtureData(for: "Lottie-ios.json")
+        let m = try JSONDecoder().decode(Manifest.self, from: data)
+        XCTAssertEqual(m.platforms, [
+            .init(platformName: .ios, version: "11.0"),
+            .init(platformName: .macos, version: "10.11"),
+            .init(platformName: .tvos, version: "11.0"),
+            .init(platformName: .visionos, version: "1.0"),
+        ])
+    }
+
 }

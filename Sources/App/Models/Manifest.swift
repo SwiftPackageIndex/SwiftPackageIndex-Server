@@ -52,6 +52,30 @@ struct Manifest: Decodable, Equatable {
         }
         var platformName: Name
         var version: String
+        
+        init(platformName: Manifest.Platform.Name, version: String) {
+            self.platformName = platformName
+            self.version = version
+        }
+
+        enum CodingKeys: CodingKey {
+            case platformName
+            case version
+        }
+        
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            
+            do { // case-insensitive decoding of Platform.Name
+                let rawValue = try container.decode(String.self, forKey: CodingKeys.platformName).lowercased()
+                guard let name = Name(rawValue: rawValue) else {
+                    throw DecodingError.dataCorrupted(.init(codingPath: [CodingKeys.platformName],
+                                                            debugDescription: "invalid rawValue: \(rawValue)"))
+                }
+                self.platformName = name
+            }
+            self.version = try container.decode(String.self, forKey: CodingKeys.version)
+        }
     }
 
     enum LibraryType: String, Decodable {
