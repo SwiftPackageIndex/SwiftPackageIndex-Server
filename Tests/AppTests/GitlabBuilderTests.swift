@@ -34,8 +34,10 @@ class GitlabBuilderTests: XCTestCase {
         try req.query.encode(dto)
 
         // validate
+        // Gitlab accepts both `variables[FOO]=bar` and `variables%5BFOO%5D=bar` for the [] encoding.
+        // Since Vapor 4.92.1 this is now encoded as `variables%5BFOO%5D=bar`.
         XCTAssertEqual(req.url.query?.split(separator: "&").sorted(),
-                       ["ref=ref", "token=token", "variables[FOO]=bar"])
+                       ["ref=ref", "token=token", "variables%5BFOO%5D=bar"])
     }
 
     func test_triggerBuild() throws {
@@ -151,14 +153,14 @@ class GitlabBuilderTests: XCTestCase {
 
 class LiveGitlabBuilderTests: AppTestCase {
 
-    func test_triggerBuild_live() throws {
+    func test_triggerBuild_live() async throws {
         try XCTSkipIf(
             true,
             "This is a live trigger test for end-to-end testing of pre-release builder versions"
         )
 
         // set build branch to trigger on
-        Gitlab.Builder.branch = "generate-docc"
+        Gitlab.Builder.branch = "main"
 
         // make sure environment variables are configured for live access
         Current.awsDocsBucket = { "spi-dev-docs" }
@@ -168,7 +170,7 @@ class LiveGitlabBuilderTests: AppTestCase {
         }
         Current.gitlabPipelineToken = {
             // This Gitlab token is required in order to trigger the pipeline
-            ProcessInfo.processInfo.environment["LIVE_PIPELINE_TOKEN"]
+            ProcessInfo.processInfo.environment["LIVE_GITLAB_PIPELINE_TOKEN"]
         }
         Current.siteURL = { "https://staging.swiftpackageindex.com" }
 
@@ -179,15 +181,15 @@ class LiveGitlabBuilderTests: AppTestCase {
         let versionID = UUID(uuidString: "93d8c545-15c4-43c2-946f-1b625e2596f9")!
 
         // MUT
-        let res = try Gitlab.Builder.triggerBuild(
+        let res = try await Gitlab.Builder.triggerBuild(
             client: app.client,
             logger: app.logger,
             buildId: buildId,
             cloneURL: "https://github.com/SwiftPackageIndex/SemanticVersion.git",
             platform: .macosSpm,
             reference: .tag(.init(0, 3, 2)),
-            swiftVersion: .v2,
-            versionID: versionID).wait()
+            swiftVersion: .v4,
+            versionID: versionID).get()
 
         print("status: \(res.status)")
         print("buildId: \(buildId)")
