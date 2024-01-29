@@ -18,6 +18,11 @@
 extension Array<Supporters.Community> {
     static var gitHubSponsors: Self = [
         .init(
+            login: "czottmann",
+            name: "Carlo Zottmann",
+            avatarUrl: "https://avatars.githubusercontent.com/u/1501?u=618eb93489bdc66b6ec3a795ec1e60d8e2a342af&v=4"
+        ),
+        .init(
             login: "Abizern",
             name: "Abizer Nasir",
             avatarUrl: "https://avatars.githubusercontent.com/u/6902?u=380b013b423d7a09844031dfc4ab40581e096d87&v=4"
