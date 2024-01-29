@@ -517,10 +517,13 @@ extension Analyze {
         if let existingDocArchives = oldDefaultBranch.docArchives {
             newDefaultBranch.docArchives = existingDocArchives
         }
-        // Preserve dependency counts
+        // Preserve dependency information
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2873
         if let existingResolvedDependencies = oldDefaultBranch.resolvedDependencies {
             newDefaultBranch.resolvedDependencies = existingResolvedDependencies
+        }
+        if let existingProductDependencies = oldDefaultBranch.productDependencies {
+            newDefaultBranch.productDependencies = existingProductDependencies
         }
     }
 
