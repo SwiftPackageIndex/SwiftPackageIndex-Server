@@ -479,12 +479,8 @@ extension Analyze {
     /// - Returns: future
     static func applyVersionDelta(on transaction: Database,
                                   delta: VersionDelta) async throws {
-        // Preserve existing default branch doc archives to prevent a documentation gap
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
-        if let oldDefaultBranchDocArchives = delta.toDelete.first(where: { $0.isBranch })?.docArchives,
-           let newDefaultBranch = delta.toAdd.first(where: { $0.isBranch} ) {
-            newDefaultBranch.docArchives = oldDefaultBranchDocArchives
-        }
+        // Preserve certain existing default branch properties
+        carryOverDefaultBranchData(versionDelta: delta)
 
         try await delta.toDelete.delete(on: transaction)
         delta.toDelete.forEach {
@@ -496,6 +492,38 @@ extension Analyze {
         delta.toAdd.forEach {
             AppMetrics.analyzeVersionsAddedCount?
                 .inc(1, .versionLabels(reference: $0.reference))
+        }
+    }
+
+    
+    /// If `versionDelta` removes and adds a default branch version, copy certain properties
+    /// over to the new version in order to avoid gaps in data display until downstream processes
+    /// have processed the new version.
+    /// - Parameter versionDelta: The version change
+    static func carryOverDefaultBranchData(versionDelta: VersionDelta) {
+        guard versionDelta.toDelete.filter(\.isBranch).count <= 1 else {
+            Current.logger().warning("versionDelta.toDelete has more than one branch version")
+            return
+        }
+        guard versionDelta.toAdd.filter(\.isBranch).count <= 1 else {
+            Current.logger().warning("versionDelta.toAdd has more than one branch version")
+            return
+        }
+        guard let oldDefaultBranch = versionDelta.toDelete.first(where: \.isBranch),
+              let newDefaultBranch = versionDelta.toAdd.first(where: \.isBranch)
+        else { return }
+        // Preserve existing default branch doc archives to prevent a documentation gap
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
+        if let existingDocArchives = oldDefaultBranch.docArchives {
+            newDefaultBranch.docArchives = existingDocArchives
+        }
+        // Preserve dependency information
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2873
+        if let existingResolvedDependencies = oldDefaultBranch.resolvedDependencies {
+            newDefaultBranch.resolvedDependencies = existingResolvedDependencies
+        }
+        if let existingProductDependencies = oldDefaultBranch.productDependencies {
+            newDefaultBranch.productDependencies = existingProductDependencies
         }
     }
 
