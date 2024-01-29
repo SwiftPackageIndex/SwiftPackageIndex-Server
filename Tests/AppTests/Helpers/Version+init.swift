@@ -14,6 +14,7 @@ extension Version {
                      docArchives: [DocArchive]? = nil,
                      latest: Kind? = nil,
                      packageName: String? = nil,
+                     productDependencies: [ProductDependency]? = nil,
                      publishedAt: Date? = nil,
                      reference: Reference = .branch("main"),
                      releaseNotes: String? = nil,
@@ -31,6 +32,7 @@ extension Version {
         self.docArchives = docArchives
         self.latest = latest
         self.packageName = packageName
+        self.productDependencies = productDependencies
         self.publishedAt = publishedAt
         self.reference = reference
         self.releaseNotes = releaseNotes
