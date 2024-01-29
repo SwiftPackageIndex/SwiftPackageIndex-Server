@@ -481,6 +481,7 @@ extension Analyze {
                                   delta: VersionDelta) async throws {
         // Preserve existing default branch doc archives to prevent a documentation gap
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
+#warning("Add check for exactly one branch version.")
         if let oldDefaultBranchDocArchives = delta.toDelete.first(where: { $0.isBranch })?.docArchives,
            let newDefaultBranch = delta.toAdd.first(where: { $0.isBranch} ) {
             newDefaultBranch.docArchives = oldDefaultBranchDocArchives
