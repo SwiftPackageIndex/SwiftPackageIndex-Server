@@ -1,0 +1,117 @@
+{
+  "cLanguageStandard" : null,
+  "cxxLanguageStandard" : null,
+  "dependencies" : [
+    {
+      "sourceControl" : [
+        {
+          "identity" : "swift",
+          "location" : {
+            "remote" : [
+              {
+                "urlString" : "https://github.com/airbnb/swift"
+              }
+            ]
+          },
+          "productFilter" : null,
+          "requirement" : {
+            "range" : [
+              {
+                "lowerBound" : "1.0.1",
+                "upperBound" : "2.0.0"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "name" : "Lottie",
+  "packageKind" : {
+    "root" : [
+      "/Users/sas/Projects/SPI/spi-server/SPI-checkouts/github.com-airbnb-lottie-ios"
+    ]
+  },
+  "pkgConfig" : null,
+  "platforms" : [
+    {
+      "options" : [
+
+      ],
+      "platformName" : "ios",
+      "version" : "11.0"
+    },
+    {
+      "options" : [
+
+      ],
+      "platformName" : "macos",
+      "version" : "10.11"
+    },
+    {
+      "options" : [
+
+      ],
+      "platformName" : "tvos",
+      "version" : "11.0"
+    },
+    {
+      "options" : [
+
+      ],
+      "platformName" : "visionOS",
+      "version" : "1.0"
+    }
+  ],
+  "products" : [
+    {
+      "name" : "Lottie",
+      "settings" : [
+
+      ],
+      "targets" : [
+        "Lottie"
+      ],
+      "type" : {
+        "library" : [
+          "automatic"
+        ]
+      }
+    }
+  ],
+  "providers" : null,
+  "swiftLanguageVersions" : null,
+  "targets" : [
+    {
+      "dependencies" : [
+
+      ],
+      "exclude" : [
+        "Private/EmbeddedLibraries/README.md",
+        "Private/EmbeddedLibraries/ZipFoundation/README.md",
+        "Private/EmbeddedLibraries/EpoxyCore/README.md",
+        "Private/EmbeddedLibraries/LRUCache/README.md"
+      ],
+      "name" : "Lottie",
+      "packageAccess" : false,
+      "path" : "Sources",
+      "resources" : [
+        {
+          "path" : "PrivacyInfo.xcprivacy",
+          "rule" : {
+            "copy" : {
+
+            }
+          }
+        }
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    }
+  ],
+  "toolsVersion" : {
+    "_version" : "5.7.0"
+  }
+}
