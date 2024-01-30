@@ -86,6 +86,8 @@ enum PackageController {
         }
     }
 
+#warning("remove once transition is complete")
+    @available(*, deprecated)
     static func defaultDocumentation(req: Request, fragment: Fragment) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
