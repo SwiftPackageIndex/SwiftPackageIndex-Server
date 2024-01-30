@@ -76,7 +76,93 @@ func docRoutes(_ app: Application) throws {
 
 
 func docRoutesDev(_ app: Application) throws {
-    try docRoutes(app)
+    // Default documentation - Canonical URLs with no reference.
+    app.get(":owner", ":repository", "documentation") {
+        try await PackageController.documentation(req: $0)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", "documentation", ":archive") {
+        try await PackageController.documentation(req: $0, fragment: .documentation)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", "documentation", ":archive", "**") {
+        try await PackageController.documentation(req: $0, fragment: .documentation)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", .fragment(.faviconIco)) {
+        try await PackageController.documentation(req: $0, fragment: .faviconIco)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", .fragment(.faviconSvg)) {
+        try await PackageController.documentation(req: $0, fragment: .faviconSvg)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", "css", "**") {
+        try await PackageController.documentation(req: $0, fragment: .css)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", "data", "**") {
+        try await PackageController.documentation(req: $0, fragment: .data)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", "images", "**") {
+        try await PackageController.documentation(req: $0, fragment: .images)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", "img", "**") {
+        try await PackageController.documentation(req: $0, fragment: .img)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", "index", "**") {
+        try await PackageController.documentation(req: $0, fragment: .index)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", "js", "**") {
+        try await PackageController.documentation(req: $0, fragment: .js)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", .fragment(.linkablePaths)) {
+        try await PackageController.documentation(req: $0, fragment: .linkablePaths)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", .fragment(.themeSettings)) {
+        try await PackageController.documentation(req: $0, fragment: .themeSettings)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", "tutorials", "**") {
+        try await PackageController.documentation(req: $0, fragment: .tutorials)
+    }.excludeFromOpenAPI()
+
+    // Version specific documentation - No index and non-canonical URLs with a specific reference.
+    app.get(":owner", ":repository", ":reference", "documentation") {
+        try await PackageController.documentation(req: $0)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
+        try await PackageController.documentation(req: $0, fragment: .documentation)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") {
+        try await PackageController.documentation(req: $0, fragment: .documentation)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", .fragment(.faviconIco)) {
+        try await PackageController.documentation(req: $0, fragment: .faviconIco)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", .fragment(.faviconSvg)) {
+        try await PackageController.documentation(req: $0, fragment: .faviconSvg)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "css", "**") {
+        try await PackageController.documentation(req: $0, fragment: .css)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "data", "**") {
+        try await PackageController.documentation(req: $0, fragment: .data)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "images", "**") {
+        try await PackageController.documentation(req: $0, fragment: .images)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "img", "**") {
+        try await PackageController.documentation(req: $0, fragment: .img)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "index", "**") {
+        try await PackageController.documentation(req: $0, fragment: .index)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "js", "**") {
+        try await PackageController.documentation(req: $0, fragment: .js)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", .fragment(.linkablePaths)) {
+        try await PackageController.documentation(req: $0, fragment: .linkablePaths)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", .fragment(.themeSettings)) {
+        try await PackageController.documentation(req: $0, fragment: .themeSettings)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "tutorials", "**") {
+        try await PackageController.documentation(req: $0, fragment: .tutorials)
+    }.excludeFromOpenAPI()
 }
 
 
