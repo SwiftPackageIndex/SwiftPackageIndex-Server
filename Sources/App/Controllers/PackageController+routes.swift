@@ -86,30 +86,6 @@ enum PackageController {
         }
     }
 
-    static func defaultDocumentation(req: Request, fragment: Fragment) async throws -> Response {
-        guard
-            let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository")
-        else {
-            throw Abort(.notFound)
-        }
-        let anchor = req.url.fragment.map { "#\($0)"} ?? ""
-        let path = req.parameters.getCatchall().joined(separator: "/").lowercased() + anchor
-
-        guard let target = try await DocumentationTarget.query(on: req.db,
-                                                               owner: owner,
-                                                               repository: repository)
-        else {
-            throw Abort(.notFound)
-        }
-
-        throw Abort.redirect(to: SiteURL.relativeURL(owner: owner,
-                                                     repository: repository,
-                                                     documentation: target,
-                                                     fragment: fragment,
-                                                     path: path))
-    }
-
     static func documentation(req: Request) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
