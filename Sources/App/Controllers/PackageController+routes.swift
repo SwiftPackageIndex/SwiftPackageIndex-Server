@@ -113,9 +113,16 @@ enum PackageController {
     static func documentation(req: Request, fragment: Fragment) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository"),
-            let reference = req.parameters.get("reference")
+            let repository = req.parameters.get("repository")
         else {
+            throw Abort(.notFound)
+        }
+
+        let reference = if let referenceParameter = req.parameters.get("reference") {
+            referenceParameter
+        } else if let target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository), case .internal(let reference, _) = target {
+            reference
+        } else {
             throw Abort(.notFound)
         }
 
