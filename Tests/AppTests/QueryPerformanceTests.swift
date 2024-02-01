@@ -220,14 +220,14 @@ private extension QueryPerformanceTests {
                 break
             case ..<(expectedCost + variation):
                 if isRunningInCI {
-                    print("::warning file=\(filePath),line=\(lineNumber),title=\(testName)::Total cost of \(parsedPlan.cost.total) above threshold of \(expectedCost + variation) (within variation)")
+                    print("::warning file=\(filePath),line=\(lineNumber),title=\(testName)::Total cost of \(parsedPlan.cost.total) close to threshold of \(expectedCost + variation)")
                 }
             default:
                 if isRunningInCI {
-                    print("::error file=\(filePath),line=\(lineNumber),title=\(testName)::Total cost of \(parsedPlan.cost.total) above threshold of \(expectedCost + variation) (incl variation)")
+                    print("::error file=\(filePath),line=\(lineNumber),title=\(testName)::Total cost of \(parsedPlan.cost.total) above threshold of \(expectedCost + variation)")
                 }
                 XCTFail("""
-                        Total cost of \(parsedPlan.cost.total) above threshold of \(expectedCost + variation) (incl variation)
+                        Total cost of \(parsedPlan.cost.total) above threshold of \(expectedCost + variation)
 
                         Query plan:
 
