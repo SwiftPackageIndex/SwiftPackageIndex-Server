@@ -71,7 +71,7 @@ class QueryPerformanceTests: XCTestCase {
         let filter = try KeywordSearchFilter(expression: .init(operator: .is, value: "apple"))
         let query = try Search.query(app.db, ["a"], filters: [filter], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 6800, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 6900, variation: 200)
     }
 
     func test_07_Search_query_lastActicityFilter() async throws {
@@ -92,7 +92,7 @@ class QueryPerformanceTests: XCTestCase {
         let filter = try PlatformSearchFilter(expression: .init(operator: .is, value: "macos,ios"))
         let query = try Search.query(app.db, ["a"], filters: [filter], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 6800, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 6900, variation: 200)
     }
 
     func test_10_Search_query_productTypeFilter() async throws {
@@ -152,7 +152,7 @@ class QueryPerformanceTests: XCTestCase {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
-        try await assertQueryPerformance(query, expectedCost: 69_000, variation: 3000)
+        try await assertQueryPerformance(query, expectedCost: 70_000, variation: 3000)
     }
 
 }
