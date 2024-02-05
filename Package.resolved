@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-kit.git",
       "state" : {
-        "revision" : "6cef8533c9ab87865de58fa3c6e6317e3e09857a",
-        "version" : "1.45.1"
+        "revision" : "3ae5187487718486f6bef7159eead11bc7f1d8d0",
+        "version" : "1.47.0"
       }
     },
     {
@@ -122,8 +122,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-kit.git",
       "state" : {
-        "revision" : "80ab7737dac4fccd4a8ad38743828dcb71ba7ac8",
-        "version" : "2.12.2"
+        "revision" : "475bf6f04ee1840917a70c32b48e4a724df4ccaf",
+        "version" : "2.12.3"
       }
     },
     {
@@ -131,8 +131,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-nio.git",
       "state" : {
-        "revision" : "fa3137d39bca84843739db1c5a3db2d7f4ae65e6",
-        "version" : "1.20.0"
+        "revision" : "69ccfdf4c80144d845e3b439961b7ec6cd7ae33f",
+        "version" : "1.20.2"
       }
     },
     {
@@ -248,8 +248,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "76d7791b5bda47df7e3d4690c4c3aaf089730707",
-        "version" : "1.2.1"
+        "revision" : "e072139e13f2f3e582251b49835abcf3421ac69a",
+        "version" : "1.2.3"
       }
     },
     {
@@ -410,8 +410,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing.git",
       "state" : {
-        "revision" : "8e68404f641300bfd0e37d478683bb275926760c",
-        "version" : "1.15.2"
+        "revision" : "e7b77228b34057041374ebef00c0fd7739d71a2b",
+        "version" : "1.15.3"
       }
     },
     {
