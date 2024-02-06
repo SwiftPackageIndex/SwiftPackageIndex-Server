@@ -333,14 +333,14 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/16212751?v=4"
         ),
         .init(
+            login: "unipheas",
+            name: "Brian Phillips",
+            avatarUrl: "https://avatars.githubusercontent.com/u/16819233?v=4"
+        ),
+        .init(
             login: "emin-grbo",
             name: "emin",
             avatarUrl: "https://avatars.githubusercontent.com/u/21968377?u=e0b1893b47580928f5d11d73879bbcf779bc53fc&v=4"
-        ),
-        .init(
-            login: "btfranklin",
-            name: "B.T. Franklin",
-            avatarUrl: "https://avatars.githubusercontent.com/u/23176608?v=4"
         ),
         .init(
             login: "brokenhandsio",
