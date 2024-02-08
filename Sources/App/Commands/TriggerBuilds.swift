@@ -447,19 +447,28 @@ func missingPairs(existing: [BuildPair]) -> Set<BuildPair> {
 
 func findMissingBuilds(_ database: Database,
                        packageId: Package.Id) async throws -> [BuildTriggerInfo] {
-    let versions = try await Version.query(on: database)
-        .with(\.$builds)
-        .filter(\.$package.$id == packageId)
-        .filter(\.$latest != nil)
+    let joined = try await Joined<Version, Build>
+        .query(on: database, join: \Build.$version.$id == \Version.$id, method: .left)
+        .filter(Version.self, \.$package.$id == packageId)
+        .filter(Version.self, \.$latest != nil)
+        .field(Build.self, \.$platform)
+        .field(Build.self, \.$swiftVersion)
+        .field(Version.self, \.$id)
+        .field(Version.self, \.$packageName)
+        .field(Version.self, \.$reference)
         .all()
 
-    return versions.compactMap { v in
-        guard let versionId = v.id else { return nil }
-        let existing = v.builds.map { BuildPair($0.platform, $0.swiftVersion) }
+    let versionIds = joined.compactMap(\.model.id).uniqued()
+    return versionIds.compactMap { versionId in
+        let records = joined.filter { $0.model.id == versionId }
+        guard !records.isEmpty else { return nil }
+        let existingBuilds = records
+            .compactMap(\.relation)
+            .map { BuildPair($0.platform, $0.swiftVersion) }
         return BuildTriggerInfo(versionId: versionId,
-                                pairs: missingPairs(existing: existing),
-                                packageName: v.packageName,
-                                reference: v.reference)
+                                pairs: missingPairs(existing: existingBuilds),
+                                packageName: records.first?.model.packageName,
+                                reference: records.first?.model.reference)
     }
 }
 
