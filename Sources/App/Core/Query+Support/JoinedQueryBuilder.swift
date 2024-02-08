@@ -157,7 +157,7 @@ struct JoinedQueryBuilder<J: ModelInitializable> {
             }
     }
 
-    func serialize(_ processSQL: (String) -> Void) -> Self {
+    func serialize(_ processSQL: ((sql: String, binds: [any Encodable])) -> Void) -> Self {
         _ = queryBuilder.serialize(processSQL)
         return self
     }

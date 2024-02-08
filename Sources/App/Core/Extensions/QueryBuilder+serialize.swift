@@ -20,10 +20,10 @@ extension QueryBuilder {
         func customDataType(_ dataType: DatabaseSchema.DataType) -> (any SQLExpression)? { nil }
     }
 
-    func serialize(_ processSQL: (String) -> Void) -> Self {
+    func serialize(_ processSQL: ((sql: String, binds: [any Encodable])) -> Void) -> Self {
         guard let sqlDb = database as? SQLDatabase else { return self }
         let expr = SQLQueryConverter(delegate: DummyConverterDelegate()).convert(query)
-        processSQL(sqlDb.serialize(expr).sql)
+        processSQL(sqlDb.serialize(expr))
         return self
     }
 }
