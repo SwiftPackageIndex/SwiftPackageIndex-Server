@@ -450,30 +450,30 @@ func missingPairs(existing: [BuildPair]) -> Set<BuildPair> {
 
 func findMissingBuilds(_ database: Database,
                        packageId: Package.Id) async throws -> [BuildTriggerInfo] {
-    let joined = try await Joined<Version, Build>
-        .query(on: database, join: \Build.$version.$id == \Version.$id, method: .left)
-        .filter(Version.self, \.$package.$id == packageId)
-        .filter(Version.self, \.$latest != nil)
-        .field(Build.self, \.$platform)
-        .field(Build.self, \.$swiftVersion)
+    let versions = try await Version.query(on: database)
+        .filter(\.$package.$id == packageId)
+        .filter(\.$latest != nil)
         .field(Version.self, \.$id)
         .field(Version.self, \.$packageName)
         .field(Version.self, \.$reference)
         .field(Version.self, \.$spiManifest)
         .all()
+    let builds = try await Build.query(on: database)
+        .filter(\.$version.$id ~~ versions.compactMap(\.id))
+        .field(Build.self, \.$platform)
+        .field(Build.self, \.$swiftVersion)
+        .field(Build.self, \.$version.$id)
+        .all()
 
-    let versionIds = joined.compactMap(\.model.id).uniqued()
-    return versionIds.compactMap { versionId in
-        let records = joined.filter { $0.model.id == versionId }
-        guard !records.isEmpty else { return nil }
-        let existingBuilds = records
-            .compactMap(\.relation)
-            .map { BuildPair($0.platform, $0.swiftVersion) }
+    return versions.compactMap { v in
+        guard let versionId = v.id else { return nil }
+        let builds = builds.filter { $0.$version.id == versionId }
+        let existing = builds.map { BuildPair($0.platform, $0.swiftVersion) }
         return BuildTriggerInfo(versionId: versionId,
-                                buildPairs: missingPairs(existing: existingBuilds),
-                                docPairs: records.first?.model.spiManifest?.docPairs ?? [],
-                                packageName: records.first?.model.packageName,
-                                reference: records.first?.model.reference)
+                                buildPairs: missingPairs(existing: existing),
+                                docPairs: v.spiManifest?.docPairs ?? [],
+                                packageName: v.packageName,
+                                reference: v.reference)
     }
 }
 
