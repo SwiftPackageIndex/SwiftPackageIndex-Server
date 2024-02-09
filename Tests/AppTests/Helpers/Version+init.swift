@@ -1,6 +1,9 @@
-@testable import App
 import Foundation
+
+@testable import App
+
 import DependencyResolution
+import SPIManifest
 
 
 #if DEBUG
@@ -20,8 +23,9 @@ extension Version {
                      releaseNotes: String? = nil,
                      releaseNotesHTML: String? = nil,
                      resolvedDependencies: [ResolvedDependency]? = nil,
-                     supportedPlatforms: [Platform] = [],
-                     swiftVersions: [SwiftVersion] = [],
+                     spiManifest: SPIManifest.Manifest? = nil,
+                     supportedPlatforms: [App.Platform] = [],
+                     swiftVersions: [App.SwiftVersion] = [],
                      toolsVersion: String? = nil,
                      url: String? = nil) throws {
         self.init()
@@ -38,6 +42,7 @@ extension Version {
         self.releaseNotes = releaseNotes
         self.releaseNotesHTML = releaseNotesHTML
         self.resolvedDependencies = resolvedDependencies
+        self.spiManifest = spiManifest
         self.supportedPlatforms = supportedPlatforms
         self.swiftVersions = swiftVersions
         self.toolsVersion = toolsVersion

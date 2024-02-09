@@ -423,17 +423,20 @@ extension BuildPair: Equatable, Hashable {
 struct BuildTriggerInfo: Equatable {
     var versionId: Version.Id
     var buildPairs: Set<BuildPair>
+    var docPairs: Set<BuildPair>
     // non-essential fields, used for logging
     var packageName: String?
     var reference: Reference?
 
     init?(versionId: Version.Id,
           buildPairs: Set<BuildPair>,
+          docPairs: Set<BuildPair> = .init(),
           packageName: String? = nil,
           reference: Reference? = nil) {
         guard !buildPairs.isEmpty else { return nil }
         self.versionId = versionId
         self.buildPairs = buildPairs
+        self.docPairs = docPairs
         self.packageName = packageName
         self.reference = reference
     }
@@ -456,6 +459,7 @@ func findMissingBuilds(_ database: Database,
         .field(Version.self, \.$id)
         .field(Version.self, \.$packageName)
         .field(Version.self, \.$reference)
+        .field(Version.self, \.$spiManifest)
         .all()
 
     let versionIds = joined.compactMap(\.model.id).uniqued()
@@ -467,6 +471,7 @@ func findMissingBuilds(_ database: Database,
             .map { BuildPair($0.platform, $0.swiftVersion) }
         return BuildTriggerInfo(versionId: versionId,
                                 buildPairs: missingPairs(existing: existingBuilds),
+                                docPairs: records.first?.model.spiManifest?.docPairs ?? [],
                                 packageName: records.first?.model.packageName,
                                 reference: records.first?.model.reference)
     }

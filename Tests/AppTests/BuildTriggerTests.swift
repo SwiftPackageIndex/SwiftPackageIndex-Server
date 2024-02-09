@@ -17,6 +17,7 @@ import XCTest
 @testable import App
 
 import Fluent
+import SPIManifest
 import SQLKit
 import Vapor
 
@@ -230,6 +231,98 @@ class BuildTriggerTests: AppTestCase {
         let expectedPairs = Set(SwiftVersion.allActive.map { BuildPair(droppedPlatform, $0) })
         XCTAssertEqual(res, [.init(versionId: versionId,
                                    buildPairs: expectedPairs,
+                                   reference: .tag(1, 2, 3))!])
+    }
+
+    func test_BuildPair_manifestSwiftVersion() {
+        // Ensure all active versions can be converted (are non-nil)
+        for v in SwiftVersion.allActive {
+            XCTAssertTrue(BuildPair(.iOS, v).manifestSwiftVersion != nil,
+                          "\(v) could not be converted to a SPIManifest Swift version")
+        }
+        // Check the values specifically (which we can't easily do in the loop above)
+        XCTAssertEqual(BuildPair(.iOS, .v5_6).manifestSwiftVersion, .v5_6)
+        XCTAssertEqual(BuildPair(.iOS, .v5_7).manifestSwiftVersion, .v5_7)
+        XCTAssertEqual(BuildPair(.iOS, .v5_8).manifestSwiftVersion, .v5_8)
+        XCTAssertEqual(BuildPair(.iOS, .v5_9).manifestSwiftVersion, .v5_9)
+    }
+
+    func test_SPIManifest_docPairs() throws {
+        do {
+            let manifest = try SPIManifest.Manifest(yml: """
+                                version: 1
+                                builder:
+                                  configs:
+                                  - documentation_targets: [t0]
+                                """)
+            XCTAssertEqual(manifest.docPairs, [.init(.macosSpm, .latest)])
+        }
+        do {
+            let manifest = try SPIManifest.Manifest(yml: """
+                                version: 1
+                                builder:
+                                  configs:
+                                  - documentation_targets: [t0]
+                                    platform: ios
+                                    swift_version: \(SwiftVersion.v3)
+                                """)
+            XCTAssertEqual(manifest.docPairs, [.init(.iOS, .v3)])
+        }
+        do {
+            let manifest = try SPIManifest.Manifest(yml: """
+                                # NB: this is not a currently supported config, just testing potential future behaviour
+                                version: 1
+                                builder:
+                                  configs:
+                                  - documentation_targets: [t0]
+                                    platform: ios
+                                    swift_version: \(SwiftVersion.v3)
+                                  - documentation_targets: [t0]
+                                    platform: macos-spm
+                                    swift_version: \(SwiftVersion.v4)
+                                """)
+            XCTAssertEqual(manifest.docPairs, [.init(.iOS, .v3), .init(.macosSpm, .v4)])
+        }
+    }
+
+    func test_findMissingBuilds_docPairs() async throws {
+        // setup
+        let pkgId = UUID()
+        let versionId = UUID()
+        do {  // save package with partially completed builds
+            let p = Package(id: pkgId, url: "1")
+            try await p.save(on: app.db)
+            let v = try Version(id: versionId,
+                                package: p,
+                                latest: .release,
+                                reference: .tag(1, 2, 3),
+                                spiManifest: .init(yml: """
+                                version: 1
+                                builder:
+                                  configs:
+                                  - documentation_targets: [t0]
+                                """))
+            try await v.save(on: app.db)
+            try Build.Platform.allActive
+                .filter { $0 != .macosSpm } // skip macosSpm platform to create a build gap
+                .forEach { platform in
+                try SwiftVersion.allActive.forEach { swiftVersion in
+                    try Build(id: UUID(),
+                              version: v,
+                              platform: platform,
+                              status: .ok,
+                              swiftVersion: swiftVersion)
+                        .save(on: app.db).wait()
+                }
+            }
+        }
+
+        // MUT
+        let res = try await findMissingBuilds(app.db, packageId: pkgId)
+        let expectedPairs = Set(SwiftVersion.allActive.map { BuildPair(.macosSpm, $0) })
+        XCTAssertEqual(res, [.init(versionId: versionId,
+                                   buildPairs: expectedPairs,
+                                   docPairs: .init([.init(.macosSpm, .v4)]),
                                    reference: .tag(1, 2, 3))!])
     }
 
