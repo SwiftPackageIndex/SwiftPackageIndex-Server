@@ -153,7 +153,7 @@ func triggerBuilds(on database: Database,
         case let .triggerInfo(versionId, buildPair):
             logger.info("Triggering builds (versionID: \(versionId), \(buildPair)) ...")
             guard let trigger = BuildTriggerInfo(versionId: versionId,
-                                                 pairs: [buildPair]) else {
+                                                 buildPairs: [buildPair]) else {
                 logger.error("Failed to create trigger.")
                 return
             }
@@ -231,7 +231,7 @@ func triggerBuilds(on database: Database,
                     return
                 }
 
-                let triggeredJobCount = triggers.reduce(0) { $0 + $1.pairs.count }
+                let triggeredJobCount = triggers.reduce(0) { $0 + $1.buildPairs.count }
                 await newJobs.withValue { $0 += triggeredJobCount }
 
                 try await triggerBuildsUnchecked(on: database,
@@ -261,12 +261,12 @@ func triggerBuildsUnchecked(on database: Database,
     await withThrowingTaskGroup(of: Void.self) { group in
         for trigger in triggers {
             if let packageName = trigger.packageName, let reference = trigger.reference {
-                logger.info("Triggering \(pluralizedCount: trigger.pairs.count, singular: "build") for package name: \(packageName), ref: \(reference)")
+                logger.info("Triggering \(pluralizedCount: trigger.buildPairs.count, singular: "build") for package name: \(packageName), ref: \(reference)")
             } else {
-                logger.info("Triggering \(pluralizedCount: trigger.pairs.count, singular: "build") for version ID: \(trigger.versionId)")
+                logger.info("Triggering \(pluralizedCount: trigger.buildPairs.count, singular: "build") for version ID: \(trigger.versionId)")
             }
 
-            for pair in trigger.pairs {
+            for pair in trigger.buildPairs {
                 group.addTask {
                     AppMetrics.buildTriggerCount?.inc(1, .buildTriggerLabels(pair))
                     let buildId = Build.Id()
@@ -422,18 +422,18 @@ extension BuildPair: Equatable, Hashable {
 
 struct BuildTriggerInfo: Equatable {
     var versionId: Version.Id
-    var pairs: Set<BuildPair>
+    var buildPairs: Set<BuildPair>
     // non-essential fields, used for logging
     var packageName: String?
     var reference: Reference?
 
     init?(versionId: Version.Id,
-         pairs: Set<BuildPair>,
-         packageName: String? = nil,
-         reference: Reference? = nil) {
-        guard !pairs.isEmpty else { return nil }
+          buildPairs: Set<BuildPair>,
+          packageName: String? = nil,
+          reference: Reference? = nil) {
+        guard !buildPairs.isEmpty else { return nil }
         self.versionId = versionId
-        self.pairs = pairs
+        self.buildPairs = buildPairs
         self.packageName = packageName
         self.reference = reference
     }
@@ -466,7 +466,7 @@ func findMissingBuilds(_ database: Database,
             .compactMap(\.relation)
             .map { BuildPair($0.platform, $0.swiftVersion) }
         return BuildTriggerInfo(versionId: versionId,
-                                pairs: missingPairs(existing: existingBuilds),
+                                buildPairs: missingPairs(existing: existingBuilds),
                                 packageName: records.first?.model.packageName,
                                 reference: records.first?.model.reference)
     }

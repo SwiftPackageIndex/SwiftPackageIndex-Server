@@ -24,8 +24,8 @@ import Vapor
 class BuildTriggerTests: AppTestCase {
 
     func test_BuildTriggerInfo_emptyPair() throws {
-        XCTAssertNotNil(BuildTriggerInfo(versionId: .id0, pairs: Set([BuildPair(.iOS, .v1)])))
-        XCTAssertNil(BuildTriggerInfo(versionId: .id0, pairs: []))
+        XCTAssertNotNil(BuildTriggerInfo(versionId: .id0, buildPairs: Set([BuildPair(.iOS, .v1)])))
+        XCTAssertNil(BuildTriggerInfo(versionId: .id0, buildPairs: []))
     }
 
     func test_fetchBuildCandidates_missingBuilds() async throws {
@@ -229,7 +229,7 @@ class BuildTriggerTests: AppTestCase {
         let res = try await findMissingBuilds(app.db, packageId: pkgId)
         let expectedPairs = Set(SwiftVersion.allActive.map { BuildPair(droppedPlatform, $0) })
         XCTAssertEqual(res, [.init(versionId: versionId,
-                                   pairs: expectedPairs,
+                                   buildPairs: expectedPairs,
                                    reference: .tag(1, 2, 3))!])
     }
 
@@ -259,7 +259,7 @@ class BuildTriggerTests: AppTestCase {
             try await v.save(on: app.db)
         }
         let triggers = [BuildTriggerInfo(versionId: versionId,
-                                         pairs: [BuildPair(.iOS, .v1)])!]
+                                         buildPairs: [BuildPair(.iOS, .v1)])!]
 
         // MUT
         try await triggerBuildsUnchecked(on: app.db,
@@ -393,7 +393,7 @@ class BuildTriggerTests: AppTestCase {
 
         }
         let triggers = [BuildTriggerInfo(versionId: versionId,
-                                         pairs: [BuildPair(.macosSpm, .v3)])!]
+                                         buildPairs: [BuildPair(.macosSpm, .v3)])!]
 
         // MUT
         try await triggerBuildsUnchecked(on: app.db,
@@ -1132,8 +1132,8 @@ class BuildTriggerTests: AppTestCase {
         let res = try await findMissingBuilds(app.db, packageId: pkgId)
         XCTAssertEqual(res.count, 1)
         let triggerInfo = try XCTUnwrap(res.first)
-        XCTAssertEqual(triggerInfo.pairs.count, 24)
-        XCTAssertTrue(!triggerInfo.pairs.contains(.init(.iOS, .v1)))
+        XCTAssertEqual(triggerInfo.buildPairs.count, 24)
+        XCTAssertTrue(!triggerInfo.buildPairs.contains(.init(.iOS, .v1)))
     }
 
 }
