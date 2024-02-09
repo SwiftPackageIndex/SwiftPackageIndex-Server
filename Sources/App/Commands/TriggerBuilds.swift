@@ -275,6 +275,7 @@ func triggerBuildsUnchecked(on database: Database,
                                                            client: client,
                                                            logger: logger,
                                                            buildId: buildId,
+                                                           isDocBuild: trigger.docPairs.contains(pair),
                                                            platform: pair.platform,
                                                            swiftVersion: pair.swiftVersion,
                                                            versionId: trigger.versionId).get()

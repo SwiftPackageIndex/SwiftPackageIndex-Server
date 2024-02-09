@@ -164,6 +164,7 @@ extension Build {
                         client: Client,
                         logger: Logger,
                         buildId: Build.Id,
+                        isDocBuild: Bool,
                         platform: Build.Platform,
                         swiftVersion: SwiftVersion,
                         versionId: Version.Id) -> EventLoopFuture<TriggerResponse> {
@@ -178,6 +179,7 @@ extension Build {
                                         logger,
                                         buildId,
                                         $0.package.url,
+                                        isDocBuild,
                                         platform,
                                         $0.reference,
                                         swiftVersion,

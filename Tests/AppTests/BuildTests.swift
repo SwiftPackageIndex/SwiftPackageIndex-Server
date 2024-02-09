@@ -150,6 +150,7 @@ class BuildTests: AppTestCase {
                                 "CLONE_URL": "1",
                                 "REFERENCE": "main",
                                 "SWIFT_VERSION": "5.2",
+                                "TIMEOUT": "10m",
                                 "VERSION_ID": versionID.uuidString,
                             ]))
         }
@@ -159,6 +160,64 @@ class BuildTests: AppTestCase {
                                     client: client,
                                     logger: app.logger,
                                     buildId: buildId,
+                                    isDocBuild: false,
+                                    platform: .macosXcodebuild,
+                                    swiftVersion: .init(5, 2, 4),
+                                    versionId: versionID).wait()
+
+        // validate
+        XCTAssertTrue(called)
+        XCTAssertEqual(res.status, .created)
+    }
+
+    func test_trigger_isDocBuild() throws {
+        // Same test as test_trigger above, except we trigger with isDocBuild: true
+        // and expect a 15m TIMEOUT instead of 10m
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, reference: .branch("main"))
+        try v.save(on: app.db).wait()
+        let buildId = UUID()
+        let versionID = try XCTUnwrap(v.id)
+
+        // Use live dependency but replace actual client with a mock so we can
+        // assert on the details being sent without actually making a request
+        Current.triggerBuild = Gitlab.Builder.triggerBuild
+        var called = false
+        let client = MockClient { req, res in
+            called = true
+            res.status = .created
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+            // validate request data
+            XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
+                           Gitlab.Builder.PostDTO(
+                            token: "pipeline token",
+                            ref: "main",
+                            variables: [
+                                "API_BASEURL": "http://example.com/api",
+                                "AWS_DOCS_BUCKET": "awsDocsBucket",
+                                "BUILD_ID": buildId.uuidString,
+                                "BUILD_PLATFORM": "macos-xcodebuild",
+                                "BUILDER_TOKEN": "builder token",
+                                "CLONE_URL": "1",
+                                "REFERENCE": "main",
+                                "SWIFT_VERSION": "5.2",
+                                "TIMEOUT": "15m",
+                                "VERSION_ID": versionID.uuidString,
+                            ]))
+        }
+
+        // MUT
+        let res = try Build.trigger(database: app.db,
+                                    client: client,
+                                    logger: app.logger,
+                                    buildId: buildId,
+                                    isDocBuild: true,
                                     platform: .macosXcodebuild,
                                     swiftVersion: .init(5, 2, 4),
                                     versionId: versionID).wait()

@@ -39,6 +39,7 @@ struct AppEnvironment {
     var collectionSigningPrivateKey: () -> Data?
     var date: () -> Date
     var dbId: () -> String?
+    var defaultBuildTimeout: () -> Int?
     var environment: () -> Environment
     var fetchDocumentation: (_ client: Client, _ url: URI) async throws -> ClientResponse
     var fetchHTTPStatusCode: (_ url: String) async throws -> HTTPStatus
@@ -76,6 +77,7 @@ struct AppEnvironment {
                        _ logger: Logger,
                        _ buildId: Build.Id,
                        _ cloneURL: String,
+                       _ isDocBuild: Bool,
                        _ platform: Build.Platform,
                        _ reference: Reference,
                        _ swiftVersion: SwiftVersion,
@@ -155,6 +157,9 @@ extension AppEnvironment {
         },
         date: Date.init,
         dbId: { Environment.get("DATABASE_ID") },
+        defaultBuildTimeout: {
+            Environment.get("DEFAULT_BUILD_TIMEOUT").flatMap(Int.init)
+        },
         environment: { (try? Environment.detect()) ?? .development },
         fetchDocumentation: { client, url in try await client.get(url) },
         fetchHTTPStatusCode: Networking.fetchHTTPStatusCode,

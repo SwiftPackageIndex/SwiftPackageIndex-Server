@@ -38,6 +38,7 @@ extension AppEnvironment {
             collectionSigningPrivateKey: AppEnvironment.live.collectionSigningPrivateKey,
             date: Date.init,
             dbId: { "db-id" },
+            defaultBuildTimeout: { 10 },
             environment: { .development },
             fetchDocumentation: { _, _ in .init(status: .ok) },
             fetchHTTPStatusCode: { _ in .ok },
@@ -75,7 +76,7 @@ extension AppEnvironment {
             siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
             storeS3Readme: { _, _, _ in "s3ObjectUrl" },
             timeZone: { .utc },
-            triggerBuild: { _, _, _, _, _, _, _, _ in
+            triggerBuild: { _, _, _, _, _, _, _, _, _ in
                 eventLoop.future(.init(status: .ok, webUrl: "http://web_url"))
             }
         )

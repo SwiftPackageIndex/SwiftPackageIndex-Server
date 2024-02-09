@@ -68,6 +68,7 @@ class GitlabBuilderTests: XCTestCase {
                                 "CLONE_URL": "https://github.com/daveverwer/LeftPad.git",
                                 "REFERENCE": "1.2.3",
                                 "SWIFT_VERSION": "5.2",
+                                "TIMEOUT": "10m",
                                 "VERSION_ID": versionID.uuidString,
                             ]))
         }
@@ -77,6 +78,7 @@ class GitlabBuilderTests: XCTestCase {
                                             logger: Logger(label: "test"),
                                             buildId: buildId,
                                             cloneURL: "https://github.com/daveverwer/LeftPad.git",
+                                            isDocBuild: false,
                                             platform: .macosSpm,
                                             reference: .tag(.init(1, 2, 3)),
                                             swiftVersion: .init(5, 2, 4),
@@ -186,6 +188,7 @@ class LiveGitlabBuilderTests: AppTestCase {
             logger: app.logger,
             buildId: buildId,
             cloneURL: "https://github.com/SwiftPackageIndex/SemanticVersion.git",
+            isDocBuild: false,
             platform: .macosSpm,
             reference: .tag(.init(0, 3, 2)),
             swiftVersion: .v4,
