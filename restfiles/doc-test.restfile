@@ -242,10 +242,11 @@ requests:
     url: ${base_url}/apple/swift-syntax/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /apple/swift-testing/documentation:
-    url: ${base_url}/apple/swift-testing/documentation
-    validation:
-      status: .regex((2|3)\d\d)
+  # Temporarily disabled
+  # /apple/swift-testing/documentation:
+  #   url: ${base_url}/apple/swift-testing/documentation
+  #   validation:
+  #     status: .regex((2|3)\d\d)
   # Currently failing due to config issue, PR raised https://github.com/audulus/vger/pull/14
   # /audulus/vger/documentation:
   #   url: ${base_url}/audulus/vger/documentation
