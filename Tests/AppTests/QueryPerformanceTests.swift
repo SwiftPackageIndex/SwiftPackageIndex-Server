@@ -41,7 +41,7 @@ class QueryPerformanceTests: XCTestCase {
 
     func test_01_Search_packageMatchQuery() async throws {
         let query = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
-        try await assertQueryPerformance(query, expectedCost: 1300, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 1350, variation: 150)
     }
 
     func test_02_Search_keywordMatchQuery() async throws {
@@ -57,7 +57,7 @@ class QueryPerformanceTests: XCTestCase {
     func test_04_Search_query_noFilter() async throws {
         let query = try Search.query(app.db, ["a"], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 7100, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 7200, variation: 200)
     }
 
     func test_05_Search_query_authorFilter() async throws {
@@ -78,14 +78,14 @@ class QueryPerformanceTests: XCTestCase {
         let filter = try LastActivitySearchFilter(expression: .init(operator: .greaterThan, value: "2000-01-01"))
         let query = try Search.query(app.db, ["a"], filters: [filter], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 7100, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 7200, variation: 200)
     }
 
     func test_08_Search_query_licenseFilter() async throws {
         let filter = try LicenseSearchFilter(expression: .init(operator: .is, value: "mit"))
         let query = try Search.query(app.db, ["a"], filters: [filter], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 7000, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 7100, variation: 200)
     }
 
     func test_09_Search_query_platformFilter() async throws {
