@@ -28,6 +28,9 @@ struct TriggerBuildsCommand: AsyncCommand {
         @Flag(name: "force", short: "f", help: "override pipeline capacity check and downscaling (--id only)")
         var force: Bool
 
+        @Flag(name: "is-doc-build", help: "signal if a build is a doc build, giving it a more generous build timeout")
+        var isDocBuild: Bool
+
         @Option(name: "package-id", short: "i")
         var packageId: Package.Id?
 
@@ -46,7 +49,7 @@ struct TriggerBuildsCommand: AsyncCommand {
     enum Mode {
         case limit(Int)
         case packageId(Package.Id, force: Bool)
-        case triggerInfo(Version.Id, BuildPair)
+        case triggerInfo(Version.Id, BuildPair, isDocBuild: Bool)
     }
 
     func run(using context: CommandContext, signature: Signature) async throws {
@@ -69,7 +72,7 @@ struct TriggerBuildsCommand: AsyncCommand {
                     return
                 }
                 let buildPair = BuildPair(platform, swiftVersion)
-                mode = .triggerInfo(versionId, buildPair)
+                mode = .triggerInfo(versionId, buildPair, isDocBuild: signature.isDocBuild)
 
             case (.none, .none, .none):
                 mode = .limit(defaultLimit)
@@ -150,10 +153,11 @@ func triggerBuilds(on database: Database,
                                     force: force)
             AppMetrics.buildTriggerDurationSeconds?.time(since: start)
 
-        case let .triggerInfo(versionId, buildPair):
+        case let .triggerInfo(versionId, buildPair, isDocBuild):
             logger.info("Triggering builds (versionID: \(versionId), \(buildPair)) ...")
             guard let trigger = BuildTriggerInfo(versionId: versionId,
-                                                 buildPairs: [buildPair]) else {
+                                                 buildPairs: [buildPair],
+                                                 docPairs: isDocBuild ? [buildPair] : []) else {
                 logger.error("Failed to create trigger.")
                 return
             }
