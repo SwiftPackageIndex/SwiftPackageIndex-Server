@@ -21,8 +21,7 @@ extension SPIManifest.Manifest {
             BuildPair.all.compactMap {
                 guard let swiftVersion = $0.manifestSwiftVersion,
                       documentationTargets(platform: $0.manifestPlatform, swiftVersion: swiftVersion) != nil
-                else {
-                    return nil }
+                else { return nil }
                 return $0
             }
         )
