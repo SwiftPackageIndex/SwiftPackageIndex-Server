@@ -53,3 +53,7 @@ updates:
       dependencies:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: '@hotwired/turbo'
+        versions: ['^8.0.0']
+          
