@@ -36,6 +36,6 @@ extension BuildPair {
     }
 
     var manifestSwiftVersion: SPIManifest.SwiftVersion? {
-        .init(rawValue: "\(swiftVersion.major).\(swiftVersion.minor)")
+        .init(major: swiftVersion.major, minor: swiftVersion.minor)
     }
 }
