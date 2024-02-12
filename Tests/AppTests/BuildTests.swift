@@ -193,23 +193,10 @@ class BuildTests: AppTestCase {
             try? res.content.encode(
                 Gitlab.Builder.Response.init(webUrl: "http://web_url")
             )
-            // validate request data
-            XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
-                           Gitlab.Builder.PostDTO(
-                            token: "pipeline token",
-                            ref: "main",
-                            variables: [
-                                "API_BASEURL": "http://example.com/api",
-                                "AWS_DOCS_BUCKET": "awsDocsBucket",
-                                "BUILD_ID": buildId.uuidString,
-                                "BUILD_PLATFORM": "macos-xcodebuild",
-                                "BUILDER_TOKEN": "builder token",
-                                "CLONE_URL": "1",
-                                "REFERENCE": "main",
-                                "SWIFT_VERSION": "5.2",
-                                "TIMEOUT": "15m",
-                                "VERSION_ID": versionID.uuidString,
-                            ]))
+            // only test the TIMEOUT value, the rest is already tested in `test_trigger` above
+            let response = try? req.query.decode(Gitlab.Builder.PostDTO.self)
+            XCTAssertNotNil(response)
+            XCTAssertEqual(response?.variables["TIMEOUT"], "15m")
         }
 
         // MUT
