@@ -31,6 +31,7 @@ struct AppEnvironment {
     var awsDocsBucket: () -> String?
     var awsReadmeBucket: () -> String?
     var awsSecretAccessKey: () -> String?
+    var buildTimeout: () -> Int?
     var builderToken: () -> String?
     var buildTriggerAllowList: () -> [Package.Id]
     var buildTriggerDownscaling: () -> Double
@@ -39,7 +40,6 @@ struct AppEnvironment {
     var collectionSigningPrivateKey: () -> Data?
     var date: () -> Date
     var dbId: () -> String?
-    var defaultBuildTimeout: () -> Int?
     var environment: () -> Environment
     var fetchDocumentation: (_ client: Client, _ url: URI) async throws -> ClientResponse
     var fetchHTTPStatusCode: (_ url: String) async throws -> HTTPStatus
@@ -124,6 +124,9 @@ extension AppEnvironment {
         awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
         awsReadmeBucket: { Environment.get("AWS_README_BUCKET") },
         awsSecretAccessKey: { Environment.get("AWS_SECRET_ACCESS_KEY") },
+        buildTimeout: {
+            Environment.get("BUILD_TIMEOUT").flatMap(Int.init)
+        },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerAllowList: {
             Environment.get("BUILD_TRIGGER_ALLOW_LIST")
@@ -157,9 +160,6 @@ extension AppEnvironment {
         },
         date: Date.init,
         dbId: { Environment.get("DATABASE_ID") },
-        defaultBuildTimeout: {
-            Environment.get("DEFAULT_BUILD_TIMEOUT").flatMap(Int.init)
-        },
         environment: { (try? Environment.detect()) ?? .development },
         fetchDocumentation: { client, url in try await client.get(url) },
         fetchHTTPStatusCode: Networking.fetchHTTPStatusCode,
