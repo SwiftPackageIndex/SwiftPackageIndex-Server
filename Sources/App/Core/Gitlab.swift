@@ -83,7 +83,7 @@ extension Gitlab.Builder {
         guard let awsDocsBucket = Current.awsDocsBucket() else {
             return client.eventLoop.future(error: Gitlab.Error.missingConfiguration("AWS_DOCS_BUCKET"))
         }
-        let timeout = (Current.buildTimeout() ?? 10) + (isDocBuild ? 5 : 0)
+        let timeout = Current.buildTimeout() + (isDocBuild ? 5 : 0)
 
         let uri: URI = .init(string: "\(projectURL)/trigger/pipeline")
         let req = client
