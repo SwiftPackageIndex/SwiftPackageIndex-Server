@@ -31,6 +31,7 @@ struct AppEnvironment {
     var awsDocsBucket: () -> String?
     var awsReadmeBucket: () -> String?
     var awsSecretAccessKey: () -> String?
+    var buildTimeout: () -> Int
     var builderToken: () -> String?
     var buildTriggerAllowList: () -> [Package.Id]
     var buildTriggerDownscaling: () -> Double
@@ -76,6 +77,7 @@ struct AppEnvironment {
                        _ logger: Logger,
                        _ buildId: Build.Id,
                        _ cloneURL: String,
+                       _ isDocBuild: Bool,
                        _ platform: Build.Platform,
                        _ reference: Reference,
                        _ swiftVersion: SwiftVersion,
@@ -122,6 +124,7 @@ extension AppEnvironment {
         awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
         awsReadmeBucket: { Environment.get("AWS_README_BUCKET") },
         awsSecretAccessKey: { Environment.get("AWS_SECRET_ACCESS_KEY") },
+        buildTimeout: { Environment.get("BUILD_TIMEOUT").flatMap(Int.init) ?? 10 },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerAllowList: {
             Environment.get("BUILD_TRIGGER_ALLOW_LIST")

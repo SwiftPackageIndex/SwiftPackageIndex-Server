@@ -28,6 +28,9 @@ struct TriggerBuildsCommand: AsyncCommand {
         @Flag(name: "force", short: "f", help: "override pipeline capacity check and downscaling (--id only)")
         var force: Bool
 
+        @Flag(name: "is-doc-build", help: "signal if a build is a doc build, giving it a more generous build timeout")
+        var isDocBuild: Bool
+
         @Option(name: "package-id", short: "i")
         var packageId: Package.Id?
 
@@ -46,7 +49,7 @@ struct TriggerBuildsCommand: AsyncCommand {
     enum Mode {
         case limit(Int)
         case packageId(Package.Id, force: Bool)
-        case triggerInfo(Version.Id, BuildPair)
+        case triggerInfo(Version.Id, BuildPair, isDocBuild: Bool)
     }
 
     func run(using context: CommandContext, signature: Signature) async throws {
@@ -69,7 +72,7 @@ struct TriggerBuildsCommand: AsyncCommand {
                     return
                 }
                 let buildPair = BuildPair(platform, swiftVersion)
-                mode = .triggerInfo(versionId, buildPair)
+                mode = .triggerInfo(versionId, buildPair, isDocBuild: signature.isDocBuild)
 
             case (.none, .none, .none):
                 mode = .limit(defaultLimit)
@@ -150,10 +153,11 @@ func triggerBuilds(on database: Database,
                                     force: force)
             AppMetrics.buildTriggerDurationSeconds?.time(since: start)
 
-        case let .triggerInfo(versionId, buildPair):
+        case let .triggerInfo(versionId, buildPair, isDocBuild):
             logger.info("Triggering builds (versionID: \(versionId), \(buildPair)) ...")
             guard let trigger = BuildTriggerInfo(versionId: versionId,
-                                                 pairs: [buildPair]) else {
+                                                 buildPairs: [buildPair],
+                                                 docPairs: isDocBuild ? [buildPair] : []) else {
                 logger.error("Failed to create trigger.")
                 return
             }
@@ -231,7 +235,7 @@ func triggerBuilds(on database: Database,
                     return
                 }
 
-                let triggeredJobCount = triggers.reduce(0) { $0 + $1.pairs.count }
+                let triggeredJobCount = triggers.reduce(0) { $0 + $1.buildPairs.count }
                 await newJobs.withValue { $0 += triggeredJobCount }
 
                 try await triggerBuildsUnchecked(on: database,
@@ -261,12 +265,12 @@ func triggerBuildsUnchecked(on database: Database,
     await withThrowingTaskGroup(of: Void.self) { group in
         for trigger in triggers {
             if let packageName = trigger.packageName, let reference = trigger.reference {
-                logger.info("Triggering \(pluralizedCount: trigger.pairs.count, singular: "build") for package name: \(packageName), ref: \(reference)")
+                logger.info("Triggering \(pluralizedCount: trigger.buildPairs.count, singular: "build") for package name: \(packageName), ref: \(reference)")
             } else {
-                logger.info("Triggering \(pluralizedCount: trigger.pairs.count, singular: "build") for version ID: \(trigger.versionId)")
+                logger.info("Triggering \(pluralizedCount: trigger.buildPairs.count, singular: "build") for version ID: \(trigger.versionId)")
             }
 
-            for pair in trigger.pairs {
+            for pair in trigger.buildPairs {
                 group.addTask {
                     AppMetrics.buildTriggerCount?.inc(1, .buildTriggerLabels(pair))
                     let buildId = Build.Id()
@@ -275,6 +279,7 @@ func triggerBuildsUnchecked(on database: Database,
                                                            client: client,
                                                            logger: logger,
                                                            buildId: buildId,
+                                                           isDocBuild: trigger.docPairs.contains(pair),
                                                            platform: pair.platform,
                                                            swiftVersion: pair.swiftVersion,
                                                            versionId: trigger.versionId).get()
@@ -422,18 +427,21 @@ extension BuildPair: Equatable, Hashable {
 
 struct BuildTriggerInfo: Equatable {
     var versionId: Version.Id
-    var pairs: Set<BuildPair>
+    var buildPairs: Set<BuildPair>
+    var docPairs: Set<BuildPair>
     // non-essential fields, used for logging
     var packageName: String?
     var reference: Reference?
 
     init?(versionId: Version.Id,
-         pairs: Set<BuildPair>,
-         packageName: String? = nil,
-         reference: Reference? = nil) {
-        guard !pairs.isEmpty else { return nil }
+          buildPairs: Set<BuildPair>,
+          docPairs: Set<BuildPair> = .init(),
+          packageName: String? = nil,
+          reference: Reference? = nil) {
+        guard !buildPairs.isEmpty else { return nil }
         self.versionId = versionId
-        self.pairs = pairs
+        self.buildPairs = buildPairs
+        self.docPairs = docPairs
         self.packageName = packageName
         self.reference = reference
     }
@@ -448,16 +456,27 @@ func missingPairs(existing: [BuildPair]) -> Set<BuildPair> {
 func findMissingBuilds(_ database: Database,
                        packageId: Package.Id) async throws -> [BuildTriggerInfo] {
     let versions = try await Version.query(on: database)
-        .with(\.$builds)
         .filter(\.$package.$id == packageId)
         .filter(\.$latest != nil)
+        .field(Version.self, \.$id)
+        .field(Version.self, \.$packageName)
+        .field(Version.self, \.$reference)
+        .field(Version.self, \.$spiManifest)
+        .all()
+    let builds = try await Build.query(on: database)
+        .filter(\.$version.$id ~~ versions.compactMap(\.id))
+        .field(Build.self, \.$platform)
+        .field(Build.self, \.$swiftVersion)
+        .field(Build.self, \.$version.$id)
         .all()
 
     return versions.compactMap { v in
         guard let versionId = v.id else { return nil }
-        let existing = v.builds.map { BuildPair($0.platform, $0.swiftVersion) }
+        let builds = builds.filter { $0.$version.id == versionId }
+        let existing = builds.map { BuildPair($0.platform, $0.swiftVersion) }
         return BuildTriggerInfo(versionId: versionId,
-                                pairs: missingPairs(existing: existing),
+                                buildPairs: missingPairs(existing: existing),
+                                docPairs: v.spiManifest?.docPairs ?? [],
                                 packageName: v.packageName,
                                 reference: v.reference)
     }

@@ -35,7 +35,7 @@ class MetricsTests: AppTestCase {
                                          logger: app.logger,
                                          triggers: [
                                             .init(versionId: versionId,
-                                                  pairs: [.init(.macosSpm, .v3)])!
+                                                  buildPairs: [.init(.macosSpm, .v3)])!
                                          ])
 
         // MUT

@@ -30,6 +30,7 @@ extension AppEnvironment {
             awsDocsBucket: { "awsDocsBucket" },
             awsReadmeBucket: { "awsReadmeBucket" },
             awsSecretAccessKey: { nil },
+            buildTimeout: { 10 },
             builderToken: { nil },
             buildTriggerAllowList: { [] },
             buildTriggerDownscaling: { 1.0 },
@@ -75,7 +76,7 @@ extension AppEnvironment {
             siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
             storeS3Readme: { _, _, _ in "s3ObjectUrl" },
             timeZone: { .utc },
-            triggerBuild: { _, _, _, _, _, _, _, _ in
+            triggerBuild: { _, _, _, _, _, _, _, _, _ in
                 eventLoop.future(.init(status: .ok, webUrl: "http://web_url"))
             }
         )

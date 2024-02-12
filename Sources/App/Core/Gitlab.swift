@@ -72,6 +72,7 @@ extension Gitlab.Builder {
                              logger: Logger,
                              buildId: Build.Id,
                              cloneURL: String,
+                             isDocBuild: Bool,
                              platform: Build.Platform,
                              reference: Reference,
                              swiftVersion: SwiftVersion,
@@ -82,6 +83,7 @@ extension Gitlab.Builder {
         guard let awsDocsBucket = Current.awsDocsBucket() else {
             return client.eventLoop.future(error: Gitlab.Error.missingConfiguration("AWS_DOCS_BUCKET"))
         }
+        let timeout = Current.buildTimeout() + (isDocBuild ? 5 : 0)
 
         let uri: URI = .init(string: "\(projectURL)/trigger/pipeline")
         let req = client
@@ -98,6 +100,7 @@ extension Gitlab.Builder {
                         "CLONE_URL": cloneURL,
                         "REFERENCE": "\(reference)",
                         "SWIFT_VERSION": "\(swiftVersion.major).\(swiftVersion.minor)",
+                        "TIMEOUT": "\(timeout)m",
                         "VERSION_ID": versionID.uuidString
                     ])
                 try req.query.encode(data)
