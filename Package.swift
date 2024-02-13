@@ -31,7 +31,7 @@ let package = Package(
         .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
         .package(url: "https://github.com/SwiftPackageIndex/CanonicalPackageURL.git", from: "0.0.8"),
         .package(url: "https://github.com/SwiftPackageIndex/DependencyResolution.git", from: "1.1.2"),
-        .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "1.1.3"),
+        .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "1.2.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion.git", from: "0.3.0"),
         .package(url: "https://github.com/SwiftPackageIndex/ShellOut.git", from: "3.1.4"),
         .package(url: "https://github.com/apple/swift-package-manager.git", revision: "swift-5.9-RELEASE"),
