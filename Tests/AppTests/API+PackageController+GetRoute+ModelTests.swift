@@ -340,25 +340,25 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
-                                                     results: Results(status5_6: .compatible,
-                                                                      status5_7: .incompatible,
-                                                                      status5_8: .unknown,
-                                                                      status5_9: .compatible))),
+                                                     results: Results(status5_7: .compatible,
+                                                                      status5_8: .incompatible,
+                                                                      status5_9: .unknown,
+                                                                      status5_10: .compatible))),
                                  beta: nil,
                                  latest: nil)
             XCTAssertEqual(info?.compatibility, [.v1, .v4])
         }
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
-                                                     results: Results(status5_6: .compatible,
-                                                                      status5_7: .incompatible,
-                                                                      status5_8: .unknown,
-                                                                      status5_9: .compatible))),
+                                                     results: Results(status5_7: .compatible,
+                                                                      status5_8: .incompatible,
+                                                                      status5_9: .unknown,
+                                                                      status5_10: .compatible))),
                                  beta: .some(.init(referenceName: "1.2.3-b1",
-                                                   results: Results(status5_6: .incompatible,
-                                                                    status5_7: .incompatible,
-                                                                    status5_8: .compatible,
-                                                                    status5_9: .unknown))),
+                                                   results: Results(status5_7: .incompatible,
+                                                                    status5_8: .incompatible,
+                                                                    status5_9: .compatible,
+                                                                    status5_10: .unknown))),
                                  latest: nil)
             XCTAssertEqual(info?.compatibility, [.v1, .v3, .v4])
         }
@@ -400,18 +400,18 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     }
 
     func test_groupBuildInfo() throws {
-        let result1: BuildResults = .init(status5_6: .compatible,
-                                          status5_7: .compatible,
+        let result1: BuildResults = .init(status5_7: .compatible,
                                           status5_8: .compatible,
-                                          status5_9: .compatible)
-        let result2: BuildResults = .init(status5_6: .compatible,
-                                          status5_7: .incompatible,
+                                          status5_9: .compatible,
+                                          status5_10: .compatible)
+        let result2: BuildResults = .init(status5_7: .compatible,
                                           status5_8: .incompatible,
-                                          status5_9: .incompatible)
-        let result3: BuildResults = .init(status5_6: .unknown,
-                                          status5_7: .unknown,
+                                          status5_9: .incompatible,
+                                          status5_10: .incompatible)
+        let result3: BuildResults = .init(status5_7: .unknown,
                                           status5_8: .unknown,
-                                          status5_9: .unknown)
+                                          status5_9: .unknown,
+                                          status5_10: .unknown)
         do {  // three distinct groups
             let buildInfo: BuildInfo = .init(stable: .init(referenceName: "1.2.3",
                                                            results: result1),

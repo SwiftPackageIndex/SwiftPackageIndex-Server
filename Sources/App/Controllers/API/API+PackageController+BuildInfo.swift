@@ -98,17 +98,17 @@ extension API.PackageController {
                 return nil
             }
             // For each reported swift version pick major/minor version matches
-            let v5_6 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_6) }
             let v5_7 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_7) }
             let v5_8 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_8) }
             let v5_9 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_9) }
+            let v5_10 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_10) }
             // ... and report the status
             return
                 .init(referenceName: referenceName,
-                      results: .init(status5_6: v5_6.buildStatus,
-                                     status5_7: v5_7.buildStatus,
+                      results: .init(status5_7: v5_7.buildStatus,
                                      status5_8: v5_8.buildStatus,
-                                     status5_9: v5_9.buildStatus)
+                                     status5_9: v5_9.buildStatus,
+                                     status5_10: v5_10.buildStatus)
                 )
         }
     }
