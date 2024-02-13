@@ -337,22 +337,22 @@ extension API.PackageController.GetRoute.Model {
     }
 
     struct SwiftVersionResults: Codable, Equatable {
-        var v5_6: BuildResult<SwiftVersion>
         var v5_7: BuildResult<SwiftVersion>
         var v5_8: BuildResult<SwiftVersion>
         var v5_9: BuildResult<SwiftVersion>
+        var v5_10: BuildResult<SwiftVersion>
 
-        init(status5_6: BuildStatus,
-             status5_7: BuildStatus,
+        init(status5_7: BuildStatus,
              status5_8: BuildStatus,
-             status5_9: BuildStatus) {
-            self.v5_6 = .init(parameter: .v5_6, status: status5_6)
+             status5_9: BuildStatus,
+             status5_10: BuildStatus) {
             self.v5_7 = .init(parameter: .v5_7, status: status5_7)
             self.v5_8 = .init(parameter: .v5_8, status: status5_8)
             self.v5_9 = .init(parameter: .v5_9, status: status5_9)
+            self.v5_10 = .init(parameter: .v5_10, status: status5_10)
         }
 
-        var all: [BuildResult<SwiftVersion>] { [v5_9, v5_8, v5_7, v5_6] }
+        var all: [BuildResult<SwiftVersion>] { [v5_10, v5_9, v5_8, v5_7] }
     }
 
     struct PlatformResults: Codable, Equatable {

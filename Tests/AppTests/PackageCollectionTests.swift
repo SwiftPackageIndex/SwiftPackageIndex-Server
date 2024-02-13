@@ -227,8 +227,8 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.version, "1.2.3")
         XCTAssertEqual(res.summary, "Bar")
         XCTAssertEqual(res.verifiedCompatibility, [
-            .init(platform: .init(name: "ios"), swiftVersion: .init("5.6")),
-            .init(platform: .init(name: "macos"), swiftVersion: .init("5.7")),
+            .init(platform: .init(name: "ios"), swiftVersion: .init("5.7")),
+            .init(platform: .init(name: "macos"), swiftVersion: .init("5.8")),
         ])
         XCTAssertEqual(res.license, .init(name: "MIT", url: URL(string: "https://foo/mit")!))
         XCTAssertEqual(res.createdAt, Date(timeIntervalSince1970: 0))
