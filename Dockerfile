@@ -18,7 +18,7 @@
 # ================================
 # Build image
 # ================================
-FROM registry.gitlab.com/finestructure/spi-base:0.15.0 as build
+FROM registry.gitlab.com/finestructure/spi-base:0.15.1 as build
 
 # Set up a build area
 WORKDIR /build
@@ -34,8 +34,11 @@ RUN swift package resolve --skip-update \
 # Copy entire repo into container
 COPY . .
 
-# Compile with optimizations
-RUN swift build -c release --static-swift-stdlib
+# Build everything, with optimizations, with static linking, and using jemalloc
+# N.B.: The static version of jemalloc is incompatible with the static Swift runtime.
+RUN swift build -c release \
+                --static-swift-stdlib \
+                -Xlinker -ljemalloc
 
 # Switch to the staging area
 WORKDIR /staging
@@ -58,7 +61,7 @@ RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w
 # ================================
 # Run image
 # ================================
-FROM registry.gitlab.com/finestructure/spi-base:0.15.0
+FROM registry.gitlab.com/finestructure/spi-base:0.15.1
 
 # NB sas 2022-09-23: We're not using a dedicated `vapor` user to run the executable, because it
 # makes managing the data in the checkouts volume difficult. See
