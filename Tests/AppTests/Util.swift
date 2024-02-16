@@ -74,7 +74,7 @@ func _resetDb(_ app: Application) async throws {
     }
 
     for table in tables {
-        try await db.raw("TRUNCATE TABLE \(raw: table) CASCADE").run()
+        try await db.raw("TRUNCATE TABLE \(ident: table) CASCADE").run()
     }
 
     try await RecentPackage.refresh(on: app.db)
