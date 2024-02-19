@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-kit.git",
       "state" : {
-        "revision" : "3ae5187487718486f6bef7159eead11bc7f1d8d0",
-        "version" : "1.47.0"
+        "revision" : "bb47433520116b3cf7f3567137c81106b398b77e",
+        "version" : "1.47.1"
       }
     },
     {
@@ -464,8 +464,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup.git",
       "state" : {
-        "revision" : "f83c097597094a04124eb6e0d1e894d24129af87",
-        "version" : "2.7.0"
+        "revision" : "1d39e56d364cba79ce43b341f9661b534cccb18d",
+        "version" : "2.7.1"
       }
     },
     {
@@ -473,8 +473,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "664a06346c5429025d3ffdfa63b93978a8cdd096",
-        "version" : "4.92.2"
+        "revision" : "9da9d14f43bc1b32b384f0b4eb231b8a5a851dee",
+        "version" : "4.92.3"
       }
     },
     {
