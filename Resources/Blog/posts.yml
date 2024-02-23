@@ -173,3 +173,8 @@
   summary: Are services like GitHub Sponsors, Open Collective, Patreon, and Ko-fi the best way to fund open-source software development? They may not be a perfect solution, but they are the best “one size fits all” solution we have, so let’s highlight them.
   published_at: 2024-01-18
   published: true
+- slug: supporting-swift-510
+  title: Support for Swift 5.10
+  summary: The march of Swift's progress continues, the same is true for the Swift Package Index! We're delighted to announce that compatibility results for Swift 5.10 are available on every package page!
+  published_at: 2024-02-23
+  published: true
