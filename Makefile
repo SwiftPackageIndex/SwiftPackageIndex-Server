@@ -54,7 +54,7 @@ test-fast:
 
 xcbeautify:
 	rm -rf .build/checkouts/xcbeautify
-	git clone --depth=1 https://github.com/thii/xcbeautify.git .build/checkouts/xcbeautify
+	git clone --depth=1 https://github.com/cpisciotta/xcbeautify.git .build/checkouts/xcbeautify
 	cd .build/checkouts/xcbeautify && make build
 	binpath=`cd .build/checkouts/xcbeautify && swift build -c release --show-bin-path` && ln -sf $$binpath/xcbeautify
 
