@@ -20,7 +20,7 @@ import XCTest
 class BadgeTests: AppTestCase {
 
     func test_badgeMessage_swiftVersions() throws {
-        XCTAssertEqual(Badge.badgeMessage(swiftVersions: [.v1, .v2, .v3]), "5.9 | 5.8 | 5.7")
+        XCTAssertEqual(Badge.badgeMessage(swiftVersions: [.v1, .v2, .v3, .v4]), "5.10 | 5.9 | 5.8 | 5.7")
         XCTAssertNil(Badge.badgeMessage(swiftVersions: []))
     }
 

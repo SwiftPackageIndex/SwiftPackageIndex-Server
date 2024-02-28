@@ -137,8 +137,8 @@ extension Badge {
     static func badgeMessage(swiftVersions: [SwiftVersion]) -> String? {
         guard !swiftVersions.isEmpty else { return nil }
         return swiftVersions
-            .map(\.displayName)
             .sorted { $0 > $1 }
+            .map(\.displayName)
             .joined(separator: " | ")
     }
 
