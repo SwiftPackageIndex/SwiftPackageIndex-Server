@@ -4,7 +4,8 @@
     "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
     "scripts": {
         "build": "node ./FrontEnd/esbuild.mjs",
-        "serve": "node ./FrontEnd/esbuild.mjs --watch"
+        "serve": "node ./FrontEnd/esbuild.mjs --watch",
+        "lint": "prettier --check --config .prettierrc 'FrontEnd/**/*.js' && stylelint --config .stylelintrc.js 'FrontEnd/**/*.scss'"
     },
     "dependencies": {
         "@hotwired/stimulus": "^3.2.1",

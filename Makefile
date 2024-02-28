@@ -130,8 +130,9 @@ db-down-test:
 
 db-reset: db-down db-up migrate
 
-NPM_INSTALL=/usr/local/bin/npm install --cache /tmp/.npm-cache
-NPM_RUN=/usr/local/bin/npm run --cache /tmp/.npm-cache
+NPM_INSTALL=/usr/local/bin/npm --cache /tmp/.npm-cache install
+NPM_RUN=/usr/local/bin/npm --cache /tmp/.npm-cache run
+NPX_RUN=/usr/local/bin/npx run
 
 build-front-end:
 	docker run --rm -v $$PWD:/host -w /host --user $$(id -u):$$(id -g) --entrypoint sh node:21-alpine -c "$(NPM_INSTALL) && $(NPM_RUN) build"
@@ -139,25 +140,12 @@ build-front-end:
 serve-front-end:
 	docker run --rm -it -v $$PWD:/host -w /host --user $$(id -u):$$(id -g) --entrypoint sh node:21-alpine -c "$(NPM_INSTALL) && $(NPM_RUN) serve"
 
+lint-front-end:
+	docker run --rm -v $$PWD:/host -w /host --entrypoint sh node:21-alpine -c "$(NPM_INSTALL) && $(NPM_RUN) lint"
+
 copy-front-end-resources:
 	@# copy front-end resources from existing image (rather than build them)
 	docker run --rm -it -v $$PWD:/host -w /host --entrypoint sh registry.gitlab.com/finestructure/swiftpackageindex:$(VERSION) -c "cp -r /run/Public ."
-
-run-prettier:
-	docker run --rm -v $$PWD:/host -w /host --entrypoint sh node:21-alpine -c "$(NPM_INSTALL) && $(NPM_RUN) prettier --check --config .prettierrc 'FrontEnd/**/*.js'"
-
-run-stylelint:
-	docker run --rm -v $$PWD:/host -w /host --entrypoint sh node:21-alpine -c "$(NPM_INSTALL) && $(NPM_RUN) stylelint --config .stylelintrc.js 'FrontEnd/**/*.scss'"
-
-lint-front-end: run-prettier run-stylelint
-
-run-prettier-auto-fix:
-	docker run --rm -v $$PWD:/host -w /host --entrypoint sh node:21-alpine -c "$(NPM_INSTALL) && $(NPM_RUN) prettier --write --config .prettierrc 'FrontEnd/**/*.js'"
-
-run-stylelint-auto-fix:
-	docker run --rm -v $$PWD:/host -w /host --entrypoint sh node:21-alpine -c "$(NPM_INSTALL) && $(NPM_RUN) stylelint --fix --config .stylelintrc.js 'FrontEnd/**/*.scss'"
-
-lint-front-end-auto-fix: run-prettier-auto-fix run-stylelint-auto-fix
 
 periphery:
 	periphery scan --quiet
