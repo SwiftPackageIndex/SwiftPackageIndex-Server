@@ -141,7 +141,7 @@ serve-front-end:
 	docker run --rm -it -v $$PWD:/host -w /host --user $$(id -u):$$(id -g) --entrypoint sh node:21-alpine -c "$(NPM_INSTALL) && $(NPM_RUN) serve"
 
 lint-front-end:
-	docker run --rm -v $$PWD:/host -w /host --entrypoint sh node:21-alpine -c "$(NPM_INSTALL) && $(NPM_RUN) lint"
+	docker run --rm -v $$PWD:/host -w /host --user $$(id -u):$$(id -g) --entrypoint sh node:21-alpine -c "$(NPM_INSTALL) && $(NPM_RUN) lint"
 
 copy-front-end-resources:
 	@# copy front-end resources from existing image (rather than build them)

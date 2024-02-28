@@ -25,7 +25,7 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
-            - name: Build Front-End
-              run: make build-front-end
             - name: Lint Front-End
               run: make lint-front-end
+            - name: Build Front-End
+              run: make build-front-end
