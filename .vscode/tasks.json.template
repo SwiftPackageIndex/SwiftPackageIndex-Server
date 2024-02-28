@@ -2,9 +2,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Yarn Serve",
+            "label": "Serve Front End",
             "type": "shell",
-            "command": "yarn && yarn serve",
+            "command": "npm install && npm run serve",
             "presentation": {
                 "reveal": "always",
                 "panel": "new"
