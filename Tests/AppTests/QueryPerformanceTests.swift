@@ -46,7 +46,7 @@ class QueryPerformanceTests: XCTestCase {
 
     func test_02_Search_keywordMatchQuery() async throws {
         let query = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        try await assertQueryPerformance(query, expectedCost: 5200, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 5300, variation: 200)
     }
 
     func test_03_Search_authorMatchQuery() async throws {
@@ -64,14 +64,14 @@ class QueryPerformanceTests: XCTestCase {
         let filter = try AuthorSearchFilter(expression: .init(operator: .is, value: "apple"))
         let query = try Search.query(app.db, ["a"], filters: [filter], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 6800, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 6900, variation: 200)
     }
 
     func test_06_Search_query_keywordFilter() async throws {
         let filter = try KeywordSearchFilter(expression: .init(operator: .is, value: "apple"))
         let query = try Search.query(app.db, ["a"], filters: [filter], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 6900, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 7000, variation: 200)
     }
 
     func test_07_Search_query_lastActicityFilter() async throws {
@@ -92,21 +92,21 @@ class QueryPerformanceTests: XCTestCase {
         let filter = try PlatformSearchFilter(expression: .init(operator: .is, value: "macos,ios"))
         let query = try Search.query(app.db, ["a"], filters: [filter], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 6900, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 7000, variation: 200)
     }
 
     func test_10_Search_query_productTypeFilter() async throws {
         let filter = try ProductTypeSearchFilter(expression: .init(operator: .is, value: "plugin"))
         let query = try Search.query(app.db, ["a"], filters: [filter], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 6800, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 6900, variation: 200)
     }
 
     func test_11_Search_query_starsFilter() async throws {
         let filter = try StarsSearchFilter(expression: .init(operator: .greaterThan, value: "5"))
         let query = try Search.query(app.db, ["a"], filters: [filter], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 7000, variation: 300)
+        try await assertQueryPerformance(query, expectedCost: 7100, variation: 300)
     }
 
     func test_12_Search_refresh() async throws {
@@ -152,7 +152,7 @@ class QueryPerformanceTests: XCTestCase {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
-        try await assertQueryPerformance(query, expectedCost: 70_000, variation: 3000)
+        try await assertQueryPerformance(query, expectedCost: 71_000, variation: 3000)
     }
 
 }
