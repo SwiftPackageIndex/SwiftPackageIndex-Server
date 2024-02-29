@@ -316,7 +316,6 @@ struct DocumentationPageProcessor {
         try rewrite(document: document, attribute: "src", owner: owner, repository: repository, reference: reference)
     }
 
-#warning("add test")
     static func rewriteScriptBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
         for e in try document.select("script") {
             let value = e.data()
