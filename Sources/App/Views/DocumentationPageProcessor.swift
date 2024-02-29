@@ -73,9 +73,7 @@ struct DocumentationPageProcessor {
             document = try SwiftSoup.parse(rawHtml)
 
             // Base URL rewrite
-            try Self.rewriteBaseUrl(document: document, owner: repositoryOwner, repository: repositoryName, reference: reference)
-            try Self.rewrite(document: document, attribute: "href", owner: repositoryOwner, repository: repositoryName, reference: reference)
-            try Self.rewrite(document: document, attribute: "src", owner: repositoryOwner, repository: repositoryName, reference: reference)
+            try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, reference: reference)
 
             // SPI related modifications
             try document.title("\(packageName) Documentation – Swift Package Index")
@@ -312,7 +310,14 @@ struct DocumentationPageProcessor {
         )
     }
 
-    static func rewriteBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
+    static func rewriteBaseUrls(document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
+        try rewriteScriptBaseUrl(document: document, owner: owner, repository: repository, reference: reference)
+        try rewrite(document: document, attribute: "href", owner: owner, repository: repository, reference: reference)
+        try rewrite(document: document, attribute: "src", owner: owner, repository: repository, reference: reference)
+    }
+
+#warning("add test")
+    static func rewriteScriptBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
         for e in try document.select("script") {
             let value = e.data()
             if value == #"var baseUrl = "/""# {
@@ -322,6 +327,7 @@ struct DocumentationPageProcessor {
         }
     }
 
+#warning("add test")
     static func rewrite(document: SwiftSoup.Document, attribute: String, owner: String, repository: String, reference: String) throws {
         for e in try document.select(#"[\#(attribute)^="/"]"#) {
             let value = try e.attr(attribute)
