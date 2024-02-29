@@ -16,7 +16,7 @@ import XCTest
 
 @testable import App
 
-import SnapshotTesting
+import InlineSnapshotTesting
 import SwiftSoup
 
 
@@ -66,5 +66,40 @@ final class DocumentationPageProcessorTests: AppTestCase {
         try DocumentationPageProcessor.rewriteBaseUrls(document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
         // validate
         assertSnapshot(of: "\(doc)", as: .html)
+    }
+
+    func test_rewriteScriptBaseUrl() throws {
+        do {  // test rewriting of "/" base url
+            let doc = try SwiftSoup.parse(#"""
+                <script>var baseUrl = "/"</script>
+                """#)
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+            """
+            <html>
+             <head>
+              <script>var baseUrl = "/foo/bar/1.2.3/"</script>
+             </head>
+             <body></body>
+            </html>
+            """
+            }
+        }
+        do {  // don't rewrite a base url that isn't "/"
+            let doc = try SwiftSoup.parse(#"""
+                <script>var baseUrl = "/other/"</script>
+                """#)
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+            """
+            <html>
+             <head>
+              <script>var baseUrl = "/other/"</script>
+             </head>
+             <body></body>
+            </html>
+            """
+            }
+        }
     }
 }
