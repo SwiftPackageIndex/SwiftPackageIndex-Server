@@ -132,7 +132,6 @@ db-reset: db-down db-up migrate
 
 NPM_INSTALL=/usr/local/bin/npm --cache /tmp/.npm-cache install
 NPM_RUN=/usr/local/bin/npm --cache /tmp/.npm-cache run
-NPX_RUN=/usr/local/bin/npx run
 
 build-front-end:
 	docker run --rm -v $$PWD:/host -w /host --user $$(id -u):$$(id -g) --entrypoint sh node:21-alpine -c "$(NPM_INSTALL) && $(NPM_RUN) build"
