@@ -17,6 +17,7 @@ import XCTest
 @testable import App
 
 import SnapshotTesting
+import SwiftSoup
 
 
 final class DocumentationPageProcessorTests: AppTestCase {
@@ -58,4 +59,12 @@ final class DocumentationPageProcessorTests: AppTestCase {
         assertSnapshot(matching: processor.header, as: .html)
     }
 
+    func test_rewriteBaseUrls() throws {
+        let html = try fixtureString(for: "doc-index-nonhosting.html")
+        let doc = try SwiftSoup.parse(html)
+        // MUT
+        try DocumentationPageProcessor.rewriteBaseUrls(document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+        // validate
+        assertSnapshot(of: "\(doc)", as: .html)
+    }
 }
