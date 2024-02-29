@@ -3,8 +3,9 @@
     "license": "Apache-2.0",
     "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
     "scripts": {
-        "build": "./FrontEnd/esbuild.mjs",
-        "serve": "./FrontEnd/esbuild.mjs --watch"
+        "build": "node ./FrontEnd/esbuild.mjs",
+        "serve": "node ./FrontEnd/esbuild.mjs --watch",
+        "lint": "prettier --check --config .prettierrc 'FrontEnd/**/*.js' && stylelint --config .stylelintrc.js 'FrontEnd/**/*.scss'"
     },
     "dependencies": {
         "@hotwired/stimulus": "^3.2.1",

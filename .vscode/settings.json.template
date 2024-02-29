@@ -1,13 +1,12 @@
 {
     "task.allowAutomaticTasks": "on",
-    "stylelint.packageManager": "yarn",
-    "stylelint.validate": ["css", "scss", "less", "postcss"],
+    "stylelint.validate": ["css", "scss"],
     "[javascript][json][jsonc][typescript][typescriptreact][html][yaml][md][scss][css]": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "editor.codeActionsOnSave": {
-        "source.fixAll": false,
-        "source.fixAll.stylelint": true
+        "source.fixAll": "never",
+        "source.fixAll.stylelint": "explicit"
     }
 }

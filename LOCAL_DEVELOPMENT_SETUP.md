@@ -44,9 +44,9 @@ When working locally, it's helpful to have a database with pre-populated data fr
 
 ### Setup the Front End
 
-Once the back end is set up and the server is running, the next step is to set up the front end to serve the CSS and JavaScript.
+Once the back end is set up and the server is running, the next step is to set up the front end to serve the CSS and JavaScript. We use [esbuild](https://esbuild.github.io) to build our front end files. However, you do not need to install Node or any other tools locally unless you are doing extensive work with the front-end files in this project. For small changes or to get started with front-end changes in this project, use our Docker-based scripts.
 
-We use [yarn](https://yarnpkg.com) and [esbuild](https://esbuild.github.io) to build our front end files. However, you do not need to install `node` or `yarn` locally as the front end build scripts run through Docker. If you want to run a one-time build of the front end, so the site has valid CSS and JavaScript, run:
+To run a one-time front-end build so the site has valid CSS and JavaScript, run:
 
 ```shell
 make build-front-end
@@ -68,26 +68,43 @@ Or, if you want to run either the CSS or JavaScript linting steps separately, ru
 
 ## Developing Front End Code
 
-**Note:** This section is completely optional and is only even applicable if you want to do front-end (CSS/JavaScript) work on the project.
+**Note:** This section is completely optional and is only applicable if you want to do front-end (CSS/JavaScript) work on the project.
 
-If you are doing anything more than a quick tweak to a front-end files, you will want to install `node` and `yarn` locally rather than running them via Docker. You may also want to set up `stylelint` and `prettier` to run from within your code editor, rather than waiting for CI or the `make` commands to find errors.
+If you are doing anything more than a quick tweak to a front-end files, you will want to install `node` and `npm` locally rather than running them via Docker. You may also want to set up `stylelint` and `prettier` to run from within your code editor, rather than waiting for CI or the `make` commands to find errors.
 
 ### Installing Front End Tools Locally
 
-It is best to install node and yarn with `nvm`, which you can install by running `brew install nvm`. Be sure to add the lines to your `.profile` or `.zprofile` that will be shown during the `brew` installation that enable access to the `node` and `npm` tools. Then, install the latest stable node release with `nvm install stable` and `nvm use stable`. Then, check that you can run `node --version` and `npm --version` and that they show the same version numbers as you just installed.
+It is best to install Node with the [Node Version Manager](https://github.com/nvm-sh/nvm) tool `nvm`, which you can install by running `brew install nvm`. Be sure to add the lines to your `.profile` or `.zprofile` that will be shown during the `brew` installation that will enable access to the `nvm` tool.
 
-Then, from the project directory, install `yarn` by running `npm install yarn -g`, and finally, run `yarn` with no parameters to install all front-end dependencies, then run `yarn build` and you should see no error messages.
+Then, from the project directory, install the version of node that we specify in `.nvmrc` by running:
+
+```shell
+nvm install
+nvm use
+npm install -g npm
+```
+
+Then, check that you can run `node --version` and `npm --version` and that they show the same version numbers as were just installed.
+
+Then, from the project directory, run:
+
+```shell
+npm install
+npm run build
+```
+
+You should see no error messages.
 
 ### Setting up VS Code to Automatically Run the Yarn Server
 
 If you use Visual Studio Code for front-end development, there are some useful template files in `.vscode`:
 
 * `settings.json.template` includes settings to automatically configure Visual Studio code to autoformat and lint on every save.
-* `tasks.json.template` will start up a yarn server to regenerate all front-end files on every save.
+* `tasks.json.template` will start up a front-end server to regenerate all front-end files on every save.
 
 If you do not have a `settings.json` or `tasks.json` file in your `.vscode` directory, just remove the `.template` extensions. If you have existing files, you will need to merge the two files manually.
 
-**Note:** You will need the [Prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) installed for these settings to work.
+**Note:** You will need the [Prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) and the [StyleLint extension](https://marketplace.visualstudio.com/items?itemName=stylelint.vscode-stylelint) installed for these settings to work.
 
 ### Check Everything Works!
 
