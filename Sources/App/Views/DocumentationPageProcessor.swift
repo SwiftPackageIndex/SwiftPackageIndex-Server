@@ -71,6 +71,13 @@ struct DocumentationPageProcessor {
 
         do {
             document = try SwiftSoup.parse(rawHtml)
+
+            // Base URL rewrite
+            try Self.rewriteBaseUrl(document: document, owner: repositoryOwner, repository: repositoryName, reference: reference)
+            try Self.rewrite(document: document, attribute: "href", owner: repositoryOwner, repository: repositoryName, reference: reference)
+            try Self.rewrite(document: document, attribute: "src", owner: repositoryOwner, repository: repositoryName, reference: reference)
+
+            // SPI related modifications
             try document.title("\(packageName) Documentation – Swift Package Index")
             if let metaNoIndex = self.metaNoIndex {
                 try document.head()?.prepend(metaNoIndex)
@@ -303,5 +310,25 @@ struct DocumentationPageProcessor {
             ),
             .text(".")
         )
+    }
+
+    static func rewriteBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
+        for e in try document.select("script") {
+            let value = e.data()
+            if value == #"var baseUrl = "/""# {
+                let path = "/\(owner)/\(repository)/\(reference)/".lowercased()
+                try e.html(#"var baseUrl = "\#(path)""#)
+            }
+        }
+    }
+
+    static func rewrite(document: SwiftSoup.Document, attribute: String, owner: String, repository: String, reference: String) throws {
+        for e in try document.select(#"[\#(attribute)^="/"]"#) {
+            let value = try e.attr(attribute)
+            let path = "/\(owner)/\(repository)".lowercased()
+            if !value.lowercased().hasPrefix(path) {
+                try e.attr(attribute, "\(path)/\(reference)\(value)")
+            }
+        }
     }
 }
