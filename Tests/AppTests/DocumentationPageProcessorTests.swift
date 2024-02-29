@@ -102,4 +102,62 @@ final class DocumentationPageProcessorTests: AppTestCase {
             }
         }
     }
+
+    func test_rewriteAttribute() throws {
+        do {  // test rewriting of un-prefixed src attributes
+            let doc = try SwiftSoup.parse(#"""
+                <script src="/js/index-1.js"></script>
+                <script src="/js/index-2.js"></script>
+                """#)
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+                """
+                <html>
+                 <head>
+                  <script src="/foo/bar/1.2.3/js/index-1.js"></script> 
+                  <script src="/foo/bar/1.2.3/js/index-2.js"></script>
+                 </head>
+                 <body></body>
+                </html>
+                """
+            }
+        }
+        do {  // ensure we don't prefix attributes that are already prefixed
+            let doc = try SwiftSoup.parse(#"""
+                <script src="/foo/bar/1.2.3/js/index-1.js"></script>
+                <script src="/foo/bar/1.2.3/js/index-2.js"></script>
+                """#)
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+                """
+                <html>
+                 <head>
+                  <script src="/foo/bar/1.2.3/js/index-1.js"></script> 
+                  <script src="/foo/bar/1.2.3/js/index-2.js"></script>
+                 </head>
+                 <body></body>
+                </html>
+                """
+            }
+        }
+        do {  // ensure we don't prefix attributes that are already prefixed for a different reference
+              // (this probably cannot happen in practise but we certainly don't want to prefix in this case)
+            let doc = try SwiftSoup.parse(#"""
+                <script src="/foo/bar/main/js/index-1.js"></script>
+                <script src="/foo/bar/main/js/index-2.js"></script>
+                """#)
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+                """
+                <html>
+                 <head>
+                  <script src="/foo/bar/main/js/index-1.js"></script> 
+                  <script src="/foo/bar/main/js/index-2.js"></script>
+                 </head>
+                 <body></body>
+                </html>
+                """
+            }
+        }
+    }
 }

@@ -312,8 +312,8 @@ struct DocumentationPageProcessor {
 
     static func rewriteBaseUrls(document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
         try rewriteScriptBaseUrl(document: document, owner: owner, repository: repository, reference: reference)
-        try rewrite(document: document, attribute: "href", owner: owner, repository: repository, reference: reference)
-        try rewrite(document: document, attribute: "src", owner: owner, repository: repository, reference: reference)
+        try rewriteAttribute("href", document: document, owner: owner, repository: repository, reference: reference)
+        try rewriteAttribute("src", document: document, owner: owner, repository: repository, reference: reference)
     }
 
     static func rewriteScriptBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
@@ -326,8 +326,7 @@ struct DocumentationPageProcessor {
         }
     }
 
-#warning("add test")
-    static func rewrite(document: SwiftSoup.Document, attribute: String, owner: String, repository: String, reference: String) throws {
+    static func rewriteAttribute(_ attribute: String, document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
         for e in try document.select(#"[\#(attribute)^="/"]"#) {
             let value = try e.attr(attribute)
             let path = "/\(owner)/\(repository)".lowercased()
