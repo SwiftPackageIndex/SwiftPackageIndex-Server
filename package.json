@@ -21,6 +21,6 @@
         "stylelint": "^16.2.1",
         "stylelint-config-standard-scss": "^13.0.0",
         "stylelint-order": "^6.0.4",
-        "stylelint-scss": "^6.1.0"
+        "stylelint-scss": "^6.2.0"
     }
 }
