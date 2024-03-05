@@ -27,6 +27,12 @@ public struct S3Store {
     }
     
     public func save(payload: String, to key: Key) async throws {
+        guard let data = payload.data(using: .utf8)
+        else { throw Error.genericError("Could not convert readme string to data") }
+        try await save(payload: data, to: key)
+    }
+
+    public func save(payload: Data, to key: Key) async throws {
         let client = AWSClient(
             credentialProvider: .static(accessKeyId: credentials.keyId,
                                         secretAccessKey: credentials.secret),
@@ -37,7 +43,7 @@ public struct S3Store {
 
         let req = S3.PutObjectRequest(
             acl: .publicRead,  // requires "Block all public access" to be "off"
-            body: .string(payload),
+            body: .data(payload),
             bucket: key.bucket,
             key: key.path
         )
