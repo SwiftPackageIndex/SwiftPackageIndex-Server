@@ -116,6 +116,7 @@ func ingest(client: Client,
                            let repository = metadata.repositoryName,
                            let html = readme?.html {
                             let objectUrl = try await Current.storeS3Readme(client, owner, repository, html)
+#warning("Move back to storeReadmeImage")
                             s3Readme = .cached(s3ObjectUrl: objectUrl, githubEtag: upstreamEtag)
                         } else {
                             s3Readme = repo.s3Readme
@@ -154,9 +155,14 @@ func ingest(client: Client,
 
 
 func fetchMetadata(client: Client, package: Joined<Package, Repository>) async throws -> (Github.Metadata, Github.License?, Github.Readme?) {
+    // TODO: Pass through `owner` and `repository` to all these calls so that they can use `apiUri(owner:repository:resource:query:)`
     async let metadata = try await Current.fetchMetadata(client, package.model.url)
     async let license = await Current.fetchLicense(client, package.model.url)
-    async let readme = await Current.fetchReadme(client, package.model.url)
+
+    guard let owner = package.repository?.owner, let repository = package.repository?.name
+    else { return try await (metadata, license, nil) }
+
+    async let readme = await Current.fetchReadme(client, owner, repository)
     return try await (metadata, license, readme)
 }
 

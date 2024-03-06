@@ -51,7 +51,7 @@ extension AppEnvironment {
             },
             fetchLicense: { _, _ in .init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE") },
             fetchMetadata: { _, _ in .mock },
-            fetchReadme: { _, _ in .init(html: "readme html", htmlUrl: "readme html url") },
+            fetchReadme: { _,  _, _ in .init(html: "readme html", htmlUrl: "readme html url") },
             fetchS3Readme: { _, _, _ in "" },
             fileManager: .mock,
             getStatusCount: { _, _ in eventLoop.future(100) },

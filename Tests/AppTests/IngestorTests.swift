@@ -400,7 +400,7 @@ class IngestorTests: AppTestCase {
         try await pkg.save(on: app.db)
         Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
         let fetchCalls = QueueIsolated(0)
-        Current.fetchReadme = { _, _ in
+        Current.fetchReadme = { _, _, _ in
             fetchCalls.increment()
             if fetchCalls.value <= 2 {
                 return .init(etag: "etag1", html: "readme html 1", htmlUrl: "readme url")
@@ -473,7 +473,7 @@ class IngestorTests: AppTestCase {
         let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
         try await pkg.save(on: app.db)
         Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
-        Current.fetchReadme = { _, _ in
+        Current.fetchReadme = { _, _, _ in
             return .init(etag: "etag1", html: "readme html 1", htmlUrl: "readme url")
         }
         let storeCalls = QueueIsolated(0)

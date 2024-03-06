@@ -33,28 +33,38 @@ extension S3Store {
             throw Error.genericError("missing AWS credentials")
         }
         let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
-        let key = try Key.readme(owner: owner, repository: repository)
+        let readmeKey = try Key.readme(owner: owner, repository: repository)
 
-        Current.logger().debug("Copying readme to \(key.s3Uri) ...")
-        try await store.save(payload: readme, to: key)
+        // Readme file itself goes first
+        Current.logger().debug("Copying readme to \(readmeKey.s3Uri) ...")
+        try await store.save(payload: readme, to: readmeKey)
 
-        return key.objectUrl
+        // Then find and cache any images we need to
+        /* TODO GET THE URLS FROM THE README STRUCT */
+//        for imageUrl in [] {
+//            let response = try await client.get(URI(stringLiteral: imageUrl))
+//
+//            Current.logger().debug("Copying readme image to \(readmeKey.s3Uri) ...")
+//            try await store.save(payload: readme, to: readmeKey)
+//        }
+
+        return readmeKey.objectUrl
     }
 
-    static func storeReadmeImage(owner: String, repository: String, imageData: Data, imageUrl: String) async throws -> String {
-        guard let accessKeyId = Current.awsAccessKeyId(),
-              let secretAccessKey = Current.awsSecretAccessKey()
-        else {
-            throw Error.genericError("missing AWS credentials")
-        }
-        let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
-        let key = try Key.readme(owner: owner, repository: repository, imageUrl: imageUrl)
-
-        Current.logger().debug("Copying readme image to \(key.s3Uri) ...")
-        try await store.save(payload: imageData, to: key)
-
-        return key.objectUrl
-    }
+//    static func storeReadmeImage(owner: String, repository: String, imageData: Data, imageUrl: String) async throws -> String {
+//        guard let accessKeyId = Current.awsAccessKeyId(),
+//              let secretAccessKey = Current.awsSecretAccessKey()
+//        else {
+//            throw Error.genericError("missing AWS credentials")
+//        }
+//        let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
+//        let key = try Key.readme(owner: owner, repository: repository, imageUrl: imageUrl)
+//
+//        Current.logger().debug("Copying readme image to \(key.s3Uri) ...")
+//        try await store.save(payload: imageData, to: key)
+//
+//        return key.objectUrl
+//    }
 
 }
 

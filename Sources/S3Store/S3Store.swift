@@ -62,7 +62,7 @@ extension S3Store {
         }
     }
 
-    public struct Key {
+    public struct Key: Equatable {
         public let bucket: String
         public let path: String
 
