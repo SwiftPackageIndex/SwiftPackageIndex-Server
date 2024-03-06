@@ -409,7 +409,7 @@ class IngestorTests: AppTestCase {
             }
         }
         let storeCalls = QueueIsolated(0)
-        Current.storeS3Readme = { owner, repo, html in
+        Current.storeS3Readme = { client, owner, repo, html in
             storeCalls.increment()
             XCTAssertEqual(owner, "foo")
             XCTAssertEqual(repo, "bar")
@@ -478,7 +478,7 @@ class IngestorTests: AppTestCase {
         }
         let storeCalls = QueueIsolated(0)
         struct Error: Swift.Error { }
-        Current.storeS3Readme = { owner, repo, html in
+        Current.storeS3Readme = { client, owner, repo, html in
             storeCalls.increment()
             throw Error()
         }

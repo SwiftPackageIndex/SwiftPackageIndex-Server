@@ -71,7 +71,7 @@ struct AppEnvironment {
     var setLogger: (Logger) -> Void
     var shell: Shell
     var siteURL: () -> String
-    var storeS3Readme: (_ owner: String, _ repository: String, _ readme: String) async throws -> String
+    var storeS3Readme: (_ client: Client, _ owner: String, _ repository: String, _ readme: String) async throws -> String
     var timeZone: () -> TimeZone
     var triggerBuild: (_ client: Client,
                        _ logger: Logger,
@@ -204,7 +204,7 @@ extension AppEnvironment {
         setLogger: { logger in Self.logger = logger },
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
-        storeS3Readme: S3Store.storeReadme(owner:repository:readme:),
+        storeS3Readme: S3Store.storeReadme(client:owner:repository:readme:),
         timeZone: { .current },
         triggerBuild: Gitlab.Builder.triggerBuild
     )

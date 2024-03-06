@@ -115,7 +115,7 @@ func ingest(client: Client,
                            let owner = metadata.repositoryOwner,
                            let repository = metadata.repositoryName,
                            let html = readme?.html {
-                            let objectUrl = try await Current.storeS3Readme(owner, repository, html)
+                            let objectUrl = try await Current.storeS3Readme(client, owner, repository, html)
                             s3Readme = .cached(s3ObjectUrl: objectUrl, githubEtag: upstreamEtag)
                         } else {
                             s3Readme = repo.s3Readme

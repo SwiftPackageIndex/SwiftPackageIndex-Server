@@ -26,7 +26,7 @@ extension S3Store {
         return body.asString()
     }
 
-    static func storeReadme(owner: String, repository: String, readme: String) async throws -> String {
+    static func storeReadme(client: Client, owner: String, repository: String, readme: String) async throws -> String {
         guard let accessKeyId = Current.awsAccessKeyId(),
               let secretAccessKey = Current.awsSecretAccessKey()
         else {
