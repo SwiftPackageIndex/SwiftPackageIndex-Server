@@ -242,7 +242,7 @@ extension Github {
         var htmlUrl: String
     }
 
-    struct Readme: Decodable, Equatable {
+    struct Readme: Equatable {
         var etag: String?
         var html: String
         var htmlUrl: String
