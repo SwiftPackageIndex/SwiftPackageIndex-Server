@@ -255,7 +255,7 @@ class BuildTriggerTests: AppTestCase {
                                   configs:
                                   - documentation_targets: [t0]
                                 """)
-            XCTAssertEqual(manifest.docPairs, [.init(.macosSpm, .v5_9)])
+            XCTAssertEqual(manifest.docPairs, [.init(.macosSpm, .v5_10)])
         }
         do {
             let manifest = try SPIManifest.Manifest(yml: """
@@ -322,7 +322,7 @@ class BuildTriggerTests: AppTestCase {
         let expectedPairs = Set(SwiftVersion.allActive.map { BuildPair(.macosSpm, $0) })
         XCTAssertEqual(res, [.init(versionId: versionId,
                                    buildPairs: expectedPairs,
-                                   docPairs: .init([.init(.macosSpm, .v5_9)]),
+                                   docPairs: .init([.init(.macosSpm, .v5_10)]),
                                    reference: .tag(1, 2, 3))!])
     }
 
