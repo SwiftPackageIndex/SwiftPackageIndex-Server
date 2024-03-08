@@ -1,4 +1,4 @@
-// swift-tools-version:5.9
+// swift-tools-version:5.10
 
 // Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
@@ -70,15 +70,24 @@ let package = Package(
                     .product(name: "Vapor", package: "vapor"),
                     .product(name: "VaporToOpenAPI", package: "VaporToOpenAPI"),
                 ],
+                swiftSettings: [
+                    .enableUpcomingFeature("StrictConcurrency")
+                ],
                 linkerSettings: [.unsafeFlags(["-Xlinker", "-interposable"],
                                               .when(platforms: [.macOS],
                                                     configuration: .debug))]),
-        .target(name: "S3Store", dependencies: [
-            .product(name: "SotoS3", package: "soto"),
-        ]),
+        .target(name: "S3Store",
+                dependencies: [
+                    .product(name: "SotoS3", package: "soto"),
+                ],
+                swiftSettings: [
+                    .enableUpcomingFeature("StrictConcurrency")
+                ]),
         .target(name: "Authentication", dependencies: [
-            .product(name: "JWTKit", package: "jwt-kit")
-        ]),
+            .product(name: "JWTKit", package: "jwt-kit")        ],
+                swiftSettings: [
+                    .enableUpcomingFeature("StrictConcurrency")
+                ]),
         .testTarget(name: "AppTests",
                     dependencies: [
                         .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
@@ -86,12 +95,21 @@ let package = Package(
                         .product(name: "XCTVapor", package: "vapor"),
                         .target(name: "App"),
                     ],
-                    exclude: ["__Snapshots__", "Fixtures"]
+                    exclude: ["__Snapshots__", "Fixtures"],
+                    swiftSettings: [
+                        .enableUpcomingFeature("StrictConcurrency")
+                    ]
                    ),
         .testTarget(name: "AuthenticationTests",
-                    dependencies: [.target(name: "Authentication")]),
+                    dependencies: [.target(name: "Authentication")],
+                    swiftSettings: [
+                        .enableUpcomingFeature("StrictConcurrency")
+                    ]),
         .testTarget(name: "S3StoreTests",
-                    dependencies: [.target(name: "S3Store")])
+                    dependencies: [.target(name: "S3Store")],
+                    swiftSettings: [
+                        .enableUpcomingFeature("StrictConcurrency")
+                    ])
     ],
     swiftLanguageVersions: [.v5]
 )
