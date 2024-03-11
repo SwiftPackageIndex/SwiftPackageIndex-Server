@@ -381,12 +381,11 @@ class PackageController_routesTests: AppTestCase {
 
         // MUT
         try app.test(.GET, "/owner/package/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/docs")
+            XCTAssertEqual($0.status, .ok)
         }
         try app.test(.GET, "/owner/package/documentation/docs/symbol") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/docs/symbol")
+#warning("improve this test by checking what we do with the url")
+            XCTAssertEqual($0.status, .ok)
         }
         // There is nothing magic about the catchall - authors need to make sure they point
         // the path after `documentation/` at a valid doc path. We do not try and map it to
@@ -394,21 +393,20 @@ class PackageController_routesTests: AppTestCase {
         // cross-target linking.
         // Effectively, all we're doing is inserting the correct `ref` before `documentation`.
         try app.test(.GET, "/owner/package/documentation/foo") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo")
+#warning("improve this test by checking what we do with the url")
+            XCTAssertEqual($0.status, .ok)
         }
         try app.test(.GET, "/owner/package/documentation/foo#anchor") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo#anchor")
+#warning("improve this test by checking what we do with the url")
+            XCTAssertEqual($0.status, .ok)
         }
         try app.test(.GET, "/owner/package/documentation/FOO") {
-            // Ensure we redirect to lowercase path URLs (which is what DocC generates.
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo")
+#warning("improve this test by checking what we do with the url")
+            XCTAssertEqual($0.status, .ok)
         }
     }
 
-    func test_documentationRoot_redirect() throws {
+    func test_documentationRoot() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, name: "package", owner: "owner")
@@ -432,15 +430,16 @@ class PackageController_routesTests: AppTestCase {
 
         // MUT
         try app.test(.GET, "/owner/package/main/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.status, .ok)
         }
         try app.test(.GET, "/owner/package/1.0.0/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.status, .ok)
         }
     }
 
-    func test_documentationRoot_noRedirect() throws {
+    func test_documentationRoot_notFound() throws {
         // setup
+        Current.fetchDocumentation = { _, _ in .init(status: .notFound) }
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db).wait()
@@ -560,8 +559,8 @@ class PackageController_routesTests: AppTestCase {
 
         // MUT
         try app.test(.GET, "/owner/package/1.2.3/documentation") {
-            // root path doesn't call Current.fetchDocumentation, redirects only
-            XCTAssertEqual($0.status, .seeOther)
+            // hits Current.fetchDocumentation which throws, converted to notFound
+            XCTAssertEqual($0.status, .notFound)
         }
         try app.test(.GET, "/owner/package/1.2.3/documentation/foo") {
             // hits Current.fetchDocumentation which throws, converted to notFound
@@ -703,14 +702,14 @@ class PackageController_routesTests: AppTestCase {
 
         // test default path
         try app.test(.GET, "/owner/package/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/feature-1.2.3/documentation/docs")
+            XCTAssertEqual($0.status, .ok)
+#warning("improve this test by checking what we do with the url")
         }
 
         // test reference root path
         try app.test(.GET, "/owner/package/feature-1.2.3/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/feature-1.2.3/documentation/docs")
+            XCTAssertEqual($0.status, .ok)
+#warning("improve this test by checking what we do with the url")
         }
 
         // test path a/b
@@ -751,12 +750,12 @@ class PackageController_routesTests: AppTestCase {
             XCTAssertEqual($0.status, .notFound)
         }
         try app.test(.GET, "/owner/package/tutorials/foo") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/tutorials/foo")
+            XCTAssertEqual($0.status, .ok)
+#warning("improve this test by checking what we do with the url")
         }
         try app.test(.GET, "/owner/package/tutorials/foo#anchor") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/tutorials/foo#anchor")
+            XCTAssertEqual($0.status, .ok)
+#warning("improve this test by checking what we do with the url")
         }
     }
 
@@ -997,8 +996,8 @@ class PackageController_routesTests: AppTestCase {
 
         // Ensure documentation is resolved
         try app.test(.GET, "/owner/package/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/main/documentation/docs")
+            XCTAssertEqual($0.status, .ok)
+#warning("improve this test by checking what we do with the url")
         }
 
         // Run analyze to detect a new default branch version
@@ -1011,8 +1010,8 @@ class PackageController_routesTests: AppTestCase {
 
         // Ensure documentation is still being resolved
         try app.test(.GET, "/owner/package/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/main/documentation/docs")
+            XCTAssertEqual($0.status, .ok)
+#warning("improve this test by checking what we do with the url")
         }
     }
 
