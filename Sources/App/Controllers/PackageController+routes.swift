@@ -86,31 +86,7 @@ enum PackageController {
         }
     }
 
-    static func documentation(req: Request) async throws -> Response {
-        guard
-            let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository"),
-            let reference = req.parameters.get("reference")
-        else {
-            throw Abort(.notFound)
-        }
-
-        let referenceToMatch: Reference = SemanticVersion(reference)
-            .map { .tag($0, reference) } ?? .branch(reference)
-
-        guard let target = try await DocumentationTarget.query(on: req.db,
-                                                               owner: owner,
-                                                               repository: repository,
-                                                               reference: referenceToMatch)
-        else { throw Abort(.notFound) }
-
-        throw Abort.redirect(to: SiteURL.relativeURL(owner: owner,
-                                                     repository: repository,
-                                                     documentation: target,
-                                                     fragment: .documentation))
-    }
-
-    static func documentation(req: Request, fragment: Fragment) async throws -> Response {
+    static func documentation(req: Request, fragment: Fragment = .documentation) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -118,15 +94,32 @@ enum PackageController {
             throw Abort(.notFound)
         }
 
-        let reference = if let referenceParameter = req.parameters.get("reference") {
-            referenceParameter
-        } else if let target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository), case .internal(let reference, _) = target {
-            reference
-        } else {
+        guard let target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository)
+        else { throw Abort(.notFound) }
+
+        switch target {
+            case .external(let url):
+                throw Abort.redirect(to: url)
+
+            case let .internal(reference, archive):
+                return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: archive, fragment: fragment)
+
+            case .universal:
+                // FIXME: DocumentationTarget.query returns either an external or an internal DocumentationTarget and we should model the type as such.
+                // This case is _effectively_ unreachable but we can't currently express that.
+                throw Abort(.notFound)
+        }
+    }
+
+    static func documentation(req: Request, reference: String, archive: String? = nil, fragment: Fragment) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else {
             throw Abort(.notFound)
         }
 
-        let archive = req.parameters.get("archive")
+        let archive = archive ?? req.parameters.get("archive")
         let catchAll = [archive].compactMap { $0 } + req.parameters.getCatchall()
         let path: String
         switch fragment {
