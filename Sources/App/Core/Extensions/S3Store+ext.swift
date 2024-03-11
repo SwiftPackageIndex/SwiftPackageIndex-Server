@@ -26,45 +26,37 @@ extension S3Store {
         return body.asString()
     }
 
-    static func storeReadme(client: Client, owner: String, repository: String, readme: String) async throws -> String {
+    static func storeReadme(owner: String, repository: String, readme: String) async throws -> String {
         guard let accessKeyId = Current.awsAccessKeyId(),
               let secretAccessKey = Current.awsSecretAccessKey()
         else {
             throw Error.genericError("missing AWS credentials")
         }
         let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
-        let readmeKey = try Key.readme(owner: owner, repository: repository)
+        let key = try Key.readme(owner: owner, repository: repository)
 
-        // Readme file itself goes first
-        Current.logger().debug("Copying readme to \(readmeKey.s3Uri) ...")
-        try await store.save(payload: readme, to: readmeKey)
+        Current.logger().debug("Copying readme to \(key.s3Uri) ...")
+        try await store.save(payload: readme, to: key)
 
-        // Then find and cache any images we need to
-        /* TODO GET THE URLS FROM THE README STRUCT */
-//        for imageUrl in [] {
-//            let response = try await client.get(URI(stringLiteral: imageUrl))
-//
-//            Current.logger().debug("Copying readme image to \(readmeKey.s3Uri) ...")
-//            try await store.save(payload: readme, to: readmeKey)
-//        }
-
-        return readmeKey.objectUrl
+        return key.objectUrl
     }
 
-//    static func storeReadmeImage(owner: String, repository: String, imageData: Data, imageUrl: String) async throws -> String {
-//        guard let accessKeyId = Current.awsAccessKeyId(),
-//              let secretAccessKey = Current.awsSecretAccessKey()
-//        else {
-//            throw Error.genericError("missing AWS credentials")
-//        }
-//        let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
-//        let key = try Key.readme(owner: owner, repository: repository, imageUrl: imageUrl)
-//
-//        Current.logger().debug("Copying readme image to \(key.s3Uri) ...")
-//        try await store.save(payload: imageData, to: key)
-//
-//        return key.objectUrl
-//    }
+    static func storeReadmeImages(client: Client, imagesToCache: [Github.Readme.ImageToCache]) async throws {
+        guard let accessKeyId = Current.awsAccessKeyId(),
+              let secretAccessKey = Current.awsSecretAccessKey()
+        else {
+            throw Error.genericError("missing AWS credentials")
+        }
+
+        let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
+        for imageToCache in imagesToCache {
+            Current.logger().debug("Copying readme image to \(imageToCache.s3Key.s3Uri) ...")
+            let response = try await client.get(URI(stringLiteral: imageToCache.originalUrl))
+            if var body = response.body, let imageData = body.readData(length: body.readableBytes) {
+                try await store.save(payload: imageData, to: imageToCache.s3Key)
+            }
+        }
+    }
 
 }
 
@@ -78,9 +70,8 @@ extension S3Store.Key {
         if let imageUrl {
             guard let url = URL(string: imageUrl)
             else { throw S3Store.Error.genericError("Invalid imageUrl \(imageUrl)") }
-            let fileExtension = url.pathExtension
-            let hashedFilename = imageUrl.sha256Checksum
-            let path = "\(owner)/\(repository)/\(hashedFilename).\(fileExtension)".lowercased()
+            let filename = url.lastPathComponent
+            let path = "\(owner)/\(repository)/\(filename)".lowercased()
             return .init(bucket: bucket, path: path)
         } else {
             let path = "\(owner)/\(repository)/readme.html".lowercased()

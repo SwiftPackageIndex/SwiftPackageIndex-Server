@@ -115,8 +115,10 @@ func ingest(client: Client,
                            let owner = metadata.repositoryOwner,
                            let repository = metadata.repositoryName,
                            let html = readme?.html {
-                            let objectUrl = try await Current.storeS3Readme(client, owner, repository, html)
-#warning("Move back to storeReadmeImage")
+                            let objectUrl = try await Current.storeS3Readme(owner, repository, html)
+                            if let imagesToCache = readme?.imagesToCache, imagesToCache.isEmpty == false {
+                                try await Current.storeS3ReadmeImages(client, imagesToCache)
+                            }
                             s3Readme = .cached(s3ObjectUrl: objectUrl, githubEtag: upstreamEtag)
                         } else {
                             s3Readme = repo.s3Readme
