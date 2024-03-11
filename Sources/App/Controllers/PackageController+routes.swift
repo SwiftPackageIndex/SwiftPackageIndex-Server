@@ -112,6 +112,10 @@ enum PackageController {
                                                      path: path))
     }
 
+    // FIXME: we should remodel the routing for all these handlers.
+    // It's quite confusing which handler does what exactly, mainly because we pull some parameters from req while others are passed
+    // explicitly. Ideally we'd have a `DocRoute` type or something that captures all the variants so that we can create it from req
+    // but also create it in code and then re-route without a redirect.
     static func documentation(req: Request, fragment: Fragment = .documentation) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
