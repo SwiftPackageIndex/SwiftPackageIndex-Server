@@ -647,6 +647,10 @@ requests:
     url: ${base_url}/Couriere/UIExtensions
     validation:
       status: 200
+  /cpisciotta/xcbeautify:
+    url: ${base_url}/cpisciotta/xcbeautify
+    validation:
+      status: 200
   /Cyberbeni/TypedNotificationCenter:
     url: ${base_url}/Cyberbeni/TypedNotificationCenter
     validation:
@@ -9261,10 +9265,6 @@ requests:
       status: 200
   /thii/Unxip:
     url: ${base_url}/thii/Unxip
-    validation:
-      status: 200
-  /thii/xcbeautify:
-    url: ${base_url}/thii/xcbeautify
     validation:
       status: 200
   /thii/yes:
