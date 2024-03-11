@@ -20,7 +20,7 @@ services:
 
   grafana:
     # https://github.com/grafana/grafana/releases
-    image: grafana/grafana:10.3.1
+    image: grafana/grafana:10.3.4
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: 'false'
@@ -42,7 +42,7 @@ services:
 
   loki:
     # https://github.com/grafana/loki/releases
-    image: grafana/loki:2.9.4
+    image: grafana/loki:2.9.5
     command: -config.file=/loki.yml
     configs:
       - source: loki_cfg
@@ -54,7 +54,7 @@ services:
   promtail:
     # https://github.com/grafana/loki/releases
     # (promtail is released in parallel with loki)
-    image: grafana/promtail:2.9.4
+    image: grafana/promtail:2.9.5
     command: -config.file=/promtail.yml
     configs:
       - source: promtail_cfg
@@ -71,7 +71,7 @@ services:
 
   prometheus:
     # https://github.com/prometheus/prometheus/releases
-    image: prom/prometheus:v2.49.1
+    image: prom/prometheus:v2.50.1
     volumes:
       - prometheus_data:/prometheus
     command: --config.file=/prometheus.yml --storage.tsdb.retention.time=30d
@@ -110,7 +110,7 @@ services:
 
   cadvisor:
     # https://github.com/google/cadvisor/releases
-    image: gcr.io/cadvisor/cadvisor:v0.48.1
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
     networks:
       - app_backend
     volumes:
