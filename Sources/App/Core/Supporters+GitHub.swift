@@ -198,7 +198,7 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/1696960?u=480042020f9901e9459be75fc2e891081b6f0492&v=4"
         ),
         .init(
-            login: "thomasRademaker",
+            login: "radmakr",
             name: "Thomas Rademaker",
             avatarUrl: "https://avatars.githubusercontent.com/u/1885323?u=236e99eb7cb909bff3a7e9f5c85f120dc458fd27&v=4"
         ),
