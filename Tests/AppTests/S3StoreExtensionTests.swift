@@ -21,12 +21,14 @@ import S3Store
 class S3StoreExtensionTests: XCTestCase {
 
     func test_Key_readme() throws {
+        Current.awsReadmeBucket = { "awsReadmeBucket" }
+
         let imageKey = try S3Store.Key.readme(owner: "owner", repository: "repository",
-                                              imageUrl: "https://example.com/image/url.png")
-        XCTAssertEqual(imageKey.s3Uri, "s3://spi-prod-readmes/owner/repository/7bf1937e053f876a13f51fa1348b93eb2a7e54e05d3de3a74fba00605f190c10.png")
+                                              imageUrl: "https://example.com/image/example-image.png")
+        XCTAssertEqual(imageKey.s3Uri, "s3://awsReadmeBucket/owner/repository/example-image.png")
 
         let readmeKey = try S3Store.Key.readme(owner: "owner", repository: "repository")
-        XCTAssertEqual(readmeKey.s3Uri, "s3://spi-prod-readmes/owner/repository/readme.html")
+        XCTAssertEqual(readmeKey.s3Uri, "s3://awsReadmeBucket/owner/repository/readme.html")
     }
 
 }

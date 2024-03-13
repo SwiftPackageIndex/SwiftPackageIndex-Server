@@ -41,7 +41,8 @@ class ErrorReportingTests: AppTestCase {
 
         // validation
         logger.logs.withValue {
-            XCTAssertEqual($0, [.init(level: .warning, message: #"App.AppError.invalidPackageUrl(nil, "foo")"#)])
+            XCTAssertEqual($0, [.init(level: .warning,
+                                      message: #"App.AppError.invalidPackageUrl(nil, "foo")"#)])
         }
     }
 

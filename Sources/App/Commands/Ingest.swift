@@ -161,10 +161,13 @@ func fetchMetadata(client: Client, package: Joined<Package, Repository>) async t
     async let metadata = try await Current.fetchMetadata(client, package.model.url)
     async let license = await Current.fetchLicense(client, package.model.url)
 
-    guard let owner = package.repository?.owner, let repository = package.repository?.name
-    else { return try await (metadata, license, nil) }
+    // Even though we get through a `Joined<Package, Repository>` as a parameter, it's
+    // we must not rely on `repository` as it will be nil when a package is first ingested.
+    // The only way to get `owner` and `repository` here is by parsing them from the URL.
+    let (owner, repository) = try Github.parseOwnerName(url: package.model.url)
 
     async let readme = await Current.fetchReadme(client, owner, repository)
+
     return try await (metadata, license, readme)
 }
 

@@ -94,7 +94,7 @@ class IngestorTests: AppTestCase {
                                    for: repo,
                                    metadata: .mock(for: pkg.url),
                                    licenseInfo: .init(htmlUrl: ""),
-                                   readmeInfo: .init(html: "", htmlUrl: ""),
+                                   readmeInfo: .init(html: "", htmlUrl: "", imagesToCache: []),
                                    s3Readme: nil)
 
         // validate
@@ -149,7 +149,10 @@ class IngestorTests: AppTestCase {
                                    for: repo,
                                    metadata: md,
                                    licenseInfo: .init(htmlUrl: "license url"),
-                                   readmeInfo: .init(etag: "etag", html: "readme html", htmlUrl: "readme html url"),
+                                   readmeInfo: .init(etag: "etag",
+                                                     html: "readme html",
+                                                     htmlUrl: "readme html url",
+                                                     imagesToCache: []),
                                    s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"))
 
         // validate
@@ -216,7 +219,9 @@ class IngestorTests: AppTestCase {
                                    for: repo,
                                    metadata: md,
                                    licenseInfo: .init(htmlUrl: "license url"),
-                                   readmeInfo: .init(html: "readme html", htmlUrl: "readme html url"),
+                                   readmeInfo: .init(html: "readme html",
+                                                     htmlUrl: "readme html url",
+                                                     imagesToCache: []),
                                    s3Readme: nil)
 
         // validate
@@ -403,13 +408,19 @@ class IngestorTests: AppTestCase {
         Current.fetchReadme = { _, _, _ in
             fetchCalls.increment()
             if fetchCalls.value <= 2 {
-                return .init(etag: "etag1", html: "readme html 1", htmlUrl: "readme url")
+                return .init(etag: "etag1",
+                             html: "readme html 1",
+                             htmlUrl: "readme url",
+                             imagesToCache: [])
             } else {
-                return .init(etag: "etag2", html: "readme html 2", htmlUrl: "readme url")
+                return .init(etag: "etag2",
+                             html: "readme html 2",
+                             htmlUrl: "readme url",
+                             imagesToCache: [])
             }
         }
         let storeCalls = QueueIsolated(0)
-        Current.storeS3Readme = { client, owner, repo, html in
+        Current.storeS3Readme = { owner, repo, html in
             storeCalls.increment()
             XCTAssertEqual(owner, "foo")
             XCTAssertEqual(repo, "bar")
@@ -474,11 +485,14 @@ class IngestorTests: AppTestCase {
         try await pkg.save(on: app.db)
         Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
         Current.fetchReadme = { _, _, _ in
-            return .init(etag: "etag1", html: "readme html 1", htmlUrl: "readme url")
+            return .init(etag: "etag1",
+                         html: "readme html 1",
+                         htmlUrl: "readme url",
+                         imagesToCache: [])
         }
         let storeCalls = QueueIsolated(0)
         struct Error: Swift.Error { }
-        Current.storeS3Readme = { client, owner, repo, html in
+        Current.storeS3Readme = { owner, repo, html in
             storeCalls.increment()
             throw Error()
         }

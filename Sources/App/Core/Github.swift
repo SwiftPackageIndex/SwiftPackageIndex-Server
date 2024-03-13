@@ -103,7 +103,7 @@ extension Github {
         }
     }
 
-    static func apiUri(owner: String, repository: String, resource: Resource) throws -> URI {
+    static func apiUri(owner: String, repository: String, resource: Resource)  -> URI {
         switch resource {
             case .license, .readme:
                 return URI(string: "https://api.github.com/repos/\(owner)/\(repository)/\(resource.rawValue)")
@@ -161,8 +161,7 @@ extension Github {
     }
 
     static func fetchReadme(client: Client, owner: String, repository: String) async -> Readme? {
-        guard let uri = try? Github.apiUri(owner: owner, repository: repository, resource: .readme)
-        else { return nil }
+        let uri = Github.apiUri(owner: owner, repository: repository, resource: .readme)
 
         // Fetch readme html content
         let readme = try? await Github.fetch(client: client, uri: uri, headers: [
@@ -259,7 +258,7 @@ extension Github {
         var etag: String?
         var html: String
         var htmlUrl: String
-        var imagesToCache: [ImageToCache]?
+        var imagesToCache: [ImageToCache]
 
         struct ImageToCache: Equatable {
             var originalUrl: String
@@ -480,7 +479,7 @@ extension Github {
 
 extension Github {
 
-    static func replaceImagesRequiringCaching(owner: String, repository: String, readme: inout String) -> [Readme.ImageToCache]? {
+    static func replaceImagesRequiringCaching(owner: String, repository: String, readme: inout String) -> [Readme.ImageToCache] {
         do {
             let document = try SwiftSoup.parse(readme)
             let imageElements = try document.select("img")
@@ -507,7 +506,7 @@ extension Github {
             readme = try document.outerHtml()
             return imagesToCache
         } catch {
-            return nil
+            return []
         }
     }
 }

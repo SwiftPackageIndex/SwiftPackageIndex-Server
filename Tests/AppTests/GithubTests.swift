@@ -388,7 +388,8 @@ class GithubTests: AppTestCase {
             res,
             .init(etag: "etag",
                   html: "readme html",
-                  htmlUrl: "readme url")
+                  htmlUrl: "readme url",
+                  imagesToCache: [])
         )
     }
 
@@ -405,6 +406,8 @@ class GithubTests: AppTestCase {
     }
 
     func test_extractImagesRequiringCaching() async throws {
+        Current.awsReadmeBucket = { "awsReadmeBucket" }
+
         var readme = """
         <html>
         <head></head>
@@ -423,14 +426,14 @@ class GithubTests: AppTestCase {
 
         XCTAssertEqual(images, [
             .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt.jpg?jwt=some-jwt",
-                  s3Key: S3Store.Key.init(bucket: "awsReadmeBucket", path: "owner/repo/6a5252ec33d9261ac8e9b7092b11d511aade10e39b1f0ec7bebd8fd3a17f7935.jpg"))
+                  s3Key: S3Store.Key.init(bucket: "awsReadmeBucket", path: "owner/repo/with-jwt.jpg"))
         ])
 
         let document = try SwiftSoup.parse(readme)
         let imageElements = try document.select("img").array()
 
         XCTAssertEqual(try imageElements.map { try $0.attr("src") }, [
-            "https://awsReadmeBucket.s3.us-east-2.amazonaws.com/owner/repo/6a5252ec33d9261ac8e9b7092b11d511aade10e39b1f0ec7bebd8fd3a17f7935.jpg",
+            "https://awsReadmeBucket.s3.us-east-2.amazonaws.com/owner/repo/with-jwt.jpg",
             "https://private-user-images.githubusercontent.com/without-jwt.jpg",
             "https://raw.githubusercontent.com/raw-image.png",
             "https://github.com/example/repo/branch/assets/example.png",
