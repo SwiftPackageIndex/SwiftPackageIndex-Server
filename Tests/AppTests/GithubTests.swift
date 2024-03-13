@@ -18,9 +18,10 @@ import Vapor
 import SwiftSoup
 import S3Store
 import XCTest
+import SnapshotTesting
 
 
-class GithubTests: AppTestCase {
+class GithubTests: SnapshotTestCase {
 
     func test_parseOwnerName() throws {
         do {
@@ -320,9 +321,9 @@ class GithubTests: AppTestCase {
     }
 
     func test_apiUri() throws {
-        XCTAssertEqual(try Github.apiUri(owner: "foo", repository: "bar", resource: .license).string,
+        XCTAssertEqual(Github.apiUri(owner: "foo", repository: "bar", resource: .license).string,
                        "https://api.github.com/repos/foo/bar/license")
-        XCTAssertEqual(try Github.apiUri(owner: "foo", repository: "bar", resource: .readme).string,
+        XCTAssertEqual(Github.apiUri(owner: "foo", repository: "bar", resource: .readme).string,
                        "https://api.github.com/repos/foo/bar/readme")
     }
 
@@ -391,6 +392,41 @@ class GithubTests: AppTestCase {
                   htmlUrl: "readme url",
                   imagesToCache: [])
         )
+    }
+
+    @MainActor
+    func test_fetchReadme_withPrivateGitHubImages() async throws {
+        // setup
+        Current.githubToken = { "secr3t" }
+        let client = MockClient { req, resp in
+            switch req.headers[.accept] {
+                case ["application/vnd.github.html+json"]:
+                    resp.status = .ok
+                    resp.body = makeBody("""
+                    <html><body>
+                      <img src="https://private-user-images.githubusercontent.com/with-jwt.jpg?jwt=some-jwt" />
+                    </body></html>
+                    """)
+                    resp.headers.add(name: .eTag, value: "etag")
+                case []:
+                    resp.status = .ok
+                    struct Response: Encodable {
+                        var htmlUrl: String
+                    }
+                    resp.body = makeBody(try! JSONEncoder().encode(Response(htmlUrl: "readme url")))
+                default:
+                    XCTFail("unexpected accept header")
+            }
+        }
+
+        // MUT
+        let res = try await XCTUnwrapAsync(await Github.fetchReadme(client: client,
+                                                                    owner: "foo",
+                                                                    repository: "bar"))
+
+        // Validate that the output comes back and has been through SwiftSoup. Note that
+        // the snapshot includes `<head></head>` that we did not have in the test data.
+        assertSnapshot(matching: res.html, as: .lines)
     }
 
     func test_fetchReadme_notFound() async throws {
