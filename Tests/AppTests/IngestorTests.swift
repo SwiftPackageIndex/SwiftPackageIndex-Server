@@ -478,6 +478,47 @@ class IngestorTests: AppTestCase {
         }
     }
 
+    func test_ingest_storeS3Readme_withPrivateImages() async throws {
+        let pkg = Package(url: "https://github.com/foo/bar".url,
+                          processingStage: .reconciliation)
+        try await pkg.save(on: app.db)
+        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        Current.storeS3Readme = { _, _, _ in "objectUrl" }
+        Current.fetchReadme = { _, _, _ in
+            return .init(etag: "etag",
+                         html: """
+                         <html>
+                         <body>
+                             <img src="https://private-user-images.githubusercontent.com/with-jwt-1.jpg?jwt=some-jwt" />
+                             <img src="https://private-user-images.githubusercontent.com/with-jwt-2.jpg?jwt=some-jwt" />
+                             <img src="https://private-user-images.githubusercontent.com/without-jwt.jpg" />
+                         </body>
+                         </html>
+                         """,
+                         htmlUrl: "readme url",
+                         imagesToCache: [
+                            .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt-1.jpg?jwt=some-jwt",
+                                  s3Key: .init(bucket: "awsReadmeBucket",
+                                               path: "/foo/bar/with-jwt-1.jpg")),
+                            .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt-2.jpg?jwt=some-jwt",
+                                  s3Key: .init(bucket: "awsReadmeBucket",
+                                               path: "/foo/bar/with-jwt-2.jpg"))
+                         ])
+        }
+        let storeS3ReadmeImagesCalls = QueueIsolated(0)
+        Current.storeS3ReadmeImages = { _, imagesToCache in
+            storeS3ReadmeImagesCalls.increment()
+
+            XCTAssertEqual(imagesToCache.count, 2)
+        }
+
+        // MUT
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+
+        // There should only be one call as `storeS3ReadmeImages` takes the array of images.
+        XCTAssertEqual(storeS3ReadmeImagesCalls.value, 1)
+    }
+
     func test_ingest_storeS3Readme_error() async throws {
         // Test caching behaviour in case the storeS3Readme call fails
         // setup
