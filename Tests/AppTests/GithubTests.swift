@@ -18,7 +18,6 @@ import Vapor
 import SwiftSoup
 import S3Store
 import XCTest
-import SnapshotTesting
 
 
 class GithubTests: SnapshotTestCase {
