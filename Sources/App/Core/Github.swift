@@ -504,8 +504,10 @@ extension Github {
                 }
             }
 
-            // Pass back both the modified README and the set of images to cache
-            readme = try document.outerHtml()
+            // Only output modified HTML if there have been changes.
+            if imagesToCache.count > 0 {
+                readme = try document.outerHtml()
+            }
             return imagesToCache
         } catch {
             return []
