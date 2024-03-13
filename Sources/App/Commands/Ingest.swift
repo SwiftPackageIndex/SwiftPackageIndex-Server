@@ -157,7 +157,7 @@ func ingest(client: Client,
 
 
 func fetchMetadata(client: Client, package: Joined<Package, Repository>) async throws -> (Github.Metadata, Github.License?, Github.Readme?) {
-    // TODO: Pass through `owner` and `repository` to all these calls so that they can use `apiUri(owner:repository:resource:query:)`
+#warning("Convert `fetchMetadata` and `fetchLicense`  to also use `apiUri(owner:repository:resource:query:)`")
     async let metadata = try await Current.fetchMetadata(client, package.model.url)
     async let license = await Current.fetchLicense(client, package.model.url)
 
