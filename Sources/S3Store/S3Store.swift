@@ -27,9 +27,7 @@ public struct S3Store {
     }
     
     public func save(payload: String, to key: Key) async throws {
-        guard let data = payload.data(using: .utf8)
-        else { throw Error.genericError("Could not convert readme string to data") }
-        try await save(payload: data, to: key)
+        try await save(payload: Data(payload.utf8), to: key)
     }
 
     public func save(payload: Data, to key: Key) async throws {
