@@ -573,4 +573,29 @@ class IngestorTests: AppTestCase {
         // validate
         XCTAssertEqual(license, nil)
     }
+
+    func test_migration076_updateRepositoryResetReadmes() async throws {
+        let package = Package(url: "https://example.com/owner/repo")
+        try await package.save(on: app.db)
+        let repository = try Repository(package: package, s3Readme: .cached(s3ObjectUrl: "object-url", githubEtag: "etag"))
+        try await repository.save(on: app.db)
+        let packageId = package.id
+
+        // Validation that the etag exists
+        let preMigrationFetchedRepo = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
+        switch preMigrationFetchedRepo.s3Readme {
+            case .cached(_, let etag): XCTAssertEqual(etag, "etag")
+            default: XCTFail("Unexpected case for fetchedRepository")
+        }
+
+        // MUT
+        try await UpdateRepositoryResetReadmes().prepare(on: app.db)
+
+        // Validation
+        let postMigrationFetchedRepo = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
+        switch postMigrationFetchedRepo.s3Readme {
+            case .cached(_, let etag): XCTAssertEqual(etag, "")
+            default: XCTFail("Unexpected case for fetchedRepository")
+        }
+    }
 }
