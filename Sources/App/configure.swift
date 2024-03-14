@@ -334,6 +334,11 @@ public func configure(_ app: Application) throws -> String {
     app.commands.use(TriggerBuildsCommand(), as: "trigger-builds")
     app.commands.use(ReAnalyzeVersions.Command(), as: "re-analyze-versions")
 
+#warning("move to proper place before merging")
+    do {  // Migration 0xx - Add `build_errors` to `builds`
+        app.migrations.add(UpdateBuildAddBuildErrors())
+    }
+
     // register routes
     try routes(app)
 

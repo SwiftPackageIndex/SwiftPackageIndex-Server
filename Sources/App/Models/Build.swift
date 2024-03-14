@@ -50,6 +50,9 @@ final class Build: Model, Content {
     @Field(key: "build_duration")
     var buildDuration: Double?
 
+    @Field(key: "build_errors")
+    var buildErrors: BuildErrors?
+
     @Field(key: "builder_version")
     var builderVersion: String?
 
@@ -77,6 +80,7 @@ final class Build: Model, Content {
          versionId: Version.Id,
          buildCommand: String? = nil,
          buildDuration: Double? = nil,
+         buildErrors: BuildErrors? = nil,
          jobUrl: String? = nil,
          logUrl: String? = nil,
          platform: Platform,
@@ -87,6 +91,7 @@ final class Build: Model, Content {
         self.$version.id = versionId
         self.buildCommand = buildCommand
         self.buildDuration = buildDuration
+        self.buildErrors = buildErrors
         self.jobUrl = jobUrl
         self.logUrl = logUrl
         self.platform = platform
@@ -99,6 +104,7 @@ final class Build: Model, Content {
                      version: Version,
                      buildCommand: String? = nil,
                      buildDuration: Double? = nil,
+                     buildErrors: BuildErrors? = nil,
                      jobUrl: String? = nil,
                      logUrl: String? = nil,
                      platform: Platform,
@@ -109,6 +115,7 @@ final class Build: Model, Content {
                   versionId: try version.requireID(),
                   buildCommand: buildCommand,
                   buildDuration: buildDuration,
+                  buildErrors: buildErrors,
                   jobUrl: jobUrl,
                   logUrl: logUrl,
                   platform: platform,

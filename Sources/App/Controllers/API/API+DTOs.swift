@@ -26,6 +26,7 @@ extension API {
     struct PostBuildReportDTO: Codable {
         var buildCommand: String?
         var buildDuration: TimeInterval?
+        var buildErrors: BuildErrors?
         var builderVersion: String?
         var buildId: UUID
         var jobUrl: String?
