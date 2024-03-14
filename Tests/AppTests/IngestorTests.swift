@@ -582,19 +582,13 @@ class IngestorTests: AppTestCase {
 
         // Validation that the etag exists
         let preMigrationFetchedRepo = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
-        switch preMigrationFetchedRepo.s3Readme {
-            case .cached(_, let etag): XCTAssertEqual(etag, "etag")
-            default: XCTFail("Unexpected case for fetchedRepository")
-        }
+        XCTAssertEqual(preMigrationFetchedRepo.s3Readme, .cached(s3ObjectUrl: "object-url", githubEtag: "etag"))
 
         // MUT
         try await UpdateRepositoryResetReadmes().prepare(on: app.db)
 
         // Validation
         let postMigrationFetchedRepo = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
-        switch postMigrationFetchedRepo.s3Readme {
-            case .cached(_, let etag): XCTAssertEqual(etag, "")
-            default: XCTFail("Unexpected case for fetchedRepository")
-        }
+        XCTAssertEqual(postMigrationFetchedRepo.s3Readme, .cached(s3ObjectUrl: "object-url", githubEtag: ""))
     }
 }
