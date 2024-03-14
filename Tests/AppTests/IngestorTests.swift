@@ -579,7 +579,6 @@ class IngestorTests: AppTestCase {
         try await package.save(on: app.db)
         let repository = try Repository(package: package, s3Readme: .cached(s3ObjectUrl: "object-url", githubEtag: "etag"))
         try await repository.save(on: app.db)
-        let packageId = package.id
 
         // Validation that the etag exists
         let preMigrationFetchedRepo = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
