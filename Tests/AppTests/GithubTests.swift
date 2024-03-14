@@ -20,7 +20,7 @@ import S3Store
 import XCTest
 
 
-class GithubTests: SnapshotTestCase {
+class GithubTests: AppTestCase {
 
     func test_parseOwnerName() throws {
         do {
