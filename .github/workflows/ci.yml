@@ -23,8 +23,7 @@ on:
 jobs:
   test-linux:
     name: Test
-    # runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     container:
       image: registry.gitlab.com/finestructure/spi-base:0.15.2
     services:
