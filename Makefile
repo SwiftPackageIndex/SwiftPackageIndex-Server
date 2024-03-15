@@ -37,7 +37,7 @@ run:
 
 test: xcbeautify
 	set -o pipefail \
-	&& swift test --disable-automatic-resolution $FLAG_TSAN \
+	&& swift test --disable-automatic-resolution $(FLAG_TSAN) \
 	2>&1 | ./xcbeautify --renderer github-actions
 
 test-query-performance: xcbeautify
