@@ -23,10 +23,10 @@ on:
 jobs:
   test-linux:
     name: Test
-    # runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     container:
       image: registry.gitlab.com/finestructure/spi-base:0.15.2
+      options: --privileged
     services:
       postgres:
         image: postgres:13.11-alpine
@@ -42,8 +42,11 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
+      - name: GH Runner bug workaround
+        run: sysctl -w vm.mmap_rnd_bits=28
       - name: Checkout code
         uses: actions/checkout@v4
+        with: { 'fetch-depth': 0 }
       - name: Install unzip
         run: apt-get update && apt-get install -y unzip
       - name: Run tests

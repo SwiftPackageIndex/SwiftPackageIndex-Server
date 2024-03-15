@@ -21,14 +21,14 @@ on:
 jobs:
   test-linux:
     name: Query Performance Test
-    # runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     continue-on-error: true
     container:
       image: registry.gitlab.com/finestructure/spi-base:0.15.2
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with: { 'fetch-depth': 0 }
       - name: Install unzip
         run: apt-get update && apt-get install -y unzip
       - name: Run tests
