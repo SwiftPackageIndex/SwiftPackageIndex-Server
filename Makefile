@@ -14,6 +14,8 @@
 
 SHELL=bash
 DOCKER_IMAGE=registry.gitlab.com/finestructure/swiftpackageindex
+# TSAN currently disabled due to https://github.com/actions/runner-images/issues/9491
+FLAG_TSAN='' # '--sanitize=thread'
 
 ifndef VERSION
 	export VERSION=$(shell git rev-parse HEAD)
@@ -35,7 +37,7 @@ run:
 
 test: xcbeautify
 	set -o pipefail \
-	&& swift test --disable-automatic-resolution --sanitize=thread \
+	&& swift test --disable-automatic-resolution $FLAG_TSAN \
 	2>&1 | ./xcbeautify --renderer github-actions
 
 test-query-performance: xcbeautify
