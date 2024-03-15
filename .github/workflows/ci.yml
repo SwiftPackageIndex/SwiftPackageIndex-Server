@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: registry.gitlab.com/finestructure/spi-base:0.15.2
+      options: --privileged
     services:
       postgres:
         image: postgres:13.11-alpine
@@ -41,6 +42,8 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
+      - name: GH Runner bug workaround
+        run: 'if [[ "${ImageVersion}" == "20240310.1.0" ]]; then sysctl -w vm.mmap_rnd_bits=28; done'
       - name: Checkout code
         uses: actions/checkout@v4
         with: { 'fetch-depth': 0 }
