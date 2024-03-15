@@ -43,7 +43,7 @@ jobs:
           --health-retries 5
     steps:
       - name: GH Runner bug workaround
-        run: 'if [[ "${ImageVersion}" == "20240310.1.0" ]]; then sysctl -w vm.mmap_rnd_bits=28; fi'
+        run: sysctl -w vm.mmap_rnd_bits=28
       - name: Checkout code
         uses: actions/checkout@v4
         with: { 'fetch-depth': 0 }
