@@ -21,7 +21,8 @@ on:
 jobs:
   test-linux:
     name: Query Performance Test
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: self-hosted
     continue-on-error: true
     container:
       image: registry.gitlab.com/finestructure/spi-base:0.15.2
