@@ -129,6 +129,7 @@ class ApiTests: AppTestCase {
             let dto: API.PostBuildReportDTO = .init(
                 buildCommand: "xcodebuild -scheme Foo",
                 buildDuration: 123.4,
+                buildErrors: .init(numSwift6Errors: 42),
                 builderVersion: "1.2.3",
                 buildId: .id0,
                 jobUrl: "https://example.com/jobs/1",
@@ -155,6 +156,7 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(b.id, .id0)
                     XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
                     XCTAssertEqual(b.buildDuration, 123.4)
+                    XCTAssertEqual(b.buildErrors, .init(numSwift6Errors: 42))
                     XCTAssertEqual(b.builderVersion, "1.2.3")
                     XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
                     XCTAssertEqual(b.logUrl, "log url")

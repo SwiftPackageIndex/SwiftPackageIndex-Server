@@ -325,6 +325,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 075 - Reset repositories.funding_links
         app.migrations.add(UpdateRepositoryResetFundingLinks())
     }
+    do { // Migration 076 - Add `build_errors` to `builds`
+        app.migrations.add(UpdateBuildAddBuildErrors())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
