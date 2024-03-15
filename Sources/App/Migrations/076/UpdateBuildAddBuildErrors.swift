@@ -15,7 +15,6 @@
 import Fluent
 
 
-#warning("move to proper folder before merging")
 struct UpdateBuildAddBuildErrors: AsyncMigration {
     func prepare(on database: Database) async throws {
         try await database.schema("builds")
