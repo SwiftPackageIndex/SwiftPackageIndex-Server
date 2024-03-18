@@ -133,7 +133,7 @@ class PipelineTests: AppTestCase {
         // Test pipeline pick-up end to end
         // setup
         let urls = ["1", "2", "3"].asGithubUrls
-        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         Current.fetchPackageList = { _ in urls.asURLs }
 
         Current.git.commitCount = { _ in 12 }

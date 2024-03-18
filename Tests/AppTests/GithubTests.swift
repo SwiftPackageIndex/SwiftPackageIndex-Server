@@ -311,14 +311,6 @@ class GithubTests: AppTestCase {
         }
     }
 
-    func test_apiUri_deprecated() throws {
-        let pkg = Package(url: "https://github.com/foo/bar")
-        XCTAssertEqual(try Github.apiUri(for: pkg.url, resource: .license).string,
-                       "https://api.github.com/repos/foo/bar/license")
-        XCTAssertEqual(try Github.apiUri(for: pkg.url, resource: .readme).string,
-                       "https://api.github.com/repos/foo/bar/readme")
-    }
-
     func test_apiUri() throws {
         XCTAssertEqual(Github.apiUri(owner: "foo", repository: "bar", resource: .license).string,
                        "https://api.github.com/repos/foo/bar/license")
@@ -329,7 +321,6 @@ class GithubTests: AppTestCase {
     func test_fetchLicense() async throws {
         // setup
         Current.githubToken = { "secr3t" }
-        let pkg = Package(url: "https://github.com/PSPDFKit/PSPDFKit-SP")
         let data = try XCTUnwrap(try fixtureData(for: "github-license-response.json"))
         let client = MockClient { _, resp in
             resp.status = .ok
@@ -337,7 +328,7 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        let res = await Github.fetchLicense(client: client, packageUrl: pkg.url)
+        let res = await Github.fetchLicense(client: client, owner: "PSPDFKit", repository: "PSPDFKit-SP")
 
         // validate
         XCTAssertEqual(res?.htmlUrl, "https://github.com/PSPDFKit/PSPDFKit-SP/blob/master/LICENSE")
@@ -347,11 +338,10 @@ class GithubTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup
         Current.githubToken = { "secr3t" }
-        let pkg = Package(url: "https://github.com/foo/bar")
         let client = MockClient { _, resp in resp.status = .notFound }
 
         // MUT
-        let res = await Github.fetchLicense(client: client, packageUrl: pkg.url)
+        let res = await Github.fetchLicense(client: client, owner: "foo", repository: "bar")
 
         // validate
         XCTAssertEqual(res, nil)
@@ -467,5 +457,6 @@ class GithubTests: AppTestCase {
 
         // Checks
         XCTAssertEqual(originalReadme, readme)
+        XCTAssertEqual(images, [])
     }
 }

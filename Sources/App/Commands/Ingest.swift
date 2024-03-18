@@ -157,15 +157,13 @@ func ingest(client: Client,
 
 
 func fetchMetadata(client: Client, package: Joined<Package, Repository>) async throws -> (Github.Metadata, Github.License?, Github.Readme?) {
-#warning("Convert `fetchMetadata` and `fetchLicense`  to also use `apiUri(owner:repository:resource:query:)`")
-    async let metadata = try await Current.fetchMetadata(client, package.model.url)
-    async let license = await Current.fetchLicense(client, package.model.url)
-
     // Even though we get through a `Joined<Package, Repository>` as a parameter, it's
     // we must not rely on `repository` as it will be nil when a package is first ingested.
     // The only way to get `owner` and `repository` here is by parsing them from the URL.
     let (owner, repository) = try Github.parseOwnerName(url: package.model.url)
 
+    async let metadata = try await Current.fetchMetadata(client, owner, repository)
+    async let license = await Current.fetchLicense(client, owner, repository)
     async let readme = await Current.fetchReadme(client, owner, repository)
 
     return try await (metadata, license, readme)
