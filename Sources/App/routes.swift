@@ -167,13 +167,17 @@ func routes(_ app: Application) throws {
 
     do {  // Supporters
         app.get(SiteURL.supporters.pathComponents, use: SupportersController.show).excludeFromOpenAPI()
-
     }
 
     do {  // spi.yml validation page
         app.get(SiteURL.validateSPIManifest.pathComponents, use: ValidateSPIManifestController.show)
             .excludeFromOpenAPI()
         app.post(SiteURL.validateSPIManifest.pathComponents, use: ValidateSPIManifestController.validate)
+            .excludeFromOpenAPI()
+    }
+
+    if Current.environment() == .development { // Ready for Swift 6 reporting page
+        app.get(SiteURL.readyForSwift6.pathComponents, use: ReadyForSwift6Controller.show)
             .excludeFromOpenAPI()
     }
 
