@@ -71,7 +71,7 @@ let package = Package(
                     .product(name: "VaporToOpenAPI", package: "VaporToOpenAPI"),
                 ],
                 swiftSettings: [
-                    .enableUpcomingFeature("StrictConcurrency")
+                    .enableExperimentalFeature("StrictConcurrency")
                 ],
                 linkerSettings: [.unsafeFlags(["-Xlinker", "-interposable"],
                                               .when(platforms: [.macOS],
@@ -81,12 +81,12 @@ let package = Package(
                     .product(name: "SotoS3", package: "soto"),
                 ],
                 swiftSettings: [
-                    .enableUpcomingFeature("StrictConcurrency")
+                    .enableExperimentalFeature("StrictConcurrency")
                 ]),
         .target(name: "Authentication", dependencies: [
             .product(name: "JWTKit", package: "jwt-kit")        ],
                 swiftSettings: [
-                    .enableUpcomingFeature("StrictConcurrency")
+                    .enableExperimentalFeature("StrictConcurrency")
                 ]),
         .testTarget(name: "AppTests",
                     dependencies: [
@@ -97,18 +97,18 @@ let package = Package(
                     ],
                     exclude: ["__Snapshots__", "Fixtures"],
                     swiftSettings: [
-                        .enableUpcomingFeature("StrictConcurrency")
+                        .enableExperimentalFeature("StrictConcurrency")
                     ]
                    ),
         .testTarget(name: "AuthenticationTests",
                     dependencies: [.target(name: "Authentication")],
                     swiftSettings: [
-                        .enableUpcomingFeature("StrictConcurrency")
+                        .enableExperimentalFeature("StrictConcurrency")
                     ]),
         .testTarget(name: "S3StoreTests",
                     dependencies: [.target(name: "S3Store")],
                     swiftSettings: [
-                        .enableUpcomingFeature("StrictConcurrency")
+                        .enableExperimentalFeature("StrictConcurrency")
                     ])
     ],
     swiftLanguageVersions: [.v5]
