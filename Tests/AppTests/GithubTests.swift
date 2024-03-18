@@ -311,14 +311,6 @@ class GithubTests: AppTestCase {
         }
     }
 
-    func test_apiUri_deprecated() throws {
-        let pkg = Package(url: "https://github.com/foo/bar")
-        XCTAssertEqual(try Github.apiUri(for: pkg.url, resource: .license).string,
-                       "https://api.github.com/repos/foo/bar/license")
-        XCTAssertEqual(try Github.apiUri(for: pkg.url, resource: .readme).string,
-                       "https://api.github.com/repos/foo/bar/readme")
-    }
-
     func test_apiUri() throws {
         XCTAssertEqual(Github.apiUri(owner: "foo", repository: "bar", resource: .license).string,
                        "https://api.github.com/repos/foo/bar/license")

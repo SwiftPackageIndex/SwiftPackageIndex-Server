@@ -88,23 +88,6 @@ extension Github {
         case readme
     }
 
-    @available(*, deprecated)
-    static func apiUri(for packageUrl: String,
-                       resource: Resource,
-                       query: [QueryParameter] = []) throws -> URI {
-        guard packageUrl.hasPrefix(Constants.githubComPrefix)
-        else { throw Github.Error.invalidURI(nil, packageUrl) }
-
-        let queryString = query.queryString()
-        let trunk = packageUrl
-            .droppingGithubComPrefix
-            .droppingGitExtension
-        switch resource {
-            case .license, .readme:
-                return URI(string: "https://api.github.com/repos/\(trunk)/\(resource.rawValue)\(queryString)")
-        }
-    }
-
     static func apiUri(owner: String, repository: String, resource: Resource)  -> URI {
         switch resource {
             case .license, .readme:
