@@ -1,8 +1,3 @@
----
-date: 2021-03-30 12:00
-title: Hosting the Swift Package Index
-description: Making any open-source project sustainable for the long term is challenging in many ways, but with the Swift Package Index we also need significant hardware resources to keep it available.
----
 
 ![Logo images for the Swift Package Index, MacStadium, and Microsoft Azure](/images/blog/hosted-by-macstadium-and-microsoft-azure.png)
 

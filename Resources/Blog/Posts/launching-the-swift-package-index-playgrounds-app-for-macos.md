@@ -1,8 +1,3 @@
----
-date: 2021-05-05 13:00
-title: Launching the Swift Package Index Playgrounds app for macOS
-description: Try out any Swift package in Xcode with just a couple of clicks. It's the launch of the first native app from the Swift Package Index!
----
 
 From the very beginning, the main goal of this site was to do more than echo Swift package metadata. We want to enable better _decisions_ about which dependencies to use. That’s why we include information about how actively maintained a package is, and it’s why we check compatibility with the different platforms by building against them.
 

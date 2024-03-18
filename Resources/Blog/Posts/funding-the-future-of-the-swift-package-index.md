@@ -1,9 +1,3 @@
----
-date: 2020-10-12 12:00
-title: Funding the Future of the Swift Package Index
-description: Many open-source projects are just code and don’t need constant attention. The Swift Package Index is a little different, so we are opening up GitHub sponors for the project. We'd love your support.
----
-
 It’s been almost four months since we [launched the Swift Package Index](https://iosdevweekly.com/issues/460#start), and we’ve been so happy to see so many positive reactions to it across the community. Thank you all for checking it out and spreading the word.
 
 It’s still early days for Swift Package Manager adoption but we are confident that it will become the dominant technology for Swift dependency management, and we want the Swift Package Index to grow right alongside it.

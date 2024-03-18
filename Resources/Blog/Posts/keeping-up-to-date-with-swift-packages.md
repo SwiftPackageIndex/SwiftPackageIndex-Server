@@ -1,8 +1,3 @@
----
-date: 2020-11-25 12:00
-title: Keeping Up To Date with Swift Packages
-description: How do you keep up with new releases of the packages you use? How do you discover new packages? It’s a tough challenge to keep up to date with everything that the community releases, so we have some announcements today that can help you stay informed!
----
 
 How do you keep up with new releases of the packages you use? How do you discover new packages? It’s a tough challenge to keep up to date with everything that the community releases, so we have some announcements today that can help you stay informed!
 

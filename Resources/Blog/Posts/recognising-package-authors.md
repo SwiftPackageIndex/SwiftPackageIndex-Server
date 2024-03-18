@@ -1,8 +1,3 @@
----
-date: 2022-12-14 12:00
-title: Recognising Package Authors
-description: The Swift Package Index now recognises primary contributors to open-source Swift packages by including author information alongside package metadata. Thank you to everyone who contributes to open-source Swift software!
----
 
 When we launched this site back [in June 2020](https://iosdevweekly.com/issues/460#start), one of the features on the “must be done before launch” list was support for showing who wrote each package. Not just a GitHub username but the names of the primary contributors.
 

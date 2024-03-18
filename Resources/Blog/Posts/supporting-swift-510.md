@@ -1,8 +1,3 @@
----
-date: 2024-02-23 12:00
-title: Support for Swift 5.10
-description: The march of Swift's progress continues, the same is true for the Swift Package Index! We're delighted to announce that compatibility results for Swift 5.10 are available on every package page!
----
 
 The march of Swift's progress continues, and beta versions of Swift 5.10 have been available for a few weeks now, both in pre-releases of Xcode 15.3 and as [nightly snapshots from Swift.org](https://www.swift.org/download/#swift-510-development).
 

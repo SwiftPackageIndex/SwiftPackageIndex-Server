@@ -1,8 +1,3 @@
----
-date: 2021-05-18 13:00
-title: What’s Next? - May 2021
-description:
----
 
 You might just have finished reading our [progress report from the last three months](/posts/progress-update-may-2021/). Now it’s time to talk about what we’re planning for the next few months!
 

@@ -1,8 +1,3 @@
----
-date: 2020-10-30 12:00
-title: The Swift Package Index Metadata File – First Steps
-description: The Swift Package Index gathers most of the metadata about a package from external sources. The package manifest, the git repository, and GitHub. But, there are some things we need to know that are specific to the Swift Package Index. Learn how to take advantage of the extra settings available to your package.
----
 
 The vast majority of the information you see in [the package index][1] is generated from a single URL, the location of the package’s git repository.
 

@@ -1,8 +1,3 @@
----
-date: 2021-05-18 12:00
-title: Progress Report - May 2021
-description: Three months ago, we published a list of areas that we wanted to focus on next. We’re just about to update that list for the next few months, but before we do that, let’s check-in quickly with how well we stayed on track since February!
----
 
 Around [three months ago](posts/whats-next-february-2021/), we published a list of areas that we wanted to focus on next. We’re just about to update that list for the next few months, but before we do that, let’s check in with how well we stayed on track since February!
 

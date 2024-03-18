@@ -1,8 +1,3 @@
----
-date: 2022-07-11 12:00
-title: We need your help to fund this project
-description: As an open-source project without the backing of a big company, we need your help to keep this project going.
----
 
 As an open-source project without the backing of a big company, community donations are critical to keeping this project going.
 

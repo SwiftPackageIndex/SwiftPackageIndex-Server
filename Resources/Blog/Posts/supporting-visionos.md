@@ -1,8 +1,3 @@
----
-date: 2023-06-29 12:00
-title: Supporting visionOS
-description: We’ve added support for visionOS to our compatibility testing, showing it on the package pages and build badges.
----
 
 Apple was quick to release the promised visionOS SDK only a week after WWDC 2023, and today we’re happy to announce that we have already started compatibility testing for this exciting new platform.
 

@@ -1,8 +1,3 @@
----
-date: 2021-10-18 12:00
-title: Package Dependencies - Step One
-description: In pursuit of helping you make better decisions about the packages you depend on, we’re taking a step towards exposing dependency information for all packages!
----
 
 We’ve said several times on this blog that one of the primary goals of the [Swift Package Index](https://swiftpackageindex.com) is to help you make better decisions about the dependencies you include in your Swift projects.
 

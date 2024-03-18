@@ -1,8 +1,3 @@
----
-date: 2023-04-24 12:00
-title: Validating Swift Package Index Manifest Files
-description: Swift Package Index Manifest files are YAML files that configure how the package index processes your package. With our online validator you can now confirm the format is correct without having to wait for reprocessing.
----
 
 The Swift Package Index file `.spi.yml` file allows package authors to configure some aspects of how we process your package. This file has become much more popular since we [launched hosted documentation](/posts/versioned-docc-documentation).
 

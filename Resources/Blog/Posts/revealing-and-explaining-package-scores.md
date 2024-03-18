@@ -1,8 +1,3 @@
----
-date: 2023-10-31 12:00
-title: Revealing and explaining package scores
-description: When you search the Swift Package Index, the order in which the search results are displayed is determined by a combination of the relevance of text in the package name and description, and an internal score based on various metrics. Today, we're adding a feature that
----
 
 This guest post is from [Cyndi Chin](https://cyndichin.github.io/) and announces the results of her work for this year’s [Swift Mentorship Program](https://www.swift.org/mentorship/).
 

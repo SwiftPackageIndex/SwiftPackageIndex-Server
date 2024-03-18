@@ -1,8 +1,3 @@
----
-date: 2020-12-24 12:00
-title: Inline README Files!
-description: Where’s the most important source of information for deciding whether a package is suitable for your needs? It’s in the README file!
----
 
 If you’ve visited the main package index site over the last week or so, you might have noticed something new. Scroll down a little, and you’ll see the README file for the package, right below all the other information that we aggregate.
 

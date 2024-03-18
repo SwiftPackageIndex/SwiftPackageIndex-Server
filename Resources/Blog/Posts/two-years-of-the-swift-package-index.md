@@ -1,8 +1,3 @@
----
-date: 2022-04-25 12:00
-title: Two years of the Swift Package Index
-description: It’s been exactly two years since the first commit of the Swift Package Index! More than 950 pull requests and 5,000 commits later, we now index and compatibility test over 4,500 packages!
----
 
 It’s been exactly two years since the [first commit](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/commit/f4475174b83aeb5d35b567c0b6042efe8351a0d1)¹ of the Swift Package Index! More than 950 pull requests and 5,250 commits later, we now index and compatibility test over 4,500 packages!
 

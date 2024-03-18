@@ -1,8 +1,3 @@
----
-date: 2021-12-15 12:00
-title: Improvements to package search
-description: Recently, we’ve been focusing our attention on improving search here on the Swift Package Index, and it’s time to let you all know what we’ve implemented!
----
 
 Recently, we’ve been focusing our attention on improving search here on the Swift Package Index, and it’s time to let you all know what we’ve implemented!
 
