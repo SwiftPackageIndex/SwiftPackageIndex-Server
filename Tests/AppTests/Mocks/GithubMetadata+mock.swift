@@ -34,25 +34,6 @@ extension Github.Metadata {
                                   stars: 2,
                                   summary: "desc")
 
-    static func mock(for packageUrl: String) -> Self {
-        let (owner, name) = try! Github.parseOwnerName(url: packageUrl)
-        return .init(defaultBranch: "main",
-                     forks: packageUrl.count,
-                     homepageUrl: nil,
-                     isInOrganization: false,
-                     issuesClosedAtDates: [],
-                     license: .mit,
-                     openIssues: 3,
-                     openPullRequests: 0,
-                     owner: owner,
-                     pullRequestsClosedAtDates: [],
-                     releases: [],
-                     repositoryTopics: [],
-                     name: name,
-                     stars: packageUrl.count + 1,
-                     summary: "This is package " + packageUrl)
-    }
-
     static func mock(owner: String, repository: String) -> Self {
         return .init(defaultBranch: "main",
                      forks: owner.count + repository.count,

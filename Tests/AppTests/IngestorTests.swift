@@ -93,7 +93,7 @@ class IngestorTests: AppTestCase {
         // MUT
         try await updateRepository(on: app.db,
                                    for: repo,
-                                   metadata: .mock(for: pkg.url),
+                                   metadata: .mock(owner: "foo", repository: "bar"),
                                    licenseInfo: .init(htmlUrl: ""),
                                    readmeInfo: .init(html: "", htmlUrl: "", imagesToCache: []),
                                    s3Readme: nil)
@@ -102,7 +102,7 @@ class IngestorTests: AppTestCase {
         do {
             try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
             let repo = try await Repository.query(on: app.db).first().unwrap()
-            XCTAssertEqual(repo.summary, "This is package https://github.com/foo/bar")
+            XCTAssertEqual(repo.summary, "This is package foo/bar")
         }
     }
 
