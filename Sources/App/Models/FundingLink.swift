@@ -17,6 +17,7 @@ import Foundation
 
 struct FundingLink: Codable, Equatable {
     enum Platform: String, Codable {
+        case buyMeACoffee
         case communityBridge
         case customUrl
         case gitHub
@@ -27,6 +28,7 @@ struct FundingLink: Codable, Equatable {
         case openCollective
         case otechie
         case patreon
+        case polar
         case tidelift
     }
 
@@ -56,6 +58,8 @@ extension FundingLink {
 extension FundingLink.Platform {
     init(from platform: Github.Metadata.FundingLinkNode.Platform) {
         switch platform {
+            case .buyMeACoffee:
+                self = .buyMeACoffee
             case .communityBridge:
                 self = .communityBridge
             case .customUrl:
@@ -76,6 +80,8 @@ extension FundingLink.Platform {
                 self = .otechie
             case .patreon:
                 self = .patreon
+            case .polar:
+                self = .polar
             case .tidelift:
                 self = .tidelift
         }
