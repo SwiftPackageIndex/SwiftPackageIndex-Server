@@ -325,7 +325,10 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 075 - Reset repositories.funding_links
         app.migrations.add(UpdateRepositoryResetFundingLinks())
     }
-    do { // Migration 076 - Remove all etags from README files so they are re-fetched
+    do { // Migration 076 - Add `build_errors` to `builds`
+        app.migrations.add(UpdateBuildAddBuildErrors())
+    }
+    do { // Migration 077 - Remove all etags from README files so they are re-fetched
         app.migrations.add(UpdateRepositoryResetReadmes())
     }
 
