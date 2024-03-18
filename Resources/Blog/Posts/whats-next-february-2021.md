@@ -1,8 +1,3 @@
----
-date: 2021-02-02 12:00
-title: What’s Next? - February 2021
-description: It’s been about seven months since we launched the Swift Package Index and we’ve been hard at work implementing a few major updates. Are we done? No, we are not!
----
 
 It’s been about seven months since we [launched the Swift Package Index](https://iosdevweekly.com/issues/460#start) and we’ve been hard at work implementing a few major updates. Most significantly, [real-world package compatibility](https://blog.swiftpackageindex.com/posts/launching-language-and-platform-package-compatibility), [a comprehensive set of RSS feeds and Twitter updates](https://blog.swiftpackageindex.com/posts/keeping-up-to-date-with-swift-packages), and most recently [inline README files](https://blog.swiftpackageindex.com/posts/inline-readme-files).
 

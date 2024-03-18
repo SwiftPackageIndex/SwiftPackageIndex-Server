@@ -1,8 +1,3 @@
----
-date: 2021-05-05 12:00
-title: How the Swift Package Index project got started because of a button
-description: How did the Swift Package Index project get started, and why does a button feature so prominently in the story? Read on to find out.
----
 
 It’s been [one year since we made the first commit](https://twitter.com/_sa_s/status/1386033811348197380) on the [Swift Package Index repository](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server), and we think that deserves a little celebration!
 

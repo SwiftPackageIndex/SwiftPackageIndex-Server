@@ -1,8 +1,3 @@
----
-date: 2023-03-14 12:00
-title: Welcoming Apple as a supporter of the Swift Package Index
-description: As we approach our third anniversary working on the Swift Package Index, we are thrilled to announce that Apple is adding their public and financial support to the project.
----
 
 ![The Swift Package Index logo next to the Apple logo](/images/blog/swift-package-index-and-apple-logos.png)
 

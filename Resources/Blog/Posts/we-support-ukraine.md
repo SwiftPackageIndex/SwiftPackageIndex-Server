@@ -1,8 +1,3 @@
----
-date: 2022-02-26 12:00
-title: We support Ukraine
-description: Russia’s invasion of Ukraine is appalling and we support Ukraine.
----
 
 Russia’s invasion of Ukraine is appalling.
 

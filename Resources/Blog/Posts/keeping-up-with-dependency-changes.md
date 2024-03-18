@@ -1,8 +1,3 @@
----
-date: 2022-01-25 12:00
-title: Keeping up with dependency changes
-description: How often do you update your package dependencies, and when you do, do you check what’s new or changed? We have a new tool that can help!
----
 
 How often do you update your package dependencies, and when you do, do you check what’s new or changed, or do you just run your tests to check nothing broke and move on? 😅
 

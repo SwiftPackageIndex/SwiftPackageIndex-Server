@@ -1,8 +1,3 @@
----
-date: 2022-08-05 12:00
-title: Versioned DocC Documentation
-description: We rolled out auto-generating DocC documentation exactly two months ago, and now we’re rolling out phase two. Versioned documentation!
----
 
 > **UPDATE:** The information in this blog post is superceded by our [official documentation](https://swiftpackageindex.com/SwiftPackageIndex/SPIManifest/documentation/spimanifest/commonusecases). Please refer to the documentation rather than this blog post.
 

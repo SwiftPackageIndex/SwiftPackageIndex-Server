@@ -1,8 +1,3 @@
----
-date: 2021-06-09 12:00
-title: Launching Swift Package Collections
-description: What are package collections? JSON descriptions of Swift package metadata. What does the Swift Package Index have in droves? Metadata about Swift packages! As soon as we heard about package collections in Swift 5.5, we knew we had to support it.
----
 
 It's probably not news that [this is a big week](https://developer.apple.com/wwdc21/) for Swift developers! On Monday, Apple kicked WWDC off by releasing the first beta of Xcode 13, including Swift 5.5. We've been following the release of the Swift Package Manager in Swift 5.5 closely as it implements package collections, a significant new feature.
 

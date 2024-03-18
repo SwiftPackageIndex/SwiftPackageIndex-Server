@@ -1,8 +1,3 @@
----
-date: 2023-04-03 12:00
-title: Supporting Swift 5.8
-description: Last Thursday, Apple released Swift 5.8, and today we are delighted to announce that the Swift Package Index already has full support for parsing and processing Swift packages using Xcode 14.3 and Swift 5.8 across all our supported platforms.
----
 
 Last Thursday, [Apple released Swift 5.8](https://www.swift.org/blog/swift-5.8-released/), and today we are delighted to announce that the Swift Package Index already has full support for parsing and processing Swift packages using Xcode 14.3 and Swift 5.8 across all our supported platforms.
 

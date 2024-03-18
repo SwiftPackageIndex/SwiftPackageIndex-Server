@@ -1,8 +1,3 @@
----
-date: 2022-10-17 12:00
-title: Externally hosted package documentation
-description: Using auto-hosted documentation remains the easiest way to get your package’s documentation available on the web, but we now also support documentation for projects that have more complex requirements or well-established documentation that already lives on the web.
----
 
 > **UPDATE:** The information in this blog post is superceded by our [official documentation](https://swiftpackageindex.com/SwiftPackageIndex/SPIManifest/documentation/spimanifest/commonusecases). Please refer to the documentation rather than this blog post.
 

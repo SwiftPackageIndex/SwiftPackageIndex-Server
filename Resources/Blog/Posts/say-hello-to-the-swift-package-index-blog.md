@@ -1,8 +1,3 @@
----
-date: 2020-08-16 12:00
-title: Say Hello to the Swift Package Index Blog
-description: It’s always hard to know when to ship v1 of a project. Which features get included? Are there things that can wait? It’s a balancing act. You’re excited to show the world what you built, but is it good enough?
----
 
 Hello! 👋
 

@@ -1,8 +1,3 @@
----
-date: 2021-11-01 12:00
-title: M1 Pro and M1 Max Xcode Build and Test Benchmarks
-description: We’ve run real-world performance benchmarks with the new M1 MacBook Pro machines against M1 and Intel machines.
----
 
 It is a truth universally acknowledged that a developer in possession of a good project must be in [want of a fast compile](https://en.wikiquote.org/wiki/Jane_Austen#Pride_and_Prejudice). First observed some 200 years ago by Jane Austen, this still holds today as lucky developers take delivery of new M1 machines.
 

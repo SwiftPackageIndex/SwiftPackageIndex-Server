@@ -1,8 +1,3 @@
----
-date: 2021-05-17 12:00
-title: Using the SPI Playgrounds app to file better bug reports
-description: If you've been wondering why we created the SPI Playgrounds app, read on for a story where we used a playground to file a better bug report in the Vapor project.
----
 
 We [recently released the SPI Playgrounds app](/posts/launching-the-swift-package-index-playgrounds-app-for-macos), which allows you to try out Swift Packages in a Playground in Xcode. You can use it to quickly get up and running with a new package when evaluating dependencies. However, it can also be helpful when working with dependencies you _already_ use in your project. One such use case is creating reproducible bug reports.
 

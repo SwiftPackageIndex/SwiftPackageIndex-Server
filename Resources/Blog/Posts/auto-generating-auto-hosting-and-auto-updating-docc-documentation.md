@@ -1,8 +1,3 @@
----
-date: 2022-06-03 12:00
-title: Auto-generating, Auto-hosting, and Auto-updating DocC Documentation
-description: DocC is Apple’s recommended way to provide documentation for your packages, and launching today, the Swift Package Index can generate, host, and update package documentation for any package in the index!
----
 
 > **UPDATE:** The information in this blog post is superceded by our [official documentation](https://swiftpackageindex.com/SwiftPackageIndex/SPIManifest/documentation/spimanifest/commonusecases). Please refer to the documentation rather than this blog post.
 
