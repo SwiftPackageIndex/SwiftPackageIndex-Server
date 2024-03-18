@@ -176,7 +176,7 @@ func routes(_ app: Application) throws {
             .excludeFromOpenAPI()
     }
 
-    do { // Readu for Swift 6 reporting
+    if Current.environment() == .development { // Ready for Swift 6 reporting page
         app.get(SiteURL.readyForSwift6.pathComponents, use: ReadyForSwift6Controller.show)
             .excludeFromOpenAPI()
     }

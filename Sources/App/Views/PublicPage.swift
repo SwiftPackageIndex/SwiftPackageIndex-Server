@@ -309,12 +309,18 @@ class PublicPage {
     }
 
     func announcementBanner() -> Node<HTML.BodyContext> {
-        return .empty
+        guard Current.environment() == .development
+        else { return .empty }
 
-//        .p(
-//            .class("announcement"),
-//            .text("No current announcement.")
-//        )
+        return .p(
+            .class("announcement"),
+            .text("How many packages are compatible with Swift 6? Find out Check out which packages are  "),
+            .a(
+                .href(SiteURL.readyForSwift6.relativeURL()),
+                .text("Ready for Swift 6")
+            ),
+            .text("!")
+        )
     }
 
     /// Optional content that will be inserted in between the page header and the main content for the page.
