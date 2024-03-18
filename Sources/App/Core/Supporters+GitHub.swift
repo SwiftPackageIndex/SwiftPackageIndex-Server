@@ -199,7 +199,7 @@ extension Array<Supporters.Community> {
         ),
         .init(
             login: "radmakr",
-            name: "Thomas Rademaker",
+            name: "Tom Rademaker",
             avatarUrl: "https://avatars.githubusercontent.com/u/1885323?u=236e99eb7cb909bff3a7e9f5c85f120dc458fd27&v=4"
         ),
         .init(
