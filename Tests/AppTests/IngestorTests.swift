@@ -25,7 +25,7 @@ class IngestorTests: AppTestCase {
 
     func test_ingest_basic() async throws {
         // setup
-        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         let packages = ["https://github.com/finestructure/Gala",
                         "https://github.com/finestructure/Rester",
                         "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"]
@@ -63,16 +63,17 @@ class IngestorTests: AppTestCase {
         enum TestError: Error, Equatable {
             case badRequest
         }
+
         let packages = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1",
                                                                 "https://github.com/foo/2"])
             .map(Joined<Package, Repository>.init(model:))
-        Current.fetchMetadata = { _, pkg in
-            if pkg.url == "https://github.com/foo/1" {
+        Current.fetchMetadata = { _, owner, repository in
+            if owner == "foo" && repository == "1" {
                 throw TestError.badRequest
             }
-            return .mock(for: pkg)
+            return .mock(owner: owner, repository: repository)
         }
-        Current.fetchLicense = { _, _ in Github.License(htmlUrl: "license") }
+        Current.fetchLicense = { _, _, _ in Github.License(htmlUrl: "license") }
 
         // MUT
         await ingest(client: app.client, database: app.db, logger: app.logger, packages: packages)
@@ -285,7 +286,7 @@ class IngestorTests: AppTestCase {
     func test_partial_save_issue() async throws {
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
-        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         let packages = testUrls.map { Package(url: $0, processingStage: .reconciliation) }
         try await packages.save(on: app.db)
 
@@ -305,11 +306,11 @@ class IngestorTests: AppTestCase {
                     "https://github.com/foo/3"]
         let packages = try await savePackagesAsync(on: app.db, urls.asURLs,
                                                    processingStage: .reconciliation)
-        Current.fetchMetadata = { _, pkg in
-            if pkg.url == "https://github.com/foo/2" {
+        Current.fetchMetadata = { _, owner, repository in
+            if owner == "foo" && repository == "2" {
                 throw AppError.metadataRequestFailed(packages[1].id, .badRequest, URI("2"))
             }
-            return .mock(for: pkg)
+            return .mock(owner: owner, repository: repository)
         }
         let lastUpdate = Date()
 
@@ -320,8 +321,8 @@ class IngestorTests: AppTestCase {
         let repos = try await Repository.query(on: app.db).all()
         XCTAssertEqual(repos.count, 2)
         XCTAssertEqual(repos.compactMap(\.summary).sorted(),
-                       ["This is package https://github.com/foo/1",
-                        "This is package https://github.com/foo/3"])
+                       ["This is package foo/1",
+                        "This is package foo/3"])
         (try await Package.query(on: app.db).all()).forEach { pkg in
             switch pkg.url {
                 case "https://github.com/foo/2":
@@ -343,7 +344,7 @@ class IngestorTests: AppTestCase {
         }
         // Return identical metadata for both packages, same as a for instance a redirected
         // package would after a rename / ownership change
-        Current.fetchMetadata = { _, _ in
+        Current.fetchMetadata = { _, _, _ in
             Github.Metadata.init(
                 defaultBranch: "main",
                 forks: 0,
@@ -403,7 +404,7 @@ class IngestorTests: AppTestCase {
         // setup
         let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
         try await pkg.save(on: app.db)
-        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         let fetchCalls = QueueIsolated(0)
         Current.fetchReadme = { _, _, _ in
             fetchCalls.increment()
@@ -482,7 +483,7 @@ class IngestorTests: AppTestCase {
         let pkg = Package(url: "https://github.com/foo/bar".url,
                           processingStage: .reconciliation)
         try await pkg.save(on: app.db)
-        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         Current.storeS3Readme = { _, _, _ in "objectUrl" }
         Current.fetchReadme = { _, _, _ in
             return .init(etag: "etag",
@@ -524,7 +525,7 @@ class IngestorTests: AppTestCase {
         // setup
         let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
         try await pkg.save(on: app.db)
-        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         Current.fetchReadme = { _, _, _ in
             return .init(etag: "etag1",
                          html: "readme html 1",
@@ -560,9 +561,9 @@ class IngestorTests: AppTestCase {
             return Joined<Package, Repository>(model: p)
         }()
         // use mock for metadata request which we're not interested in ...
-        Current.fetchMetadata = { _, _ in Github.Metadata() }
+        Current.fetchMetadata = { _, _, _ in Github.Metadata() }
         // and live fetch request for fetchLicense, whose behaviour we want to test ...
-        Current.fetchLicense = Github.fetchLicense(client:packageUrl:)
+        Current.fetchLicense = Github.fetchLicense(client:owner:repository:)
         // and simulate its underlying request returning a 404 (by making all requests
         // return a 404, but it's the only one we're sending)
         let client = MockClient { _, resp in resp.status = .notFound }

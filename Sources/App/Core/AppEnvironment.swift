@@ -45,8 +45,8 @@ struct AppEnvironment {
     var fetchHTTPStatusCode: (_ url: String) async throws -> HTTPStatus
     var fetchPackageList: (_ client: Client) async throws -> [URL]
     var fetchPackageDenyList: (_ client: Client) async throws -> [URL]
-    var fetchLicense: (_ client: Client, _ packageUrl: String) async -> Github.License?
-    var fetchMetadata: (_ client: Client, _ packageUrl: String) async throws -> Github.Metadata
+    var fetchLicense: (_ client: Client, _ owner: String, _ repository: String) async -> Github.License?
+    var fetchMetadata: (_ client: Client, _ owner: String, _ repository: String) async throws -> Github.Metadata
     var fetchReadme: (_ client: Client, _ owner: String, _ repository: String) async -> Github.Readme?
     var fetchS3Readme: (_ client: Client, _ owner: String, _ repository: String) async throws -> String
     var fileManager: FileManager
@@ -167,8 +167,8 @@ extension AppEnvironment {
         fetchHTTPStatusCode: Networking.fetchHTTPStatusCode,
         fetchPackageList: liveFetchPackageList,
         fetchPackageDenyList: liveFetchPackageDenyList,
-        fetchLicense: Github.fetchLicense(client:packageUrl:),
-        fetchMetadata: Github.fetchMetadata(client:packageUrl:),
+        fetchLicense: Github.fetchLicense(client:owner:repository:),
+        fetchMetadata: Github.fetchMetadata(client:owner:repository:),
         fetchReadme: Github.fetchReadme(client:owner:repository:),
         fetchS3Readme: S3Store.fetchReadme(client:owner:repository:),
         fileManager: .live,

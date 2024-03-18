@@ -34,7 +34,7 @@ class ErrorReportingTests: AppTestCase {
     func test_Ingestor_error_reporting() async throws {
         // setup
         try await Package(url: "1", processingStage: .reconciliation).save(on: app.db)
-        Current.fetchMetadata = { _, _ in throw Github.Error.invalidURI(nil, "1") }
+        Current.fetchMetadata = { _, _, _ in throw Github.Error.invalidURI(nil, "1") }
 
         // MUT
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))

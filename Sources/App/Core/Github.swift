@@ -156,9 +156,8 @@ extension Github {
         return try response.content.decode(T.self, using: decoder)
     }
 
-    static func fetchLicense(client: Client, packageUrl: String) async -> License? {
-        guard let uri = try? Github.apiUri(for: packageUrl, resource: .license)
-        else { return nil }
+    static func fetchLicense(client: Client, owner: String, repository: String) async -> License? {
+        let uri = Github.apiUri(owner: owner, repository: repository, resource: .license)
         return try? await Github.fetchResource(Github.License.self, client: client, uri: uri)
     }
 

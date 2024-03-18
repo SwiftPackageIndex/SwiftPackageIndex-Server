@@ -33,7 +33,7 @@ final class MastodonTests: AppTestCase {
 
         var tag = Reference.tag(1, 2, 3)
         let url = "https://github.com/foo/bar"
-        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         Current.fetchPackageList = { _ in [url.url] }
 
         Current.git.commitCount = { _ in 12 }

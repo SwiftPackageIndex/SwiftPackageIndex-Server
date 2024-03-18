@@ -53,6 +53,24 @@ extension Github.Metadata {
                      summary: "This is package " + packageUrl)
     }
 
+    static func mock(owner: String, repository: String) -> Self {
+        return .init(defaultBranch: "main",
+                     forks: owner.count + repository.count,
+                     homepageUrl: nil,
+                     isInOrganization: false,
+                     issuesClosedAtDates: [],
+                     license: .mit,
+                     openIssues: 3,
+                     openPullRequests: 0,
+                     owner: owner,
+                     pullRequestsClosedAtDates: [],
+                     releases: [],
+                     repositoryTopics: [],
+                     name: repository,
+                     stars: owner.count + repository.count + 1,
+                     summary: "This is package \(owner)/\(repository)")
+    }
+
     init(defaultBranch: String,
          forks: Int,
          fundingLinks: [FundingLinkNode] = [],

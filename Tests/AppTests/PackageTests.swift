@@ -281,7 +281,7 @@ final class PackageTests: AppTestCase {
     func test_isNew() async throws {
         // setup
         let url = "1".asGithubUrl
-        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         Current.fetchPackageList = { _ in [url.url] }
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in Date(timeIntervalSince1970: 0) }

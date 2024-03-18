@@ -49,8 +49,8 @@ extension AppEnvironment {
             fetchPackageDenyList: { _ in
                 ["https://github.com/daveverwer/LeftPad"].asURLs
             },
-            fetchLicense: { _, _ in .init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE") },
-            fetchMetadata: { _, _ in .mock },
+            fetchLicense: { _, _, _ in .init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE") },
+            fetchMetadata: { _, _, _ in .mock },
             fetchReadme: { _,  _, _ in .init(html: "readme html", htmlUrl: "readme html url", imagesToCache: []) },
             fetchS3Readme: { _, _, _ in "" },
             fileManager: .mock,
