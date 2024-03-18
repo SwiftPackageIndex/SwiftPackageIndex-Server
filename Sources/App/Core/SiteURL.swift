@@ -123,6 +123,7 @@ enum SiteURL: Resourceable {
     case packageCollection(_ owner: Parameter<String>)
     case packageCollections
     case privacy
+    case readyForSwift6
     case rssPackages
     case rssReleases
     case search
@@ -212,6 +213,9 @@ enum SiteURL: Resourceable {
             case .privacy:
                 return "privacy"
 
+            case .readyForSwift6:
+                return "ready-for-swift-6"
+
             case .rssPackages:
                 return "packages.rss"
 
@@ -243,8 +247,21 @@ enum SiteURL: Resourceable {
 
     var pathComponents: [PathComponent] {
         switch self {
-            case .addAPackage, .blog, .buildMonitor, .faq, .home, .packageCollections, .privacy, .rssPackages,
-                    .rssReleases, .search, .siteMapIndex, .siteMapStaticPages, .supporters, .tryInPlayground,
+            case .addAPackage,
+                    .blog,
+                    .buildMonitor,
+                    .faq,
+                    .home,
+                    .packageCollections,
+                    .privacy,
+                    .readyForSwift6,
+                    .rssPackages,
+                    .rssReleases,
+                    .search,
+                    .siteMapIndex,
+                    .siteMapStaticPages,
+                    .supporters,
+                    .tryInPlayground,
                     .validateSPIManifest:
                 return [.init(stringLiteral: path)]
 

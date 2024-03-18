@@ -536,6 +536,13 @@ class WebpageSnapshotTests: SnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
     }
 
+    func test_ReadyForSwift6Show() throws {
+        let model = ReadyForSwift6Show.Model()
+        let page = { ReadyForSwift6Show.View(path: "", model: model).document() }
+
+        assertSnapshot(matching: page, as: .html)
+    }
+
     func test_ValidateSPIManifest_show() throws {
         let manifest = try SPIManifest.Manifest(yml: ValidateSPIManifest.Model.placeholderManifest)
         let model = ValidateSPIManifest.Model(validationResult: .valid(manifest))
