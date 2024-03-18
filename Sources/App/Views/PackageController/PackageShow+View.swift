@@ -358,6 +358,7 @@ extension PackageShow {
 extension FundingLink {
     var label: String {
         switch platform {
+            case .buyMeACoffee: return "Buy Me a Coffee"
             case .communityBridge: return "LFX Mentorship"
             case .customUrl: return URL(string: url)?.host?.removingPrefix("www.").removingPrefix("blog.") ?? url
             case .gitHub: return "GitHub Sponsors"
@@ -368,6 +369,7 @@ extension FundingLink {
             case .openCollective: return "Open Collective"
             case .otechie: return "Otechie"
             case .patreon: return "Patreon"
+            case .polar: return "Polar"
             case .tidelift: return "Tidelift"
         }
     }

@@ -373,6 +373,7 @@ extension Github {
 
         struct FundingLinkNode: Codable, Equatable {
             enum Platform: String, Codable {
+                case buyMeACoffee = "BUY_ME_A_COFFEE"
                 case communityBridge = "COMMUNITY_BRIDGE"
                 case customUrl = "CUSTOM"
                 case gitHub = "GITHUB"
@@ -383,6 +384,7 @@ extension Github {
                 case openCollective = "OPEN_COLLECTIVE"
                 case otechie = "OTECHIE"
                 case patreon = "PATREON"
+                case polar = "POLAR"
                 case tidelift = "TIDELIFT"
             }
 
