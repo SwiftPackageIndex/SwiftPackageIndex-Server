@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import Vapor
+import SwiftSoup
+import S3Store
 
 
 enum Github {
@@ -86,10 +88,13 @@ extension Github {
         case readme
     }
 
+    @available(*, deprecated)
     static func apiUri(for packageUrl: String,
                        resource: Resource,
                        query: [QueryParameter] = []) throws -> URI {
-        guard packageUrl.hasPrefix(Constants.githubComPrefix) else { throw AppError.invalidPackageUrl(nil, packageUrl) }
+        guard packageUrl.hasPrefix(Constants.githubComPrefix)
+        else { throw Github.Error.invalidURI(nil, packageUrl) }
+
         let queryString = query.queryString()
         let trunk = packageUrl
             .droppingGithubComPrefix
@@ -97,6 +102,13 @@ extension Github {
         switch resource {
             case .license, .readme:
                 return URI(string: "https://api.github.com/repos/\(trunk)/\(resource.rawValue)\(queryString)")
+        }
+    }
+
+    static func apiUri(owner: String, repository: String, resource: Resource)  -> URI {
+        switch resource {
+            case .license, .readme:
+                return URI(string: "https://api.github.com/repos/\(owner)/\(repository)/\(resource.rawValue)")
         }
     }
 
@@ -150,15 +162,14 @@ extension Github {
         return try? await Github.fetchResource(Github.License.self, client: client, uri: uri)
     }
 
-    static func fetchReadme(client: Client, packageUrl: String) async -> Readme? {
-        guard let uri = try? Github.apiUri(for: packageUrl, resource: .readme)
-        else { return nil }
+    static func fetchReadme(client: Client, owner: String, repository: String) async -> Readme? {
+        let uri = Github.apiUri(owner: owner, repository: repository, resource: .readme)
 
         // Fetch readme html content
         let readme = try? await Github.fetch(client: client, uri: uri, headers: [
             ("Accept", "application/vnd.github.html+json")
         ])
-        guard let html = readme?.content else { return nil }
+        guard var html = readme?.content else { return nil }
 
         // Fetch readme html url
         let htmlUrl: String? = await {
@@ -169,7 +180,10 @@ extension Github {
         }()
         guard let htmlUrl else { return nil }
 
-        return .init(etag: readme?.etag, html: html, htmlUrl: htmlUrl)
+        // Extract and replace images that need caching
+        let imagesToCache = replaceImagesRequiringCaching(owner: owner, repository: repository, readme: &html)
+
+        return .init(etag: readme?.etag, html: html, htmlUrl: htmlUrl, imagesToCache: imagesToCache)
     }
 
 }
@@ -246,6 +260,12 @@ extension Github {
         var etag: String?
         var html: String
         var htmlUrl: String
+        var imagesToCache: [ImageToCache]
+
+        struct ImageToCache: Equatable {
+            var originalUrl: String
+            var s3Key: S3Store.Key
+        }
     }
 
     struct Metadata: Decodable, Equatable {
@@ -457,4 +477,40 @@ extension Github {
         }
     }
 
+}
+
+extension Github {
+
+    static func replaceImagesRequiringCaching(owner: String, repository: String, readme: inout String) -> [Readme.ImageToCache] {
+        do {
+            let document = try SwiftSoup.parse(readme)
+            let imageElements = try document.select("img")
+
+            var imagesToCache: [Readme.ImageToCache] = []
+            for imageElement in imageElements.array() {
+                if let src = try? imageElement.attr("src"),
+                   let srcUrl = URL(string: src),
+                   srcUrl.host == "private-user-images.githubusercontent.com",
+                   let urlComponents = URLComponents(url: srcUrl, resolvingAgainstBaseURL: false),
+                   let jwtParameter = urlComponents.queryItems?.first(where: { $0.name == "jwt" }) {
+                    if let jwtValue = jwtParameter.value, jwtValue.isEmpty == false
+                    {
+                        // Replace the image url and keep a copy of the old one in a `data` attribute
+                        let s3Key = try S3Store.Key.readme(owner: owner, repository: repository, imageUrl: src)
+                        try imageElement.attr("src", s3Key.objectUrl)
+                        try imageElement.attr("data-original-src", src)
+                        imagesToCache.append(.init(originalUrl: src, s3Key: s3Key))
+                    }
+                }
+            }
+
+            // Only output modified HTML if there have been changes.
+            if imagesToCache.count > 0 {
+                readme = try document.outerHtml()
+            }
+            return imagesToCache
+        } catch {
+            return []
+        }
+    }
 }

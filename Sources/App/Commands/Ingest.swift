@@ -116,6 +116,9 @@ func ingest(client: Client,
                            let repository = metadata.repositoryName,
                            let html = readme?.html {
                             let objectUrl = try await Current.storeS3Readme(owner, repository, html)
+                            if let imagesToCache = readme?.imagesToCache, imagesToCache.isEmpty == false {
+                                try await Current.storeS3ReadmeImages(client, imagesToCache)
+                            }
                             s3Readme = .cached(s3ObjectUrl: objectUrl, githubEtag: upstreamEtag)
                         } else {
                             s3Readme = repo.s3Readme
@@ -154,9 +157,17 @@ func ingest(client: Client,
 
 
 func fetchMetadata(client: Client, package: Joined<Package, Repository>) async throws -> (Github.Metadata, Github.License?, Github.Readme?) {
+#warning("Convert `fetchMetadata` and `fetchLicense`  to also use `apiUri(owner:repository:resource:query:)`")
     async let metadata = try await Current.fetchMetadata(client, package.model.url)
     async let license = await Current.fetchLicense(client, package.model.url)
-    async let readme = await Current.fetchReadme(client, package.model.url)
+
+    // Even though we get through a `Joined<Package, Repository>` as a parameter, it's
+    // we must not rely on `repository` as it will be nil when a package is first ingested.
+    // The only way to get `owner` and `repository` here is by parsing them from the URL.
+    let (owner, repository) = try Github.parseOwnerName(url: package.model.url)
+
+    async let readme = await Current.fetchReadme(client, owner, repository)
+
     return try await (metadata, license, readme)
 }
 

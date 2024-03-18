@@ -41,15 +41,41 @@ extension S3Store {
         return key.objectUrl
     }
 
+    static func storeReadmeImages(client: Client, imagesToCache: [Github.Readme.ImageToCache]) async throws {
+        guard let accessKeyId = Current.awsAccessKeyId(),
+              let secretAccessKey = Current.awsSecretAccessKey()
+        else {
+            throw Error.genericError("missing AWS credentials")
+        }
+
+        let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
+        for imageToCache in imagesToCache {
+            Current.logger().debug("Copying readme image to \(imageToCache.s3Key.s3Uri) ...")
+            let response = try await client.get(URI(stringLiteral: imageToCache.originalUrl))
+            if var body = response.body, let imageData = body.readData(length: body.readableBytes) {
+                try await store.save(payload: imageData, to: imageToCache.s3Key)
+            }
+        }
+    }
+
 }
 
 
 extension S3Store.Key {
-    static func readme(owner: String, repository: String) throws -> Self {
+    static func readme(owner: String, repository: String, imageUrl: String? = nil) throws -> Self {
         guard let bucket = Current.awsReadmeBucket() else {
             throw S3Store.Error.genericError("AWS_README_BUCKET not set")
         }
-        let path = "\(owner)/\(repository)/readme.html".lowercased()
-        return .init(bucket: bucket, path: path)
+
+        if let imageUrl {
+            guard let url = URL(string: imageUrl)
+            else { throw S3Store.Error.genericError("Invalid imageUrl \(imageUrl)") }
+            let filename = url.lastPathComponent
+            let path = "\(owner)/\(repository)/\(filename)".lowercased()
+            return .init(bucket: bucket, path: path)
+        } else {
+            let path = "\(owner)/\(repository)/readme.html".lowercased()
+            return .init(bucket: bucket, path: path)
+        }
     }
 }

@@ -51,7 +51,7 @@ extension AppEnvironment {
             },
             fetchLicense: { _, _ in .init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE") },
             fetchMetadata: { _, _ in .mock },
-            fetchReadme: { _, _ in .init(html: "readme html", htmlUrl: "readme html url") },
+            fetchReadme: { _,  _, _ in .init(html: "readme html", htmlUrl: "readme html url", imagesToCache: []) },
             fetchS3Readme: { _, _, _ in "" },
             fileManager: .mock,
             getStatusCount: { _, _ in eventLoop.future(100) },
@@ -75,6 +75,7 @@ extension AppEnvironment {
             shell: .mock,
             siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
             storeS3Readme: { _, _, _ in "s3ObjectUrl" },
+            storeS3ReadmeImages: { _, _ in },
             timeZone: { .utc },
             triggerBuild: { _, _, _, _, _, _, _, _, _ in
                 eventLoop.future(.init(status: .ok, webUrl: "http://web_url"))

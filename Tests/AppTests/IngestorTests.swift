@@ -94,7 +94,7 @@ class IngestorTests: AppTestCase {
                                    for: repo,
                                    metadata: .mock(for: pkg.url),
                                    licenseInfo: .init(htmlUrl: ""),
-                                   readmeInfo: .init(html: "", htmlUrl: ""),
+                                   readmeInfo: .init(html: "", htmlUrl: "", imagesToCache: []),
                                    s3Readme: nil)
 
         // validate
@@ -149,7 +149,10 @@ class IngestorTests: AppTestCase {
                                    for: repo,
                                    metadata: md,
                                    licenseInfo: .init(htmlUrl: "license url"),
-                                   readmeInfo: .init(etag: "etag", html: "readme html", htmlUrl: "readme html url"),
+                                   readmeInfo: .init(etag: "etag",
+                                                     html: "readme html",
+                                                     htmlUrl: "readme html url",
+                                                     imagesToCache: []),
                                    s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"))
 
         // validate
@@ -216,7 +219,9 @@ class IngestorTests: AppTestCase {
                                    for: repo,
                                    metadata: md,
                                    licenseInfo: .init(htmlUrl: "license url"),
-                                   readmeInfo: .init(html: "readme html", htmlUrl: "readme html url"),
+                                   readmeInfo: .init(html: "readme html",
+                                                     htmlUrl: "readme html url",
+                                                     imagesToCache: []),
                                    s3Readme: nil)
 
         // validate
@@ -400,12 +405,18 @@ class IngestorTests: AppTestCase {
         try await pkg.save(on: app.db)
         Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
         let fetchCalls = QueueIsolated(0)
-        Current.fetchReadme = { _, _ in
+        Current.fetchReadme = { _, _, _ in
             fetchCalls.increment()
             if fetchCalls.value <= 2 {
-                return .init(etag: "etag1", html: "readme html 1", htmlUrl: "readme url")
+                return .init(etag: "etag1",
+                             html: "readme html 1",
+                             htmlUrl: "readme url",
+                             imagesToCache: [])
             } else {
-                return .init(etag: "etag2", html: "readme html 2", htmlUrl: "readme url")
+                return .init(etag: "etag2",
+                             html: "readme html 2",
+                             htmlUrl: "readme url",
+                             imagesToCache: [])
             }
         }
         let storeCalls = QueueIsolated(0)
@@ -467,14 +478,58 @@ class IngestorTests: AppTestCase {
         }
     }
 
+    func test_ingest_storeS3Readme_withPrivateImages() async throws {
+        let pkg = Package(url: "https://github.com/foo/bar".url,
+                          processingStage: .reconciliation)
+        try await pkg.save(on: app.db)
+        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        Current.storeS3Readme = { _, _, _ in "objectUrl" }
+        Current.fetchReadme = { _, _, _ in
+            return .init(etag: "etag",
+                         html: """
+                         <html>
+                         <body>
+                             <img src="https://private-user-images.githubusercontent.com/with-jwt-1.jpg?jwt=some-jwt" />
+                             <img src="https://private-user-images.githubusercontent.com/with-jwt-2.jpg?jwt=some-jwt" />
+                             <img src="https://private-user-images.githubusercontent.com/without-jwt.jpg" />
+                         </body>
+                         </html>
+                         """,
+                         htmlUrl: "readme url",
+                         imagesToCache: [
+                            .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt-1.jpg?jwt=some-jwt",
+                                  s3Key: .init(bucket: "awsReadmeBucket",
+                                               path: "/foo/bar/with-jwt-1.jpg")),
+                            .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt-2.jpg?jwt=some-jwt",
+                                  s3Key: .init(bucket: "awsReadmeBucket",
+                                               path: "/foo/bar/with-jwt-2.jpg"))
+                         ])
+        }
+        let storeS3ReadmeImagesCalls = QueueIsolated(0)
+        Current.storeS3ReadmeImages = { _, imagesToCache in
+            storeS3ReadmeImagesCalls.increment()
+
+            XCTAssertEqual(imagesToCache.count, 2)
+        }
+
+        // MUT
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+
+        // There should only be one call as `storeS3ReadmeImages` takes the array of images.
+        XCTAssertEqual(storeS3ReadmeImagesCalls.value, 1)
+    }
+
     func test_ingest_storeS3Readme_error() async throws {
         // Test caching behaviour in case the storeS3Readme call fails
         // setup
         let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
         try await pkg.save(on: app.db)
         Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
-        Current.fetchReadme = { _, _ in
-            return .init(etag: "etag1", html: "readme html 1", htmlUrl: "readme url")
+        Current.fetchReadme = { _, _, _ in
+            return .init(etag: "etag1",
+                         html: "readme html 1",
+                         htmlUrl: "readme url",
+                         imagesToCache: [])
         }
         let storeCalls = QueueIsolated(0)
         struct Error: Swift.Error { }
@@ -517,5 +572,23 @@ class IngestorTests: AppTestCase {
 
         // validate
         XCTAssertEqual(license, nil)
+    }
+
+    func test_migration076_updateRepositoryResetReadmes() async throws {
+        let package = Package(url: "https://example.com/owner/repo")
+        try await package.save(on: app.db)
+        let repository = try Repository(package: package, s3Readme: .cached(s3ObjectUrl: "object-url", githubEtag: "etag"))
+        try await repository.save(on: app.db)
+
+        // Validation that the etag exists
+        let preMigrationFetchedRepo = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
+        XCTAssertEqual(preMigrationFetchedRepo.s3Readme, .cached(s3ObjectUrl: "object-url", githubEtag: "etag"))
+
+        // MUT
+        try await UpdateRepositoryResetReadmes().prepare(on: app.db)
+
+        // Validation
+        let postMigrationFetchedRepo = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
+        XCTAssertEqual(postMigrationFetchedRepo.s3Readme, .cached(s3ObjectUrl: "object-url", githubEtag: ""))
     }
 }

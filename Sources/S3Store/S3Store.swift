@@ -27,6 +27,10 @@ public struct S3Store {
     }
     
     public func save(payload: String, to key: Key) async throws {
+        try await save(payload: Data(payload.utf8), to: key)
+    }
+
+    public func save(payload: Data, to key: Key) async throws {
         let client = AWSClient(
             credentialProvider: .static(accessKeyId: credentials.keyId,
                                         secretAccessKey: credentials.secret),
@@ -37,7 +41,7 @@ public struct S3Store {
 
         let req = S3.PutObjectRequest(
             acl: .publicRead,  // requires "Block all public access" to be "off"
-            body: .string(payload),
+            body: .data(payload),
             bucket: key.bucket,
             key: key.path
         )
@@ -56,7 +60,7 @@ extension S3Store {
         }
     }
 
-    public struct Key {
+    public struct Key: Equatable {
         public let bucket: String
         public let path: String
 

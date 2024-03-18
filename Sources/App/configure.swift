@@ -328,6 +328,9 @@ public func configure(_ app: Application) throws -> String {
     do { // Migration 076 - Add `build_errors` to `builds`
         app.migrations.add(UpdateBuildAddBuildErrors())
     }
+    do { // Migration 077 - Remove all etags from README files so they are re-fetched
+        app.migrations.add(UpdateRepositoryResetReadmes())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
