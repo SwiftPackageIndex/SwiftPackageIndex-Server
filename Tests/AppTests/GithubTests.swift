@@ -457,5 +457,6 @@ class GithubTests: AppTestCase {
 
         // Checks
         XCTAssertEqual(originalReadme, readme)
+        XCTAssertEqual(images, [])
     }
 }
