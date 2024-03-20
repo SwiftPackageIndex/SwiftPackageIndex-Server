@@ -45,6 +45,12 @@ struct DocumentationPageProcessor {
         let isLatestStable: Bool
     }
 
+    enum RewriteStrategy {
+        case reference(String)
+        case canonical
+        case none
+    }
+
     init?(repositoryOwner: String,
           repositoryOwnerName: String,
           repositoryName: String,
@@ -56,7 +62,8 @@ struct DocumentationPageProcessor {
           availableArchives: [AvailableArchive],
           availableVersions: [AvailableDocumentationVersion],
           updatedAt: Date,
-          rawHtml: String) {
+          rawHtml: String,
+          rewriteStrategy: RewriteStrategy /*= .none */) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
         self.repositoryName = repositoryName
@@ -72,8 +79,14 @@ struct DocumentationPageProcessor {
         do {
             document = try SwiftSoup.parse(rawHtml)
 
-            // Base URL rewrite
-            try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, reference: reference)
+            switch rewriteStrategy {
+                case .reference(let ref):
+                    try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, reference: ref)
+                case .canonical:
+                    try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, reference: "documentation")
+                case .none:
+                    break
+            }
 
             // SPI related modifications
             try document.title("\(packageName) Documentation – Swift Package Index")
