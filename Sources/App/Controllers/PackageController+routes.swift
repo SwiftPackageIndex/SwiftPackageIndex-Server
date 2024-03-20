@@ -123,6 +123,7 @@ enum PackageController {
         else {
             throw Abort(.notFound)
         }
+        print(#function, req.url)
 
         guard let target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository)
         else { throw Abort(.notFound) }
@@ -132,7 +133,7 @@ enum PackageController {
                 throw Abort.redirect(to: url)
 
             case let .internal(reference, archive):
-                return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: archive, fragment: fragment)
+                return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: archive, fragment: fragment, rewriteStrategy: .canonical)
 
             case .universal:
                 // FIXME: DocumentationTarget.query returns either an external or an internal DocumentationTarget and we should model the type as such.
@@ -141,7 +142,33 @@ enum PackageController {
         }
     }
 
-    static func documentation(req: Request, reference: String, archive: String? = nil, fragment: Fragment) async throws -> Response {
+    static func _documentation(req: Request, fragment: Fragment = .documentation) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else {
+            throw Abort(.notFound)
+        }
+        print(#function, req.url)
+
+        guard let target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository)
+        else { throw Abort(.notFound) }
+
+        switch target {
+            case .external(let url):
+                throw Abort.redirect(to: url)
+
+            case let .internal(reference, _):
+                return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: nil, fragment: fragment, rewriteStrategy: .canonical)
+
+            case .universal:
+                // FIXME: DocumentationTarget.query returns either an external or an internal DocumentationTarget and we should model the type as such.
+                // This case is _effectively_ unreachable but we can't currently express that.
+                throw Abort(.notFound)
+        }
+    }
+
+    static func documentation(req: Request, reference: String, archive: String? = nil, fragment: Fragment, rewriteStrategy: DocumentationPageProcessor.RewriteStrategy /*= .none */) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -165,7 +192,13 @@ enum PackageController {
                 path = catchAll.joined(separator: "/")
         }
 
-        let awsResponse = try await awsResponse(client: req.client, owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
+        let res: ClientResponse
+        do {
+            res = try await awsResponse(client: req.client, owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
+        } catch {
+            print(error)
+            throw error
+        }
 
         switch fragment {
             case .documentation, .tutorials:
@@ -175,17 +208,18 @@ enum PackageController {
                 return try await documentationResponse(
                     req: req,
                     archive: archive,
-                    awsResponse: awsResponse,
+                    awsResponse: res,
                     documentationMetadata: documentationMetadata,
                     fragment: fragment,
                     path: path,
                     owner: owner,
                     reference: reference,
-                    repository: repository
+                    repository: repository,
+                    rewriteStrategy: rewriteStrategy
                 )
 
             case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
-                return try await awsResponse.encodeResponse(
+                return try await res.encodeResponse(
                     status: .ok,
                     headers: req.headers
                         .replacingOrAdding(name: .contentType,
@@ -205,7 +239,8 @@ enum PackageController {
                                       path: String,
                                       owner: String,
                                       reference: String,
-                                      repository: String) async throws -> Response {
+                                      repository: String,
+                                      rewriteStrategy: DocumentationPageProcessor.RewriteStrategy /*= .none */) async throws -> Response {
 
         guard let documentation = documentationMetadata.versions[reference: reference]
         else {
@@ -263,7 +298,8 @@ enum PackageController {
                                                          availableArchives: availableArchives,
                                                          availableVersions: availableDocumentationVersions,
                                                          updatedAt: documentation.updatedAt,
-                                                         rawHtml: body.asString())
+                                                         rawHtml: body.asString(),
+                                                         rewriteStrategy: rewriteStrategy)
         else {
             return try await awsResponse.encodeResponse(
                 status: .ok,
@@ -283,6 +319,7 @@ enum PackageController {
 
     static func awsResponse(client: Client, owner: String, repository: String, reference: String, fragment: Fragment, path: String) async throws -> ClientResponse {
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
+        print("awsResponse url:", url)
         guard let response = try? await Current.fetchDocumentation(client, url) else {
             throw Abort(.notFound)
         }
