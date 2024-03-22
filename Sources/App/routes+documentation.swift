@@ -75,6 +75,11 @@ func docRoutes(_ app: Application) throws {
 }
 
 
+func docRoutesDev(_ app: Application) throws {
+    try docRoutes(app)
+}
+
+
 private extension PathComponent {
     static func fragment(_ fragment: PackageController.Fragment) -> Self { "\(fragment)" }
 }
