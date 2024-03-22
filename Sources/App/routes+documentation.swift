@@ -87,37 +87,37 @@ func docRoutesDev(_ app: Application) throws {
         try await PackageController.documentation(req: $0, fragment: .documentation)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, .fragment(.faviconIco)) {
-        try await PackageController._documentation(req: $0, fragment: .faviconIco)
+        try await PackageController.documentation(req: $0, fragment: .faviconIco)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, .fragment(.faviconSvg)) {
-        try await PackageController._documentation(req: $0, fragment: .faviconSvg)
+        try await PackageController.documentation(req: $0, fragment: .faviconSvg)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "css", "**") {
-        try await PackageController._documentation(req: $0, fragment: .css)
+        try await PackageController.documentation(req: $0, fragment: .css)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "data", "**") {
-        try await PackageController._documentation(req: $0, fragment: .data)
+        try await PackageController.documentation(req: $0, fragment: .data)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "images", "**") {
-        try await PackageController._documentation(req: $0, fragment: .images)
+        try await PackageController.documentation(req: $0, fragment: .images)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "img", "**") {
-        try await PackageController._documentation(req: $0, fragment: .img)
+        try await PackageController.documentation(req: $0, fragment: .img)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "index", "**") {
-        try await PackageController._documentation(req: $0, fragment: .index)
+        try await PackageController.documentation(req: $0, fragment: .index)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "js", "**") {
-        try await PackageController._documentation(req: $0, fragment: .js)
+        try await PackageController.documentation(req: $0, fragment: .js)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, .fragment(.linkablePaths)) {
-        try await PackageController._documentation(req: $0, fragment: .linkablePaths)
+        try await PackageController.documentation(req: $0, fragment: .linkablePaths)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, .fragment(.themeSettings)) {
-        try await PackageController._documentation(req: $0, fragment: .themeSettings)
+        try await PackageController.documentation(req: $0, fragment: .themeSettings)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "tutorials", "**") {
-        try await PackageController._documentation(req: $0, fragment: .tutorials)
+        try await PackageController.documentation(req: $0, fragment: .tutorials)
     }.excludeFromOpenAPI()
 
     // Version specific documentation - No index and non-canonical URLs with a specific reference.

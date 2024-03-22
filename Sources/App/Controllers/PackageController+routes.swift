@@ -123,8 +123,6 @@ enum PackageController {
         else {
             throw Abort(.notFound)
         }
-#warning("remove print")
-        print(#function, req.url)
 
         guard let target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository)
         else { throw Abort(.notFound) }
@@ -133,34 +131,12 @@ enum PackageController {
             case .external(let url):
                 throw Abort.redirect(to: url)
 
-            case let .internal(reference, archive):
+            case let .internal(reference, archive) where fragment == .documentation:
+                // documentation fragments needs the archive parameter from the target lookup
                 return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: archive, fragment: fragment, rewriteStrategy: .canonical)
 
-            case .universal:
-                // FIXME: DocumentationTarget.query returns either an external or an internal DocumentationTarget and we should model the type as such.
-                // This case is _effectively_ unreachable but we can't currently express that.
-                throw Abort(.notFound)
-        }
-    }
-
-    static func _documentation(req: Request, fragment: Fragment = .documentation) async throws -> Response {
-        guard
-            let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository")
-        else {
-            throw Abort(.notFound)
-        }
-#warning("remove print")
-        print(#function, req.url)
-
-        guard let target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository)
-        else { throw Abort(.notFound) }
-
-        switch target {
-            case .external(let url):
-                throw Abort.redirect(to: url)
-
             case let .internal(reference, _):
+                // other fragments ignore the archive
                 return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: nil, fragment: fragment, rewriteStrategy: .canonical)
 
             case .universal:
