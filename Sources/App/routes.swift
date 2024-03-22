@@ -57,46 +57,46 @@ func routes(_ app: Application) throws {
     do {  // package pages
         do {
             // Default documentation - Canonical URLs with no reference.
-            app.get(":owner", ":repository", "current", "documentation") {
+            app.get(":owner", ":repository", .current, "documentation") {
                 try await PackageController.documentation(req: $0)
             }.excludeFromOpenAPI()
-            app.get(":owner", ":repository", "current", "documentation", ":archive") {
+            app.get(":owner", ":repository", .current, "documentation", ":archive") {
                 try await PackageController.documentation(req: $0, fragment: .documentation)
             }.excludeFromOpenAPI()
-            app.get(":owner", ":repository", "current", "documentation", ":archive", "**") {
+            app.get(":owner", ":repository", .current, "documentation", ":archive", "**") {
                 try await PackageController.documentation(req: $0, fragment: .documentation)
             }.excludeFromOpenAPI()
-            app.get(":owner", ":repository", "current", .fragment(.faviconIco)) {
+            app.get(":owner", ":repository", .current, .fragment(.faviconIco)) {
                 try await PackageController._documentation(req: $0, fragment: .faviconIco)
             }.excludeFromOpenAPI()
-            app.get(":owner", ":repository", "current", .fragment(.faviconSvg)) {
+            app.get(":owner", ":repository", .current, .fragment(.faviconSvg)) {
                 try await PackageController._documentation(req: $0, fragment: .faviconSvg)
             }.excludeFromOpenAPI()
-            app.get(":owner", ":repository", "current", "css", "**") {
+            app.get(":owner", ":repository", .current, "css", "**") {
                 try await PackageController._documentation(req: $0, fragment: .css)
             }.excludeFromOpenAPI()
-            app.get(":owner", ":repository", "current", "data", "**") {
+            app.get(":owner", ":repository", .current, "data", "**") {
                 try await PackageController._documentation(req: $0, fragment: .data)
             }.excludeFromOpenAPI()
-            app.get(":owner", ":repository", "current", "images", "**") {
+            app.get(":owner", ":repository", .current, "images", "**") {
                 try await PackageController._documentation(req: $0, fragment: .images)
             }.excludeFromOpenAPI()
-            app.get(":owner", ":repository", "current", "img", "**") {
+            app.get(":owner", ":repository", .current, "img", "**") {
                 try await PackageController._documentation(req: $0, fragment: .img)
             }.excludeFromOpenAPI()
-            app.get(":owner", ":repository", "current", "index", "**") {
+            app.get(":owner", ":repository", .current, "index", "**") {
                 try await PackageController._documentation(req: $0, fragment: .index)
             }.excludeFromOpenAPI()
-            app.get(":owner", ":repository", "current", "js", "**") {
+            app.get(":owner", ":repository", .current, "js", "**") {
                 try await PackageController._documentation(req: $0, fragment: .js)
             }.excludeFromOpenAPI()
-            app.get(":owner", ":repository", "current", .fragment(.linkablePaths)) {
+            app.get(":owner", ":repository", .current, .fragment(.linkablePaths)) {
                 try await PackageController._documentation(req: $0, fragment: .linkablePaths)
             }.excludeFromOpenAPI()
-            app.get(":owner", ":repository", "current", .fragment(.themeSettings)) {
+            app.get(":owner", ":repository", .current, .fragment(.themeSettings)) {
                 try await PackageController._documentation(req: $0, fragment: .themeSettings)
             }.excludeFromOpenAPI()
-            app.get(":owner", ":repository", "current", "tutorials", "**") {
+            app.get(":owner", ":repository", .current, "tutorials", "**") {
                 try await PackageController._documentation(req: $0, fragment: .tutorials)
             }.excludeFromOpenAPI()
 
