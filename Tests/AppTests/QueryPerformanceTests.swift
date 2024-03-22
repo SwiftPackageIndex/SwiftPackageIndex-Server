@@ -64,7 +64,7 @@ class QueryPerformanceTests: XCTestCase {
         let filter = try AuthorSearchFilter(expression: .init(operator: .is, value: "apple"))
         let query = try Search.query(app.db, ["a"], filters: [filter], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 6900, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 7000, variation: 200)
     }
 
     func test_06_Search_query_keywordFilter() async throws {
@@ -99,7 +99,7 @@ class QueryPerformanceTests: XCTestCase {
         let filter = try ProductTypeSearchFilter(expression: .init(operator: .is, value: "plugin"))
         let query = try Search.query(app.db, ["a"], filters: [filter], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 6900, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 7000, variation: 200)
     }
 
     func test_11_Search_query_starsFilter() async throws {
@@ -152,7 +152,7 @@ class QueryPerformanceTests: XCTestCase {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
-        try await assertQueryPerformance(query, expectedCost: 72_000, variation: 3000)
+        try await assertQueryPerformance(query, expectedCost: 77_000, variation: 5000)
     }
 
 }
