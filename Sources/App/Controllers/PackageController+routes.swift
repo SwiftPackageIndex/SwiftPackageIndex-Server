@@ -123,6 +123,7 @@ enum PackageController {
         else {
             throw Abort(.notFound)
         }
+#warning("remove print")
         print(#function, req.url)
 
         guard let target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository)
@@ -149,6 +150,7 @@ enum PackageController {
         else {
             throw Abort(.notFound)
         }
+#warning("remove print")
         print(#function, req.url)
 
         guard let target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository)
