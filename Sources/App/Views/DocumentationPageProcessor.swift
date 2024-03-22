@@ -83,7 +83,7 @@ struct DocumentationPageProcessor {
                 case .reference(let ref):
                     try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, reference: ref)
                 case .canonical:
-                    try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, reference: "documentation")
+                    try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, reference: "current")
                 case .none:
                     break
             }
