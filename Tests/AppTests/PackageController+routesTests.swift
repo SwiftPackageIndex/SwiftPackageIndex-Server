@@ -380,10 +380,10 @@ class PackageController_routesTests: AppTestCase {
         .save(on: app.db).wait()
 
         // MUT
-        try app.test(.GET, "/owner/package/documentation") {
+        try app.test(.GET, "/owner/package/~/documentation") {
             XCTAssertEqual($0.status, .ok)
         }
-        try app.test(.GET, "/owner/package/documentation/docs/symbol") {
+        try app.test(.GET, "/owner/package/~/documentation/docs/symbol") {
 #warning("improve this test by checking what we do with the url")
             XCTAssertEqual($0.status, .ok)
         }
@@ -392,15 +392,15 @@ class PackageController_routesTests: AppTestCase {
         // generated docs (i.e. `docs` in this test) as that would prevent them from
         // cross-target linking.
         // Effectively, all we're doing is inserting the correct `ref` before `documentation`.
-        try app.test(.GET, "/owner/package/documentation/foo") {
+        try app.test(.GET, "/owner/package/~/documentation/foo") {
 #warning("improve this test by checking what we do with the url")
             XCTAssertEqual($0.status, .ok)
         }
-        try app.test(.GET, "/owner/package/documentation/foo#anchor") {
+        try app.test(.GET, "/owner/package/~/documentation/foo#anchor") {
 #warning("improve this test by checking what we do with the url")
             XCTAssertEqual($0.status, .ok)
         }
-        try app.test(.GET, "/owner/package/documentation/FOO") {
+        try app.test(.GET, "/owner/package/~/documentation/FOO") {
 #warning("improve this test by checking what we do with the url")
             XCTAssertEqual($0.status, .ok)
         }
@@ -701,7 +701,7 @@ class PackageController_routesTests: AppTestCase {
         // MUT
 
         // test default path
-        try app.test(.GET, "/owner/package/documentation") {
+        try app.test(.GET, "/owner/package/~/documentation") {
             XCTAssertEqual($0.status, .ok)
 #warning("improve this test by checking what we do with the url")
         }
@@ -746,14 +746,14 @@ class PackageController_routesTests: AppTestCase {
         .save(on: app.db).wait()
 
         // MUT
-        try app.test(.GET, "/owner/package/tutorials") {
+        try app.test(.GET, "/owner/package/~/tutorials") {
             XCTAssertEqual($0.status, .notFound)
         }
-        try app.test(.GET, "/owner/package/tutorials/foo") {
+        try app.test(.GET, "/owner/package/~/tutorials/foo") {
             XCTAssertEqual($0.status, .ok)
 #warning("improve this test by checking what we do with the url")
         }
-        try app.test(.GET, "/owner/package/tutorials/foo#anchor") {
+        try app.test(.GET, "/owner/package/~/tutorials/foo#anchor") {
             XCTAssertEqual($0.status, .ok)
 #warning("improve this test by checking what we do with the url")
         }
@@ -995,7 +995,7 @@ class PackageController_routesTests: AppTestCase {
         }
 
         // Ensure documentation is resolved
-        try app.test(.GET, "/owner/package/documentation") {
+        try app.test(.GET, "/owner/package/~/documentation") {
             XCTAssertEqual($0.status, .ok)
 #warning("improve this test by checking what we do with the url")
         }
@@ -1009,7 +1009,7 @@ class PackageController_routesTests: AppTestCase {
 
 
         // Ensure documentation is still being resolved
-        try app.test(.GET, "/owner/package/documentation") {
+        try app.test(.GET, "/owner/package/~/documentation") {
             XCTAssertEqual($0.status, .ok)
 #warning("improve this test by checking what we do with the url")
         }
