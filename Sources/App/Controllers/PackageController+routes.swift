@@ -297,7 +297,6 @@ enum PackageController {
 
     static func awsResponse(client: Client, owner: String, repository: String, reference: String, fragment: Fragment, path: String) async throws -> ClientResponse {
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
-        print("awsResponse url:", url)
         guard let response = try? await Current.fetchDocumentation(client, url) else {
             throw Abort(.notFound)
         }
