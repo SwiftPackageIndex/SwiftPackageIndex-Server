@@ -1060,6 +1060,11 @@ class PackageController_routesTests: SnapshotTestCase {
             if cmd.description == "swift package dump-package" { return .mockManifest }
             return ""
         }
+#warning("verify that this makes sense")
+        // This test started breaking when I switched to SnapshotTestCase, which sets
+        // Current.date = { Date(timeIntervalSince1970: 0) }
+        // Test seems to have relied on the live dependency Current.date = { .now }
+        Current.date = { .t0 + .hours(24) }
 
         // Ensure documentation is resolved
         try app.test(.GET, "/owner/package/~/documentation") {
