@@ -357,7 +357,65 @@ class PackageController_routesTests: AppTestCase {
                        "/owner/repo/canonical-ref/documentation/archive/symbol:$-%")
     }
 
-    func test_defaultDocumentation() throws {
+    func test_documentation_routes_default() async throws {
+        // Test the default documentation routes without any reference:
+        //   /owner/package/documentation + various path elements
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "0123456789",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .defaultBranch,
+                          packageName: "pkg",
+                          reference: .branch("main"))
+        .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "9876543210",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .release,
+                          packageName: "pkg",
+                          reference: .tag(1, 0, 0))
+        .save(on: app.db)
+
+        // MUT
+        try app.test(.GET, "/owner/package/documentation") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/target")
+        }
+        try app.test(.GET, "/owner/package/documentation/target/symbol") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/target/symbol")
+        }
+        // We do not validate the catchall - authors need to make sure they point
+        // the path after `documentation/` at a valid doc path. We do not try and map it to
+        // generated docs (i.e. `target` in this test) as that would prevent them from
+        // cross-target linking.
+        // Effectively, all we're doing is inserting the correct `ref` before `documentation`.
+        try app.test(.GET, "/owner/package/documentation/foo") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo")
+        }
+        try app.test(.GET, "/owner/package/documentation/foo#anchor") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo#anchor")
+        }
+        try app.test(.GET, "/owner/package/documentation/FOO") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo")
+        }
+        try app.test(.GET, "/owner/package/tutorials/foo") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/tutorials/foo")
+        }
+    }
+
+    func test_documentation_routes_current() throws {
+        // Test the current (~) documentation routes:
+        //   /owner/package/documentation/~ + various path elements
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, name: "package", owner: "owner")

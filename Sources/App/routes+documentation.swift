@@ -77,15 +77,12 @@ func docRoutes(_ app: Application) throws {
 
 func docRoutesDev(_ app: Application) throws {
     // Default handlers (no ref)
-#warning("add test to make sure dropping this route raises an error")
     app.get(":owner", ":repository", "documentation") {
         try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
     }.excludeFromOpenAPI()
-#warning("add test to make sure dropping this route raises an error")
     app.get(":owner", ":repository", "documentation", "**") {
         try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
     }.excludeFromOpenAPI()
-#warning("add test to make sure dropping this route raises an error")
     app.get(":owner", ":repository", "tutorials", "**") {
         try await PackageController.defaultDocumentation(req: $0, fragment: .tutorials)
     }.excludeFromOpenAPI()
