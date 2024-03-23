@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-
-import SwiftSoup
-import Vapor
 import XCTest
 
-class PackageController_routesTests: AppTestCase {
+@testable import App
+
+import SnapshotTesting
+import SwiftSoup
+import Vapor
+
+
+class PackageController_routesTests: SnapshotTestCase {
 
     func test_show() throws {
         // setup
@@ -423,7 +426,7 @@ class PackageController_routesTests: AppTestCase {
         try Version(package: pkg,
                     commit: "0123456789",
                     commitDate: .t0,
-                    docArchives: [.init(name: "docs", title: "Docs")],
+                    docArchives: [.init(name: "target", title: "Target")],
                     latest: .defaultBranch,
                     packageName: "pkg",
                     reference: .branch("main"))
@@ -431,19 +434,25 @@ class PackageController_routesTests: AppTestCase {
         try Version(package: pkg,
                     commit: "9876543210",
                     commitDate: .t0,
-                    docArchives: [.init(name: "docs", title: "Docs")],
+                    docArchives: [.init(name: "target", title: "Target")],
                     latest: .release,
                     packageName: "pkg",
                     reference: .tag(1, 0, 0))
         .save(on: app.db).wait()
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .indexHTML()) }
 
         // MUT
         try app.test(.GET, "/owner/package/~/documentation") {
             XCTAssertEqual($0.status, .ok)
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "documentation")
         }
-        try app.test(.GET, "/owner/package/~/documentation/docs/symbol") {
-#warning("improve this test by checking what we do with the url")
+        try app.test(.GET, "/owner/package/~/documentation/target") {
             XCTAssertEqual($0.status, .ok)
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "documentation")
+        }
+        try app.test(.GET, "/owner/package/~/documentation/target/symbol") {
+            XCTAssertEqual($0.status, .ok)
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "documentation")
         }
         // There is nothing magic about the catchall - authors need to make sure they point
         // the path after `documentation/` at a valid doc path. We do not try and map it to
@@ -451,16 +460,16 @@ class PackageController_routesTests: AppTestCase {
         // cross-target linking.
         // Effectively, all we're doing is inserting the correct `ref` before `documentation`.
         try app.test(.GET, "/owner/package/~/documentation/foo") {
-#warning("improve this test by checking what we do with the url")
             XCTAssertEqual($0.status, .ok)
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "documentation")
         }
         try app.test(.GET, "/owner/package/~/documentation/foo#anchor") {
-#warning("improve this test by checking what we do with the url")
             XCTAssertEqual($0.status, .ok)
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "documentation")
         }
         try app.test(.GET, "/owner/package/~/documentation/FOO") {
-#warning("improve this test by checking what we do with the url")
             XCTAssertEqual($0.status, .ok)
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "documentation")
         }
     }
 
@@ -1100,4 +1109,35 @@ private extension String {
                       "targets": [{"name": "t1", "type": "executable"}]
                     }
                     """#
+}
+
+private extension ByteBuffer {
+    static func indexHTML(baseURL: String = "/") -> Self {
+        let baseURL = baseURL.hasSuffix("/") ? baseURL : baseURL + "/"
+        return .init(string: """
+            <!doctype html>
+            <html lang="en-US">
+
+            <head>
+                <meta charset="utf-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+                <link rel="icon" href="\(baseURL)favicon.ico">
+                <link rel="mask-icon" href="\(baseURL)favicon.svg" color="#333333">
+                <title>Documentation</title>
+                <script>
+                    var baseUrl = "\(baseURL)"
+                </script>
+                <script defer="defer" src="\(baseURL)js/chunk-vendors.bdb7cbba.js"></script>
+                <script defer="defer" src="\(baseURL)js/index.2871ffbd.js"></script>
+                <link href="\(baseURL)css/index.ff036a9e.css" rel="stylesheet">
+            </head>
+
+            <body data-color-scheme="auto"><noscript>[object Module]</noscript>
+                <div id="app"></div>
+            </body>
+
+            </html>
+            """)
+    }
 }
