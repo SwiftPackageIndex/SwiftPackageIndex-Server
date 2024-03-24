@@ -1048,6 +1048,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
+    @MainActor
     func test_issue_2288() async throws {
         // Ensures default branch updates don't introduce a "documentation gap"
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
@@ -1084,30 +1085,27 @@ class PackageController_routesTests: SnapshotTestCase {
             if cmd.description == "swift package dump-package" { return .mockManifest }
             return ""
         }
-#warning("verify that this makes sense")
-        // This test started breaking when I switched to SnapshotTestCase, which sets
-        // Current.date = { Date(timeIntervalSince1970: 0) }
-        // Test seems to have relied on the live dependency Current.date = { .now }
-        Current.date = { .t0 + .hours(24) }
+        // Make sure the new commit doesn't get throttled
+        Current.date = { .t1 + Constants.branchVersionRefreshDelay + 1 }
 
         // Ensure documentation is resolved
-        try app.test(.GET, "/owner/package/~/documentation") {
+        try await app.test(.GET, "/owner/package/~/documentation") {
+            await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
-#warning("improve this test by checking what we do with the url")
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
 
         // Run analyze to detect a new default branch version
         try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
 
         // Confirm that analysis has picked up the new version
-        try await XCTAssertEqualAsync(try await Version.query(on: app.db).all().map(\.commit),
-                                      ["new-commit"])
-
+        try await XCTAssertEqualAsync(try await Version.query(on: app.db).all().map(\.commit), ["new-commit"])
 
         // Ensure documentation is still being resolved
-        try app.test(.GET, "/owner/package/~/documentation") {
+        try await app.test(.GET, "/owner/package/~/documentation") {
+            await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
-#warning("improve this test by checking what we do with the url")
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
     }
 
