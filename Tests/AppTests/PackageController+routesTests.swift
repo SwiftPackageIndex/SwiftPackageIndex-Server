@@ -440,7 +440,7 @@ class PackageController_routesTests: SnapshotTestCase {
                           packageName: "pkg",
                           reference: .tag(1, 0, 0))
             .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .indexHTML()) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
 
         // MUT
         try await app.test(.GET, "/owner/package/~/documentation") {
@@ -768,7 +768,7 @@ class PackageController_routesTests: SnapshotTestCase {
                           packageName: "pkg",
                           reference: .branch("feature/1.2.3"))
         .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .indexHTML()) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
 
         // MUT
 
@@ -832,7 +832,7 @@ class PackageController_routesTests: SnapshotTestCase {
                           packageName: "pkg",
                           reference: .tag(1, 0, 0))
             .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .indexHTML()) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
 
         // MUT
         try app.test(.GET, "/owner/package/~/tutorials") {
@@ -1139,9 +1139,8 @@ private extension String {
 }
 
 private extension ByteBuffer {
-    static func indexHTML(baseURL: String = "/") -> Self {
-        let baseURL = baseURL.hasSuffix("/") ? baseURL : baseURL + "/"
-        return .init(string: """
+    static var mockIndexHTML: Self {
+        .init(string: """
             <!doctype html>
             <html lang="en-US">
 
@@ -1149,15 +1148,15 @@ private extension ByteBuffer {
                 <meta charset="utf-8">
                 <meta http-equiv="X-UA-Compatible" content="IE=edge">
                 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-                <link rel="icon" href="\(baseURL)favicon.ico">
-                <link rel="mask-icon" href="\(baseURL)favicon.svg" color="#333333">
+                <link rel="icon" href="/favicon.ico">
+                <link rel="mask-icon" href="/favicon.svg" color="#333333">
                 <title>Documentation</title>
                 <script>
-                    var baseUrl = "\(baseURL)"
+                    var baseUrl = "/"
                 </script>
-                <script defer="defer" src="\(baseURL)js/chunk-vendors.bdb7cbba.js"></script>
-                <script defer="defer" src="\(baseURL)js/index.2871ffbd.js"></script>
-                <link href="\(baseURL)css/index.ff036a9e.css" rel="stylesheet">
+                <script defer="defer" src="/js/chunk-vendors.bdb7cbba.js"></script>
+                <script defer="defer" src="/js/index.2871ffbd.js"></script>
+                <link href="/css/index.ff036a9e.css" rel="stylesheet">
             </head>
 
             <body data-color-scheme="auto"><noscript>[object Module]</noscript>
