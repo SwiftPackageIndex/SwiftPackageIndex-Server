@@ -752,14 +752,11 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
+    @MainActor
     func test_documentation_issue_2287() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2287
         // Ensure references are path encoded
         // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: "<p>\(uri.path)</p>"))
-        }
         let pkg = try savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
@@ -771,29 +768,45 @@ class PackageController_routesTests: SnapshotTestCase {
                           packageName: "pkg",
                           reference: .branch("feature/1.2.3"))
         .save(on: app.db)
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .indexHTML()) }
 
         // MUT
 
         // test default path
-        try app.test(.GET, "/owner/package/~/documentation") {
+        try await app.test(.GET, "/owner/package/~/documentation") {
+            await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
-#warning("improve this test by checking what we do with the url")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "current-index")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+#warning("we probably want a canonical link in here as well - TBC")
+            XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
         }
 
         // test reference root path
-        try app.test(.GET, "/owner/package/feature-1.2.3/documentation") {
+        try await app.test(.GET, "/owner/package/feature-1.2.3/documentation") {
+            await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
-#warning("improve this test by checking what we do with the url")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "ref-index")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
+            XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation" />"#))
+            XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
         }
 
         // test path a/b
-        try app.test(.GET, "/owner/package/feature-1.2.3/documentation/a/b") {
+        try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/a/b") {
+            await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
-            XCTAssertTrue(
-                $0.body.asString().contains("<p>/owner/package/feature-1.2.3/documentation/a/b</p>"),
-                "was: \($0.body.asString())"
-            )
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "ref-index-path")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
+            XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/a/b" />"#))
+            XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
         }
     }
 
