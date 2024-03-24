@@ -416,41 +416,45 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    func test_documentation_routes_current() throws {
+    @MainActor
+    func test_documentation_routes_current() async throws {
         // Test the current (~) documentation routes:
         //   /owner/package/documentation/~ + various path elements
         // setup
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg,
-                    commit: "0123456789",
-                    commitDate: .t0,
-                    docArchives: [.init(name: "target", title: "Target")],
-                    latest: .defaultBranch,
-                    packageName: "pkg",
-                    reference: .branch("main"))
-        .save(on: app.db).wait()
-        try Version(package: pkg,
-                    commit: "9876543210",
-                    commitDate: .t0,
-                    docArchives: [.init(name: "target", title: "Target")],
-                    latest: .release,
-                    packageName: "pkg",
-                    reference: .tag(1, 0, 0))
-        .save(on: app.db).wait()
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "0123456789",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .defaultBranch,
+                          packageName: "pkg",
+                          reference: .branch("main"))
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "9876543210",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .release,
+                          packageName: "pkg",
+                          reference: .tag(1, 0, 0))
+            .save(on: app.db)
         Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .indexHTML()) }
 
         // MUT
-        try app.test(.GET, "/owner/package/~/documentation") {
+        try await app.test(.GET, "/owner/package/~/documentation") {
+            await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
-        try app.test(.GET, "/owner/package/~/documentation/target") {
+        try await app.test(.GET, "/owner/package/~/documentation/target") {
+            await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
-        try app.test(.GET, "/owner/package/~/documentation/target/symbol") {
+        try await app.test(.GET, "/owner/package/~/documentation/target/symbol") {
+            await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
@@ -459,15 +463,18 @@ class PackageController_routesTests: SnapshotTestCase {
         // generated docs (i.e. `docs` in this test) as that would prevent them from
         // cross-target linking.
         // Effectively, all we're doing is inserting the correct `ref` before `documentation`.
-        try app.test(.GET, "/owner/package/~/documentation/foo") {
+        try await app.test(.GET, "/owner/package/~/documentation/foo") {
+            await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
-        try app.test(.GET, "/owner/package/~/documentation/foo#anchor") {
+        try await app.test(.GET, "/owner/package/~/documentation/foo#anchor") {
+            await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
-        try app.test(.GET, "/owner/package/~/documentation/FOO") {
+        try await app.test(.GET, "/owner/package/~/documentation/FOO") {
+            await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
