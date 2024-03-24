@@ -444,15 +444,15 @@ class PackageController_routesTests: SnapshotTestCase {
         // MUT
         try app.test(.GET, "/owner/package/~/documentation") {
             XCTAssertEqual($0.status, .ok)
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "documentation")
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
         try app.test(.GET, "/owner/package/~/documentation/target") {
             XCTAssertEqual($0.status, .ok)
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "documentation")
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
         try app.test(.GET, "/owner/package/~/documentation/target/symbol") {
             XCTAssertEqual($0.status, .ok)
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "documentation")
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
         // There is nothing magic about the catchall - authors need to make sure they point
         // the path after `documentation/` at a valid doc path. We do not try and map it to
@@ -461,15 +461,15 @@ class PackageController_routesTests: SnapshotTestCase {
         // Effectively, all we're doing is inserting the correct `ref` before `documentation`.
         try app.test(.GET, "/owner/package/~/documentation/foo") {
             XCTAssertEqual($0.status, .ok)
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "documentation")
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
         try app.test(.GET, "/owner/package/~/documentation/foo#anchor") {
             XCTAssertEqual($0.status, .ok)
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "documentation")
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
         try app.test(.GET, "/owner/package/~/documentation/FOO") {
             XCTAssertEqual($0.status, .ok)
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "documentation")
+            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
     }
 
