@@ -480,34 +480,58 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    func test_documentationRoot() throws {
+    @MainActor
+    func test_documentation_routes_no_archive() async throws {
+        // Test documentation routes when no archive is in the path
         // setup
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg,
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
                     commit: "0123456789",
                     commitDate: .t0,
-                    docArchives: [.init(name: "docs", title: "Docs")],
+                    docArchives: [.init(name: "target", title: "Target")],
                     latest: .defaultBranch,
                     packageName: "pkg",
                     reference: .branch("main"))
-        .save(on: app.db).wait()
-        try Version(package: pkg,
+            .save(on: app.db)
+        try await Version(package: pkg,
                     commit: "9876543210",
                     commitDate: .t0,
-                    docArchives: [.init(name: "docs", title: "Docs")],
+                    docArchives: [.init(name: "target", title: "Target")],
                     latest: .release,
                     packageName: "pkg",
                     reference: .tag(1, 0, 0))
-        .save(on: app.db).wait()
+            .save(on: app.db)
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
 
         // MUT
-        try app.test(.GET, "/owner/package/main/documentation") {
+        try await app.test(.GET, "/owner/package/main/documentation") {
+            await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index-main")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/main/favicon.ico" />"#))
+            XCTAssert(body.contains(#"Documentation for <span class="branch">main</span>"#))
         }
-        try app.test(.GET, "/owner/package/1.0.0/documentation") {
+        try await app.test(.GET, "/owner/package/1.0.0/documentation") {
+            await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index-1.0.0")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.0.0/favicon.ico" />"#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+        }
+        try await app.test(.GET, "/owner/package/~/documentation") {
+            await Task.yield() // essential to avoid deadlocking
+            XCTAssertEqual($0.status, .ok)
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index-current")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
         }
     }
 
