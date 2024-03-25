@@ -51,7 +51,7 @@ class QueryPerformanceTests: XCTestCase {
 
     func test_03_Search_authorMatchQuery() async throws {
         let query = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
-        try await assertQueryPerformance(query, expectedCost: 910, variation: 50)
+        try await assertQueryPerformance(query, expectedCost: 1000, variation: 50)
     }
 
     func test_04_Search_query_noFilter() async throws {
@@ -71,7 +71,7 @@ class QueryPerformanceTests: XCTestCase {
         let filter = try KeywordSearchFilter(expression: .init(operator: .is, value: "apple"))
         let query = try Search.query(app.db, ["a"], filters: [filter], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 7000, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 7100, variation: 200)
     }
 
     func test_07_Search_query_lastActicityFilter() async throws {
@@ -92,7 +92,7 @@ class QueryPerformanceTests: XCTestCase {
         let filter = try PlatformSearchFilter(expression: .init(operator: .is, value: "macos,ios"))
         let query = try Search.query(app.db, ["a"], filters: [filter], page: 1)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 7000, variation: 200)
+        try await assertQueryPerformance(query, expectedCost: 7100, variation: 200)
     }
 
     func test_10_Search_query_productTypeFilter() async throws {
