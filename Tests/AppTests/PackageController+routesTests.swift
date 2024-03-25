@@ -443,10 +443,9 @@ class PackageController_routesTests: SnapshotTestCase {
         Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
 
         // MUT
-        try await app.test(.GET, "/owner/package/~/documentation") {
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual($0.status, .ok)
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
+        try app.test(.GET, "/owner/package/~/documentation") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/target")
         }
         try await app.test(.GET, "/owner/package/~/documentation/target") {
             await Task.yield() // essential to avoid deadlocking
@@ -641,8 +640,8 @@ class PackageController_routesTests: SnapshotTestCase {
 
         // MUT
         try app.test(.GET, "/owner/package/1.2.3/documentation") {
-            // hits Current.fetchDocumentation which throws, converted to notFound
-            XCTAssertEqual($0.status, .notFound)
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.2.3/documentation/foo")
         }
         try app.test(.GET, "/owner/package/1.2.3/documentation/foo") {
             // hits Current.fetchDocumentation which throws, converted to notFound
@@ -771,7 +770,7 @@ class PackageController_routesTests: SnapshotTestCase {
         try await Version(package: pkg,
                           commit: "0123456789",
                           commitDate: .t0,
-                          docArchives: [.init(name: "docs", title: "Docs")],
+                          docArchives: [.init(name: "target", title: "Target")],
                           latest: .defaultBranch,
                           packageName: "pkg",
                           reference: .branch("feature/1.2.3"))
@@ -781,7 +780,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // MUT
 
         // test default path
-        try await app.test(.GET, "/owner/package/~/documentation") {
+        try await app.test(.GET, "/owner/package/~/documentation/target") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             let body = String(buffer: $0.body)
@@ -793,14 +792,14 @@ class PackageController_routesTests: SnapshotTestCase {
         }
 
         // test reference root path
-        try await app.test(.GET, "/owner/package/feature-1.2.3/documentation") {
+        try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/target") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "ref-index")
             // Call out a couple of specific snippets in the html
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
-            XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation" />"#))
+            XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/target" />"#))
             XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
         }
 
@@ -1062,17 +1061,17 @@ class PackageController_routesTests: SnapshotTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
 
         // setup
-        let pkg = try savePackage(on: app.db, "bar".asGithubUrl.url, processingStage: .ingestion)
-        try await Repository(package: pkg, defaultBranch: "main", name: "package", owner: "owner")
+        let pkg = try savePackage(on: app.db, "https://github.com/foo/bar".url, processingStage: .ingestion)
+        try await Repository(package: pkg, defaultBranch: "main", name: "bar", owner: "foo")
             .save(on: app.db)
         try await Version(package: pkg,
                           commit: "0123456789",
                           commitDate: .t0,
-                          docArchives: [.init(name: "docs", title: "Docs")],
+                          docArchives: [.init(name: "target", title: "Target")],
                           latest: .defaultBranch,
-                          packageName: "pkg",
+                          packageName: "bar",
                           reference: .branch("main"))
-        .save(on: app.db)
+            .save(on: app.db)
         Current.fileManager.fileExists = { path in
             if path.hasSuffix("Package.resolved") { return false }
             return true
@@ -1095,9 +1094,10 @@ class PackageController_routesTests: SnapshotTestCase {
         }
         // Make sure the new commit doesn't get throttled
         Current.date = { .t1 + Constants.branchVersionRefreshDelay + 1 }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
 
         // Ensure documentation is resolved
-        try await app.test(.GET, "/owner/package/~/documentation") {
+        try await app.test(.GET, "/foo/bar/~/documentation/target") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
@@ -1110,7 +1110,7 @@ class PackageController_routesTests: SnapshotTestCase {
         try await XCTAssertEqualAsync(try await Version.query(on: app.db).all().map(\.commit), ["new-commit"])
 
         // Ensure documentation is still being resolved
-        try await app.test(.GET, "/owner/package/~/documentation") {
+        try await app.test(.GET, "/foo/bar/~/documentation/target") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
