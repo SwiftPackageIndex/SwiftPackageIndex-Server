@@ -178,3 +178,8 @@
   summary: The march of Swift's progress continues, the same is true for the Swift Package Index! We're delighted to announce that compatibility results for Swift 5.10 are available on every package page!
   published_at: 2024-02-23
   published: true
+- slug: customising-the-docc-documentation-theme
+  title: Customising the DocC documentation theme
+  summary: Does Swift Package Index support DocC’s support for custom themes? Of course we do! Find out how, and see a great example of a package that’s taking advantage of this feature.
+  published_at: 2024-03-25
+  published: true
