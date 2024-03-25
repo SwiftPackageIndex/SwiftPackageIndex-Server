@@ -16,9 +16,9 @@
     "devDependencies": {
         "esbuild": "^0.20.2",
         "esbuild-sass-plugin": "^3.2.0",
-        "postcss": "^8.4.36",
+        "postcss": "^8.4.38",
         "prettier": "^3.2.5",
-        "stylelint": "^16.2.1",
+        "stylelint": "^16.3.0",
         "stylelint-config-standard-scss": "^13.0.0",
         "stylelint-order": "^6.0.4",
         "stylelint-scss": "^6.2.1"
