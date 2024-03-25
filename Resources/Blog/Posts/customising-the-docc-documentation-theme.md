@@ -1,4 +1,4 @@
-An interesting conversation on the [Swift Package Index Discord server](https://discord.gg/vQRb6KkYRw) this weekend led a group of us to dig into whether DocC’s support for customised themes worked with our [automatic package documentation hosting](https://swiftpackageindex.com/SwiftPackageIndex/SPIManifest/1.4.1/documentation/spimanifest/commonusecases) system.
+An interesting conversation on the [Swift Package Index Discord server](https://discord.gg/vQRb6KkYRw) this weekend led a group of us to dig into whether DocC’s support for customised themes worked with our [automatic package documentation hosting](https://swiftpackageindex.com/swiftpackageindex/spimanifest/1.4.1/documentation/spimanifest/commonusecases#Host-DocC-documentation-in-the-Swift-Package-Index) system.
 
 The good news is that we do support it! We do very little processing of the generated DocC code after we build it, so we support everything that DocC generates.
 
