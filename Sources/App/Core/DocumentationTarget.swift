@@ -80,3 +80,17 @@ enum DocumentationTarget: Equatable, Codable {
         }
     }
 }
+
+
+extension DocumentationTarget {
+    var `internal`: (reference: String, archive: String)? {
+        switch self {
+            case .external:
+                return nil
+            case .internal(let reference, let archive):
+                return (reference, archive)
+            case .universal:
+                return nil
+        }
+    }
+}
