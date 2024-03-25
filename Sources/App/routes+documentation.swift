@@ -20,13 +20,13 @@ func docRoutes(_ app: Application) throws {
     // temporary, hacky docc-proxy
     // default handlers (no ref)
     app.get(":owner", ":repository", "documentation") {
-        try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
+        try await PackageController.documentationRedirect(req: $0, fragment: .documentation)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "documentation", "**") {
-        try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
+        try await PackageController.documentationRedirect(req: $0, fragment: .documentation)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "tutorials", "**") {
-        try await PackageController.defaultDocumentation(req: $0, fragment: .tutorials)
+        try await PackageController.documentationRedirect(req: $0, fragment: .tutorials)
     }.excludeFromOpenAPI()
 
     // targeted handlers (with ref)
@@ -76,21 +76,27 @@ func docRoutes(_ app: Application) throws {
 
 
 func docRoutesDev(_ app: Application) throws {
-    // Default handlers (no ref)
+    // Underspecified documentation routes - these routes lack the reference, the archive, or both.
+    // Therefore, these parts need to be queried from the database and the request will be
+    // redirected to the fully formed documentation URL.
     app.get(":owner", ":repository", "documentation") {
-        try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
+        try await PackageController.documentationRedirect(req: $0, fragment: .documentation)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "documentation", "**") {
-        try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
+        try await PackageController.documentationRedirect(req: $0, fragment: .documentation)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "tutorials", "**") {
-        try await PackageController.defaultDocumentation(req: $0, fragment: .tutorials)
+        try await PackageController.documentationRedirect(req: $0, fragment: .tutorials)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", .current, "documentation") {
+        try await PackageController.documentationRedirect(req: $0, fragment: .documentation)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "documentation") { req in
+        guard let ref = req.parameters.get("reference").map(Reference.init) else { throw Abort(.notFound) }
+        return try await PackageController.documentationRedirect(req: req, fragment: .documentation, reference: ref)
     }.excludeFromOpenAPI()
 
     // Stable URLs with current (~) reference.
-    app.get(":owner", ":repository", .current, "documentation") {
-        try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
-    }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "documentation", ":archive") {
         try await PackageController.documentation(req: $0, fragment: .documentation)
     }.excludeFromOpenAPI()
@@ -132,10 +138,6 @@ func docRoutesDev(_ app: Application) throws {
     }.excludeFromOpenAPI()
 
     // Version specific documentation - No index and non-canonical URLs with a specific reference.
-    app.get(":owner", ":repository", ":reference", "documentation") { req in
-        guard let ref = req.parameters.get("reference").map(Reference.init) else { throw Abort(.notFound) }
-        return try await PackageController.defaultDocumentation(req: req, fragment: .documentation, reference: ref)
-    }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "documentation", ":archive") { req in
         guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
         return try await PackageController.documentation(req: req, reference: ref, fragment: .documentation, rewriteStrategy: .reference(ref))

@@ -86,7 +86,7 @@ enum PackageController {
         }
     }
 
-    static func defaultDocumentation(req: Request, fragment: Fragment, reference: Reference? = nil) async throws -> Response {
+    static func documentationRedirect(req: Request, fragment: Fragment, reference: Reference? = nil) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
