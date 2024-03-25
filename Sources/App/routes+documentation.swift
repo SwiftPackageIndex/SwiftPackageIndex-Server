@@ -89,7 +89,7 @@ func docRoutesDev(_ app: Application) throws {
 
     // Stable URLs with current (~) reference.
     app.get(":owner", ":repository", .current, "documentation") {
-        try await PackageController.documentation(req: $0)
+        try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "documentation", ":archive") {
         try await PackageController.documentation(req: $0, fragment: .documentation)
@@ -133,8 +133,8 @@ func docRoutesDev(_ app: Application) throws {
 
     // Version specific documentation - No index and non-canonical URLs with a specific reference.
     app.get(":owner", ":repository", ":reference", "documentation") { req in
-        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
-        return try await PackageController.documentation(req: req, reference: ref, fragment: .documentation, rewriteStrategy: .reference(ref))
+        guard let ref = req.parameters.get("reference").map(Reference.init) else { throw Abort(.notFound) }
+        return try await PackageController.defaultDocumentation(req: req, fragment: .documentation, reference: ref)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "documentation", ":archive") { req in
         guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
