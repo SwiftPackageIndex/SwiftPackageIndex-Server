@@ -1,0 +1,95 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "width": 700,
+    "height": 400,
+    "padding": 5,
+    "data": [
+        {
+            "name": "table"
+        }
+    ],
+    "scales": [
+        {
+            "name": "xscale",
+            "type": "linear",
+            "domain": { "data": "table", "field": "errorCount" },
+            "range": "width",
+            "nice": true
+        },
+        {
+            "name": "yscale",
+            "type": "band",
+            "domain": { "data": "table", "field": "snapshotName" },
+            "range": "height",
+            "padding": 0.2
+        }
+    ],
+    "axes": [
+        {
+            "orient": "bottom",
+            "scale": "xscale",
+            "encode": {
+                "labels": {
+                    "enter": {
+                        "font": {
+                            "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+                        },
+                        "fontSize": { "value": 16 }
+                    }
+                }
+            }
+        },
+        {
+            "orient": "left",
+            "scale": "yscale",
+            "encode": {
+                "labels": {
+                    "enter": {
+                        "font": {
+                            "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+                        },
+                        "fontSize": { "value": 16 }
+                    }
+                }
+            }
+        }
+    ],
+    "marks": [
+        {
+            "type": "rect",
+            "from": { "data": "table" },
+            "encode": {
+                "enter": {
+                    "x": { "scale": "xscale", "field": "errorCount" },
+                    "x2": { "scale": "xscale", "value": 0 },
+                    "y": { "scale": "yscale", "field": "snapshotName" },
+                    "height": { "scale": "yscale", "band": 1 }
+                },
+                "update": {
+                    "fill": { "value": "#0772c1" }
+                },
+                "hover": {
+                    "fill": { "value": "#088df0" }
+                }
+            }
+        },
+        {
+            "type": "text",
+            "from": { "data": "table" },
+            "encode": {
+                "enter": {
+                    "x": { "scale": "xscale", "field": "errorCount", "offset": -5 },
+                    "y": { "scale": "yscale", "field": "snapshotName", "offset": { "scale": "yscale", "band": 0.5 } },
+                    "text": { "signal": "datum['errorCount'] + ' errors'" },
+                    "align": { "value": "right" },
+                    "baseline": { "value": "middle" },
+                    "fill": { "value": "white" },
+                    "font": {
+                        "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+                    },
+                    "fontSize": { "value": 16 }
+                }
+            }
+        }
+    ]
+}
