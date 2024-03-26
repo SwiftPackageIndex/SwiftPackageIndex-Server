@@ -50,7 +50,9 @@ extension ReadyForSwift6Show {
                 .p("To measure compatibility with Swift 6 across packages in the index, we are tracking compatibility across a set of packages under active development where they have at least one git commit in the past 12 months. The charts below visualise the results of our testing."),
                 .h3("Total Swift 6 concurrency errors"),
                 .p("This chart shows the total number of Swift concurrency errors across the entire selection of testing packages:"),
-                .readyForSwift6Chart(chartIdentifier: "readyforswift6-totalerrors")
+                .readyForSwift6Chart(chartIdentifier: "readyforswift6-totalerrors"),
+                .h3("List of compatible packages"),
+                .p("Here are all the compatible packages!")
             )
         }
     }
@@ -71,7 +73,7 @@ private extension Node where Context: HTML.BodyContext {
         }
 
         let script = """
-        var spec = JSON.parse(document.getElementById('vega-spec').textContent)
+        var spec = JSON.parse(document.getElementById('vega-spec-\(chartIdentifier)').textContent)
         spec['data'] = JSON.parse(document.getElementById('vega-data-\(chartIdentifier)').textContent)
         new vega.View(vega.parse(spec), { renderer: 'svg' }).initialize('#vega-chart-\(chartIdentifier)').run()
         """
