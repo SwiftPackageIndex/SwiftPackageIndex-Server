@@ -443,43 +443,52 @@ class PackageController_routesTests: SnapshotTestCase {
         Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
 
         // MUT
+
+        // test partially qualified route (no archive)
         try app.test(.GET, "/owner/package/~/documentation") {
             XCTAssertEqual($0.status, .seeOther)
             XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/target")
         }
+
+        // test fully qualified route
         try await app.test(.GET, "/owner/package/~/documentation/target") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
         }
-        try await app.test(.GET, "/owner/package/~/documentation/target/symbol") {
+
+        // test catchall
+        try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+            XCTAssertFalse(body.contains(#"a/b#anchor"#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
         }
-        // There is nothing magic about the catchall - authors need to make sure they point
-        // the path after `documentation/` at a valid doc path. We do not try and map it to
-        // generated docs (i.e. `docs` in this test) as that would prevent them from
-        // cross-target linking.
-        // Effectively, all we're doing is inserting the correct `ref` before `documentation`.
-        try await app.test(.GET, "/owner/package/~/documentation/foo") {
+
+        // Test case insensitive path.
+        try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
-        }
-        try await app.test(.GET, "/owner/package/~/documentation/foo#anchor") {
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual($0.status, .ok)
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
-        }
-        try await app.test(.GET, "/owner/package/~/documentation/FOO") {
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index-mixed-case")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+            XCTAssertFalse(body.contains(#"a/b#anchor"#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
         }
     }
 
@@ -510,8 +519,14 @@ class PackageController_routesTests: SnapshotTestCase {
         Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
 
         // MUT
-        
-        // test path a/b
+
+        // test partially qualified route (no archive)
+        try app.test(.GET, "/owner/package/1.2.3/documentation") {
+            XCTAssertEqual($0.status, .seeOther)
+            XCTAssertEqual($0.headers.location, "/owner/package/1.2.3/documentation/target")
+        }
+
+        // test fully qualified route
         try await app.test(.GET, "/owner/package/1.2.3/documentation/target") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
