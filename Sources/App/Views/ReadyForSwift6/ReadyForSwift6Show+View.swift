@@ -77,7 +77,7 @@ private extension Node where Context: HTML.BodyContext {
 
         let script = """
         var spec = JSON.parse(document.getElementById('vega-spec-\(chartIdentifier)').textContent)
-        spec['data'] = JSON.parse(document.getElementById('vega-data-\(chartIdentifier)').textContent)
+        spec.data[0].values = JSON.parse(document.getElementById('vega-data-\(chartIdentifier)').textContent)
         new vega.View(vega.parse(spec), { renderer: 'canvas' }).initialize('#vega-chart-\(chartIdentifier)').run()
         """
 
