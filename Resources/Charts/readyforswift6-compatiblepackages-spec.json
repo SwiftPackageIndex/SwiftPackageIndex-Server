@@ -3,13 +3,19 @@
     "width": 600,
     "height": 350,
     "padding": 5,
-
     "data": [
         {
-            "name": "table"
+            "name": "table",
+            "transform": [
+                {
+                    "type": "formula",
+                    "expr": "datetime(datum.snapshotYear, datum.snapshotMonth, datum.snapshotDay)",
+                    "as": "snapshotDate"
+                }
+            ],
+            "values": []
         }
     ],
-
     "scales": [
         {
             "name": "xscale",
@@ -25,7 +31,6 @@
             "nice": true
         }
     ],
-
     "axes": [
         {
             "orient": "bottom",
@@ -54,7 +59,6 @@
             "titleFontSize": { "value": 14 }
         }
     ],
-
     "marks": [
         {
             "type": "line",
@@ -63,7 +67,7 @@
                 "enter": {
                     "x": { "scale": "xscale", "field": "snapshotDate" },
                     "y": { "scale": "yscale", "field": "numPackages" },
-                    "stroke": { "value": "steelblue" },
+                    "stroke": { "value": "#356fce" },
                     "strokeWidth": { "value": 3 }
                 }
             }

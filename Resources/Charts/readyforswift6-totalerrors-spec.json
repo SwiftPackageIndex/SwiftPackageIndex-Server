@@ -5,7 +5,8 @@
     "padding": 5,
     "data": [
         {
-            "name": "table"
+            "name": "table",
+            "values": []
         }
     ],
     "scales": [
@@ -26,32 +27,34 @@
     ],
     "axes": [
         {
+            "title": "Total errors across all packages",
             "orient": "bottom",
             "scale": "xscale",
-            "encode": {
-                "labels": {
-                    "enter": {
-                        "font": {
-                            "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-                        },
-                        "fontSize": { "value": 14 }
-                    }
-                }
-            }
+            "labelFont": {
+                "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+            },
+            "labelFontSize": { "value": 14 },
+            "titleFont": {
+                "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+            },
+            "titleFontSize": { "value": 14 },
+            "titleFontWeight": { "value": "normal" },
+            "titlePadding": { "value": 20 }
         },
         {
+            "title": "Swift 6 Snapshot Date",
             "orient": "left",
             "scale": "yscale",
-            "encode": {
-                "labels": {
-                    "enter": {
-                        "font": {
-                            "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-                        },
-                        "fontSize": { "value": 14 }
-                    }
-                }
-            }
+            "labelFont": {
+                "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+            },
+            "labelFontSize": { "value": 14 },
+            "titleFont": {
+                "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+            },
+            "titleFontSize": { "value": 14 },
+            "titleFontWeight": { "value": "normal" },
+            "titlePadding": { "value": 20 }
         }
     ],
     "marks": [
@@ -60,16 +63,11 @@
             "from": { "data": "table" },
             "encode": {
                 "enter": {
-                    "x": { "scale": "xscale", "field": "errorCount" },
-                    "x2": { "scale": "xscale", "value": 0 },
+                    "x": { "scale": "xscale", "value": 0 },
+                    "x2": { "scale": "xscale", "field": "errorCount" },
                     "y": { "scale": "yscale", "field": "snapshotName" },
-                    "height": { "scale": "yscale", "band": 1 }
-                },
-                "update": {
-                    "fill": { "value": "#0772c1" }
-                },
-                "hover": {
-                    "fill": { "value": "#088df0" }
+                    "height": { "scale": "yscale", "band": 1 },
+                    "fill": { "value": "#356fce" }
                 }
             }
         },
