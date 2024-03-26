@@ -3,91 +3,53 @@
     "width": 600,
     "height": 350,
     "padding": 5,
+
     "data": [
         {
             "name": "table"
         }
     ],
+
     "scales": [
         {
             "name": "xscale",
             "type": "linear",
-            "domain": { "data": "table", "field": "numPackages" },
+            "domain": [35, 300],
             "range": "width",
-            "nice": true
+            "nice": false,
+            "zero": false
         },
         {
             "name": "yscale",
-            "type": "band",
-            "domain": { "data": "table", "field": "snapshotDate" },
+            "type": "linear",
+            "domain": { "data": "table", "field": "numPackages" },
             "range": "height",
-            "padding": 0.2
+            "nice": true
         }
     ],
+
     "axes": [
         {
             "orient": "bottom",
             "scale": "xscale",
-            "encode": {
-                "labels": {
-                    "enter": {
-                        "font": {
-                            "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-                        },
-                        "fontSize": { "value": 14 }
-                    }
-                }
-            }
+            "title": "Day of Year"
         },
         {
             "orient": "left",
             "scale": "yscale",
-            "encode": {
-                "labels": {
-                    "enter": {
-                        "font": {
-                            "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-                        },
-                        "fontSize": { "value": 14 }
-                    }
-                }
-            }
+            "title": "Packages"
         }
     ],
+
     "marks": [
         {
-            "type": "rect",
+            "type": "line",
             "from": { "data": "table" },
             "encode": {
                 "enter": {
-                    "x": { "scale": "xscale", "field": "numPackages" },
-                    "x2": { "scale": "xscale", "value": 0 },
-                    "y": { "scale": "yscale", "field": "snapshotDate" },
-                    "height": { "scale": "yscale", "band": 1 }
-                },
-                "update": {
-                    "fill": { "value": "#0772c1" }
-                },
-                "hover": {
-                    "fill": { "value": "#088df0" }
-                }
-            }
-        },
-        {
-            "type": "text",
-            "from": { "data": "table" },
-            "encode": {
-                "enter": {
-                    "x": { "scale": "xscale", "field": "numPackages", "offset": -5 },
-                    "y": { "scale": "yscale", "field": "snapshotDate", "offset": { "scale": "yscale", "band": 0.5 } },
-                    "text": { "signal": "datum['numPackages'] + ' errors'" },
-                    "align": { "value": "right" },
-                    "baseline": { "value": "middle" },
-                    "fill": { "value": "white" },
-                    "font": {
-                        "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-                    },
-                    "fontSize": { "value": 14 }
+                    "x": { "scale": "xscale", "field": "dayOfYear" },
+                    "y": { "scale": "yscale", "field": "numPackages" },
+                    "stroke": { "value": "steelblue" }
                 }
             }
         }

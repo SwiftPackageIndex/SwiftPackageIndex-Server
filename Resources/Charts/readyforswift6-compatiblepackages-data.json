@@ -1,12 +1,12 @@
 {
     "name": "table",
     "values": [
-        { "snapshotDate": "2024-03-12", "numPackages": 301 },
-        { "snapshotDate": "2024-04-09", "numPackages": 389 },
-        { "snapshotDate": "2024-05-21", "numPackages": 421 },
-        { "snapshotDate": "2024-06-24", "numPackages": 561 },
-        { "snapshotDate": "2024-07-07", "numPackages": 819 },
-        { "snapshotDate": "2024-08-19", "numPackages": 1402 },
-        { "snapshotDate": "2024-09-02", "numPackages": 1926 }
+        { "dayOfYear": 35, "dayLabel": "Feb 5th", "numPackages": 301 },
+        { "dayOfYear": 48, "dayLabel": "Feb 18th", "numPackages": 389 },
+        { "dayOfYear": 56, "dayLabel": "Feb 26th", "numPackages": 421 },
+        { "dayOfYear": 89, "dayLabel": "Mar 30th", "numPackages": 561 },
+        { "dayOfYear": 130, "dayLabel": "May 9th", "numPackages": 819 },
+        { "dayOfYear": 150, "dayLabel": "May 29th", "numPackages": 1402 },
+        { "dayOfYear": 187, "dayLabel": "Jun 28th", "numPackages": 1926 }
     ]
 }
