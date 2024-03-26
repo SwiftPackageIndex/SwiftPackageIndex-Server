@@ -494,7 +494,7 @@ class PackageController_routesTests: SnapshotTestCase {
         try await Version(package: pkg,
                     commit: "0123456789",
                     commitDate: .t0,
-                    docArchives: [.init(name: "docs", title: "Docs")],
+                    docArchives: [.init(name: "target", title: "Target")],
                     latest: .defaultBranch,
                     packageName: "pkg",
                     reference: .tag(1, 2, 3))
