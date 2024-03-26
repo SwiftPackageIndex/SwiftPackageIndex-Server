@@ -42,22 +42,6 @@ extension ReadyForSwift6Show {
             )
         }
 
-        override func preBody() -> Node<HTML.BodyContext> {
-            let specPath = Current.fileManager.workingDirectory()
-                .appending("Resources/Charts/readyforswift6-totalerrors-spec.json")
-            guard let specData = Current.fileManager.contents(atPath: specPath)
-            else { return .empty }
-
-            // Define the Vega chart spec so it can be used multiple times.
-            return .unwrap(specData.compactJson(), { json in
-                    .script(
-                        .id("vega-spec"),
-                        .attribute(named: "type", value: "application/json"),
-                        .raw(json)
-                    )
-            }, else: .empty)
-        }
-
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .h2("Ready for Swift 6"),
@@ -66,7 +50,7 @@ extension ReadyForSwift6Show {
                 .p("To measure compatibility with Swift 6 across packages in the index, we are tracking compatibility across a set of packages under active development where they have at least one git commit in the past 12 months. The charts below visualise the results of our testing."),
                 .h3("Total Swift 6 concurrency errors"),
                 .p("This chart shows the total number of Swift concurrency errors across the entire selection of testing packages:"),
-                .readyForSwift6Chart(chartIdentifier: "readyforswift6-totalerrors-data")
+                .readyForSwift6Chart(chartIdentifier: "readyforswift6-totalerrors")
             )
         }
     }
@@ -74,39 +58,43 @@ extension ReadyForSwift6Show {
 
 private extension Node where Context: HTML.BodyContext {
     static func readyForSwift6Chart(chartIdentifier: String) -> Self {
+        let specPath = Current.fileManager.workingDirectory().appending("Resources/Charts/\(chartIdentifier)-spec.json")
+        let dataPath = Current.fileManager.workingDirectory().appending("Resources/Charts/\(chartIdentifier)-data.json")
+        guard let chartSpec = Current.fileManager.contents(atPath: specPath)?.compactJson(),
+              let chartData = Current.fileManager.contents(atPath: dataPath)?.compactJson()
+        else {
+            return .p(
+                .text("Failed to load "),
+                .code(.text(chartIdentifier)),
+                .text(".")
+            )
+        }
+
         let script = """
         var spec = JSON.parse(document.getElementById('vega-spec').textContent)
         spec['data'] = JSON.parse(document.getElementById('vega-data-\(chartIdentifier)').textContent)
         new vega.View(vega.parse(spec), { renderer: 'svg' }).initialize('#vega-chart-\(chartIdentifier)').run()
         """
 
-        let failureMessage: Self = .p(
-            .text("Failed to load chart: "),
-            .code(.text(chartIdentifier)),
-            .text(".")
+        return .group(
+            .div(
+                .class("vega-chart"),
+                .id("vega-chart-\(chartIdentifier)")
+            ),
+            .script(
+                .id("vega-spec-\(chartIdentifier)"),
+                .attribute(named: "type", value: "application/json"),
+                .raw(chartSpec)
+            ),
+            .script(
+                .id("vega-data-\(chartIdentifier)"),
+                .attribute(named: "type", value: "application/json"),
+                .raw(chartData)
+            ),
+            .script(
+                .raw(script.compactJavaScript())
+            )
         )
-
-        let dataPath = Current.fileManager.workingDirectory()
-            .appending("Resources/Charts/\(chartIdentifier).json")
-        guard let chartData = Current.fileManager.contents(atPath: dataPath)
-        else { return failureMessage }
-
-        return .unwrap(chartData.compactJson(), { json in
-                .group(
-                    .div(
-                        .class("vega-chart"),
-                        .id("vega-chart-\(chartIdentifier)")
-                    ),
-                    .script(
-                        .id("vega-data-\(chartIdentifier)"),
-                        .attribute(named: "type", value: "application/json"),
-                        .raw(json)
-                    ),
-                    .script(
-                        .raw(script.compactJavaScript())
-                    )
-                )
-        }, else: failureMessage)
     }
 }
 
