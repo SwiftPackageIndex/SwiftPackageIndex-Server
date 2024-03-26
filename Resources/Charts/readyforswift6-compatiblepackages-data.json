@@ -1,12 +1,19 @@
 {
     "name": "table",
+    "transform": [
+        {
+            "type": "formula",
+            "expr": "datetime(datum.snapshotYear, datum.snapshotMonth, datum.snapshotDay)",
+            "as": "snapshotDate"
+        }
+    ],
     "values": [
-        { "dayOfYear": 35, "dayLabel": "Feb 5th", "numPackages": 301 },
-        { "dayOfYear": 48, "dayLabel": "Feb 18th", "numPackages": 389 },
-        { "dayOfYear": 56, "dayLabel": "Feb 26th", "numPackages": 421 },
-        { "dayOfYear": 89, "dayLabel": "Mar 30th", "numPackages": 561 },
-        { "dayOfYear": 130, "dayLabel": "May 9th", "numPackages": 819 },
-        { "dayOfYear": 150, "dayLabel": "May 29th", "numPackages": 1402 },
-        { "dayOfYear": 187, "dayLabel": "Jun 28th", "numPackages": 1926 }
-    ]
+        { "snapshotYear": 2024, "snapshotMonth": 2, "snapshotDay": 5, "numPackages": 301 },
+        { "snapshotYear": 2024, "snapshotMonth": 2, "snapshotDay": 18, "numPackages": 329 },
+        { "snapshotYear": 2024, "snapshotMonth": 2, "snapshotDay": 26, "numPackages": 360 },
+        { "snapshotYear": 2024, "snapshotMonth": 3, "snapshotDay": 30, "numPackages": 561 },
+        { "snapshotYear": 2024, "snapshotMonth": 5, "snapshotDay": 9, "numPackages": 819 },
+        { "snapshotYear": 2024, "snapshotMonth": 5, "snapshotDay": 30, "numPackages": 1200 },
+        { "snapshotYear": 2024, "snapshotMonth": 6, "snapshotDay": 29, "numPackages": 1926 }
+]
 }

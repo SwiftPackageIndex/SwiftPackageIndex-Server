@@ -13,11 +13,9 @@
     "scales": [
         {
             "name": "xscale",
-            "type": "linear",
-            "domain": [35, 300],
-            "range": "width",
-            "nice": false,
-            "zero": false
+            "type": "time",
+            "domain": [{ "signal": "datetime(2024, 2, 1)" }, { "signal": "datetime(2024, 10, 1)" }],
+            "range": "width"
         },
         {
             "name": "yscale",
@@ -32,12 +30,28 @@
         {
             "orient": "bottom",
             "scale": "xscale",
-            "title": "Day of Year"
+            "grid": true,
+            "labelFont": {
+                "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+            },
+            "labelFontSize": { "value": 14 },
+            "labelAngle": { "value": -45 },
+            "labelAlign": { "value": "right" }
         },
         {
             "orient": "left",
             "scale": "yscale",
-            "title": "Packages"
+            "labelFont": {
+                "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+            },
+            "labelFontSize": { "value": 14 },
+            "title": "Number of compatible packages",
+            "titlePadding": { "value": 20 },
+            "titleFont": {
+                "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+            },
+            "titleFontWeight": { "value": "normal" },
+            "titleFontSize": { "value": 14 }
         }
     ],
 
@@ -47,9 +61,24 @@
             "from": { "data": "table" },
             "encode": {
                 "enter": {
-                    "x": { "scale": "xscale", "field": "dayOfYear" },
+                    "x": { "scale": "xscale", "field": "snapshotDate" },
                     "y": { "scale": "yscale", "field": "numPackages" },
-                    "stroke": { "value": "steelblue" }
+                    "stroke": { "value": "steelblue" },
+                    "strokeWidth": { "value": 3 }
+                }
+            }
+        },
+        {
+            "type": "symbol",
+            "from": { "data": "table" },
+            "encode": {
+                "enter": {
+                    "x": { "scale": "xscale", "field": "snapshotDate" },
+                    "y": { "scale": "yscale", "field": "numPackages" },
+                    "size": { "value": 60 },
+                    "tooltip": {
+                        "signal": "timeFormat(datum.snapshotDate, '%b %d, %Y') + ' - ' + datum.numPackages + ' packages'"
+                    }
                 }
             }
         }
