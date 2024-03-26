@@ -44,7 +44,7 @@ extension ReadyForSwift6Show {
 
         override func preBody() -> Node<HTML.BodyContext> {
             let specPath = Current.fileManager.workingDirectory()
-                .appending("Resources/Charts/readyforswift6-spec.json")
+                .appending("Resources/Charts/readyforswift6-totalerrors-spec.json")
             guard let specData = Current.fileManager.contents(atPath: specPath)
             else { return .empty }
 
@@ -66,7 +66,7 @@ extension ReadyForSwift6Show {
                 .p("To measure compatibility with Swift 6 across packages in the index, we are tracking compatibility across a set of packages under active development where they have at least one git commit in the past 12 months. The charts below visualise the results of our testing."),
                 .h3("Total Swift 6 concurrency errors"),
                 .p("This chart shows the total number of Swift concurrency errors across the entire selection of testing packages:"),
-                .readyForSwift6Chart(chartIdentifier: "readyforswift6-errors")
+                .readyForSwift6Chart(chartIdentifier: "readyforswift6-totalerrors-data")
             )
         }
     }
