@@ -421,7 +421,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // Test the current (~) documentation routes:
         //   /owner/package/documentation/~ + various path elements
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackageAsync(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
@@ -450,11 +450,13 @@ class PackageController_routesTests: SnapshotTestCase {
         try await app.test(.GET, "/owner/package/~/documentation/target") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
         try await app.test(.GET, "/owner/package/~/documentation/target/symbol") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
         // There is nothing magic about the catchall - authors need to make sure they point
@@ -465,6 +467,7 @@ class PackageController_routesTests: SnapshotTestCase {
         try await app.test(.GET, "/owner/package/~/documentation/foo") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
         }
         try await app.test(.GET, "/owner/package/~/documentation/foo#anchor") {
@@ -475,7 +478,68 @@ class PackageController_routesTests: SnapshotTestCase {
         try await app.test(.GET, "/owner/package/~/documentation/FOO") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
+        }
+    }
+
+    @MainActor
+    func test_documentation_routes_ref() async throws {
+        // Test the documentation routes with a reference:
+        //   /owner/package/documentation/{reference} + various path elements
+        // setup
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
+                    commit: "0123456789",
+                    commitDate: .t0,
+                    docArchives: [.init(name: "docs", title: "Docs")],
+                    latest: .defaultBranch,
+                    packageName: "pkg",
+                    reference: .tag(1, 2, 3))
+            .save(on: app.db)
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
+
+        // MUT
+        
+        // test path a/b
+        try await app.test(.GET, "/owner/package/1.2.3/documentation/target") {
+            await Task.yield() // essential to avoid deadlocking
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index-target")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
+            XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target" />"#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
+        }
+        
+        // test catchall
+        try await app.test(.GET, "/owner/package/1.2.3/documentation/target/a/b#anchor") {
+            await Task.yield() // essential to avoid deadlocking
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index-target-a-b")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
+            XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/a/b#anchor" />"#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
+        }
+
+        // Test case insensitive path.
+        try await app.test(.GET, "/Owner/Package/1.2.3/documentation/target/A/b#Anchor") {
+            await Task.yield() // essential to avoid deadlocking
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index-target-a-b-mixed-case")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
+            XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/A/b#Anchor" />"#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
         }
     }
 
@@ -547,56 +611,6 @@ class PackageController_routesTests: SnapshotTestCase {
         }
         try app.test(.GET, "/owner/package/1.0.0/documentation") {
             XCTAssertEqual($0.status, .notFound)
-        }
-    }
-
-    func test_documentation() throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: "<p>\(uri.path)</p>"))
-        }
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg,
-                    commit: "0123456789",
-                    commitDate: .t0,
-                    docArchives: [.init(name: "docs", title: "Docs")],
-                    latest: .defaultBranch,
-                    packageName: "pkg",
-                    reference: .tag(1, 2, 3))
-            .save(on: app.db).wait()
-
-        // MUT
-        // test path a/b
-        try app.test(.GET, "/owner/package/1.2.3/documentation/a/b") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
-            XCTAssertTrue(
-                $0.body.asString().contains("<p>/owner/package/1.2.3/documentation/a/b</p>"),
-                "was: \($0.body.asString())"
-            )
-            // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
-            XCTAssertTrue($0.body.asString()
-                    .contains(#"<link rel="stylesheet" href="/docc.css?test" />"#),
-                          "was: \($0.body.asString())")
-        }
-
-        // Test case insensitive path.
-        try app.test(.GET, "/Owner/Package/1.2.3/documentation/a/b") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertTrue(
-                $0.body.asString().contains("<p>/owner/package/1.2.3/documentation/a/b</p>"),
-                "was: \($0.body.asString())"
-            )
-        }
-        try app.test(.GET, "/owner/package/1.2.3/documentation/A/B") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertTrue(
-                $0.body.asString().contains("<p>/owner/package/1.2.3/documentation/a/b</p>"),
-                "was: \($0.body.asString())"
-            )
         }
     }
 
