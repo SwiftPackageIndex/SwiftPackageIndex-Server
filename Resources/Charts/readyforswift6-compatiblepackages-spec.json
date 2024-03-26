@@ -1,7 +1,7 @@
 {
     "$schema": "https://vega.github.io/schema/vega/v5.json",
-    "width": 700,
-    "height": 400,
+    "width": 600,
+    "height": 350,
     "padding": 5,
     "data": [
         {
@@ -12,14 +12,14 @@
         {
             "name": "xscale",
             "type": "linear",
-            "domain": { "data": "table", "field": "errorCount" },
+            "domain": { "data": "table", "field": "numPackages" },
             "range": "width",
             "nice": true
         },
         {
             "name": "yscale",
             "type": "band",
-            "domain": { "data": "table", "field": "snapshotName" },
+            "domain": { "data": "table", "field": "snapshotDate" },
             "range": "height",
             "padding": 0.2
         }
@@ -34,7 +34,7 @@
                         "font": {
                             "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
                         },
-                        "fontSize": { "value": 16 }
+                        "fontSize": { "value": 14 }
                     }
                 }
             }
@@ -48,7 +48,7 @@
                         "font": {
                             "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
                         },
-                        "fontSize": { "value": 16 }
+                        "fontSize": { "value": 14 }
                     }
                 }
             }
@@ -60,9 +60,9 @@
             "from": { "data": "table" },
             "encode": {
                 "enter": {
-                    "x": { "scale": "xscale", "field": "errorCount" },
+                    "x": { "scale": "xscale", "field": "numPackages" },
                     "x2": { "scale": "xscale", "value": 0 },
-                    "y": { "scale": "yscale", "field": "snapshotName" },
+                    "y": { "scale": "yscale", "field": "snapshotDate" },
                     "height": { "scale": "yscale", "band": 1 }
                 },
                 "update": {
@@ -78,16 +78,16 @@
             "from": { "data": "table" },
             "encode": {
                 "enter": {
-                    "x": { "scale": "xscale", "field": "errorCount", "offset": -5 },
-                    "y": { "scale": "yscale", "field": "snapshotName", "offset": { "scale": "yscale", "band": 0.5 } },
-                    "text": { "signal": "datum['errorCount'] + ' errors'" },
+                    "x": { "scale": "xscale", "field": "numPackages", "offset": -5 },
+                    "y": { "scale": "yscale", "field": "snapshotDate", "offset": { "scale": "yscale", "band": 0.5 } },
+                    "text": { "signal": "datum['numPackages'] + ' errors'" },
                     "align": { "value": "right" },
                     "baseline": { "value": "middle" },
                     "fill": { "value": "white" },
                     "font": {
                         "value": "-apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
                     },
-                    "fontSize": { "value": 16 }
+                    "fontSize": { "value": 14 }
                 }
             }
         }

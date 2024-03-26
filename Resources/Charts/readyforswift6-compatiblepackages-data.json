@@ -1,12 +1,12 @@
 {
     "name": "table",
     "values": [
-        { "snapshotName": "2024-03-12", "errorCount": 4820 },
-        { "snapshotName": "2024-04-09", "errorCount": 4203 },
-        { "snapshotName": "2024-05-21", "errorCount": 3789 },
-        { "snapshotName": "2024-06-24", "errorCount": 3320 },
-        { "snapshotName": "2024-07-07", "errorCount": 2772 },
-        { "snapshotName": "2024-08-19", "errorCount": 2617 },
-        { "snapshotName": "2024-09-02", "errorCount": 2189 }
+        { "snapshotDate": "2024-03-12", "numPackages": 301 },
+        { "snapshotDate": "2024-04-09", "numPackages": 389 },
+        { "snapshotDate": "2024-05-21", "numPackages": 421 },
+        { "snapshotDate": "2024-06-24", "numPackages": 561 },
+        { "snapshotDate": "2024-07-07", "numPackages": 819 },
+        { "snapshotDate": "2024-08-19", "numPackages": 1402 },
+        { "snapshotDate": "2024-09-02", "numPackages": 1926 }
     ]
 }
