@@ -824,7 +824,7 @@ class PackageController_routesTests: SnapshotTestCase {
             assertSnapshot(of: body, as: .html, named: "current-index")
             // Call out a couple of specific snippets in the html
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
-#warning("we probably want a canonical link in here as well - TBC")
+            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
             XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
         }
 
