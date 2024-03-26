@@ -492,12 +492,20 @@ class PackageController_routesTests: SnapshotTestCase {
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
-                    commit: "0123456789",
-                    commitDate: .t0,
-                    docArchives: [.init(name: "target", title: "Target")],
-                    latest: .defaultBranch,
-                    packageName: "pkg",
-                    reference: .tag(1, 2, 3))
+                          commit: "0123456789",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .defaultBranch,
+                          packageName: "pkg",
+                          reference: .branch("main"))
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "9876543210",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .release,
+                          packageName: "pkg",
+                          reference: .tag(1, 2, 3))
             .save(on: app.db)
         Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
 
