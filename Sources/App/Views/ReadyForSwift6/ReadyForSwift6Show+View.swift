@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
 import Plot
 
 extension ReadyForSwift6Show {
@@ -34,14 +35,88 @@ extension ReadyForSwift6Show {
             ]
         }
 
-        override func content() -> Node<HTML.BodyContext> {
-            .div(
-                .class("supporters"),
-                .h2("Ready for Swift 6"),
-                .p(
-                    .text("A summary of what Swift 6 is and brings, links to the transition guide and other documentation, and an introduction to the charts and other information below.")
-                )
+        override func postHead() -> Node<HTML.HeadContext> {
+            .script(
+                .src("https://cdn.jsdelivr.net/npm/vega@5"),
+                .data(named: "turbolinks-track", value: "reload")
             )
         }
+
+        override func content() -> Node<HTML.BodyContext> {
+            .group(
+                .h2("Ready for Swift 6"),
+                .p("Swift 6 is lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ut ante vel diam sagittis hendrerit id eget nunc. Proin non ex eget dolor tristique lacinia placerat et turpis. In dui dui, malesuada eu lectus nec, rhoncus feugiat nisi."),
+                .p("Get started by [reading the migration guide]or this [guide to Swift 6 on Swift.org]."),
+                .p("To measure compatibility with Swift 6 across packages in the index, we are tracking compatibility across a set of packages under active development where they have at least one git commit in the past 12 months. The charts below visualise the results of our testing."),
+                .h3("Total packages compatible with Swift 6"),
+                .p("This chart shows the total number of packages that will compile with  Swift 6:"),
+                .readyForSwift6Chart(chartIdentifier: "readyforswift6-compatiblepackages"),
+                .h3("Total Swift 6 concurrency errors"),
+                .p("This chart shows the total number of Swift concurrency errors across the entire selection of testing packages:"),
+                .readyForSwift6Chart(chartIdentifier: "readyforswift6-totalerrors"),
+                .h3("List of compatible packages"),
+                .p("Here are all the compatible packages!")
+            )
+        }
+    }
+}
+
+private extension Node where Context: HTML.BodyContext {
+    static func readyForSwift6Chart(chartIdentifier: String) -> Self {
+        let specPath = Current.fileManager.workingDirectory().appending("Resources/Charts/\(chartIdentifier)-spec.json")
+        let dataPath = Current.fileManager.workingDirectory().appending("Resources/Charts/\(chartIdentifier)-data.json")
+        guard let chartSpec = Current.fileManager.contents(atPath: specPath)?.compactJson(),
+              let chartData = Current.fileManager.contents(atPath: dataPath)?.compactJson()
+        else {
+            return .p(
+                .text("Failed to load "),
+                .code(.text(chartIdentifier)),
+                .text(".")
+            )
+        }
+
+        let script = """
+        var spec = JSON.parse(document.getElementById('vega-spec-\(chartIdentifier)').textContent)
+        spec.data[0].values = JSON.parse(document.getElementById('vega-data-\(chartIdentifier)').textContent)
+        new vega.View(vega.parse(spec), { renderer: 'canvas' }).initialize('#vega-chart-\(chartIdentifier)').run()
+        """
+
+        return .group(
+            .div(
+                .class("vega-chart"),
+                .id("vega-chart-\(chartIdentifier)")
+            ),
+            .script(
+                .id("vega-spec-\(chartIdentifier)"),
+                .attribute(named: "type", value: "application/json"),
+                .raw(chartSpec)
+            ),
+            .script(
+                .id("vega-data-\(chartIdentifier)"),
+                .attribute(named: "type", value: "application/json"),
+                .raw(chartData)
+            ),
+            .script(
+                .raw(script.compactJavaScript())
+            )
+        )
+    }
+}
+
+private extension String {
+    func compactJavaScript() -> String {
+        self.split(separator: "\n")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .joined(separator: ";")
+    }
+}
+
+private extension Data {
+    func compactJson() -> String? {
+        guard let json = try? JSONSerialization.jsonObject(with: self),
+              let compactedJsonData = try? JSONSerialization.data(withJSONObject: json),
+              let compactJson = String(data: compactedJsonData, encoding: .utf8)
+        else { return nil }
+        return compactJson
     }
 }
