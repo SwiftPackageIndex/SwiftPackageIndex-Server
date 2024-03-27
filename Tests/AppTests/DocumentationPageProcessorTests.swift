@@ -16,7 +16,8 @@ import XCTest
 
 @testable import App
 
-import SnapshotTesting
+import InlineSnapshotTesting
+import SwiftSoup
 
 
 final class DocumentationPageProcessorTests: AppTestCase {
@@ -50,7 +51,8 @@ final class DocumentationPageProcessorTests: AppTestCase {
                     )
                 ],
                 updatedAt: .t0,
-                rawHtml: try fixtureString(for: "docc-template.html")
+                rawHtml: try fixtureString(for: "docc-template.html"),
+                rewriteStrategy: .none
             )
         )
 
@@ -58,4 +60,105 @@ final class DocumentationPageProcessorTests: AppTestCase {
         assertSnapshot(matching: processor.header, as: .html)
     }
 
+    func test_rewriteBaseUrls() throws {
+        let html = try fixtureString(for: "doc-index-nonhosting.html")
+        let doc = try SwiftSoup.parse(html)
+        // MUT
+        try DocumentationPageProcessor.rewriteBaseUrls(document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+        // validate
+        assertSnapshot(of: "\(doc)", as: .html)
+    }
+
+    func test_rewriteScriptBaseUrl() throws {
+        do {  // test rewriting of "/" base url
+            let doc = try SwiftSoup.parse(#"""
+                <script>var baseUrl = "/"</script>
+                """#)
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+            """
+            <html>
+             <head>
+              <script>var baseUrl = "/foo/bar/1.2.3/"</script>
+             </head>
+             <body></body>
+            </html>
+            """
+            }
+        }
+        do {  // don't rewrite a base url that isn't "/"
+            let doc = try SwiftSoup.parse(#"""
+                <script>var baseUrl = "/other/"</script>
+                """#)
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+            """
+            <html>
+             <head>
+              <script>var baseUrl = "/other/"</script>
+             </head>
+             <body></body>
+            </html>
+            """
+            }
+        }
+    }
+
+    func test_rewriteAttribute() throws {
+        do {  // test rewriting of un-prefixed src attributes
+            let doc = try SwiftSoup.parse(#"""
+                <script src="/js/index-1.js"></script>
+                <script src="/js/index-2.js"></script>
+                """#)
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+                """
+                <html>
+                 <head>
+                  <script src="/foo/bar/1.2.3/js/index-1.js"></script> 
+                  <script src="/foo/bar/1.2.3/js/index-2.js"></script>
+                 </head>
+                 <body></body>
+                </html>
+                """
+            }
+        }
+        do {  // ensure we don't prefix attributes that are already prefixed
+            let doc = try SwiftSoup.parse(#"""
+                <script src="/foo/bar/1.2.3/js/index-1.js"></script>
+                <script src="/foo/bar/1.2.3/js/index-2.js"></script>
+                """#)
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+                """
+                <html>
+                 <head>
+                  <script src="/foo/bar/1.2.3/js/index-1.js"></script> 
+                  <script src="/foo/bar/1.2.3/js/index-2.js"></script>
+                 </head>
+                 <body></body>
+                </html>
+                """
+            }
+        }
+        do {  // ensure we don't prefix attributes that are already prefixed for a different reference
+              // (this probably cannot happen in practise but we certainly don't want to prefix in this case)
+            let doc = try SwiftSoup.parse(#"""
+                <script src="/foo/bar/main/js/index-1.js"></script>
+                <script src="/foo/bar/main/js/index-2.js"></script>
+                """#)
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+                """
+                <html>
+                 <head>
+                  <script src="/foo/bar/main/js/index-1.js"></script> 
+                  <script src="/foo/bar/main/js/index-2.js"></script>
+                 </head>
+                 <body></body>
+                </html>
+                """
+            }
+        }
+    }
 }

@@ -17,60 +17,119 @@ import Vapor
 
 
 func docRoutes(_ app: Application) throws {
-    // temporary, hacky docc-proxy
-    // default handlers (no ref)
+    // Underspecified documentation routes - these routes lack the reference, the archive, or both.
+    // Therefore, these parts need to be queried from the database and the request will be
+    // redirected to the fully formed documentation URL.
     app.get(":owner", ":repository", "documentation") {
-        try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
+        try await PackageController.documentationRedirect(req: $0, fragment: .documentation)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "documentation", "**") {
-        try await PackageController.defaultDocumentation(req: $0, fragment: .documentation)
+        try await PackageController.documentationRedirect(req: $0, fragment: .documentation)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "tutorials", "**") {
-        try await PackageController.defaultDocumentation(req: $0, fragment: .tutorials)
+        try await PackageController.documentationRedirect(req: $0, fragment: .tutorials)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", .current, "documentation") {
+        try await PackageController.documentationRedirect(req: $0, fragment: .documentation)
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "documentation") { req in
+        guard let ref = req.parameters.get("reference").map(Reference.init) else { throw Abort(.notFound) }
+        return try await PackageController.documentationRedirect(req: req, fragment: .documentation, reference: ref)
     }.excludeFromOpenAPI()
 
-    // targeted handlers (with ref)
-    app.get(":owner", ":repository", ":reference", "documentation") {
-        try await PackageController.documentation(req: $0)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
+    // Stable URLs with current (~) reference.
+    app.get(":owner", ":repository", .current, "documentation", ":archive") {
         try await PackageController.documentation(req: $0, fragment: .documentation)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") {
+    app.get(":owner", ":repository", .current, "documentation", ":archive", "**") {
         try await PackageController.documentation(req: $0, fragment: .documentation)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", .fragment(.faviconIco)) {
+    app.get(":owner", ":repository", .current, .fragment(.faviconIco)) {
         try await PackageController.documentation(req: $0, fragment: .faviconIco)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", .fragment(.faviconSvg)) {
+    app.get(":owner", ":repository", .current, .fragment(.faviconSvg)) {
         try await PackageController.documentation(req: $0, fragment: .faviconSvg)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "css", "**") {
+    app.get(":owner", ":repository", .current, "css", "**") {
         try await PackageController.documentation(req: $0, fragment: .css)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "data", "**") {
+    app.get(":owner", ":repository", .current, "data", "**") {
         try await PackageController.documentation(req: $0, fragment: .data)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "images", "**") {
+    app.get(":owner", ":repository", .current, "images", "**") {
         try await PackageController.documentation(req: $0, fragment: .images)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "img", "**") {
+    app.get(":owner", ":repository", .current, "img", "**") {
         try await PackageController.documentation(req: $0, fragment: .img)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "index", "**") {
+    app.get(":owner", ":repository", .current, "index", "**") {
         try await PackageController.documentation(req: $0, fragment: .index)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "js", "**") {
+    app.get(":owner", ":repository", .current, "js", "**") {
         try await PackageController.documentation(req: $0, fragment: .js)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", .fragment(.linkablePaths)) {
+    app.get(":owner", ":repository", .current, .fragment(.linkablePaths)) {
         try await PackageController.documentation(req: $0, fragment: .linkablePaths)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", .fragment(.themeSettings)) {
+    app.get(":owner", ":repository", .current, .fragment(.themeSettings)) {
         try await PackageController.documentation(req: $0, fragment: .themeSettings)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "tutorials", "**") {
+    app.get(":owner", ":repository", .current, "tutorials", "**") {
         try await PackageController.documentation(req: $0, fragment: .tutorials)
+    }.excludeFromOpenAPI()
+
+    // Version specific documentation - No index and non-canonical URLs with a specific reference.
+    app.get(":owner", ":repository", ":reference", "documentation", ":archive") { req in
+        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
+        return try await PackageController.documentation(req: req, reference: ref, fragment: .documentation, rewriteStrategy: .reference(ref))
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") { req in
+        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
+        return try await PackageController.documentation(req: req, reference: ref, fragment: .documentation, rewriteStrategy: .reference(ref))
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", .fragment(.faviconIco)) { req in
+        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
+        return try await PackageController.documentation(req: req, reference: ref, fragment: .faviconIco, rewriteStrategy: .reference(ref))
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", .fragment(.faviconSvg)) { req in
+        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
+        return try await PackageController.documentation(req: req, reference: ref, fragment: .faviconSvg, rewriteStrategy: .reference(ref))
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "css", "**") { req in
+        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
+        return try await PackageController.documentation(req: req, reference: ref, fragment: .css, rewriteStrategy: .reference(ref))
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "data", "**") { req in
+        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
+        return try await PackageController.documentation(req: req, reference: ref, fragment: .data, rewriteStrategy: .reference(ref))
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "images", "**") { req in
+        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
+        return try await PackageController.documentation(req: req, reference: ref, fragment: .images, rewriteStrategy: .reference(ref))
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "img", "**") { req in
+        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
+        return try await PackageController.documentation(req: req, reference: ref, fragment: .img, rewriteStrategy: .reference(ref))
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "index", "**") { req in
+        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
+        return try await PackageController.documentation(req: req, reference: ref, fragment: .index, rewriteStrategy: .reference(ref))
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "js", "**") { req in
+        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
+        return try await PackageController.documentation(req: req, reference: ref, fragment: .js, rewriteStrategy: .reference(ref))
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", .fragment(.linkablePaths)) { req in
+        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
+        return try await PackageController.documentation(req: req, reference: ref, fragment: .linkablePaths, rewriteStrategy: .reference(ref))
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", .fragment(.themeSettings)) { req in
+        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
+        return try await PackageController.documentation(req: req, reference: ref, fragment: .themeSettings, rewriteStrategy: .reference(ref))
+    }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "tutorials", "**") { req in
+        guard let ref = req.parameters.get("reference") else { throw Abort(.notFound) }
+        return try await PackageController.documentation(req: req, reference: ref, fragment: .tutorials, rewriteStrategy: .reference(ref))
     }.excludeFromOpenAPI()
 }
 

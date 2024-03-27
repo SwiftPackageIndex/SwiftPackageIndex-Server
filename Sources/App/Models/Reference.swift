@@ -79,6 +79,17 @@ enum Reference: Equatable, Hashable {
 }
 
 
+extension Reference {
+    init(_ string: String) {
+        if let semver = SemanticVersion(string) {
+            self = .tag(semver)
+        } else {
+            self = .branch(string)
+        }
+    }
+}
+
+
 extension Reference: Codable {
     private struct Tag: Codable {
         var semVer: SemanticVersion

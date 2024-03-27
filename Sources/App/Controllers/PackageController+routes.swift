@@ -86,7 +86,7 @@ enum PackageController {
         }
     }
 
-    static func defaultDocumentation(req: Request, fragment: Fragment) async throws -> Response {
+    static func documentationRedirect(req: Request, fragment: Fragment, reference: Reference? = nil) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -96,12 +96,14 @@ enum PackageController {
         let anchor = req.url.fragment.map { "#\($0)"} ?? ""
         let path = req.parameters.getCatchall().joined(separator: "/").lowercased() + anchor
 
-        guard let target = try await DocumentationTarget.query(on: req.db,
-                                                               owner: owner,
-                                                               repository: repository)
-        else {
-            throw Abort(.notFound)
+        let target: DocumentationTarget?
+        if let reference {
+            target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository, reference: reference)
+        } else {
+            target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository)
         }
+
+        guard let target else { throw Abort(.notFound) }
 
         throw Abort.redirect(to: SiteURL.relativeURL(owner: owner,
                                                      repository: repository,
@@ -110,40 +112,49 @@ enum PackageController {
                                                      path: path))
     }
 
-    static func documentation(req: Request) async throws -> Response {
+    // FIXME: we should remodel the routing for all these handlers.
+    // It's quite confusing which handler does what exactly, mainly because we pull some parameters from req while others are passed
+    // explicitly. Ideally we'd have a `DocRoute` type or something that captures all the variants so that we can create it from req
+    // but also create it in code and then re-route without a redirect.
+    static func documentation(req: Request, fragment: Fragment = .documentation) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository"),
-            let reference = req.parameters.get("reference")
+            let repository = req.parameters.get("repository")
         else {
             throw Abort(.notFound)
         }
 
-        let referenceToMatch: Reference = SemanticVersion(reference)
-            .map { .tag($0, reference) } ?? .branch(reference)
-
-        guard let target = try await DocumentationTarget.query(on: req.db,
-                                                               owner: owner,
-                                                               repository: repository,
-                                                               reference: referenceToMatch)
+        guard let target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository)
         else { throw Abort(.notFound) }
 
-        throw Abort.redirect(to: SiteURL.relativeURL(owner: owner,
-                                                     repository: repository,
-                                                     documentation: target,
-                                                     fragment: .documentation))
+        switch target {
+            case .external(let url):
+                throw Abort.redirect(to: url)
+
+            case let .internal(reference, archive) where fragment == .documentation:
+                // documentation fragments needs the archive parameter from the target lookup
+                return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: archive, fragment: fragment, rewriteStrategy: .canonical)
+
+            case let .internal(reference, _):
+                // other fragments ignore the archive
+                return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: nil, fragment: fragment, rewriteStrategy: .canonical)
+
+            case .universal:
+                // FIXME: DocumentationTarget.query returns either an external or an internal DocumentationTarget and we should model the type as such.
+                // This case is _effectively_ unreachable but we can't currently express that.
+                throw Abort(.notFound)
+        }
     }
 
-    static func documentation(req: Request, fragment: Fragment) async throws -> Response {
+    static func documentation(req: Request, reference: String, archive: String? = nil, fragment: Fragment, rewriteStrategy: DocumentationPageProcessor.RewriteStrategy /*= .none */) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository"),
-            let reference = req.parameters.get("reference")
+            let repository = req.parameters.get("repository")
         else {
             throw Abort(.notFound)
         }
 
-        let archive = req.parameters.get("archive")
+        let archive = archive ?? req.parameters.get("archive")
         let catchAll = [archive].compactMap { $0 } + req.parameters.getCatchall()
         let path: String
         switch fragment {
@@ -159,7 +170,13 @@ enum PackageController {
                 path = catchAll.joined(separator: "/")
         }
 
-        let awsResponse = try await awsResponse(client: req.client, owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
+        let res: ClientResponse
+        do {
+            res = try await awsResponse(client: req.client, owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
+        } catch {
+            print(error)
+            throw error
+        }
 
         switch fragment {
             case .documentation, .tutorials:
@@ -169,17 +186,18 @@ enum PackageController {
                 return try await documentationResponse(
                     req: req,
                     archive: archive,
-                    awsResponse: awsResponse,
+                    awsResponse: res,
                     documentationMetadata: documentationMetadata,
                     fragment: fragment,
                     path: path,
                     owner: owner,
                     reference: reference,
-                    repository: repository
+                    repository: repository,
+                    rewriteStrategy: rewriteStrategy
                 )
 
             case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
-                return try await awsResponse.encodeResponse(
+                return try await res.encodeResponse(
                     status: .ok,
                     headers: req.headers
                         .replacingOrAdding(name: .contentType,
@@ -199,7 +217,8 @@ enum PackageController {
                                       path: String,
                                       owner: String,
                                       reference: String,
-                                      repository: String) async throws -> Response {
+                                      repository: String,
+                                      rewriteStrategy: DocumentationPageProcessor.RewriteStrategy /*= .none */) async throws -> Response {
 
         guard let documentation = documentationMetadata.versions[reference: reference]
         else {
@@ -257,7 +276,8 @@ enum PackageController {
                                                          availableArchives: availableArchives,
                                                          availableVersions: availableDocumentationVersions,
                                                          updatedAt: documentation.updatedAt,
-                                                         rawHtml: body.asString())
+                                                         rawHtml: body.asString(),
+                                                         rewriteStrategy: rewriteStrategy)
         else {
             return try await awsResponse.encodeResponse(
                 status: .ok,

@@ -21,6 +21,12 @@ import SemanticVersion
 
 class ReferenceTests: XCTestCase {
 
+    func test_init() throws {
+        XCTAssertEqual(Reference("1.2.3"), .tag(1, 2, 3))
+        XCTAssertEqual(Reference("1.2.3-b1"), .tag(1, 2, 3, "b1"))
+        XCTAssertEqual(Reference("main"), .branch("main"))
+    }
+
     func test_Codable() throws {
         do { // branch
             let ref = Reference.branch("foo")

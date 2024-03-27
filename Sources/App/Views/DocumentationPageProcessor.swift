@@ -45,6 +45,12 @@ struct DocumentationPageProcessor {
         let isLatestStable: Bool
     }
 
+    enum RewriteStrategy {
+        case reference(String)
+        case canonical
+        case none
+    }
+
     init?(repositoryOwner: String,
           repositoryOwnerName: String,
           repositoryName: String,
@@ -56,7 +62,8 @@ struct DocumentationPageProcessor {
           availableArchives: [AvailableArchive],
           availableVersions: [AvailableDocumentationVersion],
           updatedAt: Date,
-          rawHtml: String) {
+          rawHtml: String,
+          rewriteStrategy: RewriteStrategy /*= .none */) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
         self.repositoryName = repositoryName
@@ -71,6 +78,17 @@ struct DocumentationPageProcessor {
 
         do {
             document = try SwiftSoup.parse(rawHtml)
+
+            switch rewriteStrategy {
+                case .reference(let ref):
+                    try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, reference: ref)
+                case .canonical:
+                    try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, reference: .current)
+                case .none:
+                    break
+            }
+
+            // SPI related modifications
             try document.title("\(packageName) Documentation – Swift Package Index")
             if let metaNoIndex = self.metaNoIndex {
                 try document.head()?.prepend(metaNoIndex)
@@ -304,4 +322,39 @@ struct DocumentationPageProcessor {
             .text(".")
         )
     }
+
+    static func rewriteBaseUrls(document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
+        try rewriteScriptBaseUrl(document: document, owner: owner, repository: repository, reference: reference)
+        try rewriteAttribute("href", document: document, owner: owner, repository: repository, reference: reference)
+        try rewriteAttribute("src", document: document, owner: owner, repository: repository, reference: reference)
+    }
+
+    static func rewriteScriptBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
+        for e in try document.select("script") {
+            let value = e.data()
+            if value == #"var baseUrl = "/""# {
+                let path = "/\(owner)/\(repository)/\(reference)/".lowercased()
+                try e.html(#"var baseUrl = "\#(path)""#)
+            }
+        }
+    }
+
+    static func rewriteAttribute(_ attribute: String, document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
+        for e in try document.select(#"[\#(attribute)^="/"]"#) {
+            let value = try e.attr(attribute)
+            let path = "/\(owner)/\(repository)".lowercased()
+            if !value.lowercased().hasPrefix(path) {
+                try e.attr(attribute, "\(path)/\(reference)\(value)")
+            }
+        }
+    }
+}
+
+
+extension String {
+    static let current = "~"
+}
+
+extension PathComponent {
+    static let current: Self = "~"
 }

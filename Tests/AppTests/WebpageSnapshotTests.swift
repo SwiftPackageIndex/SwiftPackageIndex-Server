@@ -454,7 +454,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                           isLatestStable: false),
                                                                  ],
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
-                                                                 rawHtml: doccHtml))
+                                                                 rawHtml: doccHtml,
+                                                                 rewriteStrategy: .reference("main")))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
     }
@@ -485,7 +486,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                           isLatestStable: true)
                                                                  ],
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
-                                                                 rawHtml: doccHtml))
+                                                                 rawHtml: doccHtml,
+                                                                 rewriteStrategy: .reference("1.1.0")))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
     }
@@ -522,7 +524,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                           isLatestStable: true)
                                                                  ],
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
-                                                                 rawHtml: doccHtml))
+                                                                 rawHtml: doccHtml,
+                                                                 rewriteStrategy: .reference("main")))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
     }
