@@ -17,65 +17,6 @@ import Vapor
 
 
 func docRoutes(_ app: Application) throws {
-    // temporary, hacky docc-proxy
-    // default handlers (no ref)
-    app.get(":owner", ":repository", "documentation") {
-        try await PackageController.documentationRedirect(req: $0, fragment: .documentation)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", "documentation", "**") {
-        try await PackageController.documentationRedirect(req: $0, fragment: .documentation)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", "tutorials", "**") {
-        try await PackageController.documentationRedirect(req: $0, fragment: .tutorials)
-    }.excludeFromOpenAPI()
-
-    // targeted handlers (with ref)
-    app.get(":owner", ":repository", ":reference", "documentation") {
-        try await PackageController.documentation(req: $0)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
-        try await PackageController.documentation(req: $0, fragment: .documentation)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") {
-        try await PackageController.documentation(req: $0, fragment: .documentation)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", .fragment(.faviconIco)) {
-        try await PackageController.documentation(req: $0, fragment: .faviconIco)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", .fragment(.faviconSvg)) {
-        try await PackageController.documentation(req: $0, fragment: .faviconSvg)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "css", "**") {
-        try await PackageController.documentation(req: $0, fragment: .css)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "data", "**") {
-        try await PackageController.documentation(req: $0, fragment: .data)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "images", "**") {
-        try await PackageController.documentation(req: $0, fragment: .images)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "img", "**") {
-        try await PackageController.documentation(req: $0, fragment: .img)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "index", "**") {
-        try await PackageController.documentation(req: $0, fragment: .index)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "js", "**") {
-        try await PackageController.documentation(req: $0, fragment: .js)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", .fragment(.linkablePaths)) {
-        try await PackageController.documentation(req: $0, fragment: .linkablePaths)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", .fragment(.themeSettings)) {
-        try await PackageController.documentation(req: $0, fragment: .themeSettings)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "tutorials", "**") {
-        try await PackageController.documentation(req: $0, fragment: .tutorials)
-    }.excludeFromOpenAPI()
-}
-
-
-func docRoutesDev(_ app: Application) throws {
     // Underspecified documentation routes - these routes lack the reference, the archive, or both.
     // Therefore, these parts need to be queried from the database and the request will be
     // redirected to the fully formed documentation URL.

@@ -54,11 +54,7 @@ func routes(_ app: Application) throws {
         }.excludeFromOpenAPI()
     }
 
-    if Current.environment() == .production {
-        try docRoutes(app)
-    } else {
-        try docRoutesDev(app)
-    }
+    try docRoutes(app)
 
     do {  // package pages
         app.get(SiteURL.package(.key, .key, .none).pathComponents,
