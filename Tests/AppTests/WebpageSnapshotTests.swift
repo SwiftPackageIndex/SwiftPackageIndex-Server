@@ -455,7 +455,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  ],
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
                                                                  rawHtml: doccHtml,
-                                                                 rewriteStrategy: .reference("main")))
+                                                                 rewriteStrategy: .toReference("main")))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
     }
@@ -487,7 +487,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  ],
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
                                                                  rawHtml: doccHtml,
-                                                                 rewriteStrategy: .reference("1.1.0")))
+                                                                 rewriteStrategy: .toReference("1.1.0")))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
     }
@@ -525,7 +525,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  ],
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
                                                                  rawHtml: doccHtml,
-                                                                 rewriteStrategy: .reference("main")))
+                                                                 rewriteStrategy: .toReference("main")))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
     }

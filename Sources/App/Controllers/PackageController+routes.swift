@@ -133,11 +133,11 @@ enum PackageController {
 
             case let .internal(reference, archive) where fragment == .documentation:
                 // documentation fragments needs the archive parameter from the target lookup
-                return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: archive, fragment: fragment, rewriteStrategy: .canonical)
+                return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: archive, fragment: fragment, rewriteStrategy: .current(fromReference: reference))
 
             case let .internal(reference, _):
                 // other fragments ignore the archive
-                return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: nil, fragment: fragment, rewriteStrategy: .canonical)
+                return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: nil, fragment: fragment, rewriteStrategy: .current(fromReference: reference))
 
             case .universal:
                 // FIXME: DocumentationTarget.query returns either an external or an internal DocumentationTarget and we should model the type as such.
@@ -146,7 +146,7 @@ enum PackageController {
         }
     }
 
-    static func documentation(req: Request, reference: String, archive: String? = nil, fragment: Fragment, rewriteStrategy: DocumentationPageProcessor.RewriteStrategy /*= .none */) async throws -> Response {
+    static func documentation(req: Request, reference: String, archive: String? = nil, fragment: Fragment, rewriteStrategy: DocumentationPageProcessor.RewriteStrategy) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -218,7 +218,7 @@ enum PackageController {
                                       owner: String,
                                       reference: String,
                                       repository: String,
-                                      rewriteStrategy: DocumentationPageProcessor.RewriteStrategy /*= .none */) async throws -> Response {
+                                      rewriteStrategy: DocumentationPageProcessor.RewriteStrategy) async throws -> Response {
 
         guard let documentation = documentationMetadata.versions[reference: reference]
         else {

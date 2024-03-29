@@ -61,12 +61,23 @@ final class DocumentationPageProcessorTests: AppTestCase {
     }
 
     func test_rewriteBaseUrls() throws {
-        let html = try fixtureString(for: "doc-index-nonhosting.html")
-        let doc = try SwiftSoup.parse(html)
-        // MUT
-        try DocumentationPageProcessor.rewriteBaseUrls(document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
-        // validate
-        assertSnapshot(of: "\(doc)", as: .html)
+        // Test rewriting of a `baseURL = "/"` (dynamic hosting) index.html
+        let html = try fixtureString(for: "doc-index-dynamic-hosting.html")
+        do {
+            let doc = try SwiftSoup.parse(html)
+            // MUT
+            try DocumentationPageProcessor.rewriteBaseUrls(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
+            // validate
+            assertSnapshot(of: "\(doc)", as: .html, named: "1.2.3")
+        }
+        do {
+            let doc = try SwiftSoup.parse(html)
+            // MUT
+#warning("FIXME: use proper base instead of empty ref")
+            try DocumentationPageProcessor.rewriteBaseUrls(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: ""))
+            // validate
+            assertSnapshot(of: "\(doc)", as: .html, named: "current")
+        }
     }
 
     func test_rewriteScriptBaseUrl() throws {
@@ -74,7 +85,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
             let doc = try SwiftSoup.parse(#"""
                 <script>var baseUrl = "/"</script>
                 """#)
-            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
             assertInlineSnapshot(of: "\(doc)", as: .html) {
             """
             <html>
@@ -90,7 +101,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
             let doc = try SwiftSoup.parse(#"""
                 <script>var baseUrl = "/other/"</script>
                 """#)
-            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
             assertInlineSnapshot(of: "\(doc)", as: .html) {
             """
             <html>
@@ -110,7 +121,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
                 <script src="/js/index-1.js"></script>
                 <script src="/js/index-2.js"></script>
                 """#)
-            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
             assertInlineSnapshot(of: "\(doc)", as: .html) {
                 """
                 <html>
@@ -128,7 +139,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
                 <script src="/foo/bar/1.2.3/js/index-1.js"></script>
                 <script src="/foo/bar/1.2.3/js/index-2.js"></script>
                 """#)
-            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
             assertInlineSnapshot(of: "\(doc)", as: .html) {
                 """
                 <html>
@@ -147,7 +158,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
                 <script src="/foo/bar/main/js/index-1.js"></script>
                 <script src="/foo/bar/main/js/index-2.js"></script>
                 """#)
-            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
             assertInlineSnapshot(of: "\(doc)", as: .html) {
                 """
                 <html>
