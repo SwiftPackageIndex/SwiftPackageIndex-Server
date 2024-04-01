@@ -330,7 +330,7 @@ struct DocumentationPageProcessor {
         switch rewriteStrategy {
             case .current(let fromReference):
                 for e in try document.select("script") {
-                    let value = e.data()
+                    let value = e.data().trimmingCharacters(in: .whitespacesAndNewlines)
                     if value == #"var baseUrl = "/""# {
                         //   / -> /a/b/~            (current)
                         let path = "/\(owner)/\(repository)/\(String.current)/".lowercased()
@@ -345,7 +345,7 @@ struct DocumentationPageProcessor {
             case .toReference(let reference):
                 //   / -> /a/b/1.2.3        (toReference)
                 for e in try document.select("script") {
-                    let value = e.data()
+                    let value = e.data().trimmingCharacters(in: .whitespacesAndNewlines)
                     if value == #"var baseUrl = "/""# {
                         let path = "/\(owner)/\(repository)/\(reference)/".lowercased()
                         try e.html(#"var baseUrl = "\#(path)""#)

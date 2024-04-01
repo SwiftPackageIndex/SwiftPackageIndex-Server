@@ -115,6 +115,80 @@ final class DocumentationPageProcessorTests: AppTestCase {
         }
     }
 
+    func test_rewriteScriptBaseUrl_whiteSpace() throws {
+        // test rewriting of "/" base url with whitespace
+        do {
+            let doc = try SwiftSoup.parse(#"""
+                <script> var baseUrl = "/" </script>
+                """#)
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+            """
+            <html>
+             <head>
+              <script>var baseUrl = "/foo/bar/1.2.3/"</script>
+             </head>
+             <body></body>
+            </html>
+            """
+            }
+        }
+        do {
+            let doc = try SwiftSoup.parse(#"""
+                <script> var baseUrl = "/" </script>
+                """#)
+#warning("FIXME: don't use empty ref here")
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: ""))
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+            """
+            <html>
+             <head>
+              <script>var baseUrl = "/foo/bar/~/"</script>
+             </head>
+             <body></body>
+            </html>
+            """
+            }
+        }
+        do {
+            let doc = try SwiftSoup.parse(#"""
+                <script>
+                  var baseUrl = "/"
+                </script>
+                """#)
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+            """
+            <html>
+             <head>
+              <script>var baseUrl = "/foo/bar/1.2.3/"</script>
+             </head>
+             <body></body>
+            </html>
+            """
+            }
+        }
+        do {
+            let doc = try SwiftSoup.parse(#"""
+                <script>
+                  var baseUrl = "/"
+                </script>
+                """#)
+#warning("FIXME: don't use empty ref here")
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: ""))
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+            """
+            <html>
+             <head>
+              <script>var baseUrl = "/foo/bar/~/"</script>
+             </head>
+             <body></body>
+            </html>
+            """
+            }
+        }
+    }
+    
     func test_rewriteAttribute_current() throws {
         do {  // test rewriting of un-prefixed src attributes
             let doc = try SwiftSoup.parse(#"""
