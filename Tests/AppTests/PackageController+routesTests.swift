@@ -458,6 +458,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "index")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
             XCTAssertFalse(body.contains(#"<link rel="canonical""#))
             XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
@@ -471,6 +472,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "index")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
             XCTAssertFalse(body.contains(#"<link rel="canonical""#))
             XCTAssertFalse(body.contains(#"a/b#anchor"#))
@@ -485,6 +487,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "index-mixed-case")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
             XCTAssertFalse(body.contains(#"<link rel="canonical""#))
             XCTAssertFalse(body.contains(#"a/b#anchor"#))
@@ -605,6 +608,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "index-target")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
             XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target" />"#))
             XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
@@ -618,6 +622,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "index-target-a-b")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
             XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/a/b#anchor" />"#))
             XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
@@ -631,6 +636,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "index-target-a-b-mixed-case")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
             XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/A/b#Anchor" />"#))
             XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
@@ -894,6 +900,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "current-index")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
             XCTAssertFalse(body.contains(#"<link rel="canonical""#))
             XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
@@ -906,6 +913,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "ref-index")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/feature-1.2.3/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
             XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/target" />"#))
             XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
@@ -919,6 +927,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "ref-index-path")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/feature-1.2.3/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
             XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/a/b" />"#))
             XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
@@ -956,12 +965,16 @@ class PackageController_routesTests: SnapshotTestCase {
         try await app.test(.GET, "/owner/package/~/tutorials/foo") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index")
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
         }
         try await app.test(.GET, "/owner/package/~/tutorials/foo#anchor") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index")
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
         }
     }
 
