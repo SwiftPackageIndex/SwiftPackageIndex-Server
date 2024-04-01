@@ -440,7 +440,7 @@ class PackageController_routesTests: SnapshotTestCase {
                           packageName: "pkg",
                           reference: .tag(1, 0, 0))
             .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // MUT
 
@@ -590,7 +590,7 @@ class PackageController_routesTests: SnapshotTestCase {
                           packageName: "pkg",
                           reference: .tag(1, 2, 3))
             .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // MUT
 
@@ -665,7 +665,7 @@ class PackageController_routesTests: SnapshotTestCase {
                     packageName: "pkg",
                     reference: .tag(1, 0, 0))
             .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // MUT
         try app.test(.GET, "/owner/package/main/documentation") {
@@ -889,7 +889,7 @@ class PackageController_routesTests: SnapshotTestCase {
                           packageName: "pkg",
                           reference: .branch("feature/1.2.3"))
         .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // MUT
 
@@ -956,7 +956,7 @@ class PackageController_routesTests: SnapshotTestCase {
                           packageName: "pkg",
                           reference: .tag(1, 0, 0))
             .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // MUT
         try app.test(.GET, "/owner/package/~/tutorials") {
@@ -1215,7 +1215,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
         // Make sure the new commit doesn't get throttled
         Current.date = { .t1 + Constants.branchVersionRefreshDelay + 1 }
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // Ensure documentation is resolved
         try await app.test(.GET, "/foo/bar/~/documentation/target") {
@@ -1268,35 +1268,6 @@ private extension String {
 }
 
 private extension ByteBuffer {
-    @available(*, deprecated)
-    static var mockIndexHTML: Self {
-        .init(string: """
-            <!doctype html>
-            <html lang="en-US">
-
-            <head>
-                <meta charset="utf-8">
-                <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-                <link rel="icon" href="/favicon.ico">
-                <link rel="mask-icon" href="/favicon.svg" color="#333333">
-                <title>Documentation</title>
-                <script>
-                    var baseUrl = "/"
-                </script>
-                <script defer="defer" src="/js/chunk-vendors.bdb7cbba.js"></script>
-                <script defer="defer" src="/js/index.2871ffbd.js"></script>
-                <link href="/css/index.ff036a9e.css" rel="stylesheet">
-            </head>
-
-            <body data-color-scheme="auto"><noscript>[object Module]</noscript>
-                <div id="app"></div>
-            </body>
-
-            </html>
-            """)
-    }
-
     static func mockIndexHTML(baseURL: String = "/") -> Self {
         let baseURL = baseURL.hasSuffix("/") ? baseURL : baseURL + "/"
         return .init(string: """
