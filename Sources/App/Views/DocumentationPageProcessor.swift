@@ -370,10 +370,12 @@ struct DocumentationPageProcessor {
                         //   / -> /a/b/~            (current)
                         try e.attr(attribute, "/\(owner)/\(repository)/\(String.current)\(value)".lowercased())
                     } else {
-                        if value.lowercased().hasPrefix("/\(owner)/\(repository)/\(reference)".lowercased()) {
+                        let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(reference)".lowercased()
+                        if value.lowercased().hasPrefix(fullyQualifiedPrefix) {
                             // matches expected fully qualified resource path
                             //   /a/b/1.2.3 -> /a/b/~   (current)
-                            try e.attr(attribute, "/\(owner)/\(repository)/\(String.current)\(value)".lowercased())
+                            let trimmed = value.dropFirst(fullyQualifiedPrefix.count)
+                            try e.attr(attribute, "/\(owner)/\(repository)/\(String.current)\(trimmed)".lowercased())
                         } else {
                             // did not match expected resource prefix - leave it alone
                             // (shouldn't be possible)
