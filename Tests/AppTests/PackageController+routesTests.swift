@@ -493,6 +493,77 @@ class PackageController_routesTests: SnapshotTestCase {
     }
 
     @MainActor
+    func test_documentation_routes_current_rewrite() async throws {
+        // Test the current (~) documentation routes with baseURL rewriting:
+        //   /owner/package/documentation/~ + various path elements
+        // setup
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "0123456789",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .defaultBranch,
+                          packageName: "pkg",
+                          reference: .branch("main"))
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "9876543210",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .release,
+                          packageName: "pkg",
+                          reference: .tag(1, 0, 0))
+            .save(on: app.db)
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
+
+        // MUT
+
+        // test fully qualified route
+        try await app.test(.GET, "/owner/package/~/documentation/target") {
+            await Task.yield() // essential to avoid deadlocking
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+        }
+
+        // test catchall
+        try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") {
+            await Task.yield() // essential to avoid deadlocking
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+            XCTAssertFalse(body.contains(#"a/b#anchor"#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+        }
+
+        // Test case insensitive path.
+        try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") {
+            await Task.yield() // essential to avoid deadlocking
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index-mixed-case")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+            XCTAssertFalse(body.contains(#"a/b#anchor"#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+        }
+    }
+
+    @MainActor
     func test_documentation_routes_ref() async throws {
         // Test the documentation routes with a reference:
         //   /owner/package/documentation/{reference} + various path elements
@@ -1184,6 +1255,7 @@ private extension String {
 }
 
 private extension ByteBuffer {
+    @available(*, deprecated)
     static var mockIndexHTML: Self {
         .init(string: """
             <!doctype html>
@@ -1202,6 +1274,35 @@ private extension ByteBuffer {
                 <script defer="defer" src="/js/chunk-vendors.bdb7cbba.js"></script>
                 <script defer="defer" src="/js/index.2871ffbd.js"></script>
                 <link href="/css/index.ff036a9e.css" rel="stylesheet">
+            </head>
+
+            <body data-color-scheme="auto"><noscript>[object Module]</noscript>
+                <div id="app"></div>
+            </body>
+
+            </html>
+            """)
+    }
+
+    static func mockIndexHTML(baseURL: String = "/") -> Self {
+        let baseURL = baseURL.hasSuffix("/") ? baseURL : baseURL + "/"
+        return .init(string: """
+            <!doctype html>
+            <html lang="en-US">
+
+            <head>
+                <meta charset="utf-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+                <link rel="icon" href="\(baseURL)favicon.ico">
+                <link rel="mask-icon" href="\(baseURL)favicon.svg" color="#333333">
+                <title>Documentation</title>
+                <script>
+                    var baseUrl = "\(baseURL)"
+                </script>
+                <script defer="defer" src="\(baseURL)js/chunk-vendors.bdb7cbba.js"></script>
+                <script defer="defer" src="\(baseURL)js/index.2871ffbd.js"></script>
+                <link href="\(baseURL)css/index.ff036a9e.css" rel="stylesheet">
             </head>
 
             <body data-color-scheme="auto"><noscript>[object Module]</noscript>

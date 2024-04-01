@@ -336,7 +336,8 @@ struct DocumentationPageProcessor {
                         let path = "/\(owner)/\(repository)/\(String.current)/".lowercased()
                         try e.html(#"var baseUrl = "\#(path)""#)
                     }
-                    if value == #"var baseUrl = "/\#(owner)/\#(repository)/\#(fromReference)/""#.lowercased() {
+                    let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(fromReference)".lowercased()
+                    if value == #"var baseUrl = "\#(fullyQualifiedPrefix)/""# {
                         //   /a/b/1.2.3 -> /a/b/~   (current)
                         let path = "/\(owner)/\(repository)/\(String.current)/".lowercased()
                         try e.html(#"var baseUrl = "\#(path)""#)
