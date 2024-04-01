@@ -73,8 +73,8 @@ final class DocumentationPageProcessorTests: AppTestCase {
         do {
             let doc = try SwiftSoup.parse(html)
             // MUT
-#warning("FIXME: use proper base instead of empty ref")
-            try DocumentationPageProcessor.rewriteBaseUrls(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: ""))
+            // The `fromReference` is irrelevant if the html is generated for dynamic hosting (baseUrl = "/")
+            try DocumentationPageProcessor.rewriteBaseUrls(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: "irrelevant"))
             // validate
             assertSnapshot(of: "\(doc)", as: .html, named: "current")
         }
@@ -137,8 +137,8 @@ final class DocumentationPageProcessorTests: AppTestCase {
             let doc = try SwiftSoup.parse(#"""
                 <script> var baseUrl = "/" </script>
                 """#)
-#warning("FIXME: don't use empty ref here")
-            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: ""))
+            // The `fromReference` is irrelevant if the html is generated for dynamic hosting (baseUrl = "/")
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: "irrelevant"))
             assertInlineSnapshot(of: "\(doc)", as: .html) {
             """
             <html>
@@ -174,8 +174,8 @@ final class DocumentationPageProcessorTests: AppTestCase {
                   var baseUrl = "/"
                 </script>
                 """#)
-#warning("FIXME: don't use empty ref here")
-            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: ""))
+            // The `fromReference` is irrelevant if the html is generated for dynamic hosting (baseUrl = "/")
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: "irrelevant"))
             assertInlineSnapshot(of: "\(doc)", as: .html) {
             """
             <html>
@@ -195,8 +195,8 @@ final class DocumentationPageProcessorTests: AppTestCase {
                 <script src="/js/index-1.js"></script>
                 <script src="/js/index-2.js"></script>
                 """#)
-#warning("FIXME: don't use en empty ref here")
-            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: ""))
+            // The `fromReference` is irrelevant if the html is generated for dynamic hosting (baseUrl = "/")
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: "irrelevant"))
             assertInlineSnapshot(of: "\(doc)", as: .html) {
                 """
                 <html>
