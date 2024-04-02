@@ -61,12 +61,23 @@ final class DocumentationPageProcessorTests: AppTestCase {
     }
 
     func test_rewriteBaseUrls() throws {
-        let html = try fixtureString(for: "doc-index-nonhosting.html")
-        let doc = try SwiftSoup.parse(html)
-        // MUT
-        try DocumentationPageProcessor.rewriteBaseUrls(document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
-        // validate
-        assertSnapshot(of: "\(doc)", as: .html)
+        // Test rewriting of a `baseURL = "/"` (dynamic hosting) index.html
+        let html = try fixtureString(for: "doc-index-dynamic-hosting.html")
+        do {
+            let doc = try SwiftSoup.parse(html)
+            // MUT
+            try DocumentationPageProcessor.rewriteBaseUrls(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
+            // validate
+            assertSnapshot(of: "\(doc)", as: .html, named: "1.2.3")
+        }
+        do {
+            let doc = try SwiftSoup.parse(html)
+            // MUT
+            // The `fromReference` is irrelevant if the html is generated for dynamic hosting (baseUrl = "/")
+            try DocumentationPageProcessor.rewriteBaseUrls(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: "irrelevant"))
+            // validate
+            assertSnapshot(of: "\(doc)", as: .html, named: "current")
+        }
     }
 
     func test_rewriteScriptBaseUrl() throws {
@@ -74,7 +85,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
             let doc = try SwiftSoup.parse(#"""
                 <script>var baseUrl = "/"</script>
                 """#)
-            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
             assertInlineSnapshot(of: "\(doc)", as: .html) {
             """
             <html>
@@ -90,7 +101,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
             let doc = try SwiftSoup.parse(#"""
                 <script>var baseUrl = "/other/"</script>
                 """#)
-            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
             assertInlineSnapshot(of: "\(doc)", as: .html) {
             """
             <html>
@@ -104,13 +115,145 @@ final class DocumentationPageProcessorTests: AppTestCase {
         }
     }
 
-    func test_rewriteAttribute() throws {
+    func test_rewriteScriptBaseUrl_whiteSpace() throws {
+        // test rewriting of "/" base url with whitespace
+        do {
+            let doc = try SwiftSoup.parse(#"""
+                <script> var baseUrl = "/" </script>
+                """#)
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+            """
+            <html>
+             <head>
+              <script>var baseUrl = "/foo/bar/1.2.3/"</script>
+             </head>
+             <body></body>
+            </html>
+            """
+            }
+        }
+        do {
+            let doc = try SwiftSoup.parse(#"""
+                <script> var baseUrl = "/" </script>
+                """#)
+            // The `fromReference` is irrelevant if the html is generated for dynamic hosting (baseUrl = "/")
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: "irrelevant"))
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+            """
+            <html>
+             <head>
+              <script>var baseUrl = "/foo/bar/~/"</script>
+             </head>
+             <body></body>
+            </html>
+            """
+            }
+        }
+        do {
+            let doc = try SwiftSoup.parse(#"""
+                <script>
+                  var baseUrl = "/"
+                </script>
+                """#)
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+            """
+            <html>
+             <head>
+              <script>var baseUrl = "/foo/bar/1.2.3/"</script>
+             </head>
+             <body></body>
+            </html>
+            """
+            }
+        }
+        do {
+            let doc = try SwiftSoup.parse(#"""
+                <script>
+                  var baseUrl = "/"
+                </script>
+                """#)
+            // The `fromReference` is irrelevant if the html is generated for dynamic hosting (baseUrl = "/")
+            try DocumentationPageProcessor.rewriteScriptBaseUrl(document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: "irrelevant"))
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+            """
+            <html>
+             <head>
+              <script>var baseUrl = "/foo/bar/~/"</script>
+             </head>
+             <body></body>
+            </html>
+            """
+            }
+        }
+    }
+    
+    func test_rewriteAttribute_current() throws {
         do {  // test rewriting of un-prefixed src attributes
             let doc = try SwiftSoup.parse(#"""
                 <script src="/js/index-1.js"></script>
                 <script src="/js/index-2.js"></script>
                 """#)
-            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            // The `fromReference` is irrelevant if the html is generated for dynamic hosting (baseUrl = "/")
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: "irrelevant"))
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+                """
+                <html>
+                 <head>
+                  <script src="/foo/bar/~/js/index-1.js"></script> 
+                  <script src="/foo/bar/~/js/index-2.js"></script>
+                 </head>
+                 <body></body>
+                </html>
+                """
+            }
+        }
+        do {  // ensure we properly prefix attributes that are already prefixed
+            let doc = try SwiftSoup.parse(#"""
+                <script src="/foo/bar/1.2.3/js/index-1.js"></script>
+                <script src="/foo/bar/1.2.3/js/index-2.js"></script>
+                """#)
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: "1.2.3"))
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+                """
+                <html>
+                 <head>
+                  <script src="/foo/bar/~/js/index-1.js"></script> 
+                  <script src="/foo/bar/~/js/index-2.js"></script>
+                 </head>
+                 <body></body>
+                </html>
+                """
+            }
+        }
+        do {  // ensure we don't prefix attributes that are already prefixed with a different reference
+            let doc = try SwiftSoup.parse(#"""
+                <script src="/foo/bar/1.2.3/js/index-1.js"></script>
+                <script src="/foo/bar/1.2.3/js/index-2.js"></script>
+                """#)
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", rewriteStrategy: .current(fromReference: "2.0.0"))
+            assertInlineSnapshot(of: "\(doc)", as: .html) {
+                """
+                <html>
+                 <head>
+                  <script src="/foo/bar/1.2.3/js/index-1.js"></script> 
+                  <script src="/foo/bar/1.2.3/js/index-2.js"></script>
+                 </head>
+                 <body></body>
+                </html>
+                """
+            }
+        }
+    }
+
+    func test_rewriteAttribute_toReference() throws {
+        do {  // test rewriting of un-prefixed src attributes
+            let doc = try SwiftSoup.parse(#"""
+                <script src="/js/index-1.js"></script>
+                <script src="/js/index-2.js"></script>
+                """#)
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
             assertInlineSnapshot(of: "\(doc)", as: .html) {
                 """
                 <html>
@@ -128,7 +271,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
                 <script src="/foo/bar/1.2.3/js/index-1.js"></script>
                 <script src="/foo/bar/1.2.3/js/index-2.js"></script>
                 """#)
-            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
             assertInlineSnapshot(of: "\(doc)", as: .html) {
                 """
                 <html>
@@ -147,7 +290,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
                 <script src="/foo/bar/main/js/index-1.js"></script>
                 <script src="/foo/bar/main/js/index-2.js"></script>
                 """#)
-            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", reference: "1.2.3")
+            try DocumentationPageProcessor.rewriteAttribute("src", document: doc, owner: "foo", repository: "bar", rewriteStrategy: .toReference("1.2.3"))
             assertInlineSnapshot(of: "\(doc)", as: .html) {
                 """
                 <html>

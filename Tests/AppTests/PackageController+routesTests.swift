@@ -440,7 +440,7 @@ class PackageController_routesTests: SnapshotTestCase {
                           packageName: "pkg",
                           reference: .tag(1, 0, 0))
             .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // MUT
 
@@ -458,6 +458,80 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "index")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+        }
+
+        // test catchall
+        try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") {
+            await Task.yield() // essential to avoid deadlocking
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+            XCTAssertFalse(body.contains(#"a/b#anchor"#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+        }
+
+        // Test case insensitive path.
+        try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") {
+            await Task.yield() // essential to avoid deadlocking
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index-mixed-case")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+            XCTAssertFalse(body.contains(#"a/b#anchor"#))
+            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+        }
+    }
+
+    @MainActor
+    func test_documentation_routes_current_rewrite() async throws {
+        // Test the current (~) documentation routes with baseURL rewriting:
+        //   /owner/package/documentation/~ + various path elements
+        // setup
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "0123456789",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .defaultBranch,
+                          packageName: "pkg",
+                          reference: .branch("main"))
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "9876543210",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .release,
+                          packageName: "pkg",
+                          reference: .tag(1, 0, 0))
+            .save(on: app.db)
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
+
+        // MUT
+
+        // test fully qualified route
+        try await app.test(.GET, "/owner/package/~/documentation/target") {
+            await Task.yield() // essential to avoid deadlocking
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index")
+            // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
             XCTAssertFalse(body.contains(#"<link rel="canonical""#))
             XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
@@ -516,7 +590,7 @@ class PackageController_routesTests: SnapshotTestCase {
                           packageName: "pkg",
                           reference: .tag(1, 2, 3))
             .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // MUT
 
@@ -534,6 +608,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "index-target")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
             XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target" />"#))
             XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
@@ -547,6 +622,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "index-target-a-b")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
             XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/a/b#anchor" />"#))
             XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
@@ -560,6 +636,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "index-target-a-b-mixed-case")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
             XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/A/b#Anchor" />"#))
             XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
@@ -588,7 +665,7 @@ class PackageController_routesTests: SnapshotTestCase {
                     packageName: "pkg",
                     reference: .tag(1, 0, 0))
             .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // MUT
         try app.test(.GET, "/owner/package/main/documentation") {
@@ -812,7 +889,7 @@ class PackageController_routesTests: SnapshotTestCase {
                           packageName: "pkg",
                           reference: .branch("feature/1.2.3"))
         .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // MUT
 
@@ -823,6 +900,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "current-index")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
             XCTAssertFalse(body.contains(#"<link rel="canonical""#))
             XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
@@ -835,6 +913,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "ref-index")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/feature-1.2.3/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
             XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/target" />"#))
             XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
@@ -848,6 +927,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let body = String(buffer: $0.body)
             assertSnapshot(of: body, as: .html, named: "ref-index-path")
             // Call out a couple of specific snippets in the html
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/feature-1.2.3/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
             XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/a/b" />"#))
             XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
@@ -876,7 +956,7 @@ class PackageController_routesTests: SnapshotTestCase {
                           packageName: "pkg",
                           reference: .tag(1, 0, 0))
             .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // MUT
         try app.test(.GET, "/owner/package/~/tutorials") {
@@ -885,12 +965,16 @@ class PackageController_routesTests: SnapshotTestCase {
         try await app.test(.GET, "/owner/package/~/tutorials/foo") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index")
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
         }
         try await app.test(.GET, "/owner/package/~/tutorials/foo#anchor") {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
-            assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
+            let body = String(buffer: $0.body)
+            assertSnapshot(of: body, as: .html, named: "index")
+            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
         }
     }
 
@@ -1131,7 +1215,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
         // Make sure the new commit doesn't get throttled
         Current.date = { .t1 + Constants.branchVersionRefreshDelay + 1 }
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML) }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // Ensure documentation is resolved
         try await app.test(.GET, "/foo/bar/~/documentation/target") {
@@ -1184,8 +1268,9 @@ private extension String {
 }
 
 private extension ByteBuffer {
-    static var mockIndexHTML: Self {
-        .init(string: """
+    static func mockIndexHTML(baseURL: String = "/") -> Self {
+        let baseURL = baseURL.hasSuffix("/") ? baseURL : baseURL + "/"
+        return .init(string: """
             <!doctype html>
             <html lang="en-US">
 
@@ -1193,15 +1278,15 @@ private extension ByteBuffer {
                 <meta charset="utf-8">
                 <meta http-equiv="X-UA-Compatible" content="IE=edge">
                 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-                <link rel="icon" href="/favicon.ico">
-                <link rel="mask-icon" href="/favicon.svg" color="#333333">
+                <link rel="icon" href="\(baseURL)favicon.ico">
+                <link rel="mask-icon" href="\(baseURL)favicon.svg" color="#333333">
                 <title>Documentation</title>
                 <script>
-                    var baseUrl = "/"
+                    var baseUrl = "\(baseURL)"
                 </script>
-                <script defer="defer" src="/js/chunk-vendors.bdb7cbba.js"></script>
-                <script defer="defer" src="/js/index.2871ffbd.js"></script>
-                <link href="/css/index.ff036a9e.css" rel="stylesheet">
+                <script defer="defer" src="\(baseURL)js/chunk-vendors.bdb7cbba.js"></script>
+                <script defer="defer" src="\(baseURL)js/index.2871ffbd.js"></script>
+                <link href="\(baseURL)css/index.ff036a9e.css" rel="stylesheet">
             </head>
 
             <body data-color-scheme="auto"><noscript>[object Module]</noscript>

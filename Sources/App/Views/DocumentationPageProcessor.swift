@@ -46,8 +46,8 @@ struct DocumentationPageProcessor {
     }
 
     enum RewriteStrategy {
-        case reference(String)
-        case canonical
+        case current(fromReference: String)
+        case toReference(String)
         case none
     }
 
@@ -63,7 +63,7 @@ struct DocumentationPageProcessor {
           availableVersions: [AvailableDocumentationVersion],
           updatedAt: Date,
           rawHtml: String,
-          rewriteStrategy: RewriteStrategy /*= .none */) {
+          rewriteStrategy: RewriteStrategy) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
         self.repositoryName = repositoryName
@@ -79,14 +79,7 @@ struct DocumentationPageProcessor {
         do {
             document = try SwiftSoup.parse(rawHtml)
 
-            switch rewriteStrategy {
-                case .reference(let ref):
-                    try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, reference: ref)
-                case .canonical:
-                    try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, reference: .current)
-                case .none:
-                    break
-            }
+            try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, rewriteStrategy: rewriteStrategy)
 
             // SPI related modifications
             try document.title("\(packageName) Documentation – Swift Package Index")
@@ -323,29 +316,89 @@ struct DocumentationPageProcessor {
         )
     }
 
-    static func rewriteBaseUrls(document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
-        try rewriteScriptBaseUrl(document: document, owner: owner, repository: repository, reference: reference)
-        try rewriteAttribute("href", document: document, owner: owner, repository: repository, reference: reference)
-        try rewriteAttribute("src", document: document, owner: owner, repository: repository, reference: reference)
+    static func rewriteBaseUrls(document: SwiftSoup.Document, owner: String, repository: String, rewriteStrategy: RewriteStrategy) throws {
+        try rewriteScriptBaseUrl(document: document, owner: owner, repository: repository, rewriteStrategy: rewriteStrategy)
+        try rewriteAttribute("href", document: document, owner: owner, repository: repository, rewriteStrategy: rewriteStrategy)
+        try rewriteAttribute("src", document: document, owner: owner, repository: repository, rewriteStrategy: rewriteStrategy)
     }
 
-    static func rewriteScriptBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
-        for e in try document.select("script") {
-            let value = e.data()
-            if value == #"var baseUrl = "/""# {
-                let path = "/\(owner)/\(repository)/\(reference)/".lowercased()
-                try e.html(#"var baseUrl = "\#(path)""#)
-            }
+    static func rewriteScriptBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, rewriteStrategy: RewriteStrategy) throws {
+        // Possible rewrite strategies
+        //   / -> /a/b/1.2.3        (toReference)
+        //   / -> /a/b/~            (current)
+        //   /a/b/1.2.3 -> /a/b/~   (current)
+        switch rewriteStrategy {
+            case .current(let fromReference):
+                for e in try document.select("script") {
+                    let value = e.data().trimmingCharacters(in: .whitespacesAndNewlines)
+                    if value == #"var baseUrl = "/""# {
+                        //   / -> /a/b/~            (current)
+                        let path = "/\(owner)/\(repository)/\(String.current)/".lowercased()
+                        try e.html(#"var baseUrl = "\#(path)""#)
+                    }
+                    let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(fromReference)".lowercased()
+                    if value == #"var baseUrl = "\#(fullyQualifiedPrefix)/""# {
+                        //   /a/b/1.2.3 -> /a/b/~   (current)
+                        let path = "/\(owner)/\(repository)/\(String.current)/".lowercased()
+                        try e.html(#"var baseUrl = "\#(path)""#)
+                    }
+                }
+            case .toReference(let reference):
+                //   / -> /a/b/1.2.3        (toReference)
+                for e in try document.select("script") {
+                    let value = e.data().trimmingCharacters(in: .whitespacesAndNewlines)
+                    if value == #"var baseUrl = "/""# {
+                        let path = "/\(owner)/\(repository)/\(reference)/".lowercased()
+                        try e.html(#"var baseUrl = "\#(path)""#)
+                    }
+                }
+            case .none:
+                return
         }
     }
 
-    static func rewriteAttribute(_ attribute: String, document: SwiftSoup.Document, owner: String, repository: String, reference: String) throws {
-        for e in try document.select(#"[\#(attribute)^="/"]"#) {
-            let value = try e.attr(attribute)
-            let path = "/\(owner)/\(repository)".lowercased()
-            if !value.lowercased().hasPrefix(path) {
-                try e.attr(attribute, "\(path)/\(reference)\(value)")
-            }
+    static func rewriteAttribute(_ attribute: String, document: SwiftSoup.Document, owner: String, repository: String, rewriteStrategy: RewriteStrategy) throws {
+        // Possible rewrite strategies
+        //   / -> /a/b/1.2.3        (toReference)
+        //   / -> /a/b/~            (current)
+        //   /a/b/1.2.3 -> /a/b/~   (current)
+        switch rewriteStrategy {
+            case .current(let reference):
+                for e in try document.select(#"[\#(attribute)^="/"]"#) {
+                    let value = try e.attr(attribute)
+                    if !value.lowercased().hasPrefix("/\(owner)/\(repository)/".lowercased()) {
+                        // no /{owner}/{repo}/ prefix -> it's a dynamic base url resource, i.e. a "/" resource
+                        //   / -> /a/b/~            (current)
+                        try e.attr(attribute, "/\(owner)/\(repository)/\(String.current)\(value)".lowercased())
+                    } else {
+                        let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(reference)".lowercased()
+                        if value.lowercased().hasPrefix(fullyQualifiedPrefix) {
+                            // matches expected fully qualified resource path
+                            //   /a/b/1.2.3 -> /a/b/~   (current)
+                            let trimmed = value.dropFirst(fullyQualifiedPrefix.count)
+                            try e.attr(attribute, "/\(owner)/\(repository)/\(String.current)\(trimmed)".lowercased())
+                        } else {
+                            // did not match expected resource prefix - leave it alone
+                            // (shouldn't be possible)
+                            return
+                        }
+                    }
+                }
+            case .toReference(let reference):
+                //   / -> /a/b/1.2.3        (toReference)
+                for e in try document.select(#"[\#(attribute)^="/"]"#) {
+                    let value = try e.attr(attribute)
+                    if !value.lowercased().hasPrefix("/\(owner)/\(repository)/".lowercased()) {
+                        // no /{owner}/{repo}/ prefix -> it's a dynamic base url resource, i.e. a "/" resource
+                        //   / -> /a/b/~            (current)
+                        try e.attr(attribute, "/\(owner)/\(repository)/\(reference)\(value)".lowercased())
+                    } else {
+                        // already prefixed resource, leave it alone
+                        return
+                    }
+                }
+            case .none:
+                return
         }
     }
 }
