@@ -144,7 +144,7 @@ extension Swift6TriggerCommand {
                 group.addTask {
                     let triggerInfo = BuildTriggerInfo(versionId: trigger.versionId, buildPairs: [.init(trigger.platform, .v6_0)])!
                     if dryRun {
-                        logger.info("Triggering build (\(trigger.versionId), \(trigger.platform))")
+                        logger.info("Simulating triggering build (\(trigger.versionId), \(trigger.platform))")
                     } else {
                         try await triggerBuildsUnchecked(on: database, client: client, logger: logger, triggers: [triggerInfo])
                     }
