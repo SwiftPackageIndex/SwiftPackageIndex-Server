@@ -13,83 +13,41 @@
 // limitations under the License.
 
 import Fluent
+import SQLKit
 import Vapor
 
 
 struct Swift6TriggerCommand: AsyncCommand {
-    let defaultLimit = 1
+    static let defaultLimit = 1
 
     struct Signature: CommandSignature {
-        @Option(name: "limit", short: "l")
-        var limit: Int?
+        @Flag(name: "dry-run", short: "d", help: "simulate triggers but don't run them")
+        var dryRun: Bool
 
-        @Flag(name: "force", short: "f", help: "override pipeline capacity check and downscaling (--id only)")
+        @Flag(name: "force", short: "f", help: "override pipeline capacity check")
         var force: Bool
 
-        @Option(name: "package-id", short: "i")
-        var packageId: Package.Id?
-
-        @Option(name: "platform", short: "p")
-        var platform: Build.Platform?
-
-        @Option(name: "swift-version", short: "s")
-        var swiftVersion: SwiftVersion?
-
-        @Option(name: "version-id", short: "v")
-        var versionId: Version.Id?
+        @Option(name: "limit", short: "l")
+        var limit: Int?
     }
 
     var help: String { "Trigger Swift 6 builds" }
 
-    enum Mode {
-        case limit(Int)
-        case packageId(Package.Id, force: Bool)
-        case triggerInfo(Version.Id, BuildPair)
-    }
-
     func run(using context: CommandContext, signature: Signature) async throws {
         let logger = Logger(component: "swift-6-trigger")
 
-        let mode: Mode
-        switch (signature.limit, signature.packageId, signature.versionId) {
-            case let (.some(limit), .none, .none):
-                mode = .limit(limit)
-
-            case let (.none, .some(packageId), .none):
-                mode = .packageId(packageId, force: signature.force)
-
-            case let (.none, .none, .some(versionId)):
-                guard let platform = signature.platform,
-                      let swiftVersion = signature.swiftVersion else {
-                    printUsage(using: context)
-                    return
-                }
-                let buildPair = BuildPair(platform, swiftVersion)
-                mode = .triggerInfo(versionId, buildPair)
-
-            case (.none, .none, .none):
-                mode = .limit(defaultLimit)
-
-            default:
-                printUsage(using: context)
-                return
-        }
-
         do {
-//            try await Self.triggerBuilds(on: context.application.db,
-//                                         client: context.application.client,
-//                                         logger: logger,
-//                                         mode: mode)
+            if signature.dryRun {
+                logger.info("Dry run mode: simulating triggers")
+            }
+            try await Self.triggerBuilds(on: context.application.db,
+                                         client: context.application.client,
+                                         logger: logger,
+                                         limit: signature.limit ?? Self.defaultLimit,
+                                         dryRun: signature.dryRun,
+                                         force: signature.force)
         } catch {
             logger.critical("\(error)")
-        }
-
-        do {
-            try await AppMetrics.push(client: context.application.client,
-                                      logger: context.application.logger,
-                                      jobName: "trigger-builds")
-        } catch {
-            logger.warning("\(error)")
         }
     }
 
@@ -101,48 +59,104 @@ struct Swift6TriggerCommand: AsyncCommand {
 
 
 extension Swift6TriggerCommand {
-//    static func triggerBuilds(on database: Database,
-//                              client: Client,
-//                              logger: Logger,
-//                              mode: Mode) async throws {
-//        let start = DispatchTime.now().uptimeNanoseconds
-//        switch mode {
-//            case .limit(let limit):
-//                logger.info("Triggering builds (limit: \(limit)) ...")
-//
-//                let withLatestSwiftVersion = Current.buildTriggerCandidatesWithLatestSwiftVersion
-//                let candidates = try await fetchBuildCandidates(database,
-//                                                                withLatestSwiftVersion: withLatestSwiftVersion)
-//                AppMetrics.buildCandidatesCount?.set(candidates.count)
-//
-//                let limitedCandidates = Array(candidates.prefix(limit))
-//                try await triggerBuilds(on: database,
-//                                        client: client,
-//                                        logger: logger,
-//                                        packages: limitedCandidates)
-//                AppMetrics.buildTriggerDurationSeconds?.time(since: start)
-//
-//            case let .packageId(id, force):
-//                logger.info("Triggering builds (packageID: \(id)) ...")
-//                try await triggerBuilds(on: database,
-//                                        client: client,
-//                                        logger: logger,
-//                                        packages: [id],
-//                                        force: force)
-//                AppMetrics.buildTriggerDurationSeconds?.time(since: start)
-//
-//            case let .triggerInfo(versionId, buildPair):
-//                logger.info("Triggering builds (versionID: \(versionId), \(buildPair)) ...")
-//                guard let trigger = BuildTriggerInfo(versionId: versionId,
-//                                                     buildPairs: [buildPair]) else {
-//                    logger.error("Failed to create trigger.")
-//                    return
-//                }
-//                try await triggerBuildsUnchecked(on: database,
-//                                                 client: client,
-//                                                 logger: logger,
-//                                                 triggers: [trigger])
-//
-//        }
-//    }
+    
+    static func triggerBuilds(on database: Database, client: Client, logger: Logger, limit: Int, dryRun: Bool, force: Bool) async throws {
+        logger.info("Triggering Swift 6 builds (limit: \(limit)) ...")
+        
+        let candidates = try await fetchBuildCandidates(database)        
+        let triggers = Array(candidates.prefix(limit))
+        
+        try await triggerBuilds(on: database, client: client, logger: logger, triggers: triggers, dryRun: dryRun, force: force)
+    }
+    
+    
+    static func fetchBuildCandidates(_ database: Database) async throws -> [(versionId: Version.Id, platform: Build.Platform)] {
+        guard let db = database as? SQLDatabase else {
+            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
+
+        struct Row: Decodable {
+            var versionId: Version.Id
+            var platform: Build.Platform
+
+            enum CodingKeys: String, CodingKey {
+                case versionId = "version_id"
+                case platform
+            }
+        }
+
+        let query: SQLQueryString = """
+            select t.id version_id, t.platform
+            from (
+                select v.id, 'macos-spm' as "platform"
+                from versions v
+                where v.latest = 'default_branch'
+                and v.id not in (
+                    select v.id
+                    from builds b
+                    join versions v on b.version_id = v.id
+                    where swift_version->>'major' = '6'
+                    and platform = 'macos-spm'
+                )
+                union
+                select v.id, 'linux' as "platform"
+                from versions v
+                where v.latest = 'default_branch'
+                and v.id not in (
+                    select v.id
+                    from builds b
+                    join versions v on b.version_id = v.id
+                    where swift_version->>'major' = '6'
+                    and platform = 'linux'
+                )
+            ) t
+            """
+
+        return try await db.raw(query)
+            .all(decoding: Row.self)
+            .map { ($0.versionId, $0.platform) }
+    }
+
+    
+    static func triggerBuilds(on database: Database,
+                              client: Client,
+                              logger: Logger,
+                              triggers: [(versionId: Version.Id, platform: Build.Platform)],
+                              dryRun: Bool,
+                              force: Bool) async throws {
+        guard Current.allowBuildTriggers() else {
+            logger.info("Build trigger override switch OFF - no builds are being triggered")
+            return
+        }
+
+        if force {
+            logger.info("Skipping pending pipeline check")
+        } else {
+            let pendingJobs = try await Current.getStatusCount(client, .pending).get()
+            guard pendingJobs + triggers.count < Current.gitlabPipelineLimit() else {
+                logger.info("too many pending pipelines (\(pendingJobs))")
+                return
+            }
+        }
+
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for trigger in triggers {
+                group.addTask {
+                    let triggerInfo = BuildTriggerInfo(versionId: trigger.versionId, buildPairs: [.init(trigger.platform, .v6_0)])!
+                    if dryRun {
+                        logger.info("Triggering build (\(trigger.versionId), \(trigger.platform))")
+                    } else {
+                        try await triggerBuildsUnchecked(on: database, client: client, logger: logger, triggers: [triggerInfo])
+                    }
+                }
+            }
+            try await group.waitForAll()
+        }
+    }
+
+}
+
+
+extension SwiftVersion {
+    static let v6_0: Self = .init(6, 0, 0)
 }
