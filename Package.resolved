@@ -1,4 +1,5 @@
 {
+  "originHash" : "b25159d852b05784064094644237da5288211e227e1179fce0ea4b4838317f86",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -59,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-kit.git",
       "state" : {
-        "revision" : "bb47433520116b3cf7f3567137c81106b398b77e",
-        "version" : "1.47.1"
+        "revision" : "5f0938a3f5f1a751ff7a411117bfce4efe713526",
+        "version" : "1.47.2"
       }
     },
     {
@@ -122,8 +123,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-kit.git",
       "state" : {
-        "revision" : "475bf6f04ee1840917a70c32b48e4a724df4ccaf",
-        "version" : "2.12.3"
+        "revision" : "e26763a6cb8d852f7ce01b1cd5925b3d8d084801",
+        "version" : "2.13.1"
       }
     },
     {
@@ -131,8 +132,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-nio.git",
       "state" : {
-        "revision" : "69ccfdf4c80144d845e3b439961b7ec6cd7ae33f",
-        "version" : "1.20.2"
+        "revision" : "e345cbb9cf6052b37b27c0c4f976134fc01dbe15",
+        "version" : "1.21.1"
       }
     },
     {
@@ -194,8 +195,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/SPIManifest.git",
       "state" : {
-        "revision" : "a6de765b164bf5d75bd8edacf3c71e88e17ca563",
-        "version" : "1.3.0"
+        "revision" : "984f01f7a34a2db1ea5aa28d8ae4306f8e14b5c0",
+        "version" : "1.4.1"
       }
     },
     {
@@ -235,6 +236,15 @@
       }
     },
     {
+      "identity" : "swift-async-algorithms",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-async-algorithms.git",
+      "state" : {
+        "revision" : "da4e36f86544cdf733a40d59b3a2267e3a7bbf36",
+        "version" : "1.0.0"
+      }
+    },
+    {
       "identity" : "swift-atomics",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-atomics.git",
@@ -248,8 +258,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "551150d5e60e3be78972607d89cd69069cca3e7c",
-        "version" : "1.2.4"
+        "revision" : "e593aba2c6222daad7c4f2732a431eed2c09bb07",
+        "version" : "1.3.0"
       }
     },
     {
@@ -284,8 +294,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-custom-dump.git",
       "state" : {
-        "revision" : "3ce83179e5f0c83ad54c305779c6b438e82aaf1d",
-        "version" : "1.2.1"
+        "revision" : "f01efb26f3a192a0e88dcdb7c3c391ec2fc25d9c",
+        "version" : "1.3.0"
       }
     },
     {
@@ -347,8 +357,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-extras.git",
       "state" : {
-        "revision" : "363da63c1966405764f380c627409b2f9d9e710b",
-        "version" : "1.21.0"
+        "revision" : "a3b640d7dc567225db7c94386a6e71aded1bfa63",
+        "version" : "1.22.0"
       }
     },
     {
@@ -406,12 +416,21 @@
       }
     },
     {
+      "identity" : "swift-service-lifecycle",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swift-server/swift-service-lifecycle.git",
+      "state" : {
+        "revision" : "d7fe0e731499a8dcce53bf4cbbc812c8e565d3a7",
+        "version" : "2.4.1"
+      }
+    },
+    {
       "identity" : "swift-snapshot-testing",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing.git",
       "state" : {
-        "revision" : "e7b77228b34057041374ebef00c0fd7739d71a2b",
-        "version" : "1.15.3"
+        "revision" : "5b0c434778f2c1a4c9b5ebdb8682b28e84dd69bd",
+        "version" : "1.15.4"
       }
     },
     {
@@ -446,8 +465,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/SwiftOpenAPI.git",
       "state" : {
-        "revision" : "637de5d606c975e197cb08e4184f5369ed4b35b5",
-        "version" : "2.19.6"
+        "revision" : "d4ac9379e1f7071844deda554c247c8cb13823ce",
+        "version" : "2.20.0"
       }
     },
     {
@@ -464,8 +483,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup.git",
       "state" : {
-        "revision" : "1d39e56d364cba79ce43b341f9661b534cccb18d",
-        "version" : "2.7.1"
+        "revision" : "028487d4a8a291b2fe1b4392b5425b6172056148",
+        "version" : "2.7.2"
       }
     },
     {
@@ -473,8 +492,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "3a7da193a2937472b252b8db210897e7abf37b47",
-        "version" : "4.92.4"
+        "revision" : "11cdb29614a5c7f8c5289f3c97b3398c3d89b395",
+        "version" : "4.92.5"
       }
     },
     {
@@ -482,8 +501,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/VaporToOpenAPI.git",
       "state" : {
-        "revision" : "b1e804e0c1300a785316c5a3f2f73522b4c0c043",
-        "version" : "4.4.6"
+        "revision" : "5bf8c3fc73a42f0dd8c1ae2928fb5817026fa69e",
+        "version" : "4.5.0"
       }
     },
     {
@@ -491,8 +510,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/websocket-kit.git",
       "state" : {
-        "revision" : "53fe0639a98903858d0196b699720decb42aee7b",
-        "version" : "2.14.0"
+        "revision" : "4232d34efa49f633ba61afde365d3896fc7f8740",
+        "version" : "2.15.0"
       }
     },
     {
@@ -500,8 +519,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "b58e6627149808b40634c4552fcf2f44d0b3ca87",
-        "version" : "1.1.0"
+        "revision" : "b13b1d1a8e787a5ffc71ac19dcaf52183ab27ba2",
+        "version" : "1.1.1"
       }
     },
     {
@@ -514,5 +533,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
