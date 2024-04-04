@@ -717,7 +717,6 @@ class BuildTriggerTests: AppTestCase {
         // MUT
         try await triggerBuilds(on: app.db,
                                 client: client,
-                                logger: logger,
                                 mode: .packageId(.id0, force: false))
 
         // validate that one build record is saved, for the successful trigger

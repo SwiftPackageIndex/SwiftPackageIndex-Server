@@ -54,51 +54,48 @@ enum ReAnalyzeVersions {
                     try await reAnalyzeVersions(
                         client: client,
                         database: db,
-                        logger: logger,
                         versionsLastUpdatedBefore: Current.date(),
                         refreshCheckouts: signature.refreshCheckouts,
                         packageId: id
                     )
                 } catch {
-                    logger.error("\(error.localizedDescription)")
+                    Current.logger().error("\(error.localizedDescription)")
                 }
             } else {
                 guard let cutoffDate = signature.before else {
-                    logger.info("No cut-off date set, skipping re-analysis")
+                    Current.logger().info("No cut-off date set, skipping re-analysis")
                     return
                 }
 
-                logger.info("Re-analyzing versions (limit: \(limit)) ...")
+                Current.logger().info("Re-analyzing versions (limit: \(limit)) ...")
                 var processed = 0
                 while processed < limit {
                     let currentBatchSize = min(signature.batchSize ?? defaultBatchSize,
                                                limit - processed)
-                    logger.info("Re-analyzing versions (batch: \(processed)..<\(processed + currentBatchSize)) ...")
+                    Current.logger().info("Re-analyzing versions (batch: \(processed)..<\(processed + currentBatchSize)) ...")
                     do {
                         try await reAnalyzeVersions(
                             client: client,
                             database: db,
-                            logger: logger,
                             before: cutoffDate,
                             refreshCheckouts: signature.refreshCheckouts,
                             limit: currentBatchSize
                         )
                         processed += currentBatchSize
                     } catch {
-                        logger.error("\(error.localizedDescription)")
+                        Current.logger().error("\(error.localizedDescription)")
                     }
                 }
             }
             do {
                 try await AppMetrics.push(client: client,
-                                          logger: logger,
                                           jobName: "re-analyze-versions")
                 .get()
             } catch {
-                logger.warning("\(error.localizedDescription)")
+                Current.logger().warning("\(error.localizedDescription)")
             }
 
-            logger.info("Done.")
+            Current.logger().info("Done.")
         }
     }
 
@@ -107,21 +104,18 @@ enum ReAnalyzeVersions {
     /// - Parameters:
     ///   - client: `Client` object
     ///   - database: `Database` object
-    ///   - logger: `Logger` object
     ///   - threadPool: `NIOThreadPool` (for running shell commands)
     ///   - versionsLastUpdatedBefore: `Date` cut-off for versions to update
     ///   - packages: packages to be analysed
     /// - Returns: future
     static func reAnalyzeVersions(client: Client,
                                   database: Database,
-                                  logger: Logger,
                                   versionsLastUpdatedBefore cutOffDate: Date,
                                   refreshCheckouts: Bool,
                                   packageId: Package.Id) async throws {
         let pkg = try await Package.fetchCandidate(database, id: packageId)
         try await reAnalyzeVersions(client: client,
                                     database: database,
-                                    logger: logger,
                                     before: cutOffDate,
                                     refreshCheckouts: refreshCheckouts,
                                     packages: [pkg])
@@ -132,14 +126,12 @@ enum ReAnalyzeVersions {
     /// - Parameters:
     ///   - client: `Client` object
     ///   - database: `Database` object
-    ///   - logger: `Logger` object
     ///   - threadPool: `NIOThreadPool` (for running shell commands)
     ///   - versionsLastUpdatedBefore: `Date` cut-off for versions to update
     ///   - packages: packages to be analysed
     /// - Returns: future
     static func reAnalyzeVersions(client: Client,
                                   database: Database,
-                                  logger: Logger,
                                   before cutOffDate: Date,
                                   refreshCheckouts: Bool,
                                   limit: Int) async throws {
@@ -148,7 +140,6 @@ enum ReAnalyzeVersions {
                                                                limit: limit)
         try await reAnalyzeVersions(client: client,
                                     database: database,
-                                    logger: logger,
                                     before: cutOffDate,
                                     refreshCheckouts: refreshCheckouts,
                                     packages: pkgs)
@@ -159,14 +150,12 @@ enum ReAnalyzeVersions {
     /// - Parameters:
     ///   - client: `Client` object
     ///   - database: `Database` object
-    ///   - logger: `Logger` object
     ///   - threadPool: `NIOThreadPool` (for running shell commands)
     ///   - versionsLastUpdatedBefore: `Date` cut-off for versions to update
     ///   - packages: packages to be analysed
     /// - Returns: future
     static func reAnalyzeVersions(client: Client,
                                   database: Database,
-                                  logger: Logger,
                                   before cutoffDate: Date,
                                   refreshCheckouts: Bool,
                                   packages: [Joined<Package, Repository>]) async throws {
@@ -185,20 +174,19 @@ enum ReAnalyzeVersions {
         // existing ones.
 
         for pkg in packages {
-            logger.info("Re-analyzing package \(pkg.model.url) ...")
+            Current.logger().info("Re-analyzing package \(pkg.model.url) ...")
 
             try await database.transaction { tx in
                 guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: pkg.model) else { return }
                 if !Current.fileManager.fileExists(atPath: cacheDir) || refreshCheckouts {
-                    try await Analyze.refreshCheckout(logger: logger, package: pkg)
+                    try await Analyze.refreshCheckout(package: pkg)
                 }
 
                 let versions = try await getExistingVersions(client: client,
-                                                             logger: logger,
                                                              transaction: tx,
                                                              package: pkg,
                                                              before: cutoffDate)
-                logger.info("Updating \(versions.count) versions (id: \(pkg.model.id)) ...")
+                Current.logger().info("Updating \(versions.count) versions (id: \(pkg.model.id)) ...")
 
                 try await setUpdatedAt(on: tx, versions: versions)
 
@@ -232,12 +220,10 @@ enum ReAnalyzeVersions {
 
 
     static func getExistingVersions(client: Client,
-                                    logger: Logger,
                                     transaction: Database,
                                     package: Joined<Package, Repository>,
                                     before cutoffDate: Date) async throws -> [Version] {
         let delta = try await Analyze.diffVersions(client: client,
-                                                   logger: logger,
                                                    transaction: transaction,
                                                    package: package)
         return delta.toKeep.filter {
