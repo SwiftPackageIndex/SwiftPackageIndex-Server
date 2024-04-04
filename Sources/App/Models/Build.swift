@@ -169,7 +169,6 @@ extension Build {
 
     static func trigger(database: Database,
                         client: Client,
-                        logger: Logger,
                         buildId: Build.Id,
                         isDocBuild: Bool,
                         platform: Build.Platform,
@@ -183,7 +182,6 @@ extension Build {
             .unwrap(or: Abort(.notFound))
         return version.flatMap {
             return Current.triggerBuild(client,
-                                        logger,
                                         buildId,
                                         $0.package.url,
                                         isDocBuild,

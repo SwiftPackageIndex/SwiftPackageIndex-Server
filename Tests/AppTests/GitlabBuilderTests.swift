@@ -75,7 +75,6 @@ class GitlabBuilderTests: XCTestCase {
 
         // MUT
         _ = try Gitlab.Builder.triggerBuild(client: client,
-                                            logger: Logger(label: "test"),
                                             buildId: buildId,
                                             cloneURL: "https://github.com/daveverwer/LeftPad.git",
                                             isDocBuild: false,
@@ -185,7 +184,6 @@ class LiveGitlabBuilderTests: AppTestCase {
         // MUT
         let res = try await Gitlab.Builder.triggerBuild(
             client: app.client,
-            logger: app.logger,
             buildId: buildId,
             cloneURL: "https://github.com/SwiftPackageIndex/SemanticVersion.git",
             isDocBuild: false,

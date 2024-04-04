@@ -24,12 +24,10 @@ import Vapor
 /// - Parameters:
 ///   - client: `Client` object
 ///   - database: `Database` object
-///   - logger: `Logger` object
 ///   - results: `Joined<Package, Repository>` results to update
 ///   - stage: Processing stage
 func updatePackages(client: Client,
                     database: Database,
-                    logger: Logger,
                     results: [Result<Joined<Package, Repository>, Error>],
                     stage: Package.ProcessingStage) async throws {
     do {
@@ -38,28 +36,27 @@ func updatePackages(client: Client,
         let errorRate = total > 0 ? 100.0 * Double(errors) / Double(total) : 0.0
         switch errorRate {
             case 0:
-                logger.info("Updating \(total) packages for stage '\(stage)'")
+                Current.logger().info("Updating \(total) packages for stage '\(stage)'")
             case 0..<20:
-                logger.info("Updating \(total) packages for stage '\(stage)' (errors: \(errors))")
+                Current.logger().info("Updating \(total) packages for stage '\(stage)' (errors: \(errors))")
             default:
-                logger.critical("updatePackages: unusually high error rate: \(errors)/\(total) = \(errorRate)%")
+                Current.logger().critical("updatePackages: unusually high error rate: \(errors)/\(total) = \(errorRate)%")
         }
     }
     for result in results {
         do {
-            try await updatePackage(client: client, database: database, logger: logger, result: result, stage: stage)
+            try await updatePackage(client: client, database: database, result: result, stage: stage)
         } catch {
-            logger.critical("updatePackage failed: \(error)")
+            Current.logger().critical("updatePackage failed: \(error)")
         }
     }
 
-    logger.debug("updateStatus ops: \(results.count)")
+    Current.logger().debug("updateStatus ops: \(results.count)")
 }
 
 
 func updatePackage(client: Client,
                    database: Database,
-                   logger: Logger,
                    result: Result<Joined<Package, Repository>, Error>,
                    stage: Package.ProcessingStage) async throws {
     switch result {

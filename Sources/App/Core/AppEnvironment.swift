@@ -79,7 +79,6 @@ struct AppEnvironment {
                               _ imagesToCache: [Github.Readme.ImageToCache]) async throws -> Void
     var timeZone: () -> TimeZone
     var triggerBuild: (_ client: Client,
-                       _ logger: Logger,
                        _ buildId: Build.Id,
                        _ cloneURL: String,
                        _ isDocBuild: Bool,
