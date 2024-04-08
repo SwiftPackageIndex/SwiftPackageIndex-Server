@@ -33,12 +33,11 @@ struct Swift6TriggerCommand: AsyncCommand {
 
     var help: String { "Trigger Swift 6 builds" }
 
-    func run(using context: CommandContext, signature: Signature) async throws {
-        let logger = Logger(component: "swift-6-trigger")
+    func run(using context: CommandContext, signature: Signature) async throws {        Current.setLogger(Logger(component: "swift-6-trigger"))
 
         do {
             if signature.dryRun {
-                logger.info("Dry run mode: simulating triggers")
+                Current.logger().info("Dry run mode: simulating triggers")
             }
             try await Self.triggerBuilds(on: context.application.db,
                                          client: context.application.client,
@@ -46,7 +45,7 @@ struct Swift6TriggerCommand: AsyncCommand {
                                          dryRun: signature.dryRun,
                                          force: signature.force)
         } catch {
-            logger.critical("\(error)")
+            Current.logger().critical("\(error)")
         }
     }
 

@@ -181,7 +181,6 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
             // MUT
             let res = try await Analyze.diffVersions(client: app.client,
-                                                     logger: app.logger,
                                                      transaction: app.db,
                                                      package: jpr)
 
@@ -201,7 +200,6 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
             // MUT
             let res = try await Analyze.diffVersions(client: app.client,
-                                                     logger: app.logger,
                                                      transaction: app.db,
                                                      package: jpr)
 
@@ -223,7 +221,6 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         // Little helper to simulate minimal version reconciliation
         func runVersionReconciliation() async throws -> VersionDelta {
             let delta = try await Analyze.diffVersions(client: app.client,
-                                                       logger: app.logger,
                                                        transaction: app.db,
                                                        package: jpr)
             // apply the delta to ensure versions are in place for next cycle

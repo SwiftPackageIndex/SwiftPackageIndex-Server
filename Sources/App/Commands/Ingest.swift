@@ -24,6 +24,7 @@ struct IngestCommand: AsyncCommand {
     func run(using context: CommandContext, signature: SPICommand.Signature) async throws {
         let client = context.application.client
         let db = context.application.db
+        Current.setLogger(Logger(component: "ingest"))
 
         Self.resetMetrics()
 

@@ -37,7 +37,7 @@ class ErrorReportingTests: AppTestCase {
         Current.fetchMetadata = { _, _, _ in throw Github.Error.invalidURI(nil, "1") }
 
         // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // validation
         logger.logs.withValue {
@@ -60,7 +60,6 @@ class ErrorReportingTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validation
@@ -78,7 +77,6 @@ class ErrorReportingTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validation

@@ -46,10 +46,10 @@ enum ReAnalyzeVersions {
 
             let client = context.application.client
             let db = context.application.db
-            let logger = Logger(component: "re-analyze-versions")
+            Current.setLogger(Logger(component: "re-analyze-versions"))
 
             if let id = signature.packageId {
-                logger.info("Re-analyzing versions (id: \(id)) ...")
+                Current.logger().info("Re-analyzing versions (id: \(id)) ...")
                 do {
                     try await reAnalyzeVersions(
                         client: client,
