@@ -140,10 +140,8 @@ enum PackageController {
                 return try await res.encodeResponse(
                     status: .ok,
                     headers: req.headers
-                        .replacingOrAdding(name: .contentType,
-                                           value: route.fragment.contentType)
-                        .replacingOrAdding(name: .cacheControl,
-                                           value: "no-transform"),
+                        .replacingOrAdding(name: .contentType, value: route.fragment.contentType)
+                        .replacingOrAdding(name: .cacheControl, value: "no-transform"),
                     for: req
                 )
         }
@@ -725,7 +723,18 @@ extension DocRoute {
                 self.fragment = .tutorials(archive: archive)
         }
 
-        self.catchAll = req.parameters.getCatchall()
+        switch fragment {
+            case .data, .documentation, .tutorials:
+                // DocC lowercases "target" names in URLs. Since these routes can also
+                // appear in user generated content which might use uppercase spelling, we need
+                // to lowercase the input in certain cases.
+                // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
+                // and https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2172
+                // for details.
+                self.catchAll = req.parameters.getCatchall().map { $0.lowercased() }
+            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
+                self.catchAll = req.parameters.getCatchall()
+        }
     }
 
     var baseURL: String { "\(owner.lowercased())/\(repository.lowercased())/\(docVersion.pathEncoded.lowercased())" }
