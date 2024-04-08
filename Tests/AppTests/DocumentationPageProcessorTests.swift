@@ -37,7 +37,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
                 repositoryOwnerName: "Owner Name",
                 repositoryName: "repo",
                 packageName: "package",
-                reference: "main",
+                reference: PathEncoded("main"),
                 referenceLatest: .release,
                 referenceKind: .release,
                 canonicalUrl: "https://example.com/owner/repo/canonical-ref",

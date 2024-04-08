@@ -22,7 +22,7 @@ struct DocumentationPageProcessor {
     let repositoryOwnerName: String
     let repositoryName: String
     let packageName: String
-    let reference: String
+    let reference: PathEncoded
     let referenceLatest: Version.Kind?
     let referenceKind: Version.Kind
     let canonicalUrl: String?
@@ -55,7 +55,7 @@ struct DocumentationPageProcessor {
           repositoryOwnerName: String,
           repositoryName: String,
           packageName: String,
-          reference: String,
+          reference: PathEncoded,
           referenceLatest: Version.Kind?,
           referenceKind: Version.Kind,
           canonicalUrl: String?,
@@ -135,7 +135,7 @@ struct DocumentationPageProcessor {
             else { return nil }
 
             return .li(
-                .if(version.reference == reference, .class("current")),
+                .if(version.reference == reference.original, .class("current")),
                 .a(
                     .href(
                         SiteURL.relativeURL(
@@ -162,7 +162,7 @@ struct DocumentationPageProcessor {
                 .text("Documentation for "),
                 .span(
                     .class(referenceKind.cssClass),
-                    .text(reference)
+                    .text(reference.original)
                 )
             ), choices: documentationVersionChoices.count > 0 ? documentationVersionChoices : nil)
         ]
@@ -178,8 +178,7 @@ struct DocumentationPageProcessor {
                                     SiteURL.relativeURL(
                                         owner: repositoryOwner,
                                         repository: repositoryName,
-                                        documentation: .internal(reference: reference,
-                                                                 archive: archive.name),
+                                        documentation: .internal(reference: reference.original, archive: archive.name),
                                         fragment: .documentation
                                     )
                                 ),

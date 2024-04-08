@@ -190,7 +190,7 @@ enum PackageController {
             return Self.canonicalDocumentationUrl(from: "\(req.url)",
                                                   owner: canonicalOwner,
                                                   repository: canonicalRepository,
-                                                  fromReference: route.docVersion.reference,
+                                                  fromReference: PathEncoded(route.docVersion.reference),
                                                   toTarget: canonicalTarget)
         }()
 
@@ -201,7 +201,7 @@ enum PackageController {
                                                          repositoryOwnerName: documentation.ownerName,
                                                          repositoryName: route.repository,
                                                          packageName: documentation.packageName,
-                                                         reference: route.docVersion.reference,
+                                                         reference: PathEncoded(route.docVersion.reference),
                                                          referenceLatest: documentation.latest,
                                                          referenceKind: documentation.reference.versionKind,
                                                          canonicalUrl: canonicalUrl,
@@ -561,7 +561,7 @@ extension PackageController {
     static func canonicalDocumentationUrl(from url: String,
                                           owner: String,
                                           repository: String,
-                                          fromReference: String,
+                                          fromReference: PathEncoded,
                                           toTarget target: DocumentationTarget) -> String? {
         let urlPrefix = "/\(owner)/\(repository)/\(fromReference)/"
         if case let .internal(canonicalReference, _) = target,
@@ -587,6 +587,18 @@ extension PackageController.Fragment: CustomStringConvertible {
 }
 
 
+struct PathEncoded: CustomStringConvertible {
+    var original: String
+    
+    init(_ original: String) {
+        self.original = original
+    }
+    
+    var description: String { original.pathEncoded }
+    
+    func lowercased() -> String { description.lowercased() }
+}
+
 struct DocRoute {
     var owner: String
     var repository: String
@@ -607,8 +619,8 @@ struct DocRoute {
             }
         }
         
-        var pathEncoded: String {
-            description.pathEncoded
+        var pathEncoded: PathEncoded {
+            PathEncoded(description)
         }
         
         var reference: String {
