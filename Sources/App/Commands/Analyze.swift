@@ -29,8 +29,7 @@ enum Analyze {
         func run(using context: CommandContext, signature: SPICommand.Signature) async throws {
             let client = context.application.client
             let db = context.application.db
-            let logger = Logger(component: "analyze")
-            Current.setLogger(logger)
+            Current.setLogger(Logger(component: "analyze"))
 
             Analyze.resetMetrics()
 
@@ -39,20 +38,20 @@ enum Analyze {
                                   database: db,
                                   mode: .init(signature: signature))
             } catch {
-                logger.error("\(error.localizedDescription)")
+                Current.logger().error("\(error.localizedDescription)")
             }
 
             do {
                 try Analyze.trimCheckouts()
             } catch {
-                logger.error("\(error.localizedDescription)")
+                Current.logger().error("\(error.localizedDescription)")
             }
 
             do {
                 try await AppMetrics.push(client: client,
                                           jobName: "analyze")
             } catch {
-                logger.warning("\(error.localizedDescription)")
+                Current.logger().warning("\(error.localizedDescription)")
             }
         }
     }
@@ -99,7 +98,6 @@ extension Analyze {
     /// - Parameters:
     ///   - client: `Client` object
     ///   - database: `Database` object
-    ///   - logger: `Logger` object
     ///   - threadPool: `NIOThreadPool` (for running shell commands)
     ///   - mode: process a single `Package.Id` or a `limit` number of packages
     /// - Returns: future
@@ -132,7 +130,6 @@ extension Analyze {
     /// - Parameters:
     ///   - client: `Client` object
     ///   - database: `Database` object
-    ///   - logger: `Logger` object
     ///   - packages: packages to be analysed
     /// - Returns: future
     static func analyze(client: Client,

@@ -357,7 +357,6 @@ class BuildTriggerTests: AppTestCase {
         // MUT
         try await triggerBuildsUnchecked(on: app.db,
                                          client: client,
-                                         logger: app.logger,
                                          triggers: triggers)
 
         // validate
@@ -407,7 +406,6 @@ class BuildTriggerTests: AppTestCase {
         // MUT
         try await triggerBuildsUnchecked(on: app.db,
                                          client: client,
-                                         logger: app.logger,
                                          triggers: triggers)
 
         // validate
@@ -491,7 +489,6 @@ class BuildTriggerTests: AppTestCase {
         // MUT
         try await triggerBuildsUnchecked(on: app.db,
                                          client: client,
-                                         logger: app.logger,
                                          triggers: triggers)
 
         // validate
@@ -541,7 +538,6 @@ class BuildTriggerTests: AppTestCase {
             // MUT
             try await triggerBuilds(on: app.db,
                                     client: client,
-                                    logger: app.logger,
                                     mode: .packageId(pkgId, force: false))
 
             // validate
@@ -567,7 +563,6 @@ class BuildTriggerTests: AppTestCase {
             // MUT
             try await triggerBuilds(on: app.db,
                                     client: client,
-                                    logger: app.logger,
                                     mode: .packageId(pkgId, force: false))
 
             // validate
@@ -599,7 +594,6 @@ class BuildTriggerTests: AppTestCase {
             // MUT
             try await triggerBuilds(on: app.db,
                                     client: client,
-                                    logger: app.logger,
                                     mode: .packageId(pkgId, force: true))
 
             // validate
@@ -642,7 +636,6 @@ class BuildTriggerTests: AppTestCase {
         // MUT
         try await triggerBuilds(on: app.db,
                                 client: client,
-                                logger: app.logger,
                                 mode: .limit(4))
 
         // validate - only the first batch must be allowed to trigger
@@ -672,7 +665,6 @@ class BuildTriggerTests: AppTestCase {
         // MUT
         try await triggerBuilds(on: app.db,
                                 client: client,
-                                logger: app.logger,
                                 mode: .packageId(p.id!, force: false))
 
         // validate
@@ -796,7 +788,6 @@ class BuildTriggerTests: AppTestCase {
             // MUT
             try await triggerBuilds(on: app.db,
                                     client: client,
-                                    logger: app.logger,
                                     mode: .packageId(pkgId, force: false))
 
             // validate
@@ -818,7 +809,6 @@ class BuildTriggerTests: AppTestCase {
             // MUT
             try await triggerBuilds(on: app.db,
                                     client: client,
-                                    logger: app.logger,
                                     mode: .packageId(pkgId, force: false))
 
             // validate
@@ -857,7 +847,6 @@ class BuildTriggerTests: AppTestCase {
             // MUT
             try await triggerBuilds(on: app.db,
                                     client: client,
-                                    logger: app.logger,
                                     mode: .packageId(pkgId, force: false))
 
             // validate
@@ -879,7 +868,6 @@ class BuildTriggerTests: AppTestCase {
             // MUT
             try await triggerBuilds(on: app.db,
                                     client: client,
-                                    logger: app.logger,
                                     mode: .packageId(pkgId, force: false))
 
             // validate
@@ -920,7 +908,6 @@ class BuildTriggerTests: AppTestCase {
             // MUT
             try await triggerBuilds(on: app.db,
                                     client: client,
-                                    logger: app.logger,
                                     mode: .packageId(pkgId, force: false))
 
             // validate

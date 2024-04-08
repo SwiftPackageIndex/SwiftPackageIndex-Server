@@ -1393,7 +1393,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
 
         // Run analyze to detect a new default branch version
-        try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+        try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(1))
 
         // Confirm that analysis has picked up the new version
         try await XCTAssertEqualAsync(try await Version.query(on: app.db).all().map(\.commit), ["new-commit"])

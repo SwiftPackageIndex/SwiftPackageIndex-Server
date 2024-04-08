@@ -53,7 +53,7 @@ struct TriggerBuildsCommand: AsyncCommand {
     }
 
     func run(using context: CommandContext, signature: Signature) async throws {
-        let logger = Logger(component: "trigger-builds")
+        Current.setLogger(Logger(component: "trigger-builds"))
 
         Self.resetMetrics()
 
@@ -87,14 +87,14 @@ struct TriggerBuildsCommand: AsyncCommand {
                                     client: context.application.client,
                                     mode: mode)
         } catch {
-            logger.critical("\(error)")
+            Current.logger().critical("\(error)")
         }
 
         do {
             try await AppMetrics.push(client: context.application.client,
                                       jobName: "trigger-builds")
         } catch {
-            logger.warning("\(error)")
+            Current.logger().warning("\(error)")
         }
     }
 
@@ -118,7 +118,6 @@ extension TriggerBuildsCommand {
 /// - Parameters:
 ///   - database: `Database` handle used for database access
 ///   - client: `Client` used for http request
-///   - logger: `Logger` used for logging
 ///   - parameter: `BuildTriggerCommand.Parameter` holding either a list of package ids
 ///   or a fetch limit for candidate selection.
 func triggerBuilds(on database: Database,

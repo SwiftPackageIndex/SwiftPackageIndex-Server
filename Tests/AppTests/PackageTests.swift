@@ -315,7 +315,7 @@ final class PackageTests: AppTestCase {
         }
 
         // run ingestion to progress package through pipeline
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // MUT & validate
         do {
@@ -326,7 +326,6 @@ final class PackageTests: AppTestCase {
         // run analysis to progress package through pipeline
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // MUT & validate
@@ -344,7 +343,7 @@ final class PackageTests: AppTestCase {
         }
 
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
         do {
             let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
             XCTAssertFalse(pkg.isNew)
@@ -352,7 +351,6 @@ final class PackageTests: AppTestCase {
 
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
         do {
             let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())

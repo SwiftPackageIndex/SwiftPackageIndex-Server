@@ -32,7 +32,6 @@ class MetricsTests: AppTestCase {
         }
         try await triggerBuildsUnchecked(on: app.db,
                                          client: app.client,
-                                         logger: app.logger,
                                          triggers: [
                                             .init(versionId: versionId,
                                                   buildPairs: [.init(.macosSpm, .v3)])!
@@ -114,7 +113,7 @@ class MetricsTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
 
         // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .id(pkg.id!))
+        try await ingest(client: app.client, database: app.db, mode: .id(pkg.id!))
 
         // validation
         XCTAssert((AppMetrics.ingestDurationSeconds?.get()) ?? 0 > 0)
@@ -125,7 +124,7 @@ class MetricsTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
 
         // MUT
-        try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, mode: .id(pkg.id!))
+        try await Analyze.analyze(client: app.client, database: app.db, mode: .id(pkg.id!))
 
         // validation
         XCTAssert((AppMetrics.analyzeDurationSeconds?.get()) ?? 0 > 0)
@@ -136,7 +135,7 @@ class MetricsTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
 
         // MUT
-        try await triggerBuilds(on: app.db, client: app.client, logger: app.logger, mode: .packageId(pkg.id!, force: true))
+        try await triggerBuilds(on: app.db, client: app.client, mode: .packageId(pkg.id!, force: true))
 
         // validation
         XCTAssert((AppMetrics.buildTriggerDurationSeconds?.get()) ?? 0 > 0)

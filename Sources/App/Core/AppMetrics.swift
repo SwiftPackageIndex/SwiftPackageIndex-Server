@@ -205,7 +205,6 @@ extension AppMetrics {
     /// Async-await wrapper for `EventLoopFuture`-based `push`
     /// - Parameters:
     ///   - client: `Client`
-    ///   - logger: `Logger`
     ///   - jobName: job name
     static func push(client: Client, jobName: String) async throws {
         try await push(client: client, jobName: jobName).get()
