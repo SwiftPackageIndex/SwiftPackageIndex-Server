@@ -337,31 +337,31 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_canonicalDocumentationUrl() throws {
         // There is no canonical URL for external or universal cases of the canonical target.
-        XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "", owner: "", repository: "", fromReference: PathEncoded(""),
+        XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "", owner: "", repository: "", docVersion: .reference(""),
                                                                  toTarget: .external(url: "https://example.com")))
 
-        XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "", owner: "", repository: "", fromReference: PathEncoded(""),
+        XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "", owner: "", repository: "", docVersion: .reference(""),
                                                                  toTarget: .universal))
 
         // There should be no canonical URL if the package owner/repo/ref prefix doesn't match even with a valid canonical target.
         XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "/some/random/url/without/matching/prefix",
                                                                  owner: "owner", 
                                                                  repository: "repo",
-                                                                 fromReference: PathEncoded("non-canonical-ref"),
+                                                                 docVersion: .reference("non-canonical-ref"),
                                                                  toTarget: .internal(reference: "canonical-ref", archive: "archive")))
 
         // Switching a non-canonical reference for a canonical one at the root of the documentation
         XCTAssertEqual(PackageController.canonicalDocumentationUrl(from: "/owner/repo/non-canonical-ref/documentation/archive",
                                                                    owner: "owner",
                                                                    repository: "repo",
-                                                                   fromReference: PathEncoded("non-canonical-ref"),
+                                                                   docVersion: .reference("non-canonical-ref"),
                                                                    toTarget: .internal(reference: "canonical-ref", archive: "archive")),
                        "/owner/repo/canonical-ref/documentation/archive")
 
         XCTAssertEqual(PackageController.canonicalDocumentationUrl(from: "/owner/repo/non-canonical-ref/documentation/archive/symbol:$-%",
                                                                    owner: "owner", 
                                                                    repository: "repo", 
-                                                                   fromReference: PathEncoded("non-canonical-ref"),
+                                                                   docVersion: .reference("non-canonical-ref"),
                                                                    toTarget: .internal(reference: "canonical-ref", archive: "archive")),
                        "/owner/repo/canonical-ref/documentation/archive/symbol:$-%")
     }

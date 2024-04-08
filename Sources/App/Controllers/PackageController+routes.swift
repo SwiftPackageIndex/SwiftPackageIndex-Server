@@ -190,7 +190,7 @@ enum PackageController {
             return Self.canonicalDocumentationUrl(from: "\(req.url)",
                                                   owner: canonicalOwner,
                                                   repository: canonicalRepository,
-                                                  fromReference: PathEncoded(route.docVersion.reference),
+                                                  docVersion: route.docVersion,
                                                   toTarget: canonicalTarget)
         }()
 
@@ -201,7 +201,7 @@ enum PackageController {
                                                          repositoryOwnerName: documentation.ownerName,
                                                          repositoryName: route.repository,
                                                          packageName: documentation.packageName,
-                                                         reference: PathEncoded(route.docVersion.reference),
+                                                         docVersion: route.docVersion,
                                                          referenceLatest: documentation.latest,
                                                          referenceKind: documentation.reference.versionKind,
                                                          canonicalUrl: canonicalUrl,
@@ -561,9 +561,10 @@ extension PackageController {
     static func canonicalDocumentationUrl(from url: String,
                                           owner: String,
                                           repository: String,
-                                          fromReference: PathEncoded,
+                                          docVersion: DocRoute.DocVersion,
                                           toTarget target: DocumentationTarget) -> String? {
-        let urlPrefix = "/\(owner)/\(repository)/\(fromReference)/"
+        // It's important to use `docVersion.reference` here to make sure we match with true reference urls and not ~
+        let urlPrefix = "/\(owner)/\(repository)/\(docVersion.reference.pathEncoded)/"
         if case let .internal(canonicalReference, _) = target,
            url.lowercased().hasPrefix(urlPrefix.lowercased()) {
             return "/\(owner)/\(repository)/\(canonicalReference)/\(url.dropFirst(urlPrefix.count))"
@@ -587,18 +588,6 @@ extension PackageController.Fragment: CustomStringConvertible {
 }
 
 
-struct PathEncoded: CustomStringConvertible {
-    var original: String
-    
-    init(_ original: String) {
-        self.original = original
-    }
-    
-    var description: String { original.pathEncoded }
-    
-    func lowercased() -> String { description.lowercased() }
-}
-
 struct DocRoute {
     var owner: String
     var repository: String
@@ -619,8 +608,8 @@ struct DocRoute {
             }
         }
         
-        var pathEncoded: PathEncoded {
-            PathEncoded(description)
+        var pathEncoded: String {
+            description.pathEncoded
         }
         
         var reference: String {

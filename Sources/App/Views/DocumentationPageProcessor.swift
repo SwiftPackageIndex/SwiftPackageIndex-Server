@@ -22,7 +22,7 @@ struct DocumentationPageProcessor {
     let repositoryOwnerName: String
     let repositoryName: String
     let packageName: String
-    let reference: PathEncoded
+    let docVersion: DocRoute.DocVersion
     let referenceLatest: Version.Kind?
     let referenceKind: Version.Kind
     let canonicalUrl: String?
@@ -55,7 +55,7 @@ struct DocumentationPageProcessor {
           repositoryOwnerName: String,
           repositoryName: String,
           packageName: String,
-          reference: PathEncoded,
+          docVersion: DocRoute.DocVersion,
           referenceLatest: Version.Kind?,
           referenceKind: Version.Kind,
           canonicalUrl: String?,
@@ -68,7 +68,7 @@ struct DocumentationPageProcessor {
         self.repositoryOwnerName = repositoryOwnerName
         self.repositoryName = repositoryName
         self.packageName = packageName
-        self.reference = reference
+        self.docVersion = docVersion
         self.referenceLatest = referenceLatest
         self.referenceKind = referenceKind
         self.canonicalUrl = canonicalUrl
@@ -135,7 +135,7 @@ struct DocumentationPageProcessor {
             else { return nil }
 
             return .li(
-                .if(version.reference == reference.original, .class("current")),
+                .if(version.reference == docVersion.reference, .class("current")),
                 .a(
                     .href(
                         SiteURL.relativeURL(
@@ -162,7 +162,7 @@ struct DocumentationPageProcessor {
                 .text("Documentation for "),
                 .span(
                     .class(referenceKind.cssClass),
-                    .text(reference.original)
+                    .text(docVersion.reference)
                 )
             ), choices: documentationVersionChoices.count > 0 ? documentationVersionChoices : nil)
         ]
@@ -178,7 +178,7 @@ struct DocumentationPageProcessor {
                                     SiteURL.relativeURL(
                                         owner: repositoryOwner,
                                         repository: repositoryName,
-                                        documentation: .internal(reference: reference.original, archive: archive.name),
+                                        documentation: .internal(reference: docVersion.reference, archive: archive.name),
                                         fragment: .documentation
                                     )
                                 ),
@@ -299,7 +299,7 @@ struct DocumentationPageProcessor {
         switch referenceKind {
             case .release: return "This documentation is from a previous release and may not reflect the latest released version."
             case .preRelease: return "This documentation is from a pre-release and may not reflect the latest released version."
-            case .defaultBranch: return "This documentation is from the \(reference) branch and may not reflect the latest released version."
+            case .defaultBranch: return "This documentation is from the \(docVersion.reference) branch and may not reflect the latest released version."
         }
     }
 
