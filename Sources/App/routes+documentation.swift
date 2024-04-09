@@ -68,19 +68,11 @@ func docRoutes(_ app: Application) throws {
         // FIXME: factor this out
         guard let owner = $0.parameters.get("owner"),
               let repository = $0.parameters.get("repository")
-        else { throw Abort(.notFound) }
+        else { throw Abort(.badRequest) }
         
-        guard let ref = $0.parameters.get("reference") else { throw Abort(.notFound) }
-        guard let target = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)
+        guard let ref = $0.parameters.get("reference").map(Reference.init) else { throw Abort(.badRequest) }
+        guard let target = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository, reference: ref)
         else { throw Abort(.notFound) }
-        switch target {
-            case .external(let url):
-                throw Abort(.notFound)
-            case .internal(let reference, _):
-                guard ref == reference else { throw Abort(.notFound) }
-            case .universal:
-                throw Abort(.notFound)
-        }
         
         return try await PackageController.documentationRedirect(req: $0, fragment: .documentation, target: target)
     }.excludeFromOpenAPI()
