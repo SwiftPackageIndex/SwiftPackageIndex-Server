@@ -340,7 +340,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "gorpello",
             name: "Gianluca Orpello",
-            avatarUrl: "https://avatars.githubusercontent.com/u/18537034?u=d27b99916bd4a51349d0deae082c478e83a95638&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/18537034?u=eb7f95aa6d28fc0a1eefef6de1e33f204b69cb29&v=4"
         ),
         .init(
             login: "emin-grbo",
