@@ -56,54 +56,46 @@ enum PackageController {
         }
     }
 
-    enum Fragment: String {
-        case css
-        case data
-        case documentation
-        case faviconIco = "favicon.ico"
-        case faviconSvg = "favicon.svg"
-        case images
-        case img
-        case index
-        case js
-        case linkablePaths = "linkable-paths.json"
-        case themeSettings = "theme-settings.json"
-        case tutorials
+//    enum Fragment: String {
+//        case css
+//        case data
+//        case documentation
+//        case faviconIco = "favicon.ico"
+//        case faviconSvg = "favicon.svg"
+//        case images
+//        case img
+//        case index
+//        case js
+//        case linkablePaths = "linkable-paths.json"
+//        case themeSettings = "theme-settings.json"
+//        case tutorials
+//
+//        var contentType: String {
+//            switch self {
+//                case .css:
+//                    return "text/css"
+//                case .data, .faviconIco, .faviconSvg, .images, .img, .index:
+//                    return "application/octet-stream"
+//                case .linkablePaths, .themeSettings:
+//                    return "application/json"
+//                case .documentation, .tutorials:
+//                    return "text/html; charset=utf-8"
+//                case .js:
+//                    return "application/javascript"
+//            }
+//        }
+//    }
 
-        var contentType: String {
-            switch self {
-                case .css:
-                    return "text/css"
-                case .data, .faviconIco, .faviconSvg, .images, .img, .index:
-                    return "application/octet-stream"
-                case .linkablePaths, .themeSettings:
-                    return "application/json"
-                case .documentation, .tutorials:
-                    return "text/html; charset=utf-8"
-                case .js:
-                    return "application/javascript"
-            }
-        }
-    }
-
-    static func documentationRedirect(req: Request, fragment: Fragment, reference: Reference? = nil) async throws -> Response {
+    static func documentationRedirect(req: Request, fragment: String, target: DocumentationTarget) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
         else {
             throw Abort(.notFound)
         }
+
         let anchor = req.url.fragment.map { "#\($0)"} ?? ""
         let path = req.parameters.getCatchall().joined(separator: "/").lowercased() + anchor
-
-        let target: DocumentationTarget?
-        if let reference {
-            target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository, reference: reference)
-        } else {
-            target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository)
-        }
-
-        guard let target else { throw Abort(.notFound) }
 
         throw Abort.redirect(to: SiteURL.relativeURL(owner: owner,
                                                      repository: repository,
@@ -228,7 +220,7 @@ enum PackageController {
     }
 
     @available(*, deprecated)
-    static func awsResponse(client: Client, owner: String, repository: String, reference: String, fragment: Fragment, path: String) async throws -> ClientResponse {
+    static func awsResponse(client: Client, owner: String, repository: String, reference: String, fragment: DocRoute.Fragment, path: String) async throws -> ClientResponse {
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
         guard let response = try? await Current.fetchDocumentation(client, url) else {
             throw Abort(.notFound)
@@ -514,7 +506,7 @@ extension PackageController {
 
 extension PackageController {
     @available(*, deprecated)
-    static func awsDocumentationURL(owner: String, repository: String, reference: String, fragment: Fragment, path: String) throws -> URI {
+    static func awsDocumentationURL(owner: String, repository: String, reference: String, fragment: DocRoute.Fragment, path: String) throws -> URI {
         guard let bucket = Current.awsDocsBucket() else {
             throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
         }
@@ -583,7 +575,9 @@ private extension HTTPHeaders {
 }
 
 
-extension PackageController.Fragment: CustomStringConvertible {
+extension DocRoute.Fragment: CustomStringConvertible {
+    // FIXME: check where/if this is needed
+    @available(*, deprecated)
     var description: String { rawValue }
 }
 
@@ -685,7 +679,7 @@ struct DocRoute {
 }
 
 extension DocRoute {
-    init?(req: Request, fragment: PackageController.Fragment, docVersion: DocVersion? = nil) {
+    init?(req: Request, fragment: DocRoute.Fragment, docVersion: DocVersion? = nil) {
         guard let owner = req.parameters.get("owner"),
               let repository = req.parameters.get("repository"),
               let docVersion = docVersion ?? req.parameters.get("reference").map({ DocVersion.reference($0) })

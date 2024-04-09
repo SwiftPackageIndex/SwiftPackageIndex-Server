@@ -408,10 +408,11 @@ struct QueryParameter {
 
 
 extension SiteURL {
+#warning("make fragment statically typed again")
     static func relativeURL(owner: String,
                             repository: String,
                             documentation: DocumentationTarget,
-                            fragment: PackageController.Fragment,
+                            fragment: String,
                             path: String = "") -> String {
         switch (documentation, fragment) {
             case (.external(let url), _):
@@ -437,4 +438,11 @@ extension SiteURL {
                 : "/\(owner)/\(repository)/\(fragment)/\(path)"
         }
     }
+}
+
+
+#warning("temporary")
+extension String {
+    static let documentation = "documentation"
+    static let tutorials = "tutorials"
 }

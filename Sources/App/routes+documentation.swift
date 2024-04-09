@@ -21,45 +21,99 @@ func docRoutes(_ app: Application) throws {
     // Therefore, these parts need to be queried from the database and the request will be
     // redirected to the fully formed documentation URL.
     app.get(":owner", ":repository", "documentation") {
-        try await PackageController.documentationRedirect(req: $0, fragment: .documentation)
+        // FIXME: factor this out
+        guard let owner = $0.parameters.get("owner"),
+              let repository = $0.parameters.get("repository")
+        else { throw Abort(.notFound) }
+        
+        guard let target = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)
+        else { throw Abort(.notFound) }
+
+        return try await PackageController.documentationRedirect(req: $0, fragment: .documentation, target: target)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "documentation", "**") {
-        try await PackageController.documentationRedirect(req: $0, fragment: .documentation)
+        // FIXME: factor this out
+        guard let owner = $0.parameters.get("owner"),
+              let repository = $0.parameters.get("repository")
+        else { throw Abort(.notFound) }
+        
+        guard let target = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)
+        else { throw Abort(.notFound) }
+
+        return try await PackageController.documentationRedirect(req: $0, fragment: .documentation, target: target)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "tutorials", "**") {
-        try await PackageController.documentationRedirect(req: $0, fragment: .tutorials)
+        // FIXME: factor this out
+        guard let owner = $0.parameters.get("owner"),
+              let repository = $0.parameters.get("repository")
+        else { throw Abort(.notFound) }
+        
+        guard let target = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)
+        else { throw Abort(.notFound) }
+
+        return try await PackageController.documentationRedirect(req: $0, fragment: .tutorials, target: target)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "documentation") {
-        try await PackageController.documentationRedirect(req: $0, fragment: .documentation)
+        // FIXME: factor this out
+        guard let owner = $0.parameters.get("owner"),
+              let repository = $0.parameters.get("repository")
+        else { throw Abort(.notFound) }
+        
+        guard let target = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)
+        else { throw Abort(.notFound) }
+
+        return try await PackageController.documentationRedirect(req: $0, fragment: .documentation, target: target)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "documentation") { req in
-        guard let ref = req.parameters.get("reference").map(Reference.init) else { throw Abort(.notFound) }
-        return try await PackageController.documentationRedirect(req: req, fragment: .documentation, reference: ref)
+    app.get(":owner", ":repository", ":reference", "documentation") {
+        // FIXME: factor this out
+        guard let owner = $0.parameters.get("owner"),
+              let repository = $0.parameters.get("repository")
+        else { throw Abort(.notFound) }
+        
+        guard let ref = $0.parameters.get("reference") else { throw Abort(.notFound) }
+        guard let target = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)
+        else { throw Abort(.notFound) }
+        switch target {
+            case .external(let url):
+                throw Abort(.notFound)
+            case .internal(let reference, _):
+                guard ref == reference else { throw Abort(.notFound) }
+            case .universal:
+                throw Abort(.notFound)
+        }
+        
+        return try await PackageController.documentationRedirect(req: $0, fragment: .documentation, target: target)
     }.excludeFromOpenAPI()
 
     // Stable URLs with current (~) reference.
     app.get(":owner", ":repository", .current, "documentation", ":archive") {
         // FIXME: factor this out
-        guard let owner = $0.parameters.get("owner"), let repository = $0.parameters.get("repository")
+        guard let owner = $0.parameters.get("owner"),
+              let repository = $0.parameters.get("repository"),
+              let archive = $0.parameters.get("archive")
         else { throw Abort(.notFound) }
         
         guard let params = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)?.internal
         else { throw Abort(.notFound) }
+        guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
 
-        guard let route = DocRoute(req: $0, fragment: .documentation, docVersion: .current(referencing: params.reference))
+        guard let route = DocRoute(req: $0, fragment: .documentation(archive: params.archive), docVersion: .current(referencing: params.reference))
         else { throw Abort(.notFound) }
         
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: params.reference))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "documentation", ":archive", "**") {
         // FIXME: factor this out
-        guard let owner = $0.parameters.get("owner"), let repository = $0.parameters.get("repository")
+        guard let owner = $0.parameters.get("owner"),
+              let repository = $0.parameters.get("repository"),
+              let archive = $0.parameters.get("archive")
         else { throw Abort(.notFound) }
         
         guard let params = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)?.internal
         else { throw Abort(.notFound) }
+        guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
 
-        guard let route = DocRoute(req: $0, fragment: .documentation, docVersion: .current(referencing: params.reference))
+        guard let route = DocRoute(req: $0, fragment: .documentation(archive: params.archive), docVersion: .current(referencing: params.reference))
         else { throw Abort(.notFound) }
         
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: params.reference))
@@ -105,17 +159,29 @@ func docRoutes(_ app: Application) throws {
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "tutorials", "**") {
-        guard let route = DocRoute(req: $0, fragment: .tutorials) else { throw Abort(.notFound) }
-        return try await PackageController.documentation(req: $0, route: route)
+        // FIXME: factor this out
+        guard let owner = $0.parameters.get("owner"), let repository = $0.parameters.get("repository")
+        else { throw Abort(.notFound) }
+        
+        guard let params = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)?.internal
+        else { throw Abort(.notFound) }
+
+        guard let route = DocRoute(req: $0, fragment: .tutorials(archive: params.archive), docVersion: .current(referencing: params.reference)) 
+        else { throw Abort(.notFound) }
+        
+        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: params.reference))
     }.excludeFromOpenAPI()
 
     // Version specific documentation - No index and non-canonical URLs with a specific reference.
     app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
-        guard let route = DocRoute(req: $0, fragment: .documentation) else { throw Abort(.notFound) }
+#warning("throw badRequest instead of notFound in all other .get()s")
+        guard let archive = $0.parameters.get("archive") else { throw Abort(.badRequest) }
+        guard let route = DocRoute(req: $0, fragment: .documentation(archive: archive)) else { throw Abort(.badRequest) }
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") {
-        guard let route = DocRoute(req: $0, fragment: .documentation) else { throw Abort(.notFound) }
+        guard let archive = $0.parameters.get("archive") else { throw Abort(.badRequest) }
+        guard let route = DocRoute(req: $0, fragment: .documentation(archive: archive)) else { throw Abort(.badRequest) }
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", .fragment(.faviconIco)) {
@@ -159,12 +225,13 @@ func docRoutes(_ app: Application) throws {
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "tutorials", "**") {
-        guard let route = DocRoute(req: $0, fragment: .tutorials) else { throw Abort(.notFound) }
+        guard let archive = $0.parameters.get("archive") else { throw Abort(.badRequest) }
+        guard let route = DocRoute(req: $0, fragment: .tutorials(archive: archive)) else { throw Abort(.badRequest) }
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
     }.excludeFromOpenAPI()
 }
 
 
 private extension PathComponent {
-    static func fragment(_ fragment: PackageController.Fragment) -> Self { "\(fragment)" }
+    static func fragment(_ fragment: DocRoute.Fragment) -> Self { "\(fragment)" }
 }

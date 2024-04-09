@@ -18,6 +18,7 @@ import Fluent
 enum DocumentationTarget: Equatable, Codable {
     case external(url: String)
     case `internal`(reference: String, archive: String)
+    @available(*, deprecated)
     case universal
 
     /// Fetch DocumentationTarget for a given package.
