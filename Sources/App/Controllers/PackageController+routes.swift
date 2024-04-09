@@ -587,7 +587,7 @@ struct DocRoute {
     var repository: String
     var docVersion: DocVersion
     var fragment: Fragment
-    var catchAll: [String]
+    var pathElements: [String]
 
     enum DocVersion: CustomStringConvertible {
         case current(referencing: String)
@@ -630,7 +630,7 @@ struct DocRoute {
         case js
         case linkablePaths
         case themeSettings
-        case tutorials(archive: String)
+        case tutorials
 
         var contentType: String {
             switch self {
@@ -679,7 +679,7 @@ struct DocRoute {
 }
 
 extension DocRoute {
-    init?(req: Request, fragment: DocRoute.Fragment, docVersion: DocVersion? = nil) {
+    init?(req: Request, fragment: DocRoute.Fragment, docVersion: DocVersion? = nil, pathElements: [String]? = nil) {
         guard let owner = req.parameters.get("owner"),
               let repository = req.parameters.get("repository"),
               let docVersion = docVersion ?? req.parameters.get("reference").map({ DocVersion.reference($0) })
@@ -688,73 +688,36 @@ extension DocRoute {
         self.owner = owner
         self.repository = repository
         self.docVersion = docVersion
-
-        switch fragment {
-            case .css:
-                self.fragment = .css
-            case .data:
-                self.fragment = .data
-            case .documentation:
-                guard let archive = req.parameters.get("archive") else { return nil }
-                self.fragment = .documentation(archive: archive)
-            case .faviconIco:
-                self.fragment = .faviconIco
-            case .faviconSvg:
-                self.fragment = .faviconSvg
-            case .images:
-                self.fragment = .images
-            case .img:
-                self.fragment = .img
-            case .index:
-                self.fragment = .index
-            case .js:
-                self.fragment = .js
-            case .linkablePaths:
-                self.fragment = .linkablePaths
-            case .themeSettings:
-                self.fragment = .themeSettings
-            case .tutorials:
-                guard let archive = req.parameters.get("archive") else { return nil }
-                self.fragment = .tutorials(archive: archive)
-        }
-
-        switch fragment {
-            case .data, .documentation, .tutorials:
-                // DocC lowercases "target" names in URLs. Since these routes can also
-                // appear in user generated content which might use uppercase spelling, we need
-                // to lowercase the input in certain cases.
-                // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
-                // and https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2172
-                // for details.
-                self.catchAll = req.parameters.getCatchall().map { $0.lowercased() }
-            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
-                self.catchAll = req.parameters.getCatchall()
-        }
+        self.fragment = fragment
+        self.pathElements = pathElements ?? req.parameters.pathElements(for: fragment)
     }
 
     var baseURL: String { "\(owner.lowercased())/\(repository.lowercased())/\(docVersion.pathEncoded.lowercased())" }
 
-    var archive: String? {
-        switch fragment {
-            case .documentation(archive: let archive), .tutorials(archive: let archive):
-                return archive
-            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
-                return nil
-        }
-    }
+//#warning("rename to path")
+//    var archive: String? {
+//        switch fragment {
+//            case .documentation(archive: let archive), .tutorials(path: let archive):
+//                return archive
+//            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
+//                return nil
+//        }
+//    }
+    var archive: String? { pathElements.first }
 
-    var path: String {
-        switch fragment {
-            case .documentation(let archive), .tutorials(let archive):
-                // DocC lowercases "target" names in URLs. Since these routes can also
-                // appear in user generated content which might use uppercase spelling, we need
-                // to lowercase the input in certain cases.
-                // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
-                // and https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2172
-                // for details.
-                return ([archive] + catchAll).joined(separator: "/").lowercased()
-            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
-                return catchAll.joined(separator: "/")
-        }
-    }
+//    var path: String {
+//        switch fragment {
+//            case .documentation(let archive), .tutorials(let archive):
+//                // DocC lowercases "target" names in URLs. Since these routes can also
+//                // appear in user generated content which might use uppercase spelling, we need
+//                // to lowercase the input in certain cases.
+//                // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
+//                // and https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2172
+//                // for details.
+//                return ([archive] + catchAll).joined(separator: "/").lowercased()
+//            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
+//                return catchAll.joined(separator: "/")
+//        }
+//    }
+    var path: String { pathElements.joined(separator: "/") }
 }

@@ -153,12 +153,12 @@ func docRoutes(_ app: Application) throws {
     app.get(":owner", ":repository", .current, "tutorials", "**") {
         // FIXME: factor this out
         guard let owner = $0.parameters.get("owner"), let repository = $0.parameters.get("repository")
-        else { throw Abort(.notFound) }
+        else { throw Abort(.badRequest) }
         
         guard let params = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)?.internal
         else { throw Abort(.notFound) }
 
-        guard let route = DocRoute(req: $0, fragment: .tutorials(archive: params.archive), docVersion: .current(referencing: params.reference)) 
+        guard let route = DocRoute(req: $0, fragment: .tutorials, docVersion: .current(referencing: params.reference), pathElements: $0.parameters.pathElements(for: .tutorials, archive: params.archive)) 
         else { throw Abort(.notFound) }
         
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: params.reference))
@@ -168,6 +168,7 @@ func docRoutes(_ app: Application) throws {
     app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
 #warning("throw badRequest instead of notFound in all other .get()s")
         guard let archive = $0.parameters.get("archive") else { throw Abort(.badRequest) }
+#warning("shouldn't this need the archive parameters? How is this not returning nil?")
         guard let route = DocRoute(req: $0, fragment: .documentation(archive: archive)) else { throw Abort(.badRequest) }
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
     }.excludeFromOpenAPI()
@@ -217,8 +218,8 @@ func docRoutes(_ app: Application) throws {
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "tutorials", "**") {
-        guard let archive = $0.parameters.get("archive") else { throw Abort(.badRequest) }
-        guard let route = DocRoute(req: $0, fragment: .tutorials(archive: archive)) else { throw Abort(.badRequest) }
+        guard let reference = $0.parameters.get("reference") else { throw Abort(.badRequest) }
+        guard let route = DocRoute(req: $0, fragment: .tutorials) else { throw Abort(.badRequest) }
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
     }.excludeFromOpenAPI()
 }
@@ -226,4 +227,22 @@ func docRoutes(_ app: Application) throws {
 
 private extension PathComponent {
     static func fragment(_ fragment: DocRoute.Fragment) -> Self { "\(fragment)" }
+}
+
+
+extension Parameters {
+    mutating func pathElements(for fragment: DocRoute.Fragment, archive: String? = nil) -> [String] {
+        switch fragment {
+            case .data, .documentation, .tutorials:
+                // DocC lowercases "target" names in URLs. Since these routes can also
+                // appear in user generated content which might use uppercase spelling, we need
+                // to lowercase the input in certain cases.
+                // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
+                // and https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2172
+                // for details.
+                return ([archive].compacted() + getCatchall()).map { $0.lowercased() }
+            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
+                return getCatchall()
+        }
+    }
 }
