@@ -670,7 +670,7 @@ struct DocRoute {
                 case .linkablePaths:
                     "linkable-paths.json"
                 case .themeSettings:
-                    "linkable-paths.json"
+                    "theme-settings.json"
                 case .tutorials:
                     "tutorials"
             }
