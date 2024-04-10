@@ -618,18 +618,18 @@ struct DocRoute {
     
     var contentType: String { fragment.contentType }
 
-    enum Fragment {
+    enum Fragment: String {
         case css
         case data
         case documentation
-        case faviconIco
-        case faviconSvg
+        case faviconIco = "favicon.ico"
+        case faviconSvg = "favicon.svg"
         case images
         case img
         case index
         case js
-        case linkablePaths
-        case themeSettings
+        case linkablePaths = "linkable-paths.json"
+        case themeSettings = "theme-settings.json"
         case tutorials
 
         var contentType: String {
@@ -644,35 +644,6 @@ struct DocRoute {
                     return "text/html; charset=utf-8"
                 case .js:
                     return "application/javascript"
-            }
-        }
-
-        var rawValue: String {
-            switch self {
-                case .css:
-                    "css"
-                case .data:
-                    "data"
-                case .documentation:
-                    "documentation"
-                case .faviconIco:
-                    "favicon.ico"
-                case .faviconSvg:
-                    "favicon.svg"
-                case .images:
-                    "images"
-                case .img:
-                    "img"
-                case .index:
-                    "index"
-                case .js:
-                    "js"
-                case .linkablePaths:
-                    "linkable-paths.json"
-                case .themeSettings:
-                    "theme-settings.json"
-                case .tutorials:
-                    "tutorials"
             }
         }
     }
@@ -695,30 +666,7 @@ extension DocRoute {
 
     var baseURL: String { "\(owner.lowercased())/\(repository.lowercased())/\(docVersion.pathEncoded.lowercased())" }
 
-//#warning("rename to path")
-//    var archive: String? {
-//        switch fragment {
-//            case .documentation(archive: let archive), .tutorials(path: let archive):
-//                return archive
-//            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
-//                return nil
-//        }
-//    }
     var archive: String? { pathElements.first }
 
-//    var path: String {
-//        switch fragment {
-//            case .documentation(let archive), .tutorials(let archive):
-//                // DocC lowercases "target" names in URLs. Since these routes can also
-//                // appear in user generated content which might use uppercase spelling, we need
-//                // to lowercase the input in certain cases.
-//                // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
-//                // and https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2172
-//                // for details.
-//                return ([archive] + catchAll).joined(separator: "/").lowercased()
-//            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
-//                return catchAll.joined(separator: "/")
-//        }
-//    }
     var path: String { pathElements.joined(separator: "/") }
 }
