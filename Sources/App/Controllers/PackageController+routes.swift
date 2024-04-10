@@ -650,18 +650,17 @@ struct DocRoute {
 }
 
 extension DocRoute {
-#warning("pass in Parameters instead of Request")
-    init?(req: Request, fragment: DocRoute.Fragment, docVersion: DocVersion? = nil, pathElements: [String]? = nil) {
-        guard let owner = req.parameters.get("owner"),
-              let repository = req.parameters.get("repository"),
-              let docVersion = docVersion ?? req.parameters.get("reference").map({ DocVersion.reference($0) })
+    init?(parameters: Parameters, fragment: DocRoute.Fragment, docVersion: DocVersion? = nil, pathElements: [String]? = nil) {
+        guard let owner = parameters.get("owner"),
+              let repository = parameters.get("repository"),
+              let docVersion = docVersion ?? parameters.get("reference").map({ DocVersion.reference($0) })
         else { return nil }
 
         self.owner = owner
         self.repository = repository
         self.docVersion = docVersion
         self.fragment = fragment
-        self.pathElements = pathElements ?? req.parameters.pathElements(for: fragment)
+        self.pathElements = pathElements ?? parameters.pathElements(for: fragment)
     }
 
     var baseURL: String { "\(owner.lowercased())/\(repository.lowercased())/\(docVersion.pathEncoded.lowercased())" }
