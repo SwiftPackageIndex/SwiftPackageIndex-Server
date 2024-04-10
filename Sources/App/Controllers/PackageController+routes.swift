@@ -492,28 +492,6 @@ extension PackageController {
 
 
 extension PackageController {
-    @available(*, deprecated)
-    static func awsDocumentationURL(owner: String, repository: String, reference: String, fragment: DocRoute.Fragment, path: String) throws -> URI {
-        guard let bucket = Current.awsDocsBucket() else {
-            throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
-        }
-
-        let baseURLHost = "\(bucket).s3-website.us-east-2.amazonaws.com"
-        let baseURLPath = "\(owner.lowercased())/\(repository.lowercased())/\(reference.pathEncoded.lowercased())"
-        let baseURL = "http://\(baseURLHost)/\(baseURLPath)"
-
-        switch fragment {
-            case .css, .data, .documentation, .images, .img, .index, .js, .tutorials:
-                return URI(string: "\(baseURL)/\(fragment)/\(path)")
-            case .faviconIco, .faviconSvg, .themeSettings:
-                return path.isEmpty
-                ? URI(string: "\(baseURL)/\(fragment)")
-                : URI(string: "\(baseURL)/\(path)/\(fragment)")
-            case .linkablePaths:
-                return URI(string: "\(baseURL)/\(fragment)")
-        }
-    }
-
     static func awsDocumentationURL(route: DocRoute) throws -> URI {
         guard let bucket = Current.awsDocsBucket() else {
             throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
