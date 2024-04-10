@@ -219,19 +219,6 @@ enum PackageController {
         )
     }
 
-    @available(*, deprecated)
-    static func awsResponse(client: Client, owner: String, repository: String, reference: String, fragment: DocRoute.Fragment, path: String) async throws -> ClientResponse {
-        let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
-        guard let response = try? await Current.fetchDocumentation(client, url) else {
-            throw Abort(.notFound)
-        }
-        guard (200..<399).contains(response.status.code) else {
-            // Convert anything that isn't a 2xx or 3xx from AWS into a 404 from us.
-            throw Abort(.notFound)
-        }
-        return response
-    }
-
     static func awsResponse(client: Client, route: DocRoute) async throws -> ClientResponse {
         let url = try Self.awsDocumentationURL(route: route)
         guard let response = try? await Current.fetchDocumentation(client, url) else {
@@ -338,8 +325,8 @@ enum PackageController {
         let pathEncodedReference = reference.pathEncoded
 
         do {
-            let awsResponse = try await awsResponse(client: client, owner: owner, repository: repository,
-                                                    reference: pathEncodedReference, fragment: .linkablePaths, path: "")
+            let route = DocRoute(owner: owner, repository: repository, fragment: .linkablePaths, docVersion: .reference(pathEncodedReference))
+            let awsResponse = try await awsResponse(client: client, route: route)
             guard let body = awsResponse.body else { return [] }
 
             let baseUrl = SiteURL.package(.value(owner), .value(repository), .none).absoluteURL()
@@ -661,6 +648,14 @@ extension DocRoute {
         self.docVersion = docVersion
         self.fragment = fragment
         self.pathElements = pathElements ?? parameters.pathElements(for: fragment)
+    }
+    
+    init(owner: String, repository: String, fragment: DocRoute.Fragment, docVersion: DocVersion, pathElements: [String]? = nil) {
+        self.owner = owner
+        self.repository = repository
+        self.docVersion = docVersion
+        self.fragment = fragment
+        self.pathElements = pathElements ?? []
     }
 
     var baseURL: String { "\(owner.lowercased())/\(repository.lowercased())/\(docVersion.pathEncoded.lowercased())" }
