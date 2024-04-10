@@ -220,7 +220,6 @@ func docRoutes(_ app: Application) throws {
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "tutorials", "**") {
-        guard let reference = $0.parameters.get("reference") else { throw Abort(.badRequest) }
         guard let route = DocRoute(parameters: $0.parameters, fragment: .tutorials) else { throw Abort(.badRequest) }
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
     }.excludeFromOpenAPI()
