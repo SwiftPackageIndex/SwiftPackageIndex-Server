@@ -89,7 +89,8 @@ func docRoutes(_ app: Application) throws {
         else { throw Abort(.notFound) }
         guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
 
-        guard let route = DocRoute(req: $0, fragment: .documentation(archive: params.archive), docVersion: .current(referencing: params.reference))
+        guard let route = DocRoute(req: $0, fragment: .documentation(archive: params.archive), docVersion: .current(referencing: params.reference),
+        pathElements: [archive])
         else { throw Abort(.notFound) }
         
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: params.reference))
@@ -105,7 +106,7 @@ func docRoutes(_ app: Application) throws {
         else { throw Abort(.notFound) }
         guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
 
-        guard let route = DocRoute(req: $0, fragment: .documentation(archive: params.archive), docVersion: .current(referencing: params.reference))
+        guard let route = DocRoute(req: $0, fragment: .documentation(archive: params.archive), docVersion: .current(referencing: params.reference), pathElements: $0.parameters.pathElements(for: .documentation(archive: "doesn't matter"), archive: params.archive))
         else { throw Abort(.notFound) }
         
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: params.reference))

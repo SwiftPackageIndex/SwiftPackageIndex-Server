@@ -621,6 +621,7 @@ struct DocRoute {
     enum Fragment {
         case css
         case data
+#warning("drop archive")
         case documentation(archive: String)
         case faviconIco
         case faviconSvg
