@@ -89,7 +89,7 @@ func docRoutes(_ app: Application) throws {
         else { throw Abort(.notFound) }
         guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
 
-        guard let route = DocRoute(req: $0, fragment: .documentation(archive: params.archive), docVersion: .current(referencing: params.reference),
+        guard let route = DocRoute(req: $0, fragment: .documentation, docVersion: .current(referencing: params.reference),
         pathElements: [archive])
         else { throw Abort(.notFound) }
         
@@ -106,7 +106,7 @@ func docRoutes(_ app: Application) throws {
         else { throw Abort(.notFound) }
         guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
 
-        guard let route = DocRoute(req: $0, fragment: .documentation(archive: params.archive), docVersion: .current(referencing: params.reference), pathElements: $0.parameters.pathElements(for: .documentation(archive: "doesn't matter"), archive: params.archive))
+        guard let route = DocRoute(req: $0, fragment: .documentation, docVersion: .current(referencing: params.reference), pathElements: $0.parameters.pathElements(for: .documentation, archive: params.archive))
         else { throw Abort(.notFound) }
         
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: params.reference))
@@ -169,13 +169,13 @@ func docRoutes(_ app: Application) throws {
     app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
 #warning("throw badRequest instead of notFound in all other .get()s")
         guard let archive = $0.parameters.get("archive") else { throw Abort(.badRequest) }
-        guard let route = DocRoute(req: $0, fragment: .documentation(archive: archive), pathElements: $0.parameters.pathElements(for: .documentation(archive: "doesn't matter"), archive: archive))
+        guard let route = DocRoute(req: $0, fragment: .documentation, pathElements: $0.parameters.pathElements(for: .documentation, archive: archive))
         else { throw Abort(.badRequest) }
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") {
         guard let archive = $0.parameters.get("archive") else { throw Abort(.badRequest) }
-        guard let route = DocRoute(req: $0, fragment: .documentation(archive: archive), pathElements: $0.parameters.pathElements(for: .documentation(archive: "doesn't matter"), archive: archive))
+        guard let route = DocRoute(req: $0, fragment: .documentation, pathElements: $0.parameters.pathElements(for: .documentation, archive: archive))
         else { throw Abort(.badRequest) }
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
     }.excludeFromOpenAPI()

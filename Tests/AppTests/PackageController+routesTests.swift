@@ -288,7 +288,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_awsDocumentationURL() throws {
         Current.awsDocsBucket = { "docs-bucket" }
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "Main", fragment: .documentation(archive: "ignored"), path: "path").string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "Main", fragment: .documentation, path: "path").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/main/documentation/path"
         )
         XCTAssertEqual(
@@ -296,7 +296,7 @@ class PackageController_routesTests: SnapshotTestCase {
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/css/path"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .documentation(archive: "ignored"), path: "path").string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .documentation, path: "path").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/documentation/path"
         )
         XCTAssertEqual(
@@ -330,7 +330,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // reference with / needs to be escaped
         Current.awsDocsBucket = { "docs-bucket" }
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(owner: "linhay", repository: "SectionKit", reference: "feature/2.0.0", fragment: .documentation(archive: "ignored"), path: "sectionui").string,
+            try PackageController.awsDocumentationURL(owner: "linhay", repository: "SectionKit", reference: "feature/2.0.0", fragment: .documentation, path: "sectionui").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/linhay/sectionkit/feature-2.0.0/documentation/sectionui"
         )
     }

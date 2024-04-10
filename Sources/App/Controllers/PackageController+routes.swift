@@ -621,8 +621,7 @@ struct DocRoute {
     enum Fragment {
         case css
         case data
-#warning("drop archive")
-        case documentation(archive: String)
+        case documentation
         case faviconIco
         case faviconSvg
         case images
@@ -680,6 +679,7 @@ struct DocRoute {
 }
 
 extension DocRoute {
+#warning("pass in Parameters instead of Request")
     init?(req: Request, fragment: DocRoute.Fragment, docVersion: DocVersion? = nil, pathElements: [String]? = nil) {
         guard let owner = req.parameters.get("owner"),
               let repository = req.parameters.get("repository"),
