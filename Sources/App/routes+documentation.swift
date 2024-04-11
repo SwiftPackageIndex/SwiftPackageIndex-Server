@@ -38,37 +38,12 @@ func docRoutes(_ app: Application) throws {
 
     // Stable URLs with current (~) reference.
     app.get(":owner", ":repository", .current, "documentation", ":archive") {
-        // FIXME: factor this out
-        guard let owner = $0.parameters.get("owner"),
-              let repository = $0.parameters.get("repository"),
-              let archive = $0.parameters.get("archive")
-        else { throw Abort(.notFound) }
-        
-        guard let params = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)?.internal
-        else { throw Abort(.notFound) }
-        guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
-
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .documentation, docVersion: .current(referencing: params.reference),
-        pathElements: [archive])
-        else { throw Abort(.notFound) }
-        
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: params.reference))
+        let route = try await $0.getDocRoute(.archiveOnly, fragment: .documentation)
+        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: route.docVersion.reference))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "documentation", ":archive", "**") {
-        // FIXME: factor this out
-        guard let owner = $0.parameters.get("owner"),
-              let repository = $0.parameters.get("repository"),
-              let archive = $0.parameters.get("archive")
-        else { throw Abort(.notFound) }
-        
-        guard let params = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)?.internal
-        else { throw Abort(.notFound) }
-        guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
-
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .documentation, docVersion: .current(referencing: params.reference), pathElements: $0.parameters.pathElements(for: .documentation, archive: params.archive))
-        else { throw Abort(.notFound) }
-        
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: params.reference))
+        let route = try await $0.getDocRoute(.archiveOnly, fragment: .documentation)
+        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: route.docVersion.reference))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, .fragment(.faviconIco)) {
         guard let route = DocRoute(parameters: $0.parameters, fragment: .faviconIco) else { throw Abort(.notFound) }
@@ -111,17 +86,8 @@ func docRoutes(_ app: Application) throws {
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "tutorials", "**") {
-        // FIXME: factor this out
-        guard let owner = $0.parameters.get("owner"), let repository = $0.parameters.get("repository")
-        else { throw Abort(.badRequest) }
-        
-        guard let params = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)?.internal
-        else { throw Abort(.notFound) }
-
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .tutorials, docVersion: .current(referencing: params.reference), pathElements: $0.parameters.pathElements(for: .tutorials, archive: params.archive)) 
-        else { throw Abort(.notFound) }
-        
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: params.reference))
+        let route = try await $0.getDocRoute(.unspecified, fragment: .tutorials)
+        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: route.docVersion.reference))
     }.excludeFromOpenAPI()
 
     // Version specific documentation - No index and non-canonical URLs with a specific reference.
@@ -222,8 +188,9 @@ extension Request {
     }
 
     enum LookupStrategy {
-        case unspecified
+        case archiveOnly
         case referenceOnly
+        case unspecified
     }
 
     func getRedirectRoute(_ strategy: LookupStrategy) async throws -> RedirectDocRoute {
@@ -236,16 +203,47 @@ extension Request {
 
         let target = try await {
             switch strategy {
-                case .unspecified:
-                    return try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
+                case .archiveOnly:
+                    guard let archive = parameters.get("archive") else { throw Abort(.badRequest) }
+                    let target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
+                    if target?.internal?.archive != archive.lowercased() { throw Abort(.notFound) }
+                    return target
                 case .referenceOnly:
                     guard let ref = parameters.get("reference").map(Reference.init) else { throw Abort(.badRequest) }
                     return try await DocumentationTarget.query(on: db, owner: owner, repository: repository, reference: ref)
+                case .unspecified:
+                    return try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
             } 
         }()
         
         guard let target else { throw Abort(.notFound) }
 
         return .init(owner: owner, repository: repository, target: target, path: path)
+    }
+    
+    func getDocRoute(_ strategy: LookupStrategy, fragment: DocRoute.Fragment) async throws -> DocRoute {
+        guard let owner = parameters.get("owner"),
+              let repository = parameters.get("repository")
+        else { throw Abort(.badRequest) }
+
+        switch strategy {
+            case .archiveOnly:
+                guard let archive = parameters.get("archive") else { throw Abort(.badRequest) }
+                guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
+                else { throw Abort(.notFound) }
+                guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
+                let pathElements = parameters.pathElements(for: fragment, archive: archive)
+                return DocRoute(owner: owner, repository: repository, fragment: fragment, docVersion: .current(referencing: params.reference), pathElements: pathElements)
+
+            case .referenceOnly:
+                // This route is not currently set up to go through getDocRoute - it would be handled by getRedirectRoute
+                throw Abort(.badRequest)
+
+            case .unspecified:
+                guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
+                else { throw Abort(.notFound) }
+                let pathElements = parameters.pathElements(for: fragment, archive: params.archive)
+                return DocRoute(owner: owner, repository: repository, docVersion: .current(referencing: params.reference), fragment: fragment, pathElements: pathElements)
+        }
     }
 }

@@ -64,6 +64,7 @@ enum PackageController {
                                                      path: route.path))
     }
 
+#warning("rewriteStrategy should be redundant - can be derived from route.docVersion?")
     static func documentation(req: Request,
                               route: DocRoute,
                               rewriteStrategy: DocumentationPageProcessor.RewriteStrategy = .none) async throws -> Response {
