@@ -576,6 +576,7 @@ struct DocRoute {
 }
 
 extension DocRoute {
+    @available(*, deprecated)
     init?(parameters: Parameters, fragment: DocRoute.Fragment, docVersion: DocVersion? = nil, pathElements: [String]? = nil) {
         guard let owner = parameters.get("owner"),
               let repository = parameters.get("repository"),

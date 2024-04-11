@@ -33,20 +33,20 @@ func docRoutes(_ app: Application) throws {
         try await PackageController.documentationRedirect($0.getRedirectRoute(.unspecified), fragment: .documentation)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "documentation") {        
-        try await PackageController.documentationRedirect($0.getRedirectRoute(.referenceOnly), fragment: .documentation)
+        try await PackageController.documentationRedirect($0.getRedirectRoute(.noArchive), fragment: .documentation)
     }.excludeFromOpenAPI()
 
     // Stable URLs with current (~) reference.
     app.get(":owner", ":repository", .current, "documentation", ":archive") {
-        let route = try await $0.getDocRoute(.archiveOnly, fragment: .documentation)
+        let route = try await $0.getDocRoute(.noReference, fragment: .documentation)
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: route.docVersion.reference))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "documentation", ":archive", "**") {
-        let route = try await $0.getDocRoute(.archiveOnly, fragment: .documentation)
+        let route = try await $0.getDocRoute(.noReference, fragment: .documentation)
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: route.docVersion.reference))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, .fragment(.faviconIco)) {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .faviconIco) else { throw Abort(.notFound) }
+        let route = try await $0.getDocRoute(.noReference, fragment: .faviconIco)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, .fragment(.faviconSvg)) {
@@ -183,9 +183,9 @@ extension Request {
     }
 
     enum LookupStrategy {
-        case archiveOnly
         case fullySpecified
-        case referenceOnly
+        case noArchive
+        case noReference
         case unspecified
     }
 
@@ -197,14 +197,8 @@ extension Request {
         let anchor = url.fragment.map { "#\($0)"} ?? ""
         let path = parameters.getCatchall().joined(separator: "/").lowercased() + anchor
 
-        let target = try await {
+        let target: DocumentationTarget? = try await {
             switch strategy {
-                case .archiveOnly:
-                    guard let archive = parameters.get("archive") else { throw Abort(.badRequest) }
-                    let target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
-                    if target?.internal?.archive != archive.lowercased() { throw Abort(.notFound) }
-                    return target
-                    
                 case .fullySpecified:
                     // For sake of completeness - a fully specified route should not be hit from a redirect handler
                     guard let archive = parameters.get("archive"),
@@ -212,9 +206,15 @@ extension Request {
                     else { throw Abort(.badRequest) }
                     return .internal(reference: ref, archive: archive)
 
-                case .referenceOnly:
+                case .noArchive:
                     guard let ref = parameters.get("reference").map(Reference.init) else { throw Abort(.badRequest) }
                     return try await DocumentationTarget.query(on: db, owner: owner, repository: repository, reference: ref)
+                    
+                case .noReference:
+                    guard let archive = parameters.get("archive") else { throw Abort(.badRequest) }
+                    let target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
+                    if target?.internal?.archive != archive.lowercased() { throw Abort(.notFound) }
+                    return target
                     
                 case .unspecified:
                     return try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
@@ -232,14 +232,6 @@ extension Request {
         else { throw Abort(.badRequest) }
 
         switch strategy {
-            case .archiveOnly:
-                guard let archive = parameters.get("archive") else { throw Abort(.badRequest) }
-                guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
-                else { throw Abort(.notFound) }
-                guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
-                let pathElements = parameters.pathElements(for: fragment, archive: archive)
-                return DocRoute(owner: owner, repository: repository, fragment: fragment, docVersion: .current(referencing: params.reference), pathElements: pathElements)
-
             case .fullySpecified:
                 guard let archive = parameters.get("archive"),
                       let ref = parameters.get("reference")
@@ -247,10 +239,18 @@ extension Request {
                 let pathElements = parameters.pathElements(for: fragment, archive: archive)
                 return .init(owner: owner, repository: repository, docVersion: .reference(ref), fragment: fragment, pathElements: pathElements)
                 
-            case .referenceOnly:
+            case .noArchive:
                 // This route is not currently set up to go through getDocRoute - it would be handled by getRedirectRoute
                 throw Abort(.badRequest)
 
+            case .noReference:
+                guard let archive = parameters.get("archive") else { throw Abort(.badRequest) }
+                guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
+                else { throw Abort(.notFound) }
+                guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
+                let pathElements = parameters.pathElements(for: fragment, archive: archive)
+                return DocRoute(owner: owner, repository: repository, fragment: fragment, docVersion: .current(referencing: params.reference), pathElements: pathElements)
+                
             case .unspecified:
                 guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
                 else { throw Abort(.notFound) }
