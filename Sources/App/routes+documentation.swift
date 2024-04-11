@@ -15,6 +15,7 @@
 
 import Vapor
 
+#warning("throw badRequest instead of notFound in all other .get()s")
 
 func docRoutes(_ app: Application) throws {
     // Underspecified documentation routes - these routes lack the reference, the archive, or both.
@@ -92,16 +93,11 @@ func docRoutes(_ app: Application) throws {
 
     // Version specific documentation - No index and non-canonical URLs with a specific reference.
     app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
-#warning("throw badRequest instead of notFound in all other .get()s")
-        guard let archive = $0.parameters.get("archive") else { throw Abort(.badRequest) }
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .documentation, pathElements: $0.parameters.pathElements(for: .documentation, archive: archive))
-        else { throw Abort(.badRequest) }
+        let route = try await $0.getDocRoute(.fullySpecified, fragment: .documentation)
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") {
-        guard let archive = $0.parameters.get("archive") else { throw Abort(.badRequest) }
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .documentation, pathElements: $0.parameters.pathElements(for: .documentation, archive: archive))
-        else { throw Abort(.badRequest) }
+        let route = try await $0.getDocRoute(.fullySpecified, fragment: .documentation)
         return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", .fragment(.faviconIco)) {
@@ -189,6 +185,7 @@ extension Request {
 
     enum LookupStrategy {
         case archiveOnly
+        case fullySpecified
         case referenceOnly
         case unspecified
     }
@@ -208,9 +205,18 @@ extension Request {
                     let target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
                     if target?.internal?.archive != archive.lowercased() { throw Abort(.notFound) }
                     return target
+                    
+                case .fullySpecified:
+                    // For sake of completeness - a fully specified route should not be hit from a redirect handler
+                    guard let archive = parameters.get("archive"),
+                          let ref = parameters.get("reference")
+                    else { throw Abort(.badRequest) }
+                    return .internal(reference: ref, archive: archive)
+
                 case .referenceOnly:
                     guard let ref = parameters.get("reference").map(Reference.init) else { throw Abort(.badRequest) }
                     return try await DocumentationTarget.query(on: db, owner: owner, repository: repository, reference: ref)
+                    
                 case .unspecified:
                     return try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
             } 
@@ -235,6 +241,13 @@ extension Request {
                 let pathElements = parameters.pathElements(for: fragment, archive: archive)
                 return DocRoute(owner: owner, repository: repository, fragment: fragment, docVersion: .current(referencing: params.reference), pathElements: pathElements)
 
+            case .fullySpecified:
+                guard let archive = parameters.get("archive"),
+                      let ref = parameters.get("reference")
+                else { throw Abort(.badRequest) }
+                let pathElements = parameters.pathElements(for: fragment, archive: archive)
+                return .init(owner: owner, repository: repository, docVersion: .reference(ref), fragment: fragment, pathElements: pathElements)
+                
             case .referenceOnly:
                 // This route is not currently set up to go through getDocRoute - it would be handled by getRedirectRoute
                 throw Abort(.badRequest)
