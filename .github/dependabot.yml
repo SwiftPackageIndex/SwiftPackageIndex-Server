@@ -23,7 +23,7 @@ updates:
       interval: "weekly"
       time: "02:00"
     groups:
-      dependencies:
+      gh-dependencies:
         patterns:
           - "*"
   - package-ecosystem: "swift"
@@ -33,10 +33,10 @@ updates:
     commit-message:
       prefix: "Swift:"
     schedule:
-      interval: "weekly"
+      interval: "daily"
       time: "02:00"
     groups:
-      dependencies:
+      swift-dependencies:
         patterns:
           - "*"
   - package-ecosystem: "npm"
@@ -47,7 +47,7 @@ updates:
       interval: "weekly"
       time: "02:00"
     groups:
-      dependencies:
+      npm-dependencies:
         patterns:
           - "*"
     ignore:
