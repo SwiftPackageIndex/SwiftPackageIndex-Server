@@ -15,7 +15,6 @@
 
 import Vapor
 
-#warning("throw badRequest instead of notFound in all other .get()s")
 
 func docRoutes(_ app: Application) throws {
     // Underspecified documentation routes - these routes lack the reference, the archive, or both.
