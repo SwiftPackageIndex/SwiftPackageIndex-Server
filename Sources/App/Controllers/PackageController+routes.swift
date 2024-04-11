@@ -56,36 +56,6 @@ enum PackageController {
         }
     }
 
-//    enum Fragment: String {
-//        case css
-//        case data
-//        case documentation
-//        case faviconIco = "favicon.ico"
-//        case faviconSvg = "favicon.svg"
-//        case images
-//        case img
-//        case index
-//        case js
-//        case linkablePaths = "linkable-paths.json"
-//        case themeSettings = "theme-settings.json"
-//        case tutorials
-//
-//        var contentType: String {
-//            switch self {
-//                case .css:
-//                    return "text/css"
-//                case .data, .faviconIco, .faviconSvg, .images, .img, .index:
-//                    return "application/octet-stream"
-//                case .linkablePaths, .themeSettings:
-//                    return "application/json"
-//                case .documentation, .tutorials:
-//                    return "text/html; charset=utf-8"
-//                case .js:
-//                    return "application/javascript"
-//            }
-//        }
-//    }
-
     static func documentationRedirect(req: Request, fragment: DocRoute.Fragment, target: DocumentationTarget) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
