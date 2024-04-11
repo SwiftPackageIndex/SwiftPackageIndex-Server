@@ -50,39 +50,39 @@ func docRoutes(_ app: Application) throws {
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, .fragment(.faviconSvg)) {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .faviconSvg) else { throw Abort(.notFound) }
+        let route = try await $0.getDocRoute(.noReference, fragment: .faviconSvg)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "css", "**") {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .css) else { throw Abort(.notFound) }
+        let route = try await $0.getDocRoute(.noReference, fragment: .css)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "data", "**") {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .data) else { throw Abort(.notFound) }
+        let route = try await $0.getDocRoute(.noReference, fragment: .data)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "images", "**") {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .images) else { throw Abort(.notFound) }
+        let route = try await $0.getDocRoute(.noReference, fragment: .images)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "img", "**") {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .img) else { throw Abort(.notFound) }
+        let route = try await $0.getDocRoute(.noReference, fragment: .img)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "index", "**") {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .index) else { throw Abort(.notFound) }
+        let route = try await $0.getDocRoute(.noReference, fragment: .index)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "js", "**") {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .js) else { throw Abort(.notFound) }
+        let route = try await $0.getDocRoute(.noReference, fragment: .js)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, .fragment(.linkablePaths)) {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .linkablePaths) else { throw Abort(.notFound) }
+        let route = try await $0.getDocRoute(.noReference, fragment: .linkablePaths)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, .fragment(.themeSettings)) {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .themeSettings) else { throw Abort(.notFound) }
+        let route = try await $0.getDocRoute(.noReference, fragment: .themeSettings)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "tutorials", "**") {
