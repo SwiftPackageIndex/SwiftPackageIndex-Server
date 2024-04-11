@@ -47,19 +47,27 @@ enum MaintainerInfoIndex {
             ]
         }
 
-        private enum Anchor: String {
+        enum Anchor: String {
             case spiHosting = "Host-DocC-documentation-in-the-Swift-Package-Index"
             case selfHosting = "Configure-a-documentation-URL-for-existing-documentation"
             case targetsAndSchemes = "Control-Targets-and-Schemes"
             case linuxImages = "Images-for-Linux"
         }
 
-        private func docLink(_ anchor: Anchor) -> String {
+        static func spiManifestCommonUseCasesDocLink(_ anchor: Anchor) -> String {
             SiteURL.relativeURL(owner: "SwiftPackageIndex",
                                 repository: "SPIManifest",
                                 documentation: .universal,
                                 fragment: .documentation,
                                 path: "spimanifest/commonusecases#\(anchor)")
+        }
+        
+        static func spiManifestDocLink() -> String {
+            SiteURL.relativeURL(owner: "SwiftPackageIndex",
+                                repository: "SPIManifest",
+                                documentation: .universal,
+                                fragment: .documentation,
+                                path: "spimanifest")
         }
 
         override func content() -> Node<HTML.BodyContext> {
@@ -115,7 +123,7 @@ enum MaintainerInfoIndex {
                     .li(
                         .p(
                             .a(
-                                .href(docLink(.spiHosting)),
+                                .href(Self.spiManifestCommonUseCasesDocLink(.spiHosting)),
                                 "Hosting your documentation"
                             ),
                             " on the Swift Package Index site."
@@ -124,7 +132,7 @@ enum MaintainerInfoIndex {
                     .li(
                         .p(
                             .a(
-                                .href(docLink(.selfHosting)),
+                                .href(Self.spiManifestCommonUseCasesDocLink(.selfHosting)),
                                 "Configure a link to external self-hosted documentation"
                             ),
                             "."
@@ -133,7 +141,7 @@ enum MaintainerInfoIndex {
                     .li(
                         .p(
                             .a(
-                                .href(docLink(.targetsAndSchemes)),
+                                .href(Self.spiManifestCommonUseCasesDocLink(.targetsAndSchemes)),
                                 "Control build targets and schemes"
                             ),
                             " to improve your ",
@@ -154,7 +162,7 @@ enum MaintainerInfoIndex {
                         .p(
                             "If your builds require additional operating system-level dependencies to succeed, you can ",
                             .a(
-                                .href(docLink(.linuxImages)),
+                                .href(Self.spiManifestCommonUseCasesDocLink(.linuxImages)),
                                 "configure base images for Linux builds"
                             ),
                             "."
@@ -164,11 +172,7 @@ enum MaintainerInfoIndex {
                 .p(
                     "See the ",
                     .a(
-                        .href(SiteURL.relativeURL(owner: "SwiftPackageIndex",
-                                                  repository: "SPIManifest",
-                                                  documentation: .universal,
-                                                  fragment: .documentation,
-                                                  path: "spimanifest")),
+                        .href(Self.spiManifestDocLink()),
                         "SPIManifest package documentation"
                     ),
                     " for more details, or use our ",
