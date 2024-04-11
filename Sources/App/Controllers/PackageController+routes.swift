@@ -56,22 +56,12 @@ enum PackageController {
         }
     }
 
-    static func documentationRedirect(req: Request, fragment: DocRoute.Fragment, target: DocumentationTarget) async throws -> Response {
-        guard
-            let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository")
-        else {
-            throw Abort(.notFound)
-        }
-
-        let anchor = req.url.fragment.map { "#\($0)"} ?? ""
-        let path = req.parameters.getCatchall().joined(separator: "/").lowercased() + anchor
-
-        throw Abort.redirect(to: SiteURL.relativeURL(owner: owner,
-                                                     repository: repository,
-                                                     documentation: target,
+    static func documentationRedirect(_ route: Request.RedirectDocRoute, fragment: DocRoute.Fragment) async throws -> Response {
+        throw Abort.redirect(to: SiteURL.relativeURL(owner: route.owner,
+                                                     repository: route.repository,
+                                                     documentation: route.target,
                                                      fragment: fragment,
-                                                     path: path))
+                                                     path: route.path))
     }
 
     static func documentation(req: Request,

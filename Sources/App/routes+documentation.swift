@@ -21,60 +21,19 @@ func docRoutes(_ app: Application) throws {
     // Therefore, these parts need to be queried from the database and the request will be
     // redirected to the fully formed documentation URL.
     app.get(":owner", ":repository", "documentation") {
-        // FIXME: factor this out
-        guard let owner = $0.parameters.get("owner"),
-              let repository = $0.parameters.get("repository")
-        else { throw Abort(.notFound) }
-        
-        guard let target = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)
-        else { throw Abort(.notFound) }
-
-        return try await PackageController.documentationRedirect(req: $0, fragment: .documentation, target: target)
+        try await PackageController.documentationRedirect($0.getRedirectRoute(.unspecified), fragment: .documentation)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "documentation", "**") {
-        // FIXME: factor this out
-        guard let owner = $0.parameters.get("owner"),
-              let repository = $0.parameters.get("repository")
-        else { throw Abort(.notFound) }
-        
-        guard let target = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)
-        else { throw Abort(.notFound) }
-
-        return try await PackageController.documentationRedirect(req: $0, fragment: .documentation, target: target)
+        try await PackageController.documentationRedirect($0.getRedirectRoute(.unspecified), fragment: .documentation)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "tutorials", "**") {
-        // FIXME: factor this out
-        guard let owner = $0.parameters.get("owner"),
-              let repository = $0.parameters.get("repository")
-        else { throw Abort(.notFound) }
-        
-        guard let target = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)
-        else { throw Abort(.notFound) }
-
-        return try await PackageController.documentationRedirect(req: $0, fragment: .tutorials, target: target)
+        try await PackageController.documentationRedirect($0.getRedirectRoute(.unspecified), fragment: .tutorials)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", .current, "documentation") {
-        // FIXME: factor this out
-        guard let owner = $0.parameters.get("owner"),
-              let repository = $0.parameters.get("repository")
-        else { throw Abort(.notFound) }
-        
-        guard let target = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository)
-        else { throw Abort(.notFound) }
-
-        return try await PackageController.documentationRedirect(req: $0, fragment: .documentation, target: target)
+        try await PackageController.documentationRedirect($0.getRedirectRoute(.unspecified), fragment: .documentation)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "documentation") {
-        // FIXME: factor this out
-        guard let owner = $0.parameters.get("owner"),
-              let repository = $0.parameters.get("repository")
-        else { throw Abort(.badRequest) }
-        
-        guard let ref = $0.parameters.get("reference").map(Reference.init) else { throw Abort(.badRequest) }
-        guard let target = try await DocumentationTarget.query(on: $0.db, owner: owner, repository: repository, reference: ref)
-        else { throw Abort(.notFound) }
-        
-        return try await PackageController.documentationRedirect(req: $0, fragment: .documentation, target: target)
+    app.get(":owner", ":repository", ":reference", "documentation") {        
+        try await PackageController.documentationRedirect($0.getRedirectRoute(.referenceOnly), fragment: .documentation)
     }.excludeFromOpenAPI()
 
     // Stable URLs with current (~) reference.
@@ -250,5 +209,43 @@ extension Parameters {
             case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
                 return catchall
         }
+    }
+}
+ 
+#warning("move this or make it private")
+extension Request {
+    struct RedirectDocRoute {
+        var owner: String
+        var repository: String
+        var target: DocumentationTarget
+        var path: String
+    }
+
+    enum LookupStrategy {
+        case unspecified
+        case referenceOnly
+    }
+
+    func getRedirectRoute(_ strategy: LookupStrategy) async throws -> RedirectDocRoute {
+        guard let owner = parameters.get("owner"),
+              let repository = parameters.get("repository")
+        else { throw Abort(.badRequest) }
+
+        let anchor = url.fragment.map { "#\($0)"} ?? ""
+        let path = parameters.getCatchall().joined(separator: "/").lowercased() + anchor
+
+        let target = try await {
+            switch strategy {
+                case .unspecified:
+                    return try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
+                case .referenceOnly:
+                    guard let ref = parameters.get("reference").map(Reference.init) else { throw Abort(.badRequest) }
+                    return try await DocumentationTarget.query(on: db, owner: owner, repository: repository, reference: ref)
+            } 
+        }()
+        
+        guard let target else { throw Abort(.notFound) }
+
+        return .init(owner: owner, repository: repository, target: target, path: path)
     }
 }
