@@ -495,13 +495,6 @@ private extension HTTPHeaders {
 }
 
 
-extension DocRoute.Fragment: CustomStringConvertible {
-    // FIXME: check where/if this is needed
-    @available(*, deprecated)
-    var description: String { rawValue }
-}
-
-
 struct DocRoute {
     var owner: String
     var repository: String
@@ -538,7 +531,7 @@ struct DocRoute {
         }
     }
     
-    enum Fragment: String {
+    enum Fragment: String, CustomStringConvertible {
         case css
         case data
         case documentation
@@ -575,6 +568,8 @@ struct DocRoute {
                     return true
             }
         }
+        
+        var description: String { rawValue }
     }
 }
 
