@@ -37,19 +37,11 @@ func docRoutes(_ app: Application) throws {
     // Stable URLs with reference (real reference or ~)
     app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
         let route = try await $0.getDocRoute(fragment: .documentation)
-#warning("check if we can derive rewriteStrategy from docVersion")
-        let rewriteStrategy: DocumentationPageProcessor.RewriteStrategy = $0.isCurrentReference
-        ? .current(fromReference: route.docVersion.reference)
-        : .toReference(route.docVersion.reference)
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: rewriteStrategy)
+        return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") {
         let route = try await $0.getDocRoute(fragment: .documentation)
-#warning("check if we can derive rewriteStrategy from docVersion")
-        let rewriteStrategy: DocumentationPageProcessor.RewriteStrategy = $0.isCurrentReference
-        ? .current(fromReference: route.docVersion.reference)
-        : .toReference(route.docVersion.reference)
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: rewriteStrategy)
+        return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", .fragment(.faviconIco)) {
         let route = try await $0.getDocRoute(fragment: .faviconIco)
@@ -92,13 +84,10 @@ func docRoutes(_ app: Application) throws {
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "tutorials", "**") {
+#warning("move this logic into getDocRoute")
         let lookup: Request.LookupStrategy = $0.isCurrentReference ? .unspecified : .fullySpecified
         let route = try await $0.getDocRoute(lookup, fragment: .tutorials)
-#warning("check if we can derive rewriteStrategy from docVersion")
-        let rewriteStrategy: DocumentationPageProcessor.RewriteStrategy = $0.isCurrentReference
-        ? .current(fromReference: route.docVersion.reference)
-        : .toReference(route.docVersion.reference)
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: rewriteStrategy)
+        return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
 }
 

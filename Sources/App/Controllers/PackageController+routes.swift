@@ -64,10 +64,7 @@ enum PackageController {
                                                      path: route.path))
     }
 
-#warning("rewriteStrategy should be redundant - can be derived from route.docVersion?")
-    static func documentation(req: Request,
-                              route: DocRoute,
-                              rewriteStrategy: DocumentationPageProcessor.RewriteStrategy = .none) async throws -> Response {
+    static func documentation(req: Request, route: DocRoute) async throws -> Response {
         let res: ClientResponse
         do {
             res = try await awsResponse(client: req.client, route: route)
@@ -86,7 +83,7 @@ enum PackageController {
                     route: route,
                     awsResponse: res,
                     documentationMetadata: documentationMetadata,
-                    rewriteStrategy: rewriteStrategy
+                    rewriteStrategy: route.rewriteStrategy
                 )
 
             case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
@@ -104,7 +101,7 @@ enum PackageController {
                                       route: DocRoute,
                                       awsResponse: ClientResponse,
                                       documentationMetadata: DocumentationMetadata,
-                                      rewriteStrategy: DocumentationPageProcessor.RewriteStrategy) async throws -> Response {
+                                      rewriteStrategy: DocRoute.RewriteStrategy) async throws -> Response {
         guard let documentation = documentationMetadata.versions[reference: route.docVersion.reference]
         else {
             // If there's no match for this reference with a docArchive, we're done!
@@ -514,7 +511,10 @@ struct DocRoute {
     var docVersion: DocVersion
     var fragment: Fragment
     var pathElements: [String]
-
+    
+    var contentType: String { fragment.contentType }
+    var rewriteStrategy: RewriteStrategy { docVersion.rewriteStrategy }
+    
     enum DocVersion: CustomStringConvertible {
         case current(referencing: String)
         case reference(String)
@@ -540,10 +540,17 @@ struct DocRoute {
                     return reference
             }
         }
+        
+        var rewriteStrategy: RewriteStrategy {
+            switch self {
+                case .current(let referencing):
+                    return .current(fromReference: referencing)
+                case .reference(let string):
+                    return .toReference(string)
+            }
+        }
     }
     
-    var contentType: String { fragment.contentType }
-
     enum Fragment: String {
         case css
         case data
@@ -557,7 +564,7 @@ struct DocRoute {
         case linkablePaths = "linkable-paths.json"
         case themeSettings = "theme-settings.json"
         case tutorials
-
+        
         var contentType: String {
             switch self {
                 case .css:
@@ -581,6 +588,12 @@ struct DocRoute {
                     return true
             }
         }
+    }
+    
+    enum RewriteStrategy {
+        case current(fromReference: String)
+        case toReference(String)
+        case none
     }
 }
 
