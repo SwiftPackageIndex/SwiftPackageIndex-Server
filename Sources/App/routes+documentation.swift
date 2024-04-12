@@ -175,44 +175,30 @@ extension Request {
         guard let owner = parameters.get("owner"),
               let repository = parameters.get("repository")
         else { throw Abort(.badRequest) }
-        
-#warning("eliminate LookupStrategy by moving logic into switch below")
-        let strategy: LookupStrategy = switch (isCurrentReference, fragment) {
-            case (true, .tutorials):
-                    .unspecified
-            case (false, .tutorials):
-                    .fullySpecified
-            case (true, _):
-                    .noReference
-            case (false, _):
-                    .fullySpecified
-        }
 
-        switch strategy {
-            case .fullySpecified:
+        switch (isCurrentReference, fragment) {
+            case (false, _):
                 guard let ref = parameters.get("reference") else { throw Abort(.badRequest) }
                 let archive = parameters.get("archive")
                 if fragment.requiresArchive && archive == nil { throw Abort(.badRequest) }
                 let pathElements = parameters.pathElements(for: fragment, archive: archive)
                 return .init(owner: owner, repository: repository, docVersion: .reference(ref), fragment: fragment, pathElements: pathElements)
                 
-            case .noArchive:
-                // This route is not currently set up to go through getDocRoute - it would be handled by getRedirectRoute
-                throw Abort(.badRequest)
+            case (true, .tutorials):
+                guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
+                else { throw Abort(.notFound) }
+                let pathElements = parameters.pathElements(for: fragment, archive: params.archive)
+                return DocRoute(owner: owner, repository: repository, docVersion: .current(referencing: params.reference), fragment: fragment, pathElements: pathElements)
 
-            case .noReference:
+#warning("this case is weird, what about /o/r/~/css/** ? Wouldn't this throw badRequest?")
+#warning("this does indeed fail and doesn't trigger a test failure - no coverage!")
+            case (true, _):
                 guard let archive = parameters.get("archive") else { throw Abort(.badRequest) }
                 guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
                 else { throw Abort(.notFound) }
                 guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
                 let pathElements = parameters.pathElements(for: fragment, archive: archive)
                 return DocRoute(owner: owner, repository: repository, fragment: fragment, docVersion: .current(referencing: params.reference), pathElements: pathElements)
-                
-            case .unspecified:
-                guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
-                else { throw Abort(.notFound) }
-                let pathElements = parameters.pathElements(for: fragment, archive: params.archive)
-                return DocRoute(owner: owner, repository: repository, docVersion: .current(referencing: params.reference), fragment: fragment, pathElements: pathElements)
         }
     }
     
