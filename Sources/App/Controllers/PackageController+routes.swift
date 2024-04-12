@@ -82,8 +82,7 @@ enum PackageController {
                     req: req,
                     route: route,
                     awsResponse: res,
-                    documentationMetadata: documentationMetadata,
-                    rewriteStrategy: route.rewriteStrategy
+                    documentationMetadata: documentationMetadata
                 )
 
             case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
@@ -100,8 +99,7 @@ enum PackageController {
     static func documentationResponse(req: Request,
                                       route: DocRoute,
                                       awsResponse: ClientResponse,
-                                      documentationMetadata: DocumentationMetadata,
-                                      rewriteStrategy: DocRoute.RewriteStrategy) async throws -> Response {
+                                      documentationMetadata: DocumentationMetadata) async throws -> Response {
         guard let documentation = documentationMetadata.versions[reference: route.docVersion.reference]
         else {
             // If there's no match for this reference with a docArchive, we're done!
@@ -158,8 +156,7 @@ enum PackageController {
                                                          availableArchives: availableArchives,
                                                          availableVersions: availableDocumentationVersions,
                                                          updatedAt: documentation.updatedAt,
-                                                         rawHtml: body.asString(),
-                                                         rewriteStrategy: rewriteStrategy)
+                                                         rawHtml: body.asString())
         else {
             return try await awsResponse.encodeResponse(
                 status: .ok,
@@ -590,6 +587,7 @@ struct DocRoute {
         }
     }
     
+    @available(*, deprecated)
     enum RewriteStrategy {
         case current(fromReference: String)
         case toReference(String)

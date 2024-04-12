@@ -51,8 +51,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
                     )
                 ],
                 updatedAt: .t0,
-                rawHtml: try fixtureString(for: "docc-template.html"),
-                rewriteStrategy: .none
+                rawHtml: try fixtureString(for: "docc-template.html")
             )
         )
 

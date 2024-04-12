@@ -56,8 +56,7 @@ struct DocumentationPageProcessor {
           availableArchives: [AvailableArchive],
           availableVersions: [AvailableDocumentationVersion],
           updatedAt: Date,
-          rawHtml: String,
-          rewriteStrategy: DocRoute.RewriteStrategy) {
+          rawHtml: String) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
         self.repositoryName = repositoryName
@@ -73,7 +72,7 @@ struct DocumentationPageProcessor {
         do {
             document = try SwiftSoup.parse(rawHtml)
 
-            try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, rewriteStrategy: rewriteStrategy)
+            try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, rewriteStrategy: docVersion.rewriteStrategy)
 
             // SPI related modifications
             try document.title("\(packageName) Documentation – Swift Package Index")
