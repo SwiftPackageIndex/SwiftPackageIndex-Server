@@ -72,7 +72,7 @@ struct DocumentationPageProcessor {
         do {
             document = try SwiftSoup.parse(rawHtml)
 
-            try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, rewriteStrategy: docVersion.rewriteStrategy)
+            try Self.rewriteBaseUrls(document: document, owner: repositoryOwner, repository: repositoryName, docVersion: docVersion)
 
             // SPI related modifications
             try document.title("\(packageName) Documentation – Swift Package Index")
@@ -308,19 +308,19 @@ struct DocumentationPageProcessor {
         )
     }
 
-    static func rewriteBaseUrls(document: SwiftSoup.Document, owner: String, repository: String, rewriteStrategy: DocRoute.RewriteStrategy) throws {
-        try rewriteScriptBaseUrl(document: document, owner: owner, repository: repository, rewriteStrategy: rewriteStrategy)
-        try rewriteAttribute("href", document: document, owner: owner, repository: repository, rewriteStrategy: rewriteStrategy)
-        try rewriteAttribute("src", document: document, owner: owner, repository: repository, rewriteStrategy: rewriteStrategy)
+    static func rewriteBaseUrls(document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocRoute.DocVersion) throws {
+        try rewriteScriptBaseUrl(document: document, owner: owner, repository: repository, docVersion: docVersion)
+        try rewriteAttribute("href", document: document, owner: owner, repository: repository, docVersion: docVersion)
+        try rewriteAttribute("src", document: document, owner: owner, repository: repository, docVersion: docVersion)
     }
 
-    static func rewriteScriptBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, rewriteStrategy: DocRoute.RewriteStrategy) throws {
+    static func rewriteScriptBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocRoute.DocVersion) throws {
         // Possible rewrite strategies
         //   / -> /a/b/1.2.3        (toReference)
         //   / -> /a/b/~            (current)
         //   /a/b/1.2.3 -> /a/b/~   (current)
-        switch rewriteStrategy {
-            case .current(let fromReference):
+        switch docVersion {
+            case .current(let reference):
                 for e in try document.select("script") {
                     let value = e.data().trimmingCharacters(in: .whitespacesAndNewlines)
                     if value == #"var baseUrl = "/""# {
@@ -328,14 +328,14 @@ struct DocumentationPageProcessor {
                         let path = "/\(owner)/\(repository)/\(String.current)/".lowercased()
                         try e.html(#"var baseUrl = "\#(path)""#)
                     }
-                    let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(fromReference)".lowercased()
+                    let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(reference)".lowercased()
                     if value == #"var baseUrl = "\#(fullyQualifiedPrefix)/""# {
                         //   /a/b/1.2.3 -> /a/b/~   (current)
                         let path = "/\(owner)/\(repository)/\(String.current)/".lowercased()
                         try e.html(#"var baseUrl = "\#(path)""#)
                     }
                 }
-            case .toReference(let reference):
+            case .reference(let reference):
                 //   / -> /a/b/1.2.3        (toReference)
                 for e in try document.select("script") {
                     let value = e.data().trimmingCharacters(in: .whitespacesAndNewlines)
@@ -344,17 +344,15 @@ struct DocumentationPageProcessor {
                         try e.html(#"var baseUrl = "\#(path)""#)
                     }
                 }
-            case .none:
-                return
         }
     }
 
-    static func rewriteAttribute(_ attribute: String, document: SwiftSoup.Document, owner: String, repository: String, rewriteStrategy: DocRoute.RewriteStrategy) throws {
+    static func rewriteAttribute(_ attribute: String, document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocRoute.DocVersion) throws {
         // Possible rewrite strategies
         //   / -> /a/b/1.2.3        (toReference)
         //   / -> /a/b/~            (current)
         //   /a/b/1.2.3 -> /a/b/~   (current)
-        switch rewriteStrategy {
+        switch docVersion {
             case .current(let reference):
                 for e in try document.select(#"[\#(attribute)^="/"]"#) {
                     let value = try e.attr(attribute)
@@ -376,7 +374,7 @@ struct DocumentationPageProcessor {
                         }
                     }
                 }
-            case .toReference(let reference):
+            case .reference(let reference):
                 //   / -> /a/b/1.2.3        (toReference)
                 for e in try document.select(#"[\#(attribute)^="/"]"#) {
                     let value = try e.attr(attribute)
@@ -389,8 +387,6 @@ struct DocumentationPageProcessor {
                         return
                     }
                 }
-            case .none:
-                return
         }
     }
 }

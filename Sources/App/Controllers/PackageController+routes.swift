@@ -510,7 +510,6 @@ struct DocRoute {
     var pathElements: [String]
     
     var contentType: String { fragment.contentType }
-    var rewriteStrategy: RewriteStrategy { docVersion.rewriteStrategy }
     
     enum DocVersion: CustomStringConvertible {
         case current(referencing: String)
@@ -535,15 +534,6 @@ struct DocRoute {
                     return reference
                 case .reference(let reference):
                     return reference
-            }
-        }
-        
-        var rewriteStrategy: RewriteStrategy {
-            switch self {
-                case .current(let referencing):
-                    return .current(fromReference: referencing)
-                case .reference(let string):
-                    return .toReference(string)
             }
         }
     }
@@ -585,13 +575,6 @@ struct DocRoute {
                     return true
             }
         }
-    }
-    
-    @available(*, deprecated)
-    enum RewriteStrategy {
-        case current(fromReference: String)
-        case toReference(String)
-        case none
     }
 }
 
