@@ -18,9 +18,6 @@ import Fluent
 enum DocumentationTarget: Equatable, Codable {
     case external(url: String)
     case `internal`(reference: String, archive: String)
-#warning("remove")
-    @available(*, deprecated)
-    case universal
 
     /// Fetch DocumentationTarget for a given package.
     /// - Parameters:
@@ -91,8 +88,6 @@ extension DocumentationTarget {
                 return nil
             case .internal(let reference, let archive):
                 return (reference, archive)
-            case .universal:
-                return nil
         }
     }
 }

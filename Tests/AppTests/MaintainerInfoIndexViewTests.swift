@@ -21,14 +21,14 @@ final class MaintainerInfoIndexViewTests: XCTestCase {
     func test_spiManifestCommonUseCasesDocLink() throws {
         XCTAssertEqual(
             MaintainerInfoIndex.View.spiManifestCommonUseCasesDocLink(.linuxImages),
-            "/SwiftPackageIndex/SPIManifest/documentation/spimanifest/commonusecases#linuxImages"
+            "/SwiftPackageIndex/SPIManifest/~/documentation/spimanifest/commonusecases#linuxImages"
         )
     }
     
     func test_spiManifestDocLink() throws {
         XCTAssertEqual(
             MaintainerInfoIndex.View.spiManifestDocLink(),
-            "/SwiftPackageIndex/SPIManifest/documentation/spimanifest"
+            "/SwiftPackageIndex/SPIManifest/~/documentation/spimanifest"
         )
     }
     

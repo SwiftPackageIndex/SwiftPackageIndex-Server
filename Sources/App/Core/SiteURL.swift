@@ -430,11 +430,6 @@ extension SiteURL {
                 return path.isEmpty
                 ? "/\(owner)/\(repository)/\(reference.pathEncoded)/\(fragment)"
                 : "/\(owner)/\(repository)/\(reference.pathEncoded)/\(fragment)/\(path)"
-
-            case (.universal, _):
-                return path.isEmpty
-                ? "/\(owner)/\(repository)/\(fragment)"
-                : "/\(owner)/\(repository)/\(fragment)/\(path)"
         }
     }
 }

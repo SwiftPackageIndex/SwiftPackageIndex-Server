@@ -341,7 +341,7 @@ class PackageController_routesTests: SnapshotTestCase {
                                                                  toTarget: .external(url: "https://example.com")))
 
         XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "", owner: "", repository: "", docVersion: .reference(""),
-                                                                 toTarget: .universal))
+                                                                 toTarget: .internal(reference: "", archive: "")))
 
         // There should be no canonical URL if the package owner/repo/ref prefix doesn't match even with a valid canonical target.
         XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "/some/random/url/without/matching/prefix",
