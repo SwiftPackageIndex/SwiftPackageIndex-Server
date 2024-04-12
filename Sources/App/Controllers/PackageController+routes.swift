@@ -495,6 +495,7 @@ private extension HTTPHeaders {
 }
 
 
+#warning("move to own file")
 struct DocRoute {
     var owner: String
     var repository: String
@@ -574,20 +575,6 @@ struct DocRoute {
 }
 
 extension DocRoute {
-    @available(*, deprecated)
-    init?(parameters: Parameters, fragment: DocRoute.Fragment, docVersion: DocVersion? = nil, pathElements: [String]? = nil) {
-        guard let owner = parameters.get("owner"),
-              let repository = parameters.get("repository"),
-              let docVersion = docVersion ?? parameters.get("reference").map({ DocVersion.reference($0) })
-        else { return nil }
-
-        self.owner = owner
-        self.repository = repository
-        self.docVersion = docVersion
-        self.fragment = fragment
-        self.pathElements = pathElements ?? parameters.pathElements(for: fragment)
-    }
-    
     init(owner: String, repository: String, fragment: DocRoute.Fragment, docVersion: DocVersion, pathElements: [String]? = nil) {
         self.owner = owner
         self.repository = repository
