@@ -21,17 +21,16 @@ func docRoutes(_ app: Application) throws {
     // Therefore, these parts need to be queried from the database and the request will be
     // redirected to the fully formed documentation URL.
     app.get(":owner", ":repository", "documentation") {
-        try await PackageController.documentationRedirect($0.getRedirectRoute(.unspecified), fragment: .documentation)
+        try await PackageController.documentationRedirect($0.getRedirectRoute(), fragment: .documentation)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "documentation", "**") {
-        try await PackageController.documentationRedirect($0.getRedirectRoute(.unspecified), fragment: .documentation)
+        try await PackageController.documentationRedirect($0.getRedirectRoute(), fragment: .documentation)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "tutorials", "**") {
-        try await PackageController.documentationRedirect($0.getRedirectRoute(.unspecified), fragment: .tutorials)
+        try await PackageController.documentationRedirect($0.getRedirectRoute(), fragment: .tutorials)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "documentation") {
-        let lookup: Request.LookupStrategy = $0.isCurrentReference ? .unspecified : .noArchive
-        return try await PackageController.documentationRedirect($0.getRedirectRoute(lookup), fragment: .documentation)
+        return try await PackageController.documentationRedirect($0.getRedirectRoute(), fragment: .documentation)
     }.excludeFromOpenAPI()
 
     // Stable URLs with reference (real reference or ~)
@@ -126,15 +125,8 @@ extension Request {
         var path: String
     }
 
-    enum LookupStrategy {
-        case fullySpecified
-        case noArchive
-        case noReference
-        case unspecified
-    }
-
-#warning("can we merge getRedirectRoute and getDocRoute?")
-    func getRedirectRoute(_ strategy: LookupStrategy) async throws -> RedirectDocRoute {
+#warning("can we merge getRedirectRoute and getDocRoute? Do we want to?")
+    func getRedirectRoute() async throws -> RedirectDocRoute {
         guard let owner = parameters.get("owner"),
               let repository = parameters.get("repository")
         else { throw Abort(.badRequest) }
@@ -142,30 +134,18 @@ extension Request {
         let anchor = url.fragment.map { "#\($0)"} ?? ""
         let path = parameters.getCatchall().joined(separator: "/").lowercased() + anchor
 
-        let target: DocumentationTarget? = try await {
-            switch strategy {
-                case .fullySpecified:
-                    // For sake of completeness - a fully specified route should not be hit from a redirect handler
-                    guard let archive = parameters.get("archive"),
-                          let ref = parameters.get("reference")
-                    else { throw Abort(.badRequest) }
-                    return .internal(reference: ref, archive: archive)
-
-                case .noArchive:
-                    guard let ref = parameters.get("reference").map(Reference.init) else { throw Abort(.badRequest) }
-                    return try await DocumentationTarget.query(on: db, owner: owner, repository: repository, reference: ref)
-                    
-                case .noReference:
-                    guard let archive = parameters.get("archive") else { throw Abort(.badRequest) }
-                    let target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
-                    if target?.internal?.archive != archive.lowercased() { throw Abort(.notFound) }
-                    return target
-                    
-                case .unspecified:
-                    return try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
-            } 
-        }()
-        
+        let target: DocumentationTarget?
+        switch parameters.get("reference") {
+            case let .some(ref):
+                if ref == .current {
+                    target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
+                } else {
+                    target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository, reference: .init(ref))
+                }
+                
+            case .none:
+                target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
+        }
         guard let target else { throw Abort(.notFound) }
 
         return .init(owner: owner, repository: repository, target: target, path: path)
