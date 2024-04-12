@@ -84,9 +84,7 @@ func docRoutes(_ app: Application) throws {
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "tutorials", "**") {
-#warning("move this logic into getDocRoute")
-        let lookup: Request.LookupStrategy = $0.isCurrentReference ? .unspecified : .fullySpecified
-        let route = try await $0.getDocRoute(lookup, fragment: .tutorials)
+        let route = try await $0.getDocRoute(fragment: .tutorials)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
 }
@@ -135,6 +133,7 @@ extension Request {
         case unspecified
     }
 
+#warning("can we merge getRedirectRoute and getDocRoute?")
     func getRedirectRoute(_ strategy: LookupStrategy) async throws -> RedirectDocRoute {
         guard let owner = parameters.get("owner"),
               let repository = parameters.get("repository")
@@ -172,11 +171,22 @@ extension Request {
         return .init(owner: owner, repository: repository, target: target, path: path)
     }
     
-    func getDocRoute(_ strategy: LookupStrategy? = nil, fragment: DocRoute.Fragment) async throws -> DocRoute {
+    func getDocRoute(fragment: DocRoute.Fragment) async throws -> DocRoute {
         guard let owner = parameters.get("owner"),
               let repository = parameters.get("repository")
         else { throw Abort(.badRequest) }
-        let strategy = strategy ?? (isCurrentReference ? .noReference : .fullySpecified)
+        
+#warning("eliminate LookupStrategy by moving logic into switch below")
+        let strategy: LookupStrategy = switch (isCurrentReference, fragment) {
+            case (true, .tutorials):
+                    .unspecified
+            case (false, .tutorials):
+                    .fullySpecified
+            case (true, _):
+                    .noReference
+            case (false, _):
+                    .fullySpecified
+        }
 
         switch strategy {
             case .fullySpecified:
