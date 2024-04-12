@@ -29,119 +29,76 @@ func docRoutes(_ app: Application) throws {
     app.get(":owner", ":repository", "tutorials", "**") {
         try await PackageController.documentationRedirect($0.getRedirectRoute(.unspecified), fragment: .tutorials)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", .current, "documentation") {
-        try await PackageController.documentationRedirect($0.getRedirectRoute(.unspecified), fragment: .documentation)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "documentation") {        
-        try await PackageController.documentationRedirect($0.getRedirectRoute(.noArchive), fragment: .documentation)
+    app.get(":owner", ":repository", ":reference", "documentation") {
+        let lookup: Request.LookupStrategy = $0.isCurrentReference ? .unspecified : .noArchive
+        return try await PackageController.documentationRedirect($0.getRedirectRoute(lookup), fragment: .documentation)
     }.excludeFromOpenAPI()
 
-    // Stable URLs with current (~) reference.
-    app.get(":owner", ":repository", .current, "documentation", ":archive") {
-        let route = try await $0.getDocRoute(.noReference, fragment: .documentation)
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: route.docVersion.reference))
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", .current, "documentation", ":archive", "**") {
-        let route = try await $0.getDocRoute(.noReference, fragment: .documentation)
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: route.docVersion.reference))
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", .current, .fragment(.faviconIco)) {
-        let route = try await $0.getDocRoute(.noReference, fragment: .faviconIco)
-        return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", .current, .fragment(.faviconSvg)) {
-        let route = try await $0.getDocRoute(.noReference, fragment: .faviconSvg)
-        return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", .current, "css", "**") {
-        let route = try await $0.getDocRoute(.noReference, fragment: .css)
-        return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", .current, "data", "**") {
-        let route = try await $0.getDocRoute(.noReference, fragment: .data)
-        return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", .current, "images", "**") {
-        let route = try await $0.getDocRoute(.noReference, fragment: .images)
-        return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", .current, "img", "**") {
-        let route = try await $0.getDocRoute(.noReference, fragment: .img)
-        return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", .current, "index", "**") {
-        let route = try await $0.getDocRoute(.noReference, fragment: .index)
-        return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", .current, "js", "**") {
-        let route = try await $0.getDocRoute(.noReference, fragment: .js)
-        return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", .current, .fragment(.linkablePaths)) {
-        let route = try await $0.getDocRoute(.noReference, fragment: .linkablePaths)
-        return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", .current, .fragment(.themeSettings)) {
-        let route = try await $0.getDocRoute(.noReference, fragment: .themeSettings)
-        return try await PackageController.documentation(req: $0, route: route)
-    }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", .current, "tutorials", "**") {
-        let route = try await $0.getDocRoute(.unspecified, fragment: .tutorials)
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .current(fromReference: route.docVersion.reference))
-    }.excludeFromOpenAPI()
-
-    // Version specific documentation - No index and non-canonical URLs with a specific reference.
+    // Stable URLs with reference (real reference or ~)
     app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
-        let route = try await $0.getDocRoute(.fullySpecified, fragment: .documentation)
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
+        let route = try await $0.getDocRoute(fragment: .documentation)
+#warning("check if we can derive rewriteStrategy from docVersion")
+        let rewriteStrategy: DocumentationPageProcessor.RewriteStrategy = $0.isCurrentReference
+        ? .current(fromReference: route.docVersion.reference)
+        : .toReference(route.docVersion.reference)
+        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: rewriteStrategy)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "documentation", ":archive", "**") {
-        let route = try await $0.getDocRoute(.fullySpecified, fragment: .documentation)
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
+        let route = try await $0.getDocRoute(fragment: .documentation)
+#warning("check if we can derive rewriteStrategy from docVersion")
+        let rewriteStrategy: DocumentationPageProcessor.RewriteStrategy = $0.isCurrentReference
+        ? .current(fromReference: route.docVersion.reference)
+        : .toReference(route.docVersion.reference)
+        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: rewriteStrategy)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", .fragment(.faviconIco)) {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .faviconIco) else { throw Abort(.notFound) }
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
+        let route = try await $0.getDocRoute(fragment: .faviconIco)
+        return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", .fragment(.faviconSvg)) {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .faviconSvg) else { throw Abort(.notFound) }
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
+        let route = try await $0.getDocRoute(fragment: .faviconSvg)
+        return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "css", "**") {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .css) else { throw Abort(.notFound) }
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
+        let route = try await $0.getDocRoute(fragment: .css)
+        return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "data", "**") {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .data) else { throw Abort(.notFound) }
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
+        let route = try await $0.getDocRoute(fragment: .data)
+        return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "images", "**") {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .images) else { throw Abort(.notFound) }
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
+        let route = try await $0.getDocRoute(fragment: .images)
+        return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "img", "**") {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .img) else { throw Abort(.notFound) }
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
+        let route = try await $0.getDocRoute(fragment: .img)
+        return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "index", "**") {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .index) else { throw Abort(.notFound) }
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
+        let route = try await $0.getDocRoute(fragment: .index)
+        return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "js", "**") {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .js) else { throw Abort(.notFound) }
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
+        let route = try await $0.getDocRoute(fragment: .js)
+        return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", .fragment(.linkablePaths)) {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .linkablePaths) else { throw Abort(.notFound) }
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
+        let route = try await $0.getDocRoute(fragment: .linkablePaths)
+        return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", .fragment(.themeSettings)) {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .themeSettings) else { throw Abort(.notFound) }
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
+        let route = try await $0.getDocRoute(fragment: .themeSettings)
+        return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "tutorials", "**") {
-        guard let route = DocRoute(parameters: $0.parameters, fragment: .tutorials) else { throw Abort(.badRequest) }
-        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: .toReference(route.docVersion.reference))
+        let lookup: Request.LookupStrategy = $0.isCurrentReference ? .unspecified : .fullySpecified
+        let route = try await $0.getDocRoute(lookup, fragment: .tutorials)
+#warning("check if we can derive rewriteStrategy from docVersion")
+        let rewriteStrategy: DocumentationPageProcessor.RewriteStrategy = $0.isCurrentReference
+        ? .current(fromReference: route.docVersion.reference)
+        : .toReference(route.docVersion.reference)
+        return try await PackageController.documentation(req: $0, route: route, rewriteStrategy: rewriteStrategy)
     }.excludeFromOpenAPI()
 }
 
@@ -226,16 +183,17 @@ extension Request {
         return .init(owner: owner, repository: repository, target: target, path: path)
     }
     
-    func getDocRoute(_ strategy: LookupStrategy, fragment: DocRoute.Fragment) async throws -> DocRoute {
+    func getDocRoute(_ strategy: LookupStrategy? = nil, fragment: DocRoute.Fragment) async throws -> DocRoute {
         guard let owner = parameters.get("owner"),
               let repository = parameters.get("repository")
         else { throw Abort(.badRequest) }
+        let strategy = strategy ?? (isCurrentReference ? .noReference : .fullySpecified)
 
         switch strategy {
             case .fullySpecified:
-                guard let archive = parameters.get("archive"),
-                      let ref = parameters.get("reference")
-                else { throw Abort(.badRequest) }
+                guard let ref = parameters.get("reference") else { throw Abort(.badRequest) }
+                let archive = parameters.get("archive")
+                if fragment.requiresArchive && archive == nil { throw Abort(.badRequest) }
                 let pathElements = parameters.pathElements(for: fragment, archive: archive)
                 return .init(owner: owner, repository: repository, docVersion: .reference(ref), fragment: fragment, pathElements: pathElements)
                 
@@ -257,5 +215,9 @@ extension Request {
                 let pathElements = parameters.pathElements(for: fragment, archive: params.archive)
                 return DocRoute(owner: owner, repository: repository, docVersion: .current(referencing: params.reference), fragment: fragment, pathElements: pathElements)
         }
+    }
+    
+    var isCurrentReference: Bool {
+        parameters.get("reference") == String.current
     }
 }

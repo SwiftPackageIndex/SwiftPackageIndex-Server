@@ -572,6 +572,15 @@ struct DocRoute {
                     return "application/javascript"
             }
         }
+        
+        var requiresArchive: Bool {
+            switch self {
+                case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .tutorials:
+                    return false
+                case .documentation:
+                    return true
+            }
+        }
     }
 }
 
