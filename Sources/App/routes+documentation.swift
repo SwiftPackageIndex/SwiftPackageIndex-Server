@@ -170,13 +170,14 @@ extension Request {
                 let pathElements = parameters.pathElements(for: fragment, archive: params.archive)
                 return DocRoute(owner: owner, repository: repository, docVersion: .current(referencing: params.reference), fragment: fragment, pathElements: pathElements)
 
-#warning("this case is weird, what about /o/r/~/css/** ? Wouldn't this throw badRequest?")
-#warning("this does indeed fail and doesn't trigger a test failure - no coverage!")
             case (true, _):
-                guard let archive = parameters.get("archive") else { throw Abort(.badRequest) }
+                let archive = parameters.get("archive")
                 guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
                 else { throw Abort(.notFound) }
-                guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
+                if fragment.requiresArchive {
+                    guard let archive else { throw Abort(.badRequest) }
+                    guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
+                }
                 let pathElements = parameters.pathElements(for: fragment, archive: archive)
                 return DocRoute(owner: owner, repository: repository, fragment: fragment, docVersion: .current(referencing: params.reference), pathElements: pathElements)
         }

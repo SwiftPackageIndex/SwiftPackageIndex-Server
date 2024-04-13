@@ -770,7 +770,38 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    func test_documentation_css() throws {
+    func test_documentation_current_css() async throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok, body: .init(string: uri.path))
+        }
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .defaultBranch,
+                          reference: .branch("main"))
+            .save(on: app.db)
+
+        // MUT
+        // test base url
+        try app.test(.GET, "/owner/package/~/css/a") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/css")
+            XCTAssertEqual($0.body.asString(), "/owner/package/~/css/a")
+        }
+
+        // test path a/b
+        try app.test(.GET, "/owner/package/~/css/a/b") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/css")
+            XCTAssertEqual($0.body.asString(), "/owner/package/~/css/a/b")
+        }
+    }
+
+    func test_documentation_ref_css() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
             // embed uri.path in the body as a simple way to test the requested url
@@ -793,7 +824,38 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    func test_documentation_js() throws {
+    func test_documentation_current_js() async throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok, body: .init(string: uri.path))
+        }
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .defaultBranch,
+                          reference: .branch("main"))
+            .save(on: app.db)
+
+        // MUT
+        // test base url
+        try app.test(.GET, "/owner/package/~/js/a") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
+            XCTAssertEqual($0.body.asString(), "/owner/package/~/js/a")
+        }
+
+        // test path a/b
+        try app.test(.GET, "/owner/package/~/js/a/b") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
+            XCTAssertEqual($0.body.asString(), "/owner/package/~/js/a/b")
+        }
+    }
+
+    func test_documentation_ref_js() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
             // embed uri.path in the body as a simple way to test the requested url
@@ -816,7 +878,47 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    func test_documentation_data() throws {
+    func test_documentation_current_data() async throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok, body: .init(string: uri.path))
+        }
+        let pkg = try await savePackageAsync(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .defaultBranch,
+                          reference: .branch("main"))
+            .save(on: app.db)
+
+        // MUT
+        // test base url
+        try app.test(.GET, "/owner/package/~/data/a") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual($0.body.asString(), "/owner/package/~/data/a")
+        }
+
+        // test path a/b
+        try app.test(.GET, "/owner/package/~/data/a/b") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual($0.body.asString(), "/owner/package/~/data/a/b")
+        }
+
+        // test case-insensitivity
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
+        try app.test(.GET, "/owner/package/~/data/documentation/Foo.json") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual($0.body.asString(),
+                           "/owner/package/~/data/documentation/foo.json")
+        }
+    }
+
+    func test_documentation_ref_data() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
             // embed uri.path in the body as a simple way to test the requested url
