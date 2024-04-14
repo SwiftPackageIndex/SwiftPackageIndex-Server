@@ -285,6 +285,45 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
+    func test_DocRoute_baseURL() throws {
+        XCTAssertEqual(
+            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .reference("1.2.3")).baseURL,
+            "foo/bar/1.2.3"
+        )
+        XCTAssertEqual(
+            DocRoute(owner: "Foo", repository: "Bar", fragment: .css, docVersion: .reference("1.2.3")).baseURL,
+            "foo/bar/1.2.3"
+        )
+        XCTAssertEqual(
+            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .reference("main")).baseURL,
+            "foo/bar/main"
+        )
+        XCTAssertEqual(
+            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .reference("Main")).baseURL,
+            "foo/bar/main"
+        )
+        XCTAssertEqual(
+            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .reference("feature/a")).baseURL,
+            "foo/bar/feature-a"
+        )
+        XCTAssertEqual(
+            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .current(referencing: "1.2.3")).baseURL,
+            "foo/bar/1.2.3"
+        )
+        XCTAssertEqual(
+            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .current(referencing: "1.2.3")).baseURL,
+            "foo/bar/1.2.3"
+        )
+        XCTAssertEqual(
+            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .current(referencing: "main")).baseURL,
+            "foo/bar/main"
+        )
+        XCTAssertEqual(
+            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .current(referencing: "Main")).baseURL,
+            "foo/bar/main"
+        )
+    }
+
     func test_awsDocumentationURL() throws {
         Current.awsDocsBucket = { "docs-bucket" }
         XCTAssertEqual(
@@ -323,6 +362,27 @@ class PackageController_routesTests: SnapshotTestCase {
             try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .themeSettings, pathElements: [""])).string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/theme-settings.json"
         )
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("feature/a"), fragment: .documentation, pathElements: ["path"])).string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/feature-a/documentation/path"
+        )
+    }
+
+    func test_awsDocumentationURL_current() throws {
+        Current.awsDocsBucket = { "docs-bucket" }
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "Main"), fragment: .documentation, pathElements: ["path"])).string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/main/documentation/path"
+        )
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "1.2.3"), fragment: .documentation, pathElements: ["path"])).string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/documentation/path"
+        )
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "feature/a"), fragment: .documentation, pathElements: ["path"])).string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/feature-a/documentation/path"
+        )
+
     }
 
     func test_awsDocumentationURL_issue2287() throws {
@@ -790,14 +850,14 @@ class PackageController_routesTests: SnapshotTestCase {
         try app.test(.GET, "/owner/package/~/css/a") {
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "text/css")
-            XCTAssertEqual($0.body.asString(), "/owner/package/~/css/a")
+            XCTAssertEqual($0.body.asString(), "/owner/package/main/css/a")
         }
 
         // test path a/b
         try app.test(.GET, "/owner/package/~/css/a/b") {
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "text/css")
-            XCTAssertEqual($0.body.asString(), "/owner/package/~/css/a/b")
+            XCTAssertEqual($0.body.asString(), "/owner/package/main/css/a/b")
         }
     }
 
@@ -844,14 +904,14 @@ class PackageController_routesTests: SnapshotTestCase {
         try app.test(.GET, "/owner/package/~/js/a") {
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "application/javascript")
-            XCTAssertEqual($0.body.asString(), "/owner/package/~/js/a")
+            XCTAssertEqual($0.body.asString(), "/owner/package/main/js/a")
         }
 
         // test path a/b
         try app.test(.GET, "/owner/package/~/js/a/b") {
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "application/javascript")
-            XCTAssertEqual($0.body.asString(), "/owner/package/~/js/a/b")
+            XCTAssertEqual($0.body.asString(), "/owner/package/main/js/a/b")
         }
     }
 
@@ -898,14 +958,14 @@ class PackageController_routesTests: SnapshotTestCase {
         try app.test(.GET, "/owner/package/~/data/a") {
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(), "/owner/package/~/data/a")
+            XCTAssertEqual($0.body.asString(), "/owner/package/main/data/a")
         }
 
         // test path a/b
         try app.test(.GET, "/owner/package/~/data/a/b") {
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(), "/owner/package/~/data/a/b")
+            XCTAssertEqual($0.body.asString(), "/owner/package/main/data/a/b")
         }
 
         // test case-insensitivity
@@ -914,7 +974,7 @@ class PackageController_routesTests: SnapshotTestCase {
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
             XCTAssertEqual($0.body.asString(),
-                           "/owner/package/~/data/documentation/foo.json")
+                           "/owner/package/main/data/documentation/foo.json")
         }
     }
 

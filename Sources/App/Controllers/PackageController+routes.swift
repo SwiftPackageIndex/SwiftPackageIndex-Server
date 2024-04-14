@@ -518,10 +518,6 @@ struct DocRoute {
             }
         }
         
-        var pathEncoded: String {
-            description.pathEncoded
-        }
-        
         var reference: String {
             switch self {
                 case .current(let reference):
@@ -583,7 +579,7 @@ extension DocRoute {
         self.pathElements = pathElements ?? []
     }
 
-    var baseURL: String { "\(owner.lowercased())/\(repository.lowercased())/\(docVersion.pathEncoded.lowercased())" }
+    var baseURL: String { "\(owner.lowercased())/\(repository.lowercased())/\(docVersion.reference.pathEncoded.lowercased())" }
 
     var archive: String? { pathElements.first }
 
