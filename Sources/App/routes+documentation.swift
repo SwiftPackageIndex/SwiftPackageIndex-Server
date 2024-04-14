@@ -152,29 +152,27 @@ extension Request {
     
     func getDocRoute(fragment: DocRoute.Fragment) async throws -> DocRoute {
         guard let owner = parameters.get("owner"),
-              let repository = parameters.get("repository")
+              let repository = parameters.get("repository"),
+              let reference = parameters.get("reference")
         else { throw Abort(.badRequest) }
         let archive = parameters.get("archive")
+        if fragment.requiresArchive && archive == nil { throw Abort(.badRequest) }
+        let pathElements = parameters.pathElements(for: fragment, archive: archive)
 
-        if parameters.get("reference") == String.current {
-            guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
-            else { throw Abort(.notFound) }
-            if fragment.requiresArchive {
-                guard let archive else { throw Abort(.badRequest) }
-                guard archive.lowercased() == params.archive.lowercased() else { throw Abort(.notFound) }
+        let docVersion = try await { () -> DocRoute.DocVersion in
+            if reference == String.current {
+                guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
+                else { throw Abort(.notFound) }
+                if fragment.requiresArchive && archive?.lowercased() != params.archive.lowercased() {
+                    throw Abort(.notFound)
+                }
+                return .current(referencing: params.reference)
+            } else {
+                return .reference(reference)
             }
-            let pathElements = parameters.pathElements(for: fragment, archive: archive)
-            return DocRoute(owner: owner, repository: repository, docVersion: .current(referencing: params.reference), fragment: fragment, pathElements: pathElements)
-        } else {
-            guard let ref = parameters.get("reference") else { throw Abort(.badRequest) }
-            if fragment.requiresArchive && archive == nil { throw Abort(.badRequest) }
-            let pathElements = parameters.pathElements(for: fragment, archive: archive)
-            return DocRoute(owner: owner, repository: repository, docVersion: .reference(ref), fragment: fragment, pathElements: pathElements)
-        }
-    }
-    
-    var referenceIsCurrent: Bool {
-        parameters.get("reference") == String.current
+        }()
+
+        return DocRoute(owner: owner, repository: repository, docVersion: docVersion, fragment: fragment, pathElements: pathElements)
     }
 }
 
