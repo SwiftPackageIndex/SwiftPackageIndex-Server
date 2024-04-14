@@ -20,17 +20,17 @@ func docRoutes(_ app: Application) throws {
     // Underspecified documentation routes - these routes lack the reference, the archive, or both.
     // Therefore, these parts need to be queried from the database and the request will be
     // redirected to the fully formed documentation URL.
-    app.get(":owner", ":repository", "documentation") {
-        try await PackageController.documentationRedirect($0.getRedirectRoute(), fragment: .documentation)
+    app.get(":owner", ":repository", "documentation") { req -> Response in
+        throw Abort.redirect(to: try await req.getDocRedirect(), fragment: .documentation)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", "documentation", "**") {
-        try await PackageController.documentationRedirect($0.getRedirectRoute(), fragment: .documentation)
+    app.get(":owner", ":repository", "documentation", "**") { req -> Response in
+        throw Abort.redirect(to: try await req.getDocRedirect(), fragment: .documentation)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", "tutorials", "**") {
-        try await PackageController.documentationRedirect($0.getRedirectRoute(), fragment: .tutorials)
+    app.get(":owner", ":repository", "tutorials", "**") { req -> Response in
+        throw Abort.redirect(to: try await req.getDocRedirect(), fragment: .tutorials)
     }.excludeFromOpenAPI()
-    app.get(":owner", ":repository", ":reference", "documentation") {
-        return try await PackageController.documentationRedirect($0.getRedirectRoute(), fragment: .documentation)
+    app.get(":owner", ":repository", ":reference", "documentation") { req -> Response in
+        throw Abort.redirect(to: try await req.getDocRedirect(), fragment: .documentation)
     }.excludeFromOpenAPI()
 
     // Stable URLs with reference (real reference or ~)
@@ -117,16 +117,15 @@ extension Parameters {
 }
  
 #warning("move this or make it private")
-extension Request {
-    struct RedirectDocRoute {
-        var owner: String
-        var repository: String
-        var target: DocumentationTarget
-        var path: String
-    }
+struct DocRedirect {
+    var owner: String
+    var repository: String
+    var target: DocumentationTarget
+    var path: String
+}
 
-#warning("can we merge getRedirectRoute and getDocRoute? Do we want to?")
-    func getRedirectRoute() async throws -> RedirectDocRoute {
+extension Request {
+    func getDocRedirect() async throws -> DocRedirect {
         guard let owner = parameters.get("owner"),
               let repository = parameters.get("repository")
         else { throw Abort(.badRequest) }
@@ -185,5 +184,16 @@ extension Request {
     
     var isCurrentReference: Bool {
         parameters.get("reference") == String.current
+    }
+}
+
+
+private extension Abort {
+    static func redirect(to redirect: DocRedirect, fragment: DocRoute.Fragment) -> Abort {
+        .redirect(to: SiteURL.relativeURL(owner: redirect.owner,
+                                                     repository: redirect.repository,
+                                                     documentation: redirect.target,
+                                                     fragment: fragment,
+                                                     path: redirect.path))
     }
 }

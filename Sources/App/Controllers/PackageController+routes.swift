@@ -56,14 +56,6 @@ enum PackageController {
         }
     }
 
-    static func documentationRedirect(_ route: Request.RedirectDocRoute, fragment: DocRoute.Fragment) async throws -> Response {
-        throw Abort.redirect(to: SiteURL.relativeURL(owner: route.owner,
-                                                     repository: route.repository,
-                                                     documentation: route.target,
-                                                     fragment: fragment,
-                                                     path: route.path))
-    }
-
     static func documentation(req: Request, route: DocRoute) async throws -> Response {
         let res: ClientResponse
         do {
