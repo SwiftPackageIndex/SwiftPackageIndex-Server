@@ -94,8 +94,7 @@ private extension PathComponent {
 }
 
 
-#warning("move this or make it private")
-extension Parameters {
+private extension Parameters {
     func pathElements(for fragment: DocRoute.Fragment, archive: String? = nil) -> [String] {
         let catchall = {
             var p = self
@@ -116,7 +115,7 @@ extension Parameters {
     }
 }
  
-#warning("move this or make it private")
+
 struct DocRedirect {
     var owner: String
     var repository: String
@@ -124,7 +123,8 @@ struct DocRedirect {
     var path: String
 }
 
-extension Request {
+
+private extension Request {
     func getDocRedirect() async throws -> DocRedirect {
         guard let owner = parameters.get("owner"),
               let repository = parameters.get("repository")

@@ -285,7 +285,6 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-#warning("move this test (and similar ones - check for them)")
     func test_DocRoute_baseURL() throws {
         XCTAssertEqual(
             DocRoute(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .documentation).baseURL,
