@@ -272,7 +272,7 @@ enum PackageController {
         let pathEncodedReference = reference.pathEncoded
 
         do {
-            let route = DocRoute(owner: owner, repository: repository, fragment: .linkablePaths, docVersion: .reference(pathEncodedReference))
+            let route = DocRoute(owner: owner, repository: repository, docVersion: .reference(pathEncodedReference), fragment: .linkablePaths)
             let awsResponse = try await awsResponse(client: client, route: route)
             guard let body = awsResponse.body else { return [] }
 
@@ -493,8 +493,8 @@ struct DocRoute {
     var repository: String
     var docVersion: DocVersion
     var fragment: Fragment
-    var pathElements: [String]
-    
+    var pathElements: [String] = []
+
     var contentType: String { fragment.contentType }
     
     enum DocVersion: CustomStringConvertible {
@@ -563,14 +563,6 @@ struct DocRoute {
 }
 
 extension DocRoute {
-    init(owner: String, repository: String, fragment: DocRoute.Fragment, docVersion: DocVersion, pathElements: [String]? = nil) {
-        self.owner = owner
-        self.repository = repository
-        self.docVersion = docVersion
-        self.fragment = fragment
-        self.pathElements = pathElements ?? []
-    }
-
     var baseURL: String { "\(owner.lowercased())/\(repository.lowercased())/\(docVersion.reference.pathEncoded.lowercased())" }
 
     var archive: String? { pathElements.first }

@@ -288,39 +288,39 @@ class PackageController_routesTests: SnapshotTestCase {
 #warning("move this test (and similar ones - check for them)")
     func test_DocRoute_baseURL() throws {
         XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .reference("1.2.3")).baseURL,
+            DocRoute(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .documentation).baseURL,
             "foo/bar/1.2.3"
         )
         XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", fragment: .css, docVersion: .reference("1.2.3")).baseURL,
+            DocRoute(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .css).baseURL,
             "foo/bar/1.2.3"
         )
         XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .reference("main")).baseURL,
+            DocRoute(owner: "Foo", repository: "Bar", docVersion: .reference("main"), fragment: .documentation).baseURL,
             "foo/bar/main"
         )
         XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .reference("Main")).baseURL,
+            DocRoute(owner: "Foo", repository: "Bar", docVersion: .reference("Main"), fragment: .documentation).baseURL,
             "foo/bar/main"
         )
         XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .reference("feature/a")).baseURL,
+            DocRoute(owner: "Foo", repository: "Bar", docVersion: .reference("feature/a"), fragment: .documentation).baseURL,
             "foo/bar/feature-a"
         )
         XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .current(referencing: "1.2.3")).baseURL,
+            DocRoute(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "1.2.3"), fragment: .documentation).baseURL,
             "foo/bar/1.2.3"
         )
         XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .current(referencing: "1.2.3")).baseURL,
+            DocRoute(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "1.2.3"), fragment: .documentation).baseURL,
             "foo/bar/1.2.3"
         )
         XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .current(referencing: "main")).baseURL,
+            DocRoute(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "main"), fragment: .documentation).baseURL,
             "foo/bar/main"
         )
         XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", fragment: .documentation, docVersion: .current(referencing: "Main")).baseURL,
+            DocRoute(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "Main"), fragment: .documentation).baseURL,
             "foo/bar/main"
         )
     }
