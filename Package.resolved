@@ -1,13 +1,13 @@
 {
-  "originHash" : "b25159d852b05784064094644237da5288211e227e1179fce0ea4b4838317f86",
+  "originHash" : "c8e5f996132b26b429fa25201f69618562523523645dffc42fb5c0b504fab9ce",
   "pins" : [
     {
       "identity" : "async-http-client",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server/async-http-client.git",
       "state" : {
-        "revision" : "291438696abdd48d2a83b52465c176efbd94512b",
-        "version" : "1.20.1"
+        "revision" : "fb308ee72f3d4c082a507033f94afa7395963ef3",
+        "version" : "1.21.0"
       }
     },
     {
@@ -96,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/jwt-kit",
       "state" : {
-        "revision" : "e05513b5aec24f88012b6e3034115b6bc915356a",
-        "version" : "4.13.2"
+        "revision" : "ee06dd48bee3c31a8118b85d0ee81da261f82cf7",
+        "version" : "4.13.3"
       }
     },
     {
@@ -492,8 +492,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "11cdb29614a5c7f8c5289f3c97b3398c3d89b395",
-        "version" : "4.92.5"
+        "revision" : "8409c3c296e7f8965df14e906dbcd44eb68f54a9",
+        "version" : "4.92.6"
       }
     },
     {
