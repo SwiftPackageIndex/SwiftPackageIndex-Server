@@ -33,7 +33,7 @@ updates:
     commit-message:
       prefix: "Swift:"
     schedule:
-      interval: "weekly"
+      interval: "daily"
       time: "02:00"
     groups:
       swift-dependencies:
