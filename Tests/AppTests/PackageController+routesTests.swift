@@ -525,7 +525,7 @@ class PackageController_routesTests: SnapshotTestCase {
             assertSnapshot(of: body, as: .html, named: "index")
             // Call out a couple of specific snippets in the html
             XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.0.0/favicon.ico" />"#))
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
             XCTAssertFalse(body.contains(#"<link rel="canonical""#))
             XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
         }
@@ -539,7 +539,7 @@ class PackageController_routesTests: SnapshotTestCase {
             assertSnapshot(of: body, as: .html, named: "index")
             // Call out a couple of specific snippets in the html
             XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.0.0/favicon.ico" />"#))
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
             XCTAssertFalse(body.contains(#"<link rel="canonical""#))
             XCTAssertFalse(body.contains(#"a/b#anchor"#))
             XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
@@ -554,7 +554,7 @@ class PackageController_routesTests: SnapshotTestCase {
             assertSnapshot(of: body, as: .html, named: "index-mixed-case")
             // Call out a couple of specific snippets in the html
             XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.0.0/favicon.ico" />"#))
+            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
             XCTAssertFalse(body.contains(#"<link rel="canonical""#))
             XCTAssertFalse(body.contains(#"a/b#anchor"#))
             XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
