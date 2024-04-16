@@ -405,7 +405,7 @@ class PackageController_routesTests: SnapshotTestCase {
 
         // There should be no canonical URL if the package owner/repo/ref prefix doesn't match even with a valid canonical target.
         XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "/some/random/url/without/matching/prefix",
-                                                                 owner: "owner", 
+                                                                 owner: "owner",
                                                                  repository: "repo",
                                                                  docVersion: .reference("non-canonical-ref"),
                                                                  toTarget: .internal(reference: "canonical-ref", archive: "archive")))
@@ -419,15 +419,15 @@ class PackageController_routesTests: SnapshotTestCase {
                        "/owner/repo/canonical-ref/documentation/archive")
 
         XCTAssertEqual(PackageController.canonicalDocumentationUrl(from: "/owner/repo/non-canonical-ref/documentation/archive/symbol:$-%",
-                                                                   owner: "owner", 
-                                                                   repository: "repo", 
+                                                                   owner: "owner",
+                                                                   repository: "repo",
                                                                    docVersion: .reference("non-canonical-ref"),
                                                                    toTarget: .internal(reference: "canonical-ref", archive: "archive")),
                        "/owner/repo/canonical-ref/documentation/archive/symbol:$-%")
     }
 
-    func test_documentation_routes_default() async throws {
-        // Test the default documentation routes without any reference:
+    func test_documentation_routes_redirect() async throws {
+        // Test the redirect documentation routes without any reference:
         //   /owner/package/documentation + various path elements
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -679,7 +679,7 @@ class PackageController_routesTests: SnapshotTestCase {
             XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target" />"#))
             XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
         }
-        
+
         // test catchall
         try await app.test(.GET, "/owner/package/1.2.3/documentation/target/a/b#anchor") {
             await Task.yield() // essential to avoid deadlocking
@@ -716,20 +716,20 @@ class PackageController_routesTests: SnapshotTestCase {
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
-                    commit: "0123456789",
-                    commitDate: .t0,
-                    docArchives: [.init(name: "target", title: "Target")],
-                    latest: .defaultBranch,
-                    packageName: "pkg",
-                    reference: .branch("main"))
+                          commit: "0123456789",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .defaultBranch,
+                          packageName: "pkg",
+                          reference: .branch("main"))
             .save(on: app.db)
         try await Version(package: pkg,
-                    commit: "9876543210",
-                    commitDate: .t0,
-                    docArchives: [.init(name: "target", title: "Target")],
-                    latest: .release,
-                    packageName: "pkg",
-                    reference: .tag(1, 0, 0))
+                          commit: "9876543210",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .release,
+                          packageName: "pkg",
+                          reference: .tag(1, 0, 0))
             .save(on: app.db)
         Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
@@ -1009,7 +1009,7 @@ class PackageController_routesTests: SnapshotTestCase {
                            "/apple/swift-nio/main/data/documentation/niocore.json")
         }
     }
-    
+
     func test_documentation_canonicalCapitalisation() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
@@ -1035,7 +1035,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let document = try SwiftSoup.parse(response.body.string)
             let linkElements = try document.select("link[rel='canonical']")
             XCTAssertEqual(linkElements.count, 1)
-            
+
             let href = try linkElements.first()!.attr("href")
             XCTAssertEqual(href, "/Owner/Package/1.2.3/documentation/a/b")
         }
@@ -1191,10 +1191,10 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_linkablePaths() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                .init(status: .ok,
-                      headers: ["content-type": "application/json"],
-                      body: .init(string: uri.path))
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok,
+                  headers: ["content-type": "application/json"],
+                  body: .init(string: uri.path))
         }
 
         // MUT
@@ -1233,8 +1233,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 "was: \($0.body.asString())"
             )
             // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
-            XCTAssertTrue($0.body.asString()
-                    .contains(#"<link rel="stylesheet" href="/docc.css?test" />"#),
+            XCTAssertTrue($0.body.asString().contains(#"<link rel="stylesheet" href="/docc.css?test" />"#),
                           "was: \($0.body.asString())")
         }
 
@@ -1404,6 +1403,180 @@ class PackageController_routesTests: SnapshotTestCase {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
+        }
+    }
+
+    func test_getDocRoute_documentation() async throws {
+        // owner/repo/1.2.3/documentation/archive
+        let req = Request(application: app, url: "", on: app.eventLoopGroup.next())
+        req.parameters.set("owner", to: "owner")
+        req.parameters.set("repository", to: "repo")
+        req.parameters.set("reference", to: "1.2.3")
+        req.parameters.set("archive", to: "archive")
+
+        let route = try await req.getDocRoute(fragment: .documentation)
+        XCTAssertEqual(route, .init(owner: "owner", repository: "repo", docVersion: .reference("1.2.3"), fragment: .documentation, pathElements: ["archive"]))
+    }
+
+    func test_getDocRoute_documentation_current() async throws {
+        let cache = CurrentReferenceCache()
+        Current.currentReferenceCache = { cache }
+        // owner/repo/~/documentation/archive
+        let req = Request(application: app, url: "", on: app.eventLoopGroup.next())
+        req.parameters.set("owner", to: "owner")
+        req.parameters.set("repository", to: "repo")
+        req.parameters.set("reference", to: "~")
+        req.parameters.set("archive", to: "archive")
+
+        do { // No cache value available and we've not set up the db with a record to be found -> notFound must be raised
+            _ = try await req.getDocRoute(fragment: .documentation)
+            XCTFail("expected a .notFound error")
+        } catch let error as Abort where error.status == .notFound {
+            // expected error
+        } catch {
+            XCTFail("unexpected error: \(error)")
+        }
+
+        cache[owner: "owner", repository: "repo"] = "1.2.3"
+
+        do { // Now with the cache in place this resolves
+            let route = try await req.getDocRoute(fragment: .documentation)
+            XCTAssertEqual(route, .init(owner: "owner", repository: "repo", docVersion: .current(referencing: "1.2.3"), fragment: .documentation, pathElements: ["archive"]))
+        }
+    }
+
+    func test_getDocRoute_missing_reference() async throws {
+        do {
+            let req = Request(application: app, on: app.eventLoopGroup.next())
+            req.parameters.set("owner", to: "owner")
+            req.parameters.set("repository", to: "repo")
+            _ = try await req.getDocRoute(fragment: .documentation)
+            XCTFail("expected a .badRequest error")
+        } catch let error as Abort where error.status == .badRequest {
+            // expected error
+        } catch {
+            XCTFail("unexpected error: \(error)")
+        }
+    }
+
+    func test_getDocRoute_missing_archive() async throws {
+        do { // reference but no archive
+            do {
+                let req = Request(application: app, on: app.eventLoopGroup.next())
+                req.parameters.set("owner", to: "owner")
+                req.parameters.set("repository", to: "repo")
+                req.parameters.set("reference", to: "1.2.3")
+                _ = try await req.getDocRoute(fragment: .documentation)
+                XCTFail("expected a .badRequest error")
+            } catch let error as Abort where error.status == .badRequest {
+                // expected error
+            } catch {
+                XCTFail("unexpected error: \(error)")
+            }
+        }
+    }
+
+    func test_CurrentReferenceCache_reset() async throws {
+        // Ensure the cache is reset when a new version is analysed
+        // setup
+        let pkg = try savePackage(on: app.db, "https://github.com/foo/bar".url, processingStage: .ingestion)
+        try await Repository(package: pkg, defaultBranch: "main", name: "bar", owner: "foo")
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "0",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .defaultBranch,
+                          packageName: "bar",
+                          reference: .branch("main"))
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "0",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .release,
+                          packageName: "bar",
+                          reference: .tag(1, 0, 0))
+            .save(on: app.db)
+        Current.fileManager.fileExists = { path in
+            if path.hasSuffix("Package.resolved") { return false }
+            return true
+        }
+        let cache = CurrentReferenceCache()
+        cache[owner: "foo", repository: "bar"] = "1.0.0"
+        Current.currentReferenceCache = { cache }
+        Current.git = .init(
+            commitCount: { _ in 2 },
+            firstCommitDate: { _ in .t0 },
+            lastCommitDate: { _ in .t1 },
+            getTags: { _ in [.tag(1, 0, 0), .tag(1, 1, 0)] },
+            hasBranch: { _, _ in true },
+            revisionInfo: { ref, _ in
+                if ref == .tag(1, 0, 0) { return .init(commit: "0", date: .t0) }
+                if ref == .tag(1, 1, 0) { return .init(commit: "1", date: .t1) }
+                if ref == .branch("main") { return .init(commit: "1", date: .t1) }
+                fatalError("revisionInfo: \(ref)")
+            },
+            shortlog: { _ in "1\tauthor" }
+        )
+        Current.shell.run = { cmd, _ in
+            if cmd.description == "swift package dump-package" { return .mockManifest }
+            return ""
+        }
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
+        // end of setup
+
+        // Ensure documentation is resolved
+        try app.test(.GET, "/foo/bar/~/documentation/target") {
+            XCTAssertEqual($0.status, .ok)
+            let body = String(buffer: $0.body)
+            XCTAssert(body.contains(#"<a href="/foo/bar/1.0.0/documentation/target">"#))
+        }
+
+        XCTAssertEqual(cache[owner: "foo", repository: "bar"], "1.0.0")
+
+        // Run analyze to detect the new version
+        try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+
+        do { // Confirm that analysis has picked up the new version
+            let versions = try await Version.query(on: app.db).all().sorted(by: { $0.reference.description < $1.reference.description })
+            try await XCTAssertEqualAsync(versions.map(\.reference.description), ["1.0.0", "1.1.0", "main"])
+
+            // New version has no doc archive
+            XCTAssertNil(versions[1].docArchives)
+
+            // Cache should still be pointing to orignal version
+            XCTAssertEqual(cache[owner: "foo", repository: "bar"], "1.0.0")
+        }
+
+        do { // Now simulate a doc report coming back for version 1.1.0
+            let versions = try await Version.query(on: app.db).all().sorted(by: { $0.reference.description < $1.reference.description })
+            let b = try Build(version: versions[1], platform: .iOS, status: .ok, swiftVersion: .v3)
+            try await b.save(on: app.db)
+            let buildId = try b.requireID()
+            let req = Request(application: app, method: .POST, on: app.eventLoopGroup.next())
+            req.parameters.set("id", to: "\(buildId)")
+            let dto = API.PostDocReportDTO(docArchives: [.init(name: "target", title: "Target")], status: .ok)
+            try req.content.encode(dto, using: JSONEncoder())
+            let status = try await API.BuildController.docReport(req: req)
+            XCTAssertEqual(status, .noContent)
+        }
+
+        do { // Confirm cache and version.docArchive are updated
+            XCTAssertEqual(cache[owner: "foo", repository: "bar"], nil)
+
+            let versions = try await Version.query(on: app.db).all().sorted(by: { $0.reference.description < $1.reference.description })
+            try await XCTAssertEqualAsync(versions.map(\.reference.description), ["1.0.0", "1.1.0", "main"])
+
+            XCTAssertEqual(versions[1].docArchives, [.init(name: "target", title: "Target")])
+            // Ensure documentation is resolved
+            try app.test(.GET, "/foo/bar/~/documentation/target") {
+                XCTAssertEqual($0.status, .ok)
+                let body = String(buffer: $0.body)
+                XCTAssert(body.contains(#"<a href="/foo/bar/1.1.0/documentation/target">"#))
+            }
+
+            XCTAssertEqual(cache[owner: "foo", repository: "bar"], "1.1.0")
         }
     }
 
