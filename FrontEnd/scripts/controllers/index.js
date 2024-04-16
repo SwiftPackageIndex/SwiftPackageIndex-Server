@@ -20,6 +20,7 @@ import { TabBarController } from './tab_bar_controller.js'
 import { PanelButtonController } from './panel_button_controller.js'
 import { UseThisPackagePanelController } from './use_this_package_panel_controller.js'
 import { BlogController } from './blog_controller.js'
+import { VegaChartController } from './vega_chart_controller.js'
 
 const application = Application.start()
 application.register('overflowing-list', OverflowingListController)
@@ -29,3 +30,4 @@ application.register('tab-bar', TabBarController)
 application.register('panel-button', PanelButtonController)
 application.register('use-this-package-panel', UseThisPackagePanelController)
 application.register('blog', BlogController)
+application.register('vega-chart', VegaChartController)

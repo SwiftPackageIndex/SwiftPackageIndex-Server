@@ -35,13 +35,6 @@ extension ReadyForSwift6Show {
             ]
         }
 
-        override func postHead() -> Node<HTML.HeadContext> {
-            .script(
-                .src("https://cdn.jsdelivr.net/npm/vega@5"),
-                .data(named: "turbolinks-track", value: "reload")
-            )
-        }
-
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .h2("Ready for Swift 6"),
@@ -54,63 +47,13 @@ extension ReadyForSwift6Show {
                     .id("toggle-line"),
                     .type(.checkbox)
                 ),
-                .readyForSwift6Chart(chartIdentifier: "rfs6-packages"),
+                model.readyForSwift6Chart(identifier: "rfs6-packages"),
                 .h3("Total Swift 6 concurrency errors"),
                 .p("This chart shows the total number of Swift concurrency errors across the entire selection of testing packages:"),
-                .readyForSwift6Chart(chartIdentifier: "rfs6-errors"),
+//                model.readyForSwift6Chart(chartIdentifier: "rfs6-errors"),
                 .h3("List of compatible packages"),
                 .p("Here are all the compatible packages!")
             )
         }
-    }
-}
-
-private extension Node where Context: HTML.BodyContext {
-    static func readyForSwift6Chart(chartIdentifier: String) -> Self {
-        let scriptPath = Current.fileManager.workingDirectory().appending("Resources/Charts/vega-charts.js")
-        let chartPath = Current.fileManager.workingDirectory().appending("Resources/Charts/\(chartIdentifier).json")
-        guard let scriptData = Current.fileManager.contents(atPath: scriptPath),
-              let script = String(data: scriptData, encoding: .utf8)?.replacingOccurrences(of: "###", with: chartIdentifier), //.compactJavaScript(),
-              let chartSpec = Current.fileManager.contents(atPath: chartPath)?.compactJson()
-        else {
-            return .p(
-                .text("Failed to load "),
-                .text(chartIdentifier),
-                .text(".")
-            )
-        }
-
-        return .group(
-            .div(
-                .class("vega-chart"),
-                .id("vega-chart-\(chartIdentifier)")
-            ),
-            .script(
-                .id("vega-spec-\(chartIdentifier)"),
-                .attribute(named: "type", value: "application/json"),
-                .raw(chartSpec)
-            ),
-            .script(
-                .raw(script.compactJavaScript())
-            )
-        )
-    }
-}
-
-private extension String {
-    func compactJavaScript() -> String {
-        self.split(separator: "\n")
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-            .joined(separator: ";")
-    }
-}
-
-private extension Data {
-    func compactJson() -> String? {
-        guard let json = try? JSONSerialization.jsonObject(with: self),
-              let compactedJsonData = try? JSONSerialization.data(withJSONObject: json),
-              let compactJson = String(data: compactedJsonData, encoding: .utf8)
-        else { return nil }
-        return compactJson
     }
 }
