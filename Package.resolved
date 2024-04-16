@@ -1,5 +1,5 @@
 {
-  "originHash" : "c8e5f996132b26b429fa25201f69618562523523645dffc42fb5c0b504fab9ce",
+  "originHash" : "fd1a2ccda7165feafb05b2451e87301c9184772a2ae8a80c3b536d0a2dd00f0b",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "7ece208cd401687641c88367a00e3ea2b04311f1",
         "version" : "1.19.0"
+      }
+    },
+    {
+      "identity" : "cache",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/0xLeif/Cache.git",
+      "state" : {
+        "revision" : "a535c68aab7bf0b42bda7a5de66b04f86e48c6e6",
+        "version" : "2.1.0"
       }
     },
     {
