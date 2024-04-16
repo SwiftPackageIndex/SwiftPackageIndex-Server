@@ -347,26 +347,26 @@ struct DocumentationPageProcessor {
         }
     }
 
+#warning("clean this up")
     static func rewriteAttribute(_ attribute: String, document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocRoute.DocVersion) throws {
         // Possible rewrite strategies
-        //   / -> /a/b/1.2.3        (toReference)
-        //   / -> /a/b/~            (current)
-        //   /a/b/1.2.3 -> /a/b/~   (current)
+        //   / -> /a/b/1.2.3            (toReference)
+        //   / -> /a/b/1.2.3            (current)
+        //   /a/b/1.2.3 -> /a/b/1.2.3   (current)
         switch docVersion {
             case .current(let reference):
                 for e in try document.select(#"[\#(attribute)^="/"]"#) {
                     let value = try e.attr(attribute)
                     if !value.lowercased().hasPrefix("/\(owner)/\(repository)/".lowercased()) {
                         // no /{owner}/{repo}/ prefix -> it's a dynamic base url resource, i.e. a "/" resource
-                        //   / -> /a/b/~            (current)
-                        try e.attr(attribute, "/\(owner)/\(repository)/\(String.current)\(value)".lowercased())
+                        //   / -> /a/b/1.2.3            (current)
+                        try e.attr(attribute, "/\(owner)/\(repository)/\(reference)\(value)".lowercased())
                     } else {
                         let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(reference)".lowercased()
                         if value.lowercased().hasPrefix(fullyQualifiedPrefix) {
                             // matches expected fully qualified resource path
-                            //   /a/b/1.2.3 -> /a/b/~   (current)
-                            let trimmed = value.dropFirst(fullyQualifiedPrefix.count)
-                            try e.attr(attribute, "/\(owner)/\(repository)/\(String.current)\(trimmed)".lowercased())
+                            //   /a/b/1.2.3 -> /a/b/1.2.3   (current)
+                            return
                         } else {
                             // did not match expected resource prefix - leave it alone
                             // (shouldn't be possible)
@@ -380,7 +380,7 @@ struct DocumentationPageProcessor {
                     let value = try e.attr(attribute)
                     if !value.lowercased().hasPrefix("/\(owner)/\(repository)/".lowercased()) {
                         // no /{owner}/{repo}/ prefix -> it's a dynamic base url resource, i.e. a "/" resource
-                        //   / -> /a/b/~            (current)
+                        //   / -> /a/b/1.2.3            (current)
                         try e.attr(attribute, "/\(owner)/\(repository)/\(reference)\(value)".lowercased())
                     } else {
                         // already prefixed resource, leave it alone
