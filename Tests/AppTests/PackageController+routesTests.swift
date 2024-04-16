@@ -1562,18 +1562,21 @@ class PackageController_routesTests: SnapshotTestCase {
             XCTAssertEqual(status, .noContent)
         }
 
-        do { // Confirm version and cache are updated
+        do { // Confirm cache and version.docArchive are updated
+            XCTAssertEqual(cache[owner: "foo", repository: "bar"], nil)
+
             let versions = try await Version.query(on: app.db).all().sorted(by: { $0.reference.description < $1.reference.description })
             try await XCTAssertEqualAsync(versions.map(\.reference.description), ["1.0.0", "1.1.0", "main"])
 
             XCTAssertEqual(versions[1].docArchives, [.init(name: "target", title: "Target")])
-            XCTAssertEqual(cache[owner: "foo", repository: "bar"], "1.1.0")
             // Ensure documentation is resolved
             try app.test(.GET, "/foo/bar/~/documentation/target") {
                 XCTAssertEqual($0.status, .ok)
                 let body = String(buffer: $0.body)
                 XCTAssert(body.contains(#"<a href="/foo/bar/1.1.0/documentation/target">"#))
             }
+
+            XCTAssertEqual(cache[owner: "foo", repository: "bar"], "1.1.0")
         }
     }
 
