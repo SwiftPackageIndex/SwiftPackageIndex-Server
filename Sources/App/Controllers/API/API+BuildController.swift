@@ -129,35 +129,7 @@ extension API {
                     .update()
             }
 
-            if let cacheInfo = try await getCurrentReferenceCacheInfo(req.db, buildId: buildId) {
-                // Reset the cache for this repository regardless of whether the build is from a branch or a tag.
-                // We can't know for sure if the ref we got this doc report for is the latest one, so all we can do is reset.
-                Current.currentReferenceCache()?[owner: cacheInfo.owner, repository: cacheInfo.repository] = nil
-            }
-
             return .noContent
-        }
-
-        static func getCurrentReferenceCacheInfo(_ database: Database, buildId: Build.Id) async throws -> (owner: String, repository: String)? {
-            guard let db = database as? SQLDatabase else {
-                fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
-            }
-
-            let query: SQLQueryString = """
-                SELECT r.owner, r.name AS "repository"
-                FROM repositories r join packages p ON r.package_id = p.id
-                JOIN versions v ON v.package_id = p.id
-                JOIN builds b ON b.version_id = v.id
-                WHERE b.id = \(bind: buildId)
-                """
-            struct Row: Decodable {
-                var owner: String
-                var repository: String
-            }
-            return try await db.raw(query)
-                .all(decoding: Row.self)
-                .map { ($0.owner, $0.repository) }
-                .first
         }
     }
 
