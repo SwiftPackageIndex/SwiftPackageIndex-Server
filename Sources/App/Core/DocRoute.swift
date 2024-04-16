@@ -13,7 +13,7 @@
 // limitations under the License.
 
 
-struct DocRoute {
+struct DocRoute: Equatable {
     var owner: String
     var repository: String
     var docVersion: DocVersion
@@ -22,7 +22,7 @@ struct DocRoute {
 
     var contentType: String { fragment.contentType }
 
-    enum DocVersion: CustomStringConvertible {
+    enum DocVersion: CustomStringConvertible, Equatable {
         case current(referencing: String)
         case reference(String)
 

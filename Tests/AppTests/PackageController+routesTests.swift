@@ -405,7 +405,7 @@ class PackageController_routesTests: SnapshotTestCase {
 
         // There should be no canonical URL if the package owner/repo/ref prefix doesn't match even with a valid canonical target.
         XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "/some/random/url/without/matching/prefix",
-                                                                 owner: "owner", 
+                                                                 owner: "owner",
                                                                  repository: "repo",
                                                                  docVersion: .reference("non-canonical-ref"),
                                                                  toTarget: .internal(reference: "canonical-ref", archive: "archive")))
@@ -419,8 +419,8 @@ class PackageController_routesTests: SnapshotTestCase {
                        "/owner/repo/canonical-ref/documentation/archive")
 
         XCTAssertEqual(PackageController.canonicalDocumentationUrl(from: "/owner/repo/non-canonical-ref/documentation/archive/symbol:$-%",
-                                                                   owner: "owner", 
-                                                                   repository: "repo", 
+                                                                   owner: "owner",
+                                                                   repository: "repo",
                                                                    docVersion: .reference("non-canonical-ref"),
                                                                    toTarget: .internal(reference: "canonical-ref", archive: "archive")),
                        "/owner/repo/canonical-ref/documentation/archive/symbol:$-%")
@@ -679,7 +679,7 @@ class PackageController_routesTests: SnapshotTestCase {
             XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target" />"#))
             XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
         }
-        
+
         // test catchall
         try await app.test(.GET, "/owner/package/1.2.3/documentation/target/a/b#anchor") {
             await Task.yield() // essential to avoid deadlocking
@@ -716,20 +716,20 @@ class PackageController_routesTests: SnapshotTestCase {
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
-                    commit: "0123456789",
-                    commitDate: .t0,
-                    docArchives: [.init(name: "target", title: "Target")],
-                    latest: .defaultBranch,
-                    packageName: "pkg",
-                    reference: .branch("main"))
+                          commit: "0123456789",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .defaultBranch,
+                          packageName: "pkg",
+                          reference: .branch("main"))
             .save(on: app.db)
         try await Version(package: pkg,
-                    commit: "9876543210",
-                    commitDate: .t0,
-                    docArchives: [.init(name: "target", title: "Target")],
-                    latest: .release,
-                    packageName: "pkg",
-                    reference: .tag(1, 0, 0))
+                          commit: "9876543210",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "target", title: "Target")],
+                          latest: .release,
+                          packageName: "pkg",
+                          reference: .tag(1, 0, 0))
             .save(on: app.db)
         Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
@@ -1009,7 +1009,7 @@ class PackageController_routesTests: SnapshotTestCase {
                            "/apple/swift-nio/main/data/documentation/niocore.json")
         }
     }
-    
+
     func test_documentation_canonicalCapitalisation() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
@@ -1035,7 +1035,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let document = try SwiftSoup.parse(response.body.string)
             let linkElements = try document.select("link[rel='canonical']")
             XCTAssertEqual(linkElements.count, 1)
-            
+
             let href = try linkElements.first()!.attr("href")
             XCTAssertEqual(href, "/Owner/Package/1.2.3/documentation/a/b")
         }
@@ -1191,10 +1191,10 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_linkablePaths() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                .init(status: .ok,
-                      headers: ["content-type": "application/json"],
-                      body: .init(string: uri.path))
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok,
+                  headers: ["content-type": "application/json"],
+                  body: .init(string: uri.path))
         }
 
         // MUT
@@ -1233,8 +1233,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 "was: \($0.body.asString())"
             )
             // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
-            XCTAssertTrue($0.body.asString()
-                    .contains(#"<link rel="stylesheet" href="/docc.css?test" />"#),
+            XCTAssertTrue($0.body.asString().contains(#"<link rel="stylesheet" href="/docc.css?test" />"#),
                           "was: \($0.body.asString())")
         }
 
@@ -1404,6 +1403,76 @@ class PackageController_routesTests: SnapshotTestCase {
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual($0.status, .ok)
             assertSnapshot(of: String(buffer: $0.body), as: .html, named: "index")
+        }
+    }
+
+    func test_getDocRoute_documentation() async throws {
+        // owner/repo/1.2.3/documentation/archive
+        let req = Request(application: app, url: "", on: app.eventLoopGroup.next())
+        req.parameters.set("owner", to: "owner")
+        req.parameters.set("repository", to: "repo")
+        req.parameters.set("reference", to: "1.2.3")
+        req.parameters.set("archive", to: "archive")
+
+        let route = try await req.getDocRoute(fragment: .documentation)
+        XCTAssertEqual(route, .init(owner: "owner", repository: "repo", docVersion: .reference("1.2.3"), fragment: .documentation, pathElements: ["archive"]))
+    }
+
+    func test_getDocRoute_documentation_current() async throws {
+        let cache = CurrentReferenceCache()
+        Current.currentReferenceCache = { cache }
+        // owner/repo/~/documentation/archive
+        let req = Request(application: app, url: "", on: app.eventLoopGroup.next())
+        req.parameters.set("owner", to: "owner")
+        req.parameters.set("repository", to: "repo")
+        req.parameters.set("reference", to: "~")
+        req.parameters.set("archive", to: "archive")
+
+        do { // No cache value available and we've not set up the db with a record to be found -> notFound must be raised
+            _ = try await req.getDocRoute(fragment: .documentation)
+            XCTFail("expected a .notFound error")
+        } catch let error as Abort where error.status == .notFound {
+            // expected error
+        } catch {
+            XCTFail("unexpected error: \(error)")
+        }
+
+        cache[owner: "owner", repository: "repo"] = "1.2.3"
+
+        do { // Now with the cache in place this resolves
+            let route = try await req.getDocRoute(fragment: .documentation)
+            XCTAssertEqual(route, .init(owner: "owner", repository: "repo", docVersion: .current(referencing: "1.2.3"), fragment: .documentation, pathElements: ["archive"]))
+        }
+    }
+
+    func test_getDocRoute_missing_reference() async throws {
+        do {
+            let req = Request(application: app, on: app.eventLoopGroup.next())
+            req.parameters.set("owner", to: "owner")
+            req.parameters.set("repository", to: "repo")
+            _ = try await req.getDocRoute(fragment: .documentation)
+            XCTFail("expected a .badRequest error")
+        } catch let error as Abort where error.status == .badRequest {
+            // expected error
+        } catch {
+            XCTFail("unexpected error: \(error)")
+        }
+    }
+
+    func test_getDocRoute_missing_archive() async throws {
+        do { // reference but no archive
+            do {
+                let req = Request(application: app, on: app.eventLoopGroup.next())
+                req.parameters.set("owner", to: "owner")
+                req.parameters.set("repository", to: "repo")
+                req.parameters.set("reference", to: "1.2.3")
+                _ = try await req.getDocRoute(fragment: .documentation)
+                XCTFail("expected a .badRequest error")
+            } catch let error as Abort where error.status == .badRequest {
+                // expected error
+            } catch {
+                XCTFail("unexpected error: \(error)")
+            }
         }
     }
 

@@ -124,7 +124,7 @@ struct DocRedirect {
 }
 
 
-private extension Request {
+extension Request {
     func getDocRedirect() async throws -> DocRedirect {
         guard let owner = parameters.get("owner"),
               let repository = parameters.get("repository")
@@ -159,7 +159,6 @@ private extension Request {
         if fragment.requiresArchive && archive == nil { throw Abort(.badRequest) }
         let pathElements = parameters.pathElements(for: fragment, archive: archive)
 
-#warning("add tests to check when we're hitting the db and when we don't")
         let docVersion = try await { () -> DocRoute.DocVersion in
             if reference == String.current {
                 if let ref = Current.currentReferenceCache()?[owner: owner, repository: repository] {

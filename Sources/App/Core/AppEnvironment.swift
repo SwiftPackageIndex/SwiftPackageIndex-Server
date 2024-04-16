@@ -112,8 +112,6 @@ extension AppEnvironment {
     static var httpClient: Client!
     static var logger: Logger!
 
-    static let currentReferenceLookupCache = CurrentReferenceCache(duration: .minutes(5))
-
     static let live = AppEnvironment(
         allowBuildTriggers: {
             Environment.get("ALLOW_BUILD_TRIGGERS")
@@ -163,7 +161,7 @@ extension AppEnvironment {
             Environment.get("COLLECTION_SIGNING_PRIVATE_KEY")
                 .map { Data($0.utf8) }
         },
-        currentReferenceCache: { currentReferenceLookupCache },
+        currentReferenceCache: { .live },
         date: Date.init,
         dbId: { Environment.get("DATABASE_ID") },
         environment: { (try? Environment.detect()) ?? .development },
