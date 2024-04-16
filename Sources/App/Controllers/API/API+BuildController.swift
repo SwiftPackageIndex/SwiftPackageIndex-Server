@@ -124,15 +124,15 @@ extension API {
             // Update build.version.docArchives
             if let docArchives = dto.docArchives {
                 try await App.Version.query(on: req.db)
-                    .set(\.$docArchives, to: docArchives)
+                .set(\.$docArchives, to: docArchives)
                     .filter(\.$id == build.$version.id)
                     .update()
-                
-                if let cacheInfo = try await getCurrentReferenceCacheInfo(req.db, buildId: buildId) {
-                    // Reset the cache for this repository regardless of whether the build is from a branch or a tag.
-                    // We can't know for sure if the ref we got this doc report for is the latest one, so all we can do is reset.
-                    Current.currentReferenceCache()?[owner: cacheInfo.owner, repository: cacheInfo.repository] = nil
-                }
+            }
+
+            if let cacheInfo = try await getCurrentReferenceCacheInfo(req.db, buildId: buildId) {
+                // Reset the cache for this repository regardless of whether the build is from a branch or a tag.
+                // We can't know for sure if the ref we got this doc report for is the latest one, so all we can do is reset.
+                Current.currentReferenceCache()?[owner: cacheInfo.owner, repository: cacheInfo.repository] = nil
             }
 
             return .noContent
