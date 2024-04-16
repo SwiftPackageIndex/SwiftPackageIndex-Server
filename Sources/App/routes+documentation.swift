@@ -159,25 +159,17 @@ private extension Request {
         if fragment.requiresArchive && archive == nil { throw Abort(.badRequest) }
         let pathElements = parameters.pathElements(for: fragment, archive: archive)
 
+#warning("add tests to check when we're hitting the db and when we don't")
         let docVersion = try await { () -> DocRoute.DocVersion in
             if reference == String.current {
-                if fragment.requiresArchive {
-                    guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
-                    else { throw Abort(.notFound) }
-                    if archive?.lowercased() != params.archive.lowercased() {
-                        throw Abort(.notFound)
-                    }
-                    Current.currentReferenceCache()?[owner: owner, repository: repository] = params.reference
-                    return .current(referencing: params.reference)
-                } else {
-                    if let ref = Current.currentReferenceCache()?[owner: owner, repository: repository] {
-                        return .current(referencing: ref)
-                    } else {
-                        guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
-                        else { throw Abort(.notFound) }
-                        return .current(referencing: params.reference)
-                    }
+                if let ref = Current.currentReferenceCache()?[owner: owner, repository: repository] {
+                    return .current(referencing: ref)
                 }
+                guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal else {
+                    throw Abort(.notFound)
+                }
+                Current.currentReferenceCache()?[owner: owner, repository: repository] = params.reference
+                return .current(referencing: params.reference)
             } else {
                 return .reference(reference)
             }
