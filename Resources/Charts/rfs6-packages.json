@@ -13,7 +13,15 @@
                     "as": "snapshotDate"
                 }
             ],
-            "values": []
+            "values": [
+                { "snapshotYear": 2024, "snapshotMonth": 2, "snapshotDay": 5, "numPackages": 301 },
+                { "snapshotYear": 2024, "snapshotMonth": 2, "snapshotDay": 18, "numPackages": 329 },
+                { "snapshotYear": 2024, "snapshotMonth": 2, "snapshotDay": 26, "numPackages": 360 },
+                { "snapshotYear": 2024, "snapshotMonth": 3, "snapshotDay": 30, "numPackages": 561 },
+                { "snapshotYear": 2024, "snapshotMonth": 5, "snapshotDay": 9, "numPackages": 819 },
+                { "snapshotYear": 2024, "snapshotMonth": 5, "snapshotDay": 30, "numPackages": 1200 },
+                { "snapshotYear": 2024, "snapshotMonth": 6, "snapshotDay": 29, "numPackages": 1926 }
+            ]
         }
     ],
     "scales": [

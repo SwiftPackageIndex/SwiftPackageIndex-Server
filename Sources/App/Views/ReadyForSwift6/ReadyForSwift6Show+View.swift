@@ -50,10 +50,10 @@ extension ReadyForSwift6Show {
                 .p("To measure compatibility with Swift 6 across packages in the index, we are tracking compatibility across a set of packages under active development where they have at least one git commit in the past 12 months. The charts below visualise the results of our testing."),
                 .h3("Total packages compatible with Swift 6"),
                 .p("This chart shows the total number of packages that will compile with  Swift 6:"),
-                .readyForSwift6Chart(chartIdentifier: "readyforswift6-compatiblepackages"),
+                .readyForSwift6Chart(chartIdentifier: "rfs6-packages"),
                 .h3("Total Swift 6 concurrency errors"),
                 .p("This chart shows the total number of Swift concurrency errors across the entire selection of testing packages:"),
-                .readyForSwift6Chart(chartIdentifier: "readyforswift6-totalerrors"),
+                .readyForSwift6Chart(chartIdentifier: "rfs6-errors"),
                 .h3("List of compatible packages"),
                 .p("Here are all the compatible packages!")
             )
@@ -63,21 +63,18 @@ extension ReadyForSwift6Show {
 
 private extension Node where Context: HTML.BodyContext {
     static func readyForSwift6Chart(chartIdentifier: String) -> Self {
-        let specPath = Current.fileManager.workingDirectory().appending("Resources/Charts/\(chartIdentifier)-spec.json")
-        let dataPath = Current.fileManager.workingDirectory().appending("Resources/Charts/\(chartIdentifier)-data.json")
-        guard let chartSpec = Current.fileManager.contents(atPath: specPath)?.compactJson(),
-              let chartData = Current.fileManager.contents(atPath: dataPath)?.compactJson()
+        let chartPath = Current.fileManager.workingDirectory().appending("Resources/Charts/\(chartIdentifier).json")
+        guard let chartSpec = Current.fileManager.contents(atPath: chartPath)?.compactJson()
         else {
             return .p(
                 .text("Failed to load "),
-                .code(.text(chartIdentifier)),
+                .text(chartIdentifier),
                 .text(".")
             )
         }
 
         let script = """
         var spec = JSON.parse(document.getElementById('vega-spec-\(chartIdentifier)').textContent)
-        spec.data[0].values = JSON.parse(document.getElementById('vega-data-\(chartIdentifier)').textContent)
         new vega.View(vega.parse(spec), { renderer: 'canvas' }).initialize('#vega-chart-\(chartIdentifier)').run()
         """
 
@@ -90,11 +87,6 @@ private extension Node where Context: HTML.BodyContext {
                 .id("vega-spec-\(chartIdentifier)"),
                 .attribute(named: "type", value: "application/json"),
                 .raw(chartSpec)
-            ),
-            .script(
-                .id("vega-data-\(chartIdentifier)"),
-                .attribute(named: "type", value: "application/json"),
-                .raw(chartData)
             ),
             .script(
                 .raw(script.compactJavaScript())
