@@ -50,6 +50,10 @@ extension ReadyForSwift6Show {
                 .p("To measure compatibility with Swift 6 across packages in the index, we are tracking compatibility across a set of packages under active development where they have at least one git commit in the past 12 months. The charts below visualise the results of our testing."),
                 .h3("Total packages compatible with Swift 6"),
                 .p("This chart shows the total number of packages that will compile with  Swift 6:"),
+                .input(
+                    .id("toggle-line"),
+                    .type(.checkbox)
+                ),
                 .readyForSwift6Chart(chartIdentifier: "rfs6-packages"),
                 .h3("Total Swift 6 concurrency errors"),
                 .p("This chart shows the total number of Swift concurrency errors across the entire selection of testing packages:"),
@@ -63,8 +67,11 @@ extension ReadyForSwift6Show {
 
 private extension Node where Context: HTML.BodyContext {
     static func readyForSwift6Chart(chartIdentifier: String) -> Self {
+        let scriptPath = Current.fileManager.workingDirectory().appending("Resources/Charts/vega-charts.js")
         let chartPath = Current.fileManager.workingDirectory().appending("Resources/Charts/\(chartIdentifier).json")
-        guard let chartSpec = Current.fileManager.contents(atPath: chartPath)?.compactJson()
+        guard let scriptData = Current.fileManager.contents(atPath: scriptPath),
+              let script = String(data: scriptData, encoding: .utf8)?.replacingOccurrences(of: "###", with: chartIdentifier), //.compactJavaScript(),
+              let chartSpec = Current.fileManager.contents(atPath: chartPath)?.compactJson()
         else {
             return .p(
                 .text("Failed to load "),
@@ -72,11 +79,6 @@ private extension Node where Context: HTML.BodyContext {
                 .text(".")
             )
         }
-
-        let script = """
-        var spec = JSON.parse(document.getElementById('vega-spec-\(chartIdentifier)').textContent)
-        new vega.View(vega.parse(spec), { renderer: 'canvas' }).initialize('#vega-chart-\(chartIdentifier)').run()
-        """
 
         return .group(
             .div(

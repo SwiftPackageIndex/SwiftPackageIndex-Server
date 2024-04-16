@@ -5,22 +5,41 @@
     "padding": 5,
     "data": [
         {
-            "name": "table",
+            "name": "overall",
             "transform": [
                 {
                     "type": "formula",
-                    "expr": "datetime(datum.snapshotYear, datum.snapshotMonth, datum.snapshotDay)",
+                    "expr": "datetime(datum.snapshot)",
                     "as": "snapshotDate"
                 }
             ],
             "values": [
-                { "snapshotYear": 2024, "snapshotMonth": 2, "snapshotDay": 5, "numPackages": 301 },
-                { "snapshotYear": 2024, "snapshotMonth": 2, "snapshotDay": 18, "numPackages": 329 },
-                { "snapshotYear": 2024, "snapshotMonth": 2, "snapshotDay": 26, "numPackages": 360 },
-                { "snapshotYear": 2024, "snapshotMonth": 3, "snapshotDay": 30, "numPackages": 561 },
-                { "snapshotYear": 2024, "snapshotMonth": 5, "snapshotDay": 9, "numPackages": 819 },
-                { "snapshotYear": 2024, "snapshotMonth": 5, "snapshotDay": 30, "numPackages": 1200 },
-                { "snapshotYear": 2024, "snapshotMonth": 6, "snapshotDay": 29, "numPackages": 1926 }
+                { "snapshot": "2024-03-05", "numPackages": 301 },
+                { "snapshot": "2024-03-18", "numPackages": 329 },
+                { "snapshot": "2024-03-26", "numPackages": 360 },
+                { "snapshot": "2024-04-15", "numPackages": 561 },
+                { "snapshot": "2024-05-09", "numPackages": 819 },
+                { "snapshot": "2024-06-30", "numPackages": 1200 },
+                { "snapshot": "2024-07-29", "numPackages": 1926 }
+            ]
+        },
+        {
+            "name": "apple-packages",
+            "transform": [
+                {
+                    "type": "formula",
+                    "expr": "datetime(datum.snapshot)",
+                    "as": "snapshotDate"
+                }
+            ],
+            "values": [
+                { "snapshot": "2024-03-05", "numPackages": 30 },
+                { "snapshot": "2024-03-18", "numPackages": 42 },
+                { "snapshot": "2024-03-26", "numPackages": 43 },
+                { "snapshot": "2024-04-15", "numPackages": 65 },
+                { "snapshot": "2024-05-09", "numPackages": 89 },
+                { "snapshot": "2024-06-30", "numPackages": 89 },
+                { "snapshot": "2024-07-29", "numPackages": 122 }
             ]
         }
     ],
@@ -28,13 +47,13 @@
         {
             "name": "xscale",
             "type": "time",
-            "domain": [{ "signal": "datetime(2024, 2, 1)" }, { "signal": "datetime(2024, 10, 1)" }],
+            "domain": [{ "signal": "datetime('2024-03-01')" }, { "signal": "datetime('2024-12-31')" }],
             "range": "width"
         },
         {
             "name": "yscale",
             "type": "linear",
-            "domain": { "data": "table", "field": "numPackages" },
+            "domain": { "data": "overall", "field": "numPackages" },
             "range": "height",
             "nice": true
         }
@@ -70,7 +89,7 @@
     "marks": [
         {
             "type": "line",
-            "from": { "data": "table" },
+            "from": { "data": "overall" },
             "encode": {
                 "enter": {
                     "x": { "scale": "xscale", "field": "snapshotDate" },
@@ -82,11 +101,39 @@
         },
         {
             "type": "symbol",
-            "from": { "data": "table" },
+            "from": { "data": "overall" },
             "encode": {
                 "enter": {
                     "x": { "scale": "xscale", "field": "snapshotDate" },
                     "y": { "scale": "yscale", "field": "numPackages" },
+                    "size": { "value": 60 },
+                    "fill": { "value": "#356fce" },
+                    "tooltip": {
+                        "signal": "timeFormat(datum.snapshotDate, '%b %d, %Y') + ' - ' + datum.numPackages + ' packages'"
+                    }
+                }
+            }
+        },
+        {
+            "type": "line",
+            "from": { "data": "apple-packages" },
+            "encode": {
+                "enter": {
+                    "x": { "scale": "xscale", "field": "snapshotDate" },
+                    "y": { "scale": "yscale", "field": "numPackages" },
+                    "stroke": { "value": "#7ff01a" },
+                    "strokeWidth": { "value": 3 }
+                }
+            }
+        },
+        {
+            "type": "symbol",
+            "from": { "data": "apple-packages" },
+            "encode": {
+                "enter": {
+                    "x": { "scale": "xscale", "field": "snapshotDate" },
+                    "y": { "scale": "yscale", "field": "numPackages" },
+                    "fill": { "value": "#7ff01a" },
                     "size": { "value": 60 },
                     "tooltip": {
                         "signal": "timeFormat(datum.snapshotDate, '%b %d, %Y') + ' - ' + datum.numPackages + ' packages'"
