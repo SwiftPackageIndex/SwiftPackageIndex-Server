@@ -1,5 +1,5 @@
 {
-  "originHash" : "fd1a2ccda7165feafb05b2451e87301c9184772a2ae8a80c3b536d0a2dd00f0b",
+  "originHash" : "f13533d9662a4fbb430f556c27d85c75340a7c970c9323591806930ca4de29dc",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-kit.git",
       "state" : {
-        "revision" : "5f0938a3f5f1a751ff7a411117bfce4efe713526",
-        "version" : "1.47.2"
+        "revision" : "81db32f719a660f65266efeac121168db2710f20",
+        "version" : "1.47.3"
       }
     },
     {
@@ -105,8 +105,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/jwt-kit",
       "state" : {
-        "revision" : "ee06dd48bee3c31a8118b85d0ee81da261f82cf7",
-        "version" : "4.13.3"
+        "revision" : "c2595b9ad7f512d7f334830b4df1fed6e917946a",
+        "version" : "4.13.4"
       }
     },
     {
