@@ -1431,8 +1431,8 @@ class AnalyzerTests: AppTestCase {
 
             // validate error logs
             try logger.logs.withValue { logs in
-                XCTAssertEqual(logs.count, 1)
-                let error = try logs.first.unwrap()
+                XCTAssertEqual(logs.count, 2)
+                let error = try logs.last.unwrap()
                 XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
             }
             // validate versions

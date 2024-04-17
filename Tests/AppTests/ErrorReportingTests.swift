@@ -65,6 +65,7 @@ class ErrorReportingTests: AppTestCase {
         // validation
         logger.logs.withValue {
             XCTAssertEqual($0, [
+                .init(level: .critical, message: "updatePackages: unusually high error rate: 1/1 = 100.0%"),
                 .init(level: .warning, message: #"App.AppError.genericError(Optional(\#(UUID.id1)), "updateRepository: no repository")"#)
             ])
         }

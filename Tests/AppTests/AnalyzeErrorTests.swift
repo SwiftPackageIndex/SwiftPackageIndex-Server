@@ -126,8 +126,8 @@ final class AnalyzeErrorTests: AppTestCase {
         // validate
         try await defaultValidation()
         try logger.logs.withValue { logs in
-            XCTAssertEqual(logs.count, 1)
-            let error = try logs.first.unwrap()
+            XCTAssertEqual(logs.count, 2)
+            let error = try logs.last.unwrap()
             XCTAssertTrue(error.message.contains("refreshCheckout failed"), "was: \(error.message)")
         }
     }
@@ -149,8 +149,8 @@ final class AnalyzeErrorTests: AppTestCase {
         // validate
         try await defaultValidation()
         try logger.logs.withValue { logs in
-            XCTAssertEqual(logs.count, 1)
-            let error = try logs.first.unwrap()
+            XCTAssertEqual(logs.count, 2)
+            let error = try logs.last.unwrap()
             XCTAssertTrue(error.message.contains( "AppError.invalidPackageCachePath"), "was: \(error.message)")
         }
     }
@@ -175,8 +175,8 @@ final class AnalyzeErrorTests: AppTestCase {
         // validate
         try await defaultValidation()
         try logger.logs.withValue { logs in
-            XCTAssertEqual(logs.count, 1)
-            let error = try logs.first.unwrap()
+            XCTAssertEqual(logs.count, 2)
+            let error = try logs.last.unwrap()
             XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
         }
     }
@@ -198,8 +198,8 @@ final class AnalyzeErrorTests: AppTestCase {
         // validate
         try await defaultValidation()
         try logger.logs.withValue { logs in
-            XCTAssertEqual(logs.count, 1)
-            let error = try logs.first.unwrap()
+            XCTAssertEqual(logs.count, 2)
+            let error = try logs.last.unwrap()
             XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
         }
     }
