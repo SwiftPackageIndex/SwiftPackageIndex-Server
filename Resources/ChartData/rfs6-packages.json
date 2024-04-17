@@ -1,6 +1,7 @@
 [
     {
-        "name": "overall",
+        "id": "all",
+        "name": "All Packages",
         "values": [
             { "snapshotName": "2024-03-12", "errorCount": 4820 },
             { "snapshotName": "2024-04-09", "errorCount": 4203 },
@@ -12,7 +13,8 @@
         ]
     },
     {
-        "name": "apple",
+        "id": "apple",
+        "name": "Apple Packages",
         "values": [
             { "snapshotName": "2024-03-12", "errorCount": 482 },
             { "snapshotName": "2024-04-09", "errorCount": 420 },
@@ -24,7 +26,8 @@
         ]
     },
     {
-        "name": "sswg",
+        "id": "sswg",
+        "name": "SSWG Incubated Packages",
         "values": [
             { "snapshotName": "2024-03-12", "errorCount": 48 },
             { "snapshotName": "2024-04-09", "errorCount": 42 },

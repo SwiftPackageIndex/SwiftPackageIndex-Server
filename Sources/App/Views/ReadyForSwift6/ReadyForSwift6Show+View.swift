@@ -43,10 +43,6 @@ extension ReadyForSwift6Show {
                 .p("To measure compatibility with Swift 6 across packages in the index, we are tracking compatibility across a set of packages under active development where they have at least one git commit in the past 12 months. The charts below visualise the results of our testing."),
                 .h3("Total packages compatible with Swift 6"),
                 .p("This chart shows the total number of packages that will compile with  Swift 6:"),
-                .input(
-                    .id("toggle-line"),
-                    .type(.checkbox)
-                ),
                 model.readyForSwift6Chart(identifier: "rfs6-packages"),
                 .h3("Total Swift 6 concurrency errors"),
                 .p("This chart shows the total number of Swift concurrency errors across the entire selection of testing packages:"),
