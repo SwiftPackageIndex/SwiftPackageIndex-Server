@@ -158,7 +158,6 @@ class BuildTests: AppTestCase {
         // MUT
         let res = try Build.trigger(database: app.db,
                                     client: client,
-                                    logger: app.logger,
                                     buildId: buildId,
                                     isDocBuild: false,
                                     platform: .macosXcodebuild,
@@ -202,7 +201,6 @@ class BuildTests: AppTestCase {
         // MUT
         let res = try Build.trigger(database: app.db,
                                     client: client,
-                                    logger: app.logger,
                                     buildId: buildId,
                                     isDocBuild: true,
                                     platform: .macosXcodebuild,

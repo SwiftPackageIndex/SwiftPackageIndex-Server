@@ -33,21 +33,19 @@ struct Swift6TriggerCommand: AsyncCommand {
 
     var help: String { "Trigger Swift 6 builds" }
 
-    func run(using context: CommandContext, signature: Signature) async throws {
-        let logger = Logger(component: "swift-6-trigger")
+    func run(using context: CommandContext, signature: Signature) async throws {        Current.setLogger(Logger(component: "swift-6-trigger"))
 
         do {
             if signature.dryRun {
-                logger.info("Dry run mode: simulating triggers")
+                Current.logger().info("Dry run mode: simulating triggers")
             }
             try await Self.triggerBuilds(on: context.application.db,
                                          client: context.application.client,
-                                         logger: logger,
                                          limit: signature.limit ?? Self.defaultLimit,
                                          dryRun: signature.dryRun,
                                          force: signature.force)
         } catch {
-            logger.critical("\(error)")
+            Current.logger().critical("\(error)")
         }
     }
 
@@ -60,13 +58,13 @@ struct Swift6TriggerCommand: AsyncCommand {
 
 extension Swift6TriggerCommand {
     
-    static func triggerBuilds(on database: Database, client: Client, logger: Logger, limit: Int, dryRun: Bool, force: Bool) async throws {
-        logger.info("Triggering Swift 6 builds (limit: \(limit)) ...")
+    static func triggerBuilds(on database: Database, client: Client, limit: Int, dryRun: Bool, force: Bool) async throws {
+        Current.logger().info("Triggering Swift 6 builds (limit: \(limit)) ...")
         
         let candidates = try await fetchBuildCandidates(database)        
         let triggers = Array(candidates.prefix(limit))
         
-        try await triggerBuilds(on: database, client: client, logger: logger, triggers: triggers, dryRun: dryRun, force: force)
+        try await triggerBuilds(on: database, client: client, triggers: triggers, dryRun: dryRun, force: force)
     }
     
     
@@ -120,21 +118,20 @@ extension Swift6TriggerCommand {
     
     static func triggerBuilds(on database: Database,
                               client: Client,
-                              logger: Logger,
                               triggers: [(versionId: Version.Id, platform: Build.Platform)],
                               dryRun: Bool,
                               force: Bool) async throws {
         guard Current.allowBuildTriggers() else {
-            logger.info("Build trigger override switch OFF - no builds are being triggered")
+            Current.logger().info("Build trigger override switch OFF - no builds are being triggered")
             return
         }
 
         if force {
-            logger.info("Skipping pending pipeline check")
+            Current.logger().info("Skipping pending pipeline check")
         } else {
             let pendingJobs = try await Current.getStatusCount(client, .pending).get()
             guard pendingJobs + triggers.count < Current.gitlabPipelineLimit() else {
-                logger.info("too many pending pipelines (\(pendingJobs))")
+                Current.logger().info("too many pending pipelines (\(pendingJobs))")
                 return
             }
         }
@@ -144,9 +141,9 @@ extension Swift6TriggerCommand {
                 group.addTask {
                     let triggerInfo = BuildTriggerInfo(versionId: trigger.versionId, buildPairs: [.init(trigger.platform, .v6_0)])!
                     if dryRun {
-                        logger.info("Simulating triggering build (\(trigger.versionId), \(trigger.platform))")
+                        Current.logger().info("Simulating triggering build (\(trigger.versionId), \(trigger.platform))")
                     } else {
-                        try await triggerBuildsUnchecked(on: database, client: client, logger: logger, triggers: [triggerInfo])
+                        try await triggerBuildsUnchecked(on: database, client: client, triggers: [triggerInfo])
                     }
                 }
             }

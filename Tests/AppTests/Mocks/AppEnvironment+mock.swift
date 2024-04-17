@@ -78,7 +78,7 @@ extension AppEnvironment {
             storeS3Readme: { _, _, _ in "s3ObjectUrl" },
             storeS3ReadmeImages: { _, _ in },
             timeZone: { .utc },
-            triggerBuild: { _, _, _, _, _, _, _, _, _ in
+            triggerBuild: { _, _, _, _, _, _, _, _ in
                 eventLoop.future(.init(status: .ok, webUrl: "http://web_url"))
             }
         )

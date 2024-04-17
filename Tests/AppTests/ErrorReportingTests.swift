@@ -37,7 +37,7 @@ class ErrorReportingTests: AppTestCase {
         Current.fetchMetadata = { _, _, _ in throw Github.Error.invalidURI(nil, "1") }
 
         // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // validation
         logger.logs.withValue {
@@ -60,12 +60,12 @@ class ErrorReportingTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validation
         logger.logs.withValue {
             XCTAssertEqual($0, [
+                .init(level: .critical, message: "updatePackages: unusually high error rate: 1/1 = 100.0%"),
                 .init(level: .warning, message: #"App.AppError.genericError(Optional(\#(UUID.id1)), "updateRepository: no repository")"#)
             ])
         }
@@ -78,7 +78,6 @@ class ErrorReportingTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validation

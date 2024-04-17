@@ -24,22 +24,21 @@ struct IngestCommand: AsyncCommand {
     func run(using context: CommandContext, signature: SPICommand.Signature) async throws {
         let client = context.application.client
         let db = context.application.db
-        let logger = Logger(component: "ingest")
+        Current.setLogger(Logger(component: "ingest"))
 
         Self.resetMetrics()
 
         do {
-            try await ingest(client: client, database: db, logger: logger, mode: .init(signature: signature))
+            try await ingest(client: client, database: db, mode: .init(signature: signature))
         } catch {
-            logger.error("\(error.localizedDescription)")
+            Current.logger().error("\(error.localizedDescription)")
         }
 
         do {
             try await AppMetrics.push(client: client,
-                                      logger: logger,
                                       jobName: "ingest")
         } catch {
-            logger.warning("\(error.localizedDescription)")
+            Current.logger().warning("\(error.localizedDescription)")
         }
     }
 }
@@ -57,32 +56,30 @@ extension IngestCommand {
 /// - Parameters:
 ///   - client: `Client` object
 ///   - database: `Database` object
-///   - logger: `Logger` object
 ///   - mode: process a single `Package.Id` or a `limit` number of packages
 /// - Returns: future
 func ingest(client: Client,
             database: Database,
-            logger: Logger,
             mode: SPICommand.Mode) async throws {
     let start = DispatchTime.now().uptimeNanoseconds
     defer { AppMetrics.ingestDurationSeconds?.time(since: start) }
 
     switch mode {
         case .id(let id):
-            logger.info("Ingesting (id: \(id)) ...")
+            Current.logger().info("Ingesting (id: \(id)) ...")
             let pkg = try await Package.fetchCandidate(database, id: id)
-            await ingest(client: client, database: database, logger: logger, packages: [pkg])
+            await ingest(client: client, database: database, packages: [pkg])
 
         case .limit(let limit):
-            logger.info("Ingesting (limit: \(limit)) ...")
+            Current.logger().info("Ingesting (limit: \(limit)) ...")
             let packages = try await Package.fetchCandidates(database, for: .ingestion, limit: limit)
-            logger.info("Candidate count: \(packages.count)")
-            await ingest(client: client, database: database, logger: logger, packages: packages)
+            Current.logger().info("Candidate count: \(packages.count)")
+            await ingest(client: client, database: database, packages: packages)
 
         case .url(let url):
-            logger.info("Ingesting (url: \(url)) ...")
+            Current.logger().info("Ingesting (url: \(url)) ...")
             let pkg = try await Package.fetchCandidate(database, url: url)
-            await ingest(client: client, database: database, logger: logger, packages: [pkg])
+            await ingest(client: client, database: database, packages: [pkg])
     }
 }
 
@@ -91,14 +88,12 @@ func ingest(client: Client,
 /// - Parameters:
 ///   - client: `Client` object
 ///   - database: `Database` object
-///   - logger: `Logger` object
 ///   - packages: packages to be ingested
 /// - Returns: future
 func ingest(client: Client,
             database: Database,
-            logger: Logger,
             packages: [Joined<Package, Repository>]) async {
-    logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
+    Current.logger().debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
 
     await withTaskGroup(of: Void.self) { group in
@@ -125,7 +120,7 @@ func ingest(client: Client,
                         }
                     } catch {
                         // We don't want to fail ingestion in case storing the readme fails - warn and continue.
-                        logger.warning("storeS3Readme failed")
+                        Current.logger().warning("storeS3Readme failed")
                         s3Readme = .error("\(error)")
                     }
 
@@ -146,9 +141,9 @@ func ingest(client: Client,
                 }
 
                 do {
-                    try await updatePackage(client: client, database: database, logger: logger, result: result, stage: .ingestion)
+                    try await updatePackage(client: client, database: database, result: result, stage: .ingestion)
                 } catch {
-                    logger.report(error: error)
+                    Current.logger().report(error: error)
                 }
             }
         }

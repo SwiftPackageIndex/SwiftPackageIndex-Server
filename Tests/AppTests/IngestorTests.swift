@@ -34,7 +34,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
 
         // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // validate
         let repos = try await Repository.query(on: app.db).all()
@@ -76,7 +76,7 @@ class IngestorTests: AppTestCase {
         Current.fetchLicense = { _, _, _ in Github.License(htmlUrl: "license") }
 
         // MUT
-        await ingest(client: app.client, database: app.db, logger: app.logger, packages: packages)
+        await ingest(client: app.client, database: app.db, packages: packages)
 
         // validate the second package's license is updated
         let repo = try await Repository.query(on: app.db)
@@ -245,7 +245,6 @@ class IngestorTests: AppTestCase {
         // MUT
         try await updatePackages(client: app.client,
                                  database: app.db,
-                                 logger: app.logger,
                                  results: results,
                                  stage: .ingestion)
 
@@ -271,7 +270,6 @@ class IngestorTests: AppTestCase {
         // MUT
         try await updatePackages(client: app.client,
                                  database: app.db,
-                                 logger: app.logger,
                                  results: results,
                                  stage: .ingestion)
 
@@ -291,7 +289,7 @@ class IngestorTests: AppTestCase {
         try await packages.save(on: app.db)
 
         // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(testUrls.count))
+        try await ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
 
         // validate
         let repos = try await Repository.query(on: app.db).all()
@@ -315,7 +313,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
 
         // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // validate
         let repos = try await Repository.query(on: app.db).all()
@@ -363,7 +361,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
 
         // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
+        try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
         // validate repositories (single element pointing to the ingested package)
         let repos = try await Repository.query(on: app.db).all()
@@ -435,7 +433,7 @@ class IngestorTests: AppTestCase {
 
         do { // first ingestion, no readme has been saved
             // MUT
-            try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+            try await ingest(client: app.client, database: app.db, mode: .limit(1))
 
             // validate
             try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
@@ -451,7 +449,7 @@ class IngestorTests: AppTestCase {
             try await pkg.save(on: app.db)
 
             // MUT
-            try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+            try await ingest(client: app.client, database: app.db, mode: .limit(1))
 
             // validate
             try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
@@ -467,7 +465,7 @@ class IngestorTests: AppTestCase {
             try await pkg.save(on: app.db)
 
             // MUT
-            try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+            try await ingest(client: app.client, database: app.db, mode: .limit(1))
 
             // validate
             try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
@@ -514,7 +512,7 @@ class IngestorTests: AppTestCase {
         }
 
         // MUT
-        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+        try await ingest(client: app.client, database: app.db, mode: .limit(1))
 
         // There should only be one call as `storeS3ReadmeImages` takes the array of images.
         XCTAssertEqual(storeS3ReadmeImagesCalls.value, 1)
@@ -541,7 +539,7 @@ class IngestorTests: AppTestCase {
 
         do { // first ingestion, no readme has been saved
             // MUT
-            try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(1))
+            try await ingest(client: app.client, database: app.db, mode: .limit(1))
 
             // validate
             try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)

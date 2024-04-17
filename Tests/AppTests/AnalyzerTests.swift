@@ -143,7 +143,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validation
@@ -283,7 +282,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validate versions
@@ -317,7 +315,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // Ensure candidate selection is now zero for analysis
@@ -371,7 +368,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // assert packages have been updated
@@ -454,7 +450,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validation (not in detail, this is just to ensure command count is as expected)
@@ -482,7 +477,7 @@ class AnalyzerTests: AppTestCase {
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         // MUT
-        _ = try await Analyze.refreshCheckout(logger: app.logger, package: jpr)
+        _ = try await Analyze.refreshCheckout(package: jpr)
 
         // validate
         assertSnapshot(matching: commands.value, as: .dump)
@@ -538,7 +533,7 @@ class AnalyzerTests: AppTestCase {
         let pkg = try await Package.fetchCandidate(app.db, id: .id0)
 
         // MUT
-        let versions = try await Analyze.getIncomingVersions(client: app.client, logger: app.logger, package: pkg)
+        let versions = try await Analyze.getIncomingVersions(client: app.client, package: pkg)
 
         // validate
         XCTAssertEqual(versions.map(\.commit).sorted(), ["sha-1.2.3", "sha-main"])
@@ -556,7 +551,7 @@ class AnalyzerTests: AppTestCase {
 
         // MUT
         do {
-            _ = try await Analyze.getIncomingVersions(client: app.client, logger: app.logger, package: pkg)
+            _ = try await Analyze.getIncomingVersions(client: app.client, package: pkg)
             XCTFail("expected an analysisError to be thrown")
         } catch let AppError.analysisError(.some(pkgId), msg) {
             // validate
@@ -573,7 +568,7 @@ class AnalyzerTests: AppTestCase {
 
         // MUT
         do {
-            _ = try await Analyze.getIncomingVersions(client: app.client, logger: app.logger, package: pkg)
+            _ = try await Analyze.getIncomingVersions(client: app.client, package: pkg)
             XCTFail("expected an analysisError to be thrown")
         } catch let AppError.analysisError(.some(pkgId), msg) {
             // validate
@@ -602,7 +597,6 @@ class AnalyzerTests: AppTestCase {
 
         // MUT
         let delta = try await Analyze.diffVersions(client: app.client,
-                                                   logger: app.logger,
                                                    transaction: app.db,
                                                    package: pkg)
 
@@ -839,7 +833,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await updatePackages(client: app.client,
                                  database: app.db,
-                                 logger: app.logger,
                                  results: results,
                                  stage: .analysis)
 
@@ -902,7 +895,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validation
@@ -937,7 +929,7 @@ class AnalyzerTests: AppTestCase {
         // MUT
         let res = await pkgs.mapAsync { pkg in
             await Result {
-                try await Analyze.refreshCheckout(logger: self.app.logger, package: pkg)
+                try await Analyze.refreshCheckout(package: pkg)
             }
         }
 
@@ -974,7 +966,7 @@ class AnalyzerTests: AppTestCase {
         // MUT
         let res = await pkgs.mapAsync { pkg in
             await Result {
-                try await Analyze.refreshCheckout(logger: self.app.logger, package: pkg)
+                try await Analyze.refreshCheckout(package: pkg)
             }
         }
 
@@ -1124,7 +1116,7 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        _ = try await Analyze.refreshCheckout(logger: app.logger, package: pkg)
+        _ = try await Analyze.refreshCheckout(package: pkg)
 
         // validate
         assertSnapshot(matching: commands.value, as: .dump)
@@ -1216,7 +1208,6 @@ class AnalyzerTests: AppTestCase {
         // MUT
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
-                                  logger: app.logger,
                                   mode: .limit(10))
 
         // validate
@@ -1288,7 +1279,6 @@ class AnalyzerTests: AppTestCase {
             // MUT
             try await Analyze.analyze(client: app.client,
                                       database: app.db,
-                                      logger: app.logger,
                                       mode: .limit(1))
 
             // validate versions
@@ -1305,7 +1295,6 @@ class AnalyzerTests: AppTestCase {
             // MUT
             try await Analyze.analyze(client: app.client,
                                       database: app.db,
-                                      logger: app.logger,
                                       mode: .limit(1))
 
             // validate versions
@@ -1322,7 +1311,6 @@ class AnalyzerTests: AppTestCase {
             // MUT
             try await Analyze.analyze(client: app.client,
                                       database: app.db,
-                                      logger: app.logger,
                                       mode: .limit(1))
 
             // validate versions
@@ -1340,7 +1328,6 @@ class AnalyzerTests: AppTestCase {
             // MUT
             try await Analyze.analyze(client: app.client,
                                       database: app.db,
-                                      logger: app.logger,
                                       mode: .limit(1))
 
             // validate versions
@@ -1403,7 +1390,6 @@ class AnalyzerTests: AppTestCase {
             // MUT
             try await Analyze.analyze(client: app.client,
                                       database: app.db,
-                                      logger: app.logger,
                                       mode: .limit(1))
 
             // validate versions
@@ -1441,13 +1427,12 @@ class AnalyzerTests: AppTestCase {
             // MUT
             try await Analyze.analyze(client: app.client,
                                       database: app.db,
-                                      logger: app.logger,
                                       mode: .limit(1))
 
             // validate error logs
             try logger.logs.withValue { logs in
-                XCTAssertEqual(logs.count, 1)
-                let error = try logs.first.unwrap()
+                XCTAssertEqual(logs.count, 2)
+                let error = try logs.last.unwrap()
                 XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
             }
             // validate versions
@@ -1484,7 +1469,7 @@ class AnalyzerTests: AppTestCase {
         // MUT and validation
 
         // first analysis pass
-        try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, mode: .id(.id0))
+        try await Analyze.analyze(client: app.client, database: app.db, mode: .id(.id0))
         do { // validate
             let pkg = try await Package.query(on: app.db).first()
             // numberOfDependencies is nil here, because we've not yet received the info back from the build
@@ -1500,7 +1485,7 @@ class AnalyzerTests: AppTestCase {
         }
         
         // second analysis pass
-        try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, mode: .id(.id0))
+        try await Analyze.analyze(client: app.client, database: app.db, mode: .id(.id0))
         do { // validate
             let pkg = try await Package.query(on: app.db).first()
             // numberOfDependencies is 1 now, because we see the updated version
@@ -1511,7 +1496,7 @@ class AnalyzerTests: AppTestCase {
         Current.git.revisionInfo = { _, _ in .init(commit: "sha2", date: .t1) }
         
         // third analysis pass
-        try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, mode: .id(.id0))
+        try await Analyze.analyze(client: app.client, database: app.db, mode: .id(.id0))
         do { // validate
             let pkg = try await Package.query(on: app.db).first()
             // numberOfDependencies must be preserved as 1, even though we've not built this version yet
