@@ -51,14 +51,14 @@ let package = Package(
         .executableTarget(name: "Run", dependencies: ["App"]),
         .target(name: "App",
                 dependencies: [
-                    "Authentication",
-                    "Ink",
-                    "Plot",
-                    "S3Store",
-                    "SPIManifest",
-                    "SemanticVersion",
-                    "SwiftPrometheus",
-                    "SwiftSoup",
+                    .target(name: "Authentication"),
+                    .product(name: "Ink", package: "Ink"),
+                    .product(name: "Plot", package: "Plot"),
+                    .target(name: "S3Store"),
+                    .product(name: "SPIManifest", package: "SPIManifest"),
+                    .product(name: "SemanticVersion", package: "SemanticVersion"),
+                    .product(name: "SwiftPrometheus", package: "SwiftPrometheus"),
+                    .product(name: "SwiftSoup", package: "SwiftSoup"),
                     .product(name: "Cache", package: "cache"),
                     .product(name: "CanonicalPackageURL", package: "CanonicalPackageURL"),
                     .product(name: "CustomDump", package: "swift-custom-dump"),
@@ -72,9 +72,7 @@ let package = Package(
                     .product(name: "Vapor", package: "vapor"),
                     .product(name: "VaporToOpenAPI", package: "VaporToOpenAPI"),
                 ],
-                swiftSettings: [
-                    .enableUpcomingFeature("StrictConcurrency")
-                ],
+                swiftSettings: swiftSettings,
                 linkerSettings: [.unsafeFlags(["-Xlinker", "-interposable"],
                                               .when(platforms: [.macOS],
                                                     configuration: .debug))]),
@@ -82,14 +80,12 @@ let package = Package(
                 dependencies: [
                     .product(name: "SotoS3", package: "soto"),
                 ],
-                swiftSettings: [
-                    .enableUpcomingFeature("StrictConcurrency")
-                ]),
-        .target(name: "Authentication", dependencies: [
-            .product(name: "JWTKit", package: "jwt-kit")        ],
-                swiftSettings: [
-                    .enableUpcomingFeature("StrictConcurrency")
-                ]),
+                swiftSettings: swiftSettings),
+        .target(name: "Authentication",
+                dependencies: [
+                    .product(name: "JWTKit", package: "jwt-kit")
+                ],
+                swiftSettings: swiftSettings),
         .testTarget(name: "AppTests",
                     dependencies: [
                         .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
@@ -98,20 +94,21 @@ let package = Package(
                         .target(name: "App"),
                     ],
                     exclude: ["__Snapshots__", "Fixtures"],
-                    swiftSettings: [
-                        .enableUpcomingFeature("StrictConcurrency")
-                    ]
-                   ),
+                    swiftSettings: swiftSettings),
         .testTarget(name: "AuthenticationTests",
-                    dependencies: [.target(name: "Authentication")],
-                    swiftSettings: [
-                        .enableUpcomingFeature("StrictConcurrency")
-                    ]),
+                    dependencies: [
+                        .target(name: "Authentication"),
+                    ],
+                    swiftSettings: swiftSettings),
         .testTarget(name: "S3StoreTests",
-                    dependencies: [.target(name: "S3Store")],
-                    swiftSettings: [
-                        .enableUpcomingFeature("StrictConcurrency")
-                    ])
+                    dependencies: [
+                        .target(name: "S3Store"),
+                    ],
+                    swiftSettings: swiftSettings)
     ],
     swiftLanguageVersions: [.v5]
 )
+
+var swiftSettings: [SwiftSetting] { [
+    .enableUpcomingFeature("StrictConcurrency"),
+] }
