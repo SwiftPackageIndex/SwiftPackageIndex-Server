@@ -22,6 +22,7 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
+        .executable(name: "Run", targets: ["App"]),
         .library(name: "Authentication", targets: ["Authentication"]),
         .library(name: "S3Store", targets: ["S3Store"]),
     ],
@@ -48,8 +49,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/vapor.git", from: "4.92.1"),
     ],
     targets: [
-        .executableTarget(name: "Run", dependencies: ["App"]),
-        .target(name: "App",
+        .executableTarget(name: "App",
                 dependencies: [
                     .target(name: "Authentication"),
                     .product(name: "Ink", package: "Ink"),
