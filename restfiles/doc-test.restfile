@@ -317,10 +317,11 @@ requests:
     url: ${base_url}/gonzalezreal/swift-markdown-ui/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /google/generative-ai-swift/documentation:
-    url: ${base_url}/google/generative-ai-swift/documentation
-    validation:
-      status: .regex((2|3)\d\d)
+  # Disabled until https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/3003 is fixed.
+  # /google/generative-ai-swift/documentation:
+  #   url: ${base_url}/google/generative-ai-swift/documentation
+  #   validation:
+  #     status: .regex((2|3)\d\d)
   /groue/GRDB.swift/documentation:
     url: ${base_url}/groue/GRDB.swift/documentation
     validation:
