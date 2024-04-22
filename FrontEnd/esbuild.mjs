@@ -24,6 +24,7 @@ try {
         minify: true,
         plugins: [sassPlugin()],
         external: ['/images/*'],
+        platform: 'browser',
     })
 
     if (process.argv.includes('--watch')) {
