@@ -148,7 +148,7 @@ class ReadyForSwift6Chart {
             {
                 name: 'xscale',
                 type: 'time',
-                domain: [{ signal: 'datetime("2024-03-12")' }, { signal: 'datetime("2024-12-31")' }],
+                domain: [{ signal: 'datetime("2024-03-01")' }, { signal: 'datetime("2024-12-31")' }],
                 range: 'width',
             },
             {
@@ -187,7 +187,7 @@ class ReadyForSwift6Chart {
                     enter: {
                         x: { scale: 'xscale', field: 'date' },
                         y: { scale: 'yscale', field: 'value' },
-                        stroke: { value: '#356fce' },
+                        stroke: { value: this.colorForDataSet(dataSet.id) },
                         strokeWidth: { value: 3 },
                     },
                 },
@@ -200,6 +200,7 @@ class ReadyForSwift6Chart {
                         x: { scale: 'xscale', field: 'date' },
                         y: { scale: 'yscale', field: 'value' },
                         size: { value: 60 },
+                        fill: { value: this.colorForDataSet(dataSet.id) },
                         tooltip: {
                             signal: "timeFormat(datum.date, '%b %d, %Y') + ' - ' + datum.value + ' packages'",
                         },
@@ -207,5 +208,18 @@ class ReadyForSwift6Chart {
                 },
             },
         ]
+    }
+
+    static colorForDataSet(dataSetId) {
+        switch (dataSetId) {
+            case 'all':
+                return '#6495ED'
+            case 'apple':
+                return '#CD5C5C'
+            case 'sswg':
+                return '#3CB371'
+            default:
+                return '#000000'
+        }
     }
 }
