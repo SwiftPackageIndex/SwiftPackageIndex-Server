@@ -3,39 +3,39 @@
         "id": "all",
         "name": "All Packages",
         "values": [
-            { "snapshotName": "2024-03-12", "errorCount": 4820 },
-            { "snapshotName": "2024-04-09", "errorCount": 4203 },
-            { "snapshotName": "2024-05-21", "errorCount": 3789 },
-            { "snapshotName": "2024-06-24", "errorCount": 3320 },
-            { "snapshotName": "2024-07-07", "errorCount": 2772 },
-            { "snapshotName": "2024-08-19", "errorCount": 2617 },
-            { "snapshotName": "2024-09-02", "errorCount": 2189 }
+            { "date": "2024-03-12", "errors": 4820 },
+            { "date": "2024-04-09", "errors": 4203 },
+            { "date": "2024-05-21", "errors": 3789 },
+            { "date": "2024-06-24", "errors": 3320 },
+            { "date": "2024-07-07", "errors": 2772 },
+            { "date": "2024-08-19", "errors": 2617 },
+            { "date": "2024-09-02", "errors": 2189 }
         ]
     },
     {
         "id": "apple",
         "name": "Apple Packages",
         "values": [
-            { "snapshotName": "2024-03-12", "errorCount": 482 },
-            { "snapshotName": "2024-04-09", "errorCount": 420 },
-            { "snapshotName": "2024-05-21", "errorCount": 378 },
-            { "snapshotName": "2024-06-24", "errorCount": 332 },
-            { "snapshotName": "2024-07-07", "errorCount": 277 },
-            { "snapshotName": "2024-08-19", "errorCount": 261 },
-            { "snapshotName": "2024-09-02", "errorCount": 218 }
+            { "date": "2024-03-12", "errors": 482 },
+            { "date": "2024-04-09", "errors": 420 },
+            { "date": "2024-05-21", "errors": 378 },
+            { "date": "2024-06-24", "errors": 332 },
+            { "date": "2024-07-07", "errors": 277 },
+            { "date": "2024-08-19", "errors": 261 },
+            { "date": "2024-09-02", "errors": 218 }
         ]
     },
     {
         "id": "sswg",
         "name": "SSWG Incubated Packages",
         "values": [
-            { "snapshotName": "2024-03-12", "errorCount": 48 },
-            { "snapshotName": "2024-04-09", "errorCount": 42 },
-            { "snapshotName": "2024-05-21", "errorCount": 37 },
-            { "snapshotName": "2024-06-24", "errorCount": 33 },
-            { "snapshotName": "2024-07-07", "errorCount": 27 },
-            { "snapshotName": "2024-08-19", "errorCount": 26 },
-            { "snapshotName": "2024-09-02", "errorCount": 21 }
+            { "date": "2024-03-12", "errors": 48 },
+            { "date": "2024-04-09", "errors": 42 },
+            { "date": "2024-05-21", "errors": 37 },
+            { "date": "2024-06-24", "errors": 33 },
+            { "date": "2024-07-07", "errors": 27 },
+            { "date": "2024-08-19", "errors": 26 },
+            { "date": "2024-09-02", "errors": 21 }
         ]
     }
 ]
