@@ -18,14 +18,10 @@ import * as vega from 'vega'
 export class VegaChartController extends Controller {
     static targets = ['data']
 
-    data = []
-
     connect() {
-        // Grab the data from the embedded `application/json` data element.
-        this.data = JSON.parse(this.dataTarget.textContent)
-
         // Render the UI for the data set inclusion checkboxes.
-        this.element.appendChild(this.seriesCheckboxForm())
+        const data = JSON.parse(this.dataTarget.textContent)
+        this.element.appendChild(this.seriesCheckboxForm(data))
 
         // Render the chart container.
         const chartContainerElement = document.createElement('div')
@@ -36,9 +32,9 @@ export class VegaChartController extends Controller {
         this.renderChart()
     }
 
-    seriesCheckboxForm() {
+    seriesCheckboxForm(data) {
         const formElement = document.createElement('form')
-        this.data.forEach((dataSet) => {
+        data.forEach((dataSet) => {
             const labelElement = document.createElement('label')
             formElement.appendChild(labelElement)
 
@@ -46,29 +42,48 @@ export class VegaChartController extends Controller {
             checkboxElement.type = 'checkbox'
             checkboxElement.name = dataSet.id
             checkboxElement.checked = true
-            labelElement.appendChild(checkboxElement)
-
             checkboxElement.addEventListener('change', () => {
                 this.renderChart()
+                this.updateCheckboxUI()
             })
+            labelElement.appendChild(checkboxElement)
 
             const labelTextElement = document.createTextNode(dataSet.name)
             labelElement.appendChild(labelTextElement)
+            labelElement.replaceChild
         })
         return formElement
     }
 
+    updateCheckboxUI() {
+        const checkboxElements = this.element.querySelectorAll('input[type="checkbox"]')
+        const checkedCheckboxElements = this.element.querySelectorAll('input[type="checkbox"]:checked')
+
+        if (checkedCheckboxElements.length === 1) {
+            // Only disable the remaining checked checkbox to allow the others to still be responsive.
+            checkedCheckboxElements.forEach((checkbox) => {
+                checkbox.disabled = true
+            })
+        } else {
+            // Always enable everything.
+            checkboxElements.forEach((checkbox) => {
+                checkbox.disabled = false
+            })
+        }
+    }
+
     renderChart() {
-        const checkboxElements = Array.from(this.element.querySelectorAll('input[type="checkbox"]'))
-        const includedDataSets = checkboxElements.map((checkbox) => checkbox.name)
+        const checkboxElements = this.element.querySelectorAll('input[type="checkbox"]:checked')
+        const includedDataSets = Array.from(checkboxElements).map((checkbox) => checkbox.name)
 
         // Only filter when data sets have been specified.
         // The chart won't render correctly if no data sets are included.
+        var data = JSON.parse(this.dataTarget.textContent)
         if (includedDataSets.length > 0) {
-            this.data = this.data.filter((dataSet) => includedDataSets.includes(dataSet.id))
+            data = data.filter((dataSet) => includedDataSets.includes(dataSet.id))
         }
 
-        const chartElement = new vega.View(vega.parse(ReadyForSwift6Chart.spec(this.data)), {
+        new vega.View(vega.parse(ReadyForSwift6Chart.spec(data)), {
             renderer: 'canvas',
             container: this.element.querySelector('.chart-container'),
             hover: true,
@@ -186,7 +201,7 @@ class ReadyForSwift6Chart {
                         y: { scale: 'yscale', field: 'value' },
                         size: { value: 60 },
                         tooltip: {
-                            signal: "timeFormat(datum.snapshotDate, '%b %d, %Y') + ' - ' + datum.numPackages + ' packages'",
+                            signal: "timeFormat(datum.date, '%b %d, %Y') + ' - ' + datum.value + ' packages'",
                         },
                     },
                 },
