@@ -1,0 +1,41 @@
+[
+    {
+        "id": "all",
+        "name": "All Packages",
+        "values": [
+            { "date": "2024-03-12", "value": 589 },
+            { "date": "2024-04-09", "value": 617 },
+            { "date": "2024-05-21", "value": 772 },
+            { "date": "2024-06-24", "value": 820 },
+            { "date": "2024-07-07", "value": 787 },
+            { "date": "2024-08-19", "value": 901 },
+            { "date": "2024-09-02", "value": 903 }
+        ]
+    },
+    {
+        "id": "apple",
+        "name": "Apple Packages",
+        "values": [
+            { "date": "2024-03-12", "value": 25 },
+            { "date": "2024-04-09", "value": 25 },
+            { "date": "2024-05-21", "value": 30 },
+            { "date": "2024-06-24", "value": 35 },
+            { "date": "2024-07-07", "value": 38 },
+            { "date": "2024-08-19", "value": 40 },
+            { "date": "2024-09-02", "value": 45 }
+        ]
+    },
+    {
+        "id": "sswg",
+        "name": "SSWG Incubated Packages",
+        "values": [
+            { "date": "2024-03-12", "value": 21 },
+            { "date": "2024-04-09", "value": 21 },
+            { "date": "2024-05-21", "value": 24 },
+            { "date": "2024-06-24", "value": 24 },
+            { "date": "2024-07-07", "value": 24 },
+            { "date": "2024-08-19", "value": 26 },
+            { "date": "2024-09-02", "value": 25 }
+        ]
+    }
+]

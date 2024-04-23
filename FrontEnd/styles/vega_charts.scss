@@ -16,7 +16,54 @@
 // Charts, initially for the Ready for Swift 6 page.
 // -------------------------------------------------------------------------
 
-.vega-chart {
+div[data-controller='vega-chart'] {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: var(--very-very-light-grey);
+    border: 1px solid var(--light-grey);
+
+    form.legend {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        padding: 10px;
+
+        label {
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+            align-items: center;
+
+            .line {
+                position: relative;
+                width: 30px;
+                height: 3px;
+                background-color: black; // Overridden with a `style` attribute.
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 10px;
+                    height: 10px;
+                    background-color: inherit;
+                    border-radius: 50%;
+                    transform: translate(-50%, -50%);
+                }
+            }
+        }
+
+        @media screen and (max-width: $mobile-breakpoint) {
+            flex-direction: column;
+            gap: 3px;
+        }
+    }
+
+    canvas {
+        max-width: 100%;
+        height: auto !important;
+    }
 }
