@@ -699,8 +699,6 @@ class BuildTriggerTests: AppTestCase {
             triggerCount += 1
         }
 
-        let logger = Logger(label: "noop") { _ in SwiftLogNoOpLogHandler() }
-
         let p = Package(id: .id0, url: "1")
         try await p.save(on: app.db)
         let v = try Version(id: .id1, package: p, latest: .defaultBranch, reference: .branch("main"))
