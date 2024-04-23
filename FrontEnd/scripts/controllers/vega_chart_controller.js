@@ -19,14 +19,14 @@ export class VegaChartController extends Controller {
     static targets = ['data']
 
     connect() {
-        // Render the UI for the data set inclusion checkboxes.
-        const data = JSON.parse(this.dataTarget.textContent)
-        this.element.appendChild(this.seriesCheckboxForm(data))
-
         // Render the chart container.
         const chartContainerElement = document.createElement('div')
         chartContainerElement.classList.add('chart-container')
         this.element.appendChild(chartContainerElement)
+
+        // Render the UI for the data set inclusion checkboxes.
+        const data = JSON.parse(this.dataTarget.textContent)
+        this.element.appendChild(this.seriesCheckboxForm(data))
 
         // Render the initial chart.
         this.renderChart()
@@ -34,6 +34,7 @@ export class VegaChartController extends Controller {
 
     seriesCheckboxForm(data) {
         const formElement = document.createElement('form')
+        formElement.classList.add('legend')
         data.forEach((dataSet) => {
             const labelElement = document.createElement('label')
             formElement.appendChild(labelElement)
@@ -47,6 +48,11 @@ export class VegaChartController extends Controller {
                 this.updateCheckboxUI()
             })
             labelElement.appendChild(checkboxElement)
+
+            const lineElement = document.createElement('div')
+            lineElement.classList.add('line')
+            lineElement.style.backgroundColor = ReadyForSwift6Chart.colorForDataSet(dataSet.id)
+            labelElement.appendChild(lineElement)
 
             const labelTextElement = document.createTextNode(dataSet.name)
             labelElement.appendChild(labelTextElement)
@@ -75,13 +81,7 @@ export class VegaChartController extends Controller {
     renderChart() {
         const checkboxElements = this.element.querySelectorAll('input[type="checkbox"]:checked')
         const includedDataSets = Array.from(checkboxElements).map((checkbox) => checkbox.name)
-
-        // Only filter when data sets have been specified.
-        // The chart won't render correctly if no data sets are included.
-        var data = JSON.parse(this.dataTarget.textContent)
-        if (includedDataSets.length > 0) {
-            data = data.filter((dataSet) => includedDataSets.includes(dataSet.id))
-        }
+        const data = JSON.parse(this.dataTarget.textContent).filter((dataSet) => includedDataSets.includes(dataSet.id))
 
         new vega.View(vega.parse(ReadyForSwift6Chart.spec(data)), {
             renderer: 'canvas',
@@ -97,7 +97,6 @@ class ReadyForSwift6Chart {
             $schema: 'https://vega.github.io/schema/vega/v5.json',
             width: 700,
             height: 400,
-            padding: 10,
             config: this.config(),
             data: this.data(data),
             scales: this.scales(data),
