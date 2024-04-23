@@ -160,7 +160,7 @@ extension AppEnvironment {
             Environment.get("COLLECTION_SIGNING_PRIVATE_KEY")
                 .map { Data($0.utf8) }
         },
-        currentReferenceCache: { .live },
+        currentReferenceCache: { nil },
         date: Date.init,
         dbId: { Environment.get("DATABASE_ID") },
         environment: { (try? Environment.detect()) ?? .development },
