@@ -285,104 +285,44 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    func test_DocRoute_baseURL() throws {
-        XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .documentation).baseURL,
-            "foo/bar/1.2.3"
-        )
-        XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .css).baseURL,
-            "foo/bar/1.2.3"
-        )
-        XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", docVersion: .reference("main"), fragment: .documentation).baseURL,
-            "foo/bar/main"
-        )
-        XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", docVersion: .reference("Main"), fragment: .documentation).baseURL,
-            "foo/bar/main"
-        )
-        XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", docVersion: .reference("feature/a"), fragment: .documentation).baseURL,
-            "foo/bar/feature-a"
-        )
-        XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "1.2.3"), fragment: .documentation).baseURL,
-            "foo/bar/1.2.3"
-        )
-        XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "1.2.3"), fragment: .documentation).baseURL,
-            "foo/bar/1.2.3"
-        )
-        XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "main"), fragment: .documentation).baseURL,
-            "foo/bar/main"
-        )
-        XCTAssertEqual(
-            DocRoute(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "Main"), fragment: .documentation).baseURL,
-            "foo/bar/main"
-        )
-    }
-
     func test_awsDocumentationURL() throws {
         Current.awsDocsBucket = { "docs-bucket" }
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("Main"), fragment: .documentation, pathElements: ["path"])).string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "Main", fragment: .documentation, path: "path").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/main/documentation/path"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .css, pathElements: ["path"])).string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .css, path: "path").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/css/path"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .documentation, pathElements: ["path"])).string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .documentation, path: "path").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/documentation/path"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .data, pathElements: ["path"])).string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .data, path: "path").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/data/path"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .js, pathElements: ["path"])).string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .js, path: "path").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/js/path"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .linkablePaths, pathElements: [""])).string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .linkablePaths, path: "").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/linkable-paths.json"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .linkablePaths, pathElements: ["ignored"])).string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .linkablePaths, path: "ignored").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/linkable-paths.json"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .themeSettings, pathElements: ["path"])).string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .themeSettings, path: "path").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/path/theme-settings.json"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .themeSettings, pathElements: [""])).string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .themeSettings, path: "").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/theme-settings.json"
         )
-        XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("feature/a"), fragment: .documentation, pathElements: ["path"])).string,
-            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/feature-a/documentation/path"
-        )
-    }
-
-    func test_awsDocumentationURL_current() throws {
-        Current.awsDocsBucket = { "docs-bucket" }
-        XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "Main"), fragment: .documentation, pathElements: ["path"])).string,
-            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/main/documentation/path"
-        )
-        XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "1.2.3"), fragment: .documentation, pathElements: ["path"])).string,
-            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/documentation/path"
-        )
-        XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .current(referencing: "feature/a"), fragment: .documentation, pathElements: ["path"])).string,
-            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/feature-a/documentation/path"
-        )
-
     }
 
     func test_awsDocumentationURL_issue2287() throws {
@@ -390,38 +330,32 @@ class PackageController_routesTests: SnapshotTestCase {
         // reference with / needs to be escaped
         Current.awsDocsBucket = { "docs-bucket" }
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(route: .init(owner: "linhay", repository: "SectionKit", docVersion: .reference("feature/2.0.0"), fragment: .documentation, pathElements: ["sectionui"])).string,
+            try PackageController.awsDocumentationURL(owner: "linhay", repository: "SectionKit", reference: "feature/2.0.0", fragment: .documentation, path: "sectionui").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/linhay/sectionkit/feature-2.0.0/documentation/sectionui"
         )
     }
 
     func test_canonicalDocumentationUrl() throws {
         // There is no canonical URL for external or universal cases of the canonical target.
-        XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "", owner: "", repository: "", docVersion: .reference(""),
+        XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "", owner: "", repository: "", fromReference: "",
                                                                  toTarget: .external(url: "https://example.com")))
 
-        XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "", owner: "", repository: "", docVersion: .reference(""),
-                                                                 toTarget: .internal(reference: "", archive: "")))
+        XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "", owner: "", repository: "", fromReference: "",
+                                                                 toTarget: .universal))
 
         // There should be no canonical URL if the package owner/repo/ref prefix doesn't match even with a valid canonical target.
         XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "/some/random/url/without/matching/prefix",
-                                                                 owner: "owner", 
-                                                                 repository: "repo",
-                                                                 docVersion: .reference("non-canonical-ref"),
+                                                                 owner: "owner", repository: "repo", fromReference: "non-canonical-ref",
                                                                  toTarget: .internal(reference: "canonical-ref", archive: "archive")))
 
         // Switching a non-canonical reference for a canonical one at the root of the documentation
         XCTAssertEqual(PackageController.canonicalDocumentationUrl(from: "/owner/repo/non-canonical-ref/documentation/archive",
-                                                                   owner: "owner",
-                                                                   repository: "repo",
-                                                                   docVersion: .reference("non-canonical-ref"),
+                                                                   owner: "owner", repository: "repo", fromReference: "non-canonical-ref",
                                                                    toTarget: .internal(reference: "canonical-ref", archive: "archive")),
                        "/owner/repo/canonical-ref/documentation/archive")
 
         XCTAssertEqual(PackageController.canonicalDocumentationUrl(from: "/owner/repo/non-canonical-ref/documentation/archive/symbol:$-%",
-                                                                   owner: "owner", 
-                                                                   repository: "repo", 
-                                                                   docVersion: .reference("non-canonical-ref"),
+                                                                   owner: "owner", repository: "repo", fromReference: "non-canonical-ref",
                                                                    toTarget: .internal(reference: "canonical-ref", archive: "archive")),
                        "/owner/repo/canonical-ref/documentation/archive/symbol:$-%")
     }
@@ -830,38 +764,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    func test_documentation_current_css() async throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: uri.path))
-        }
-        let pkg = try await savePackageAsync(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db)
-        try await Version(package: pkg,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .defaultBranch,
-                          reference: .branch("main"))
-            .save(on: app.db)
-
-        // MUT
-        // test base url
-        try app.test(.GET, "/owner/package/~/css/a") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "text/css")
-            XCTAssertEqual($0.body.asString(), "/owner/package/main/css/a")
-        }
-
-        // test path a/b
-        try app.test(.GET, "/owner/package/~/css/a/b") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "text/css")
-            XCTAssertEqual($0.body.asString(), "/owner/package/main/css/a/b")
-        }
-    }
-
-    func test_documentation_ref_css() throws {
+    func test_documentation_css() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
             // embed uri.path in the body as a simple way to test the requested url
@@ -884,38 +787,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    func test_documentation_current_js() async throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: uri.path))
-        }
-        let pkg = try await savePackageAsync(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db)
-        try await Version(package: pkg,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .defaultBranch,
-                          reference: .branch("main"))
-            .save(on: app.db)
-
-        // MUT
-        // test base url
-        try app.test(.GET, "/owner/package/~/js/a") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
-            XCTAssertEqual($0.body.asString(), "/owner/package/main/js/a")
-        }
-
-        // test path a/b
-        try app.test(.GET, "/owner/package/~/js/a/b") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
-            XCTAssertEqual($0.body.asString(), "/owner/package/main/js/a/b")
-        }
-    }
-
-    func test_documentation_ref_js() throws {
+    func test_documentation_js() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
             // embed uri.path in the body as a simple way to test the requested url
@@ -938,47 +810,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    func test_documentation_current_data() async throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: uri.path))
-        }
-        let pkg = try await savePackageAsync(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db)
-        try await Version(package: pkg,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .defaultBranch,
-                          reference: .branch("main"))
-            .save(on: app.db)
-
-        // MUT
-        // test base url
-        try app.test(.GET, "/owner/package/~/data/a") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(), "/owner/package/main/data/a")
-        }
-
-        // test path a/b
-        try app.test(.GET, "/owner/package/~/data/a/b") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(), "/owner/package/main/data/a/b")
-        }
-
-        // test case-insensitivity
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
-        try app.test(.GET, "/owner/package/~/data/documentation/Foo.json") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(),
-                           "/owner/package/main/data/documentation/foo.json")
-        }
-    }
-
-    func test_documentation_ref_data() throws {
+    func test_documentation_data() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
             // embed uri.path in the body as a simple way to test the requested url
@@ -1071,8 +903,7 @@ class PackageController_routesTests: SnapshotTestCase {
             XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
             XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
             XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-            XCTAssert(body.contains(#"Documentation for <span class="branch">feature/1.2.3</span>"#))
-            XCTAssert(body.contains(#"<li class="current"><a href="/owner/package/feature-1.2.3/documentation/target"><span class="branch">feature/1.2.3</span></a></li>"#))
+            XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
         }
 
         // test reference root path
