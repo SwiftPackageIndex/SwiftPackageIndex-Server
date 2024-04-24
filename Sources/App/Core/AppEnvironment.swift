@@ -38,7 +38,6 @@ struct AppEnvironment {
     var buildTriggerLatestSwiftVersionDownscaling: () -> Double
     var collectionSigningCertificateChain: () -> [URL]
     var collectionSigningPrivateKey: () -> Data?
-    var currentReferenceCache: () -> CurrentReferenceCache?
     var date: () -> Date
     var dbId: () -> String?
     var environment: () -> Environment
@@ -160,7 +159,6 @@ extension AppEnvironment {
             Environment.get("COLLECTION_SIGNING_PRIVATE_KEY")
                 .map { Data($0.utf8) }
         },
-        currentReferenceCache: { .live },
         date: Date.init,
         dbId: { Environment.get("DATABASE_ID") },
         environment: { (try? Environment.detect()) ?? .development },

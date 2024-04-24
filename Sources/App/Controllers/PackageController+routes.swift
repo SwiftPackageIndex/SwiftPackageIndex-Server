@@ -56,43 +56,171 @@ enum PackageController {
         }
     }
 
-    static func documentation(req: Request, route: DocRoute) async throws -> Response {
+    enum Fragment: String {
+        case css
+        case data
+        case documentation
+        case faviconIco = "favicon.ico"
+        case faviconSvg = "favicon.svg"
+        case images
+        case img
+        case index
+        case js
+        case linkablePaths = "linkable-paths.json"
+        case themeSettings = "theme-settings.json"
+        case tutorials
+
+        var contentType: String {
+            switch self {
+                case .css:
+                    return "text/css"
+                case .data, .faviconIco, .faviconSvg, .images, .img, .index:
+                    return "application/octet-stream"
+                case .linkablePaths, .themeSettings:
+                    return "application/json"
+                case .documentation, .tutorials:
+                    return "text/html; charset=utf-8"
+                case .js:
+                    return "application/javascript"
+            }
+        }
+    }
+
+    static func documentationRedirect(req: Request, fragment: Fragment, reference: Reference? = nil) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else {
+            throw Abort(.notFound)
+        }
+        let anchor = req.url.fragment.map { "#\($0)"} ?? ""
+        let path = req.parameters.getCatchall().joined(separator: "/").lowercased() + anchor
+
+        let target: DocumentationTarget?
+        if let reference {
+            target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository, reference: reference)
+        } else {
+            target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository)
+        }
+
+        guard let target else { throw Abort(.notFound) }
+
+        throw Abort.redirect(to: SiteURL.relativeURL(owner: owner,
+                                                     repository: repository,
+                                                     documentation: target,
+                                                     fragment: fragment,
+                                                     path: path))
+    }
+
+    // FIXME: we should remodel the routing for all these handlers.
+    // It's quite confusing which handler does what exactly, mainly because we pull some parameters from req while others are passed
+    // explicitly. Ideally we'd have a `DocRoute` type or something that captures all the variants so that we can create it from req
+    // but also create it in code and then re-route without a redirect.
+    static func documentation(req: Request, fragment: Fragment = .documentation) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else {
+            throw Abort(.notFound)
+        }
+
+        guard let target = try await DocumentationTarget.query(on: req.db, owner: owner, repository: repository)
+        else { throw Abort(.notFound) }
+
+        switch target {
+            case .external(let url):
+                throw Abort.redirect(to: url)
+
+            case let .internal(reference, archive) where fragment == .documentation:
+                // documentation fragments needs the archive parameter from the target lookup
+                return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: archive, fragment: fragment, rewriteStrategy: .current(fromReference: reference))
+
+            case let .internal(reference, _):
+                // other fragments ignore the archive
+                return try await PackageController.documentation(req: req, reference: reference.pathEncoded, archive: nil, fragment: fragment, rewriteStrategy: .current(fromReference: reference))
+
+            case .universal:
+                // FIXME: DocumentationTarget.query returns either an external or an internal DocumentationTarget and we should model the type as such.
+                // This case is _effectively_ unreachable but we can't currently express that.
+                throw Abort(.notFound)
+        }
+    }
+
+    static func documentation(req: Request, reference: String, archive: String? = nil, fragment: Fragment, rewriteStrategy: DocumentationPageProcessor.RewriteStrategy) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else {
+            throw Abort(.notFound)
+        }
+
+        let archive = archive ?? req.parameters.get("archive")
+        let catchAll = [archive].compactMap { $0 } + req.parameters.getCatchall()
+        let path: String
+        switch fragment {
+            case .data, .documentation, .tutorials:
+                // DocC lowercases "target" names in URLs. Since these routes can also
+                // appear in user generated content which might use uppercase spelling, we need
+                // to lowercase the input in certain cases.
+                // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
+                // and https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2172
+                // for details.
+                path = catchAll.joined(separator: "/").lowercased()
+            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
+                path = catchAll.joined(separator: "/")
+        }
+
         let res: ClientResponse
         do {
-            res = try await awsResponse(client: req.client, route: route)
+            res = try await awsResponse(client: req.client, owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
         } catch {
             print(error)
             throw error
         }
 
-        switch route.fragment {
+        switch fragment {
             case .documentation, .tutorials:
                 let documentationMetadata = try await DocumentationMetadata
-                    .query(on: req.db, owner: route.owner, repository: route.repository)
+                    .query(on: req.db, owner: owner, repository: repository)
 
                 return try await documentationResponse(
                     req: req,
-                    route: route,
+                    archive: archive,
                     awsResponse: res,
-                    documentationMetadata: documentationMetadata
+                    documentationMetadata: documentationMetadata,
+                    fragment: fragment,
+                    path: path,
+                    owner: owner,
+                    reference: reference,
+                    repository: repository,
+                    rewriteStrategy: rewriteStrategy
                 )
 
             case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
                 return try await res.encodeResponse(
                     status: .ok,
                     headers: req.headers
-                        .replacingOrAdding(name: .contentType, value: route.fragment.contentType)
-                        .replacingOrAdding(name: .cacheControl, value: "no-transform"),
+                        .replacingOrAdding(name: .contentType,
+                                           value: fragment.contentType)
+                        .replacingOrAdding(name: .cacheControl,
+                                           value: "no-transform"),
                     for: req
                 )
         }
     }
 
     static func documentationResponse(req: Request,
-                                      route: DocRoute,
+                                      archive: String?,
                                       awsResponse: ClientResponse,
-                                      documentationMetadata: DocumentationMetadata) async throws -> Response {
-        guard let documentation = documentationMetadata.versions[reference: route.docVersion.reference]
+                                      documentationMetadata: DocumentationMetadata,
+                                      fragment: Fragment,
+                                      path: String,
+                                      owner: String,
+                                      reference: String,
+                                      repository: String,
+                                      rewriteStrategy: DocumentationPageProcessor.RewriteStrategy) async throws -> Response {
+
+        guard let documentation = documentationMetadata.versions[reference: reference]
         else {
             // If there's no match for this reference with a docArchive, we're done!
             throw Abort(.notFound, reason: "No docArchives for this reference")
@@ -118,7 +246,7 @@ enum PackageController {
             }
 
         let availableArchives: [DocumentationPageProcessor.AvailableArchive] = documentation.docArchives.map {
-            .init(archive: $0, isCurrent: $0.name == route.archive)
+            .init(archive: $0, isCurrent: $0.name == archive)
         }
 
         let canonicalUrl: String? = {
@@ -130,30 +258,31 @@ enum PackageController {
             return Self.canonicalDocumentationUrl(from: "\(req.url)",
                                                   owner: canonicalOwner,
                                                   repository: canonicalRepository,
-                                                  docVersion: route.docVersion,
+                                                  fromReference: reference,
                                                   toTarget: canonicalTarget)
         }()
 
 
         // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
         guard let body = awsResponse.body,
-              let processor = DocumentationPageProcessor(repositoryOwner: route.owner,
+              let processor = DocumentationPageProcessor(repositoryOwner: owner,
                                                          repositoryOwnerName: documentation.ownerName,
-                                                         repositoryName: route.repository,
+                                                         repositoryName: repository,
                                                          packageName: documentation.packageName,
-                                                         docVersion: route.docVersion,
+                                                         reference: reference,
                                                          referenceLatest: documentation.latest,
                                                          referenceKind: documentation.reference.versionKind,
                                                          canonicalUrl: canonicalUrl,
                                                          availableArchives: availableArchives,
                                                          availableVersions: availableDocumentationVersions,
                                                          updatedAt: documentation.updatedAt,
-                                                         rawHtml: body.asString())
+                                                         rawHtml: body.asString(),
+                                                         rewriteStrategy: rewriteStrategy)
         else {
             return try await awsResponse.encodeResponse(
                 status: .ok,
                 headers: req.headers.replacingOrAdding(name: .contentType,
-                                                       value: route.contentType),
+                                                       value: fragment.contentType),
                 for: req
             )
         }
@@ -161,13 +290,13 @@ enum PackageController {
         return try await processor.processedPage.encodeResponse(
             status: .ok,
             headers: req.headers.replacingOrAdding(name: .contentType,
-                                                   value: route.contentType),
+                                                   value: fragment.contentType),
             for: req
         )
     }
 
-    static func awsResponse(client: Client, route: DocRoute) async throws -> ClientResponse {
-        let url = try Self.awsDocumentationURL(route: route)
+    static func awsResponse(client: Client, owner: String, repository: String, reference: String, fragment: Fragment, path: String) async throws -> ClientResponse {
+        let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
         guard let response = try? await Current.fetchDocumentation(client, url) else {
             throw Abort(.notFound)
         }
@@ -272,8 +401,8 @@ enum PackageController {
         let pathEncodedReference = reference.pathEncoded
 
         do {
-            let route = DocRoute(owner: owner, repository: repository, docVersion: .reference(pathEncodedReference), fragment: .linkablePaths)
-            let awsResponse = try await awsResponse(client: client, route: route)
+            let awsResponse = try await awsResponse(client: client, owner: owner, repository: repository,
+                                                    reference: pathEncodedReference, fragment: .linkablePaths, path: "")
             guard let body = awsResponse.body else { return [] }
 
             let baseUrl = SiteURL.package(.value(owner), .value(repository), .none).absoluteURL()
@@ -439,24 +568,24 @@ extension PackageController {
 
 
 extension PackageController {
-    static func awsDocumentationURL(route: DocRoute) throws -> URI {
+    static func awsDocumentationURL(owner: String, repository: String, reference: String, fragment: Fragment, path: String) throws -> URI {
         guard let bucket = Current.awsDocsBucket() else {
             throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
         }
 
         let baseURLHost = "\(bucket).s3-website.us-east-2.amazonaws.com"
-        let baseURL = "http://\(baseURLHost)/\(route.baseURL)"
-        let path = route.path
+        let baseURLPath = "\(owner.lowercased())/\(repository.lowercased())/\(reference.pathEncoded.lowercased())"
+        let baseURL = "http://\(baseURLHost)/\(baseURLPath)"
 
-        switch route.fragment {
+        switch fragment {
             case .css, .data, .documentation, .images, .img, .index, .js, .tutorials:
-                return URI(string: "\(baseURL)/\(route.fragment)/\(path)")
+                return URI(string: "\(baseURL)/\(fragment)/\(path)")
             case .faviconIco, .faviconSvg, .themeSettings:
                 return path.isEmpty
-                ? URI(string: "\(baseURL)/\(route.fragment)")
-                : URI(string: "\(baseURL)/\(path)/\(route.fragment)")
+                ? URI(string: "\(baseURL)/\(fragment)")
+                : URI(string: "\(baseURL)/\(path)/\(fragment)")
             case .linkablePaths:
-                return URI(string: "\(baseURL)/\(route.fragment)")
+                return URI(string: "\(baseURL)/\(fragment)")
         }
     }
 }
@@ -465,10 +594,9 @@ extension PackageController {
     static func canonicalDocumentationUrl(from url: String,
                                           owner: String,
                                           repository: String,
-                                          docVersion: DocRoute.DocVersion,
+                                          fromReference: String,
                                           toTarget target: DocumentationTarget) -> String? {
-        // It's important to use `docVersion.reference` here to make sure we match with true reference urls and not ~
-        let urlPrefix = "/\(owner)/\(repository)/\(docVersion.reference.pathEncoded)/"
+        let urlPrefix = "/\(owner)/\(repository)/\(fromReference)/"
         if case let .internal(canonicalReference, _) = target,
            url.lowercased().hasPrefix(urlPrefix.lowercased()) {
             return "/\(owner)/\(repository)/\(canonicalReference)/\(url.dropFirst(urlPrefix.count))"
@@ -484,4 +612,9 @@ private extension HTTPHeaders {
         headers.replaceOrAdd(name: name, value: value)
         return headers
     }
+}
+
+
+extension PackageController.Fragment: CustomStringConvertible {
+    var description: String { rawValue }
 }

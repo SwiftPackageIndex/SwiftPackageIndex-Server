@@ -20,15 +20,6 @@
       }
     },
     {
-      "identity" : "cache",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/0xLeif/Cache.git",
-      "state" : {
-        "revision" : "a535c68aab7bf0b42bda7a5de66b04f86e48c6e6",
-        "version" : "2.1.0"
-      }
-    },
-    {
       "identity" : "canonicalpackageurl",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftPackageIndex/CanonicalPackageURL.git",

@@ -18,6 +18,7 @@ import Fluent
 enum DocumentationTarget: Equatable, Codable {
     case external(url: String)
     case `internal`(reference: String, archive: String)
+    case universal
 
     /// Fetch DocumentationTarget for a given package.
     /// - Parameters:
@@ -76,18 +77,6 @@ enum DocumentationTarget: Equatable, Codable {
 
         return archive.map {
             .internal(reference: "\(reference)", archive: $0)
-        }
-    }
-}
-
-
-extension DocumentationTarget {
-    var `internal`: (reference: String, archive: String)? {
-        switch self {
-            case .external:
-                return nil
-            case .internal(let reference, let archive):
-                return (reference, archive)
         }
     }
 }
