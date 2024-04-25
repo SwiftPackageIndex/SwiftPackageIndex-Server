@@ -318,7 +318,7 @@ requests:
     validation:
       status: .regex((2|3)\d\d)
   /google-gemini/generative-ai-swift/documentation:
-    url: ${base_url}/google/generative-ai-swift/documentation
+    url: ${base_url}/google-gemini/generative-ai-swift/documentation
     validation:
       status: .regex((2|3)\d\d)
   /groue/GRDB.swift/documentation:
