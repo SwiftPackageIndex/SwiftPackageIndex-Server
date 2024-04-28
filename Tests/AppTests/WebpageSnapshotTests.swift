@@ -440,7 +440,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryOwnerName: "Owner Name",
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
-                                                                 reference: "main",
+                                                                 docVersion: .reference("main"),
                                                                  referenceLatest: .release,
                                                                  referenceKind: .release,
                                                                  canonicalUrl: nil,
@@ -454,8 +454,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                           isLatestStable: false),
                                                                  ],
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
-                                                                 rawHtml: doccHtml,
-                                                                 rewriteStrategy: .toReference("main")))
+                                                                 rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
     }
@@ -468,7 +467,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryOwnerName: "Owner Name",
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
-                                                                 reference: "1.1.0",
+                                                                 docVersion: .reference("1.1.0"),
                                                                  referenceLatest: nil,
                                                                  referenceKind: .release,
                                                                  canonicalUrl: "https://example.com/owner/repo/canonical-ref",
@@ -486,8 +485,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                           isLatestStable: true)
                                                                  ],
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
-                                                                 rawHtml: doccHtml,
-                                                                 rewriteStrategy: .toReference("1.1.0")))
+                                                                 rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
     }
@@ -501,7 +499,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryOwnerName: "Owner Name",
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
-                                                                 reference: "main",
+                                                                 docVersion: .reference("main"),
                                                                  referenceLatest: .defaultBranch,
                                                                  referenceKind: .defaultBranch,
                                                                  canonicalUrl: "https://example.com/owner/repo/canonical-ref",
@@ -524,8 +522,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                           isLatestStable: true)
                                                                  ],
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
-                                                                 rawHtml: doccHtml,
-                                                                 rewriteStrategy: .toReference("main")))
+                                                                 rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
     }

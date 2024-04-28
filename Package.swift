@@ -26,6 +26,7 @@ let package = Package(
         .library(name: "S3Store", targets: ["S3Store"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/0xLeif/Cache.git", from: "2.1.0"),
         .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
         .package(url: "https://github.com/daveverwer/Plot.git", branch: "sitemapindex"),
         .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
@@ -58,6 +59,7 @@ let package = Package(
                     .product(name: "SemanticVersion", package: "SemanticVersion"),
                     .product(name: "SwiftPrometheus", package: "SwiftPrometheus"),
                     .product(name: "SwiftSoup", package: "SwiftSoup"),
+                    .product(name: "Cache", package: "cache"),
                     .product(name: "CanonicalPackageURL", package: "CanonicalPackageURL"),
                     .product(name: "CustomDump", package: "swift-custom-dump"),
                     .product(name: "DependencyResolution", package: "DependencyResolution"),
