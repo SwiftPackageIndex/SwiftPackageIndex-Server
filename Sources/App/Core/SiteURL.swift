@@ -411,7 +411,7 @@ extension SiteURL {
     static func relativeURL(owner: String,
                             repository: String,
                             documentation: DocumentationTarget,
-                            fragment: PackageController.Fragment,
+                            fragment: DocRoute.Fragment,
                             path: String = "") -> String {
         switch (documentation, fragment) {
             case (.external(let url), _):
@@ -430,11 +430,6 @@ extension SiteURL {
                 return path.isEmpty
                 ? "/\(owner)/\(repository)/\(reference.pathEncoded)/\(fragment)"
                 : "/\(owner)/\(repository)/\(reference.pathEncoded)/\(fragment)/\(path)"
-
-            case (.universal, _):
-                return path.isEmpty
-                ? "/\(owner)/\(repository)/\(fragment)"
-                : "/\(owner)/\(repository)/\(fragment)/\(path)"
         }
     }
 }

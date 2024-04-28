@@ -37,6 +37,7 @@ extension AppEnvironment {
             buildTriggerLatestSwiftVersionDownscaling: { 1.0 },
             collectionSigningCertificateChain: AppEnvironment.live.collectionSigningCertificateChain,
             collectionSigningPrivateKey: AppEnvironment.live.collectionSigningPrivateKey,
+            currentReferenceCache: { nil },
             date: Date.init,
             dbId: { "db-id" },
             environment: { .development },
