@@ -23,8 +23,8 @@ enum ReadyForSwift6Show {
             else { return .p("Couldn’t load chart data.") }
 
             return .div(
-                .id("vega-chart-\(identifier)"),
                 .data(named: "controller", value: "vega-chart"),
+                .data(named: "vega-chart-identifier-value", value: identifier),
                 .script(
                     .data(named: "vega-chart-target", value: "data"),
                     .attribute(named: "type", value: "application/json"),
