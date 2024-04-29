@@ -38,17 +38,21 @@ extension ReadyForSwift6Show {
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .h2("Ready for Swift 6"),
-                .p("Swift 6 is lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ut ante vel diam sagittis hendrerit id eget nunc. Proin non ex eget dolor tristique lacinia placerat et turpis. In dui dui, malesuada eu lectus nec, rhoncus feugiat nisi."),
-                .p("Get started by [reading the migration guide]or this [guide to Swift 6 on Swift.org]."),
-                .p("To measure compatibility with Swift 6 across packages in the index, we are tracking compatibility across a set of packages under active development where they have at least one git commit in the past 12 months. The charts below visualise the results of our testing."),
+                .p("Swift 6 brings with it the ability to check your code for concurrency and data race issues. If switched on, the Swift compiler will produce errors where you could have data races."),
+                .p(.text("For help migrating your code, see the "),
+                   .a(
+                    .href("https://example.com"),
+                    .text("Swift 6 language mode migration guide")
+                   ),
+                   .text(" or the "),
+                   .a(                    .href("https://example.com"),
+                                          .text("Swift 6 release blog post")
+                   )),
+                .p("To track the progress of the Swift package ecosystem, the Swift Package Index is running regular package compatibility checks across all packages in the index."),
                 .h3("Total packages compatible with Swift 6"),
-                .p("This chart shows the total number of packages that will compile with  Swift 6:"),
                 model.readyForSwift6Chart(kind: .compatiblePackages),
                 .h3("Total Swift 6 concurrency errors"),
-                .p("This chart shows the total number of Swift concurrency errors across the entire selection of testing packages:"),
-                model.readyForSwift6Chart(kind: .totalErrors),
-                .h3("List of compatible packages"),
-                .p("Here are all the compatible packages!")
+                model.readyForSwift6Chart(kind: .totalErrors)
             )
         }
     }
