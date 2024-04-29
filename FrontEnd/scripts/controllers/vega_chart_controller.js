@@ -17,7 +17,7 @@ import * as vega from 'vega'
 
 export class VegaChartController extends Controller {
     static targets = ['data']
-    static values = { identifier: String }
+    static values = { class: String }
 
     connect() {
         // Render the chart container.
