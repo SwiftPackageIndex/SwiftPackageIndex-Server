@@ -32,7 +32,7 @@ extension Stats {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
+        return db.raw("REFRESH MATERIALIZED VIEW \(ident: Self.schema)").run()
     }
 
 
@@ -40,7 +40,7 @@ extension Stats {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("SELECT * FROM \(raw: Self.schema)")
+        return db.raw("SELECT * FROM \(ident: Self.schema)")
             .first(decoding: Stats.self)
     }
 }

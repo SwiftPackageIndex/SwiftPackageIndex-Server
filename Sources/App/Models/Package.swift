@@ -18,7 +18,7 @@ import Vapor
 import SQLKit
 
 
-final class Package: Model, Content {
+final class Package: @unchecked Sendable, Model, Content {
     static let schema = "packages"
 
     typealias Id = UUID

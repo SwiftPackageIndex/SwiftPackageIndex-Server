@@ -17,7 +17,7 @@ import PostgresKit
 import Vapor
 
 
-final class Build: Model, Content {
+final class Build: @unchecked Sendable, Model, Content {
     static let schema = "builds"
 
     typealias Id = UUID
