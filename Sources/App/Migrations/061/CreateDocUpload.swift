@@ -53,15 +53,13 @@ struct CreateDocUpload: AsyncMigration {
                   .update()
             try await (database as! SQLDatabase).raw(
                 // Ensure there's only one doc_upload per version
-                #"CREATE UNIQUE INDEX "\#(raw: versionIdPartialConstraint)" ON builds(version_id) WHERE doc_upload_id IS NOT NULL"#
+                #"CREATE UNIQUE INDEX \#(ident: versionIdPartialConstraint) ON builds(version_id) WHERE doc_upload_id IS NOT NULL"#
             ).run()
         }
     }
 
     func revert(on database: Database) async throws {
-        try await (database as! SQLDatabase).raw(
-            #"DROP INDEX "\#(raw: versionIdPartialConstraint)""#
-        ).run()
+        try await (database as! SQLDatabase).drop(index: versionIdPartialConstraint).run()
         try await database.schema("builds")
             .deleteConstraint(name: docUploadIdConstraint)
             .update()
