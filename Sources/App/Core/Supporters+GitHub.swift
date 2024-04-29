@@ -348,11 +348,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/16819233?v=4"
         ),
         .init(
-            login: "gorpello",
-            name: "Gianluca Orpello",
-            avatarUrl: "https://avatars.githubusercontent.com/u/18537034?u=eb7f95aa6d28fc0a1eefef6de1e33f204b69cb29&v=4"
-        ),
-        .init(
             login: "emin-grbo",
             name: "emin",
             avatarUrl: "https://avatars.githubusercontent.com/u/21968377?u=e0b1893b47580928f5d11d73879bbcf779bc53fc&v=4"
