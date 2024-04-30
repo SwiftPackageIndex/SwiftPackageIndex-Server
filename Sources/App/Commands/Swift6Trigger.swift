@@ -83,9 +83,21 @@ extension Swift6TriggerCommand {
             }
         }
 
+        // sas 2024-04-30: skipping visionOS builds for now, they are broken
         let query: SQLQueryString = """
             select t.id version_id, t.platform
             from (
+                select v.id, 'ios' as "platform"
+                from versions v
+                where v.latest = 'default_branch'
+                and v.id not in (
+                    select v.id
+                    from builds b
+                    join versions v on b.version_id = v.id
+                    where swift_version->>'major' = '6'
+                    and platform = 'ios'
+                )
+                union
                 select v.id, 'macos-spm' as "platform"
                 from versions v
                 where v.latest = 'default_branch'
@@ -95,6 +107,39 @@ extension Swift6TriggerCommand {
                     join versions v on b.version_id = v.id
                     where swift_version->>'major' = '6'
                     and platform = 'macos-spm'
+                )
+                union
+                select v.id, 'macos-xcodebuild' as "platform"
+                from versions v
+                where v.latest = 'default_branch'
+                and v.id not in (
+                    select v.id
+                    from builds b
+                    join versions v on b.version_id = v.id
+                    where swift_version->>'major' = '6'
+                    and platform = 'macos-xcodebuild'
+                )
+                union
+                select v.id, 'tvos' as "platform"
+                from versions v
+                where v.latest = 'default_branch'
+                and v.id not in (
+                    select v.id
+                    from builds b
+                    join versions v on b.version_id = v.id
+                    where swift_version->>'major' = '6'
+                    and platform = 'tvos'
+                )
+                union
+                select v.id, 'watchos' as "platform"
+                from versions v
+                where v.latest = 'default_branch'
+                and v.id not in (
+                    select v.id
+                    from builds b
+                    join versions v on b.version_id = v.id
+                    where swift_version->>'major' = '6'
+                    and platform = 'watchos'
                 )
                 union
                 select v.id, 'linux' as "platform"
