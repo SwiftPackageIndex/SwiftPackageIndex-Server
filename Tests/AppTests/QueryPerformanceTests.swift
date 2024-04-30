@@ -14,7 +14,7 @@
 
 @testable import App
 
-@preconcurrency import SQLKit
+import SQLKit
 import Vapor
 import XCTest
 
@@ -167,13 +167,13 @@ private extension Environment {
 
 
 struct SQLExplain: SQLExpression {
-    var builder: SQLQueryBuilder
+    let query: any SQLExpression
     init(_ builder: SQLQueryBuilder) {
-        self.builder = builder
+        self.query = builder.query
     }
     func serialize(to serializer: inout SQLSerializer) {
         serializer.write("EXPLAIN ANALYZE ")
-        builder.query.serialize(to: &serializer)
+        query.serialize(to: &serializer)
     }
 }
 
