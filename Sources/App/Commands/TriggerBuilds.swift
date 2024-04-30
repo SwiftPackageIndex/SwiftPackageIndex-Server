@@ -490,7 +490,7 @@ func trimBuilds(on database: Database) async throws -> Int {
             -- significant version: delete only old builds that are triggered or infrastructureError builds
             v.latest IS NOT NULL
             AND
-            b.status IN (\(bind: Build.Status.triggered.rawValue), \(bind: Build.Status.infrastructureError.rawValue))
+            b.status IN (\(literal: Build.Status.triggered.rawValue), \(literal: Build.Status.infrastructureError.rawValue))
           )
           OR (
             -- non-significant version: delete all old builds
