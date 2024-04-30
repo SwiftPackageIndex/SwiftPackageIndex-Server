@@ -16,7 +16,7 @@ import Fluent
 import Vapor
 
 
-final class Product: Model, Content {
+final class Product: @unchecked Sendable, Model, Content {
     static let schema = "products"
 
     typealias Id = UUID

@@ -21,7 +21,7 @@ import Vapor
 typealias CommitHash = String
 
 
-final class Version: Model, Content {
+final class Version: @unchecked Sendable, Model, Content {
     static let schema = "versions"
 
     typealias Id = UUID

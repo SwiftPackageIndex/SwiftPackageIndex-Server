@@ -43,7 +43,7 @@ extension RecentPackage {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        try await db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
+        try await db.raw("REFRESH MATERIALIZED VIEW \(ident: Self.schema)").run()
     }
 
 
@@ -52,7 +52,7 @@ extension RecentPackage {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return try await db.raw("SELECT * FROM \(raw: Self.schema) ORDER BY created_at DESC LIMIT \(bind: limit)")
+        return try await db.raw("SELECT * FROM \(ident: Self.schema) ORDER BY created_at DESC LIMIT \(bind: limit)")
             .all(decoding: RecentPackage.self)
     }
 }

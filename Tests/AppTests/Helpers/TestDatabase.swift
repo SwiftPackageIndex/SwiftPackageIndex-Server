@@ -1,10 +1,12 @@
 // Copied from https://github.com/vapor/sql-kit/blob/main/Tests/SQLKitTests/Utilities.swift#L4
 // in order to render SQL without an active db handle.
 
-import SQLKit
+import Logging
 import NIO
+import SQLKit
 
-final class TestDatabase: SQLDatabase {
+
+final class TestDatabase: @unchecked Sendable, SQLDatabase {
     let logger: Logger
     let eventLoop: EventLoop
     var results: [String]

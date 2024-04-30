@@ -16,16 +16,16 @@ import Fluent
 import SQLKit
 
 
-struct UpdateBuildUniqueIndex1: Migration {
+struct UpdateBuildUniqueIndex1: AsyncMigration {
     let newIndexName = "uq:builds.version_id+builds.platform+builds.swift_version+v2"
 
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
+    func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        return db.raw("""
-            CREATE UNIQUE INDEX "\(raw: newIndexName)"
+        try await db.raw("""
+            CREATE UNIQUE INDEX \(ident: newIndexName)
             ON builds (
                 version_id,
                 platform,
@@ -33,23 +33,21 @@ struct UpdateBuildUniqueIndex1: Migration {
                 (swift_version->'minor')
             )
             """).run()
-            .flatMap {
-                database.schema("builds")
-                    .deleteUnique(on: "version_id", "platform", "swift_version")
-                    .update()
-            }
+
+        try await database.schema("builds")
+            .deleteUnique(on: "version_id", "platform", "swift_version")
+            .update()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
+    func revert(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        return database.schema("builds")
+        try await database.schema("builds")
             .unique(on: "version_id", "platform", "swift_version")
             .update()
-            .flatMap {
-                db.raw(#"DROP INDEX "\#(raw: self.newIndexName)""#).run()
-            }
+
+        try await db.drop(index: newIndexName).run()
     }
 }

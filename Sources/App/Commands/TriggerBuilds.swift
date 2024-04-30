@@ -484,13 +484,13 @@ func trimBuilds(on database: Database) async throws -> Int {
         FROM builds b
         USING versions v
         WHERE b.version_id = v.id
-        AND b.created_at < NOW() - INTERVAL '\(raw: String(Constants.trimBuildsGracePeriod.inHours)) hours'
+        AND b.created_at < NOW() - INTERVAL \(literal: "\(Constants.trimBuildsGracePeriod.inHours) hours")
         AND (
           (
             -- significant version: delete only old builds that are triggered or infrastructureError builds
             v.latest IS NOT NULL
             AND
-            b.status IN ('\(raw: Build.Status.triggered.rawValue)', '\(raw: Build.Status.infrastructureError.rawValue)')
+            b.status IN (\(literal: Build.Status.triggered.rawValue), \(literal: Build.Status.infrastructureError.rawValue))
           )
           OR (
             -- non-significant version: delete all old builds

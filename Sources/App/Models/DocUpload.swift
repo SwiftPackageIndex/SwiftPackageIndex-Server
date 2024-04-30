@@ -16,7 +16,7 @@ import Fluent
 import Vapor
 
 
-final class DocUpload: Model, Content {
+final class DocUpload: @unchecked Sendable, Model, Content {
     static let schema = "doc_uploads"
 
     typealias Id = UUID
