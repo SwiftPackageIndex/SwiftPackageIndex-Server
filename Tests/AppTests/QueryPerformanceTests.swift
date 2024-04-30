@@ -14,7 +14,7 @@
 
 @testable import App
 
-import SQLKit
+@preconcurrency import SQLKit
 import Vapor
 import XCTest
 
