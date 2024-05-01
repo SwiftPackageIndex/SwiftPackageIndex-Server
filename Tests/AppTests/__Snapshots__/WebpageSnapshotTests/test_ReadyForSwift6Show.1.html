@@ -88,6 +88,36 @@
         <p>Couldn’t load chart data.</p>
         <h3>Total Swift 6 concurrency errors</h3>
         <p>Couldn’t load chart data.</p>
+        <h3>Frequently asked questions</h3>
+        <p>
+          <strong>Q: </strong>What does “compatible” mean in the chart of compatible packages?
+        </p>
+        <p>
+          <strong>A: </strong>We define compatibility in the same way we do on package pages. If any build of the package completes successfully on any of our tested platforms (macOS via SwiftPM, macOS via XcodeBuild, iOS, visionOS, watchOS, tvOS, or Linux) then that build is deemed compatible with the Swift version.
+        </p>
+        <hr class="minor"/>
+        <p>
+          <strong>Q: </strong>What does “total concurrency errors” mean?
+        </p>
+        <p>
+          <strong>A: </strong>Sven: Can you replace this with a short description of these errors, please?
+        </p>
+        <hr class="minor"/>
+        <p>
+          <strong>Q: </strong>What packages are in the “all packages” data set?
+        </p>
+        <p>
+          <strong>A: </strong>We are not testing every package in the index. Instead, we are testing packages that are under some kind of active development. For this test, we define “all packages” in the chart to be any package having at least one commit to their repository in the last year. We took a snapshot of active packages on the 19th of March 2024, and the “all packages” data set includes 3,393 packages. The data set also excludes any new packages added after the 19th March.
+        </p>
+        <hr class="minor"/>
+        <p>
+          <strong>Q: </strong>What packages are in the “Apple packages” and “SSWG incubated packages” data sets?
+        </p>
+        <p>
+          <strong>A: </strong>It’s interesting to look at some slices of curated package lists in addition to overall compatibility. Apple should be leading from the front, so the “Apple packages” data set is 
+          <a href="/apple">all packages authored by Apple</a>, again with the same criteria as above applied. Nothing newer than March 19th and nothing without commits in the last year. The SSWG incubated data set is the same idea but sourced from the 
+          <a href="https://www.swift.org/sswg/#projects">Swift Server Workgroup incubated packages list</a>.
+        </p>
       </div>
     </main>
     <footer>
