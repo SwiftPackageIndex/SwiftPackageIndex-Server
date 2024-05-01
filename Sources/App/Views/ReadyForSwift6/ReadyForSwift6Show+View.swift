@@ -45,14 +45,67 @@ extension ReadyForSwift6Show {
                     .text("Swift 6 language mode migration guide")
                    ),
                    .text(" or the "),
-                   .a(                    .href("https://example.com"),
-                                          .text("Swift 6 release blog post")
+                   .a(
+                    .href("https://example.com"),
+                    .text("Swift 6 release blog post")
                    )),
                 .p("To track the progress of the Swift package ecosystem, the Swift Package Index is running regular package compatibility checks across all packages in the index."),
                 .h3("Total packages compatible with Swift 6"),
                 model.readyForSwift6Chart(kind: .compatiblePackages),
                 .h3("Total Swift 6 concurrency errors"),
-                model.readyForSwift6Chart(kind: .totalErrors)
+                model.readyForSwift6Chart(kind: .totalErrors),
+                .h3("Frequently asked questions"),
+                .p(
+                    .strong(.text("Q: ")),
+                    .text("What does “compatible” mean in the chart of compatible packages?")
+                ),
+                .p(
+                    .strong(.text("A: ")),
+                    .text("We define compatibility in the same way we do on package pages. If any build of the package completes successfully on any of our tested platforms (macOS via SwiftPM, macOS via XcodeBuild, iOS, visionOS, watchOS, tvOS, or Linux) then that build is deemed compatible with the Swift version.")
+                ),
+                .hr(
+                    .class("minor")
+                ),
+                .p(
+                    .strong(.text("Q: ")),
+                    .text("What does “total concurrency errors” mean?")
+                ),
+                .p(
+                    .strong(.text("A: ")),
+                    .text("Sven: Can you replace this with a short description of these errors, please?")
+                ),
+                .hr(
+                    .class("minor")
+                ),
+                .p(
+                    .strong(.text("Q: ")),
+                    .text("What packages are in the “all packages” data set?")
+                ),
+                .p(
+                    .strong(.text("A: ")),
+                    .text("We are not testing every package in the index. Instead, we are testing packages that are under some kind of active development. For this test, we define “all packages” in the chart to be any package having at least one commit to their repository in the last year. We took a snapshot of active packages on the 19th of March 2024, and the “all packages” data set includes 3,393 packages. The data set also excludes any new packages added after the 19th March.")
+                ),
+                .hr(
+                    .class("minor")
+                ),
+                .p(
+                    .strong(.text("Q: ")),
+                    .text("What packages are in the “Apple packages” and “SSWG incubated packages” data sets?")
+                ),
+                .p(
+                    .strong(.text("A: ")),
+                    .text("It’s interesting to look at some slices of curated package lists in addition to overall compatibility. Apple should be leading from the front, so the “Apple packages” data set is "),
+                    .a(
+                        .href(SiteURL.author(.value("apple")).relativeURL()),
+                        .text("all packages authored by Apple")
+                    ),
+                    .text(", again with the same criteria as above applied. Nothing newer than March 19th and nothing without commits in the last year. The SSWG incubated data set is the same idea but sourced from the "),
+                    .a(
+                        .href("https://www.swift.org/sswg/#projects"),
+                        .text("Swift Server Workgroup incubated packages list")
+                    ),
+                    .text(".")
+                )
             )
         }
     }
