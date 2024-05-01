@@ -21,16 +21,16 @@ func docRoutes(_ app: Application) throws {
     // Therefore, these parts need to be queried from the database and the request will be
     // redirected to the fully formed documentation URL.
     app.get(":owner", ":repository", "documentation") { req -> Response in
-        throw Abort.redirect(to: try await req.getDocRedirect(), fragment: .documentation)
+        req.redirect(to: SiteURL.relativeURL(for: try await req.getDocRedirect(), fragment: .documentation))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "documentation", "**") { req -> Response in
-        throw Abort.redirect(to: try await req.getDocRedirect(), fragment: .documentation)
+        req.redirect(to: SiteURL.relativeURL(for: try await req.getDocRedirect(), fragment: .documentation))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", "tutorials", "**") { req -> Response in
-        throw Abort.redirect(to: try await req.getDocRedirect(), fragment: .tutorials)
+        req.redirect(to: SiteURL.relativeURL(for: try await req.getDocRedirect(), fragment: .tutorials))
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "documentation") { req -> Response in
-        throw Abort.redirect(to: try await req.getDocRedirect(), fragment: .documentation)
+        req.redirect(to: SiteURL.relativeURL(for: try await req.getDocRedirect(), fragment: .documentation))
     }.excludeFromOpenAPI()
 
     // Stable URLs with reference (real reference or ~)
@@ -179,12 +179,12 @@ extension Request {
 }
 
 
-private extension Abort {
-    static func redirect(to redirect: DocRedirect, fragment: DocRoute.Fragment) -> Abort {
-        .redirect(to: SiteURL.relativeURL(owner: redirect.owner,
-                                                     repository: redirect.repository,
-                                                     documentation: redirect.target,
-                                                     fragment: fragment,
-                                                     path: redirect.path))
+private extension SiteURL {
+    static func relativeURL(for docRedirect: DocRedirect, fragment: DocRoute.Fragment) -> String {
+        relativeURL(owner: docRedirect.owner,
+                    repository: docRedirect.repository,
+                    documentation: docRedirect.target,
+                    fragment: fragment,
+                    path: docRedirect.path)
     }
 }
