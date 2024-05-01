@@ -1,7 +1,7 @@
 [
     {
         "id": "all",
-        "name": "All Packages",
+        "name": "All packages",
         "values": [
             { "date": "2024-03-12", "value": 3987 },
             { "date": "2024-04-09", "value": 3564 },
@@ -14,7 +14,7 @@
     },
     {
         "id": "apple",
-        "name": "Apple Packages",
+        "name": "Apple packages",
         "values": [
             { "date": "2024-03-12", "value": 498 },
             { "date": "2024-04-09", "value": 435 },
@@ -27,7 +27,7 @@
     },
     {
         "id": "sswg",
-        "name": "SSWG Incubated Packages",
+        "name": "SSWG incubated packages",
         "values": [
             { "date": "2024-03-12", "value": 820 },
             { "date": "2024-04-09", "value": 690 },
