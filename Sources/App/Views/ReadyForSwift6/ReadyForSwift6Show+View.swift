@@ -72,7 +72,7 @@ extension ReadyForSwift6Show {
                 ),
                 .p(
                     .strong(.text("A: ")),
-                    .text("Swift 6 introduces complete concurrency checking, which is a compiler feature that checks your code for data-race safety. The number of concurrency errors reflects how many issues the compiler detected relating to these concurrency or data-race checks.")
+                    .text("Swift 6 introduces complete concurrency checking, a compiler feature that checks your code for data-race safety. The number of concurrency errors reflects how many issues the compiler detected relating to these concurrency or data-race checks. The total errors chart plots the total number of these errors summed across all packages.")
                 ),
                 .hr(
                     .class("minor")
