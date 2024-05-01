@@ -16,21 +16,48 @@ import Foundation
 import Plot
 
 enum ReadyForSwift6Show {
+
     struct Model {
-        func readyForSwift6Chart(identifier: String) -> Node<HTML.BodyContext> {
-            let chartDataPath = Current.fileManager.workingDirectory().appending("Resources/ChartData/\(identifier).json")
+
+        enum ChartKind {
+            case compatiblePackages
+            case totalErrors
+        }
+
+        func readyForSwift6Chart(kind: ChartKind) -> Node<HTML.BodyContext> {
+            let chartDataPath = Current.fileManager.workingDirectory().appending("Resources/ChartData/\(kind.dataFile)")
             guard let chartData = Current.fileManager.contents(atPath: chartDataPath)?.compactJson()
             else { return .p("Couldn’t load chart data.") }
 
             return .div(
-                .id("vega-chart-\(identifier)"),
                 .data(named: "controller", value: "vega-chart"),
+                .data(named: "vega-chart-class-value", value: kind.jsClassName),
                 .script(
                     .data(named: "vega-chart-target", value: "data"),
                     .attribute(named: "type", value: "application/json"),
                     .raw(chartData)
                 )
             )
+        }
+    }
+}
+
+private extension ReadyForSwift6Show.Model.ChartKind {
+    var dataFile: String {
+        get {
+            switch self {
+                case .compatiblePackages: return "rfs6-packages.json"
+                case .totalErrors: return "rfs6-errors.json"
+            }
+        }
+    }
+
+    var jsClassName: String {
+        get {
+            switch self {
+                case .compatiblePackages: return "CompatiblePackagesChart"
+                case .totalErrors: return "TotalErrorsChart"
+            }
         }
     }
 }

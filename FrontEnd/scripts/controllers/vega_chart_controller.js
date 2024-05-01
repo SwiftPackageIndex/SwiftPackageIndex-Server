@@ -17,8 +17,13 @@ import * as vega from 'vega'
 
 export class VegaChartController extends Controller {
     static targets = ['data']
+    static values = { class: String }
 
     connect() {
+        // Store references the two chart classes so they can be looked up as if they were in a dictionary.
+        window.CompatiblePackagesChart = CompatiblePackagesChart
+        window.TotalErrorsChart = TotalErrorsChart
+
         // Render the chart container.
         const chartContainerElement = document.createElement('div')
         chartContainerElement.classList.add('chart-container')
@@ -83,7 +88,8 @@ export class VegaChartController extends Controller {
         const includedDataSets = Array.from(checkboxElements).map((checkbox) => checkbox.name)
         const data = JSON.parse(this.dataTarget.textContent).filter((dataSet) => includedDataSets.includes(dataSet.id))
 
-        new vega.View(vega.parse(ReadyForSwift6Chart.spec(data)), {
+        const chartClass = window[this.classValue]
+        new vega.View(vega.parse(chartClass.spec(data)), {
             renderer: 'canvas',
             container: this.element.querySelector('.chart-container'),
             hover: true,
@@ -172,9 +178,13 @@ class ReadyForSwift6Chart {
             {
                 orient: 'left',
                 scale: 'yscale',
-                title: 'Number of compatible packages',
+                title: this.yAxisTitle(),
             },
         ]
+    }
+
+    static yAxisTitle() {
+        return ''
     }
 
     static marks(dataSet) {
@@ -220,5 +230,17 @@ class ReadyForSwift6Chart {
             default:
                 return '#000000'
         }
+    }
+}
+
+class CompatiblePackagesChart extends ReadyForSwift6Chart {
+    static yAxisTitle() {
+        return 'Number of compatible packages'
+    }
+}
+
+class TotalErrorsChart extends ReadyForSwift6Chart {
+    static yAxisTitle() {
+        return 'Total errors across all packages'
     }
 }

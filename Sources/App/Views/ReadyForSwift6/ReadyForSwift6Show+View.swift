@@ -38,17 +38,74 @@ extension ReadyForSwift6Show {
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .h2("Ready for Swift 6"),
-                .p("Swift 6 is lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ut ante vel diam sagittis hendrerit id eget nunc. Proin non ex eget dolor tristique lacinia placerat et turpis. In dui dui, malesuada eu lectus nec, rhoncus feugiat nisi."),
-                .p("Get started by [reading the migration guide]or this [guide to Swift 6 on Swift.org]."),
-                .p("To measure compatibility with Swift 6 across packages in the index, we are tracking compatibility across a set of packages under active development where they have at least one git commit in the past 12 months. The charts below visualise the results of our testing."),
+                .p("Swift 6 brings with it the ability to check your code for concurrency and data race issues. If switched on, the Swift compiler will produce errors where you could have data races."),
+                .p(.text("For help migrating your code, see the "),
+                   .a(
+                    .href("https://example.com"),
+                    .text("Swift 6 language mode migration guide")
+                   ),
+                   .text(" or the "),
+                   .a(
+                    .href("https://example.com"),
+                    .text("Swift 6 release blog post")
+                   )),
+                .p("To track the progress of the Swift package ecosystem, the Swift Package Index is running regular package compatibility checks across all packages in the index."),
                 .h3("Total packages compatible with Swift 6"),
-                .p("This chart shows the total number of packages that will compile with  Swift 6:"),
-                model.readyForSwift6Chart(identifier: "rfs6-packages"),
+                model.readyForSwift6Chart(kind: .compatiblePackages),
                 .h3("Total Swift 6 concurrency errors"),
-                .p("This chart shows the total number of Swift concurrency errors across the entire selection of testing packages:"),
-//                model.readyForSwift6Chart(chartIdentifier: "rfs6-errors"),
-                .h3("List of compatible packages"),
-                .p("Here are all the compatible packages!")
+                model.readyForSwift6Chart(kind: .totalErrors),
+                .h3("Frequently asked questions"),
+                .p(
+                    .strong(.text("Q: ")),
+                    .text("What does “compatible” mean in the chart of compatible packages?")
+                ),
+                .p(
+                    .strong(.text("A: ")),
+                    .text("We define compatibility in the same way we do on package pages. If any build of the package completes successfully on any of our tested platforms (macOS via SwiftPM, macOS via XcodeBuild, iOS, visionOS, watchOS, tvOS, or Linux) then that build is deemed compatible with the Swift version.")
+                ),
+                .hr(
+                    .class("minor")
+                ),
+                .p(
+                    .strong(.text("Q: ")),
+                    .text("What does “total concurrency errors” mean?")
+                ),
+                .p(
+                    .strong(.text("A: ")),
+                    .text("Swift 6 introduces complete concurrency checking, a compiler feature that checks your code for data-race safety. The number of concurrency errors reflects how many issues the compiler detected relating to these concurrency or data-race checks. The total errors chart plots the total number of these errors summed across all packages.")
+                ),
+                .hr(
+                    .class("minor")
+                ),
+                .p(
+                    .strong(.text("Q: ")),
+                    .text("What packages are in the “all packages” data set?")
+                ),
+                .p(
+                    .strong(.text("A: ")),
+                    .text("We are not testing every package in the index. Instead, we are testing packages that are under some kind of active development. For this test, we define “all packages” in the chart to be any package having at least one commit to their repository in the last year. We took a snapshot of active packages on the 19th of March 2024, and the “all packages” data set includes 3,393 packages. The data set also excludes any new packages added after the 19th March.")
+                ),
+                .hr(
+                    .class("minor")
+                ),
+                .p(
+                    .strong(.text("Q: ")),
+                    .text("What packages are in the “Apple packages” and “SSWG incubated packages” data sets?")
+                ),
+                .p(
+                    .strong(.text("A: ")),
+                    .text("It’s interesting to look at some slices of curated package lists in addition to overall compatibility. Apple should be leading from the front, so the “Apple packages” data set is "),
+                    .a(
+                        .href(SiteURL.author(.value("apple")).relativeURL()),
+                        .text("all packages authored by Apple")
+                    ),
+                    .text(", again with the same criteria as above applied. Nothing newer than March 19th and nothing without commits in the last year. The SSWG incubated data set is the same idea but sourced from the "),
+                    .a(
+                        .href("https://www.swift.org/sswg/#projects"),
+                        .text("Swift Server Workgroup incubated packages list")
+                    ),
+                    .text(".")
+                )
             )
         }
     }

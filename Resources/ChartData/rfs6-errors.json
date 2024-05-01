@@ -1,38 +1,41 @@
 [
     {
-        "name": "overall",
+        "id": "all",
+        "name": "All packages",
         "values": [
-            { "snapshotName": "2024-03-12", "errorCount": 4820 },
-            { "snapshotName": "2024-04-09", "errorCount": 4203 },
-            { "snapshotName": "2024-05-21", "errorCount": 3789 },
-            { "snapshotName": "2024-06-24", "errorCount": 3320 },
-            { "snapshotName": "2024-07-07", "errorCount": 2772 },
-            { "snapshotName": "2024-08-19", "errorCount": 2617 },
-            { "snapshotName": "2024-09-02", "errorCount": 2189 }
+            { "date": "2024-03-12", "value": 3987 },
+            { "date": "2024-04-09", "value": 3564 },
+            { "date": "2024-05-21", "value": 3192 },
+            { "date": "2024-06-24", "value": 2840 },
+            { "date": "2024-07-07", "value": 2473 },
+            { "date": "2024-08-19", "value": 2045 },
+            { "date": "2024-09-02", "value": 1532 }
         ]
     },
     {
-        "name": "apple",
+        "id": "apple",
+        "name": "Apple packages",
         "values": [
-            { "snapshotName": "2024-03-12", "errorCount": 482 },
-            { "snapshotName": "2024-04-09", "errorCount": 420 },
-            { "snapshotName": "2024-05-21", "errorCount": 378 },
-            { "snapshotName": "2024-06-24", "errorCount": 332 },
-            { "snapshotName": "2024-07-07", "errorCount": 277 },
-            { "snapshotName": "2024-08-19", "errorCount": 261 },
-            { "snapshotName": "2024-09-02", "errorCount": 218 }
+            { "date": "2024-03-12", "value": 498 },
+            { "date": "2024-04-09", "value": 435 },
+            { "date": "2024-05-21", "value": 368 },
+            { "date": "2024-06-24", "value": 297 },
+            { "date": "2024-07-07", "value": 235 },
+            { "date": "2024-08-19", "value": 168 },
+            { "date": "2024-09-02", "value": 102 }
         ]
     },
     {
-        "name": "sswg",
+        "id": "sswg",
+        "name": "SSWG incubated packages",
         "values": [
-            { "snapshotName": "2024-03-12", "errorCount": 48 },
-            { "snapshotName": "2024-04-09", "errorCount": 42 },
-            { "snapshotName": "2024-05-21", "errorCount": 37 },
-            { "snapshotName": "2024-06-24", "errorCount": 33 },
-            { "snapshotName": "2024-07-07", "errorCount": 27 },
-            { "snapshotName": "2024-08-19", "errorCount": 26 },
-            { "snapshotName": "2024-09-02", "errorCount": 21 }
+            { "date": "2024-03-12", "value": 820 },
+            { "date": "2024-04-09", "value": 690 },
+            { "date": "2024-05-21", "value": 565 },
+            { "date": "2024-06-24", "value": 439 },
+            { "date": "2024-07-07", "value": 328 },
+            { "date": "2024-08-19", "value": 213 },
+            { "date": "2024-09-02", "value": 114 }
         ]
     }
 ]
