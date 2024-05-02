@@ -1419,8 +1419,8 @@ class PackageController_routesTests: SnapshotTestCase {
     }
 
     func test_getDocRoute_documentation_current() async throws {
-        let cache = CurrentReferenceCache()
-        Current.currentReferenceCache = { cache }
+//        let cache = CurrentReferenceCache()
+//        Current.currentReferenceCache = { cache }
         // owner/repo/~/documentation/archive
         let req = Request(application: app, url: "", on: app.eventLoopGroup.next())
         req.parameters.set("owner", to: "owner")
@@ -1437,7 +1437,7 @@ class PackageController_routesTests: SnapshotTestCase {
             XCTFail("unexpected error: \(error)")
         }
 
-        cache[owner: "owner", repository: "repo"] = "1.2.3"
+//        cache[owner: "owner", repository: "repo"] = "1.2.3"
 
         do { // Now with the cache in place this resolves
             let route = try await req.getDocRoute(fragment: .documentation)
