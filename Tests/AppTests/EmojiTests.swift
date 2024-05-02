@@ -24,6 +24,7 @@ class EmojiTests: XCTestCase {
             (":grinning:", "😀"),
             (":gb:", "🇬🇧"),
             (":+1:", "👍"),
+            (":shaking_face:", "🫨"),
             (":invalid:", ":invalid:")
         ]
 
@@ -34,7 +35,7 @@ class EmojiTests: XCTestCase {
 
     func test_emojiLoading() throws {
         let emojis = EmojiStorage.current.lookup
-        XCTAssertEqual(emojis.count, 1848)
+        XCTAssertEqual(emojis.count, 1913)
         XCTAssertEqual(emojis[":grinning:"], "😀")
     }
 
