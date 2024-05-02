@@ -1,13 +1,13 @@
 {
-  "originHash" : "e402b0dbbd63e4769f35580974392d94ad8e04541edc8a51713fc461fa1188ce",
+  "originHash" : "bc020f72014dd48e79a3cf777259384e9a3557e30d065d833fb85809808d32ce",
   "pins" : [
     {
       "identity" : "async-http-client",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server/async-http-client.git",
       "state" : {
-        "revision" : "fb308ee72f3d4c082a507033f94afa7395963ef3",
-        "version" : "1.21.0"
+        "revision" : "a22083713ee90808d527d0baa290c2fb13ca3096",
+        "version" : "1.21.1"
       }
     },
     {
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-postgres-driver.git",
       "state" : {
-        "revision" : "a538fc647f82d915eb84e0a12ca9b08c513e57c4",
-        "version" : "2.8.0"
+        "revision" : "2cc10e86a743c66cd60082174f602e3c223543dc",
+        "version" : "2.9.0"
       }
     },
     {
