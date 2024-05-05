@@ -112,7 +112,7 @@ private extension Parameters {
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/3021
                 // AND THE FIX
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/3039
-                return [archive].compacted().map { $0.lowercased() } + catchall.map { $0.lowercased() }
+                return ([archive].compactMap { $0 } + catchall).map { $0.lowercased() }
             case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
                 return catchall
         }
