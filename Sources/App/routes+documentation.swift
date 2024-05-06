@@ -96,10 +96,6 @@ private extension PathComponent {
 
 private extension Parameters {
     func pathElements(for fragment: DocRoute.Fragment, archive: String? = nil) -> [String] {
-        let catchall = {
-            var p = self
-            return p.getCatchall()
-        }()
         switch fragment {
             case .data, .documentation, .tutorials:
                 // DocC lowercases "target" names in URLs. Since these routes can also
@@ -112,9 +108,9 @@ private extension Parameters {
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/3021
                 // AND THE FIX
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/3039
-                return ([archive].compactMap { $0 } + catchall).map { $0.lowercased() }
+                return ([archive].compactMap { $0 } + getCatchall()).map { $0.lowercased() }
             case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
-                return catchall
+                return getCatchall()
         }
     }
 }
