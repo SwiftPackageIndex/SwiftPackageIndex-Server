@@ -33,6 +33,10 @@ requests:
     url: ${base_url}/CoreOffice/XMLCoder/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /FabrizioBrancati/Queuer/documentation:
+    url: ${base_url}/FabrizioBrancati/Queuer/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /FlineDev/HandySwift/documentation:
     url: ${base_url}/FlineDev/HandySwift/documentation
     validation:
@@ -82,12 +86,14 @@ requests:
     url: ${base_url}/MessageKit/MessageKit/documentation
     validation:
       status: .regex((2|3)\d\d)
-  # No docs uploaded
-  # https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2977
-  # /ReactorKit/ReactorKit/documentation:
-  #   url: ${base_url}/ReactorKit/ReactorKit/documentation
-  #   validation:
-  #     status: .regex((2|3)\d\d)
+  /OpenSwiftUIProject/OpenSwiftUI/documentation:
+    url: ${base_url}/OpenSwiftUIProject/OpenSwiftUI/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /ReactorKit/ReactorKit/documentation:
+    url: ${base_url}/ReactorKit/ReactorKit/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /RedMadRobot/input-mask-ios/documentation:
     url: ${base_url}/RedMadRobot/input-mask-ios/documentation
     validation:
@@ -337,17 +343,20 @@ requests:
     url: ${base_url}/hmlongco/Factory/documentation
     validation:
       status: .regex((2|3)\d\d)
-  # https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2978
-  # /huggingface/swift-transformers/documentation:
-  #   url: ${base_url}/huggingface/swift-transformers/documentation
-  #   validation:
-  #     status: .regex((2|3)\d\d)
+  /huggingface/swift-transformers/documentation:
+    url: ${base_url}/huggingface/swift-transformers/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /hylo-lang/hylo/documentation:
     url: ${base_url}/hylo-lang/hylo/documentation
     validation:
       status: .regex((2|3)\d\d)
   /immobiliare/RealHTTP/documentation:
     url: ${base_url}/immobiliare/RealHTTP/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /insidegui/CloudKitCodable/documentation:
+    url: ${base_url}/insidegui/CloudKitCodable/documentation
     validation:
       status: .regex((2|3)\d\d)
   /jessesquires/Foil/documentation:
@@ -366,6 +375,10 @@ requests:
   #     status: .regex((2|3)\d\d)
   /krzyzanowskim/CryptoSwift/documentation:
     url: ${base_url}/krzyzanowskim/CryptoSwift/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /li3zhen1/Grape/documentation:
+    url: ${base_url}/li3zhen1/Grape/documentation
     validation:
       status: .regex((2|3)\d\d)
   /liuliu/dflat/documentation:
@@ -550,6 +563,10 @@ requests:
       status: .regex((2|3)\d\d)
   /swiftyfinch/Rugby/documentation:
     url: ${base_url}/swiftyfinch/Rugby/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /tevelee/SwiftUI-Flow/documentation:
+    url: ${base_url}/tevelee/SwiftUI-Flow/documentation
     validation:
       status: .regex((2|3)\d\d)
   /tgrapperon/swift-dependencies-additions/documentation:
