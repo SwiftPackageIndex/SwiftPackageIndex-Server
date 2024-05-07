@@ -40,7 +40,7 @@ class ArrayVersionExtensionTests: AppTestCase {
             ]
 
             XCTAssertEqual(versions.canonicalDocumentationTarget(),
-                           .internal(reference: "main", archive: "foo"))
+                           .internal(reference: .named(ref: "main"), archive: "foo"))
         }
 
         do {
@@ -61,7 +61,7 @@ class ArrayVersionExtensionTests: AppTestCase {
             ]
 
             XCTAssertEqual(versions.canonicalDocumentationTarget(),
-                           .internal(reference: "main", archive: "foo"))
+                           .internal(reference: .named(ref: "main"), archive: "foo"))
         }
 
         do {
@@ -82,7 +82,7 @@ class ArrayVersionExtensionTests: AppTestCase {
             ]
 
             XCTAssertEqual(versions.canonicalDocumentationTarget(),
-                           .internal(reference: "1.2.3", archive: "foo"))
+                           .internal(reference: .named(ref: "1.2.3"), archive: "foo"))
         }
 
         do {
@@ -103,7 +103,7 @@ class ArrayVersionExtensionTests: AppTestCase {
             ]
 
             XCTAssertEqual(versions.canonicalDocumentationTarget(),
-                           .internal(reference: "1.2.3-b1", archive: "foo"))
+                           .internal(reference: .named(ref: "1.2.3-b1"), archive: "foo"))
         }
 
         do {
@@ -127,7 +127,7 @@ class ArrayVersionExtensionTests: AppTestCase {
             ]
 
             XCTAssertEqual(versions.canonicalDocumentationTarget(),
-                           .internal(reference: "1.2.3", archive: "foo"))
+                           .internal(reference: .named(ref: "1.2.3"), archive: "foo"))
         }
 
         do {
@@ -148,7 +148,7 @@ class ArrayVersionExtensionTests: AppTestCase {
             ]
 
             XCTAssertEqual(versions.canonicalDocumentationTarget(),
-                           .internal(reference: "1.2.3", archive: "foo"))
+                           .internal(reference: .named(ref: "1.2.3"), archive: "foo"))
         }
 
         do {

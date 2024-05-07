@@ -57,7 +57,7 @@ enum MaintainerInfoIndex {
         static func spiManifestCommonUseCasesDocLink(_ anchor: Anchor) -> String {
             SiteURL.relativeURL(owner: "SwiftPackageIndex",
                                 repository: "SPIManifest",
-                                documentation: .internal(reference: .current, archive: "spimanifest"),
+                                documentation: .internal(reference: .canonical, archive: "spimanifest"),
                                 fragment: .documentation,
                                 path: "spimanifest/commonusecases#\(anchor)")
         }
@@ -65,7 +65,7 @@ enum MaintainerInfoIndex {
         static func spiManifestDocLink() -> String {
             SiteURL.relativeURL(owner: "SwiftPackageIndex",
                                 repository: "SPIManifest",
-                                documentation: .internal(reference: .current, archive: "spimanifest"),
+                                documentation: .internal(reference: .canonical, archive: "spimanifest"),
                                 fragment: .documentation)
         }
 
