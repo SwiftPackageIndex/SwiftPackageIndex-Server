@@ -134,7 +134,7 @@ struct DocumentationPageProcessor {
                         SiteURL.relativeURL(
                             owner: repositoryOwner,
                             repository: repositoryName,
-                            documentation: .internal(reference: version.reference,
+                            documentation: .internal(reference: .named(ref: version.reference),
                                                      archive: currentArchive.name),
                             fragment: .documentation
                         )
@@ -171,7 +171,7 @@ struct DocumentationPageProcessor {
                                     SiteURL.relativeURL(
                                         owner: repositoryOwner,
                                         repository: repositoryName,
-                                        documentation: .internal(reference: docVersion.reference, archive: archive.name),
+                                        documentation: .internal(reference: .named(ref: docVersion.reference), archive: archive.name),
                                         fragment: .documentation
                                     )
                                 ),
@@ -210,7 +210,7 @@ struct DocumentationPageProcessor {
                                                         SiteURL.relativeURL(
                                                             owner: repositoryOwner,
                                                             repository: repositoryName,
-                                                            documentation: .internal(reference: latestStable.reference,
+                                                            documentation: .internal(reference: .named(ref: latestStable.reference),
                                                                                      archive: docArchive.name),
                                                             fragment: .documentation
                                                         )

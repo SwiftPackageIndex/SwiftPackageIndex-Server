@@ -17,7 +17,12 @@ import Fluent
 
 enum DocumentationTarget: Equatable, Codable {
     case external(url: String)
-    case `internal`(reference: String, archive: String)
+    case `internal`(reference: Reference, archive: String)
+
+    enum Reference: Equatable, Codable {
+        case canonical
+        case named(ref: String)
+    }
 
     /// Fetch DocumentationTarget for a given package.
     /// - Parameters:
@@ -75,19 +80,37 @@ enum DocumentationTarget: Equatable, Codable {
             .flatMap { $0.model.docArchives?.first?.name }
 
         return archive.map {
-            .internal(reference: "\(reference)", archive: $0)
+            .internal(reference: reference, archive: $0)
         }
     }
 }
 
 
 extension DocumentationTarget {
-    var `internal`: (reference: String, archive: String)? {
+    var `internal`: (reference: Reference, archive: String)? {
         switch self {
             case .external:
                 return nil
             case .internal(let reference, let archive):
                 return (reference, archive)
+        }
+    }
+}
+
+extension DocumentationTarget.Reference {
+    var pathEncoded: String {
+        switch self {
+            case .canonical: String.current
+            case .named(ref: let reference): reference.pathEncoded
+        }
+    }
+}
+
+extension DocumentationTarget.Reference: CustomStringConvertible {
+    var description: String {
+        switch self {
+            case .canonical: String.current
+            case .named(ref: let reference): reference
         }
     }
 }
