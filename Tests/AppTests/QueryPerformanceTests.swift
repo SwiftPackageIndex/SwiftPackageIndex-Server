@@ -22,8 +22,8 @@ import XCTest
 class QueryPerformanceTests: XCTestCase {
     var app: Application!
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override func setUp() async throws {
+        try await super.setUp()
 
         try XCTSkipUnless(runQueryPerformanceTests)
 
