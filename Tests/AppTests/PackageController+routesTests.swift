@@ -401,28 +401,28 @@ class PackageController_routesTests: SnapshotTestCase {
                                                                  toTarget: .external(url: "https://example.com")))
 
         XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "", owner: "", repository: "", docVersion: .reference(""),
-                                                                 toTarget: .internal(reference: .named(ref: ""), archive: "")))
+                                                                 toTarget: .internal(reference: .reference(""), archive: "")))
 
         // There should be no canonical URL if the package owner/repo/ref prefix doesn't match even with a valid canonical target.
         XCTAssertNil(PackageController.canonicalDocumentationUrl(from: "/some/random/url/without/matching/prefix",
                                                                  owner: "owner",
                                                                  repository: "repo",
                                                                  docVersion: .reference("non-canonical-ref"),
-                                                                 toTarget: .internal(reference: .named(ref: "canonical-ref"), archive: "archive")))
+                                                                 toTarget: .internal(reference: .reference("canonical-ref"), archive: "archive")))
 
         // Switching a non-canonical reference for a canonical one at the root of the documentation
         XCTAssertEqual(PackageController.canonicalDocumentationUrl(from: "/owner/repo/non-canonical-ref/documentation/archive",
                                                                    owner: "owner",
                                                                    repository: "repo",
                                                                    docVersion: .reference("non-canonical-ref"),
-                                                                   toTarget: .internal(reference: .named(ref: "canonical-ref"), archive: "archive")),
+                                                                   toTarget: .internal(reference: .reference("canonical-ref"), archive: "archive")),
                        "/owner/repo/canonical-ref/documentation/archive")
 
         XCTAssertEqual(PackageController.canonicalDocumentationUrl(from: "/owner/repo/non-canonical-ref/documentation/archive/symbol:$-%",
                                                                    owner: "owner",
                                                                    repository: "repo",
                                                                    docVersion: .reference("non-canonical-ref"),
-                                                                   toTarget: .internal(reference: .named(ref: "canonical-ref"), archive: "archive")),
+                                                                   toTarget: .internal(reference: .reference("canonical-ref"), archive: "archive")),
                        "/owner/repo/canonical-ref/documentation/archive/symbol:$-%")
     }
 
@@ -1437,7 +1437,7 @@ class PackageController_routesTests: SnapshotTestCase {
             XCTFail("unexpected error: \(error)")
         }
 
-        cache[owner: "owner", repository: "repo"] = .named(ref: "1.2.3")
+        cache[owner: "owner", repository: "repo"] = "1.2.3"
 
         do { // Now with the cache in place this resolves
             let route = try await req.getDocRoute(fragment: .documentation)

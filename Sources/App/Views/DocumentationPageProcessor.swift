@@ -134,7 +134,7 @@ struct DocumentationPageProcessor {
                         SiteURL.relativeURL(
                             owner: repositoryOwner,
                             repository: repositoryName,
-                            documentation: .internal(reference: .named(ref: version.reference),
+                            documentation: .internal(reference: .reference( version.reference),
                                                      archive: currentArchive.name),
                             fragment: .documentation
                         )
@@ -171,7 +171,7 @@ struct DocumentationPageProcessor {
                                     SiteURL.relativeURL(
                                         owner: repositoryOwner,
                                         repository: repositoryName,
-                                        documentation: .internal(reference: .named(ref: docVersion.reference), archive: archive.name),
+                                        documentation: .internal(reference: .reference( docVersion.reference), archive: archive.name),
                                         fragment: .documentation
                                     )
                                 ),
@@ -210,7 +210,7 @@ struct DocumentationPageProcessor {
                                                         SiteURL.relativeURL(
                                                             owner: repositoryOwner,
                                                             repository: repositoryName,
-                                                            documentation: .internal(reference: .named(ref: latestStable.reference),
+                                                            documentation: .internal(reference: .reference( latestStable.reference),
                                                                                      archive: docArchive.name),
                                                             fragment: .documentation
                                                         )

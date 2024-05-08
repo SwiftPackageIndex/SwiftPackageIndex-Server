@@ -140,7 +140,7 @@ extension Request {
                     target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
                 } else {
                     target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository,
-                                                                 reference: .named(ref: ref))
+                                                                 reference: .reference( ref))
                 }
                 
             case .none:

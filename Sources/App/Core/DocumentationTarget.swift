@@ -20,8 +20,8 @@ enum DocumentationTarget: Equatable, Codable {
     case `internal`(reference: Reference, archive: String)
 
     enum Reference: Equatable, Codable {
-        case canonical
-        case named(ref: String)
+        case current
+        case reference(String)
     }
 
     /// Fetch DocumentationTarget for a given package.
@@ -97,20 +97,20 @@ extension DocumentationTarget {
     }
 }
 
-extension DocumentationTarget.Reference {
-    var pathEncoded: String {
+extension DocumentationTarget.Reference: CustomStringConvertible {
+    var description: String {
         switch self {
-            case .canonical: String.current
-            case .named(ref: let reference): reference.pathEncoded
+            case .current: String.current
+            case .reference( let reference): reference
         }
     }
 }
 
-extension DocumentationTarget.Reference: CustomStringConvertible {
-    var description: String {
+extension DocumentationTarget.Reference {
+    var pathEncoded: String {
         switch self {
-            case .canonical: String.current
-            case .named(ref: let reference): reference
+            case .current: String.current
+            case .reference( let reference): reference.pathEncoded
         }
     }
 }
