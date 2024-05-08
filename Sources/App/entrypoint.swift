@@ -25,7 +25,7 @@ enum Entrypoint {
         defer { app.shutdown() }
         
         do {
-            try await configure(app)
+            try configure(app)
         } catch {
             app.logger.report(error: error)
             throw error
