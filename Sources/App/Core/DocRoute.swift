@@ -29,7 +29,7 @@ struct DocRoute: Equatable {
         var description: String {
             switch self {
                 case .current:
-                    return "~"
+                    return String.current
                 case .reference(let string):
                     return string
             }
