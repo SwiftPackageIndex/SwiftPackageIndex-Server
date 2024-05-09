@@ -134,7 +134,7 @@ struct DocumentationPageProcessor {
                         SiteURL.relativeURL(
                             owner: repositoryOwner,
                             repository: repositoryName,
-                            documentation: .internal(reference: .reference( version.reference),
+                            documentation: .internal(docVersion: .reference(version.reference),
                                                      archive: currentArchive.name),
                             fragment: .documentation
                         )
@@ -171,7 +171,7 @@ struct DocumentationPageProcessor {
                                     SiteURL.relativeURL(
                                         owner: repositoryOwner,
                                         repository: repositoryName,
-                                        documentation: .internal(reference: .reference( docVersion.reference), archive: archive.name),
+                                        documentation: .internal(docVersion: docVersion, archive: archive.name),
                                         fragment: .documentation
                                     )
                                 ),
@@ -210,7 +210,7 @@ struct DocumentationPageProcessor {
                                                         SiteURL.relativeURL(
                                                             owner: repositoryOwner,
                                                             repository: repositoryName,
-                                                            documentation: .internal(reference: .reference( latestStable.reference),
+                                                            documentation: .internal(docVersion: .reference(latestStable.reference),
                                                                                      archive: docArchive.name),
                                                             fragment: .documentation
                                                         )
@@ -328,11 +328,13 @@ struct DocumentationPageProcessor {
                         let path = "/\(owner)/\(repository)/\(String.current)/".lowercased()
                         try e.html(#"var baseUrl = "\#(path)""#)
                     }
-                    let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(reference)".lowercased()
-                    if value == #"var baseUrl = "\#(fullyQualifiedPrefix)/""# {
-                        //   /a/b/1.2.3 -> /a/b/~   (current)
-                        let path = "/\(owner)/\(repository)/\(String.current)/".lowercased()
-                        try e.html(#"var baseUrl = "\#(path)""#)
+                    if let reference {
+                        let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(reference)".lowercased()
+                        if value == #"var baseUrl = "\#(fullyQualifiedPrefix)/""# {
+                            //   /a/b/1.2.3 -> /a/b/~   (current)
+                            let path = "/\(owner)/\(repository)/\(String.current)/".lowercased()
+                            try e.html(#"var baseUrl = "\#(path)""#)
+                        }
                     }
                 }
             case .reference(let reference):
@@ -360,7 +362,7 @@ struct DocumentationPageProcessor {
                         // no /{owner}/{repo}/ prefix -> it's a dynamic base url resource, i.e. a "/" resource
                         //   / -> /a/b/~            (current)
                         try e.attr(attribute, "/\(owner)/\(repository)/\(String.current)\(value)".lowercased())
-                    } else {
+                    } else if let reference {
                         let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(reference)".lowercased()
                         if value.lowercased().hasPrefix(fullyQualifiedPrefix) {
                             // matches expected fully qualified resource path

@@ -140,7 +140,7 @@ extension Request {
                     target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
                 } else {
                     target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository,
-                                                                 reference: .reference( ref))
+                                                                 docVersion: .reference(ref))
                 }
                 
             case .none:
@@ -169,8 +169,8 @@ extension Request {
                 guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
                 else { throw Abort(.notFound) }
 
-                Current.currentReferenceCache()?[owner: owner, repository: repository] = "\(params.reference)"
-                return .current(referencing: "\(params.reference)")
+                Current.currentReferenceCache()?[owner: owner, repository: repository] = "\(params.docVersion)"
+                return .current(referencing: "\(params.docVersion)")
             } else {
                 return .reference(reference)
             }
