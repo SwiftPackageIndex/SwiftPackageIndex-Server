@@ -22,6 +22,7 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
+        .executable(name: "Run", targets: ["Run"]),
         .library(name: "Authentication", targets: ["Authentication"]),
         .library(name: "S3Store", targets: ["S3Store"]),
     ],

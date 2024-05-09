@@ -26,7 +26,7 @@ private var _schemaCreated = false
 
 func setup(_ environment: Environment, resetDb: Bool = true) async throws -> Application {
     let app = Application(environment)
-    let host = try configure(app)
+    let host = try await configure(app)
 
     // Ensure `.testing` refers to "postgres" or "localhost"
     precondition(["localhost", "postgres", "host.docker.internal"].contains(host),

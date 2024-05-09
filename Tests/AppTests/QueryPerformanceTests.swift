@@ -22,8 +22,8 @@ import XCTest
 class QueryPerformanceTests: XCTestCase {
     var app: Application!
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override func setUp() async throws {
+        try await super.setUp()
 
         try XCTSkipUnless(runQueryPerformanceTests)
 
@@ -33,7 +33,7 @@ class QueryPerformanceTests: XCTestCase {
         self.app = Application(.staging)
         self.app.logger.logLevel = Environment.get("LOG_LEVEL")
             .flatMap(Logger.Level.init(rawValue:)) ?? .warning
-        let host = try configure(app)
+        let host = try await configure(app)
 
         XCTAssert(host.hasPrefix("spi-dev-db"), "was: \(host)")
         XCTAssert(host.hasSuffix("postgres.database.azure.com"), "was: \(host)")

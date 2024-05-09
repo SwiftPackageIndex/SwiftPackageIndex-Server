@@ -17,7 +17,7 @@ import FluentPostgresDriver
 import Vapor
 
 @discardableResult
-public func configure(_ app: Application) throws -> String {
+public func configure(_ app: Application) async throws -> String {
     #if DEBUG && os(macOS)
     // The bundle is only loaded if /Applications/InjectionIII.app exists on the local development machine.
     // Requires InjectionIII 4.7.3 or higher to be loaded for compatibility with Package.swift files.
