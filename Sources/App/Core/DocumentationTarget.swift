@@ -17,7 +17,7 @@ import Fluent
 
 enum DocumentationTarget: Equatable, Codable {
     case external(url: String)
-    case `internal`(docVersion: DocRoute.DocVersion, archive: String)
+    case `internal`(docVersion: DocVersion, archive: String)
 
     /// Fetch DocumentationTarget for a given package.
     /// - Parameters:
@@ -58,7 +58,7 @@ enum DocumentationTarget: Equatable, Codable {
     ///   - repository: Repository name
     ///   - reference: Version reference
     /// - Returns: DocumentationTarget or nil
-    static func query(on database: Database, owner: String, repository: String, docVersion: DocRoute.DocVersion) async throws -> Self? {
+    static func query(on database: Database, owner: String, repository: String, docVersion: DocVersion) async throws -> Self? {
         let archive = try await Joined3<Version, Package, Repository>
             .query(on: database,
                    join: \Version.$package.$id == \Package.$id, method: .inner,
@@ -82,7 +82,7 @@ enum DocumentationTarget: Equatable, Codable {
 
 
 extension DocumentationTarget {
-    var `internal`: (docVersion: DocRoute.DocVersion, archive: String)? {
+    var `internal`: (docVersion: DocVersion, archive: String)? {
         switch self {
             case .external:
                 return nil

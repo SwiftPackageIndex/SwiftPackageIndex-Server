@@ -22,7 +22,7 @@ struct DocumentationPageProcessor {
     let repositoryOwnerName: String
     let repositoryName: String
     let packageName: String
-    let docVersion: DocRoute.DocVersion
+    let docVersion: DocVersion
     let referenceLatest: Version.Kind?
     let referenceKind: Version.Kind
     let canonicalUrl: String?
@@ -49,7 +49,7 @@ struct DocumentationPageProcessor {
           repositoryOwnerName: String,
           repositoryName: String,
           packageName: String,
-          docVersion: DocRoute.DocVersion,
+          docVersion: DocVersion,
           referenceLatest: Version.Kind?,
           referenceKind: Version.Kind,
           canonicalUrl: String?,
@@ -308,13 +308,13 @@ struct DocumentationPageProcessor {
         )
     }
 
-    static func rewriteBaseUrls(document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocRoute.DocVersion) throws {
+    static func rewriteBaseUrls(document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocVersion) throws {
         try rewriteScriptBaseUrl(document: document, owner: owner, repository: repository, docVersion: docVersion)
         try rewriteAttribute("href", document: document, owner: owner, repository: repository, docVersion: docVersion)
         try rewriteAttribute("src", document: document, owner: owner, repository: repository, docVersion: docVersion)
     }
 
-    static func rewriteScriptBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocRoute.DocVersion) throws {
+    static func rewriteScriptBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocVersion) throws {
         // Possible rewrite strategies
         //   / -> /a/b/1.2.3        (toReference)
         //   / -> /a/b/~            (current)
@@ -349,7 +349,7 @@ struct DocumentationPageProcessor {
         }
     }
 
-    static func rewriteAttribute(_ attribute: String, document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocRoute.DocVersion) throws {
+    static func rewriteAttribute(_ attribute: String, document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocVersion) throws {
         // Possible rewrite strategies
         //   / -> /a/b/1.2.3        (toReference)
         //   / -> /a/b/~            (current)

@@ -160,7 +160,7 @@ extension Request {
         if fragment.requiresArchive && archive == nil { throw Abort(.badRequest) }
         let pathElements = parameters.pathElements(for: fragment, archive: archive)
 
-        let docVersion = try await { () -> DocRoute.DocVersion in
+        let docVersion = try await { () -> DocVersion in
             if reference == String.current {
                 if let ref = Current.currentReferenceCache()?[owner: owner, repository: repository] {
                     return .current(referencing: ref)
