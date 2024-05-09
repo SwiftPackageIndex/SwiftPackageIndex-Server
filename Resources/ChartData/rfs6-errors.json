@@ -1,41 +1,56 @@
 [
-    {
-        "id": "all",
-        "name": "All packages",
-        "values": [
-            { "date": "2024-03-12", "value": 3987 },
-            { "date": "2024-04-09", "value": 3564 },
-            { "date": "2024-05-21", "value": 3192 },
-            { "date": "2024-06-24", "value": 2840 },
-            { "date": "2024-07-07", "value": 2473 },
-            { "date": "2024-08-19", "value": 2045 },
-            { "date": "2024-09-02", "value": 1532 }
-        ]
-    },
-    {
-        "id": "apple",
-        "name": "Apple packages",
-        "values": [
-            { "date": "2024-03-12", "value": 498 },
-            { "date": "2024-04-09", "value": 435 },
-            { "date": "2024-05-21", "value": 368 },
-            { "date": "2024-06-24", "value": 297 },
-            { "date": "2024-07-07", "value": 235 },
-            { "date": "2024-08-19", "value": 168 },
-            { "date": "2024-09-02", "value": 102 }
-        ]
-    },
-    {
-        "id": "sswg",
-        "name": "SSWG incubated packages",
-        "values": [
-            { "date": "2024-03-12", "value": 820 },
-            { "date": "2024-04-09", "value": 690 },
-            { "date": "2024-05-21", "value": 565 },
-            { "date": "2024-06-24", "value": 439 },
-            { "date": "2024-07-07", "value": 328 },
-            { "date": "2024-08-19", "value": 213 },
-            { "date": "2024-09-02", "value": 114 }
-        ]
-    }
+  {
+    "id" : "all",
+    "name" : "All packages",
+    "values" : [
+      {
+        "date" : "2024-03-19",
+        "value" : 3457
+      },
+      {
+        "date" : "2024-04-06",
+        "value" : 3281
+      },
+      {
+        "date" : "2024-05-04",
+        "value" : 56917
+      }
+    ]
+  },
+  {
+    "id" : "apple",
+    "name" : "Apple packages",
+    "values" : [
+      {
+        "date" : "2024-03-19",
+        "value" : 432
+      },
+      {
+        "date" : "2024-04-06",
+        "value" : 402
+      },
+      {
+        "date" : "2024-05-04",
+        "value" : 1392
+      }
+    ]
+  },
+  {
+    "id" : "sswg",
+    "name" : "SSWG incubated packages",
+    "values" : [
+      {
+        "date" : "2024-03-19",
+        "value" : 526
+      },
+      {
+        "date" : "2024-04-06",
+        "value" : 351
+      },
+      {
+        "date" : "2024-05-04",
+        "value" : 567
+      }
+    ]
+  }
 ]
