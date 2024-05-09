@@ -139,7 +139,8 @@ extension Request {
                 if ref == .current {
                     target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
                 } else {
-                    target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository, reference: .init(ref))
+                    target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository,
+                                                                 docVersion: .reference(ref))
                 }
                 
             case .none:
@@ -159,16 +160,17 @@ extension Request {
         if fragment.requiresArchive && archive == nil { throw Abort(.badRequest) }
         let pathElements = parameters.pathElements(for: fragment, archive: archive)
 
-        let docVersion = try await { () -> DocRoute.DocVersion in
+        let docVersion = try await { () -> DocVersion in
             if reference == String.current {
                 if let ref = Current.currentReferenceCache()?[owner: owner, repository: repository] {
                     return .current(referencing: ref)
                 }
-                guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal else {
-                    throw Abort(.notFound)
-                }
-                Current.currentReferenceCache()?[owner: owner, repository: repository] = params.reference
-                return .current(referencing: params.reference)
+
+                guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
+                else { throw Abort(.notFound) }
+
+                Current.currentReferenceCache()?[owner: owner, repository: repository] = "\(params.docVersion)"
+                return .current(referencing: "\(params.docVersion)")
             } else {
                 return .reference(reference)
             }

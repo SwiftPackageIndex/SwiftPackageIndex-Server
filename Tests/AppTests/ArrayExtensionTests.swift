@@ -167,7 +167,7 @@ class ArrayExtensionTests: XCTestCase {
                 Version(id: .id0, latest: .release, reference: .tag(1, 2, 3),
                         docArchives: [.init(name: "foo", title: "Foo")]),
             ].canonicalDocumentationTarget(),
-            .internal(reference: "1.2.3", archive: "foo")
+            .internal(docVersion: .reference("1.2.3"), archive: "foo")
         )
 
         // Test default branch fallback
@@ -177,7 +177,7 @@ class ArrayExtensionTests: XCTestCase {
                 Version(id: .id0, latest: .defaultBranch, reference: .branch("main"),
                         docArchives: [.init(name: "foo", title: "Foo")]),
             ].canonicalDocumentationTarget(),
-            .internal(reference: "main", archive: "foo")
+            .internal(docVersion: .reference("main"), archive: "foo")
         )
 
         // No default branch version available

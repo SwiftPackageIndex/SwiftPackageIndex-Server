@@ -22,7 +22,7 @@ struct DocumentationPageProcessor {
     let repositoryOwnerName: String
     let repositoryName: String
     let packageName: String
-    let docVersion: DocRoute.DocVersion
+    let docVersion: DocVersion
     let referenceLatest: Version.Kind?
     let referenceKind: Version.Kind
     let canonicalUrl: String?
@@ -49,7 +49,7 @@ struct DocumentationPageProcessor {
           repositoryOwnerName: String,
           repositoryName: String,
           packageName: String,
-          docVersion: DocRoute.DocVersion,
+          docVersion: DocVersion,
           referenceLatest: Version.Kind?,
           referenceKind: Version.Kind,
           canonicalUrl: String?,
@@ -134,7 +134,7 @@ struct DocumentationPageProcessor {
                         SiteURL.relativeURL(
                             owner: repositoryOwner,
                             repository: repositoryName,
-                            documentation: .internal(reference: version.reference,
+                            documentation: .internal(docVersion: .reference(version.reference),
                                                      archive: currentArchive.name),
                             fragment: .documentation
                         )
@@ -171,7 +171,7 @@ struct DocumentationPageProcessor {
                                     SiteURL.relativeURL(
                                         owner: repositoryOwner,
                                         repository: repositoryName,
-                                        documentation: .internal(reference: docVersion.reference, archive: archive.name),
+                                        documentation: .internal(docVersion: docVersion, archive: archive.name),
                                         fragment: .documentation
                                     )
                                 ),
@@ -210,7 +210,7 @@ struct DocumentationPageProcessor {
                                                         SiteURL.relativeURL(
                                                             owner: repositoryOwner,
                                                             repository: repositoryName,
-                                                            documentation: .internal(reference: latestStable.reference,
+                                                            documentation: .internal(docVersion: .reference(latestStable.reference),
                                                                                      archive: docArchive.name),
                                                             fragment: .documentation
                                                         )
@@ -308,13 +308,13 @@ struct DocumentationPageProcessor {
         )
     }
 
-    static func rewriteBaseUrls(document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocRoute.DocVersion) throws {
+    static func rewriteBaseUrls(document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocVersion) throws {
         try rewriteScriptBaseUrl(document: document, owner: owner, repository: repository, docVersion: docVersion)
         try rewriteAttribute("href", document: document, owner: owner, repository: repository, docVersion: docVersion)
         try rewriteAttribute("src", document: document, owner: owner, repository: repository, docVersion: docVersion)
     }
 
-    static func rewriteScriptBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocRoute.DocVersion) throws {
+    static func rewriteScriptBaseUrl(document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocVersion) throws {
         // Possible rewrite strategies
         //   / -> /a/b/1.2.3        (toReference)
         //   / -> /a/b/~            (current)
@@ -328,11 +328,13 @@ struct DocumentationPageProcessor {
                         let path = "/\(owner)/\(repository)/\(String.current)/".lowercased()
                         try e.html(#"var baseUrl = "\#(path)""#)
                     }
-                    let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(reference)".lowercased()
-                    if value == #"var baseUrl = "\#(fullyQualifiedPrefix)/""# {
-                        //   /a/b/1.2.3 -> /a/b/~   (current)
-                        let path = "/\(owner)/\(repository)/\(String.current)/".lowercased()
-                        try e.html(#"var baseUrl = "\#(path)""#)
+                    if let reference {
+                        let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(reference)".lowercased()
+                        if value == #"var baseUrl = "\#(fullyQualifiedPrefix)/""# {
+                            //   /a/b/1.2.3 -> /a/b/~   (current)
+                            let path = "/\(owner)/\(repository)/\(String.current)/".lowercased()
+                            try e.html(#"var baseUrl = "\#(path)""#)
+                        }
                     }
                 }
             case .reference(let reference):
@@ -347,7 +349,7 @@ struct DocumentationPageProcessor {
         }
     }
 
-    static func rewriteAttribute(_ attribute: String, document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocRoute.DocVersion) throws {
+    static func rewriteAttribute(_ attribute: String, document: SwiftSoup.Document, owner: String, repository: String, docVersion: DocVersion) throws {
         // Possible rewrite strategies
         //   / -> /a/b/1.2.3        (toReference)
         //   / -> /a/b/~            (current)
@@ -360,7 +362,7 @@ struct DocumentationPageProcessor {
                         // no /{owner}/{repo}/ prefix -> it's a dynamic base url resource, i.e. a "/" resource
                         //   / -> /a/b/~            (current)
                         try e.attr(attribute, "/\(owner)/\(repository)/\(String.current)\(value)".lowercased())
-                    } else {
+                    } else if let reference {
                         let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(reference)".lowercased()
                         if value.lowercased().hasPrefix(fullyQualifiedPrefix) {
                             // matches expected fully qualified resource path

@@ -465,7 +465,7 @@ extension PackageController {
     static func canonicalDocumentationUrl(from url: String,
                                           owner: String,
                                           repository: String,
-                                          docVersion: DocRoute.DocVersion,
+                                          docVersion: DocVersion,
                                           toTarget target: DocumentationTarget) -> String? {
         // It's important to use `docVersion.reference` here to make sure we match with true reference urls and not ~
         let urlPrefix = "/\(owner)/\(repository)/\(docVersion.reference.pathEncoded)/"

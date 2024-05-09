@@ -86,7 +86,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        weightedKeywords: []))
 
         // validate
-        XCTAssertEqual(model.documentationTarget, .internal(reference: "main", archive: "archive1"))
+        XCTAssertEqual(model.documentationTarget, .internal(docVersion: .reference("main"), archive: "archive1"))
     }
 
     func test_init_external_documentation() async throws {

@@ -22,29 +22,6 @@ struct DocRoute: Equatable {
 
     var contentType: String { fragment.contentType }
 
-    enum DocVersion: CustomStringConvertible, Equatable {
-        case current(referencing: String)
-        case reference(String)
-
-        var description: String {
-            switch self {
-                case .current:
-                    return "~"
-                case .reference(let string):
-                    return string
-            }
-        }
-
-        var reference: String {
-            switch self {
-                case .current(let reference):
-                    return reference
-                case .reference(let reference):
-                    return reference
-            }
-        }
-    }
-
     enum Fragment: String, CustomStringConvertible {
         case css
         case data
