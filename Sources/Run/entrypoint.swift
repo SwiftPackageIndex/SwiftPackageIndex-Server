@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Vapor
+import App
 import Logging
+import Vapor
 
 @main
 enum Entrypoint {
     static func main() async throws {
         var env = try Environment.detect()
         try LoggingSystem.bootstrap(from: &env)
-        
+
         let app = Application(env)
         defer { app.shutdown() }
-        
+
         do {
             try await configure(app)
         } catch {
