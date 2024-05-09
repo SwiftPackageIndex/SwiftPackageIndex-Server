@@ -28,19 +28,19 @@ extension [Version] {
         // Ideal case is that we have a stable release documentation.
         if let version = releaseVersion,
            let archive = version.docArchives?.first?.name {
-            return .internal(reference: .reference("\(version.reference)"), archive: archive)
+            return .internal(docVersion: .reference("\(version.reference)"), archive: archive)
         }
 
         // Then a pre-release is second best.
         if let version = preReleaseVersion,
            let archive = version.docArchives?.first?.name {
-            return .internal(reference: .reference("\(version.reference)"), archive: archive)
+            return .internal(docVersion: .reference("\(version.reference)"), archive: archive)
         }
 
         // Finally, fallback to the default branch documentation.
         if let version = defaultBranchVersion,
            let archive = version.docArchives?.first?.name {
-            return .internal(reference: .reference("\(version.reference)"), archive: archive)
+            return .internal(docVersion: .reference("\(version.reference)"), archive: archive)
         }
 
         // There is no default dodcumentation.

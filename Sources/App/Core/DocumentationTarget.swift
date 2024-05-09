@@ -17,12 +17,7 @@ import Fluent
 
 enum DocumentationTarget: Equatable, Codable {
     case external(url: String)
-    case `internal`(reference: Reference, archive: String)
-
-    enum Reference: Equatable, Codable {
-        case current
-        case reference(String)
-    }
+    case `internal`(docVersion: DocRoute.DocVersion, archive: String)
 
     /// Fetch DocumentationTarget for a given package.
     /// - Parameters:
@@ -63,7 +58,7 @@ enum DocumentationTarget: Equatable, Codable {
     ///   - repository: Repository name
     ///   - reference: Version reference
     /// - Returns: DocumentationTarget or nil
-    static func query(on database: Database, owner: String, repository: String, reference: Reference) async throws -> Self? {
+    static func query(on database: Database, owner: String, repository: String, docVersion: DocRoute.DocVersion) async throws -> Self? {
         let archive = try await Joined3<Version, Package, Repository>
             .query(on: database,
                    join: \Version.$package.$id == \Package.$id, method: .inner,
@@ -76,41 +71,23 @@ enum DocumentationTarget: Equatable, Codable {
             .all()
         // we need to filter client side to support pathEncoded reference equality
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2287
-            .first(where: { $0.model.reference.pathEncoded == reference.pathEncoded })
+            .first(where: { $0.model.reference.pathEncoded == docVersion.pathEncoded })
             .flatMap { $0.model.docArchives?.first?.name }
 
         return archive.map {
-            .internal(reference: reference, archive: $0)
+            .internal(docVersion: docVersion, archive: $0)
         }
     }
 }
 
 
 extension DocumentationTarget {
-    var `internal`: (reference: Reference, archive: String)? {
+    var `internal`: (docVersion: DocRoute.DocVersion, archive: String)? {
         switch self {
             case .external:
                 return nil
-            case .internal(let reference, let archive):
-                return (reference, archive)
-        }
-    }
-}
-
-extension DocumentationTarget.Reference: CustomStringConvertible {
-    var description: String {
-        switch self {
-            case .current: String.current
-            case .reference( let reference): reference
-        }
-    }
-}
-
-extension DocumentationTarget.Reference {
-    var pathEncoded: String {
-        switch self {
-            case .current: String.current
-            case .reference( let reference): reference.pathEncoded
+            case .internal(let docVersion, let archive):
+                return (docVersion, archive)
         }
     }
 }

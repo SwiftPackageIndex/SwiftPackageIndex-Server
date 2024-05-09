@@ -98,7 +98,7 @@ final class DocumentationTargetTests: AppTestCase {
         let res = try await DocumentationTarget.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
-        XCTAssertEqual(res, .internal(reference: .reference("main"),
+        XCTAssertEqual(res, .internal(docVersion: .reference("main"),
                                       archive: "archive1"))
     }
 
@@ -131,7 +131,7 @@ final class DocumentationTargetTests: AppTestCase {
         let res = try await DocumentationTarget.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
-        XCTAssertEqual(res, .internal(reference: .reference("1.0.0"),
+        XCTAssertEqual(res, .internal(docVersion: .reference("1.0.0"),
                                       archive: "archive2"))
     }
 

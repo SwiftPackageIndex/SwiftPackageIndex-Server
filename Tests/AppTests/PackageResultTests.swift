@@ -273,7 +273,7 @@ class PackageResultTests: AppTestCase {
                 .query(on: app.db, owner: "foo", repository: "bar1")
 
             // validate
-            XCTAssertEqual(res.canonicalDocumentationTarget(), .internal(reference: .reference("main"), archive: "foo"))
+            XCTAssertEqual(res.canonicalDocumentationTarget(), .internal(docVersion: .reference("main"), archive: "foo"))
         }
 
         do {
