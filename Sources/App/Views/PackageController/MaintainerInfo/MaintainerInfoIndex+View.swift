@@ -179,7 +179,7 @@ enum MaintainerInfoIndex {
                         .href(SiteURL.validateSPIManifest.relativeURL()),
                         .text("online manifest validation helper")
                     ),
-                    " to validate your ", .code(".spi.yml"), "file."
+                    " to validate your ", .code(".spi.yml"), " file."
                 ),
                 .div(
                     .id("package-score"),
