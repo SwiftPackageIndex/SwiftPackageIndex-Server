@@ -53,7 +53,6 @@ extension ReadyForSwift6Show {
                 //         .text("Swift 6 release blog post")
                 //     )
                 // ),
-                .p("To track the progress of the Swift package ecosystem, the Swift Package Index is running regular package compatibility checks across all packages in the index."),
                 .h3("Total packages compatible with Swift 6"),
                 .p("Packages with zero data-race safety compiler diagnostics during a successful build on at least one tested platform."),
                 model.readyForSwift6Chart(kind: .compatiblePackages),
