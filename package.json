@@ -12,10 +12,10 @@
         "@hotwired/turbo": "^7.3.0",
         "highlight.js": "^11.9.0",
         "normalize.css": "^8.0.1",
-        "vega": "^5.28.0"
+        "vega": "^5.29.0"
     },
     "devDependencies": {
-        "esbuild": "^0.20.2",
+        "esbuild": "^0.21.2",
         "esbuild-sass-plugin": "^3.2.0",
         "postcss": "^8.4.38",
         "prettier": "^3.2.5",
