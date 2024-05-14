@@ -309,6 +309,13 @@ extension API.PackageController.GetRoute.Model {
         )
     }
 
+    func dataRaceSafeListItem() -> Node<HTML.ListContext> {
+        return .li(
+            .class("data-race-safe"),
+            .text("Safe from data races")
+        )
+    }
+
     func keywordsListItem() -> Node<HTML.ListContext> {
         if let keywords = keywords {
             return .li(
