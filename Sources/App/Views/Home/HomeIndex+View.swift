@@ -59,11 +59,25 @@ enum HomeIndex {
             .section(
                 .class("two-column"),
                 .section(
-                    .panelButton(cssClass: "podcast",
-                                 linkUrl: ExternalURL.podcast,
-                                 bodyNode: .podcastPanelBody(includeHeading: false),
-                                 cta: "Listen Now",
-                                 analyticsEvent: "Home - Podcast CTA"),
+                    // ---------------------------------------------------------------
+                    // Temporarily removed until we stop promoting Ready for Swift 6
+                    // .panelButton(cssClass: "podcast",
+                    //              linkUrl: ExternalURL.podcast,
+                    //              bodyNode: .podcastPanelBody(includeHeading: false),
+                    //              cta: "Listen Now",
+                    //              analyticsEvent: "Home - Podcast CTA"),
+                    // ---------------------------------------------------------------
+                    .panelButton(cssClass: "rfs6",
+                                 linkUrl: SiteURL.readyForSwift6.relativeURL(),
+                                 bodyNode: .group(
+                                    .p(
+                                        .strong("Are the packages you use safe from data races?"),
+                                        .text(" "),
+                                        .text("We’re tracking progress towards data race safety this summer. Find out which packages are “Ready for Swift 6” and check for packages marked as “Safe from data races” when browsing the index.")
+                                    )
+                                 ),
+                                 cta: "Track Progress",
+                                 analyticsEvent: "Home - Ready for Swift 6 CTA"),
                     .section(
                         .class("recent"),
                         .div(

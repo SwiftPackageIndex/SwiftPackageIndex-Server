@@ -35,6 +35,12 @@
     --light-green: #68bb13;
     --very-light-green: #ebf9de;
 
+    --very-dark-purple: #2f1d37;
+    --dark-purple: #6d17af;
+    --mid-purple: #aa66de;
+    --light-purple: #bda0d3;
+    --very-light-purple: #f8e9ff;
+
     --yellow: #f2b94f;
     --orange: #f58e36;
     --mid-red: #cc4444;
@@ -173,8 +179,10 @@
     --scta-panel-accent: var(--pink);
     --ccta-panel-accent: var(--mid-blue);
     --ghcta-panel-accent: var(--pink);
-    --podcast-panel-accent: var(--light-blue);
     --podcast-panel-background: var(--very-light-blue);
+    --podcast-panel-accent: var(--light-blue);
+    --rfs6-panel-background: var(--very-light-purple);
+    --rfs6-panel-accent: var(--light-purple);
 
     --avatar-shadow: 0 2px 2px 3px rgba(0, 0, 0, 5%);
 
@@ -204,6 +212,8 @@
         --mid-green: #0ebf4c;
         --light-green: #96ff4c;
 
+        --mid-purple: #9b42df;
+
         // -------------------------------------------------------------------------
         // Semantic colours.
         // -------------------------------------------------------------------------
@@ -217,7 +227,9 @@
         --panel-underlay-opacity: 0.8;
 
         --podcast-panel-background: var(--very-dark-blue);
-        --podcast-panel-border: var(--dark-blue);
+        --podcast-panel-accent: var(--dark-blue);
+        --rfs6-panel-background: var(--very-dark-purple);
+        --rfs6-panel-accent: var(--dark-purple);
 
         --green-text: var(--mid-green);
 
