@@ -38,21 +38,30 @@ extension ReadyForSwift6Show {
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .h2("Ready for Swift 6"),
-                .p("Swift 6 brings with it the ability to check your code for concurrency and data race issues. If switched on, the Swift compiler will produce errors where you could have data races."),
-                .p(.text("For help migrating your code, see the "),
-                   .a(
-                    .href("https://example.com"),
-                    .text("Swift 6 language mode migration guide")
-                   ),
-                   .text(" or the "),
-                   .a(
-                    .href("https://example.com"),
-                    .text("Swift 6 release blog post")
-                   )),
+                .p("The Swift 6 language mode prevents data-races at compile time. When you opt into Swift 6 mode, the compiler will produce errors when your code has a risk of concurrent access, turning hard-to-debug runtime failures into compiler errors."),
                 .p("To track the progress of the Swift package ecosystem, the Swift Package Index is running regular package compatibility checks across all packages in the index."),
+                // TODO: Comment back in when the URLs to the migration guide and/or launch post are available.
+                // .p(
+                //     .text("For help migrating your code, see the "),
+                //     .a(
+                //         .href("https://example.com"),
+                //         .text("Swift 6 language mode migration guide")
+                //     ),
+                //     .text(" or the "),
+                //     .a(
+                //         .href("https://example.com"),
+                //         .text("Swift 6 release blog post")
+                //     )
+                // ),
                 .h3("Total packages compatible with Swift 6"),
+                .p("Packages with zero data-race safety compiler diagnostics during a successful build on at least one tested platform."),
                 model.readyForSwift6Chart(kind: .compatiblePackages),
                 .h3("Total Swift 6 concurrency errors"),
+                .p(
+                    .text("The total number of all data-race safety diagnostics across "),
+                    .em("all"),
+                    .text(" packages.")
+                ),
                 model.readyForSwift6Chart(kind: .totalErrors),
                 .h3("Frequently asked questions"),
                 .p(
@@ -62,6 +71,42 @@ extension ReadyForSwift6Show {
                 .p(
                     .strong(.text("A: ")),
                     .text("We define compatibility in the same way we do on package pages. If any build of the package completes successfully on any of our tested platforms (macOS via SwiftPM, macOS via XcodeBuild, iOS, visionOS, watchOS, tvOS, or Linux) then that build is deemed compatible with the Swift version.")
+                ),
+                .hr(
+                    .class("minor")
+                ),
+                .p(
+                    .strong(.text("Q: ")),
+                    .text("Are additional parameters added to the build command for these tests compared to the “standard” Swift Package Index builds that determine Swift version compatibility on package pages?")
+                ),
+                .p(
+                    .strong(.text("A: ")),
+                    .text("Yes. The builds that produce the results on this page have strict concurrency checking set to "),
+                    .code("complete"),
+                    .text(" to check for data race safety in Swift 6 language mode. We pass "),
+                    .code("-strict-concurrency=complete"),
+                    .text(" to either "),
+                    .code("swift build"),
+                    .text(" or "),
+                    .code("xcodebuild"),
+                    .text(".")
+                ),
+                .hr(
+                    .class("minor")
+                ),
+                .p(
+                    .strong(.text("Q: ")),
+                    .text("Why use "),
+                    .code("-strict-concurrency=complete"),
+                    .text(" instead of "),
+                    .code("-swift-version 6"),
+                    .text("?")
+                ),
+                .p(
+                    .strong(.text("A: ")),
+                    .text("Data-race safety diagnostics are determined in different stages of the compiler. For example, type checking produces some data-race safety errors, and others are diagnosed during control-flow analysis after code generation. If type checking produces errors, the compiler will not proceed to code generation, so testing with "),
+                    .code("-swift-version 6"),
+                    .text(" would show fewer errors than really exist across the package ecosystem.")
                 ),
                 .hr(
                     .class("minor")

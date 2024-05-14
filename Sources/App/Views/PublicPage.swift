@@ -314,12 +314,12 @@ class PublicPage {
 
         return .p(
             .class("announcement"),
-            .text("How many packages are compatible with Swift 6? Find out which packages are "),
+            .text("Track the adoption of Swift 6 strict concurrency checks for data race safety. How many packages are "),
             .a(
                 .href(SiteURL.readyForSwift6.relativeURL()),
                 .text("Ready for Swift 6")
             ),
-            .text("!")
+            .text("?")
         )
     }
 
