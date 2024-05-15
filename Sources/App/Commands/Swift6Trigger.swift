@@ -33,7 +33,8 @@ struct Swift6TriggerCommand: AsyncCommand {
 
     var help: String { "Trigger Swift 6 builds" }
 
-    func run(using context: CommandContext, signature: Signature) async throws {        Current.setLogger(Logger(component: "swift-6-trigger"))
+    func run(using context: CommandContext, signature: Signature) async throws {
+        Current.setLogger(Logger(component: "swift-6-trigger"))
 
         do {
             if signature.dryRun {
@@ -47,11 +48,6 @@ struct Swift6TriggerCommand: AsyncCommand {
         } catch {
             Current.logger().critical("\(error)")
         }
-    }
-
-    func printUsage(using context: CommandContext) {
-        var context = context
-        outputHelp(using: &context)
     }
 }
 
