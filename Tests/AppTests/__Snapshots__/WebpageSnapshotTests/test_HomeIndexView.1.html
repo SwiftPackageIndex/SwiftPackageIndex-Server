@@ -69,12 +69,14 @@
       <div class="inner">
         <section class="two-column">
           <section>
-            <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Podcast CTA" class="panel-button podcast">
-              <a data-action="click->panel-button#click" href="https://swiftpackageindexing.transistor.fm">
-                <div class="body">Join Dave and Sven for a chat about ongoing Swift Package Index development and package recommendations from the community on the Swift Package Indexing podcast.</div>
-                <div class="cta">Listen Now &rarr;</div>
-              </a>
-            </div>
+            <section>
+              <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Podcast CTA" class="panel-button podcast">
+                <a data-action="click->panel-button#click" href="https://swiftpackageindexing.transistor.fm">
+                  <div class="body">Join Dave and Sven for a chat about ongoing Swift Package Index development and package recommendations from the community on the Swift Package Indexing podcast.</div>
+                  <div class="cta">Listen Now &rarr;</div>
+                </a>
+              </div>
+            </section>
             <section class="recent">
               <div class="recent_packages">
                 <h3>Recently Added</h3>
@@ -148,51 +150,53 @@
               </div>
             </section>
           </section>
-          <section class="supporter-ctas">
-            <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Supporters CTA" class="panel-button scta">
-              <a data-action="click->panel-button#click" href="/supporters">
-                <div class="body">Join the companies and individuals who support this site and keep it running.
-                  <div class="avatars">
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
-                    <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+          <section>
+            <section class="supporter-ctas">
+              <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Supporters CTA" class="panel-button scta">
+                <a data-action="click->panel-button#click" href="/supporters">
+                  <div class="body">Join the companies and individuals who support this site and keep it running.
+                    <div class="avatars">
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                      <img src="/images/logo.svg" title="Community Sponsor" alt="Profile picture for Community Sponsor" width="20" height="20"/>
+                    </div>
                   </div>
-                </div>
-              </a>
-            </div>
-            <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Sponsor CTA (Sample Sponsor)" class="panel-button ccta">
-              <a data-action="click->panel-button#click" href="https://example.com/sponsored/link">
-                <div class="body">
-                  <picture>
-                    <source srcset="/images/logo.svg" media="(prefers-color-scheme: dark)"/>
-                    <img alt="Sample Sponsor logo" src="/images/logo.svg"/>
-                  </picture>Sponsored links tell everyone about a thing that you can use to do another thing to do!
-                </div>
-                <div class="cta">Visit Sample Sponsor &rarr;</div>
-              </a>
-            </div>
-            <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Sponsor CTA (Sample Sponsor)" class="panel-button ccta">
-              <a data-action="click->panel-button#click" href="https://example.com/sponsored/link">
-                <div class="body">
-                  <picture>
-                    <source srcset="/images/logo.svg" media="(prefers-color-scheme: dark)"/>
-                    <img alt="Sample Sponsor logo" src="/images/logo.svg"/>
-                  </picture>Sponsored links tell everyone about a thing that you can use to do another thing to do!
-                </div>
-                <div class="cta">Visit Sample Sponsor &rarr;</div>
-              </a>
-            </div>
+                </a>
+              </div>
+              <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Sponsor CTA (Sample Sponsor)" class="panel-button ccta">
+                <a data-action="click->panel-button#click" href="https://example.com/sponsored/link">
+                  <div class="body">
+                    <picture>
+                      <source srcset="/images/logo.svg" media="(prefers-color-scheme: dark)"/>
+                      <img alt="Sample Sponsor logo" src="/images/logo.svg"/>
+                    </picture>Sponsored links tell everyone about a thing that you can use to do another thing to do!
+                  </div>
+                  <div class="cta">Visit Sample Sponsor &rarr;</div>
+                </a>
+              </div>
+              <div data-controller="panel-button" data-panel-button-analytics-event-value="Home - Sponsor CTA (Sample Sponsor)" class="panel-button ccta">
+                <a data-action="click->panel-button#click" href="https://example.com/sponsored/link">
+                  <div class="body">
+                    <picture>
+                      <source srcset="/images/logo.svg" media="(prefers-color-scheme: dark)"/>
+                      <img alt="Sample Sponsor logo" src="/images/logo.svg"/>
+                    </picture>Sponsored links tell everyone about a thing that you can use to do another thing to do!
+                  </div>
+                  <div class="cta">Visit Sample Sponsor &rarr;</div>
+                </a>
+              </div>
+            </section>
           </section>
         </section>
       </div>
