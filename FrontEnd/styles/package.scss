@@ -136,6 +136,10 @@
                 background-image: var(--image-macros);
             }
 
+            li.data-race-safe {
+                background-image: var(--image-checkered-flag);
+            }
+
             li.keywords {
                 grid-column-start: span 2;
                 background-image: var(--image-tags);

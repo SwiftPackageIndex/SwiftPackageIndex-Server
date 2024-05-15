@@ -56,37 +56,73 @@ enum HomeIndex {
         }
 
         override func content() -> Node<HTML.BodyContext> {
-            .section(
-                .class("two-column"),
+            .if(Current.environment() == .production,
                 .section(
+                    .class("two-column"),
+                    .section(
+                        homePageCTA(),
+                        recentPackageLists()
+                    ),
+                    .section(
+                        supporterSidebar()
+                    )
+                ),
+                else: .section(
+                    .class("center-column"),
+                    homePageCTA(),
+                    recentPackageLists()
+                )
+            )
+        }
+
+        func homePageCTA() -> Node<HTML.BodyContext> {
+            .section(
+                .if(Current.environment() == .production,
                     .panelButton(cssClass: "podcast",
                                  linkUrl: ExternalURL.podcast,
                                  bodyNode: .podcastPanelBody(includeHeading: false),
                                  cta: "Listen Now",
                                  analyticsEvent: "Home - Podcast CTA"),
-                    .section(
-                        .class("recent"),
-                        .div(
-                            .class("recent_packages"),
-                            .h3("Recently Added"),
-                            .ul(model.recentPackagesSection())
-                        ),
-                        .div(
-                            .class("recent_releases"),
-                            .h3("Recent Releases"),
-                            .ul(model.recentReleasesSection())
-                        )
-                    )
+                    else: .panelButton(cssClass: "rfs6",
+                                       linkUrl: SiteURL.readyForSwift6.relativeURL(),
+                                       bodyNode: .group(
+                                        .p(
+                                            .strong("Are the packages you use safe from data races?"),
+                                            .text(" "),
+                                            .text("We’re tracking progress towards data race safety this summer. Find out which packages are “Ready for Swift 6” and check for packages marked as “Safe from data races” when browsing the index.")
+                                        )
+                                       ),
+                                       cta: "Track Progress",
+                                       analyticsEvent: "Home - Ready for Swift 6 CTA")
+                )
+            )
+        }
+
+        func recentPackageLists() -> Node<HTML.BodyContext> {
+            .section(
+                .class("recent"),
+                .div(
+                    .class("recent_packages"),
+                    .h3("Recently Added"),
+                    .ul(model.recentPackagesSection())
                 ),
-                .section(
-                    .class("supporter-ctas"),
-                    .panelButton(cssClass: "scta",
-                                 linkUrl: SiteURL.supporters.relativeURL(),
-                                 bodyNode: .sponsorsCtaBody(),
-                                 analyticsEvent: "Home - Supporters CTA"),
-                    .group(
-                        Supporters.corporate.shuffled().map(\.advertisementNode)
-                    )
+                .div(
+                    .class("recent_releases"),
+                    .h3("Recent Releases"),
+                    .ul(model.recentReleasesSection())
+                )
+            )
+        }
+
+        func supporterSidebar() -> Node<HTML.BodyContext> {
+            .section(
+                .class("supporter-ctas"),
+                .panelButton(cssClass: "scta",
+                             linkUrl: SiteURL.supporters.relativeURL(),
+                             bodyNode: .sponsorsCtaBody(),
+                             analyticsEvent: "Home - Supporters CTA"),
+                .group(
+                    Supporters.corporate.shuffled().map(\.advertisementNode)
                 )
             )
         }

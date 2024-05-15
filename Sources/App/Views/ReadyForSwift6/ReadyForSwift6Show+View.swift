@@ -53,16 +53,6 @@ extension ReadyForSwift6Show {
                 //         .text("Swift 6 release blog post")
                 //     )
                 // ),
-                .h3("Total packages compatible with Swift 6"),
-                .p("Packages with zero data-race safety compiler diagnostics during a successful build on at least one tested platform."),
-                model.readyForSwift6Chart(kind: .compatiblePackages),
-                .h3("Total Swift 6 concurrency errors"),
-                .p(
-                    .text("The total number of all data-race safety diagnostics across "),
-                    .em("all"),
-                    .text(" packages.")
-                ),
-                model.readyForSwift6Chart(kind: .totalErrors),
                 .h3("Frequently asked questions"),
                 .p(
                     .strong(.text("Q: ")),
@@ -150,7 +140,17 @@ extension ReadyForSwift6Show {
                         .text("Swift Server Workgroup incubated packages list")
                     ),
                     .text(".")
-                )
+                ),
+                .h3("Total packages compatible with Swift 6"),
+                .p("Packages with zero data-race safety compiler diagnostics during a successful build on at least one tested platform."),
+                model.readyForSwift6Chart(kind: .compatiblePackages),
+                .h3("Total Swift 6 concurrency errors"),
+                .p(
+                    .text("The total number of all data-race safety diagnostics across "),
+                    .em("all"),
+                    .text(" packages.")
+                ),
+                model.readyForSwift6Chart(kind: .totalErrors)
             )
         }
     }
