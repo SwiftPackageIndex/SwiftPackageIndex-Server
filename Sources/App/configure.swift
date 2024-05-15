@@ -339,6 +339,7 @@ public func configure(_ app: Application) async throws -> String {
     app.commands.use(ReconcileCommand(), as: "reconcile")
     app.commands.use(TriggerBuildsCommand(), as: "trigger-builds")
     app.commands.use(ReAnalyzeVersions.Command(), as: "re-analyze-versions")
+    app.commands.use(AlertingCommand(), as: "alerting")
     if Current.environment() == .development {
         app.commands.use(Swift6TriggerCommand(), as: "swift-6-trigger")
     }
