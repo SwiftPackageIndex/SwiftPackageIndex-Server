@@ -348,8 +348,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-metrics.git",
       "state" : {
-        "revision" : "eb18581491dfb266a2342f74e0bdd42c14798297",
-        "version" : "2.4.2"
+        "revision" : "ce594e71e92a1610015017f83f402894df540e51",
+        "version" : "2.4.4"
       }
     },
     {
