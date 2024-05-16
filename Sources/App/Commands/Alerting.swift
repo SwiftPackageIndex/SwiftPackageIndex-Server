@@ -15,6 +15,7 @@
 import Fluent
 import SQLKit
 import Vapor
+import NIOCore
 
 
 enum Alerting {
@@ -26,13 +27,16 @@ enum Alerting {
             var timePeriod: Int?
 
             static let defaultTimePeriod = 2
+            var duration: TimeAmount {
+                .hours(Int64(timePeriod ?? Self.defaultTimePeriod))
+            }
         }
 
         func run(using context: CommandContext, signature: Signature) async throws {
             Current.setLogger(Logger(component: "alerting"))
 
             Current.logger().info("Running alerting...")
-            try await Alerting.runChecks(on: context.application.db, timePeriod: signature.timePeriod ?? Signature.defaultTimePeriod)
+            try await Alerting.runChecks(on: context.application.db, timePeriod: signature.duration)
         }
     }
 }
@@ -47,6 +51,16 @@ extension Alerting {
         var status: Build.Status
         var swiftVersion: SwiftVersion
 
+        init(createdAt: Date, updatedAt: Date, builderVersion: String? = nil, platform: Build.Platform, runnerId: String? = nil, status: Build.Status, swiftVersion: SwiftVersion) {
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.builderVersion = builderVersion
+            self.platform = platform
+            self.runnerId = runnerId
+            self.status = status
+            self.swiftVersion = swiftVersion
+        }
+
         init(_ build: Build) {
             self.createdAt = build.createdAt!
             self.updatedAt = build.updatedAt!
@@ -58,8 +72,8 @@ extension Alerting {
         }
     }
 
-    static func runChecks(on database: Database, timePeriod: Int) async throws {
-        let cutoff = Current.date().addingTimeInterval(-.hours(Double(timePeriod)))
+    static func runChecks(on database: Database, timePeriod: TimeAmount) async throws {
+        let cutoff = Current.date().addingTimeInterval(-timePeriod.timeInterval)
         let builds = try await Build.query(on: database)
             .field(\.$createdAt)
             .field(\.$updatedAt)
@@ -75,7 +89,7 @@ extension Alerting {
 
         // alert if
         // - [x] there are no builds
-        // - [ ] there are no builds for a certain platform
+        // - [x] there are no builds for a certain platform
         // - [ ] there are no builds for a certain Swift version
         // - [ ] there are no builds for a certain runnerId
         // - [ ] there are no successful builds for a certain platform
@@ -86,5 +100,44 @@ extension Alerting {
         if builds.isEmpty {
             Current.logger().critical("No builds within the last \(timePeriod)h")
         }
+        builds.validatePlatforms(period: timePeriod).log(check: "CHECK_BUILD_PLATFORMS")
+    }
+}
+
+
+extension Alerting {
+    enum Validation: Equatable {
+        case ok
+        case failed(reasons: [String])
+
+        func log(check: String) {
+            switch self {
+                case .ok:
+                    Current.logger().debug("\(check) passed")
+                case .failed(let reasons):
+                    for reason in reasons {
+                        Current.logger().critical("\(check) failed: \(reason)")
+                    }
+            }
+        }
+    }
+}
+
+
+extension [Alerting.BuildInfo] {
+    func validatePlatforms(period: TimeAmount) -> Alerting.Validation {
+        var platformsNotSeen = Set(Build.Platform.allCases)
+        for build in self {
+            platformsNotSeen.remove(build.platform)
+            if platformsNotSeen.isEmpty { return .ok }
+        }
+        return .failed(reasons: platformsNotSeen.sorted().map { "Missing platform: \($0)" })
+    }
+}
+
+
+private extension TimeAmount {
+    var timeInterval: TimeInterval {
+        Double(nanoseconds) * 1e-9
     }
 }
