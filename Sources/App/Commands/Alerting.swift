@@ -26,7 +26,12 @@ enum Alerting {
             @Option(name: "time-period", short: "t")
             var timePeriod: Int?
 
+            @Option(name: "limit", short: "l")
+            var limit: Int?
+
+            static let defaultLimit = 2000
             static let defaultTimePeriod = 2
+
             var duration: TimeAmount {
                 .hours(Int64(timePeriod ?? Self.defaultTimePeriod))
             }
@@ -36,7 +41,14 @@ enum Alerting {
             Current.setLogger(Logger(component: "alerting"))
 
             Current.logger().info("Running alerting...")
-            try await Alerting.runChecks(on: context.application.db, timePeriod: signature.duration)
+
+            let timePeriod = signature.duration
+            let limit = signature.limit ?? Signature.defaultLimit
+
+            Current.logger().info("Validation time interval: \(timePeriod.hours)h, limit: \(limit)")
+
+            let builds = try await Alerting.fetchBuilds(on: context.application.db, timePeriod: timePeriod, limit: limit)
+            try await Alerting.runChecks(for: builds)
         }
     }
 }
@@ -72,21 +84,7 @@ extension Alerting {
         }
     }
 
-    static func runChecks(on database: Database, timePeriod: TimeAmount) async throws {
-        let cutoff = Current.date().addingTimeInterval(-timePeriod.timeInterval)
-        let builds = try await Build.query(on: database)
-            .field(\.$createdAt)
-            .field(\.$updatedAt)
-            .field(\.$builderVersion)
-            .field(\.$platform)
-            .field(\.$runnerId)
-            .field(\.$status)
-            .field(\.$swiftVersion)
-            .filter(Build.self, \.$createdAt >= cutoff)
-            .limit(100)
-            .all()
-            .map(BuildInfo.init)
-
+    static func runChecks(for builds: [BuildInfo]) async throws {
         // alert if
         // - [x] there are no builds
         // - [x] there are no builds for a certain platform
@@ -98,7 +96,13 @@ extension Alerting {
         // - [ ] doc gen is configured but it failed
         // - [ ] the success ratio is not around 30%
 
-        Current.logger().info("Validation time interval: \(timePeriod.hours)h")
+        Current.logger().info("Build records selected: \(builds.count)")
+        if let oldest = builds.last {
+            Current.logger().info("Oldest selected: \(oldest.createdAt)")
+        }
+        if let mostRecent = builds.first {
+            Current.logger().info("Most recent selected: \(mostRecent.createdAt)")
+        }
         builds.validateBuildsPresent().log(check: "CHECK_BUILDS_PRESENT")
         builds.validatePlatformsPresent().log(check: "CHECK_BUILDS_PLATFORMS_PRESENT")
         builds.validateSwiftVersionsPresent().log(check: "CHECK_BUILDS_SWIFT_VERSIONS_PRESENT")
@@ -106,6 +110,28 @@ extension Alerting {
         builds.validateSwiftVersionsSuccessful().log(check: "CHECK_BUILDS_SWIFT_VERSIONS_SUCCESSFUL")
         builds.validateRunnerIdsPresent().log(check: "CHECK_BUILDS_RUNNER_IDS_PRESENT")
         builds.validateRunnerIdsSuccessful().log(check: "CHECK_BUILDS_RUNNER_IDS_SUCCESSFUL")
+    }
+
+    static func fetchBuilds(on database: Database, timePeriod: TimeAmount, limit: Int) async throws -> [Alerting.BuildInfo] {
+        let start = Date.now
+        defer {
+            Current.logger().debug("fetchBuilds elapsed: \(Date.now.timeIntervalSince(start).rounded(decimalPlaces: 2))s")
+        }
+        let cutoff = Current.date().addingTimeInterval(-timePeriod.timeInterval)
+        let builds = try await Build.query(on: database)
+            .field(\.$createdAt)
+            .field(\.$updatedAt)
+            .field(\.$builderVersion)
+            .field(\.$platform)
+            .field(\.$runnerId)
+            .field(\.$status)
+            .field(\.$swiftVersion)
+            .filter(Build.self, \.$createdAt >= cutoff)
+            .sort(\.$createdAt, .descending)
+            .limit(limit)
+            .all()
+            .map(BuildInfo.init)
+        return builds
     }
 }
 
@@ -154,10 +180,8 @@ extension [Alerting.BuildInfo] {
 
     func validatePlatformsSuccessful() -> Alerting.Validation {
         var noSuccess = Set(Build.Platform.allCases)
-        for build in self {
-            if build.status == .ok {
-                noSuccess.remove(build.platform)
-            }
+        for build in self where build.status == .ok {
+            noSuccess.remove(build.platform)
             if noSuccess.isEmpty { return .ok }
         }
         return .failed(reasons: noSuccess.sorted().map { "Platform without successful builds: \($0)" })
@@ -165,10 +189,8 @@ extension [Alerting.BuildInfo] {
 
     func validateSwiftVersionsSuccessful() -> Alerting.Validation {
         var noSuccess = Set(SwiftVersion.allActive)
-        for build in self {
-            if build.status == .ok {
-                noSuccess.remove(build.swiftVersion)
-            }
+        for build in self where build.status == .ok {
+            noSuccess.remove(build.swiftVersion)
             if noSuccess.isEmpty { return .ok }
         }
         return .failed(reasons: noSuccess.sorted().map { "Swift version without successful builds: \($0)" })
@@ -176,7 +198,7 @@ extension [Alerting.BuildInfo] {
 
     func validateRunnerIdsPresent() -> Alerting.Validation {
         var notSeen = Set(Current.runnerIds())
-        for build in self.filter({ $0.runnerId != nil }) {
+        for build in self where build.runnerId != nil {
             notSeen.remove(build.runnerId!)
             if notSeen.isEmpty { return .ok }
         }
@@ -200,5 +222,13 @@ private extension TimeAmount {
     }
     var hours: Int {
         Int(timeInterval / 3600.0 + 0.5)
+    }
+}
+
+
+private extension TimeInterval {
+    func rounded(decimalPlaces: Int) -> Self {
+        let scale = (pow(10, decimalPlaces) as NSDecimalNumber).doubleValue
+        return (self * scale).rounded(.toNearestOrAwayFromZero) / scale
     }
 }
