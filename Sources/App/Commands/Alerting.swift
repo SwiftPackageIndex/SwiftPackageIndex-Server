@@ -97,10 +97,9 @@ extension Alerting {
         // - [ ] there are no successful builds for a certain runnerId
         // - [ ] the success ratio is not around 30%
 
-        if builds.isEmpty {
-            Current.logger().critical("No builds within the last \(timePeriod)h")
-        }
-        builds.validatePlatforms(period: timePeriod).log(check: "CHECK_BUILD_PLATFORMS")
+        Current.logger().info("Validation time interval: \(timePeriod.hours)h")
+        builds.validateBuildsPresent().log(check: "CHECK_BUILDS_PRESENT")
+        builds.validatePlatforms().log(check: "CHECK_BUILD_PLATFORMS")
     }
 }
 
@@ -125,7 +124,11 @@ extension Alerting {
 
 
 extension [Alerting.BuildInfo] {
-    func validatePlatforms(period: TimeAmount) -> Alerting.Validation {
+    func validateBuildsPresent() -> Alerting.Validation {
+        isEmpty ? .failed(reasons: ["No builds"]) : .ok
+    }
+
+    func validatePlatforms() -> Alerting.Validation {
         var platformsNotSeen = Set(Build.Platform.allCases)
         for build in self {
             platformsNotSeen.remove(build.platform)
@@ -139,5 +142,8 @@ extension [Alerting.BuildInfo] {
 private extension TimeAmount {
     var timeInterval: TimeInterval {
         Double(nanoseconds) * 1e-9
+    }
+    var hours: Int {
+        Int(timeInterval / 3600.0 + 0.5)
     }
 }

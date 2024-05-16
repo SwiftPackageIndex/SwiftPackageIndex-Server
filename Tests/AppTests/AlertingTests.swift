@@ -24,10 +24,10 @@ class AlertingTests: XCTestCase {
         let allBuilds = Build.Platform.allCases.map {
             Alerting.BuildInfo.mock(updatedAt: .t0, platform: $0)
         }
-        XCTAssertEqual(allBuilds.validatePlatforms(period: .hours(1)), .ok)
-        XCTAssertEqual(allBuilds.filter { $0.platform != .iOS }.validatePlatforms(period: .hours(1)),
+        XCTAssertEqual(allBuilds.validatePlatforms(), .ok)
+        XCTAssertEqual(allBuilds.filter { $0.platform != .iOS }.validatePlatforms(),
                        .failed(reasons: ["Missing platform: ios"]))
-        XCTAssertEqual(allBuilds.filter { $0.platform != .iOS && $0.platform != .linux }.validatePlatforms(period: .hours(1)),
+        XCTAssertEqual(allBuilds.filter { $0.platform != .iOS && $0.platform != .linux }.validatePlatforms(),
                        .failed(reasons: ["Missing platform: ios", "Missing platform: linux"]))
     }
 
