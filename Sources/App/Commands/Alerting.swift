@@ -93,7 +93,7 @@ extension Alerting {
         // - [x] there are no builds for a certain Swift version
         // - [x] there are no successful builds for a certain platform
         // - [x] there are no successful builds for a certain Swift version
-        // - [ ] there are no builds for a certain runnerId
+        // - [x] there are no builds for a certain runnerId
         // - [ ] there are no successful builds for a certain runnerId
         // - [ ] doc gen is configured but it failed
         // - [ ] the success ratio is not around 30%
@@ -104,6 +104,7 @@ extension Alerting {
         builds.validateSwiftVersionsPresent().log(check: "CHECK_BUILDS_SWIFT_VERSIONS_PRESENT")
         builds.validatePlatformsSuccessful().log(check: "CHECK_BUILDS_PLATFORMS_SUCCESSFUL")
         builds.validateSwiftVersionsSuccessful().log(check: "CHECK_BUILDS_SWIFT_VERSIONS_SUCCESSFUL")
+        builds.validateRunnerIdsPresent().log(check: "CHECK_BUILDS_RUNNER_IDS_PRESENT")
     }
 }
 
@@ -170,6 +171,15 @@ extension [Alerting.BuildInfo] {
             if noSuccess.isEmpty { return .ok }
         }
         return .failed(reasons: noSuccess.sorted().map { "Swift version without successful builds: \($0)" })
+    }
+
+    func validateRunnerIdsPresent() -> Alerting.Validation {
+        var notSeen = Set(Current.runnerIds())
+        for build in self.filter({ $0.runnerId != nil }) {
+            notSeen.remove(build.runnerId!)
+            if notSeen.isEmpty { return .ok }
+        }
+        return .failed(reasons: notSeen.sorted().map { "Missing runner id: \($0)" })
     }
 }
 

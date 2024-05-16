@@ -68,6 +68,7 @@ struct AppEnvironment {
     var plausibleBackendReportingSiteID: () -> String?
     var postPlausibleEvent: (Client, Plausible.Event.Kind, Plausible.Path, User?) async throws -> Void
     var random: (_ range: ClosedRange<Double>) -> Double
+    var runnerIds: () -> [String]
     var setHTTPClient: (Client) -> Void
     var setLogger: (Logger) -> Void
     var shell: Shell
@@ -205,6 +206,12 @@ extension AppEnvironment {
         plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },
         postPlausibleEvent: Plausible.postEvent,
         random: Double.random,
+        runnerIds: {
+            Environment.get("RUNNER_IDS")
+                .map { Data($0.utf8) }
+                .flatMap { try? JSONDecoder().decode([String].self, from: $0) }
+            ?? []
+        },
         setHTTPClient: { client in Self.httpClient = client },
         setLogger: { logger in Self.logger = logger },
         shell: .live,

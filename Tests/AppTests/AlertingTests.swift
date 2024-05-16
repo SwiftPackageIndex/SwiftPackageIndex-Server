@@ -20,9 +20,8 @@ import XCTest
 class AlertingTests: XCTestCase {
 
     func test_validatePlatformsPresent() throws {
-        Current.date = { .t1 }
         let all = Build.Platform.allCases.map {
-            Alerting.BuildInfo.mock(updatedAt: .t0, platform: $0)
+            Alerting.BuildInfo.mock(platform: $0)
         }
         XCTAssertEqual(all.validatePlatformsPresent(), .ok)
         XCTAssertEqual(all.filter { $0.platform != .iOS }.validatePlatformsPresent(),
@@ -32,9 +31,8 @@ class AlertingTests: XCTestCase {
     }
 
     func test_validateSwiftVersionPresent() throws {
-        Current.date = { .t1 }
         let all = SwiftVersion.allActive.map {
-            Alerting.BuildInfo.mock(updatedAt: .t0, swiftVersion: $0)
+            Alerting.BuildInfo.mock(swiftVersion: $0)
         }
         XCTAssertEqual(all.validateSwiftVersionsPresent(), .ok)
         XCTAssertEqual(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsPresent(),
@@ -44,16 +42,15 @@ class AlertingTests: XCTestCase {
     }
 
     func test_validatePlatformsSuccessful() throws {
-        Current.date = { .t1 }
         let all = Build.Platform.allCases.map {
-            Alerting.BuildInfo.mock(updatedAt: .t0, platform: $0, status: .ok)
+            Alerting.BuildInfo.mock(platform: $0, status: .ok)
         }
         XCTAssertEqual(all.validatePlatformsSuccessful(), .ok)
         XCTAssertEqual(all.filter { $0.platform != .iOS }.validatePlatformsSuccessful(),
                        .failed(reasons: ["Platform without successful builds: ios"]))
         XCTAssertEqual(
             Array(all.filter { $0.platform != .iOS })
-            .appending(.mock(updatedAt: .t0, platform: .iOS, status: .failed))
+            .appending(.mock(platform: .iOS, status: .failed))
             .validatePlatformsSuccessful(),
             .failed(reasons: ["Platform without successful builds: ios"])
         )
@@ -62,16 +59,15 @@ class AlertingTests: XCTestCase {
     }
 
     func test_validateSwiftVersionsSuccessful() throws {
-        Current.date = { .t1 }
         let all = SwiftVersion.allActive.map {
-            Alerting.BuildInfo.mock(updatedAt: .t0, swiftVersion: $0, status: .ok)
+            Alerting.BuildInfo.mock(swiftVersion: $0, status: .ok)
         }
         XCTAssertEqual(all.validateSwiftVersionsSuccessful(), .ok)
         XCTAssertEqual(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsSuccessful(),
                        .failed(reasons: ["Swift version without successful builds: 5.7"]))
         XCTAssertEqual(
             Array(all.filter { $0.swiftVersion != .v1 })
-                .appending(.mock(updatedAt: .t0, swiftVersion: .v1, status: .failed))
+                .appending(.mock(swiftVersion: .v1, status: .failed))
             .validateSwiftVersionsSuccessful(),
             .failed(reasons: ["Swift version without successful builds: 5.7"])
         )
@@ -79,15 +75,25 @@ class AlertingTests: XCTestCase {
                        .failed(reasons: ["Swift version without successful builds: 5.7", "Swift version without successful builds: 5.8"]))
     }
 
+    func test_validateRunnerIdsPresent() throws {
+        let runnerIds = ["a", "b", "c"]
+        Current.runnerIds = { runnerIds }
+        let all = runnerIds.map {
+            Alerting.BuildInfo.mock(runnerId: $0)
+        }
+        XCTAssertEqual(all.validateRunnerIdsPresent(), .ok)
+        XCTAssertEqual(all.filter { $0.runnerId != "a" }.validateRunnerIdsPresent(),
+                       .failed(reasons: ["Missing runner id: a"]))
+        XCTAssertEqual(all.filter { $0.runnerId != "a" && $0.runnerId != "b" }.validateRunnerIdsPresent(),
+                       .failed(reasons: ["Missing runner id: a", "Missing runner id: b"]))
+    }
+
 }
 
 
 extension Alerting.BuildInfo {
-    static func mock(updatedAt: Date, platform: Build.Platform, status: Build.Status = .ok) -> Self {
-        .init(createdAt: updatedAt, updatedAt: updatedAt, platform: platform, status: status, swiftVersion: .latest)
-    }
-    static func mock(updatedAt: Date, swiftVersion: SwiftVersion, status: Build.Status = .ok) -> Self {
-        .init(createdAt: updatedAt, updatedAt: updatedAt, platform: .iOS, status: status, swiftVersion: swiftVersion)
+    static func mock(platform: Build.Platform = .iOS, runnerId: String? = nil, swiftVersion: SwiftVersion = .latest, status: Build.Status = .ok) -> Self {
+        .init(createdAt: .t0, updatedAt: .t0, platform: platform, runnerId: runnerId, status: status, swiftVersion: swiftVersion)
     }
 }
 
