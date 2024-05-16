@@ -91,7 +91,7 @@ extension Alerting {
         // - [x] there are no builds
         // - [x] there are no builds for a certain platform
         // - [x] there are no builds for a certain Swift version
-        // - [ ] there are no successful builds for a certain platform
+        // - [x] there are no successful builds for a certain platform
         // - [ ] there are no successful builds for a certain Swift version
         // - [ ] there are no builds for a certain runnerId
         // - [ ] there are no successful builds for a certain runnerId
@@ -102,6 +102,7 @@ extension Alerting {
         builds.validateBuildsPresent().log(check: "CHECK_BUILDS_PRESENT")
         builds.validatePlatformsPresent().log(check: "CHECK_BUILDS_PLATFORMS_PRESENT")
         builds.validateSwiftVersionsPresent().log(check: "CHECK_BUILDS_SWIFT_VERSIONS_PRESENT")
+        builds.validatePlatformsSuccessful().log(check: "CHECK_BUILDS_PLATFORMS_SUCCESSFUL")
     }
 }
 
@@ -131,12 +132,12 @@ extension [Alerting.BuildInfo] {
     }
 
     func validatePlatformsPresent() -> Alerting.Validation {
-        var notSeem = Set(Build.Platform.allCases)
+        var notSeen = Set(Build.Platform.allCases)
         for build in self {
-            notSeem.remove(build.platform)
-            if notSeem.isEmpty { return .ok }
+            notSeen.remove(build.platform)
+            if notSeen.isEmpty { return .ok }
         }
-        return .failed(reasons: notSeem.sorted().map { "Missing platform: \($0)" })
+        return .failed(reasons: notSeen.sorted().map { "Missing platform: \($0)" })
     }
 
     func validateSwiftVersionsPresent() -> Alerting.Validation {
@@ -146,6 +147,17 @@ extension [Alerting.BuildInfo] {
             if notSeen.isEmpty { return .ok }
         }
         return .failed(reasons: notSeen.sorted().map { "Missing Swift version: \($0)" })
+    }
+
+    func validatePlatformsSuccessful() -> Alerting.Validation {
+        var noSuccess = Set(Build.Platform.allCases)
+        for build in self {
+            if build.status == .ok {
+                noSuccess.remove(build.platform)
+            }
+            if noSuccess.isEmpty { return .ok }
+        }
+        return .failed(reasons: noSuccess.sorted().map { "Platform without successful builds: \($0)" })
     }
 }
 

@@ -24,10 +24,10 @@ class AlertingTests: XCTestCase {
         let all = Build.Platform.allCases.map {
             Alerting.BuildInfo.mock(updatedAt: .t0, platform: $0)
         }
-        XCTAssertEqual(all.validatePlatformsPresent(), .ok)
-        XCTAssertEqual(all.filter { $0.platform != .iOS }.validatePlatformsPresent(),
+        XCTAssertEqual(all.validatePlatformsSuccessful(), .ok)
+        XCTAssertEqual(all.filter { $0.platform != .iOS }.validatePlatformsSuccessful(),
                        .failed(reasons: ["Missing platform: ios"]))
-        XCTAssertEqual(all.filter { $0.platform != .iOS && $0.platform != .linux }.validatePlatformsPresent(),
+        XCTAssertEqual(all.filter { $0.platform != .iOS && $0.platform != .linux }.validatePlatformsSuccessful(),
                        .failed(reasons: ["Missing platform: ios", "Missing platform: linux"]))
     }
 
@@ -43,14 +43,41 @@ class AlertingTests: XCTestCase {
                        .failed(reasons: ["Missing Swift version: 5.7", "Missing Swift version: 5.8"]))
     }
 
+    func test_validatePlatformsSuccessful() throws {
+        Current.date = { .t1 }
+        let all = Build.Platform.allCases.map {
+            Alerting.BuildInfo.mock(updatedAt: .t0, platform: $0, status: .ok)
+        }
+        XCTAssertEqual(all.validatePlatformsSuccessful(), .ok)
+        XCTAssertEqual(all.filter { $0.platform != .iOS }.validatePlatformsSuccessful(),
+                       .failed(reasons: ["Platform without successful builds: ios"]))
+        XCTAssertEqual(
+            Array(all.filter { $0.platform != .iOS })
+            .appending(.mock(updatedAt: .t0, platform: .iOS, status: .failed))
+            .validatePlatformsSuccessful(),
+            .failed(reasons: ["Platform without successful builds: ios"])
+        )
+        XCTAssertEqual(all.filter { $0.platform != .iOS && $0.platform != .linux }.validatePlatformsSuccessful(),
+                       .failed(reasons: ["Platform without successful builds: ios", "Platform without successful builds: linux"]))
+    }
+
 }
 
 
 extension Alerting.BuildInfo {
-    static func mock(updatedAt: Date, platform: Build.Platform) -> Self {
-        .init(createdAt: updatedAt, updatedAt: updatedAt, platform: platform, status: .ok, swiftVersion: .latest)
+    static func mock(updatedAt: Date, platform: Build.Platform, status: Build.Status = .ok) -> Self {
+        .init(createdAt: updatedAt, updatedAt: updatedAt, platform: platform, status: status, swiftVersion: .latest)
     }
     static func mock(updatedAt: Date, swiftVersion: SwiftVersion) -> Self {
         .init(createdAt: updatedAt, updatedAt: updatedAt, platform: .iOS, status: .ok, swiftVersion: swiftVersion)
+    }
+}
+
+
+extension [Alerting.BuildInfo] {
+    func appending(_ newElement: Element) -> Self {
+        var array = self
+        array.append(newElement)
+        return array
     }
 }
