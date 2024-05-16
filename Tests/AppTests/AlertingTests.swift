@@ -19,16 +19,28 @@ import XCTest
 
 class AlertingTests: XCTestCase {
 
-    func test_checkBuildsMissingPlatform() throws {
+    func test_validatePlatform() throws {
         Current.date = { .t1 }
-        let allBuilds = Build.Platform.allCases.map {
+        let all = Build.Platform.allCases.map {
             Alerting.BuildInfo.mock(updatedAt: .t0, platform: $0)
         }
-        XCTAssertEqual(allBuilds.validatePlatforms(), .ok)
-        XCTAssertEqual(allBuilds.filter { $0.platform != .iOS }.validatePlatforms(),
+        XCTAssertEqual(all.validatePlatforms(), .ok)
+        XCTAssertEqual(all.filter { $0.platform != .iOS }.validatePlatforms(),
                        .failed(reasons: ["Missing platform: ios"]))
-        XCTAssertEqual(allBuilds.filter { $0.platform != .iOS && $0.platform != .linux }.validatePlatforms(),
+        XCTAssertEqual(all.filter { $0.platform != .iOS && $0.platform != .linux }.validatePlatforms(),
                        .failed(reasons: ["Missing platform: ios", "Missing platform: linux"]))
+    }
+
+    func test_validateSwiftVersion() throws {
+        Current.date = { .t1 }
+        let all = SwiftVersion.allActive.map {
+            Alerting.BuildInfo.mock(updatedAt: .t0, swiftVersion: $0)
+        }
+        XCTAssertEqual(all.validateSwiftVersions(), .ok)
+        XCTAssertEqual(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersions(),
+                       .failed(reasons: ["Missing Swift version: 5.7"]))
+        XCTAssertEqual(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersions(),
+                       .failed(reasons: ["Missing Swift version: 5.7", "Missing Swift version: 5.8"]))
     }
 
 }
@@ -37,5 +49,8 @@ class AlertingTests: XCTestCase {
 extension Alerting.BuildInfo {
     static func mock(updatedAt: Date, platform: Build.Platform) -> Self {
         .init(createdAt: updatedAt, updatedAt: updatedAt, platform: platform, status: .ok, swiftVersion: .latest)
+    }
+    static func mock(updatedAt: Date, swiftVersion: SwiftVersion) -> Self {
+        .init(createdAt: updatedAt, updatedAt: updatedAt, platform: .iOS, status: .ok, swiftVersion: swiftVersion)
     }
 }

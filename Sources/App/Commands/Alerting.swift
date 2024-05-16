@@ -90,7 +90,7 @@ extension Alerting {
         // alert if
         // - [x] there are no builds
         // - [x] there are no builds for a certain platform
-        // - [ ] there are no builds for a certain Swift version
+        // - [x] there are no builds for a certain Swift version
         // - [ ] there are no builds for a certain runnerId
         // - [ ] there are no successful builds for a certain platform
         // - [ ] there are no successful builds for a certain Swift version
@@ -100,6 +100,7 @@ extension Alerting {
         Current.logger().info("Validation time interval: \(timePeriod.hours)h")
         builds.validateBuildsPresent().log(check: "CHECK_BUILDS_PRESENT")
         builds.validatePlatforms().log(check: "CHECK_BUILD_PLATFORMS")
+        builds.validateSwiftVersions().log(check: "CHECK_BUILD_SWIFT_VERSIONS")
     }
 }
 
@@ -129,12 +130,21 @@ extension [Alerting.BuildInfo] {
     }
 
     func validatePlatforms() -> Alerting.Validation {
-        var platformsNotSeen = Set(Build.Platform.allCases)
+        var notSeem = Set(Build.Platform.allCases)
         for build in self {
-            platformsNotSeen.remove(build.platform)
-            if platformsNotSeen.isEmpty { return .ok }
+            notSeem.remove(build.platform)
+            if notSeem.isEmpty { return .ok }
         }
-        return .failed(reasons: platformsNotSeen.sorted().map { "Missing platform: \($0)" })
+        return .failed(reasons: notSeem.sorted().map { "Missing platform: \($0)" })
+    }
+
+    func validateSwiftVersions() -> Alerting.Validation {
+        var notSeen = Set(SwiftVersion.allActive)
+        for build in self {
+            notSeen.remove(build.swiftVersion)
+            if notSeen.isEmpty { return .ok }
+        }
+        return .failed(reasons: notSeen.sorted().map { "Missing Swift version: \($0)" })
     }
 }
 
