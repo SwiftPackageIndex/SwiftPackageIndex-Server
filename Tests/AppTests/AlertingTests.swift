@@ -61,6 +61,24 @@ class AlertingTests: XCTestCase {
                        .failed(reasons: ["Platform without successful builds: ios", "Platform without successful builds: linux"]))
     }
 
+    func test_validateSwiftVersionsSuccessful() throws {
+        Current.date = { .t1 }
+        let all = SwiftVersion.allActive.map {
+            Alerting.BuildInfo.mock(updatedAt: .t0, swiftVersion: $0, status: .ok)
+        }
+        XCTAssertEqual(all.validateSwiftVersionsSuccessful(), .ok)
+        XCTAssertEqual(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsSuccessful(),
+                       .failed(reasons: ["Swift version without successful builds: 5.7"]))
+        XCTAssertEqual(
+            Array(all.filter { $0.swiftVersion != .v1 })
+                .appending(.mock(updatedAt: .t0, swiftVersion: .v1, status: .failed))
+            .validateSwiftVersionsSuccessful(),
+            .failed(reasons: ["Swift version without successful builds: 5.7"])
+        )
+        XCTAssertEqual(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersionsSuccessful(),
+                       .failed(reasons: ["Swift version without successful builds: 5.7", "Swift version without successful builds: 5.8"]))
+    }
+
 }
 
 
@@ -68,8 +86,8 @@ extension Alerting.BuildInfo {
     static func mock(updatedAt: Date, platform: Build.Platform, status: Build.Status = .ok) -> Self {
         .init(createdAt: updatedAt, updatedAt: updatedAt, platform: platform, status: status, swiftVersion: .latest)
     }
-    static func mock(updatedAt: Date, swiftVersion: SwiftVersion) -> Self {
-        .init(createdAt: updatedAt, updatedAt: updatedAt, platform: .iOS, status: .ok, swiftVersion: swiftVersion)
+    static func mock(updatedAt: Date, swiftVersion: SwiftVersion, status: Build.Status = .ok) -> Self {
+        .init(createdAt: updatedAt, updatedAt: updatedAt, platform: .iOS, status: status, swiftVersion: swiftVersion)
     }
 }
 
