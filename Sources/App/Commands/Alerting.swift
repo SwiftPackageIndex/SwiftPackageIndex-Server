@@ -91,10 +91,11 @@ extension Alerting {
         // - [x] there are no builds
         // - [x] there are no builds for a certain platform
         // - [x] there are no builds for a certain Swift version
-        // - [ ] there are no builds for a certain runnerId
         // - [ ] there are no successful builds for a certain platform
         // - [ ] there are no successful builds for a certain Swift version
+        // - [ ] there are no builds for a certain runnerId
         // - [ ] there are no successful builds for a certain runnerId
+        // - [ ] doc gen is configured but it failed
         // - [ ] the success ratio is not around 30%
 
         Current.logger().info("Validation time interval: \(timePeriod.hours)h")
