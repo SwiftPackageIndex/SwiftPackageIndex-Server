@@ -159,6 +159,24 @@ services:
     networks:
       - backend
 
+  alerting:
+      image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+      <<: *shared
+      depends_on:
+        - migrate
+      entrypoint: ["/bin/bash"]
+      command: ["-c", "--",
+        "trap : TERM INT; while true; do ./Run alerting --env ${ENV} --time-period ${ALERTING_TIME_PERIOD:-4} --limit ${ALERTING_LIMIT:-2000}; sleep ${ALERTING_SLEEP:-300}; done"
+      ]
+      deploy:
+        resources:
+          limits:
+            memory: 0.5GB
+        restart_policy:
+          max_attempts: 5
+      networks:
+        - backend
+
 
   migrate:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
