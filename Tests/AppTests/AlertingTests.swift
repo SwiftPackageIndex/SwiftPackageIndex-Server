@@ -19,27 +19,27 @@ import XCTest
 
 class AlertingTests: XCTestCase {
 
-    func test_validatePlatform() throws {
+    func test_validatePlatformsPresent() throws {
         Current.date = { .t1 }
         let all = Build.Platform.allCases.map {
             Alerting.BuildInfo.mock(updatedAt: .t0, platform: $0)
         }
-        XCTAssertEqual(all.validatePlatforms(), .ok)
-        XCTAssertEqual(all.filter { $0.platform != .iOS }.validatePlatforms(),
+        XCTAssertEqual(all.validatePlatformsPresent(), .ok)
+        XCTAssertEqual(all.filter { $0.platform != .iOS }.validatePlatformsPresent(),
                        .failed(reasons: ["Missing platform: ios"]))
-        XCTAssertEqual(all.filter { $0.platform != .iOS && $0.platform != .linux }.validatePlatforms(),
+        XCTAssertEqual(all.filter { $0.platform != .iOS && $0.platform != .linux }.validatePlatformsPresent(),
                        .failed(reasons: ["Missing platform: ios", "Missing platform: linux"]))
     }
 
-    func test_validateSwiftVersion() throws {
+    func test_validateSwiftVersionPresent() throws {
         Current.date = { .t1 }
         let all = SwiftVersion.allActive.map {
             Alerting.BuildInfo.mock(updatedAt: .t0, swiftVersion: $0)
         }
-        XCTAssertEqual(all.validateSwiftVersions(), .ok)
-        XCTAssertEqual(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersions(),
+        XCTAssertEqual(all.validateSwiftVersionsPresent(), .ok)
+        XCTAssertEqual(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsPresent(),
                        .failed(reasons: ["Missing Swift version: 5.7"]))
-        XCTAssertEqual(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersions(),
+        XCTAssertEqual(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersionsPresent(),
                        .failed(reasons: ["Missing Swift version: 5.7", "Missing Swift version: 5.8"]))
     }
 

@@ -100,8 +100,8 @@ extension Alerting {
 
         Current.logger().info("Validation time interval: \(timePeriod.hours)h")
         builds.validateBuildsPresent().log(check: "CHECK_BUILDS_PRESENT")
-        builds.validatePlatforms().log(check: "CHECK_BUILD_PLATFORMS")
-        builds.validateSwiftVersions().log(check: "CHECK_BUILD_SWIFT_VERSIONS")
+        builds.validatePlatformsPresent().log(check: "CHECK_BUILDS_PLATFORMS_PRESENT")
+        builds.validateSwiftVersionsPresent().log(check: "CHECK_BUILDS_SWIFT_VERSIONS_PRESENT")
     }
 }
 
@@ -130,7 +130,7 @@ extension [Alerting.BuildInfo] {
         isEmpty ? .failed(reasons: ["No builds"]) : .ok
     }
 
-    func validatePlatforms() -> Alerting.Validation {
+    func validatePlatformsPresent() -> Alerting.Validation {
         var notSeem = Set(Build.Platform.allCases)
         for build in self {
             notSeem.remove(build.platform)
@@ -139,7 +139,7 @@ extension [Alerting.BuildInfo] {
         return .failed(reasons: notSeem.sorted().map { "Missing platform: \($0)" })
     }
 
-    func validateSwiftVersions() -> Alerting.Validation {
+    func validateSwiftVersionsPresent() -> Alerting.Validation {
         var notSeen = Set(SwiftVersion.allActive)
         for build in self {
             notSeen.remove(build.swiftVersion)
