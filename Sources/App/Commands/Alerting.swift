@@ -102,7 +102,9 @@ extension Alerting {
         builds.validateSwiftVersionsSuccessful().log(check: "CHECK_BUILDS_SWIFT_VERSIONS_SUCCESSFUL")
         builds.validateRunnerIdsPresent().log(check: "CHECK_BUILDS_RUNNER_IDS_PRESENT")
         builds.validateRunnerIdsSuccessful().log(check: "CHECK_BUILDS_RUNNER_IDS_SUCCESSFUL")
-        builds.validateSuccessRateInRange().log(check: "CHECK_BUILDS_SUCCESS_RATE_IN_RANGE")
+        if builds.count >= 1000 {  // only run this test if we have a decent number of builds
+            builds.validateSuccessRateInRange().log(check: "CHECK_BUILDS_SUCCESS_RATE_IN_RANGE")
+        }
     }
 
     static func fetchBuilds(on database: Database, timePeriod: TimeAmount, limit: Int) async throws -> [Alerting.BuildInfo] {
