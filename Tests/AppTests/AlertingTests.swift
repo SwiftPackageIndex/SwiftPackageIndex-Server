@@ -106,6 +106,35 @@ class AlertingTests: XCTestCase {
         XCTAssertEqual(all.filter { $0.runnerId != "a" && $0.runnerId != "b" }.validateRunnerIdsSuccessful(),
                        .failed(reasons: ["Runner id without successful builds: a", "Runner id without successful builds: b"]))
     }
+
+    func test_validateSuccessRateInRange() throws {
+        do {
+            let okCount = 300
+            let failedCount = 1000 - okCount
+            let okBuilds = (0..<okCount).map { _ in Alerting.BuildInfo.mock(status: .ok) }
+            let failedBuilds = (0..<failedCount).map { _ in Alerting.BuildInfo.mock(status: .failed) }
+            let all = okBuilds + failedBuilds
+            XCTAssertEqual(all.validateSuccessRateInRange(), .ok)
+        }
+        do {
+            let okCount = 199
+            let failedCount = 1000 - okCount
+            let okBuilds = (0..<okCount).map { _ in Alerting.BuildInfo.mock(status: .ok) }
+            let failedBuilds = (0..<failedCount).map { _ in Alerting.BuildInfo.mock(status: .failed) }
+            let all = okBuilds + failedBuilds
+            XCTAssertEqual(all.validateSuccessRateInRange(),
+                           .failed(reasons: ["Global success rate of 19.9% out of bounds"]))
+        }
+        do {
+            let okCount = 401
+            let failedCount = 1000 - okCount
+            let okBuilds = (0..<okCount).map { _ in Alerting.BuildInfo.mock(status: .ok) }
+            let failedBuilds = (0..<failedCount).map { _ in Alerting.BuildInfo.mock(status: .failed) }
+            let all = okBuilds + failedBuilds
+            XCTAssertEqual(all.validateSuccessRateInRange(),
+                           .failed(reasons: ["Global success rate of 40.1% out of bounds"]))
+        }
+    }
 }
 
 

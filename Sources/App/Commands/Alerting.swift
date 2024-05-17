@@ -85,16 +85,8 @@ extension Alerting {
     }
 
     static func runChecks(for builds: [BuildInfo]) async throws {
-        // alert if
-        // - [x] there are no builds
-        // - [x] there are no builds for a certain platform
-        // - [x] there are no builds for a certain Swift version
-        // - [x] there are no successful builds for a certain platform
-        // - [x] there are no successful builds for a certain Swift version
-        // - [x] there are no builds for a certain runnerId
-        // - [x] there are no successful builds for a certain runnerId
+        // to do
         // - [ ] doc gen is configured but it failed
-        // - [ ] the success ratio is not around 30%
 
         Current.logger().info("Build records selected: \(builds.count)")
         if let oldest = builds.last {
@@ -110,6 +102,7 @@ extension Alerting {
         builds.validateSwiftVersionsSuccessful().log(check: "CHECK_BUILDS_SWIFT_VERSIONS_SUCCESSFUL")
         builds.validateRunnerIdsPresent().log(check: "CHECK_BUILDS_RUNNER_IDS_PRESENT")
         builds.validateRunnerIdsSuccessful().log(check: "CHECK_BUILDS_RUNNER_IDS_SUCCESSFUL")
+        builds.validateSuccessRateInRange().log(check: "CHECK_BUILDS_SUCCESS_RATE_IN_RANGE")
     }
 
     static func fetchBuilds(on database: Database, timePeriod: TimeAmount, limit: Int) async throws -> [Alerting.BuildInfo] {
@@ -212,6 +205,17 @@ extension [Alerting.BuildInfo] {
             if noSuccess.isEmpty { return .ok }
         }
         return .failed(reasons: noSuccess.sorted().map { "Runner id without successful builds: \($0)" })
+    }
+
+    func validateSuccessRateInRange() -> Alerting.Validation {
+        let successRate = Double(filter { $0.status == .ok }.count) / Double(count)
+        // Success rate has been around 30% generally
+        if 0.2 <= successRate && successRate <= 0.4 {
+            return .ok
+        } else {
+            let percentSuccessRate = (successRate * 1000).rounded() / 10
+            return .failed(reasons: ["Global success rate of \(percentSuccessRate)% out of bounds"])
+        }
     }
 }
 
