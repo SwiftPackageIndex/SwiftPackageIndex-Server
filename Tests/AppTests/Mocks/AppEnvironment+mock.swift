@@ -71,6 +71,7 @@ extension AppEnvironment {
             plausibleBackendReportingSiteID: { nil },
             postPlausibleEvent: { _, _, _, _ in },
             random: Double.random,
+            runnerIds: { [] },
             setHTTPClient: { client in Self.httpClient = client },
             setLogger: { logger in Self.logger = logger },
             shell: .mock,
