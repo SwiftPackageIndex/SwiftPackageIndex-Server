@@ -89,18 +89,14 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        swift6Readiness: nil))
 
         // validate
-        XCTAssertEqual(model.currentDocumentationTarget, .internal(docVersion: .reference("main"), archive: "archive1"))
+        XCTAssertEqual(model.currentDocumentationTarget, .internal(docVersion: .current(referencing: nil), archive: "archive1"))
     }
 
     func test_init_external_documentation() async throws {
         let pkg = try savePackage(on: app.db, "1".url)
         try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
         let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
-        version.spiManifest = try .init(yml: """
-        version: 1
-        external_links:
-            documentation: "https://example.com/package/documentation"
-        """)
+        version.spiManifest = .init(externalLinks: .init(documentation: "https://example.com/package/documentation"))
         try await version.save(on: app.db)
         let packageResult = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
 
