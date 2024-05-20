@@ -176,7 +176,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_PackageShowView_with_documentation_link() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.documentationTarget = .internal(docVersion: .reference("main"), archive: "archive")
+        model.currentDocumentationTarget = .internal(docVersion: .reference("main"), archive: "archive")
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
         assertSnapshot(of: page, as: .html)
