@@ -70,7 +70,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "jnozzi",
             name: "Joshua Nozzi",
-            avatarUrl: "https://avatars.githubusercontent.com/u/81273?u=13863d1ff1800b2319e77bb06f9cd02f25bc7aa0&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/81273?u=e04b9a7618c8ad23f85279f864d36315b8d91849&v=4"
         ),
         .init(
             login: "mattmassicotte",
@@ -101,11 +101,6 @@ extension Array<Supporters.Community> {
             login: "davbeck",
             name: "David Beck",
             avatarUrl: "https://avatars.githubusercontent.com/u/340006?u=0375ff26f288b636d51ab1f24347d1d6e215da92&v=4"
-        ),
-        .init(
-            login: "NSCoder",
-            name: "Íker Karam",
-            avatarUrl: "https://avatars.githubusercontent.com/u/476819?u=35671e80faa8da7f01aa3b5530b2f3c4b0ac8055&v=4"
         ),
         .init(
             login: "simonnickel",
@@ -140,7 +135,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "bitwit",
             name: "Kyle Newsome",
-            avatarUrl: "https://avatars.githubusercontent.com/u/707507?u=8a97af8d9d65cde8361e1c39c6288276bd87d0bb&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/707507?u=085dd32577d7f1639a39e3f6b553e5d8b77cbfad&v=4"
         ),
         .init(
             login: "Timac",
