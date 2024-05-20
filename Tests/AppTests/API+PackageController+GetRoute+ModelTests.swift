@@ -89,7 +89,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        swift6Readiness: nil))
 
         // validate
-        XCTAssertEqual(model.documentationTarget, .internal(docVersion: .reference("main"), archive: "archive1"))
+        XCTAssertEqual(model.currentDocumentationTarget, .internal(docVersion: .reference("main"), archive: "archive1"))
     }
 
     func test_init_external_documentation() async throws {
@@ -115,7 +115,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        swift6Readiness: nil))
 
         // validate
-        XCTAssertEqual(model.documentationTarget, .external(url: "https://example.com/package/documentation"))
+        XCTAssertEqual(model.currentDocumentationTarget, .external(url: "https://example.com/package/documentation"))
     }
 
     func test_gitHubOwnerUrl() throws {
