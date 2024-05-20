@@ -98,11 +98,11 @@ extension Alerting {
         builds.validateBuildsPresent().log(check: "CHECK_BUILDS_PRESENT")
         builds.validatePlatformsPresent().log(check: "CHECK_BUILDS_PLATFORMS_PRESENT")
         builds.validateSwiftVersionsPresent().log(check: "CHECK_BUILDS_SWIFT_VERSIONS_PRESENT")
-        builds.validatePlatformsSuccessful().log(check: "CHECK_BUILDS_PLATFORMS_SUCCESSFUL")
-        builds.validateSwiftVersionsSuccessful().log(check: "CHECK_BUILDS_SWIFT_VERSIONS_SUCCESSFUL")
         builds.validateRunnerIdsPresent().log(check: "CHECK_BUILDS_RUNNER_IDS_PRESENT")
-        builds.validateRunnerIdsSuccessful().log(check: "CHECK_BUILDS_RUNNER_IDS_SUCCESSFUL")
-        if builds.count >= 1000 {  // only run this test if we have a decent number of builds
+        if builds.count >= 1000 {  // only run these tests if we have a decent number of builds, to reduce chance of false positives
+            builds.validatePlatformsSuccessful().log(check: "CHECK_BUILDS_PLATFORMS_SUCCESSFUL")
+            builds.validateSwiftVersionsSuccessful().log(check: "CHECK_BUILDS_SWIFT_VERSIONS_SUCCESSFUL")
+            builds.validateRunnerIdsSuccessful().log(check: "CHECK_BUILDS_RUNNER_IDS_SUCCESSFUL")
             builds.validateSuccessRateInRange().log(check: "CHECK_BUILDS_SUCCESS_RATE_IN_RANGE")
         }
     }
