@@ -135,6 +135,20 @@ class AlertingTests: XCTestCase {
                            .failed(reasons: ["Global success rate of 40.1% out of bounds"]))
         }
     }
+
+    func test_Mon001Row_isValid() throws {
+        XCTAssertEqual([Alerting.Mon001Row]().isValid(), .ok)
+        XCTAssertEqual(
+            [
+                Alerting.Mon001Row(owner: "bar", repository: "2", status: .ok, processingStage: .analysis, updatedAt: .t1),
+                Alerting.Mon001Row(owner: "foo", repository: "1", status: nil, processingStage: nil, updatedAt: .t0)
+            ].isValid(),
+            .failed(reasons: [
+                "Outdated package: foo/1 - - 1970-01-01 00:00:00 +0000",
+                "Outdated package: bar/2 ok analysis 1970-01-01 00:00:01 +0000"
+            ])
+        )
+    }
 }
 
 

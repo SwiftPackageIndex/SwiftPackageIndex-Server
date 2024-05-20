@@ -48,7 +48,9 @@ enum Alerting {
             Current.logger().info("Validation time interval: \(timePeriod.hours)h, limit: \(limit)")
 
             let builds = try await Alerting.fetchBuilds(on: context.application.db, timePeriod: timePeriod, limit: limit)
-            try await Alerting.runChecks(for: builds)
+            try await Alerting.runBuildChecks(for: builds)
+            try await Alerting.runMonitoring001Check(on: context.application.db, timePeriod: timePeriod)
+                .log(check: "CHECK_MON_001")
         }
     }
 }
@@ -84,7 +86,7 @@ extension Alerting {
         }
     }
 
-    static func runChecks(for builds: [BuildInfo]) async throws {
+    static func runBuildChecks(for builds: [BuildInfo]) async throws {
         // to do
         // - [ ] doc gen is configured but it failed
 
@@ -127,6 +129,49 @@ extension Alerting {
             .all()
             .map(BuildInfo.init)
         return builds
+    }
+
+    struct Mon001Row: Decodable, CustomStringConvertible {
+        var owner: String
+        var repository: String
+        var status: Package.Status?
+        var processingStage: Package.ProcessingStage?
+        var updatedAt: Date
+
+        enum CodingKeys: String, CodingKey {
+            case owner
+            case repository
+            case status
+            case processingStage = "processing_stage"
+            case updatedAt = "updated_at"
+        }
+
+        var description: String {
+            "\(owner)/\(repository) \(status.map { $0.rawValue } ?? "-") \(processingStage.map { $0.rawValue } ?? "-") \(updatedAt)"
+        }
+    }
+
+    static func runMonitoring001Check(on database: Database, timePeriod: TimeAmount) async throws -> Alerting.Validation {
+        guard let db = database as? SQLDatabase else {
+            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
+        let rows = try await db.raw("""
+            SELECT
+              r.owner,
+              r.name AS "repository",
+              p.status,
+              p.processing_stage,
+              r.updated_at
+            FROM
+              repositories r
+              JOIN packages p ON r.package_id = p.id
+            WHERE
+              r.updated_at < now() - INTERVAL \(literal: "\(timePeriod.hours) hours")
+            ORDER BY
+              updated_at
+            """)
+            .all(decoding: Mon001Row.self)
+        return rows.isValid()
     }
 }
 
@@ -217,6 +262,17 @@ extension [Alerting.BuildInfo] {
         } else {
             let percentSuccessRate = (successRate * 1000).rounded() / 10
             return .failed(reasons: ["Global success rate of \(percentSuccessRate)% out of bounds"])
+        }
+    }
+}
+
+
+extension [Alerting.Mon001Row] {
+    func isValid() -> Alerting.Validation {
+        if isEmpty {
+            return .ok
+        } else {
+            return .failed(reasons: sorted(by: { $0.updatedAt < $1.updatedAt }).map { "Outdated package: \($0)" })
         }
     }
 }
