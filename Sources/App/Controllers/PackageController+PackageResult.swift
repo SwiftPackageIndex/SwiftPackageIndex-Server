@@ -90,4 +90,16 @@ extension PackageController.PackageResult {
           preReleaseVersion?.model
         ].canonicalDocumentationTarget()
     }
+
+    func currentDocumentationTarget() -> DocumentationTarget? {
+        guard let target = canonicalDocumentationTarget()
+        else { return nil }
+
+        switch target {
+            case .external:
+                return target
+            case .internal(_, let archive):
+                return .internal(docVersion: .current(referencing: nil), archive: archive)
+        }
+    }
 }

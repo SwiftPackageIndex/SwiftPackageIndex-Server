@@ -45,7 +45,7 @@ extension API.PackageController.GetRoute {
         var isArchived: Bool
         var hasBinaryTargets: Bool
         var homepageUrl: String?
-        var documentationTarget: DocumentationTarget? = nil
+        var currentDocumentationTarget: DocumentationTarget? = nil
         var weightedKeywords: [WeightedKeyword]
         var releaseReferences: [App.Version.Kind: App.Reference]
         var fundingLinks: [FundingLink]
@@ -75,7 +75,7 @@ extension API.PackageController.GetRoute {
                       isArchived: Bool,
                       hasBinaryTargets: Bool = false,
                       homepageUrl: String? = nil,
-                      documentationTarget: DocumentationTarget? = nil,
+                      currentDocumentationTarget: DocumentationTarget? = nil,
                       weightedKeywords: [WeightedKeyword] = [],
                       defaultBranchReference: App.Reference,
                       releaseReference: App.Reference?,
@@ -109,7 +109,7 @@ extension API.PackageController.GetRoute {
             self.isArchived = isArchived
             self.hasBinaryTargets = hasBinaryTargets
             self.homepageUrl = homepageUrl
-            self.documentationTarget = documentationTarget
+            self.currentDocumentationTarget = currentDocumentationTarget
             self.weightedKeywords = weightedKeywords
             self.releaseReferences = {
                 var refs = [App.Version.Kind.defaultBranch: defaultBranchReference]
@@ -171,7 +171,7 @@ extension API.PackageController.GetRoute {
                 isArchived: repository.isArchived,
                 hasBinaryTargets: result.defaultBranchVersion.hasBinaryTargets,
                 homepageUrl: repository.homepageUrl,
-                documentationTarget: result.canonicalDocumentationTarget(),
+                currentDocumentationTarget: result.currentDocumentationTarget(),
                 weightedKeywords: weightedKeywords,
                 defaultBranchReference: result.defaultBranchVersion.reference,
                 releaseReference: result.releaseVersion?.reference,
