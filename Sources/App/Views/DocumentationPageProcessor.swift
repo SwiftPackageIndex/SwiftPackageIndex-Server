@@ -83,9 +83,9 @@ struct DocumentationPageProcessor {
             try document.head()?.append(self.javascriptLinks)
             if let canonicalUrl = self.canonicalUrl {
                 try document.head()?.append(
-                    // We should not use `url` here as some of the DocC JavaScript lowercases
-                    // both the `og:url` and `twitter:url` properties, if present. It is better
-                    // to have no `og:url` and `twitter:url` properties than incorrect ones.
+                    // We should not use Plot's `url` helper here as some of the DocC JavaScript
+                    // lowercases both the `og:url` and `twitter:url` properties, if present. It's
+                    // better to have no `og:url` and `twitter:url` properties than incorrect ones.
                     Plot.Node.link(
                         .rel(.canonical),
                         .href(canonicalUrl)
