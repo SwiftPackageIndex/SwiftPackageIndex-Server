@@ -121,10 +121,9 @@ func routes(_ app: Application) throws {
             .excludeFromOpenAPI()
     }
 
-    if Current.environment() == .development { // Ready for Swift 6 reporting page
-        app.get(SiteURL.readyForSwift6.pathComponents, use: ReadyForSwift6Controller.show)
-            .excludeFromOpenAPI()
-    }
+    // Ready for Swift 6
+    app.get(SiteURL.readyForSwift6.pathComponents, use: ReadyForSwift6Controller.show)
+        .excludeFromOpenAPI()
 
     do {  // OpenAPI spec
         app.get("openapi", "openapi.json") { req in

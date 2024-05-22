@@ -4,14 +4,6 @@
     "name" : "All packages",
     "values" : [
       {
-        "date" : "2024-03-19",
-        "value" : 1746
-      },
-      {
-        "date" : "2024-04-06",
-        "value" : 1737
-      },
-      {
         "date" : "2024-05-04",
         "value" : 1295
       },
@@ -26,14 +18,6 @@
     "name" : "Apple packages",
     "values" : [
       {
-        "date" : "2024-03-19",
-        "value" : 36
-      },
-      {
-        "date" : "2024-04-06",
-        "value" : 36
-      },
-      {
         "date" : "2024-05-04",
         "value" : 18
       },
@@ -47,14 +31,6 @@
     "id" : "sswg",
     "name" : "SSWG incubated packages",
     "values" : [
-      {
-        "date" : "2024-03-19",
-        "value" : 13
-      },
-      {
-        "date" : "2024-04-06",
-        "value" : 12
-      },
       {
         "date" : "2024-05-04",
         "value" : 7

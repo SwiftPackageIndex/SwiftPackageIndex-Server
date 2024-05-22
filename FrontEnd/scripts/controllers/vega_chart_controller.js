@@ -153,7 +153,7 @@ class ReadyForSwift6Chart {
             {
                 name: 'xscale',
                 type: 'time',
-                domain: [{ signal: 'datetime("2024-03-01")' }, { signal: 'datetime("2024-12-31")' }],
+                domain: [{ signal: 'datetime("2024-05-01")' }, { signal: 'datetime("2024-12-31")' }],
                 range: 'width',
             },
             {
@@ -211,7 +211,7 @@ class ReadyForSwift6Chart {
                         size: { value: 60 },
                         fill: { value: this.colorForDataSet(dataSet.id) },
                         tooltip: {
-                            signal: "timeFormat(datum.date, '%b %d, %Y') + ' - ' + datum.value + ' packages'",
+                            signal: "timeFormat(datum.date, '%b %d, %Y') + ' - ' + datum.value",
                         },
                     },
                 },
