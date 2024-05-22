@@ -56,21 +56,14 @@ enum HomeIndex {
         }
 
         override func content() -> Node<HTML.BodyContext> {
-            .if(Current.environment() == .production,
+            .section(
+                .class("two-column"),
                 .section(
-                    .class("two-column"),
-                    .section(
-                        homePageCTA(),
-                        recentPackageLists()
-                    ),
-                    .section(
-                        supporterSidebar()
-                    )
-                ),
-                else: .section(
-                    .class("center-column"),
                     homePageCTA(),
                     recentPackageLists()
+                ),
+                .section(
+                    supporterSidebar()
                 )
             )
         }
