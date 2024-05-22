@@ -309,9 +309,6 @@ class PublicPage {
     }
 
     func announcementBanner() -> Node<HTML.BodyContext> {
-        guard Current.environment() == .development
-        else { return .empty }
-
         return .p(
             .class("announcement"),
             .text("Track the adoption of Swift 6 strict concurrency checks for data race safety. How many packages are "),
