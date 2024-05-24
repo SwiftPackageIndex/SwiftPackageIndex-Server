@@ -21,9 +21,11 @@ extension API.PackageController {
         typealias NamedBuildResults = GetRoute.Model.NamedBuildResults
         typealias PlatformResults = GetRoute.Model.PlatformResults
         typealias SwiftVersionResults = GetRoute.Model.SwiftVersionResults
+        typealias Swift6Readiness = GetRoute.Model.Swift6Readiness
 
         var platform: ModelBuildInfo<PlatformResults>?
         var swiftVersion: ModelBuildInfo<SwiftVersionResults>?
+        var swift6Readiness: Swift6Readiness
 
         static func query(on database: Database, owner: String, repository: String) async throws -> Self {
             // FIXME: move up from PackageController.BuildsRoute into API.PackageController.BuildsRoute
@@ -32,7 +34,8 @@ extension API.PackageController {
                                                                                  repository: repository)
             return Self.init(
                 platform: platformBuildInfo(builds: builds),
-                swiftVersion: swiftVersionBuildInfo(builds: builds)
+                swiftVersion: swiftVersionBuildInfo(builds: builds),
+                swift6Readiness: swift6Readiness(builds: builds)
             )
         }
 
@@ -110,6 +113,14 @@ extension API.PackageController {
                                      status5_9: v5_9.buildStatus,
                                      status5_10: v5_10.buildStatus)
                 )
+        }
+
+        static func swift6Readiness(builds: [PackageController.BuildsRoute.BuildInfo]) -> Swift6Readiness {
+            var readiness = Swift6Readiness()
+            for build in builds where build.swiftVersion == .v6_0 {
+                readiness.errorCounts[build.platform] = build.buildErrors?.numSwift6Errors
+            }
+            return readiness
         }
     }
 }

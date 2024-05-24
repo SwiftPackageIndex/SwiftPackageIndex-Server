@@ -49,6 +49,7 @@ extension API.PackageController.GetRoute {
         var weightedKeywords: [WeightedKeyword]
         var releaseReferences: [App.Version.Kind: App.Reference]
         var fundingLinks: [FundingLink]
+        var swift6Readiness: Swift6Readiness?
 
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
@@ -79,7 +80,8 @@ extension API.PackageController.GetRoute {
                       defaultBranchReference: App.Reference,
                       releaseReference: App.Reference?,
                       preReleaseReference: App.Reference?,
-                      fundingLinks: [FundingLink] = []
+                      fundingLinks: [FundingLink] = [],
+                      swift6Readiness: Swift6Readiness?
             ) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
@@ -120,6 +122,7 @@ extension API.PackageController.GetRoute {
                 return refs
             }()
             self.fundingLinks = fundingLinks
+            self.swift6Readiness = swift6Readiness
         }
 
         init?(result: API.PackageController.PackageResult,
@@ -128,7 +131,8 @@ extension API.PackageController.GetRoute {
               targets: [Target],
               swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?,
               platformBuildInfo: BuildInfo<PlatformResults>?,
-              weightedKeywords: [WeightedKeyword] = []) {
+              weightedKeywords: [WeightedKeyword] = [],
+              swift6Readiness: Swift6Readiness?) {
             // we consider certain attributes as essential and return nil (raising .notFound)
             let repository = result.repository
             guard
@@ -172,7 +176,8 @@ extension API.PackageController.GetRoute {
                 defaultBranchReference: result.defaultBranchVersion.reference,
                 releaseReference: result.releaseVersion?.reference,
                 preReleaseReference: result.preReleaseVersion?.reference,
-                fundingLinks: result.repository.fundingLinks
+                fundingLinks: result.repository.fundingLinks,
+                swift6Readiness: swift6Readiness
             )
 
         }
@@ -396,6 +401,25 @@ extension API.PackageController.GetRoute.Model {
     struct BuildResult<T: Codable & Equatable>: Codable, Equatable {
         var parameter: T
         var status: BuildStatus
+    }
+
+    struct Swift6Readiness: Codable, Equatable {
+        var errorCounts: [Build.Platform: Int?] = [:]
+
+        enum DataRaceSafety {
+            case safe
+            case unsafe
+            case unknown
+        }
+
+        var dataRaceSafety: DataRaceSafety {
+            let results = errorCounts.values.compacted()
+            if results.isEmpty {
+                return .unknown
+            } else {
+                return results.first(where: { $0 == 0 }) != nil ? .safe : .unsafe
+            }
+        }
     }
 
 }
