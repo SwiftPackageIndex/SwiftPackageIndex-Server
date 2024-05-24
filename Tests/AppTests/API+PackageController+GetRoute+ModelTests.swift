@@ -552,6 +552,19 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         XCTAssertEqual(Swift6Readiness(errorCounts: [.iOS: 1, .linux: 0]).dataRaceSafety, .safe)
     }
 
+    func test_Swift6Readiness_title() {
+        XCTAssertEqual(Swift6Readiness(errorCounts: [:]).title, "No data available")
+        XCTAssertEqual(Swift6Readiness(errorCounts: [.iOS: 1]).title, """
+            Error counts:
+            iOS: 1
+            """)
+        XCTAssertEqual(Swift6Readiness(errorCounts: [.iOS: 1, .macosSpm: 0]).title, """
+            Error counts:
+            iOS: 1
+            macOS (SPM): 0
+            """)
+    }
+
 }
 
 

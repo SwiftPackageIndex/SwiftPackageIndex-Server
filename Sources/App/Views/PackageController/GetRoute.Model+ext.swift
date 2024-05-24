@@ -311,11 +311,12 @@ extension API.PackageController.GetRoute.Model {
 
     func dataRaceSafeListItem() -> Node<HTML.ListContext> {
         guard Current.environment() != .production else { return .empty }
-        guard let swift6Readiness, swift6Readiness.dataRaceSafety == .safe else { return .empty }
+        guard let swift6Readiness else { return .empty }
 
         return .li(
             .class("data-race-safe"),
-            .text("Safe from data races")
+            .text(swift6Readiness.text),
+            .title(swift6Readiness.title)
         )
     }
 
@@ -635,5 +636,28 @@ private extension API.PackageController.GetRoute.Model.Target.TargetType {
             case .macro: return "macros"
             case .test: return "tests"
         }
+    }
+}
+
+
+extension API.PackageController.GetRoute.Model.Swift6Readiness {
+    var text: String {
+        switch dataRaceSafety {
+            case .safe:
+                return "Safe from data races"
+            case .unsafe:
+                return "Has data race errors"
+            case .unknown:
+                return "No data race information available"
+        }
+    }
+
+    var title: String {
+        guard !errorCounts.isEmpty else { return "No data available" }
+        var lines = ["Error counts:"]
+        for platform in errorCounts.keys.sorted() {
+            lines.append("\(platform.displayName): \(errorCounts[platform].map { "\($0)" } ?? "no data")")
+        }
+        return lines.joined(separator: "\n")
     }
 }
