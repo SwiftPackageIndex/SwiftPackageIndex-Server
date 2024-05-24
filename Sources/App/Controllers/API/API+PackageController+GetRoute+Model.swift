@@ -361,34 +361,31 @@ extension API.PackageController.GetRoute.Model {
     }
 
     struct PlatformResults: Codable, Equatable {
-        var iOS: BuildResult<PlatformCompatibility>
-        var linux: BuildResult<PlatformCompatibility>
-        var macOS: BuildResult<PlatformCompatibility>
-        var tvOS: BuildResult<PlatformCompatibility>
-        var visionOS: BuildResult<PlatformCompatibility>
-        var watchOS: BuildResult<PlatformCompatibility>
+        var results: [PlatformCompatibility: BuildStatus] = [:]
 
-        init(iOSStatus: BuildStatus,
-             linuxStatus: BuildStatus,
-             macOSStatus: BuildStatus,
-             tvOSStatus: BuildStatus,
-             visionOSStatus: BuildStatus,
-             watchOSStatus: BuildStatus) {
-            self.iOS = .init(parameter: .iOS, status: iOSStatus)
-            self.linux = .init(parameter: .linux, status: linuxStatus)
-            self.macOS = .init(parameter: .macOS, status: macOSStatus)
-            self.tvOS = .init(parameter: .tvOS, status: tvOSStatus)
-            self.visionOS = .init(parameter: .visionOS, status: visionOSStatus)
-            self.watchOS = .init(parameter: .watchOS, status: watchOSStatus)
+        init(results: [PlatformCompatibility: BuildStatus] = [:]) {
+            self.results = results
         }
+
+        init(builds: [PackageController.BuildsRoute.BuildInfo]) {
+            for platform in Self.allPlatforms {
+                self.results[platform] = builds.filter { $0.platform.isCompatible(with:  platform) }.buildStatus
+            }
+        }
+
+        static let allPlatforms: [PlatformCompatibility] = [.iOS, .macOS, .visionOS, .watchOS, .tvOS, .linux]
 
         var all: [BuildResult<PlatformCompatibility>] {
             // The order of this array defines the order of the platforms in the build matrix on the package page.
             // Keep this aligned with the order in Build.Platform.allActive (which is the order of the builds on
             // the BuildIndex page).
-            let all: [BuildResult<PlatformCompatibility>] = [iOS, macOS, visionOS, watchOS, tvOS, linux]
+            let all = Self.allPlatforms.compactMap { platform in results[platform].map { BuildResult(parameter: platform, status: $0) }  }
             assert(all.count == PlatformCompatibility.allCases.count, "mismatch in GetRoute.Model.PlatformCompatibility and all platform results count")
             return all
+        }
+
+        subscript(platform: PlatformCompatibility) -> BuildStatus? {
+            results[platform]
         }
     }
 

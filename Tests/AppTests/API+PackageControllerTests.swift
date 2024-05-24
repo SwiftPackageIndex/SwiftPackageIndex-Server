@@ -198,10 +198,10 @@ class API_PackageControllerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.iOS, .init(parameter: .iOS, status: .incompatible))
-        XCTAssertEqual(res?.results.macOS, .init(parameter: .macOS, status: .incompatible))
-        XCTAssertEqual(res?.results.tvOS, .init(parameter: .tvOS, status: .unknown))
-        XCTAssertEqual(res?.results.watchOS, .init(parameter: .watchOS, status: .compatible))
+        XCTAssertEqual(res?.results[.iOS], .incompatible)
+        XCTAssertEqual(res?.results[.macOS], .incompatible)
+        XCTAssertEqual(res?.results[.tvOS], .unknown)
+        XCTAssertEqual(res?.results[.watchOS], .compatible)
     }
 
     func test_swiftVersionBuildResults() throws {
@@ -251,14 +251,10 @@ class API_PackageControllerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res?.stable?.results.iOS,
-                       .init(parameter: .iOS, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.macOS,
-                       .init(parameter: .macOS, status: .compatible))
-        XCTAssertEqual(res?.stable?.results.tvOS,
-                       .init(parameter: .tvOS, status: .incompatible))
-        XCTAssertEqual(res?.stable?.results.watchOS,
-                       .init(parameter: .watchOS, status: .unknown))
+        XCTAssertEqual(res?.stable?.results[.iOS], .unknown)
+        XCTAssertEqual(res?.stable?.results[.macOS], .compatible)
+        XCTAssertEqual(res?.stable?.results[.tvOS], .incompatible)
+        XCTAssertEqual(res?.stable?.results[.watchOS], .unknown)
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
     }
@@ -338,9 +334,9 @@ class API_PackageControllerTests: AppTestCase {
         // just test reference names and some details for `latest`
         // more detailed tests are covered in the lower level test
         XCTAssertEqual(res.platform?.latest?.referenceName, "main")
-        XCTAssertEqual(res.platform?.latest?.results.iOS.status, .compatible)
-        XCTAssertEqual(res.platform?.latest?.results.tvOS.status, .incompatible)
-        XCTAssertEqual(res.platform?.latest?.results.watchOS.status, .unknown)
+        XCTAssertEqual(res.platform?.latest?.results[.iOS], .compatible)
+        XCTAssertEqual(res.platform?.latest?.results[.tvOS], .incompatible)
+        XCTAssertEqual(res.platform?.latest?.results[.watchOS], .unknown)
         XCTAssertEqual(res.platform?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res.platform?.beta?.referenceName, "2.0.0-b1")
         XCTAssertEqual(res.swiftVersion?.latest?.referenceName, "main")
