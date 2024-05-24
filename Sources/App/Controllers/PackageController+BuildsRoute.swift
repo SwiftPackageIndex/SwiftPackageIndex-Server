@@ -54,6 +54,7 @@ extension PackageController {
             var platform: Build.Platform
             var status: Build.Status
             var docStatus: DocUpload.Status?
+            var buildErrors: BuildErrors?
 
             static func query(on database: Database, owner: String, repository: String) async throws -> [BuildInfo] {
                 try await Joined5<Build, Version, Package, Repository, DocUpload>
@@ -62,6 +63,7 @@ extension PackageController {
                     .field(\.$swiftVersion)
                     .field(\.$platform)
                     .field(\.$status)
+                    .field(\.$buildErrors)
                     .field(Version.self, \.$latest)
                     .field(Version.self, \.$packageName)
                     .field(Version.self, \.$reference)
@@ -79,7 +81,8 @@ extension PackageController {
                                              swiftVersion: build.swiftVersion,
                                              platform: build.platform,
                                              status: build.status,
-                                             docStatus: res.docUpload?.status)
+                                             docStatus: res.docUpload?.status,
+                                             buildErrors: build.buildErrors)
                     }
             }
         }

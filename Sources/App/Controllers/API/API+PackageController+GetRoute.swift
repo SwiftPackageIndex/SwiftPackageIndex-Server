@@ -54,7 +54,8 @@ extension API.PackageController {
                     targets: targets.compactMap(Model.Target.init(name:targetType:)),
                     swiftVersionBuildInfo: buildInfo.swiftVersion,
                     platformBuildInfo: buildInfo.platform,
-                    weightedKeywords: weightedKeywords
+                    weightedKeywords: weightedKeywords,
+                    swift6Readiness: buildInfo.swift6Readiness
                 ),
                 let schema = API.PackageSchema(result: packageResult)
             else {

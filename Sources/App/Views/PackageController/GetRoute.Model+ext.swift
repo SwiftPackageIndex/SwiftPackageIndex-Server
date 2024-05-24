@@ -310,8 +310,8 @@ extension API.PackageController.GetRoute.Model {
     }
 
     func dataRaceSafeListItem() -> Node<HTML.ListContext> {
-        guard Current.environment() != .production
-        else { return .empty }
+        guard Current.environment() != .production else { return .empty }
+        guard let swift6Readiness, swift6Readiness.dataRaceSafety == .safe else { return .empty }
 
         return .li(
             .class("data-race-safe"),

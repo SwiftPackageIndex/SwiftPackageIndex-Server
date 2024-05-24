@@ -41,7 +41,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                      targets: [],
                                                      swiftVersionBuildInfo: nil,
                                                      platformBuildInfo: nil,
-                                                     weightedKeywords: [])
+                                                     weightedKeywords: [],
+                                                     swift6Readiness: nil)
 
         // validate
         XCTAssertNotNil(m)
@@ -62,7 +63,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        targets: [],
                                                                        swiftVersionBuildInfo: nil,
                                                                        platformBuildInfo: nil,
-                                                                       weightedKeywords: []))
+                                                                       weightedKeywords: [],
+                                                                       swift6Readiness: nil))
 
         // validate
         XCTAssertEqual(model.packageIdentity, "swift-bar")
@@ -83,7 +85,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        targets: [],
                                                                        swiftVersionBuildInfo: nil,
                                                                        platformBuildInfo: nil,
-                                                                       weightedKeywords: []))
+                                                                       weightedKeywords: [],
+                                                                       swift6Readiness: nil))
 
         // validate
         XCTAssertEqual(model.documentationTarget, .internal(docVersion: .reference("main"), archive: "archive1"))
@@ -108,7 +111,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        targets: [],
                                                                        swiftVersionBuildInfo: nil,
                                                                        platformBuildInfo: nil,
-                                                                       weightedKeywords: []))
+                                                                       weightedKeywords: [],
+                                                                       swift6Readiness: nil))
 
         // validate
         XCTAssertEqual(model.documentationTarget, .external(url: "https://example.com/package/documentation"))
@@ -542,9 +546,16 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         )
     }
 
+    func test_Swift6Readiness_dataRaceSafety() {
+        XCTAssertEqual(Swift6Readiness(errorCounts: [:]).dataRaceSafety, .unknown)
+        XCTAssertEqual(Swift6Readiness(errorCounts: [.iOS: 1]).dataRaceSafety, .unsafe)
+        XCTAssertEqual(Swift6Readiness(errorCounts: [.iOS: 1, .linux: 0]).dataRaceSafety, .safe)
+    }
+
 }
 
 
 // local typealiases / references to make tests more readable
 fileprivate typealias BuildInfo = API.PackageController.GetRoute.Model.BuildInfo
 fileprivate typealias BuildResults = API.PackageController.GetRoute.Model.SwiftVersionResults
+fileprivate typealias Swift6Readiness = API.PackageController.GetRoute.Model.Swift6Readiness
