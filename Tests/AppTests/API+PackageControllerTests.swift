@@ -233,10 +233,10 @@ class API_PackageControllerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.v5_7, .init(parameter: .v1, status: .incompatible))
-        XCTAssertEqual(res?.results.v5_8, .init(parameter: .v2, status: .unknown))
-        XCTAssertEqual(res?.results.v5_9, .init(parameter: .v3, status: .compatible))
-        XCTAssertEqual(res?.results.v5_10, .init(parameter: .v4, status: .compatible))
+        XCTAssertEqual(res?.results[.v1], .incompatible)
+        XCTAssertEqual(res?.results[.v2], .unknown)
+        XCTAssertEqual(res?.results[.v3], .compatible)
+        XCTAssertEqual(res?.results[.v4], .compatible)
     }
 
     func test_platformBuildInfo() throws {
@@ -271,14 +271,10 @@ class API_PackageControllerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res?.stable?.results.v5_7,
-                       .init(parameter: .v1, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_8,
-                       .init(parameter: .v2, status: .incompatible))
-        XCTAssertEqual(res?.stable?.results.v5_9,
-                       .init(parameter: .v3, status: .compatible))
-        XCTAssertEqual(res?.stable?.results.v5_10,
-                       .init(parameter: .v4, status: .unknown))
+        XCTAssertEqual(res?.stable?.results[.v1], .unknown)
+        XCTAssertEqual(res?.stable?.results[.v2], .incompatible)
+        XCTAssertEqual(res?.stable?.results[.v3], .compatible)
+        XCTAssertEqual(res?.stable?.results[.v4], .unknown)
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
     }
@@ -340,9 +336,9 @@ class API_PackageControllerTests: AppTestCase {
         XCTAssertEqual(res.platform?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res.platform?.beta?.referenceName, "2.0.0-b1")
         XCTAssertEqual(res.swiftVersion?.latest?.referenceName, "main")
-        XCTAssertEqual(res.swiftVersion?.latest?.results.v5_9.status, .compatible)
-        XCTAssertEqual(res.swiftVersion?.latest?.results.v5_8.status, .incompatible)
-        XCTAssertEqual(res.swiftVersion?.latest?.results.v5_7.status, .unknown)
+        XCTAssertEqual(res.swiftVersion?.latest?.results[.v5_9], .compatible)
+        XCTAssertEqual(res.swiftVersion?.latest?.results[.v5_8], .incompatible)
+        XCTAssertEqual(res.swiftVersion?.latest?.results[.v5_7], .unknown)
         XCTAssertEqual(res.swiftVersion?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res.swiftVersion?.beta?.referenceName, "2.0.0-b1")
     }

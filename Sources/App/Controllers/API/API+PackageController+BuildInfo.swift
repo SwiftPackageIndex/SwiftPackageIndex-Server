@@ -20,7 +20,7 @@ extension API.PackageController {
         typealias ModelBuildInfo = GetRoute.Model.BuildInfo
         typealias NamedBuildResults = GetRoute.Model.NamedBuildResults
         typealias PlatformResults = CompatibilityMatrix.PlatformCompatibility
-        typealias SwiftVersionResults = GetRoute.Model.SwiftVersionResults
+        typealias SwiftVersionResults = CompatibilityMatrix.SwiftVersionCompatibility
         typealias Swift6Readiness = GetRoute.Model.Swift6Readiness
 
         var platform: ModelBuildInfo<PlatformResults>?
@@ -85,19 +85,7 @@ extension API.PackageController {
             guard let referenceName = builds.first?.reference.description else {
                 return nil
             }
-            // For each reported swift version pick major/minor version matches
-            let v5_7 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_7) }
-            let v5_8 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_8) }
-            let v5_9 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_9) }
-            let v5_10 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_10) }
-            // ... and report the status
-            return
-                .init(referenceName: referenceName,
-                      results: .init(status5_7: v5_7.buildStatus,
-                                     status5_8: v5_8.buildStatus,
-                                     status5_9: v5_9.buildStatus,
-                                     status5_10: v5_10.buildStatus)
-                )
+            return .init(referenceName: referenceName, results: .init(builds: builds))
         }
 
         static func swift6Readiness(builds: [PackageController.BuildsRoute.BuildInfo]) -> Swift6Readiness {

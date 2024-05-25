@@ -67,3 +67,31 @@ extension CompatibilityMatrix {
         }
     }
 }
+
+
+extension CompatibilityMatrix {
+    struct SwiftVersionCompatibility: Codable, Equatable {
+        var results: [SwiftVersion: Compatibility] = [:]
+
+        init(results: [SwiftVersion: Compatibility] = [:]) {
+            self.results = results
+        }
+
+        init(builds: [PackageController.BuildsRoute.BuildInfo]) {
+            for swiftVersion in SwiftVersion.allActive {
+                self.results[swiftVersion] = builds.filter { $0.swiftVersion.isCompatible(with:  swiftVersion) }.compatibility
+            }
+        }
+
+        var all: [BuildResult<SwiftVersion>] {
+            // The order of this array defines the order of the Swift version in the build matrix on the package page.
+            SwiftVersion.allActive.reversed().map { swiftVersion in
+                BuildResult(parameter: swiftVersion, status: results[swiftVersion] ?? .unknown)
+            }
+        }
+
+        subscript(swiftVersion: SwiftVersion) -> Compatibility? {
+            results[swiftVersion]
+        }
+    }
+}
