@@ -15,15 +15,15 @@
 
 enum CompatibilityMatrix {
     enum Platform: String, Codable, Comparable, CaseIterable {
+        // NB: case order is significant - it determines CaseInterable's allCases and is used to order entries in the matrix
         case iOS
-        case linux
         case macOS
-        case tvOS
         case visionOS
         case watchOS
+        case tvOS
+        case linux
 
-#warning("sort by CaseIterable instead")
-        static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
+        static func <(lhs: Self, rhs: Self) -> Bool { allCases.firstIndex(of: lhs)! < allCases.firstIndex(of: rhs)! }
     }
 
     struct PlatformCompatibility: Codable, Equatable {
@@ -34,19 +34,16 @@ enum CompatibilityMatrix {
         }
 
         init(builds: [PackageController.BuildsRoute.BuildInfo]) {
-            for platform in Self.allPlatforms {
+            for platform in Platform.allCases {
                 self.results[platform] = builds.filter { $0.platform.isCompatible(with:  platform) }.compatibility
             }
         }
-
-#warning("use Platform.allCases instead")
-        static let allPlatforms: [Platform] = [.iOS, .macOS, .visionOS, .watchOS, .tvOS, .linux]
 
         var all: [BuildResult<Platform>] {
             // The order of this array defines the order of the platforms in the build matrix on the package page.
             // Keep this aligned with the order in Build.Platform.allActive (which is the order of the builds on
             // the BuildIndex page).
-            let all = Self.allPlatforms.compactMap { platform in results[platform].map { BuildResult(parameter: platform, status: $0) }  }
+            let all = Platform.allCases.compactMap { platform in results[platform].map { BuildResult(parameter: platform, status: $0) }  }
             assert(all.count == Platform.allCases.count, "mismatch in CompatibilityMatrix.Platform and all platform results count")
             return all
         }
