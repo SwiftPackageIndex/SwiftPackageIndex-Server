@@ -19,7 +19,7 @@ extension API.PackageController {
     struct BuildInfo: Equatable {
         typealias ModelBuildInfo = GetRoute.Model.BuildInfo
         typealias NamedBuildResults = GetRoute.Model.NamedBuildResults
-        typealias PlatformResults = GetRoute.Model.PlatformResults
+        typealias PlatformResults = CompatibilityMatrix.PlatformCompatibility
         typealias SwiftVersionResults = GetRoute.Model.SwiftVersionResults
         typealias Swift6Readiness = GetRoute.Model.Swift6Readiness
 

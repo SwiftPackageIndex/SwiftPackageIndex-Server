@@ -13,7 +13,36 @@
 // limitations under the License.
 
 
+@available(*, deprecated)
 extension API.PackageController.GetRoute.Model.PlatformCompatibility: BuildResultPresentable {
+    var displayName: String {
+        switch self {
+            case .iOS:
+                return "iOS"
+            case .linux:
+                return "Linux"
+            case .macOS:
+                return "macOS"
+            case .tvOS:
+                return "tvOS"
+            case .visionOS:
+                return "visionOS"
+            case .watchOS:
+                return "watchOS"
+        }
+    }
+
+    var longDisplayName: String {
+        switch self {
+            case .macOS, .iOS, .linux, .tvOS, .visionOS, .watchOS:
+                return displayName
+        }
+    }
+
+    var note: String? { nil }
+}
+
+extension CompatibilityMatrix.Platform: BuildResultPresentable {
     var displayName: String {
         switch self {
             case .iOS:

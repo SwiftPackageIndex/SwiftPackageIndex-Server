@@ -503,9 +503,32 @@ extension API.PackageController.GetRoute.Model {
         )
     }
 
+    @available(*, deprecated)
     func compatibilityListItem<T: BuildResultPresentable>(
         _ labelParagraphNode: Node<HTML.BodyContext>,
         cells: [API.PackageController.GetRoute.Model.BuildResult<T>]
+    ) -> Node<HTML.ListContext> {
+        return .li(
+            .class("row"),
+            .div(
+                .class("row-labels"),
+                labelParagraphNode
+            ),
+            // Matrix CSS should include *both* the column labels, and the column values status boxes in *every* row.
+            .div(
+                .class("column-labels"),
+                .forEach(cells) { $0.headerNode }
+            ),
+            .div(
+                .class("results"),
+                .forEach(cells) { $0.cellNode }
+            )
+        )
+    }
+
+    func compatibilityListItem<T: BuildResultPresentable>(
+        _ labelParagraphNode: Node<HTML.BodyContext>,
+        cells: [CompatibilityMatrix.BuildResult<T>]
     ) -> Node<HTML.ListContext> {
         return .li(
             .class("row"),
@@ -556,6 +579,7 @@ private extension License.Kind {
 }
 
 
+@available(*, deprecated)
 private extension API.PackageController.GetRoute.Model.BuildResult where T: BuildResultPresentable {
     var headerNode: Node<HTML.BodyContext> {
         .div(
@@ -583,8 +607,42 @@ private extension API.PackageController.GetRoute.Model.BuildResult where T: Buil
     }
 }
 
+private extension CompatibilityMatrix.BuildResult where T: BuildResultPresentable {
+    var headerNode: Node<HTML.BodyContext> {
+        .div(
+            .text(parameter.displayName),
+            .unwrap(parameter.note) { .small(.text("(\($0))")) }
+        )
+    }
 
+    var cellNode: Node<HTML.BodyContext> {
+        .div(
+            .class("\(status.cssClass)"),
+            .title(title)
+        )
+    }
+
+    var title: String {
+        switch status {
+            case .compatible:
+                return "Built successfully with \(parameter.longDisplayName)"
+            case .incompatible:
+                return "Build failed with \(parameter.longDisplayName)"
+            case .unknown:
+                return "No build information available for \(parameter.longDisplayName)"
+        }
+    }
+}
+
+
+@available(*, deprecated)
 private extension API.PackageController.GetRoute.Model.BuildStatus {
+    var cssClass: String {
+        self.rawValue
+    }
+}
+
+private extension CompatibilityMatrix.Compatibility {
     var cssClass: String {
         self.rawValue
     }

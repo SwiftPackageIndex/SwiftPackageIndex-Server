@@ -199,12 +199,12 @@ class WebpageSnapshotTests: SnapshotTestCase {
             )
         }
         do {
-            let compatible = API.PackageController.GetRoute.Model.PlatformResults(results: [.iOS: .compatible,
-                                                                                            .linux: .compatible,
-                                                                                            .macOS: .compatible,
-                                                                                            .tvOS: .compatible,
-                                                                                            .visionOS: .compatible,
-                                                                                            .watchOS: .compatible])
+            let compatible = CompatibilityMatrix.PlatformCompatibility(results: [.iOS: .compatible,
+                                                                                 .linux: .compatible,
+                                                                                 .macOS: .compatible,
+                                                                                 .tvOS: .compatible,
+                                                                                 .visionOS: .compatible,
+                                                                                 .watchOS: .compatible])
             model.platformBuildInfo = .init(
                 stable: .init(referenceName: "5.2.5", results: compatible),
                 beta: .init(referenceName: "6.0.0-b1", results: compatible),

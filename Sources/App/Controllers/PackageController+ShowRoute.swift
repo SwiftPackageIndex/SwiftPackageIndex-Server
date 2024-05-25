@@ -21,7 +21,17 @@ import Vapor
 // Ideally these would be declared "private" but we need access from tests
 
 extension Array where Element == PackageController.BuildsRoute.BuildInfo {
+    @available(*, deprecated, renamed: "compatibility")
     var buildStatus: API.PackageController.GetRoute.Model.BuildStatus {
+        guard !isEmpty else { return .unknown }
+        if anySucceeded {
+            return .compatible
+        } else {
+            return anyPending ? .unknown : .incompatible
+        }
+    }
+
+    var compatibility: CompatibilityMatrix.Compatibility {
         guard !isEmpty else { return .unknown }
         if anySucceeded {
             return .compatible
@@ -49,7 +59,7 @@ extension Array where Element == PackageController.BuildsRoute.BuildInfo {
 
 
 extension Build.Platform {
-    func isCompatible(with other: API.PackageController.GetRoute.Model.PlatformCompatibility) -> Bool {
+    func isCompatible(with other: CompatibilityMatrix.Platform) -> Bool {
         switch self {
             case .iOS:
                 return other == .iOS
