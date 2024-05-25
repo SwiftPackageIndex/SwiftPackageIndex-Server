@@ -14,6 +14,20 @@
 
 
 enum CompatibilityMatrix {
+    enum Compatibility: String, Codable, Equatable {
+        case compatible
+        case incompatible
+        case unknown
+    }
+
+    struct BuildResult<T: Codable & Equatable>: Codable, Equatable {
+        var parameter: T
+        var status: Compatibility
+    }
+}
+
+
+extension CompatibilityMatrix {
     enum Platform: String, Codable, Comparable, CaseIterable {
         // NB: case order is significant - it determines CaseInterable's allCases and is used to order entries in the matrix
         case iOS
@@ -52,16 +66,4 @@ enum CompatibilityMatrix {
             results[platform]
         }
     }
-
-    enum Compatibility: String, Codable, Equatable {
-        case compatible
-        case incompatible
-        case unknown
-    }
-
-    struct BuildResult<T: Codable & Equatable>: Codable, Equatable {
-        var parameter: T
-        var status: Compatibility
-    }
-
 }
