@@ -21,7 +21,7 @@ import Vapor
 // Ideally these would be declared "private" but we need access from tests
 
 extension Array where Element == PackageController.BuildsRoute.BuildInfo {
-    @available(*, deprecated)
+    @available(*, deprecated, renamed: "compatibility")
     var buildStatus: API.PackageController.GetRoute.Model.BuildStatus {
         guard !isEmpty else { return .unknown }
         if anySucceeded {
