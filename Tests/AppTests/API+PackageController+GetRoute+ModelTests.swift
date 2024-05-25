@@ -369,7 +369,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     }
 
     func test_BuildInfo_Platform_compatibility() throws {
-        typealias Results = API.PackageController.GetRoute.Model.PlatformResults
+        typealias Results = CompatibilityMatrix.PlatformCompatibility
 
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",

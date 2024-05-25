@@ -28,8 +28,8 @@ extension API.PackageController.GetRoute {
         var keywords: [String]?
         var swiftVersionCompatibility: [SwiftVersion]?
         var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
-        var platformCompatibility: [Model.PlatformCompatibility]?
-        var platformBuildInfo: BuildInfo<PlatformResults>?
+        var platformCompatibility: [CompatibilityMatrix.Platform]?
+        var platformBuildInfo: BuildInfo<CompatibilityMatrix.PlatformCompatibility>?
         var history: History?
         var license: License
         var licenseUrl: String?
@@ -59,7 +59,7 @@ extension API.PackageController.GetRoute {
                       authors: AuthorMetadata? = nil,
                       keywords: [String]? = nil,
                       swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil,
-                      platformBuildInfo: BuildInfo<PlatformResults>? = nil,
+                      platformBuildInfo: BuildInfo<CompatibilityMatrix.PlatformCompatibility>? = nil,
                       history: History? = nil,
                       license: License,
                       licenseUrl: String? = nil,
@@ -130,7 +130,7 @@ extension API.PackageController.GetRoute {
               products: [Product],
               targets: [Target],
               swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?,
-              platformBuildInfo: BuildInfo<PlatformResults>?,
+              platformBuildInfo: BuildInfo<CompatibilityMatrix.PlatformCompatibility>?,
               weightedKeywords: [WeightedKeyword] = [],
               swift6Readiness: Swift6Readiness?) {
             // we consider certain attributes as essential and return nil (raising .notFound)
@@ -360,41 +360,14 @@ extension API.PackageController.GetRoute.Model {
         var all: [BuildResult<SwiftVersion>] { [v5_10, v5_9, v5_8, v5_7] }
     }
 
-    struct PlatformResults: Codable, Equatable {
-        var results: [PlatformCompatibility: BuildStatus] = [:]
-
-        init(results: [PlatformCompatibility: BuildStatus] = [:]) {
-            self.results = results
-        }
-
-        init(builds: [PackageController.BuildsRoute.BuildInfo]) {
-            for platform in Self.allPlatforms {
-                self.results[platform] = builds.filter { $0.platform.isCompatible(with:  platform) }.buildStatus
-            }
-        }
-
-        static let allPlatforms: [PlatformCompatibility] = [.iOS, .macOS, .visionOS, .watchOS, .tvOS, .linux]
-
-        var all: [BuildResult<PlatformCompatibility>] {
-            // The order of this array defines the order of the platforms in the build matrix on the package page.
-            // Keep this aligned with the order in Build.Platform.allActive (which is the order of the builds on
-            // the BuildIndex page).
-            let all = Self.allPlatforms.compactMap { platform in results[platform].map { BuildResult(parameter: platform, status: $0) }  }
-            assert(all.count == PlatformCompatibility.allCases.count, "mismatch in GetRoute.Model.PlatformCompatibility and all platform results count")
-            return all
-        }
-
-        subscript(platform: PlatformCompatibility) -> BuildStatus? {
-            results[platform]
-        }
-    }
-
+    @available(*, deprecated, renamed: "CompatibilityMatrix.Compatibility")
     enum BuildStatus: String, Codable, Equatable {
         case compatible
         case incompatible
         case unknown
     }
 
+    @available(*, deprecated, renamed: "CompatibilityMatrix.BuildResult")
     struct BuildResult<T: Codable & Equatable>: Codable, Equatable {
         var parameter: T
         var status: BuildStatus
@@ -435,9 +408,9 @@ extension API.PackageController.GetRoute.Model.BuildInfo where T == API.PackageC
 }
 
 
-extension API.PackageController.GetRoute.Model.BuildInfo where T == API.PackageController.GetRoute.Model.PlatformResults {
-    var compatibility: [API.PackageController.GetRoute.Model.PlatformCompatibility] {
-        var result = Set<API.PackageController.GetRoute.Model.PlatformCompatibility>()
+extension API.PackageController.GetRoute.Model.BuildInfo<CompatibilityMatrix.PlatformCompatibility> {
+    var compatibility: [CompatibilityMatrix.Platform] {
+        var result = Set<CompatibilityMatrix.Platform>()
         for v in [beta, stable, latest].compacted() {
             for r in v.results.all where r.status == .compatible {
                 result.insert(r.parameter)

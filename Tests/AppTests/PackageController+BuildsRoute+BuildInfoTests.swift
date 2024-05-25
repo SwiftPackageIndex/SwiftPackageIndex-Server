@@ -25,10 +25,10 @@ class PackageController_BuildsRoute_BuildInfoTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/666
         // setup
         // MUT & verification
-        XCTAssertEqual([mkBuildInfo(.ok), mkBuildInfo(.failed)].buildStatus, .compatible)
-        XCTAssertEqual([mkBuildInfo(.triggered), mkBuildInfo(.triggered)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuildInfo(.failed), mkBuildInfo(.triggered)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuildInfo(.ok), mkBuildInfo(.triggered)].buildStatus, .compatible)
+        XCTAssertEqual([mkBuildInfo(.ok), mkBuildInfo(.failed)].compatibility, .compatible)
+        XCTAssertEqual([mkBuildInfo(.triggered), mkBuildInfo(.triggered)].compatibility, .unknown)
+        XCTAssertEqual([mkBuildInfo(.failed), mkBuildInfo(.triggered)].compatibility, .unknown)
+        XCTAssertEqual([mkBuildInfo(.ok), mkBuildInfo(.triggered)].compatibility, .compatible)
     }
 
     func test_noneSucceeded() throws {
