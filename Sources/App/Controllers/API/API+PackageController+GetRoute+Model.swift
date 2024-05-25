@@ -325,6 +325,7 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
+    @available(*, deprecated, renamed: "CompatibilityMatrix.PlatformCompatibility")
     enum PlatformCompatibility: String, Codable, Comparable, CaseIterable {
         case iOS
         case linux
