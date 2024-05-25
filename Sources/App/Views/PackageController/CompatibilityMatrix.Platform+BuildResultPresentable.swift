@@ -13,7 +13,6 @@
 // limitations under the License.
 
 
-#warning("move this")
 extension CompatibilityMatrix.Platform: BuildResultPresentable {
     var displayName: String {
         switch self {
