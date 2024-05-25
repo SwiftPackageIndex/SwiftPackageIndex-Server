@@ -43,9 +43,9 @@ enum CompatibilityMatrix {
             // The order of this array defines the order of the platforms in the build matrix on the package page.
             // Keep this aligned with the order in Build.Platform.allActive (which is the order of the builds on
             // the BuildIndex page).
-            let all = Platform.allCases.compactMap { platform in results[platform].map { BuildResult(parameter: platform, status: $0) }  }
-            assert(all.count == Platform.allCases.count, "mismatch in CompatibilityMatrix.Platform and all platform results count")
-            return all
+            Platform.allCases.map { platform in
+                BuildResult(parameter: platform, status: results[platform] ?? .unknown)
+            }
         }
 
         subscript(platform: Platform) -> Compatibility? {
