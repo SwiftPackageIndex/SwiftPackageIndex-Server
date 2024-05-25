@@ -325,34 +325,9 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
-    @available(*, deprecated, renamed: "CompatibilityMatrix.PlatformCompatibility")
-    enum PlatformCompatibility: String, Codable, Comparable, CaseIterable {
-        case iOS
-        case linux
-        case macOS
-        case tvOS
-        case visionOS
-        case watchOS
-
-        static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
-    }
-
     struct NamedBuildResults<T: Codable & Equatable>: Codable, Equatable {
         var referenceName: String
         var results: T
-    }
-
-    @available(*, deprecated, renamed: "CompatibilityMatrix.Compatibility")
-    enum BuildStatus: String, Codable, Equatable {
-        case compatible
-        case incompatible
-        case unknown
-    }
-
-    @available(*, deprecated, renamed: "CompatibilityMatrix.BuildResult")
-    struct BuildResult<T: Codable & Equatable>: Codable, Equatable {
-        var parameter: T
-        var status: BuildStatus
     }
 
     struct Swift6Readiness: Codable, Equatable {
