@@ -340,29 +340,29 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     }
 
     func test_BuildInfo_SwiftVersion_compatibility() throws {
-        typealias Results = API.PackageController.GetRoute.Model.SwiftVersionResults
+        typealias Results = CompatibilityMatrix.SwiftVersionCompatibility
 
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
-                                                     results: Results(status5_7: .compatible,
-                                                                      status5_8: .incompatible,
-                                                                      status5_9: .unknown,
-                                                                      status5_10: .compatible))),
+                                                     results: Results(results: [.v5_7: .compatible,
+                                                                                .v5_8: .incompatible,
+                                                                                .v5_9: .unknown,
+                                                                                .v5_10: .compatible]))),
                                  beta: nil,
                                  latest: nil)
             XCTAssertEqual(info?.compatibility, [.v1, .v4])
         }
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
-                                                     results: Results(status5_7: .compatible,
-                                                                      status5_8: .incompatible,
-                                                                      status5_9: .unknown,
-                                                                      status5_10: .compatible))),
+                                                     results: Results(results: [.v5_7: .compatible,
+                                                                                .v5_8: .incompatible,
+                                                                                .v5_9: .unknown,
+                                                                                .v5_10: .compatible]))),
                                  beta: .some(.init(referenceName: "1.2.3-b1",
-                                                   results: Results(status5_7: .incompatible,
-                                                                    status5_8: .incompatible,
-                                                                    status5_9: .compatible,
-                                                                    status5_10: .unknown))),
+                                                   results: Results(results: [.v5_7: .incompatible,
+                                                                              .v5_8: .incompatible,
+                                                                              .v5_9: .compatible,
+                                                                              .v5_10: .unknown]))),
                                  latest: nil)
             XCTAssertEqual(info?.compatibility, [.v1, .v3, .v4])
         }
@@ -404,25 +404,22 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     }
 
     func test_groupBuildInfo() throws {
-        let result1: BuildResults = .init(status5_7: .compatible,
-                                          status5_8: .compatible,
-                                          status5_9: .compatible,
-                                          status5_10: .compatible)
-        let result2: BuildResults = .init(status5_7: .compatible,
-                                          status5_8: .incompatible,
-                                          status5_9: .incompatible,
-                                          status5_10: .incompatible)
-        let result3: BuildResults = .init(status5_7: .unknown,
-                                          status5_8: .unknown,
-                                          status5_9: .unknown,
-                                          status5_10: .unknown)
+        let result1: BuildResults = .init(results: [.v5_7: .compatible,
+                                                    .v5_8: .compatible,
+                                                    .v5_9: .compatible,
+                                                    .v5_10: .compatible])
+        let result2: BuildResults = .init(results: [.v5_7: .compatible,
+                                                    .v5_8: .incompatible,
+                                                    .v5_9: .incompatible,
+                                                    .v5_10: .incompatible])
+        let result3: BuildResults = .init(results: [.v5_7: .unknown,
+                                                    .v5_8: .unknown,
+                                                    .v5_9: .unknown,
+                                                    .v5_10: .unknown])
         do {  // three distinct groups
-            let buildInfo: BuildInfo = .init(stable: .init(referenceName: "1.2.3",
-                                                           results: result1),
-                                             beta: .init(referenceName: "2.0.0-b1",
-                                                         results: result2),
-                                             latest: .init(referenceName: "main",
-                                                           results: result3))!
+            let buildInfo: BuildInfo = .init(stable: .init(referenceName: "1.2.3", results: result1),
+                                             beta: .init(referenceName: "2.0.0-b1", results: result2),
+                                             latest: .init(referenceName: "main", results: result3))!
 
             // MUT
             let res = API.PackageController.GetRoute.Model.groupBuildInfo(buildInfo)
@@ -570,5 +567,5 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
 // local typealiases / references to make tests more readable
 fileprivate typealias BuildInfo = API.PackageController.GetRoute.Model.BuildInfo
-fileprivate typealias BuildResults = API.PackageController.GetRoute.Model.SwiftVersionResults
+fileprivate typealias BuildResults = CompatibilityMatrix.SwiftVersionCompatibility
 fileprivate typealias Swift6Readiness = API.PackageController.GetRoute.Model.Swift6Readiness

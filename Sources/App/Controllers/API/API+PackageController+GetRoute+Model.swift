@@ -27,7 +27,7 @@ extension API.PackageController.GetRoute {
         var authors: AuthorMetadata?
         var keywords: [String]?
         var swiftVersionCompatibility: [SwiftVersion]?
-        var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
+        var swiftVersionBuildInfo: BuildInfo<CompatibilityMatrix.SwiftVersionCompatibility>?
         var platformCompatibility: [CompatibilityMatrix.Platform]?
         var platformBuildInfo: BuildInfo<CompatibilityMatrix.PlatformCompatibility>?
         var history: History?
@@ -58,7 +58,7 @@ extension API.PackageController.GetRoute {
                       activity: Activity? = nil,
                       authors: AuthorMetadata? = nil,
                       keywords: [String]? = nil,
-                      swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil,
+                      swiftVersionBuildInfo: BuildInfo<CompatibilityMatrix.SwiftVersionCompatibility>? = nil,
                       platformBuildInfo: BuildInfo<CompatibilityMatrix.PlatformCompatibility>? = nil,
                       history: History? = nil,
                       license: License,
@@ -129,7 +129,7 @@ extension API.PackageController.GetRoute {
               history: History?,
               products: [Product],
               targets: [Target],
-              swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?,
+              swiftVersionBuildInfo: BuildInfo<CompatibilityMatrix.SwiftVersionCompatibility>?,
               platformBuildInfo: BuildInfo<CompatibilityMatrix.PlatformCompatibility>?,
               weightedKeywords: [WeightedKeyword] = [],
               swift6Readiness: Swift6Readiness?) {
@@ -325,53 +325,9 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
-    @available(*, deprecated, renamed: "CompatibilityMatrix.PlatformCompatibility")
-    enum PlatformCompatibility: String, Codable, Comparable, CaseIterable {
-        case iOS
-        case linux
-        case macOS
-        case tvOS
-        case visionOS
-        case watchOS
-
-        static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
-    }
-
     struct NamedBuildResults<T: Codable & Equatable>: Codable, Equatable {
         var referenceName: String
         var results: T
-    }
-
-    struct SwiftVersionResults: Codable, Equatable {
-        var v5_7: BuildResult<SwiftVersion>
-        var v5_8: BuildResult<SwiftVersion>
-        var v5_9: BuildResult<SwiftVersion>
-        var v5_10: BuildResult<SwiftVersion>
-
-        init(status5_7: BuildStatus,
-             status5_8: BuildStatus,
-             status5_9: BuildStatus,
-             status5_10: BuildStatus) {
-            self.v5_7 = .init(parameter: .v5_7, status: status5_7)
-            self.v5_8 = .init(parameter: .v5_8, status: status5_8)
-            self.v5_9 = .init(parameter: .v5_9, status: status5_9)
-            self.v5_10 = .init(parameter: .v5_10, status: status5_10)
-        }
-
-        var all: [BuildResult<SwiftVersion>] { [v5_10, v5_9, v5_8, v5_7] }
-    }
-
-    @available(*, deprecated, renamed: "CompatibilityMatrix.Compatibility")
-    enum BuildStatus: String, Codable, Equatable {
-        case compatible
-        case incompatible
-        case unknown
-    }
-
-    @available(*, deprecated, renamed: "CompatibilityMatrix.BuildResult")
-    struct BuildResult<T: Codable & Equatable>: Codable, Equatable {
-        var parameter: T
-        var status: BuildStatus
     }
 
     struct Swift6Readiness: Codable, Equatable {
@@ -396,7 +352,7 @@ extension API.PackageController.GetRoute.Model {
 }
 
 
-extension API.PackageController.GetRoute.Model.BuildInfo where T == API.PackageController.GetRoute.Model.SwiftVersionResults {
+extension API.PackageController.GetRoute.Model.BuildInfo<CompatibilityMatrix.SwiftVersionCompatibility> {
     var compatibility: [SwiftVersion] {
         var result = Set<SwiftVersion>()
         for v in [beta, stable, latest].compacted() {

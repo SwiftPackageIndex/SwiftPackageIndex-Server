@@ -40,22 +40,22 @@ extension API.PackageController.GetRoute.Model {
             swiftVersionBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",
-                    results: .init(status5_7: .incompatible,
-                                   status5_8: .incompatible,
-                                   status5_9: .unknown,
-                                   status5_10: .compatible)),
+                    results: .init(results: [.v5_7: .incompatible,
+                                             .v5_8: .incompatible,
+                                             .v5_9: .unknown,
+                                             .v5_10: .compatible])),
                 beta: NamedBuildResults(
                     referenceName: "6.0.0-b1",
-                    results: .init(status5_7: .incompatible,
-                                   status5_8: .compatible,
-                                   status5_9: .compatible,
-                                   status5_10: .compatible)),
+                    results: .init(results: [.v5_7: .incompatible,
+                                             .v5_8: .compatible,
+                                             .v5_9: .compatible,
+                                             .v5_10: .compatible])),
                 latest: NamedBuildResults(
                     referenceName: "main",
-                    results: .init(status5_7: .incompatible,
-                                   status5_8: .incompatible,
-                                   status5_9: .unknown,
-                                   status5_10: .compatible))),
+                    results: .init(results: [.v5_7: .incompatible,
+                                             .v5_8: .incompatible,
+                                             .v5_9: .unknown,
+                                             .v5_10: .compatible]))),
             platformBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",
