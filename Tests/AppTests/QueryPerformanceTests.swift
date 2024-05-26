@@ -166,14 +166,27 @@ private extension Environment {
 }
 
 
-struct SQLExplain: SQLExpression {
-    let query: any SQLExpression
-    init(_ builder: SQLQueryBuilder) {
-        self.query = builder.query
+final class SQLQueryExplainer: SQLQueryFetcher {
+    var query: any SQLExpression
+    var database: any SQLDatabase
+
+    init(_ builder: any SQLQueryBuilder) {
+        self.query = SQLExplainQuery(query: builder.query)
+        self.database = builder.database
     }
-    func serialize(to serializer: inout SQLSerializer) {
-        serializer.write("EXPLAIN ANALYZE ")
-        query.serialize(to: &serializer)
+
+    struct SQLExplainQuery: SQLExpression {
+        let query: any SQLExpression
+
+        func serialize(to serializer: inout SQLSerializer) {
+            serializer.statement { $0.append("EXPLAIN ANALYZE", self.query) }
+        }
+    }
+}
+
+extension SQLQueryBuilder {
+    public func explain() async throws -> String {
+        try await SQLQueryExplainer(self).all(decodingColumn: "QUERY PLAN", as: String.self).joined(separator: "\n")
     }
 }
 
@@ -186,14 +199,7 @@ private extension QueryPerformanceTests {
                                 filePath: StaticString = #filePath,
                                 lineNumber: UInt = #line,
                                 testName: String = #function) async throws {
-        let explain = SQLExplain(query)
-        let result = QueueIsolated<[String]>([])
-        try await (app.db as! SQLDatabase).execute(sql: explain) { row in
-            let res = (try? row.decode(column: "QUERY PLAN", as: String.self)) ?? "-"
-            result.withValue { $0.append(res) }
-        }
-        let queryPlan = result.value.joined(separator: "\n")
-
+        let queryPlan = try await query.explain()
         let parsedPlan = try QueryPlan(queryPlan)
         print("ℹ️ TEST:        \(testName)")
         if parsedPlan.cost.total <= expectedCost {
