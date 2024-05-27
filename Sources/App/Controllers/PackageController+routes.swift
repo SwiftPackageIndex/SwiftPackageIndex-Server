@@ -121,19 +121,11 @@ enum PackageController {
             .init(archive: $0, isCurrent: $0.name == route.archive)
         }
 
-        let canonicalUrl: String? = {
-            guard let canonicalOwner = documentationMetadata.owner,
-                  let canonicalRepository = documentationMetadata.repository,
-                  let canonicalTarget = documentationMetadata.canonicalTarget
-            else { return nil }
-
-            return Self.canonicalDocumentationUrl(from: "\(req.url)",
-                                                  owner: canonicalOwner,
-                                                  repository: canonicalRepository,
-                                                  docVersion: route.docVersion,
-                                                  toTarget: canonicalTarget)
-        }()
-
+        let canonicalUrl = Self.canonicalDocumentationUrl(from: "\(req.url)",
+                                                          owner: documentationMetadata.owner,
+                                                          repository: documentationMetadata.repository,
+                                                          docVersion: route.docVersion,
+                                                          toTarget: documentationMetadata.canonicalTarget)
 
         // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
         guard let body = awsResponse.body,
@@ -463,10 +455,12 @@ extension PackageController {
 
 extension PackageController {
     static func canonicalDocumentationUrl(from url: String,
-                                          owner: String,
-                                          repository: String,
+                                          owner: String?,
+                                          repository: String?,
                                           docVersion: DocVersion,
-                                          toTarget target: DocumentationTarget) -> String? {
+                                          toTarget target: DocumentationTarget?) -> String? {
+        guard let owner, let repository, let target else { return nil }
+
         // It's important to use `docVersion.reference` here to make sure we match with true reference urls and not ~
         let urlPrefix = "/\(owner)/\(repository)/\(docVersion.reference.pathEncoded)/"
         if case let .internal(canonicalReference, _) = target,
