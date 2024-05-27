@@ -314,7 +314,7 @@ extension API.PackageController.GetRoute.Model {
         guard let swift6Readiness else { return .empty }
 
         return .li(
-            .class("data-race-safe"),
+            .class("data-race-safety"),
             .span(
                 .text(swift6Readiness.text)
             ),
@@ -604,7 +604,7 @@ private extension API.PackageController.GetRoute.Model.Product.ProductType {
             case .plugin: return "plugins"
         }
     }
-    
+
     var singularForm: String {
         switch self {
             case .executable: return "executable"
