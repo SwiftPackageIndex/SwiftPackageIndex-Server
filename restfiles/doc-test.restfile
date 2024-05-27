@@ -513,6 +513,10 @@ requests:
     url: ${base_url}/stackotter/swift-bundler/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /stackotter/swift-macro-toolkit/documentation:
+    url: ${base_url}/stackotter/swift-macro-toolkit/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /swift-server-community/APNSwift/documentation:
     url: ${base_url}/swift-server-community/APNSwift/documentation
     validation:
