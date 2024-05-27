@@ -15,11 +15,11 @@
         "vega": "^5.29.0"
     },
     "devDependencies": {
-        "esbuild": "^0.21.3",
+        "esbuild": "^0.21.4",
         "esbuild-sass-plugin": "^3.3.0",
         "postcss": "^8.4.38",
         "prettier": "^3.2.5",
-        "stylelint": "^16.5.0",
+        "stylelint": "^16.6.0",
         "stylelint-config-standard-scss": "^13.1.0",
         "stylelint-order": "^6.0.4",
         "stylelint-scss": "^6.3.0"
