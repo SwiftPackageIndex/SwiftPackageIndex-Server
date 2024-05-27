@@ -65,6 +65,11 @@
                 list-style: outside none none;
             }
 
+            li > .more-info {
+                display: block;
+                font-size: 11px;
+            }
+
             li.archived {
                 grid-column-start: span 2;
                 background-image: var(--image-warning);
@@ -104,11 +109,6 @@
                 .no-license {
                     color: var(--red-text);
                 }
-
-                #license-more-info {
-                    display: block;
-                    font-size: 11px;
-                }
             }
 
             li.has-binary-targets {
@@ -137,6 +137,7 @@
             }
 
             li.data-race-safe {
+                grid-column-start: span 2;
                 background-image: var(--image-checkered-flag);
             }
 

@@ -15,6 +15,7 @@ description: Frequently Asked Questions about the Swift Package Index Build Syst
 - [If a build is showing failed incorrectly, how can I fix it?](#fix-false-negative)
 - [If a build is showing an error that seems unrelated to the build, how can I fix it?](#unrelated-error)
 - [How can I diagnose problems where dependencies can't be resolved?](#dependency-resolving-error)
+- [What is data race safety and how is it tested?](#data-race-safety)
 
 <h3 id="build-system">What is the Swift Package Index Build System?</h3>
 
@@ -86,3 +87,11 @@ In cases like this, Xcode cannot resolve package dependencies because of how it 
 ```
 
 You can [find more details in this issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1532).
+
+<h3 id="data-race-safety">What is data race safety and how is it tested?</h3>
+
+The Swift 6.0 compiler can test whether code is safe from data races at compile time when strict concurrency checks are enabled. The data race safety information we publish on package pages comes from metadata output by the compiler during our build process.
+
+Note that this does not affect package compatibility as shown in the compatibility matrix. A package can be fully compatible with Swift 6.0 without opting into struct concurrency mode provided it is not running in Swift 6.0 language mode. For more information on opting into Swift 6.0 language mode, [read this blog post on Swift.org](https://example.com).
+
+
