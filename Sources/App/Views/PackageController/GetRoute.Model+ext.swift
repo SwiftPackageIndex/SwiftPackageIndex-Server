@@ -97,19 +97,19 @@ extension API.PackageController.GetRoute.Model {
                     return .empty
                 case .incompatibleWithAppStore:
                     return .a(
-                        .id("license-more-info"),
+                        .class("more-info"),
                         .href(SiteURL.faq.relativeURL(anchor: "licenses")),
                         "Why might the \(license.shortName) be problematic?"
                     )
                 case .other:
                     return .a(
-                        .id("license-more-info"),
+                        .class("more-info"),
                         .href(SiteURL.faq.relativeURL(anchor: "licenses")),
                         "Why is this package's license unknown?"
                     )
                 case .none:
                     return .a(
-                        .id("license-more-info"),
+                        .class("more-info"),
                         .href(SiteURL.faq.relativeURL(anchor: "licenses")),
                         "Why should you not use unlicensed code?"
                     )
@@ -314,9 +314,16 @@ extension API.PackageController.GetRoute.Model {
         guard let swift6Readiness else { return .empty }
 
         return .li(
-            .class("data-race-safe"),
-            .text(swift6Readiness.text),
-            .title(swift6Readiness.title)
+            .class("data-race-safety"),
+            .span(
+                .text(swift6Readiness.text)
+            ),
+            .title(swift6Readiness.title),
+            .a(
+                .class("more-info"),
+                .href(SiteURL.docs(.builds).relativeURL(anchor: "data-race-safety")),
+                .text("What is data race safety and how is it tested?")
+            )
         )
     }
 
@@ -597,7 +604,7 @@ private extension API.PackageController.GetRoute.Model.Product.ProductType {
             case .plugin: return "plugins"
         }
     }
-    
+
     var singularForm: String {
         switch self {
             case .executable: return "executable"
@@ -647,7 +654,7 @@ extension API.PackageController.GetRoute.Model.Swift6Readiness {
             case .unsafe:
                 return "Has data race errors"
             case .unknown:
-                return "No data race information available"
+                return "No data race safety information available"
         }
     }
 
