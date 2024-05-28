@@ -90,7 +90,7 @@ You can [find more details in this issue](https://github.com/SwiftPackageIndex/S
 
 <h3 id="data-race-safety">What is data race safety and how is it tested?</h3>
 
-The Swift 6.0 compiler can test whether code is safe from data races at compile time when strict concurrency checks are enabled. The data race safety information we publish on package pages comes from metadata output by the compiler during our build process.
+The Swift 6.0 compiler can check whether code is safe from data races at compile time when strict concurrency checks are enabled. The data race safety information we publish on package pages comes from metadata output by the compiler during our build process.
 
 Note that this does not affect package compatibility as shown in the compatibility matrix. A package can be fully compatible with Swift 6.0 without opting into struct concurrency mode provided it is not running in Swift 6.0 language mode. For more information on opting into Swift 6.0 language mode, [read this for more information](https://example.com).
 
