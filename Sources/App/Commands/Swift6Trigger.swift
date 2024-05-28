@@ -138,6 +138,17 @@ extension Swift6TriggerCommand {
                     and platform = 'watchos'
                 )
                 union
+                select v.id, 'visionos' as "platform"
+                from versions v
+                where v.latest = 'default_branch'
+                and v.id not in (
+                    select v.id
+                    from builds b
+                    join versions v on b.version_id = v.id
+                    where swift_version->>'major' = '6'
+                    and platform = 'visionos'
+                )
+                union
                 select v.id, 'linux' as "platform"
                 from versions v
                 where v.latest = 'default_branch'
