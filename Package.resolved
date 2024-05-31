@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/console-kit.git",
       "state" : {
-        "revision" : "9c24ac496c97cfb49c1bd5e7162008bb50abafc8",
-        "version" : "4.14.2"
+        "revision" : "9f7932f22ab6f64aafadc14491e694179b7d0f6f",
+        "version" : "4.14.3"
       }
     },
     {
@@ -141,8 +141,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-nio.git",
       "state" : {
-        "revision" : "d3795844d488210b65ace34c5f003e47d812d999",
-        "version" : "1.21.3"
+        "revision" : "ee669e9de721086d2dd8eef83a3a3ddda6904ec2",
+        "version" : "1.21.4"
       }
     },
     {
@@ -429,8 +429,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server/swift-service-lifecycle.git",
       "state" : {
-        "revision" : "12a031bcc1284c64d6b847f5013ffe6dcca964d0",
-        "version" : "2.5.0"
+        "revision" : "05d3852a55895cfbcdcf27a71fc69e291a61934c",
+        "version" : "2.5.1"
       }
     },
     {
