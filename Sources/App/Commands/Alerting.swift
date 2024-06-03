@@ -19,6 +19,12 @@ import NIOCore
 
 
 enum Alerting {
+    static let defaultLimit = 2000
+    static let defaultTimePeriod = 2
+    // CHECK_MON_001 has to run on a longer time period, because it currently takes ~4h to visit every package
+    // during analysis. With a window shorter than that, they query will always report errors.
+    static let checkMon001TimePeriod: TimeAmount = .hours(6)
+
     struct Command: AsyncCommand {
         var help: String { "Application level alerting" }
 
@@ -29,11 +35,8 @@ enum Alerting {
             @Option(name: "limit", short: "l")
             var limit: Int?
 
-            static let defaultLimit = 2000
-            static let defaultTimePeriod = 2
-
             var duration: TimeAmount {
-                .hours(Int64(timePeriod ?? Self.defaultTimePeriod))
+                .hours(Int64(timePeriod ?? Alerting.defaultTimePeriod))
             }
         }
 
@@ -43,13 +46,13 @@ enum Alerting {
             Current.logger().info("Running alerting...")
 
             let timePeriod = signature.duration
-            let limit = signature.limit ?? Signature.defaultLimit
+            let limit = signature.limit ?? Alerting.defaultLimit
 
             Current.logger().info("Validation time interval: \(timePeriod.hours)h, limit: \(limit)")
 
             let builds = try await Alerting.fetchBuilds(on: context.application.db, timePeriod: timePeriod, limit: limit)
             try await Alerting.runBuildChecks(for: builds)
-            try await Alerting.runMonitoring001Check(on: context.application.db, timePeriod: timePeriod)
+            try await Alerting.runMonitoring001Check(on: context.application.db, timePeriod: Alerting.checkMon001TimePeriod)
                 .log(check: "CHECK_MON_001")
         }
     }
