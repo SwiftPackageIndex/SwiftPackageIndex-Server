@@ -186,6 +186,9 @@ extension Alerting {
                 case .ok:
                     Current.logger().debug("\(check) passed")
                 case .failed(let reasons):
+                    if reasons.count >= 5 {
+                        Current.logger().critical("\(check) failures: \(reasons.count)")
+                    }
                     for reason in reasons {
                         Current.logger().critical("\(check) failed: \(reason)")
                     }
