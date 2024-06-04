@@ -108,7 +108,7 @@ extension Github {
         }
 
         guard response.status == .ok else {
-            Current.logger().warning("Github.fetch request failed with status \(response.status)")
+            Current.logger().warning("Github.fetch of '\(uri.path)' failed with status \(response.status)")
             throw Error.requestFailed(response.status)
         }
 
