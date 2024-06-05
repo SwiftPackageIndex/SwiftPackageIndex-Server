@@ -14,9 +14,10 @@
 
 import { Controller } from '@hotwired/stimulus'
 import * as vega from 'vega'
+import * as vegaTooltip from 'vega-tooltip'
 
 export class VegaChartController extends Controller {
-    static targets = ['data']
+    static targets = ['plotData', 'eventData']
     static values = { class: String }
 
     connect() {
@@ -30,7 +31,7 @@ export class VegaChartController extends Controller {
         this.element.appendChild(chartContainerElement)
 
         // Render the UI for the data set inclusion checkboxes.
-        const data = JSON.parse(this.dataTarget.textContent)
+        const data = JSON.parse(this.plotDataTarget.textContent)
         this.element.appendChild(this.seriesCheckboxForm(data))
 
         // Render the initial chart.
@@ -84,30 +85,40 @@ export class VegaChartController extends Controller {
     }
 
     renderChart() {
+        const eventData = JSON.parse(this.eventDataTarget.textContent)
         const checkboxElements = this.element.querySelectorAll('input[type="checkbox"]:checked')
         const includedDataSets = Array.from(checkboxElements).map((checkbox) => checkbox.name)
-        const data = JSON.parse(this.dataTarget.textContent).filter((dataSet) => includedDataSets.includes(dataSet.id))
+        const plotData = JSON.parse(this.plotDataTarget.textContent).filter((dataSet) =>
+            includedDataSets.includes(dataSet.id)
+        )
+
+        const tooltip = new vegaTooltip.Handler({
+            offsetX: 15,
+            offsetY: 5,
+        })
 
         const chartClass = window[this.classValue]
-        new vega.View(vega.parse(chartClass.spec(data)), {
+        new vega.View(vega.parse(chartClass.spec(plotData, eventData)), {
             renderer: 'canvas',
             container: this.element.querySelector('.chart-container'),
             hover: true,
+            tooltip: tooltip.call,
         }).run()
     }
 }
 
 class ReadyForSwift6Chart {
-    static spec(data) {
+    static spec(plotData, eventData) {
         return {
             $schema: 'https://vega.github.io/schema/vega/v5.json',
             width: 700,
             height: 400,
             config: this.config(),
-            data: this.data(data),
-            scales: this.scales(data),
+            data: this.plotData(plotData).concat(this.eventData(eventData)),
+            signals: this.signals(plotData),
+            scales: this.scales(plotData),
             axes: this.axes(),
-            marks: data.flatMap((dataSet) => this.marks(dataSet)),
+            marks: plotData.flatMap((dataSet) => this.plotMarks(dataSet)).concat(this.eventMarks(eventData)),
         }
     }
 
@@ -128,7 +139,7 @@ class ReadyForSwift6Chart {
         }
     }
 
-    static data(data) {
+    static plotData(data) {
         return data.map((dataSet) => {
             return {
                 name: dataSet.id,
@@ -144,8 +155,31 @@ class ReadyForSwift6Chart {
         })
     }
 
+    static eventData(data) {
+        return {
+            name: 'events',
+            transform: [
+                {
+                    type: 'formula',
+                    expr: 'datetime(datum.date)',
+                    as: 'date',
+                },
+            ],
+            values: data,
+        }
+    }
+
+    static signals(data) {
+        return [
+            {
+                name: 'maxYScale',
+                update: "domain('yscale')[1]",
+            },
+        ]
+    }
+
     static scales(data) {
-        const maxErrors = data
+        const maxYScale = data
             .flatMap((dataSet) => dataSet.values.map((element) => element['value']))
             .reduce((max, value) => Math.max(max, value), 0)
 
@@ -159,7 +193,7 @@ class ReadyForSwift6Chart {
             {
                 name: 'yscale',
                 type: 'linear',
-                domain: [0, maxErrors],
+                domain: [0, maxYScale],
                 range: 'height',
                 nice: true,
             },
@@ -187,7 +221,7 @@ class ReadyForSwift6Chart {
         return ''
     }
 
-    static marks(dataSet) {
+    static plotMarks(dataSet) {
         return [
             {
                 type: 'line',
@@ -212,6 +246,27 @@ class ReadyForSwift6Chart {
                         fill: { value: this.colorForDataSet(dataSet.id) },
                         tooltip: {
                             signal: "timeFormat(datum.date, '%b %d, %Y') + ' - ' + datum.value",
+                        },
+                    },
+                },
+            },
+        ]
+    }
+
+    static eventMarks(data) {
+        return [
+            {
+                type: 'rect',
+                from: { data: 'events' },
+                encode: {
+                    enter: {
+                        xc: { scale: 'xscale', field: 'date' },
+                        width: { value: 5 },
+                        y: { scale: 'yscale', value: 0 },
+                        y2: { scale: 'yscale', signal: 'maxYScale' },
+                        fill: { value: '#bedeff' },
+                        tooltip: {
+                            signal: 'datum.value',
                         },
                     },
                 },
