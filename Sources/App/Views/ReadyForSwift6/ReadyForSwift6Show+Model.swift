@@ -25,17 +25,24 @@ enum ReadyForSwift6Show {
         }
 
         func readyForSwift6Chart(kind: ChartKind) -> Node<HTML.BodyContext> {
-            let chartDataPath = Current.fileManager.workingDirectory().appending("Resources/ChartData/\(kind.dataFile)")
-            guard let chartData = Current.fileManager.contents(atPath: chartDataPath)?.compactJson()
-            else { return .p("Couldn’t load chart data.") }
+            let plotDataPath = Current.fileManager.workingDirectory().appending("Resources/ChartData/\(kind.dataFile)")
+            let eventDataPath = Current.fileManager.workingDirectory().appending("Resources/ChartData/rfs6-events.json")
+            guard let plotData = Current.fileManager.contents(atPath: plotDataPath)?.compactJson(),
+                  let eventData = Current.fileManager.contents(atPath: eventDataPath)?.compactJson()
+            else { return .p("Couldn’t load chart data.") } 
 
             return .div(
                 .data(named: "controller", value: "vega-chart"),
                 .data(named: "vega-chart-class-value", value: kind.jsClassName),
                 .script(
-                    .data(named: "vega-chart-target", value: "data"),
+                    .data(named: "vega-chart-target", value: "plotData"),
                     .attribute(named: "type", value: "application/json"),
-                    .raw(chartData)
+                    .raw(plotData)
+                ),
+                .script(
+                    .data(named: "vega-chart-target", value: "eventData"),
+                    .attribute(named: "type", value: "application/json"),
+                    .raw(eventData)
                 )
             )
         }

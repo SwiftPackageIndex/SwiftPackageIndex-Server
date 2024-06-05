@@ -12,7 +12,8 @@
         "@hotwired/turbo": "^7.3.0",
         "highlight.js": "^11.9.0",
         "normalize.css": "^8.0.1",
-        "vega": "^5.29.0"
+        "vega": "^5.29.0",
+        "vega-tooltip": "^0.34.0"
     },
     "devDependencies": {
         "esbuild": "^0.21.4",
