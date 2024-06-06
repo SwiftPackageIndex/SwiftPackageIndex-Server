@@ -16,42 +16,42 @@ import Foundation
 
 
 extension DateFormatter {
-    static let mediumDateFormatter: DateFormatter = {
+    static var mediumDateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.locale = .init(identifier: "en_GB")
         formatter.timeZone = Current.timeZone()
         return formatter
-    }()
+    }
 
-    static let longDateFormatter: DateFormatter = {
+    static var longDateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.locale = .init(identifier: "en_GB")
         formatter.timeZone = Current.timeZone()
         return formatter
-    }()
+    }
 
-    static let yearMonthDayDateFormatter: DateFormatter = {
+    static var yearMonthDayDateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = .init(identifier: "en_GB")
         formatter.timeZone = Current.timeZone()
         return formatter
-    }()
+    }
 }
 
 
 // LosslessStringConvertible conformance is required by @Option command line argument conversion
 extension Date: LosslessStringConvertible {
-    private static let iso8601: ISO8601DateFormatter = ISO8601DateFormatter()
-    private static let ymd: DateFormatter = {
+    private static var iso8601: ISO8601DateFormatter { ISO8601DateFormatter() }
+    private static var ymd: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.calendar = Calendar(identifier: .iso8601)
         formatter.timeZone = .utc
         return formatter
-    }()
+    }
 
     public init?(_ string: String) {
         if let date = Self.ymd.date(from: string) {

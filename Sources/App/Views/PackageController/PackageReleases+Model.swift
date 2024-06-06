@@ -19,12 +19,11 @@ import SwiftSoup
 extension PackageReleases {
 
     struct Model: Equatable {
-        private static let dateFormatter: DateFormatter = {
+        private static var dateFormatter: DateFormatter {
             let formatter = DateFormatter()
             formatter.dateFormat = "d MMMM yyyy"
-
             return formatter
-        }()
+        }
 
         struct Release: Equatable {
             let title: String

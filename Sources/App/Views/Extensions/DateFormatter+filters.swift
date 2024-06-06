@@ -15,21 +15,21 @@
 import Foundation
 
 extension DateFormatter {
-    static var filterParseFormatter: DateFormatter = {
+    static var filterParseFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
 
         return formatter
-    }()
+    }
 
-    static var filterDisplayFormatter: DateFormatter = {
+    static var filterDisplayFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMM yyyy"
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
 
         return formatter
-    }()
+    }
 }
