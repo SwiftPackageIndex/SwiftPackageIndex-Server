@@ -204,8 +204,3 @@ extension Swift6TriggerCommand {
     }
 
 }
-
-
-extension SwiftVersion {
-    static let v6_0: Self = .init(6, 0, 0)
-}

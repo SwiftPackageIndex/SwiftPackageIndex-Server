@@ -241,7 +241,6 @@ class BuildTriggerTests: AppTestCase {
                           "\(v) could not be converted to a SPIManifest Swift version")
         }
         // Check the values specifically (which we can't easily do in the loop above)
-        XCTAssertEqual(BuildPair(.iOS, .v5_7).manifestSwiftVersion, .v5_7)
         XCTAssertEqual(BuildPair(.iOS, .v5_8).manifestSwiftVersion, .v5_8)
         XCTAssertEqual(BuildPair(.iOS, .v5_9).manifestSwiftVersion, .v5_9)
         XCTAssertEqual(BuildPair(.iOS, .v5_10).manifestSwiftVersion, .v5_10)
@@ -1136,32 +1135,33 @@ class BuildTriggerTests: AppTestCase {
         // Sanity checks for critical counts used in canadidate selection
         XCTAssertEqual(BuildPair.all.count, 26)
         XCTAssertEqual(BuildPair.all, [
-            .init(.iOS, .v5_7),
             .init(.iOS, .v5_8),
             .init(.iOS, .v5_9),
             .init(.iOS, .v5_10),
-            .init(.macosSpm, .v5_7),
+            .init(.iOS, .v6_0),
             .init(.macosSpm, .v5_8),
             .init(.macosSpm, .v5_9),
             .init(.macosSpm, .v5_10),
-            .init(.macosXcodebuild, .v5_7),
+            .init(.macosSpm, .v6_0),
             .init(.macosXcodebuild, .v5_8),
             .init(.macosXcodebuild, .v5_9),
             .init(.macosXcodebuild, .v5_10),
+            .init(.macosXcodebuild, .v6_0),
             .init(.visionOS, .v5_9),
             .init(.visionOS, .v5_10),
-            .init(.tvOS, .v5_7),
+            .init(.visionOS, .v6_0),
             .init(.tvOS, .v5_8),
             .init(.tvOS, .v5_9),
             .init(.tvOS, .v5_10),
-            .init(.watchOS, .v5_7),
+            .init(.tvOS, .v6_0),
             .init(.watchOS, .v5_8),
             .init(.watchOS, .v5_9),
             .init(.watchOS, .v5_10),
-            .init(.linux, .v5_7),
+            .init(.watchOS, .v6_0),
             .init(.linux, .v5_8),
             .init(.linux, .v5_9),
             .init(.linux, .v5_10),
+            .init(.linux, .v6_0),
         ])
         XCTAssertEqual(BuildPair.allExceptLatestSwiftVersion.count, 19)
     }

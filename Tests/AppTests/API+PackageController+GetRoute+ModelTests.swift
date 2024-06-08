@@ -344,25 +344,25 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
-                                                     results: Results(results: [.v5_7: .compatible,
-                                                                                .v5_8: .incompatible,
-                                                                                .v5_9: .unknown,
-                                                                                .v5_10: .compatible]))),
+                                                     results: Results(results: [.v5_8: .compatible,
+                                                                                .v5_9: .incompatible,
+                                                                                .v5_10: .unknown,
+                                                                                .v6_0: .compatible]))),
                                  beta: nil,
                                  latest: nil)
             XCTAssertEqual(info?.compatibility, [.v1, .v4])
         }
         do {
             let info = BuildInfo(stable: .some(.init(referenceName: "1.2.3",
-                                                     results: Results(results: [.v5_7: .compatible,
-                                                                                .v5_8: .incompatible,
-                                                                                .v5_9: .unknown,
-                                                                                .v5_10: .compatible]))),
+                                                     results: Results(results: [.v5_8: .compatible,
+                                                                                .v5_9: .incompatible,
+                                                                                .v5_10: .unknown,
+                                                                                .v6_0: .compatible]))),
                                  beta: .some(.init(referenceName: "1.2.3-b1",
-                                                   results: Results(results: [.v5_7: .incompatible,
-                                                                              .v5_8: .incompatible,
-                                                                              .v5_9: .compatible,
-                                                                              .v5_10: .unknown]))),
+                                                   results: Results(results: [.v5_8: .incompatible,
+                                                                              .v5_9: .incompatible,
+                                                                              .v5_10: .compatible,
+                                                                              .v6_0: .unknown]))),
                                  latest: nil)
             XCTAssertEqual(info?.compatibility, [.v1, .v3, .v4])
         }
@@ -404,18 +404,18 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     }
 
     func test_groupBuildInfo() throws {
-        let result1: BuildResults = .init(results: [.v5_7: .compatible,
-                                                    .v5_8: .compatible,
+        let result1: BuildResults = .init(results: [.v5_8: .compatible,
                                                     .v5_9: .compatible,
-                                                    .v5_10: .compatible])
-        let result2: BuildResults = .init(results: [.v5_7: .compatible,
-                                                    .v5_8: .incompatible,
+                                                    .v5_10: .compatible,
+                                                    .v6_0: .compatible])
+        let result2: BuildResults = .init(results: [.v5_8: .compatible,
                                                     .v5_9: .incompatible,
-                                                    .v5_10: .incompatible])
-        let result3: BuildResults = .init(results: [.v5_7: .unknown,
-                                                    .v5_8: .unknown,
+                                                    .v5_10: .incompatible,
+                                                    .v6_0: .incompatible])
+        let result3: BuildResults = .init(results: [.v5_8: .unknown,
                                                     .v5_9: .unknown,
-                                                    .v5_10: .unknown])
+                                                    .v5_10: .unknown,
+                                                    .v6_0: .unknown])
         do {  // three distinct groups
             let buildInfo: BuildInfo = .init(stable: .init(referenceName: "1.2.3", results: result1),
                                              beta: .init(referenceName: "2.0.0-b1", results: result2),
