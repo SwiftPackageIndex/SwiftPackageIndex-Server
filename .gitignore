@@ -30,3 +30,4 @@ Tests/AppTests/__Snapshots__/WebpageSnapshotTests/*
 !.vscode/*.template
 xcbeautify
 test.log
+.collection-signing-key.pem
