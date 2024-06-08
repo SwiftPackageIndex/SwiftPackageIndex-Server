@@ -36,9 +36,9 @@ class AlertingTests: XCTestCase {
         }
         XCTAssertEqual(all.validateSwiftVersionsPresent(), .ok)
         XCTAssertEqual(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsPresent(),
-                       .failed(reasons: ["Missing Swift version: 5.7"]))
+                       .failed(reasons: ["Missing Swift version: 5.8"]))
         XCTAssertEqual(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersionsPresent(),
-                       .failed(reasons: ["Missing Swift version: 5.7", "Missing Swift version: 5.8"]))
+                       .failed(reasons: ["Missing Swift version: 5.8", "Missing Swift version: 5.9"]))
     }
 
     func test_validatePlatformsSuccessful() throws {
@@ -64,15 +64,15 @@ class AlertingTests: XCTestCase {
         }
         XCTAssertEqual(all.validateSwiftVersionsSuccessful(), .ok)
         XCTAssertEqual(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsSuccessful(),
-                       .failed(reasons: ["Swift version without successful builds: 5.7"]))
+                       .failed(reasons: ["Swift version without successful builds: 5.8"]))
         XCTAssertEqual(
             Array(all.filter { $0.swiftVersion != .v1 })
                 .appending(.mock(swiftVersion: .v1, status: .failed))
             .validateSwiftVersionsSuccessful(),
-            .failed(reasons: ["Swift version without successful builds: 5.7"])
+            .failed(reasons: ["Swift version without successful builds: 5.8"])
         )
         XCTAssertEqual(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersionsSuccessful(),
-                       .failed(reasons: ["Swift version without successful builds: 5.7", "Swift version without successful builds: 5.8"]))
+                       .failed(reasons: ["Swift version without successful builds: 5.8", "Swift version without successful builds: 5.9"]))
     }
 
     func test_validateRunnerIdsPresent() throws {

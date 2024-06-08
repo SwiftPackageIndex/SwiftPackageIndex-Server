@@ -674,7 +674,7 @@ class ApiTests: AppTestCase {
                 let badge = try res.content.decode(Badge.self)
                 XCTAssertEqual(badge.schemaVersion, 1)
                 XCTAssertEqual(badge.label, "Swift")
-                XCTAssertEqual(badge.message, "5.8 | 5.7")
+                XCTAssertEqual(badge.message, "5.9 | 5.8")
                 XCTAssertEqual(badge.isError, false)
                 XCTAssertEqual(badge.color, "F05138")
                 XCTAssertEqual(badge.cacheSeconds, 6*3600)
