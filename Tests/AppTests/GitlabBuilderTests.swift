@@ -18,7 +18,7 @@ import Vapor
 import XCTest
 
 
-class GitlabBuilderTests: XCTestCase {
+class GitlabBuilderTests: AppTestCase {
 
     func test_variables_encoding() async throws {
         // Ensure the POST variables are encoded correctly
@@ -86,38 +86,33 @@ class GitlabBuilderTests: XCTestCase {
     }
 
     func test_issue_588() throws {
-        #if compiler(<6)
-            throw XCTSkip()
-        #else
-            // See: https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/588
-            XCTFail("Once Swift 6.0 is released this test needs fixing up. It was tempoorarily removed when we removed support for Swift 5.0.")
+        Current.awsDocsBucket = { "docs-bucket" }
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
 
-            // Current.builderToken = { "builder token" }
-            // Current.gitlabPipelineToken = { "pipeline token" }
-            // Current.siteURL = { "http://example.com" }
-            // let versionID = UUID()
-            //
-            // var called = false
-            // let client = MockClient { req, res in
-            //     called = true
-            //     try? res.content.encode(
-            //         Gitlab.Builder.Response.init(webUrl: "http://web_url")
-            //     )
-            //     // validate
-            //     let swiftVersion = (try? req.query.decode(Gitlab.Builder.PostDTO.self))
-            //         .flatMap { $0.variables["SWIFT_VERSION"] }
-            //     XCTAssertEqual(swiftVersion, "5.0")
-            // }
-            //
-            // // MUT
-            // _ = try Gitlab.Builder.triggerBuild(client: client,
-            //                                     cloneURL: "https://github.com/daveverwer/LeftPad.git",
-            //                                     platform: .macosSpm,
-            //                                     reference: .tag(.init(1, 2, 3)),
-            //                                     swiftVersion: .v5_0,
-            //                                     versionID: versionID).wait()
-            // XCTAssertTrue(called)
-        #endif
+        var called = false
+        let client = MockClient { req, res in
+            called = true
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+            // validate
+            let swiftVersion = (try? req.query.decode(Gitlab.Builder.PostDTO.self))
+                .flatMap { $0.variables["SWIFT_VERSION"] }
+            XCTAssertEqual(swiftVersion, "6.0")
+        }
+
+        // MUT
+        _ = try Gitlab.Builder.triggerBuild(client: client,
+                                            buildId: .id0,
+                                            cloneURL: "https://github.com/daveverwer/LeftPad.git",
+                                            isDocBuild: false,
+                                            platform: .macosSpm,
+                                            reference: .tag(.init(1, 2, 3)),
+                                            swiftVersion: .v6_0,
+                                            versionID: .id1).wait()
+        XCTAssertTrue(called)
     }
 
     func test_getStatusCount() throws {
