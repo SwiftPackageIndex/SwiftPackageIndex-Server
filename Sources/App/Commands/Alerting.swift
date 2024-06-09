@@ -221,7 +221,7 @@ extension [Alerting.BuildInfo] {
             notSeen.remove(build.swiftVersion)
             if notSeen.isEmpty { return .ok }
         }
-        return .failed(reasons: notSeen.sorted().map { "Missing Swift version: \($0)" })
+        return .failed(reasons: notSeen.sorted().map { "Missing Swift version: \($0, droppingZeroes: .patch)" })
     }
 
     func validatePlatformsSuccessful() -> Alerting.Validation {
@@ -239,7 +239,7 @@ extension [Alerting.BuildInfo] {
             noSuccess.remove(build.swiftVersion)
             if noSuccess.isEmpty { return .ok }
         }
-        return .failed(reasons: noSuccess.sorted().map { "Swift version without successful builds: \($0)" })
+        return .failed(reasons: noSuccess.sorted().map { "Swift version without successful builds: \($0, droppingZeroes: .patch)" })
     }
 
     func validateRunnerIdsPresent() -> Alerting.Validation {
