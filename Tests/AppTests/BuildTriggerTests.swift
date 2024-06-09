@@ -425,10 +425,10 @@ class BuildTriggerTests: AppTestCase {
         let swiftVersions = queries.value.compactMap { $0.variables["SWIFT_VERSION"] }
         XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
                         .mapValues(\.count),
-                       ["\(SwiftVersion.v1)": 6,
-                        "\(SwiftVersion.v2)": 7,
-                        "\(SwiftVersion.v3)": 7,
-                        "\(SwiftVersion.v4)": 7])
+                       [SwiftVersion.v1.description(droppingZeroes: .patch): 6,
+                        SwiftVersion.v2.description(droppingZeroes: .patch): 7,
+                        SwiftVersion.v3.description(droppingZeroes: .patch): 7,
+                        SwiftVersion.v4.description(droppingZeroes: .patch): 7])
 
         // ensure the Build stubs are created to prevent re-selection
         let v = try await Version.find(versionId, on: app.db)

@@ -38,14 +38,37 @@ extension SwiftVersion: LosslessStringConvertible {
         self = .init(major, Int(groups[1]) ?? 0, Int(groups[2]) ?? 0)
     }
 
-    var description: String {
-        switch (major, minor, patch) {
-            case let (major, 0, 0):
-                return "\(major)"
-            case let (major, minor, 0):
-                return "\(major).\(minor)"
-            default:
+    enum ZeroStrategy {
+        case none
+        case all
+        case patch
+    }
+
+    var description: String { description(droppingZeroes: .none) }
+
+    func description(droppingZeroes zeroStrategy: ZeroStrategy) -> String {
+        switch zeroStrategy {
+            case .none:
                 return "\(major).\(minor).\(patch)"
+
+            case .all:
+                switch (major, minor, patch) {
+                    case let (major, 0, 0):
+                        return "\(major)"
+                    case let (major, minor, 0):
+                        return "\(major).\(minor)"
+                    default:
+                        return "\(major).\(minor).\(patch)"
+                }
+
+            case .patch:
+                switch (major, minor, patch) {
+                    case let (major, minor, 0):
+                        return "\(major).\(minor)"
+                    default:
+                        return "\(major).\(minor).\(patch)"
+                }
+
         }
     }
 }

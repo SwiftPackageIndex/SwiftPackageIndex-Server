@@ -34,7 +34,7 @@ extension API.PackageController.GetRoute.Model {
     static func makeModelVersion(packageUrl: String, version: App.Version) -> Version? {
         guard let link = makeLink(packageUrl: packageUrl, version: version) else { return nil }
         return Self.Version(link: link,
-                            swiftVersions: version.swiftVersions.map(\.description),
+                            swiftVersions: version.swiftVersions.map { $0.description(droppingZeroes: .all) },
                             platforms: version.supportedPlatforms)
     }
 
