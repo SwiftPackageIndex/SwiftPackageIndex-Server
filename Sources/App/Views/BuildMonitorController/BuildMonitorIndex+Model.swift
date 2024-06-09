@@ -96,7 +96,7 @@ extension BuildMonitorIndex {
                         reference.referenceNode(kind: referenceKind)
                     ),
                     .div(
-                        .text("Swift \(swiftVersion)")
+                        .text("Swift \(swiftVersion, droppingZeroes: .patch)")
                     ),
                     .div(
                         .text(platform.displayName)

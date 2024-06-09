@@ -83,6 +83,13 @@ extension SwiftVersion: Comparable {
 }
 
 
+extension DefaultStringInterpolation {
+    mutating func appendInterpolation(_ swiftVersion: SwiftVersion, droppingZeroes zeroStrategy: SwiftVersion.ZeroStrategy = .none) {
+        appendInterpolation(swiftVersion.description(droppingZeroes: zeroStrategy))
+    }
+}
+
+
 extension SwiftVersion {
     func isCompatible(with other: SwiftVersion) -> Bool {
         major == other.major && minor == other.minor
