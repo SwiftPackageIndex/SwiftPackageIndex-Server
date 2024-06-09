@@ -227,8 +227,8 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.version, "1.2.3")
         XCTAssertEqual(res.summary, "Bar")
         XCTAssertEqual(res.verifiedCompatibility, [
-            .init(platform: .init(name: "ios"), swiftVersion: .init("5.7")),
-            .init(platform: .init(name: "macos"), swiftVersion: .init("5.8")),
+            .init(platform: .init(name: "ios"), swiftVersion: .init("5.8")),
+            .init(platform: .init(name: "macos"), swiftVersion: .init("5.9")),
         ])
         XCTAssertEqual(res.license, .init(name: "MIT", url: URL(string: "https://foo/mit")!))
         XCTAssertEqual(res.createdAt, Date(timeIntervalSince1970: 0))
@@ -738,7 +738,7 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.map(\.platform).sorted(),
                        [.init(name: "ios"), .init(name: "ios"), .init(name: "ios")])
         XCTAssertEqual(res.map(\.swiftVersion).sorted(),
-                       ["\(SwiftVersion.v1)", "\(SwiftVersion.v2)", "\(SwiftVersion.v3)"])
+                       [SwiftVersion.v1, .v2, .v3].map { $0.description(droppingZeroes: .patch) }.sorted())
     }
 
     func test_authorLabel() throws {
