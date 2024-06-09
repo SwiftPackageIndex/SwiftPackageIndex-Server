@@ -363,7 +363,7 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(queries.count, 1)
         XCTAssertEqual(queries.value.map { $0.variables["VERSION_ID"] }, [versionId.uuidString])
         XCTAssertEqual(queries.value.map { $0.variables["BUILD_PLATFORM"] }, ["ios"])
-        XCTAssertEqual(queries.value.map { $0.variables["SWIFT_VERSION"] }, ["5.7"])
+        XCTAssertEqual(queries.value.map { $0.variables["SWIFT_VERSION"] }, ["5.8"])
 
         // ensure the Build stubs is created to prevent re-selection
         let v = try await Version.find(versionId, on: app.db)
@@ -409,9 +409,9 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         // ensure Gitlab requests go out
-        XCTAssertEqual(queries.count, 26)
+        XCTAssertEqual(queries.count, 27)
         XCTAssertEqual(queries.value.map { $0.variables["VERSION_ID"] },
-                       Array(repeating: versionId.uuidString, count: 26))
+                       Array(repeating: versionId.uuidString, count: 27))
         let buildPlatforms = queries.value.compactMap { $0.variables["BUILD_PLATFORM"] }
         XCTAssertEqual(Dictionary(grouping: buildPlatforms, by: { $0 })
                         .mapValues(\.count),
@@ -420,20 +420,20 @@ class BuildTriggerTests: AppTestCase {
                         "macos-xcodebuild": 4,
                         "linux": 4,
                         "watchos": 4,
-                        "visionos": 2,
+                        "visionos": 3,
                         "tvos": 4])
         let swiftVersions = queries.value.compactMap { $0.variables["SWIFT_VERSION"] }
         XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
                         .mapValues(\.count),
                        ["\(SwiftVersion.v1)": 6,
-                        "\(SwiftVersion.v2)": 6,
+                        "\(SwiftVersion.v2)": 7,
                         "\(SwiftVersion.v3)": 7,
                         "\(SwiftVersion.v4)": 7])
 
         // ensure the Build stubs are created to prevent re-selection
         let v = try await Version.find(versionId, on: app.db)
         try await v?.$builds.load(on: app.db)
-        XCTAssertEqual(v?.builds.count, 26)
+        XCTAssertEqual(v?.builds.count, 27)
 
         // ensure re-selection is empty
         let candidates = try await fetchBuildCandidates(app.db)
