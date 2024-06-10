@@ -36,7 +36,7 @@ let package = Package(
         .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "1.2.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion.git", from: "0.3.0"),
         .package(url: "https://github.com/SwiftPackageIndex/ShellOut.git", from: "3.1.4"),
-        .package(url: "https://github.com/apple/swift-package-manager.git", revision: "swift-5.9-RELEASE"),
+        .package(url: "https://github.com/apple/swift-package-manager.git", revision: "swift-5.10.1-RELEASE"),
         .package(url: "https://github.com/dankinsoid/VaporToOpenAPI.git", from: "4.4.4"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "1.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0"),
