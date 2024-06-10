@@ -49,7 +49,7 @@
     {
       "identity" : "dependencyresolution",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SwiftPackageIndex/DependencyResolution",
+      "location" : "https://github.com/SwiftPackageIndex/DependencyResolution.git",
       "state" : {
         "revision" : "9e0373749a7577384c058a507716abc59edcbfb6",
         "version" : "1.2.0"
@@ -103,7 +103,7 @@
     {
       "identity" : "jwt-kit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/vapor/jwt-kit",
+      "location" : "https://github.com/vapor/jwt-kit.git",
       "state" : {
         "revision" : "c2595b9ad7f512d7f334830b4df1fed6e917946a",
         "version" : "4.13.4"
@@ -157,7 +157,7 @@
     {
       "identity" : "semanticversion",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SwiftPackageIndex/SemanticVersion",
+      "location" : "https://github.com/SwiftPackageIndex/SemanticVersion.git",
       "state" : {
         "revision" : "ea8eea9d89842a29af1b8e6c7677f1c86e72fa42",
         "version" : "0.4.0"
@@ -175,7 +175,7 @@
     {
       "identity" : "shellquote",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SwiftPackageIndex/ShellQuote",
+      "location" : "https://github.com/SwiftPackageIndex/ShellQuote.git",
       "state" : {
         "revision" : "5f555550c30ef43d64b36b40c2c291a95d62580c",
         "version" : "1.0.2"
@@ -265,7 +265,7 @@
     {
       "identity" : "swift-case-paths",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-case-paths",
+      "location" : "https://github.com/pointfreeco/swift-case-paths.git",
       "state" : {
         "revision" : "b871e5ed11a23e52c2896a92ce2c829982ff8619",
         "version" : "1.4.2"
@@ -409,7 +409,7 @@
     {
       "identity" : "swift-numerics",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-numerics",
+      "location" : "https://github.com/apple/swift-numerics.git",
       "state" : {
         "revision" : "0a5bc04095a675662cf24757cc0640aa2204253b",
         "version" : "1.0.2"
@@ -544,7 +544,7 @@
     {
       "identity" : "xctest-dynamic-overlay",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
+      "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay.git",
       "state" : {
         "revision" : "6f30bdba373bbd7fbfe241dddd732651f2fbd1e2",
         "version" : "1.1.2"
