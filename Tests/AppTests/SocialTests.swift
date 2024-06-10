@@ -249,7 +249,7 @@ class SocialTests: AppTestCase {
         try? await Mastodon.post(client: app.client, message: message) { encoded in
             assertInlineSnapshot(of: encoded, as: .lines) {
                 """
-                https://mas.to/api/v1/statuses?status=%E2%AC%86%EF%B8%8F%20owner%20just%20released%20packageName%20v2.6.4%0A%0Ahttp://localhost:8080/owner/SuperAwesomePackage%23releases
+                https://mas.to/api/v1/statuses?status=%E2%AC%86%EF%B8%8F%20owner%20just%20released%20packageName%20v2.6.4%0A%0Ahttp%3A%2F%2Flocalhost%3A8080%2Fowner%2FSuperAwesomePackage%23releases
                 """
             }
         }
