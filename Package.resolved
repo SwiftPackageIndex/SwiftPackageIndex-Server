@@ -1,5 +1,5 @@
 {
-  "originHash" : "14bb408875072060274c599fbebf52170bb03ece4eee068218d2193b9a53710b",
+  "originHash" : "8cc92b661c0d0d82c2b5a383caeb509a4f5175b51e0c37edf42b49366bb9d3e5",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -60,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent.git",
       "state" : {
-        "revision" : "a586a5d4164f23a0ee4e02e1f467b9bbef0c9f1c",
-        "version" : "4.9.0"
+        "revision" : "dfcbeba27a576c20ff181d496f21ecd45d2c1a71",
+        "version" : "4.11.0"
       }
     },
     {
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-kit.git",
       "state" : {
-        "revision" : "ed4cfa9edcadda3bf1b02a9842cfb60b8cf9b77b",
-        "version" : "1.48.3"
+        "revision" : "d69efce21242ad4dba6935cc1b8d5637281604d5",
+        "version" : "1.48.5"
       }
     },
     {
@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-postgres-driver.git",
       "state" : {
-        "revision" : "2cc10e86a743c66cd60082174f602e3c223543dc",
-        "version" : "2.9.0"
+        "revision" : "e2988a8c960196eca2891f3a0bb1caad9044e7ea",
+        "version" : "2.9.2"
       }
     },
     {
@@ -114,8 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/multipart-kit.git",
       "state" : {
-        "revision" : "12ee56f25bd3fc4c2d09c2aa16e69de61dc786e8",
-        "version" : "4.6.0"
+        "revision" : "a31236f24bfd2ea2f520a74575881f6731d7ae68",
+        "version" : "4.7.0"
       }
     },
     {
@@ -213,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/sql-kit.git",
       "state" : {
-        "revision" : "9afdc96113b673819ccdc4819f77e901c698a87a",
-        "version" : "3.29.3"
+        "revision" : "14f43509df4fc6eb585f81777ad100730a3ca680",
+        "version" : "3.31.0"
       }
     },
     {
@@ -276,8 +276,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-certificates.git",
       "state" : {
-        "revision" : "01d7664523af5c169f26038f1e5d444ce47ae5ff",
-        "version" : "1.0.1"
+        "revision" : "83640c8097acaec17c9835a083e89678cb0f2b66",
+        "version" : "1.3.0"
       }
     },
     {
@@ -285,8 +285,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections.git",
       "state" : {
-        "revision" : "d029d9d39c87bed85b1c50adee7c41795261a192",
-        "version" : "1.0.6"
+        "revision" : "ee97538f5b81ae89698fd95938896dec5217b148",
+        "version" : "1.1.1"
       }
     },
     {
@@ -357,8 +357,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "702cd7c56d5d44eeba73fdf83918339b26dc855c",
-        "version" : "2.62.0"
+        "revision" : "9428f62793696d9a0cc1f26a63f63bb31da0516d",
+        "version" : "2.66.0"
       }
     },
     {
@@ -409,10 +409,10 @@
     {
       "identity" : "swift-package-manager",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-package-manager.git",
+      "location" : "https://github.com/finestructure/swift-package-manager.git",
       "state" : {
-        "branch" : "swift-5.10.1-RELEASE",
-        "revision" : "54d135fb1fc8ef2041f1525e98d0ef14c23e9e64"
+        "branch" : "spi-dependency-update",
+        "revision" : "780a200e09a7c3df7acdd7bd9ad9bcf7430c1ebc"
       }
     },
     {
@@ -456,8 +456,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-system.git",
       "state" : {
-        "revision" : "836bc4557b74fe6d2660218d56e3ce96aff76574",
-        "version" : "1.1.1"
+        "revision" : "f9266c85189c2751589a50ea5aec72799797e471",
+        "version" : "1.3.0"
       }
     },
     {
@@ -501,8 +501,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "3e3d65b05a280aaecdd33e45f71655b5d9118a00",
-        "version" : "4.93.2"
+        "revision" : "a46552bf135ebc4a0a4768a1ee2c7258fff32616",
+        "version" : "4.101.2"
       }
     },
     {
