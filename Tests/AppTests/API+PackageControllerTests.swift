@@ -336,9 +336,9 @@ class API_PackageControllerTests: AppTestCase {
         XCTAssertEqual(res.platform?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res.platform?.beta?.referenceName, "2.0.0-b1")
         XCTAssertEqual(res.swiftVersion?.latest?.referenceName, "main")
-        XCTAssertEqual(res.swiftVersion?.latest?.results[.v5_9], .compatible)
-        XCTAssertEqual(res.swiftVersion?.latest?.results[.v5_8], .incompatible)
-        XCTAssertEqual(res.swiftVersion?.latest?.results[.v5_7], .unknown)
+        XCTAssertEqual(res.swiftVersion?.latest?.results[.v5_10], .compatible)
+        XCTAssertEqual(res.swiftVersion?.latest?.results[.v5_9], .incompatible)
+        XCTAssertEqual(res.swiftVersion?.latest?.results[.v5_8], .unknown)
         XCTAssertEqual(res.swiftVersion?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res.swiftVersion?.beta?.referenceName, "2.0.0-b1")
     }

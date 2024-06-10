@@ -20,6 +20,13 @@ import XCTest
 
 class GitlabBuilderTests: AppTestCase {
 
+    func test_SwiftVersion_rendering() throws {
+        XCTAssertEqual("\(SwiftVersion.v4)", "6.0.0")
+        XCTAssertEqual(SwiftVersion.v4.description(droppingZeroes: .none), "6.0.0")
+        XCTAssertEqual(SwiftVersion.v4.description(droppingZeroes: .patch), "6.0")
+        XCTAssertEqual(SwiftVersion.v4.description(droppingZeroes: .all), "6")
+    }
+
     func test_variables_encoding() async throws {
         // Ensure the POST variables are encoded correctly
         // setup
