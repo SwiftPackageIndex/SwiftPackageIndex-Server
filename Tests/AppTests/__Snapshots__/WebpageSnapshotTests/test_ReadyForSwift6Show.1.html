@@ -83,10 +83,13 @@
         <h2>Ready for Swift 6</h2>
         <p>The Swift 6 language mode prevents data-races at compile time. When you opt into Swift 6 mode, the compiler will produce errors when your code has a risk of concurrent access, turning hard-to-debug runtime failures into compiler errors.</p>
         <p>To track the progress of the Swift package ecosystem, the Swift Package Index is running regular package compatibility checks across all packages in the index.</p>
-        <h3>Total packages compatible with Swift 6</h3>
+        <p>For help migrating your project's code, see the 
+          <a href="http://swift.org/migration">Swift 6 language mode migration guide</a>.
+        </p>
+        <h3>Total packages with Swift 6 zero data-race safety errors</h3>
         <p>Packages with zero data-race safety compiler diagnostics during a successful build on at least one tested platform.</p>
         <p>Couldn’t load chart data.</p>
-        <h3>Total Swift 6 concurrency errors</h3>
+        <h3>Total Swift 6 data-race safety errors</h3>
         <p>The total number of all data-race safety diagnostics across 
           <em>all</em> packages.
         </p>
