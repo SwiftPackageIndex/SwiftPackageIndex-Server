@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
+
 extension BuildShow {
 
     struct Model {
@@ -22,13 +25,16 @@ extension BuildShow {
         var buildInfo: BuildInfo
         var versionId: Version.Id
         var reference : String
+        var commit: CommitHash
+        var buildDate: Date
 
         init?(result: BuildResult, logs: String?) {
             guard
                 let repositoryOwner = result.repository.owner,
                 let repositoryName = result.repository.name,
                 let buildInfo = BuildInfo(build: result.build, logs: logs),
-                let versionId = result.version.id
+                let versionId = result.version.id,
+                let buildDate = result.build.updatedAt
             else { return nil }
             self.init(buildInfo: buildInfo,
                       packageName: result.version.packageName ?? repositoryName,
@@ -36,7 +42,9 @@ extension BuildShow {
                       repositoryOwnerName: result.repository.ownerName ?? repositoryOwner,
                       repositoryName: repositoryName,
                       versionId: versionId,
-                      reference: "\(result.version.reference)")
+                      reference: "\(result.version.reference)",
+                      commit: result.version.commit,
+                      buildDate: buildDate)
         }
 
         internal init(buildInfo: BuildInfo,
@@ -45,7 +53,9 @@ extension BuildShow {
                       repositoryOwnerName: String,
                       repositoryName: String,
                       versionId: Version.Id,
-                      reference: String) {
+                      reference: String,
+                      commit: CommitHash,
+                      buildDate: Date) {
             self.buildInfo = buildInfo
             self.packageName = packageName
             self.repositoryOwner = repositoryOwner
@@ -53,6 +63,8 @@ extension BuildShow {
             self.repositoryName = repositoryName
             self.versionId = versionId
             self.reference = reference
+            self.commit = commit
+            self.buildDate = buildDate
         }
     }
 

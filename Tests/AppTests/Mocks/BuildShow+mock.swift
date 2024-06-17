@@ -31,7 +31,9 @@ extension BuildShow.Model {
             repositoryOwnerName: "Foo",
             repositoryName: "bar",
             versionId: UUID("cafecafe-cafe-cafe-cafe-cafecafecafe")!,
-            reference: "main"
+            reference: "main",
+            commit: "71b4d8e3445caa8623fa65169f83eae2a6111925",
+            buildDate: .example
         )
     }
 }
