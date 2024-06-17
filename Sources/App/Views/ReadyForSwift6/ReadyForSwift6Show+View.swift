@@ -40,23 +40,18 @@ extension ReadyForSwift6Show {
                 .h2("Ready for Swift 6"),
                 .p("The Swift 6 language mode prevents data-races at compile time. When you opt into Swift 6 mode, the compiler will produce errors when your code has a risk of concurrent access, turning hard-to-debug runtime failures into compiler errors."),
                 .p("To track the progress of the Swift package ecosystem, the Swift Package Index is running regular package compatibility checks across all packages in the index."),
-                // TODO: Comment back in when the URLs to the migration guide and/or launch post are available.
-                // .p(
-                //     .text("For help migrating your code, see the "),
-                //     .a(
-                //         .href("https://example.com"),
-                //         .text("Swift 6 language mode migration guide")
-                //     ),
-                //     .text(" or the "),
-                //     .a(
-                //         .href("https://example.com"),
-                //         .text("Swift 6 release blog post")
-                //     )
-                // ),
-                .h3("Total packages compatible with Swift 6"),
+                .p(
+                    .text("For help migrating your project's code, see the "),
+                    .a(
+                        .href("http://swift.org/migration"),
+                        .text("Swift 6 language mode migration guide")
+                    ),
+                    .text(".")
+                ),
+                .h3("Total packages with Swift 6 zero data-race safety errors"),
                 .p("Packages with zero data-race safety compiler diagnostics during a successful build on at least one tested platform."),
                 model.readyForSwift6Chart(kind: .compatiblePackages),
-                .h3("Total Swift 6 concurrency errors"),
+                .h3("Total Swift 6 data-race safety errors"),
                 .p(
                     .text("The total number of all data-race safety diagnostics across "),
                     .em("all"),
