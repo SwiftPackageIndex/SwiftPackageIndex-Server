@@ -12,14 +12,14 @@
         "@hotwired/turbo": "^7.3.0",
         "highlight.js": "^11.9.0",
         "normalize.css": "^8.0.1",
-        "vega": "^5.29.0",
+        "vega": "^5.30.0",
         "vega-tooltip": "^0.34.0"
     },
     "devDependencies": {
         "esbuild": "^0.21.5",
         "esbuild-sass-plugin": "^3.3.1",
         "postcss": "^8.4.38",
-        "prettier": "^3.3.1",
+        "prettier": "^3.3.2",
         "stylelint": "^16.6.1",
         "stylelint-config-standard-scss": "^13.1.0",
         "stylelint-order": "^6.0.4",
