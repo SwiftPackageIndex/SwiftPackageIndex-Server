@@ -17,43 +17,49 @@
 // -------------------------------------------------------------------------
 
 div[data-controller='vega-chart'] {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr;
     padding: 20px;
     color: var(--black);
     background-color: var(--very-very-light-grey);
     border: 1px solid var(--light-grey);
 
-    form.legend {
+    form label {
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+        align-items: center;
+    }
+
+    form.totals {
+        justify-self: right;
+        margin-bottom: 10px;
+        font-size: 13px;
+    }
+
+    form.plots {
         display: flex;
         flex-direction: row;
         gap: 20px;
+        justify-content: center;
         padding: 10px;
 
-        label {
-            display: flex;
-            flex-direction: row;
-            gap: 5px;
-            align-items: center;
+        label .line {
+            position: relative;
+            width: 30px;
+            height: 3px;
+            background-color: black; // Overridden with a `style` attribute.
 
-            .line {
-                position: relative;
-                width: 30px;
-                height: 3px;
-                background-color: black; // Overridden with a `style` attribute.
-
-                &::before {
-                    content: '';
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    width: 10px;
-                    height: 10px;
-                    background-color: inherit;
-                    border-radius: 50%;
-                    transform: translate(-50%, -50%);
-                }
+            &::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 10px;
+                height: 10px;
+                background-color: inherit;
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
             }
         }
 
