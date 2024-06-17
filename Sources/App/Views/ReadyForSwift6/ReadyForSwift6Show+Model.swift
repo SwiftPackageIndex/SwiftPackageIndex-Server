@@ -24,7 +24,7 @@ enum ReadyForSwift6Show {
             case totalErrors
         }
 
-        func readyForSwift6Chart(kind: ChartKind) -> Node<HTML.BodyContext> {
+        func readyForSwift6Chart(kind: ChartKind, includeTotals: Bool = false) -> Node<HTML.BodyContext> {
             let plotDataPath = Current.fileManager.workingDirectory().appending("Resources/ChartData/\(kind.dataFile)")
             let eventDataPath = Current.fileManager.workingDirectory().appending("Resources/ChartData/rfs6-events.json")
             guard let plotData = Current.fileManager.contents(atPath: plotDataPath)?.compactJson(),
@@ -34,6 +34,7 @@ enum ReadyForSwift6Show {
             return .div(
                 .data(named: "controller", value: "vega-chart"),
                 .data(named: "vega-chart-class-value", value: kind.jsClassName),
+                .data(named: "include-totals", value: String(includeTotals)),
                 .script(
                     .data(named: "vega-chart-target", value: "plotData"),
                     .attribute(named: "type", value: "application/json"),

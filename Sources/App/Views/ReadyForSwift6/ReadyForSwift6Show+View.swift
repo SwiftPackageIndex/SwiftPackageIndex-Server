@@ -53,7 +53,7 @@ extension ReadyForSwift6Show {
                     "Total packages with Swift 6 zero data-race safety errors"
                 ),
                 .p("Packages with zero data-race safety compiler diagnostics during a successful build on at least one tested platform."),
-                model.readyForSwift6Chart(kind: .compatiblePackages),
+                model.readyForSwift6Chart(kind: .compatiblePackages, includeTotals: true),
                 .h3(
                     .id("total-errors"),
                     "Total Swift 6 data-race safety errors"
