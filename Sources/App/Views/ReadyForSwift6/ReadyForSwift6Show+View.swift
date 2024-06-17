@@ -49,14 +49,14 @@ extension ReadyForSwift6Show {
                     .text(".")
                 ),
                 .h3(
-                    .id("total-compatible"),
-                    "Total packages compatible with Swift 6"
+                    .id("total-zero-errors"),
+                    "Total packages with Swift 6 zero data-race safety errors"
                 ),
                 .p("Packages with zero data-race safety compiler diagnostics during a successful build on at least one tested platform."),
                 model.readyForSwift6Chart(kind: .compatiblePackages),
                 .h3(
                     .id("total-errors"),
-                    "Total Swift 6 concurrency errors"
+                    "Total Swift 6 data-race safety errors"
                 ),
                 .p(
                     .text("The total number of all data-race safety diagnostics across "),
