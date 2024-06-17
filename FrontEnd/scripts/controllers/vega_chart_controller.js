@@ -290,12 +290,12 @@ class ReadyForSwift6Chart {
 
 class CompatiblePackagesChart extends ReadyForSwift6Chart {
     static yAxisTitle() {
-        return 'Number of compatible packages'
+        return 'Number of packages without data race errors'
     }
 }
 
 class TotalErrorsChart extends ReadyForSwift6Chart {
     static yAxisTitle() {
-        return 'Total errors across all packages'
+        return 'Total data race errors across all packages'
     }
 }
