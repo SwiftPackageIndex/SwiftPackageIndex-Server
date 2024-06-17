@@ -25,6 +25,11 @@ export class VegaChartController extends Controller {
         window.CompatiblePackagesChart = CompatiblePackagesChart
         window.TotalErrorsChart = TotalErrorsChart
 
+        // Render the "Show totals" checkbox, if applicable.
+        if (this.element.dataset.includeTotals === 'true') {
+            this.element.appendChild(this.totalsForm())
+        }
+
         // Render the chart container.
         const chartContainerElement = document.createElement('div')
         chartContainerElement.classList.add('chart-container')
@@ -32,15 +37,37 @@ export class VegaChartController extends Controller {
 
         // Render the UI for the data set inclusion checkboxes.
         const data = JSON.parse(this.plotDataTarget.textContent)
-        this.element.appendChild(this.seriesCheckboxForm(data))
+        this.element.appendChild(this.plotsForm(data))
 
         // Render the initial chart.
         this.renderChart()
     }
 
-    seriesCheckboxForm(data) {
+    totalsForm() {
         const formElement = document.createElement('form')
-        formElement.classList.add('legend')
+        formElement.classList.add('totals')
+
+        const labelElement = document.createElement('label')
+        formElement.appendChild(labelElement)
+
+        const checkboxElement = document.createElement('input')
+        checkboxElement.type = 'checkbox'
+        checkboxElement.name = 'totals'
+        checkboxElement.checked = true
+        checkboxElement.addEventListener('change', () => {
+            this.renderChart()
+        })
+        labelElement.appendChild(checkboxElement)
+
+        const labelTextElement = document.createTextNode('Show totals')
+        labelElement.appendChild(labelTextElement)
+
+        return formElement
+    }
+
+    plotsForm(data) {
+        const formElement = document.createElement('form')
+        formElement.classList.add('plots')
         data.forEach((dataSet) => {
             const labelElement = document.createElement('label')
             formElement.appendChild(labelElement)
@@ -68,8 +95,8 @@ export class VegaChartController extends Controller {
     }
 
     updateCheckboxUI() {
-        const checkboxElements = this.element.querySelectorAll('input[type="checkbox"]')
-        const checkedCheckboxElements = this.element.querySelectorAll('input[type="checkbox"]:checked')
+        const checkboxElements = this.element.querySelectorAll('form.plots input[type="checkbox"]')
+        const checkedCheckboxElements = this.element.querySelectorAll('form.plots input[type="checkbox"]:checked')
 
         if (checkedCheckboxElements.length === 1) {
             // Only disable the remaining checked checkbox to allow the others to still be responsive.
@@ -92,13 +119,15 @@ export class VegaChartController extends Controller {
             includedDataSets.includes(dataSet.id)
         )
 
+        const includeTotals = this.element.querySelector('form.totals input[type="checkbox"]:checked') ?? false
+
         const tooltip = new vegaTooltip.Handler({
             offsetX: 15,
             offsetY: 5,
         })
 
         const chartClass = window[this.classValue]
-        new vega.View(vega.parse(chartClass.spec(plotData, eventData)), {
+        new vega.View(vega.parse(chartClass.spec(includeTotals, plotData, eventData)), {
             renderer: 'canvas',
             container: this.element.querySelector('.chart-container'),
             hover: true,
@@ -108,7 +137,7 @@ export class VegaChartController extends Controller {
 }
 
 class ReadyForSwift6Chart {
-    static spec(plotData, eventData) {
+    static spec(includeTotals, plotData, eventData) {
         return {
             $schema: 'https://vega.github.io/schema/vega/v5.json',
             width: 700,
@@ -116,9 +145,13 @@ class ReadyForSwift6Chart {
             config: this.config(),
             data: this.plotData(plotData).concat(this.eventData(eventData)),
             signals: this.signals(plotData),
-            scales: this.scales(plotData),
+            scales: this.scales(plotData, includeTotals),
             axes: this.axes(),
-            marks: plotData.flatMap((dataSet) => this.plotMarks(dataSet)).concat(this.eventMarks(eventData)),
+            marks: plotData
+                .flatMap((dataSet) => this.plotMarks(dataSet))
+                .concat(this.totalsMarks(includeTotals, plotData))
+                .concat(this.eventMarks(eventData)),
+            // marks: this.totalsMarks(includeTotals, plotData),
         }
     }
 
@@ -172,16 +205,27 @@ class ReadyForSwift6Chart {
     static signals(data) {
         return [
             {
+                name: 'maxXScale',
+                update: "domain('xscale')[1]",
+            },
+            {
                 name: 'maxYScale',
                 update: "domain('yscale')[1]",
             },
         ]
     }
 
-    static scales(data) {
-        const maxYScale = data
-            .flatMap((dataSet) => dataSet.values.map((element) => element['value']))
+    static scales(data, includeTotals) {
+        var maxYScale = data
+            .flatMap((dataSet) => dataSet.values.map((element) => element.value))
             .reduce((max, value) => Math.max(max, value), 0)
+
+        if (includeTotals) {
+            maxYScale = Math.max(
+                maxYScale,
+                data.reduce((max, dataSet) => Math.max(max, dataSet?.total ?? 0), 0)
+            )
+        }
 
         return [
             {
@@ -272,6 +316,32 @@ class ReadyForSwift6Chart {
                 },
             },
         ]
+    }
+
+    static totalsMarks(includeTotals, data) {
+        if (includeTotals === false) {
+            return []
+        }
+
+        return []
+
+        // const marks = data.map((dataSet) => {
+        //     return {
+        //         type: 'rect',
+        //         from: { data: dataSet.id },
+        //         encode: {
+        //             enter: {
+        //                 x: { scale: 'xscale', value: 0 },
+        //                 x2: { scale: 'xscale', signal: 'maxXScale' },
+        //                 yc: { scale: 'yscale', value: 200 },
+        //                 height: { value: 5 },
+        //                 fill: { value: this.colorForDataSet(dataSet.id) },
+        //             },
+        //         },
+        //     }
+        // })
+        // console.log(JSON.stringify(marks, null, 2))
+        // return marks
     }
 
     static colorForDataSet(dataSetId) {
