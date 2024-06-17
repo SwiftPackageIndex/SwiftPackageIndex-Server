@@ -310,7 +310,6 @@ extension API.PackageController.GetRoute.Model {
     }
 
     func dataRaceSafeListItem() -> Node<HTML.ListContext> {
-        guard Current.environment() != .production else { return .empty }
         guard let swift6Readiness else { return .empty }
 
         return .li(
