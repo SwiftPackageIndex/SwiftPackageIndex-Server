@@ -132,7 +132,7 @@ extension ReadyForSwift6Show {
                 ),
                 .p(
                     .strong(.text("A: ")),
-                    .text("We are not testing every package in the index. Instead, we are testing packages that are under some kind of active development. For this test, we define “all packages” in the chart to be any package having at least one commit to their repository in the last year. We took a snapshot of active packages on the 19th of March 2024, and the “all packages” data set includes 3,393 packages. The data set also excludes any new packages added after the 19th March.")
+                    .text("We are not testing every package in the index. Instead, we are testing packages that are under some kind of active development. For this test, we define “all packages” in the chart to be any package having at least one commit to their repository in the last year. We took a snapshot of active packages on the 19th of March 2024, and the “all packages” data set includes 3,396 packages. The data set also excludes any new packages added after the 19th March.")
                 ),
                 .hr(
                     .class("minor")
