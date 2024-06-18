@@ -273,6 +273,10 @@ class ReadyForSwift6Chart {
         return ''
     }
 
+    static symbolTooltipLabelType() {
+        return ''
+    }
+
     static plotMarks(dataSet) {
         return [
             {
@@ -297,7 +301,7 @@ class ReadyForSwift6Chart {
                         size: { value: 60 },
                         fill: { value: this.colorForDataSet(dataSet.id) },
                         tooltip: {
-                            signal: "timeFormat(datum.date, '%b %d, %Y') + ' - ' + datum.value",
+                            signal: `{ 'Value' : datum.value + ' ${this.symbolTooltipLabelType()}', 'Date' : timeFormat(datum.date, '%b %d, %Y'), 'Toolchain' : datum.toolchainId,  '' : datum.toolchainLabel}`,
                         },
                     },
                 },
@@ -371,10 +375,18 @@ class CompatiblePackagesChart extends ReadyForSwift6Chart {
     static yAxisTitle() {
         return 'Number of packages with zero data race errors'
     }
+
+    static symbolTooltipLabelType() {
+        return 'packages'
+    }
 }
 
 class TotalErrorsChart extends ReadyForSwift6Chart {
     static yAxisTitle() {
         return 'Total data race errors across all packages'
+    }
+
+    static symbolTooltipLabelType() {
+        return 'errors'
     }
 }

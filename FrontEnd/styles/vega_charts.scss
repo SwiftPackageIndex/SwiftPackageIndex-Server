@@ -77,4 +77,8 @@ div[data-controller='vega-chart'] {
 
 #vg-tooltip-element {
     font-size: 14px;
+
+    table tr td.value {
+        max-width: inherit;
+    }
 }
