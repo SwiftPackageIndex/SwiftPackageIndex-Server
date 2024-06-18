@@ -2,54 +2,93 @@
   {
     "id" : "all",
     "name" : "All packages",
+    "total" : 3396,
     "values" : [
       {
         "date" : "2024-05-04",
+        "toolchainId" : "org.swift.600202404221a",
+        "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-04-22 (a)",
         "value" : 56917
       },
       {
         "date" : "2024-05-19",
+        "toolchainId" : "org.swift.600202405141a",
+        "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-05-14 (a)",
         "value" : 55304
       },
       {
         "date" : "2024-06-02",
+        "toolchainId" : "org.swift.600202405261a",
+        "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-05-26 (a)",
         "value" : 53456
+      },
+      {
+        "date" : "2024-06-18",
+        "toolchainId" : "com.apple.dt.Xcode",
+        "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 1 (16A5171c)",
+        "value" : 24433
       }
     ]
   },
   {
     "id" : "apple",
     "name" : "Apple packages",
+    "total" : 65,
     "values" : [
       {
         "date" : "2024-05-04",
+        "toolchainId" : "org.swift.600202404221a",
+        "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-04-22 (a)",
         "value" : 1392
       },
       {
         "date" : "2024-05-19",
+        "toolchainId" : "org.swift.600202405141a",
+        "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-05-14 (a)",
         "value" : 1416
       },
       {
         "date" : "2024-06-02",
+        "toolchainId" : "org.swift.600202405261a",
+        "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-05-26 (a)",
         "value" : 1375
+      },
+      {
+        "date" : "2024-06-18",
+        "toolchainId" : "com.apple.dt.Xcode",
+        "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 1 (16A5171c)",
+        "value" : 891
       }
     ]
   },
   {
     "id" : "sswg",
     "name" : "SSWG incubated packages",
+    "total" : 32,
     "values" : [
       {
         "date" : "2024-05-04",
+        "toolchainId" : "org.swift.600202404221a",
+        "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-04-22 (a)",
         "value" : 567
       },
       {
         "date" : "2024-05-19",
+        "toolchainId" : "org.swift.600202405141a",
+        "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-05-14 (a)",
         "value" : 881
       },
       {
         "date" : "2024-06-02",
+        "toolchainId" : "org.swift.600202405261a",
+        "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-05-26 (a)",
         "value" : 878
+      },
+      {
+        "date" : "2024-06-18",
+        "toolchainId" : "com.apple.dt.Xcode",
+        "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 1 (16A5171c)",
+        "value" : 876
       }
     ]
   }
