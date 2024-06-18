@@ -26,7 +26,7 @@
         "date" : "2024-06-18",
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 1 (16A5171c)",
-        "value" : 313
+        "value" : 304
       }
     ]
   },
@@ -57,7 +57,7 @@
         "date" : "2024-06-18",
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 1 (16A5171c)",
-        "value" : 9
+        "value" : 8
       }
     ]
   },
