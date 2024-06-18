@@ -96,10 +96,10 @@
         <p>Couldn’t load chart data.</p>
         <h3 id="faq">Frequently asked questions</h3>
         <p>
-          <strong>Q: </strong>What does “compatible” mean in the chart of compatible packages?
+          <strong>Q: </strong>What is a “data race safety error”?
         </p>
         <p>
-          <strong>A: </strong>We define compatibility in the same way we do on package pages. If any build of the package completes successfully on any of our tested platforms (macOS via SwiftPM, macOS via XcodeBuild, iOS, visionOS, watchOS, tvOS, or Linux) then that build is deemed compatible with the Swift version.
+          <strong>A: </strong>Swift 6 introduces complete concurrency checking, a compiler feature that checks your code for data-race safety. The number of data race safety errors reflects how many issues the compiler detected relating to these concurrency or data-race checks. The total errors chart plots the total number of these errors summed across all packages.
         </p>
         <hr class="minor"/>
         <p>
@@ -124,17 +124,10 @@
         </p>
         <hr class="minor"/>
         <p>
-          <strong>Q: </strong>What does “total concurrency errors” mean?
-        </p>
-        <p>
-          <strong>A: </strong>Swift 6 introduces complete concurrency checking, a compiler feature that checks your code for data-race safety. The number of concurrency errors reflects how many issues the compiler detected relating to these concurrency or data-race checks. The total errors chart plots the total number of these errors summed across all packages.
-        </p>
-        <hr class="minor"/>
-        <p>
           <strong>Q: </strong>What packages are in the “all packages” data set?
         </p>
         <p>
-          <strong>A: </strong>We are not testing every package in the index. Instead, we are testing packages that are under some kind of active development. For this test, we define “all packages” in the chart to be any package having at least one commit to their repository in the last year. We took a snapshot of active packages on the 19th of March 2024, and the “all packages” data set includes 3,393 packages. The data set also excludes any new packages added after the 19th March.
+          <strong>A: </strong>We are not testing every package in the index. Instead, we are testing packages that are under some kind of active development. For this test, we define “all packages” in the chart to be any package having at least one commit to their repository in the last year. We took a snapshot of active packages on the 19th of March 2024, and the “all packages” data set includes 3,396 packages. The data set also excludes any new packages added after the 19th March.
         </p>
         <hr class="minor"/>
         <p>

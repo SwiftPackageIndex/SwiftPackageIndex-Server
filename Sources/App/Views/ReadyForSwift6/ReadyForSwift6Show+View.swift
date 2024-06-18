@@ -53,7 +53,7 @@ extension ReadyForSwift6Show {
                     "Total packages with Swift 6 zero data-race safety errors"
                 ),
                 .p("Packages with zero data-race safety compiler diagnostics during a successful build on at least one tested platform."),
-                model.readyForSwift6Chart(kind: .compatiblePackages),
+                model.readyForSwift6Chart(kind: .compatiblePackages, includeTotals: true),
                 .h3(
                     .id("total-errors"),
                     "Total Swift 6 data-race safety errors"
@@ -70,11 +70,11 @@ extension ReadyForSwift6Show {
                 ),
                 .p(
                     .strong(.text("Q: ")),
-                    .text("What does “compatible” mean in the chart of compatible packages?")
+                    .text("What is a “data race safety error”?")
                 ),
                 .p(
                     .strong(.text("A: ")),
-                    .text("We define compatibility in the same way we do on package pages. If any build of the package completes successfully on any of our tested platforms (macOS via SwiftPM, macOS via XcodeBuild, iOS, visionOS, watchOS, tvOS, or Linux) then that build is deemed compatible with the Swift version.")
+                    .text("Swift 6 introduces complete concurrency checking, a compiler feature that checks your code for data-race safety. The number of data race safety errors reflects how many issues the compiler detected relating to these concurrency or data-race checks. The total errors chart plots the total number of these errors summed across all packages.")
                 ),
                 .hr(
                     .class("minor")
@@ -117,22 +117,11 @@ extension ReadyForSwift6Show {
                 ),
                 .p(
                     .strong(.text("Q: ")),
-                    .text("What does “total concurrency errors” mean?")
-                ),
-                .p(
-                    .strong(.text("A: ")),
-                    .text("Swift 6 introduces complete concurrency checking, a compiler feature that checks your code for data-race safety. The number of concurrency errors reflects how many issues the compiler detected relating to these concurrency or data-race checks. The total errors chart plots the total number of these errors summed across all packages.")
-                ),
-                .hr(
-                    .class("minor")
-                ),
-                .p(
-                    .strong(.text("Q: ")),
                     .text("What packages are in the “all packages” data set?")
                 ),
                 .p(
                     .strong(.text("A: ")),
-                    .text("We are not testing every package in the index. Instead, we are testing packages that are under some kind of active development. For this test, we define “all packages” in the chart to be any package having at least one commit to their repository in the last year. We took a snapshot of active packages on the 19th of March 2024, and the “all packages” data set includes 3,393 packages. The data set also excludes any new packages added after the 19th March.")
+                    .text("We are not testing every package in the index. Instead, we are testing packages that are under some kind of active development. For this test, we define “all packages” in the chart to be any package having at least one commit to their repository in the last year. We took a snapshot of active packages on the 19th of March 2024, and the “all packages” data set includes 3,396 packages. The data set also excludes any new packages added after the 19th March.")
                 ),
                 .hr(
                     .class("minor")

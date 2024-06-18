@@ -2,6 +2,7 @@
   {
     "id" : "all",
     "name" : "All packages",
+    "total": 3396,
     "values" : [
       {
         "date" : "2024-05-04",
@@ -20,6 +21,7 @@
   {
     "id" : "apple",
     "name" : "Apple packages",
+    "total" : 65,
     "values" : [
       {
         "date" : "2024-05-04",
@@ -38,6 +40,7 @@
   {
     "id" : "sswg",
     "name" : "SSWG incubated packages",
+    "total" : 32,
     "values" : [
       {
         "date" : "2024-05-04",
