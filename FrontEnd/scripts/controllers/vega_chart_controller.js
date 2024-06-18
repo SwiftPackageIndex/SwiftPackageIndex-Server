@@ -127,7 +127,8 @@ export class VegaChartController extends Controller {
         })
 
         const chartClass = window[this.classValue]
-        new vega.View(vega.parse(chartClass.spec(includeTotals, plotData, eventData)), {
+        const spec = chartClass.spec(includeTotals, plotData, eventData)
+        new vega.View(vega.parse(spec), {
             renderer: 'canvas',
             container: this.element.querySelector('.chart-container'),
             hover: true,
@@ -151,7 +152,6 @@ class ReadyForSwift6Chart {
                 .flatMap((dataSet) => this.plotMarks(dataSet))
                 .concat(this.totalsMarks(includeTotals, plotData))
                 .concat(this.eventMarks(eventData)),
-            // marks: this.totalsMarks(includeTotals, plotData),
         }
     }
 
@@ -205,8 +205,16 @@ class ReadyForSwift6Chart {
     static signals(data) {
         return [
             {
+                name: 'minXScale',
+                update: "domain('xscale')[0]",
+            },
+            {
                 name: 'maxXScale',
                 update: "domain('xscale')[1]",
+            },
+            {
+                name: 'minYScale',
+                update: "domain('yscale')[0]",
             },
             {
                 name: 'maxYScale',
@@ -305,10 +313,11 @@ class ReadyForSwift6Chart {
                 encode: {
                     enter: {
                         xc: { scale: 'xscale', field: 'date' },
-                        width: { value: 5 },
-                        y: { scale: 'yscale', value: 0 },
+                        width: { value: 1 },
+                        y: { scale: 'yscale', signal: 'minYScale' },
                         y2: { scale: 'yscale', signal: 'maxYScale' },
-                        fill: { value: '#bedeff' },
+                        fill: { value: '#000000' },
+                        opacity: { value: 0.3 },
                         tooltip: {
                             signal: 'datum.value',
                         },
@@ -323,25 +332,25 @@ class ReadyForSwift6Chart {
             return []
         }
 
-        return []
-
-        // const marks = data.map((dataSet) => {
-        //     return {
-        //         type: 'rect',
-        //         from: { data: dataSet.id },
-        //         encode: {
-        //             enter: {
-        //                 x: { scale: 'xscale', value: 0 },
-        //                 x2: { scale: 'xscale', signal: 'maxXScale' },
-        //                 yc: { scale: 'yscale', value: 200 },
-        //                 height: { value: 5 },
-        //                 fill: { value: this.colorForDataSet(dataSet.id) },
-        //             },
-        //         },
-        //     }
-        // })
-        // console.log(JSON.stringify(marks, null, 2))
-        // return marks
+        return data.map((dataSet) => {
+            return {
+                type: 'rect',
+                from: { data: dataSet.id },
+                encode: {
+                    enter: {
+                        x: { scale: 'xscale', signal: 'minXScale' },
+                        x2: { scale: 'xscale', signal: 'maxXScale' },
+                        yc: { scale: 'yscale', value: dataSet.total },
+                        height: { value: 1 },
+                        fill: { value: this.colorForDataSet(dataSet.id) },
+                        opacity: { value: 0.3 },
+                        tooltip: {
+                            value: `${dataSet.name} total: ${dataSet.total}`,
+                        },
+                    },
+                },
+            }
+        })
     }
 
     static colorForDataSet(dataSetId) {
