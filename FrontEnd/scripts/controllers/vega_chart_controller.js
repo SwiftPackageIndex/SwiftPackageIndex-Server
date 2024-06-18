@@ -113,7 +113,7 @@ export class VegaChartController extends Controller {
 
     renderChart() {
         const eventData = JSON.parse(this.eventDataTarget.textContent)
-        const checkboxElements = this.element.querySelectorAll('input[type="checkbox"]:checked')
+        const checkboxElements = this.element.querySelectorAll('form.plots input[type="checkbox"]:checked')
         const includedDataSets = Array.from(checkboxElements).map((checkbox) => checkbox.name)
         const plotData = JSON.parse(this.plotDataTarget.textContent).filter((dataSet) =>
             includedDataSets.includes(dataSet.id)
