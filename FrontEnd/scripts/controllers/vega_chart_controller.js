@@ -303,9 +303,6 @@ class ReadyForSwift6Chart {
                         tooltip: {
                             signal: `{ 'Value' : datum.value + ' ${this.symbolTooltipLabelType()}', 'Date' : timeFormat(datum.date, '%b %d, %Y'), 'Toolchain' : datum.toolchainId,  '' : datum.toolchainLabel}`,
                         },
-                        // {
-                        //     signal: "'Result recorded on ' + timeFormat(datum.date, '%b %d, %Y')",
-                        // }
                     },
                 },
             },
