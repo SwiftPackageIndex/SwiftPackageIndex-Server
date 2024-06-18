@@ -25,8 +25,6 @@ extension BuildShow {
         var buildInfo: BuildInfo
         var versionId: Version.Id
         var reference : String
-        var commit: CommitHash
-        var buildDate: Date
 
         init?(result: BuildResult, logs: String?) {
             guard
@@ -42,9 +40,7 @@ extension BuildShow {
                       repositoryOwnerName: result.repository.ownerName ?? repositoryOwner,
                       repositoryName: repositoryName,
                       versionId: versionId,
-                      reference: "\(result.version.reference)",
-                      commit: result.version.commit,
-                      buildDate: buildDate)
+                      reference: "\(result.version.reference)")
         }
 
         internal init(buildInfo: BuildInfo,
@@ -53,9 +49,7 @@ extension BuildShow {
                       repositoryOwnerName: String,
                       repositoryName: String,
                       versionId: Version.Id,
-                      reference: String,
-                      commit: CommitHash,
-                      buildDate: Date) {
+                      reference: String) {
             self.buildInfo = buildInfo
             self.packageName = packageName
             self.repositoryOwner = repositoryOwner
@@ -63,8 +57,6 @@ extension BuildShow {
             self.repositoryName = repositoryName
             self.versionId = versionId
             self.reference = reference
-            self.commit = commit
-            self.buildDate = buildDate
         }
     }
 
@@ -75,6 +67,8 @@ extension BuildShow {
         var status: App.Build.Status
         var swiftVersion: SwiftVersion
         var runner: BuildRunner?
+        var buildDate: Date?
+        var commitHash: String?
 
         init?(build: App.Build, logs: String?) {
             guard let swiftVersion = build.swiftVersion.compatibility else { return nil }
@@ -83,7 +77,9 @@ extension BuildShow {
                       platform: build.platform,
                       status: build.status,
                       swiftVersion: swiftVersion,
-                      runner: build.runnerId.flatMap(BuildRunner.init(rawValue:)))
+                      runner: build.runnerId.flatMap(BuildRunner.init(rawValue:)),
+                      buildDate: build.buildDate,
+                      commitHash: build.commitHash)
         }
 
         internal init(buildCommand: String,
@@ -91,13 +87,17 @@ extension BuildShow {
                       platform: App.Build.Platform,
                       status: App.Build.Status,
                       swiftVersion: SwiftVersion,
-                      runner: BuildRunner? = nil) {
+                      runner: BuildRunner? = nil,
+                      buildDate: Date? = nil,
+                      commitHash: String? = nil) {
             self.buildCommand = buildCommand
             self.logs = logs
             self.platform = platform
             self.status = status
             self.swiftVersion = swiftVersion
             self.runner = runner
+            self.buildDate = buildDate
+            self.commitHash = commitHash
         }
 
         var xcodeVersion: String? {
@@ -111,6 +111,11 @@ extension BuildShow {
                 case (.macosSpm, _), (.linux, _):
                     return nil
             }
+        }
+
+        var buildDetails: (buildDate: Date, commitHash: String)? {
+            guard let buildDate, let commitHash else { return nil }
+            return (buildDate, commitHash)
         }
 
     }

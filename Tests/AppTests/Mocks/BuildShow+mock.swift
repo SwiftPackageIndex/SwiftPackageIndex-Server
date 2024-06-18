@@ -25,15 +25,15 @@ extension BuildShow.Model {
                              platform: .iOS,
                              status: .ok,
                              swiftVersion: .v2,
-                             runner: .mac0),
+                             runner: .mac0,
+                             buildDate: .t0,
+                             commitHash: "71b4d8e3445caa8623fa65169f83eae2a6111925"),
             packageName: "Bar",
             repositoryOwner: "foo",
             repositoryOwnerName: "Foo",
             repositoryName: "bar",
             versionId: UUID("cafecafe-cafe-cafe-cafe-cafecafecafe")!,
-            reference: "main",
-            commit: "71b4d8e3445caa8623fa65169f83eae2a6111925",
-            buildDate: .example
+            reference: "main"
         )
     }
 }

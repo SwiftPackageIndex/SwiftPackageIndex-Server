@@ -86,10 +86,14 @@ enum BuildShow {
                             .text(" using "),
                             .strong(.text($0)),
                             .text(" at "),
-                            .strong(.text(model.reference)),
-                            .text(" (\(model.commit.prefix(6)))"),
+                            .strong(.text(model.reference))
+                        )
+                    },
+                    .unwrap(model.buildInfo.buildDetails) {
+                        .group(
+                            .text(" (\($0.commitHash.prefix(6)))"),
                             .text(" on "),
-                            .strong(.text(DateFormatter.displayFormatter.string(from: model.buildDate) + " UTC"))
+                            .strong(.text(DateFormatter.displayFormatter.string(from: $0.buildDate) + " UTC"))
                         )
                     },
                     .text(".")
