@@ -43,7 +43,7 @@ extension ReadyForSwift6Show {
                 .p(
                     .text("For help migrating your project's code, see the "),
                     .a(
-                        .href("http://swift.org/migration"),
+                        .href("https://www.swift.org/migration/documentation/migrationguide/"),
                         .text("Swift 6 language mode migration guide")
                     ),
                     .text(".")
