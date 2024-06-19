@@ -2,7 +2,7 @@
   {
     "id" : "all",
     "name" : "All packages",
-    "total" : 3396,
+    "total" : 3395,
     "values" : [
       {
         "date" : "2024-05-04",
@@ -26,7 +26,7 @@
         "date" : "2024-06-18",
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 1 (16A5171c)",
-        "value" : 304
+        "value" : 1477
       }
     ]
   },
@@ -57,7 +57,7 @@
         "date" : "2024-06-18",
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 1 (16A5171c)",
-        "value" : 8
+        "value" : 19
       }
     ]
   },
@@ -88,7 +88,7 @@
         "date" : "2024-06-18",
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 1 (16A5171c)",
-        "value" : 5
+        "value" : 8
       }
     ]
   }

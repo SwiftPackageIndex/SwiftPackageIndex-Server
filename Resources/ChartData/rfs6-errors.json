@@ -2,31 +2,31 @@
   {
     "id" : "all",
     "name" : "All packages",
-    "total" : 3396,
+    "total" : 3395,
     "values" : [
       {
         "date" : "2024-05-04",
         "toolchainId" : "org.swift.600202404221a",
         "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-04-22 (a)",
-        "value" : 56917
+        "value" : 56911
       },
       {
         "date" : "2024-05-19",
         "toolchainId" : "org.swift.600202405141a",
         "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-05-14 (a)",
-        "value" : 55304
+        "value" : 55298
       },
       {
         "date" : "2024-06-02",
         "toolchainId" : "org.swift.600202405261a",
         "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-05-26 (a)",
-        "value" : 53456
+        "value" : 53450
       },
       {
         "date" : "2024-06-18",
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 1 (16A5171c)",
-        "value" : 18068
+        "value" : 61184
       }
     ]
   },
@@ -57,7 +57,7 @@
         "date" : "2024-06-18",
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 1 (16A5171c)",
-        "value" : 631
+        "value" : 1547
       }
     ]
   },
@@ -88,7 +88,7 @@
         "date" : "2024-06-18",
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 1 (16A5171c)",
-        "value" : 571
+        "value" : 597
       }
     ]
   }
