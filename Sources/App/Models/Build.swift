@@ -208,8 +208,8 @@ extension Build {
                       versionId: Version.Id) async throws -> Build? {
         let builds = try await Build.query(on: database)
             .filter(\.$platform == platform)
-            .filter(.sql(raw: "(swift_version->'major')::int = \(swiftVersion.major)"))
-            .filter(.sql(raw: "(swift_version->'minor')::int = \(swiftVersion.minor)"))
+            .filter(.sql(unsafeRaw: "(swift_version->'major')::int = \(swiftVersion.major)"))
+            .filter(.sql(unsafeRaw: "(swift_version->'minor')::int = \(swiftVersion.minor)"))
             .filter(\.$version.$id == versionId)
             .all()
         guard builds.count <= 1 else {

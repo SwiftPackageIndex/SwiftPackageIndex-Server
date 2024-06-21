@@ -21,7 +21,7 @@
 /// keyword:macos,linux - The package support macOS and Linux
 /// ```
 struct PlatformSearchFilter: SearchFilterProtocol {
-    static var key: SearchFilter.Key = .platform
+    static let key: SearchFilter.Key = .platform
 
     var predicate: SearchFilter.Predicate
 

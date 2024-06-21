@@ -21,7 +21,7 @@
 /// author:!apple - The author of the package is not 'apple'
 /// ```
 struct AuthorSearchFilter: SearchFilterProtocol {
-    static var key: SearchFilter.Key = .author
+    static let key: SearchFilter.Key = .author
 
     var predicate: SearchFilter.Predicate
 

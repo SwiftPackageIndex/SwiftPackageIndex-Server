@@ -25,7 +25,7 @@ import Foundation
 /// stars:!5 - Any number of stars except 5
 /// ```
 struct StarsSearchFilter: SearchFilterProtocol {
-    static var key: SearchFilter.Key = .stars
+    static let key: SearchFilter.Key = .stars
 
     var predicate: SearchFilter.Predicate
 

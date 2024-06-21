@@ -24,7 +24,7 @@ import Foundation
 /// license:mit - The package specifically uses the MIT license (any can be used)
 /// ```
 struct LicenseSearchFilter: SearchFilterProtocol {
-    static var key: SearchFilter.Key = .license
+    static let key: SearchFilter.Key = .license
 
     var predicate: SearchFilter.Predicate
 

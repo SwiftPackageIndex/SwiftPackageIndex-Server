@@ -19,6 +19,7 @@ import Prometheus
 import Vapor
 import VaporToOpenAPI
 
+extension SwiftOpenAPI.MediaType.Application: @unchecked Swift.Sendable {}
 
 func routes(_ app: Application) throws {
     do {  // home page

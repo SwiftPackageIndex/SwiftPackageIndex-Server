@@ -16,7 +16,6 @@ import Foundation
 import Vapor
 
 fileprivate struct Emoji: Decodable {
-
     enum CodingKeys: String, CodingKey {
         case unicode = "emoji"
         case names = "aliases"
@@ -24,12 +23,10 @@ fileprivate struct Emoji: Decodable {
 
     let unicode: String
     let names: [String]
-
 }
 
 struct EmojiStorage {
-
-    static var current = EmojiStorage()
+    nonisolated(unsafe) static var current = EmojiStorage()
     var lookup: [String: String]
     var regularExpression: NSRegularExpression?
 

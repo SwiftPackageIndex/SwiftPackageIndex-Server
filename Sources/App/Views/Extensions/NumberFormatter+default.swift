@@ -15,7 +15,7 @@
 import Foundation
 
 extension NumberFormatter {
-    static var spiDefault: NumberFormatter = {
+    static let spiDefault: NumberFormatter = {
         let f = NumberFormatter()
         f.thousandSeparator = ","
         f.numberStyle = .decimal
