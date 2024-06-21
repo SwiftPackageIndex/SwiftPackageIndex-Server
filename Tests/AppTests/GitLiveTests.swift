@@ -27,7 +27,7 @@ class GitLiveTests: XCTestCase {
         .appendingPathComponent("\(sampleGitRepoName).zip").path
 
     var path: String { "\(Self.tempDir)/\(Self.sampleGitRepoName)" }
-    static var hasRunSetup = false
+    nonisolated(unsafe) static var hasRunSetup = false
 
     override func setUp() async throws {
         // Simulate a class setUp (which does not exist as an async function)

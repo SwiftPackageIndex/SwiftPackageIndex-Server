@@ -27,17 +27,17 @@ final class RoutesTests: AppTestCase {
         }
 
         // MUT
-        try app.test(.GET, "foo/bar/1.2.3/images/baz.png") {
+        try await app.test(.GET, "foo/bar/1.2.3/images/baz.png") { res async in
             // validation
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(), "/foo/bar/1.2.3/images/baz.png")
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual(res.body.asString(), "/foo/bar/1.2.3/images/baz.png")
         }
-        try app.test(.GET, "foo/bar/1.2.3/images/BAZ.png") {
+        try await app.test(.GET, "foo/bar/1.2.3/images/BAZ.png") { res async in
             // validation
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(), "/foo/bar/1.2.3/images/BAZ.png")
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual(res.body.asString(), "/foo/bar/1.2.3/images/BAZ.png")
         }
     }
 
@@ -46,22 +46,22 @@ final class RoutesTests: AppTestCase {
         Current.fetchDocumentation = { _, _ in .init(status: .ok) }
 
         // MUT
-        try app.test(.GET, "foo/bar/1.2.3/img/baz.png") { res in
+        try await app.test(.GET, "foo/bar/1.2.3/img/baz.png") { res async in
             // validation
             XCTAssertEqual(res.status, .ok)
         }
     }
 
     func test_openapi() async throws {
-        try app.test(.GET, "openapi/openapi.json") {
-            XCTAssertEqual($0.status, .ok)
+        try await app.test(.GET, "openapi/openapi.json") { res async in
+            XCTAssertEqual(res.status, .ok)
             struct Response: Codable, Equatable {
                 var info: Info
                 struct Info: Codable, Equatable {
                     var title: String
                 }
             }
-            XCTAssertEqualJSON($0.body.asString(), Response(info: .init(title: "Swift Package Index API")))
+            XCTAssertEqualJSON(res.body.asString(), Response(info: .init(title: "Swift Package Index API")))
         }
     }
 

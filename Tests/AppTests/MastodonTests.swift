@@ -31,7 +31,6 @@ final class MastodonTests: AppTestCase {
             }
         }
 
-        var tag = Reference.tag(1, 2, 3)
         let url = "https://github.com/foo/bar"
         Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         Current.fetchPackageList = { _ in [url.url] }
@@ -39,10 +38,10 @@ final class MastodonTests: AppTestCase {
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t2 }
-        Current.git.getTags = { _ in [tag] }
         Current.git.hasBranch = { _, _ in true }
         Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.git.shortlog = { _ in
+        Current.git.getTags = { @Sendable _ in [Reference.tag(1, 2, 3)] }
             """
             10\tPerson 1
              2\tPerson 2
@@ -83,7 +82,7 @@ final class MastodonTests: AppTestCase {
         XCTAssertNil(message)
 
         // Now simulate receiving a package update: version 2.0.0
-        tag = .tag(2, 0, 0)
+        Current.git.getTags = { @Sendable _ in [.tag(2, 0, 0)] }
         // fast forward our clock by the deadtime interval again (*2) and re-ingest
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime * 2) }
         try await ingest(client: app.client, database: app.db, mode: .limit(10))

@@ -18,9 +18,10 @@ import XCTest
 
 import Fluent
 import SPIManifest
-import ShellOut
-import SnapshotTesting
+@preconcurrency import ShellOut
+@preconcurrency import SnapshotTesting
 import Vapor
+import NIOConcurrencyHelpers
 
 
 class AnalyzerTests: AppTestCase {
@@ -384,20 +385,20 @@ class AnalyzerTests: AppTestCase {
         for p in pkgs {
             try await Repository(package: p, defaultBranch: "main").save(on: app.db)
         }
-        var checkoutDir: String? = nil
+        let checkoutDir: NIOLockedValueBox<String?> = .init(nil)
 
         Current.fileManager.fileExists = { path in
-            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-1" { return true }
-            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
+            if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-1" { return true }
+            if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-2" { return true }
             if path.hasSuffix("Package.swift") { return true }
             return false
         }
-        Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
+        Current.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.withLockedValue { $0 = path } }
 
         Current.git = .live
 
         let refs: [Reference] = [.tag(1, 0, 0), .tag(1, 1, 1), .branch("main")]
-        var mockResults: [ShellOutCommand: String] = [
+        var _mockResults: [ShellOutCommand: String] = [
             .gitListTags: refs.filter(\.isTag).map { "\($0)" }.joined(separator: "\n"),
             .gitCommitCount: "12",
             .gitFirstCommitDate: "0",
@@ -408,8 +409,9 @@ class AnalyzerTests: AppTestCase {
                             """
         ]
         for (idx, ref) in refs.enumerated() {
-            mockResults[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
+            _mockResults[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
         }
+        let mockResults = _mockResults
 
         let commands = QueueIsolated<[Command]>([])
         Current.shell.run = { cmd, path in
@@ -1226,14 +1228,14 @@ class AnalyzerTests: AppTestCase {
                 "/checkouts/bar": [FileAttributeKey.modificationDate: Current.date().adding(days: -29)],
             ][path]!
         }
-        var removedPaths = [String]()
-        Current.fileManager.removeItem = { removedPaths.append($0) }
+        let removedPaths = NIOLockedValueBox<[String]>([])
+        Current.fileManager.removeItem = { @Sendable p in removedPaths.withLockedValue { $0.append(p) } }
 
         // MUT
         try Analyze.trimCheckouts()
 
         // validate
-        XCTAssertEqual(removedPaths, ["/checkouts/foo"])
+        XCTAssertEqual(removedPaths.withLockedValue { $0 }, ["/checkouts/foo"])
     }
 
     func test_issue_2571_tags() async throws {

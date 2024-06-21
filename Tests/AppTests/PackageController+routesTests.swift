@@ -13,9 +13,8 @@
 // limitations under the License.
 
 import XCTest
-
+@preconcurrency import XCTVapor
 @testable import App
-
 import SnapshotTesting
 import SwiftSoup
 import Vapor
@@ -142,8 +141,8 @@ class PackageController_routesTests: SnapshotTestCase {
         try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
         // MUT
-        try app.test(.GET, "/owner/package/readme") {
-            XCTAssertEqual($0.status, .ok)
+        try await app.test(.GET, "/owner/package/readme") { res async in
+            XCTAssertEqual(res.status, .ok)
         }
     }
 
@@ -451,34 +450,34 @@ class PackageController_routesTests: SnapshotTestCase {
         .save(on: app.db)
 
         // MUT
-        try app.test(.GET, "/owner/package/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/target")
+        try await app.test(.GET, "/owner/package/documentation") { res async in
+            XCTAssertEqual(res.status, .seeOther)
+            XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/target")
         }
-        try app.test(.GET, "/owner/package/documentation/target/symbol") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/target/symbol")
+        try await app.test(.GET, "/owner/package/documentation/target/symbol") { res async in
+            XCTAssertEqual(res.status, .seeOther)
+            XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/target/symbol")
         }
         // We do not validate the catchall - authors need to make sure they point
         // the path after `documentation/` at a valid doc path. We do not try and map it to
         // generated docs (i.e. `target` in this test) as that would prevent them from
         // cross-target linking.
         // Effectively, all we're doing is inserting the correct `ref` before `documentation`.
-        try app.test(.GET, "/owner/package/documentation/foo") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo")
+        try await app.test(.GET, "/owner/package/documentation/foo") { res async in
+            XCTAssertEqual(res.status, .seeOther)
+            XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/foo")
         }
-        try app.test(.GET, "/owner/package/documentation/foo#anchor") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo#anchor")
+        try await app.test(.GET, "/owner/package/documentation/foo#anchor") { res async in
+            XCTAssertEqual(res.status, .seeOther)
+            XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/foo#anchor")
         }
-        try app.test(.GET, "/owner/package/documentation/FOO") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/foo")
+        try await app.test(.GET, "/owner/package/documentation/FOO") { res async in
+            XCTAssertEqual(res.status, .seeOther)
+            XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/foo")
         }
-        try app.test(.GET, "/owner/package/tutorials/foo") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/tutorials/foo")
+        try await app.test(.GET, "/owner/package/tutorials/foo") { res async in
+            XCTAssertEqual(res.status, .seeOther)
+            XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/tutorials/foo")
         }
     }
 
@@ -511,9 +510,9 @@ class PackageController_routesTests: SnapshotTestCase {
         // MUT
 
         // test partially qualified route (no archive)
-        try app.test(.GET, "/owner/package/~/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/target")
+        try await app.test(.GET, "/owner/package/~/documentation") { res async in
+            XCTAssertEqual(res.status, .seeOther)
+            XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/target")
         }
 
         // test fully qualified route
@@ -661,9 +660,9 @@ class PackageController_routesTests: SnapshotTestCase {
         // MUT
 
         // test partially qualified route (no archive)
-        try app.test(.GET, "/owner/package/1.2.3/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.2.3/documentation/target")
+        try await app.test(.GET, "/owner/package/1.2.3/documentation") { res async in
+            XCTAssertEqual(res.status, .seeOther)
+            XCTAssertEqual(res.headers.location, "/owner/package/1.2.3/documentation/target")
         }
 
         // test fully qualified route
@@ -734,17 +733,17 @@ class PackageController_routesTests: SnapshotTestCase {
         Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // MUT
-        try app.test(.GET, "/owner/package/main/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/main/documentation/target")
+        try await app.test(.GET, "/owner/package/main/documentation") { res async in
+            XCTAssertEqual(res.status, .seeOther)
+            XCTAssertEqual(res.headers.location, "/owner/package/main/documentation/target")
         }
-        try app.test(.GET, "/owner/package/1.0.0/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/target")
+        try await app.test(.GET, "/owner/package/1.0.0/documentation") { res async in
+            XCTAssertEqual(res.status, .seeOther)
+            XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/target")
         }
-        try app.test(.GET, "/owner/package/~/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.0.0/documentation/target")
+        try await app.test(.GET, "/owner/package/~/documentation") { res async in
+            XCTAssertEqual(res.status, .seeOther)
+            XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/target")
         }
     }
 
@@ -847,17 +846,17 @@ class PackageController_routesTests: SnapshotTestCase {
 
         // MUT
         // test base url
-        try app.test(.GET, "/owner/package/~/css/a") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "text/css")
-            XCTAssertEqual($0.body.asString(), "/owner/package/main/css/a")
+        try await app.test(.GET, "/owner/package/~/css/a") { res async in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType?.description, "text/css")
+            XCTAssertEqual(res.body.asString(), "/owner/package/main/css/a")
         }
 
         // test path a/b
-        try app.test(.GET, "/owner/package/~/css/a/b") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "text/css")
-            XCTAssertEqual($0.body.asString(), "/owner/package/main/css/a/b")
+        try await app.test(.GET, "/owner/package/~/css/a/b") { res async in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType?.description, "text/css")
+            XCTAssertEqual(res.body.asString(), "/owner/package/main/css/a/b")
         }
     }
 
@@ -901,17 +900,17 @@ class PackageController_routesTests: SnapshotTestCase {
 
         // MUT
         // test base url
-        try app.test(.GET, "/owner/package/~/js/a") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
-            XCTAssertEqual($0.body.asString(), "/owner/package/main/js/a")
+        try await app.test(.GET, "/owner/package/~/js/a") { res async in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType?.description, "application/javascript")
+            XCTAssertEqual(res.body.asString(), "/owner/package/main/js/a")
         }
 
         // test path a/b
-        try app.test(.GET, "/owner/package/~/js/a/b") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
-            XCTAssertEqual($0.body.asString(), "/owner/package/main/js/a/b")
+        try await app.test(.GET, "/owner/package/~/js/a/b") { res async in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType?.description, "application/javascript")
+            XCTAssertEqual(res.body.asString(), "/owner/package/main/js/a/b")
         }
     }
 
@@ -955,25 +954,25 @@ class PackageController_routesTests: SnapshotTestCase {
 
         // MUT
         // test base url
-        try app.test(.GET, "/owner/package/~/data/a") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(), "/owner/package/main/data/a")
+        try await app.test(.GET, "/owner/package/~/data/a") { res async in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual(res.body.asString(), "/owner/package/main/data/a")
         }
 
         // test path a/b
-        try app.test(.GET, "/owner/package/~/data/a/b") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(), "/owner/package/main/data/a/b")
+        try await app.test(.GET, "/owner/package/~/data/a/b") { res async in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual(res.body.asString(), "/owner/package/main/data/a/b")
         }
 
         // test case-insensitivity
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
-        try app.test(.GET, "/owner/package/~/data/documentation/Foo.json") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(),
+        try await app.test(.GET, "/owner/package/~/data/documentation/Foo.json") { res async in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual(res.body.asString(),
                            "/owner/package/main/data/documentation/foo.json")
         }
     }
@@ -1128,8 +1127,8 @@ class PackageController_routesTests: SnapshotTestCase {
         Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // MUT
-        try app.test(.GET, "/owner/package/~/tutorials") {
-            XCTAssertEqual($0.status, .notFound)
+        try await app.test(.GET, "/owner/package/~/tutorials") { res async in
+            XCTAssertEqual(res.status, .notFound)
         }
         try await app.test(.GET, "/owner/package/~/tutorials/foo") {
             await Task.yield() // essential to avoid deadlocking
@@ -1308,21 +1307,26 @@ class PackageController_routesTests: SnapshotTestCase {
         // We also need to set up a new app that's configured for production,
         // because app.test is not affected by Current overrides.
         let prodApp = try await setup(.production)
-        defer { prodApp.shutdown() }
 
-        // setup
-        let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
-        try await package.save(on: app.db)
-        try await Repository(package: package, defaultBranch: "default",
-                             lastCommitDate: Current.date(),
-                             name: "Repo0", owner: "Owner").save(on: app.db)
-        try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
-                          reference: .branch("default")).save(on: app.db)
+        do {
+            // setup
+            let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
+            try await package.save(on: app.db)
+            try await Repository(package: package, defaultBranch: "default",
+                                 lastCommitDate: Current.date(),
+                                 name: "Repo0", owner: "Owner").save(on: app.db)
+            try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
+                              reference: .branch("default")).save(on: app.db)
 
-        // MUT
-        try prodApp.test(.GET, "/owner/repo0/sitemap.xml") { res in
-            XCTAssertEqual(res.status, .ok)
+            // MUT
+            try await prodApp.test(.GET, "/owner/repo0/sitemap.xml") { res async in
+                XCTAssertEqual(res.status, .ok)
+            }
+        } catch {
+            try? await prodApp.asyncShutdown()
+            throw error
         }
+        try await prodApp.asyncShutdown()
     }
 
     func test_siteMap_dev() async throws {
@@ -1339,7 +1343,7 @@ class PackageController_routesTests: SnapshotTestCase {
                           reference: .branch("default")).save(on: app.db)
 
         // MUT
-        try app.test(.GET, "/owner/repo0/sitemap.xml") { res in
+        try await app.test(.GET, "/owner/repo0/sitemap.xml") { res async in
             XCTAssertEqual(res.status, .notFound)
         }
     }

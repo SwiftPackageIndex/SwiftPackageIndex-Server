@@ -13,9 +13,8 @@
 // limitations under the License.
 
 @testable import App
-
-import Plot
-import SnapshotTesting
+@preconcurrency import Plot
+@preconcurrency import SnapshotTesting
 import XCTVapor
 
 
@@ -53,7 +52,7 @@ class SitemapTests: SnapshotTestCase {
         defer { prodApp.shutdown() }
 
         // MUT
-        try prodApp.test(.GET, "/sitemap.xml") { res in
+        try await prodApp.test(.GET, "/sitemap.xml") { res async in
             // Validation
             XCTAssertEqual(res.status, .ok)
         }
@@ -64,7 +63,7 @@ class SitemapTests: SnapshotTestCase {
         // app and Current.environment are configured for .development by default
 
         // MUT
-        try app.test(.GET, "/sitemap.xml") { res in
+        try await app.test(.GET, "/sitemap.xml") { res async in
             // Validation
             XCTAssertEqual(res.status, .notFound)
         }
@@ -91,7 +90,7 @@ class SitemapTests: SnapshotTestCase {
         defer { prodApp.shutdown() }
 
         // MUT
-        try prodApp.test(.GET, "/sitemap-static-pages.xml") { res in
+        try await prodApp.test(.GET, "/sitemap-static-pages.xml") { res async in
             // Validation
             XCTAssertEqual(res.status, .ok)
         }
@@ -102,7 +101,7 @@ class SitemapTests: SnapshotTestCase {
         // app and Current.environment are configured for .development by default
 
         // MUT
-        try app.test(.GET, "/sitemap-static-pages.xml") { res in
+        try await app.test(.GET, "/sitemap-static-pages.xml") { res async in
             // Validation
             XCTAssertEqual(res.status, .notFound)
         }
