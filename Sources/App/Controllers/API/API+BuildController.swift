@@ -21,7 +21,7 @@ extension API {
 
     enum BuildController {
         static func buildReport(req: Request) async throws -> HTTPStatus {
-            let dto = try req.content.decode(PostBuildReportDTO.self)
+            let dto = try req.content.decode(PostBuildReportDTO.self, using: buildReportDecoder)
             let version = try await App.Version
                 .find(req.parameters.get("id"), on: req.db)
                 .unwrap(or: Abort(.notFound))
@@ -37,9 +37,11 @@ extension API {
                          status: dto.status,
                          swiftVersion: dto.swiftVersion)
                 build.buildCommand = dto.buildCommand
+                build.buildDate = dto.buildDate
                 build.buildDuration = dto.buildDuration
                 build.buildErrors = dto.buildErrors
                 build.builderVersion = dto.builderVersion
+                build.commitHash = dto.commitHash
                 build.jobUrl = dto.jobUrl
                 build.logUrl = dto.logUrl
                 build.platform = dto.platform
@@ -89,6 +91,12 @@ extension API {
             }
 
             return .noContent
+        }
+
+        static var buildReportDecoder: JSONDecoder {
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            return decoder
         }
 
         static func docReport(req: Request) async throws -> HTTPStatus {
