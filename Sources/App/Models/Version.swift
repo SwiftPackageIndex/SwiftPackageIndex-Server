@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import DependencyResolution
+@preconcurrency import DependencyResolution
 import Fluent
-import SPIManifest
+@preconcurrency import SPIManifest
 import Vapor
 
 

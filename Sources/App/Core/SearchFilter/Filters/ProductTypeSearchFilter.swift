@@ -25,7 +25,7 @@ import Foundation
 import SQLKit
 
 struct ProductTypeSearchFilter: SearchFilterProtocol {
-    static var key: SearchFilter.Key = .productType
+    static let key: SearchFilter.Key = .productType
 
     var predicate: SearchFilter.Predicate
     let productType: ProductType

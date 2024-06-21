@@ -199,7 +199,7 @@ private extension SiteURL {
 }
 
 
-extension Never: ResponseEncodable {
+extension Swift.Never: Vapor.ResponseEncodable {
     // Temporary, to avoid warning in crash route
     public func encodeResponse(for request: Vapor.Request) -> NIOCore.EventLoopFuture<Vapor.Response> {
         request.eventLoop.makeSucceededFuture(.init(status: .ok))

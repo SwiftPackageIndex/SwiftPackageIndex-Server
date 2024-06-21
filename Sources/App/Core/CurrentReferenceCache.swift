@@ -1,8 +1,6 @@
-import Cache
-
+@preconcurrency import Cache
 
 typealias CurrentReferenceCache = ExpiringCache<String, String>
-
 
 extension CurrentReferenceCache {
     static let live = CurrentReferenceCache(duration: .minutes(5))

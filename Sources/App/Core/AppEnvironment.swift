@@ -21,65 +21,64 @@ import Vapor
 import FoundationNetworking
 #endif
 
-
-struct AppEnvironment {
-    var allowBuildTriggers: () -> Bool
-    var allowTwitterPosts: () -> Bool
-    var apiSigningKey: () -> String?
-    var appVersion: () -> String?
-    var awsAccessKeyId: () -> String?
-    var awsDocsBucket: () -> String?
-    var awsReadmeBucket: () -> String?
-    var awsSecretAccessKey: () -> String?
-    var buildTimeout: () -> Int
-    var builderToken: () -> String?
-    var buildTriggerAllowList: () -> [Package.Id]
-    var buildTriggerDownscaling: () -> Double
-    var buildTriggerLatestSwiftVersionDownscaling: () -> Double
-    var collectionSigningCertificateChain: () -> [URL]
-    var collectionSigningPrivateKey: () -> Data?
-    var currentReferenceCache: () -> CurrentReferenceCache?
-    var date: () -> Date
-    var dbId: () -> String?
-    var environment: () -> Environment
-    var fetchDocumentation: (_ client: Client, _ url: URI) async throws -> ClientResponse
-    var fetchHTTPStatusCode: (_ url: String) async throws -> HTTPStatus
-    var fetchPackageList: (_ client: Client) async throws -> [URL]
-    var fetchPackageDenyList: (_ client: Client) async throws -> [URL]
-    var fetchLicense: (_ client: Client, _ owner: String, _ repository: String) async -> Github.License?
-    var fetchMetadata: (_ client: Client, _ owner: String, _ repository: String) async throws -> Github.Metadata
-    var fetchReadme: (_ client: Client, _ owner: String, _ repository: String) async -> Github.Readme?
-    var fetchS3Readme: (_ client: Client, _ owner: String, _ repository: String) async throws -> String
+struct AppEnvironment: Sendable {
+    var allowBuildTriggers: @Sendable () -> Bool
+    var allowTwitterPosts: @Sendable () -> Bool
+    var apiSigningKey: @Sendable () -> String?
+    var appVersion: @Sendable () -> String?
+    var awsAccessKeyId: @Sendable () -> String?
+    var awsDocsBucket: @Sendable () -> String?
+    var awsReadmeBucket: @Sendable () -> String?
+    var awsSecretAccessKey: @Sendable () -> String?
+    var buildTimeout: @Sendable () -> Int
+    var builderToken: @Sendable () -> String?
+    var buildTriggerAllowList: @Sendable () -> [Package.Id]
+    var buildTriggerDownscaling: @Sendable () -> Double
+    var buildTriggerLatestSwiftVersionDownscaling: @Sendable () -> Double
+    var collectionSigningCertificateChain: @Sendable () -> [URL]
+    var collectionSigningPrivateKey: @Sendable () -> Data?
+    var currentReferenceCache: @Sendable () -> CurrentReferenceCache?
+    var date: @Sendable () -> Date
+    var dbId: @Sendable () -> String?
+    var environment: @Sendable () -> Environment
+    var fetchDocumentation: @Sendable (_ client: Client, _ url: URI) async throws -> ClientResponse
+    var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
+    var fetchPackageList: @Sendable (_ client: Client) async throws -> [URL]
+    var fetchPackageDenyList: @Sendable (_ client: Client) async throws -> [URL]
+    var fetchLicense: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.License?
+    var fetchMetadata: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> Github.Metadata
+    var fetchReadme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.Readme?
+    var fetchS3Readme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> String
     var fileManager: FileManager
-    var getStatusCount: (_ client: Client,
+    var getStatusCount: @Sendable (_ client: Client,
                          _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
     var git: Git
-    var githubToken: () -> String?
-    var gitlabApiToken: () -> String?
-    var gitlabPipelineToken: () -> String?
-    var gitlabPipelineLimit: () -> Int
-    var hideStagingBanner: () -> Bool
-    var httpClient: () -> Client
-    var loadSPIManifest: (String) -> SPIManifest.Manifest?
-    var logger: () -> Logger
-    var mastodonCredentials: () -> Mastodon.Credentials?
-    var mastodonPost: (_ client: Client, _ post: String) async throws -> Void
-    var metricsPushGatewayUrl: () -> String?
-    var plausibleBackendReportingSiteID: () -> String?
-    var postPlausibleEvent: (Client, Plausible.Event.Kind, Plausible.Path, User?) async throws -> Void
-    var random: (_ range: ClosedRange<Double>) -> Double
-    var runnerIds: () -> [String]
-    var setHTTPClient: (Client) -> Void
-    var setLogger: (Logger) -> Void
+    var githubToken: @Sendable () -> String?
+    var gitlabApiToken: @Sendable () -> String?
+    var gitlabPipelineToken: @Sendable () -> String?
+    var gitlabPipelineLimit: @Sendable () -> Int
+    var hideStagingBanner: @Sendable () -> Bool
+    var httpClient: @Sendable () -> Client
+    var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
+    var logger: @Sendable () -> Logger
+    var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
+    var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
+    var metricsPushGatewayUrl: @Sendable () -> String?
+    var plausibleBackendReportingSiteID: @Sendable () -> String?
+    var postPlausibleEvent: @Sendable (Client, Plausible.Event.Kind, Plausible.Path, User?) async throws -> Void
+    var random: @Sendable (_ range: ClosedRange<Double>) -> Double
+    var runnerIds: @Sendable () -> [String]
+    var setHTTPClient: @Sendable (Client) -> Void
+    var setLogger: @Sendable (Logger) -> Void
     var shell: Shell
-    var siteURL: () -> String
-    var storeS3Readme: (_ owner: String,
+    var siteURL: @Sendable () -> String
+    var storeS3Readme: @Sendable (_ owner: String,
                         _ repository: String,
                         _ readme: String) async throws -> String
-    var storeS3ReadmeImages: (_ client: Client,
+    var storeS3ReadmeImages: @Sendable (_ client: Client,
                               _ imagesToCache: [Github.Readme.ImageToCache]) async throws -> Void
-    var timeZone: () -> TimeZone
-    var triggerBuild: (_ client: Client,
+    var timeZone: @Sendable () -> TimeZone
+    var triggerBuild: @Sendable (_ client: Client,
                        _ buildId: Build.Id,
                        _ cloneURL: String,
                        _ isDocBuild: Bool,
@@ -109,8 +108,8 @@ extension AppEnvironment {
 
 
 extension AppEnvironment {
-    static var httpClient: Client!
-    static var logger: Logger!
+    nonisolated(unsafe) static var httpClient: Client!
+    nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
         allowBuildTriggers: {
@@ -239,15 +238,15 @@ private enum Networking {
 }
 
 
-struct FileManager {
-    var attributesOfItem: (_ path: String) throws -> [FileAttributeKey : Any]
-    var contentsOfDirectory: (_ path: String) throws -> [String]
-    var contents: (_ atPath: String) -> Data?
-    var checkoutsDirectory: () -> String
-    var createDirectory: (String, Bool, [FileAttributeKey : Any]?) throws -> Void
-    var fileExists: (String) -> Bool
-    var removeItem: (_ path: String) throws -> Void
-    var workingDirectory: () -> String
+struct FileManager: Sendable {
+    var attributesOfItem: @Sendable (_ path: String) throws -> [FileAttributeKey : Any]
+    var contentsOfDirectory: @Sendable (_ path: String) throws -> [String]
+    var contents: @Sendable (_ atPath: String) -> Data?
+    var checkoutsDirectory: @Sendable () -> String
+    var createDirectory: @Sendable (String, Bool, [FileAttributeKey : Any]?) throws -> Void
+    var fileExists: @Sendable (String) -> Bool
+    var removeItem: @Sendable (_ path: String) throws -> Void
+    var workingDirectory: @Sendable () -> String
 
     // pass-through methods to preserve argument labels
     func attributesOfItem(atPath path: String) throws -> [FileAttributeKey : Any] {
@@ -266,13 +265,13 @@ struct FileManager {
     func removeItem(atPath path: String) throws { try removeItem(path) }
 
     static let live: Self = .init(
-        attributesOfItem: Foundation.FileManager.default.attributesOfItem(atPath:),
-        contentsOfDirectory: Foundation.FileManager.default.contentsOfDirectory(atPath:),
-        contents: Foundation.FileManager.default.contents(atPath:),
+        attributesOfItem: { try Foundation.FileManager.default.attributesOfItem(atPath: $0) },
+        contentsOfDirectory: { try Foundation.FileManager.default.contentsOfDirectory(atPath: $0) },
+        contents: { Foundation.FileManager.default.contents(atPath: $0) },
         checkoutsDirectory: { Environment.get("CHECKOUTS_DIR") ?? DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
-        createDirectory: Foundation.FileManager.default.createDirectory(atPath:withIntermediateDirectories: attributes:),
-        fileExists: Foundation.FileManager.default.fileExists(atPath:),
-        removeItem: Foundation.FileManager.default.removeItem(atPath:),
+        createDirectory: { try Foundation.FileManager.default.createDirectory(atPath: $0, withIntermediateDirectories: $1, attributes: $2) },
+        fileExists: { Foundation.FileManager.default.fileExists(atPath: $0) },
+        removeItem: { try Foundation.FileManager.default.removeItem(atPath: $0) },
         workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
     )
 }
@@ -286,14 +285,14 @@ extension FileManager {
 }
 
 
-struct Git {
-    var commitCount: (String) async throws -> Int
-    var firstCommitDate: (String) async throws -> Date
-    var lastCommitDate: (String) async throws -> Date
-    var getTags: (String) async throws -> [Reference]
-    var hasBranch: (Reference, String) async throws -> Bool
-    var revisionInfo: (Reference, String) async throws -> RevisionInfo
-    var shortlog: (String) async throws -> String
+struct Git: Sendable {
+    var commitCount: @Sendable (String) async throws -> Int
+    var firstCommitDate: @Sendable (String) async throws -> Date
+    var lastCommitDate: @Sendable (String) async throws -> Date
+    var getTags: @Sendable (String) async throws -> [Reference]
+    var hasBranch: @Sendable (Reference, String) async throws -> Bool
+    var revisionInfo: @Sendable (Reference, String) async throws -> RevisionInfo
+    var shortlog: @Sendable (String) async throws -> String
 
     static let live: Self = .init(
         commitCount: commitCount(at:),
@@ -307,8 +306,8 @@ struct Git {
 }
 
 
-struct Shell {
-    var run: (ShellOutCommand, String) async throws -> String
+struct Shell: Sendable {
+    var run: @Sendable (ShellOutCommand, String) async throws -> String
 
     // also provide pass-through methods to preserve argument labels
     @discardableResult
@@ -334,7 +333,7 @@ struct Shell {
 
 
 #if DEBUG
-var Current: AppEnvironment = .live
+nonisolated(unsafe) var Current: AppEnvironment = .live
 #else
 let Current: AppEnvironment = .live
 #endif

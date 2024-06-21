@@ -14,6 +14,7 @@
 
 import PostgresKit
 
+extension PostgresNIO.PostgresError.Code: @unchecked Swift.Sendable {}
 
 extension PSQLError {
     // TODO: upstream to FluentKit's DatabaseError

@@ -15,7 +15,7 @@
 import SQLKit
 
 
-protocol SearchFilterProtocol {
+protocol SearchFilterProtocol: Sendable {
     /// The key or selector used to formulate the first part of the search syntax.
     ///
     /// `<key>:<operator?><value>`

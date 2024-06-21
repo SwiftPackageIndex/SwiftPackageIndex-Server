@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Fluent
-
+@preconcurrency import SPIManifest
 
 enum DocumentationTarget: Equatable, Codable {
     case external(url: String)

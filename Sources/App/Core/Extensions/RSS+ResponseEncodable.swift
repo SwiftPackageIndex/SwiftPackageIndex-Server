@@ -16,7 +16,7 @@ import Plot
 import Vapor
 
 
-extension RSS: AsyncResponseEncodable {
+extension Plot.RSS: Vapor.AsyncResponseEncodable {
     public func encodeResponse(for request: Request) async throws -> Response {
         let res = Response(status: .ok, body: .init(string: self.render()))
         res.headers.add(name: "Content-Type", value: "application/rss+xml; charset=utf-8")

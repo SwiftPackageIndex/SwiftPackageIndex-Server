@@ -35,8 +35,8 @@ extension Renderable {
     }
 }
 
-extension HTML: Renderable, ResponseEncodable, AsyncResponseEncodable  {
+extension Plot.HTML: Renderable, Vapor.ResponseEncodable, Vapor.AsyncResponseEncodable  {
 }
 
-extension Node: Renderable, ResponseEncodable, AsyncResponseEncodable {
+extension Plot.Node: Renderable, Vapor.ResponseEncodable, Vapor.AsyncResponseEncodable {
 }
