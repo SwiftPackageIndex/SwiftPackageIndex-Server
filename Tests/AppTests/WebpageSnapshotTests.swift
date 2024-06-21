@@ -19,9 +19,8 @@ import XCTest
 import Ink
 import Plot
 import SPIManifest
-import SnapshotTesting
+@preconcurrency import SnapshotTesting
 import Vapor
-
 
 class WebpageSnapshotTests: SnapshotTestCase {
 

@@ -13,10 +13,9 @@
 // limitations under the License.
 
 @testable import App
-
+import SnapshotTesting
 import InlineSnapshotTesting
 import XCTVapor
-
 
 class SocialTests: AppTestCase {
 
@@ -256,3 +255,6 @@ class SocialTests: AppTestCase {
     }
 
 }
+
+extension SnapshotTesting.Snapshotting: @unchecked Swift.Sendable {}
+extension SnapshotTesting.Diffing: @unchecked Swift.Sendable {}

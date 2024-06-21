@@ -16,7 +16,7 @@
 
 extension Array where Element == Search.Result {
 
-    static var defaultPackageResults: [Search.Result] = [
+    static let defaultPackageResults: [Search.Result] = [
         .package(
             .init(
                 packageId: .id1,
@@ -61,13 +61,13 @@ extension Array where Element == Search.Result {
         )
     ]
 
-    static var defaultAuthorResults: [Search.Result] = [
+    static let defaultAuthorResults: [Search.Result] = [
         .author(.init(name: "Apple")),
         .author(.init(name: "Orange")),
         .author(.init(name: "Pear"))
     ]
 
-    static var defaultKeywordResults: [Search.Result] = [
+    static let defaultKeywordResults: [Search.Result] = [
         .keyword(.init(keyword: "keyword1")),
         .keyword(.init(keyword: "keyword2")),
         .keyword(.init(keyword: "keyword3")),

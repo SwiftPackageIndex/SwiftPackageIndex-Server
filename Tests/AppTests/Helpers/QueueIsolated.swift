@@ -19,8 +19,8 @@ import Foundation
 // sync access where async isn't possible.
 
 @dynamicMemberLookup
-public final class QueueIsolated<Value> {
-    private var _queue = DispatchQueue(label: "queue-isolated")
+public final class QueueIsolated<Value: Sendable>: @unchecked Sendable {
+    private let _queue = DispatchQueue(label: "queue-isolated")
 
     private var _value: Value
 

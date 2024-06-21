@@ -14,7 +14,7 @@
 
 @testable import App
 
-import SnapshotTesting
+@preconcurrency import SnapshotTesting
 import SwiftSoup
 import XCTVapor
 

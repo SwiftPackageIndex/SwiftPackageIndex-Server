@@ -19,7 +19,6 @@ import XCTest
 import Fluent
 import ShellOut
 
-
 // Test analysis error handling.
 //
 // This suite of tests ensures that errors in batch analysis do not impact processing

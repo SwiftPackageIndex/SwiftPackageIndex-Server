@@ -73,8 +73,8 @@ private enum TestError: Error {
 }
 
 
-func mock(for command: String, _ result: String) -> (ShellOutCommand, String) throws -> String {
-    return { cmd, path in
+func mock(for command: String, _ result: String) -> @Sendable (ShellOutCommand, String) throws -> String {
+    { @Sendable cmd, path in
         guard cmd.description == command else { throw TestError.unknownCommand }
         return result
     }

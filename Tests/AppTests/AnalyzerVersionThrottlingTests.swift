@@ -13,7 +13,6 @@
 // limitations under the License.
 
 @testable import App
-
 import XCTest
 
 
@@ -345,6 +344,6 @@ private func makeVersion(_ package: Package,
 }
 
 
-extension Version: CustomDebugStringConvertible {
+extension App.Version: Swift.CustomDebugStringConvertible {
     public var debugDescription: String { commit }
 }

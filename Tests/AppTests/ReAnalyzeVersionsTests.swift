@@ -54,16 +54,15 @@ class ReAnalyzeVersionsTests: AppTestCase {
             """
         }
 
-        var pkgDump = #"""
-            {
-              "name": "SPI-Server",
-              "products": [],
-              "targets": []
-            }
-            """#
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             if cmd.description.hasSuffix("swift package dump-package") {
-                return pkgDump
+                return #"""
+                    {
+                      "name": "SPI-Server",
+                      "products": [],
+                      "targets": []
+                    }
+                    """#
             }
             return ""
         }
@@ -81,16 +80,21 @@ class ReAnalyzeVersionsTests: AppTestCase {
         }
         do {
             // Update state that would normally not be affecting existing versions, effectively simulating the situation where we only started parsing it after versions had already been created
-            pkgDump = #"""
-            {
-              "name": "SPI-Server",
-              "products": [],
-              "targets": [{"name": "t1", "type": "regular"}],
-              "toolsVersion": {
-                "_version": "5.3"
-              }
+            Current.shell.run = { @Sendable cmd, path in
+                if cmd.description.hasSuffix("swift package dump-package") {
+                    return #"""
+                        {
+                          "name": "SPI-Server",
+                          "products": [],
+                          "targets": [{"name": "t1", "type": "regular"}],
+                          "toolsVersion": {
+                            "_version": "5.3"
+                          }
+                        }
+                        """#
+                }
+                return ""
             }
-            """#
             // also, update release notes to ensure mergeReleaseInfo is being called
             let r = try await Repository.find(repoId, on: app.db).unwrap()
             r.releases = [

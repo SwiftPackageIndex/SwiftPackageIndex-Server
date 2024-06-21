@@ -481,7 +481,7 @@ class SearchFilterTests: AppTestCase {
 }
 
 
-extension SearchFilter.ViewModel: CustomStringConvertible {
+extension App.SearchFilter.ViewModel: Swift.CustomStringConvertible {
     public var description: String {
         "\(key) \(`operator`) \(value)"
     }
@@ -515,7 +515,7 @@ private extension SearchFilterProtocol {
 }
 
 
-extension SearchFilter.Predicate: Equatable {
+extension App.SearchFilter.Predicate: Swift.Equatable {
     public static func == (lhs: SearchFilter.Predicate, rhs: SearchFilter.Predicate) -> Bool {
         lhs.operator == rhs.operator
         && lhs.bindableValue == rhs.bindableValue
@@ -524,7 +524,7 @@ extension SearchFilter.Predicate: Equatable {
 }
 
 
-extension SearchFilter.Predicate.BoundValue: Equatable {
+extension App.SearchFilter.Predicate.BoundValue: Swift.Equatable {
     public static func == (lhs: SearchFilter.Predicate.BoundValue, rhs: SearchFilter.Predicate.BoundValue) -> Bool {
         renderSQL(lhs.sqlBind) == renderSQL(rhs.sqlBind)
     }

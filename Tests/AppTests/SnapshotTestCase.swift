@@ -15,8 +15,7 @@
 @testable import App
 
 import Foundation
-import SnapshotTesting
-
+@preconcurrency import SnapshotTesting
 
 class SnapshotTestCase: AppTestCase {
 

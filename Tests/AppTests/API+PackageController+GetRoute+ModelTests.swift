@@ -15,9 +15,8 @@
 @testable import App
 
 import XCTVapor
-import SnapshotTesting
+@preconcurrency import SnapshotTesting
 import SPIManifest
-
 
 class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     typealias PackageResult = PackageController.PackageResult

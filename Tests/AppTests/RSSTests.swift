@@ -14,9 +14,8 @@
 
 @testable import App
 
-import SnapshotTesting
-import XCTVapor
-
+@preconcurrency import SnapshotTesting
+@preconcurrency import XCTVapor
 
 class RSSTests: SnapshotTestCase {
 
@@ -167,7 +166,7 @@ class RSSTests: SnapshotTestCase {
         try await RecentRelease.refresh(on: app.db)
 
         // MUT
-        try app.test(.GET, "releases.rss", afterResponse:  { res in
+        try await app.test(.GET, "releases.rss", afterResponse:  { res async in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
@@ -204,7 +203,7 @@ class RSSTests: SnapshotTestCase {
         try await RecentRelease.refresh(on: app.db)
 
         // MUT
-        try app.test(.GET, "releases.rss?major=true", afterResponse: { res in
+        try await app.test(.GET, "releases.rss?major=true", afterResponse: { res async in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
@@ -241,7 +240,7 @@ class RSSTests: SnapshotTestCase {
         try await RecentRelease.refresh(on: app.db)
 
         // MUT
-        try app.test(.GET, "releases.rss?major=true&minor=true", afterResponse: { res in
+        try await app.test(.GET, "releases.rss?major=true&minor=true", afterResponse: { res async in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
@@ -279,7 +278,7 @@ class RSSTests: SnapshotTestCase {
         try await RecentRelease.refresh(on: app.db)
 
         // MUT
-        try app.test(.GET, "releases.rss?pre=true", afterResponse: { res in
+        try await app.test(.GET, "releases.rss?pre=true", afterResponse: { res async in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))

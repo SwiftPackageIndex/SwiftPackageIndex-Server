@@ -38,7 +38,7 @@ class MetricsTests: AppTestCase {
                                          ])
 
         // MUT
-        try app.test(.GET, "metrics", afterResponse: { res in
+        try await app.test(.GET, "metrics", afterResponse: { res async in
             // validation
             XCTAssertEqual(res.status, .ok)
             let content = res.body.asString()
