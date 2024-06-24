@@ -39,6 +39,16 @@ extension DateFormatter {
         formatter.timeZone = Current.timeZone()
         return formatter
     }
+
+    static var utcFullDateTimeDateFormatter: DateFormatter {
+        // Note that this date formatter shows the time as UTC for
+        // dates/times relative to Swift Package Index infrastructure.
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM yyyy HH:mm:ss"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter
+    }
 }
 
 

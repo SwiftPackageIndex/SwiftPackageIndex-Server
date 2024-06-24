@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 import Plot
 
 
@@ -85,6 +87,13 @@ enum BuildShow {
                             .strong(.text($0)),
                             .text(" at "),
                             .strong(.text(model.reference))
+                        )
+                    },
+                    .unwrap(model.buildInfo.buildDetails) {
+                        .group(
+                            .text(" (\($0.commitHash.prefix(6)))"),
+                            .text(" on "),
+                            .strong(.text(DateFormatter.utcFullDateTimeDateFormatter.string(from: $0.buildDate) + " UTC"))
                         )
                     },
                     .text(".")

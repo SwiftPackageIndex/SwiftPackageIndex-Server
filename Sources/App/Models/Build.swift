@@ -47,6 +47,9 @@ final class Build: @unchecked Sendable, Model, Content {
     @Field(key: "build_command")
     var buildCommand: String?
 
+    @Field(key: "build_date")
+    var buildDate: Date?
+
     @Field(key: "build_duration")
     var buildDuration: Double?
 
@@ -55,6 +58,9 @@ final class Build: @unchecked Sendable, Model, Content {
 
     @Field(key: "builder_version")
     var builderVersion: String?
+
+    @Field(key: "commit_hash")
+    var commitHash: String?
 
     @Field(key: "job_url")
     var jobUrl: String?

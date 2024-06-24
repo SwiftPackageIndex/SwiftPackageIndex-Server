@@ -331,6 +331,9 @@ public func configure(_ app: Application) async throws -> String {
     do { // Migration 077 - Remove all etags from README files so they are re-fetched
         app.migrations.add(UpdateRepositoryResetReadmes())
     }
+    do { // Migration 078 - Add `build_date` and `commit_hash` to `builds`
+        app.migrations.add(UpdateBuildAddBuildDateCommitHash())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
