@@ -71,7 +71,7 @@ services:
 
   prometheus:
     # https://github.com/prometheus/prometheus/releases
-    image: prom/prometheus:v2.52.0
+    image: prom/prometheus:v2.53.0
     volumes:
       - prometheus_data:/prometheus
     command: --config.file=/prometheus.yml --storage.tsdb.retention.time=30d
@@ -89,14 +89,14 @@ services:
 
   pushgateway:
     # https://github.com/prometheus/pushgateway/releases
-    image: prom/pushgateway:v1.8.0
+    image: prom/pushgateway:v1.9.0
     networks:
       - app_backend
 
 
   node-exporter:
     # https://github.com/prometheus/node_exporter/releases
-    image: prom/node-exporter:v1.8.0
+    image: prom/node-exporter:v1.8.1
     networks:
       - app_backend
     volumes:
