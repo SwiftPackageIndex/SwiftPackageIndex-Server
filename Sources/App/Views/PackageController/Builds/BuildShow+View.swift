@@ -93,7 +93,7 @@ enum BuildShow {
                         .group(
                             .text(" (\($0.commitHash.prefix(6)))"),
                             .text(" on "),
-                            .strong(.text(DateFormatter.displayFormatter.string(from: $0.buildDate) + " UTC"))
+                            .strong(.text(DateFormatter.utcFullDateTimeDateFormatter.string(from: $0.buildDate) + " UTC"))
                         )
                     },
                     .text(".")
@@ -141,17 +141,5 @@ private extension Build.Status {
             case .failed: return "red"
             case .infrastructureError, .triggered, .timeout: return ""
         }
-    }
-}
-
-
-private extension DateFormatter {
-    static var displayFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMM yyyy HH:mm:ss"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-
-        return formatter
     }
 }
