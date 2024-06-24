@@ -120,7 +120,7 @@ class ApiTests: AppTestCase {
     func test_buildReportDecoder() throws {
         // Ensure we can decode the date format the builder sends
         let body = """
-            {"buildCommand":"cmd","buildDate":"1970-01-01T00:00:00Z","buildId":"711d4034-c6f3-47de-a3c9-32a3b70cb9bc","logUrl":"log url","platform":"ios","status":"ok","swiftVersion":{"major":5,"minor":10,"patch":0}}
+            {"buildCommand":"cmd","buildDate":0,"buildId":"711d4034-c6f3-47de-a3c9-32a3b70cb9bc","logUrl":"log url","platform":"ios","status":"ok","swiftVersion":{"major":5,"minor":10,"patch":0}}
             """
         XCTAssertEqual(
             (try API.BuildController.buildReportDecoder.decode(API.PostBuildReportDTO.self, from: .init(string: body))).buildDate,
@@ -155,7 +155,7 @@ class ApiTests: AppTestCase {
                 swiftVersion: .init(5, 2, 0)
             )
             let encoder = JSONEncoder()
-            encoder.dateEncodingStrategy = .iso8601
+            encoder.dateEncodingStrategy = .secondsSince1970
             let body: ByteBuffer = .init(data: try encoder.encode(dto))
             try app.test(
                 .POST,

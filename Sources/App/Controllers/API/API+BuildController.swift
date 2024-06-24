@@ -95,7 +95,8 @@ extension API {
 
         static var buildReportDecoder: JSONDecoder {
             let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
+            // 2024-06-24: Sending build reports fails on Linux when sending as `.iso8601`, hence we're using `.secondsSince1970` here
+            decoder.dateDecodingStrategy = .secondsSince1970
             return decoder
         }
 
