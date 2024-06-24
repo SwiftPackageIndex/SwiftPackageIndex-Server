@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
+
 extension BuildShow {
 
     struct Model {
@@ -28,7 +31,8 @@ extension BuildShow {
                 let repositoryOwner = result.repository.owner,
                 let repositoryName = result.repository.name,
                 let buildInfo = BuildInfo(build: result.build, logs: logs),
-                let versionId = result.version.id
+                let versionId = result.version.id,
+                let buildDate = result.build.updatedAt
             else { return nil }
             self.init(buildInfo: buildInfo,
                       packageName: result.version.packageName ?? repositoryName,
@@ -63,6 +67,8 @@ extension BuildShow {
         var status: App.Build.Status
         var swiftVersion: SwiftVersion
         var runner: BuildRunner?
+        var buildDate: Date?
+        var commitHash: String?
 
         init?(build: App.Build, logs: String?) {
             guard let swiftVersion = build.swiftVersion.compatibility else { return nil }
@@ -71,7 +77,9 @@ extension BuildShow {
                       platform: build.platform,
                       status: build.status,
                       swiftVersion: swiftVersion,
-                      runner: build.runnerId.flatMap(BuildRunner.init(rawValue:)))
+                      runner: build.runnerId.flatMap(BuildRunner.init(rawValue:)),
+                      buildDate: build.buildDate,
+                      commitHash: build.commitHash)
         }
 
         internal init(buildCommand: String,
@@ -79,13 +87,17 @@ extension BuildShow {
                       platform: App.Build.Platform,
                       status: App.Build.Status,
                       swiftVersion: SwiftVersion,
-                      runner: BuildRunner? = nil) {
+                      runner: BuildRunner? = nil,
+                      buildDate: Date? = nil,
+                      commitHash: String? = nil) {
             self.buildCommand = buildCommand
             self.logs = logs
             self.platform = platform
             self.status = status
             self.swiftVersion = swiftVersion
             self.runner = runner
+            self.buildDate = buildDate
+            self.commitHash = commitHash
         }
 
         var xcodeVersion: String? {
@@ -99,6 +111,11 @@ extension BuildShow {
                 case (.macosSpm, _), (.linux, _):
                     return nil
             }
+        }
+
+        var buildDetails: (buildDate: Date, commitHash: String)? {
+            guard let buildDate, let commitHash else { return nil }
+            return (buildDate, commitHash)
         }
 
     }

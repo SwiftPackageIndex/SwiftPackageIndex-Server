@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 import Plot
 
 
@@ -87,6 +89,13 @@ enum BuildShow {
                             .strong(.text(model.reference))
                         )
                     },
+                    .unwrap(model.buildInfo.buildDetails) {
+                        .group(
+                            .text(" (\($0.commitHash.prefix(6)))"),
+                            .text(" on "),
+                            .strong(.text(DateFormatter.displayFormatter.string(from: $0.buildDate) + " UTC"))
+                        )
+                    },
                     .text(".")
                 ),
                 .h3("Build Command"),
@@ -132,5 +141,17 @@ private extension Build.Status {
             case .failed: return "red"
             case .infrastructureError, .triggered, .timeout: return ""
         }
+    }
+}
+
+
+private extension DateFormatter {
+    static var displayFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM yyyy HH:mm:ss"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        return formatter
     }
 }

@@ -117,6 +117,17 @@ class ApiTests: AppTestCase {
         })
     }
 
+    func test_buildReportDecoder() throws {
+        // Ensure we can decode the date format the builder sends
+        let body = """
+            {"buildCommand":"cmd","buildDate":0,"buildId":"711d4034-c6f3-47de-a3c9-32a3b70cb9bc","logUrl":"log url","platform":"ios","status":"ok","swiftVersion":{"major":5,"minor":10,"patch":0}}
+            """
+        XCTAssertEqual(
+            (try API.BuildController.buildReportDecoder.decode(API.PostBuildReportDTO.self, from: .init(string: body))).buildDate,
+            .t0
+        )
+    }
+
     func test_post_buildReport() throws {
         // setup
         Current.builderToken = { "secr3t" }
@@ -128,10 +139,12 @@ class ApiTests: AppTestCase {
         do {  // MUT - initial insert
             let dto: API.PostBuildReportDTO = .init(
                 buildCommand: "xcodebuild -scheme Foo",
+                buildDate: .t0,
                 buildDuration: 123.4,
                 buildErrors: .init(numSwift6Errors: 42),
                 builderVersion: "1.2.3",
                 buildId: .id0,
+                commitHash: "sha",
                 jobUrl: "https://example.com/jobs/1",
                 logUrl: "log url",
                 platform: .macosXcodebuild,
@@ -141,7 +154,9 @@ class ApiTests: AppTestCase {
                 status: .failed,
                 swiftVersion: .init(5, 2, 0)
             )
-            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .secondsSince1970
+            let body: ByteBuffer = .init(data: try encoder.encode(dto))
             try app.test(
                 .POST,
                 "api/versions/\(versionId)/build-report",
@@ -155,9 +170,11 @@ class ApiTests: AppTestCase {
                     let b = try builds.first.unwrap()
                     XCTAssertEqual(b.id, .id0)
                     XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
+                    XCTAssertEqual(b.buildDate, .t0)
                     XCTAssertEqual(b.buildDuration, 123.4)
                     XCTAssertEqual(b.buildErrors, .init(numSwift6Errors: 42))
                     XCTAssertEqual(b.builderVersion, "1.2.3")
+                    XCTAssertEqual(b.commitHash, "sha")
                     XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
                     XCTAssertEqual(b.logUrl, "log url")
                     XCTAssertEqual(b.platform, .macosXcodebuild)
