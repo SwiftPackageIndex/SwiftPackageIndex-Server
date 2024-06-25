@@ -271,10 +271,6 @@ requests:
     url: ${base_url}/apple/swift-statsd-client/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /apple/swift-syntax/documentation:
-    url: ${base_url}/apple/swift-syntax/documentation
-    validation:
-      status: .regex((2|3)\d\d)
   /apple/swift-system/documentation:
     url: ${base_url}/apple/swift-system/documentation
     validation:
@@ -481,6 +477,11 @@ requests:
     url: ${base_url}/richardtop/CalendarKit/documentation
     validation:
       status: .regex((2|3)\d\d)
+  # Fails due to --include-extended-types
+  # /sbooth/SFBAudioEngine/documentation:
+  #   url: ${base_url}/sbooth/SFBAudioEngine/documentation
+  #   validation:
+  #     status: .regex((2|3)\d\d)
   /scenee/FloatingPanel/documentation:
     url: ${base_url}/scenee/FloatingPanel/documentation
     validation:
@@ -559,6 +560,10 @@ requests:
       status: .regex((2|3)\d\d)
   /swiftcsv/SwiftCSV/documentation:
     url: ${base_url}/swiftcsv/SwiftCSV/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /swiftlang/swift-syntax/documentation:
+    url: ${base_url}/swiftlang/swift-syntax/documentation
     validation:
       status: .regex((2|3)\d\d)
   /swiftwasm/JavaScriptKit/documentation:
