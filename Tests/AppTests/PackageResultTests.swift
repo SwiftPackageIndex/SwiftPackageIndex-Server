@@ -285,4 +285,88 @@ class PackageResultTests: AppTestCase {
             XCTAssertEqual(res.canonicalDocumentationTarget(), nil)
         }
     }
+
+    func test_currentDocumentationTarget() async throws {
+        do {
+            // Test package with branch docs and stable version docs
+            let pkg = try savePackage(on: app.db, "1".url)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 forks: 42,
+                                 license: .mit,
+                                 name: "bar1",
+                                 owner: "foo",
+                                 stars: 17,
+                                 summary: "summary").save(on: app.db)
+            try await App.Version(package: pkg,
+                                  docArchives: [.init(name: "archive1", title: "Archive 1")],
+                                  latest: .defaultBranch,
+                                  reference: .branch("main")).save(on: app.db)
+            try await App.Version(package: pkg,
+                                  // Note the name change on the default branch. The current should point to this archive.
+                                  docArchives: [.init(name: "archive2", title: "Archive 2")],
+                                  latest: .release,
+                                  reference: .tag(1, 2, 3)).save(on: app.db)
+        }
+
+        do {
+            // Test package with only branch docs hosted externally.
+            let pkg = try savePackage(on: app.db, "2".url)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 forks: 42,
+                                 license: .mit,
+                                 name: "bar2",
+                                 owner: "foo",
+                                 stars: 17,
+                                 summary: "summary").save(on: app.db)
+            try await App.Version(package: pkg,
+                                  latest: .defaultBranch,
+                                  reference: .branch("main"),
+                                  spiManifest: .init(externalLinks: .init(documentation: "https://example.com"))).save(on: app.db)
+        }
+
+        do {
+            // Test package with no documentation
+            let pkg = try savePackage(on: app.db, "3".url)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 forks: 42,
+                                 license: .mit,
+                                 name: "bar3",
+                                 owner: "foo",
+                                 stars: 17,
+                                 summary: "summary").save(on: app.db)
+            try await App.Version(package: pkg,
+                                  latest: .defaultBranch,
+                                  reference: .branch("main")).save(on: app.db)
+        }
+
+        do {
+            // Testing for internally hosted documentation pointing at the "current".
+            let res = try await PackageController.PackageResult.query(on: app.db, owner: "foo", repository: "bar1")
+            let currentTarget = try XCTUnwrap(res.currentDocumentationTarget())
+
+            // Validaton
+            XCTAssertEqual(currentTarget, .internal(docVersion: .current(referencing: nil), archive: "archive2"))
+        }
+
+        do {
+            // Testing for `.external` case pass-through.
+            let res = try await PackageController.PackageResult.query(on: app.db, owner: "foo", repository: "bar2")
+            let currentTarget = try XCTUnwrap(res.currentDocumentationTarget())
+
+            // Validaton
+            XCTAssertEqual(currentTarget, .external(url: "https://example.com"))
+        }
+
+        do {
+            // Testing for "no documentation" pass-through.
+            let res = try await PackageController.PackageResult.query(on: app.db, owner: "foo", repository: "bar3")
+
+            // Validaton
+            XCTAssertNil(res.currentDocumentationTarget())
+        }
+    }
+
 }
