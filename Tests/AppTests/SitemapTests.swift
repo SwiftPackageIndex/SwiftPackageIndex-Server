@@ -14,7 +14,7 @@
 
 @testable import App
 @preconcurrency import Plot
-@preconcurrency import SnapshotTesting
+import SnapshotTesting
 import XCTVapor
 
 

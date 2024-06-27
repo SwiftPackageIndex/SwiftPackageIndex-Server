@@ -15,7 +15,7 @@
 @testable import App
 
 import XCTVapor
-@preconcurrency import SnapshotTesting
+import SnapshotTesting
 import SPIManifest
 
 class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {

@@ -66,8 +66,8 @@ class PackageContributorsTests : AppTestCase {
     func test_PackageContributors_extract() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
-        Current.fileManager.fileExists = { _ in true }
-        Current.git.shortlog = { _ in
+        Current.fileManager.fileExists = { @Sendable _ in true }
+        Current.git.shortlog = { @Sendable _ in
             """
             1000\tPerson 1
              871\tPerson 2

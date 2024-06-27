@@ -32,7 +32,7 @@ extension BuildShow {
                 let repositoryName = result.repository.name,
                 let buildInfo = BuildInfo(build: result.build, logs: logs),
                 let versionId = result.version.id,
-                let buildDate = result.build.updatedAt
+                let _/*buildDate*/ = result.build.updatedAt
             else { return nil }
             self.init(buildInfo: buildInfo,
                       packageName: result.version.packageName ?? repositoryName,
