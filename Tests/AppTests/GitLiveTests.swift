@@ -54,20 +54,24 @@ class GitLiveTests: XCTestCase {
 extension GitLiveTests {
 
     func test_commitCount() async throws {
+        let path = self.path
         try await XCTAssertEqualAsync(try await Git.commitCount(at: path), 57)
     }
 
     func test_firstCommitDate() async throws {
+        let path = self.path
         try await XCTAssertEqualAsync(try await Git.firstCommitDate(at: path),
                                       Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
     }
 
     func test_lastCommitDate() async throws {
+        let path = self.path
         try await XCTAssertEqualAsync(try await Git.lastCommitDate(at: path),
                                       Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
     }
 
     func test_getTags() async throws {
+        let path = self.path
         try await XCTAssertEqualAsync(
             try await Git.getTags(at: path),
             [.tag(0,2,0),
@@ -93,11 +97,13 @@ extension GitLiveTests {
     }
 
     func test_hasBranch() async throws {
+        let path = self.path
         try await XCTAssertEqualAsync(try await Git.hasBranch(.branch("master"), at: path), true)
         try await XCTAssertEqualAsync(try await Git.hasBranch(.branch("main"), at: path), false)
     }
 
     func test_revisionInfo() async throws {
+        let path = self.path
         try await XCTAssertEqualAsync(try await Git.revisionInfo(.tag(0,5,2), at: path),
                                       .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
                                             date: .init(timeIntervalSince1970: 1554248253)))
@@ -107,6 +113,7 @@ extension GitLiveTests {
     }
 
     func test_shortlog() async throws {
+        let path = self.path
         try await XCTAssertEqualAsync(try await Git.shortlog(at: path), """
                 36\tNeil Pankey
                 21\tJacob Williams

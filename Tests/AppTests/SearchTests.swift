@@ -13,7 +13,6 @@
 // limitations under the License.
 
 @testable import App
-
 import SnapshotTesting
 import SQLKit
 import XCTVapor

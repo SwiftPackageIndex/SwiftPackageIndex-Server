@@ -57,6 +57,7 @@ final class DocUploadTests: AppTestCase {
     func test_detachAndDelete() async throws {
         // Ensure deleting doc_uploads doesn't cascade into builds
         // setup
+        let app = self.app!
         let pkg = try await savePackageAsync(on: app.db, "1")
         let v = try Version(id: UUID(), package: pkg)
         try await v.save(on: app.db)
@@ -87,6 +88,7 @@ final class DocUploadTests: AppTestCase {
 
     func test_delete_cascade_build() async throws {
         // setup
+        let app = self.app!
         let pkg = try await savePackageAsync(on: app.db, "1")
         let buildId = UUID()
         let v = try Version(id: UUID(), package: pkg)
@@ -112,6 +114,7 @@ final class DocUploadTests: AppTestCase {
 
     func test_delete_cascade_version() async throws {
         // setup
+        let app = self.app!
         let pkg = try await savePackageAsync(on: app.db, "1")
         let versionId = UUID()
         let v = try Version(id: versionId, package: pkg)

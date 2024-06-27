@@ -13,8 +13,7 @@
 // limitations under the License.
 
 @testable import App
-
-@preconcurrency import SnapshotTesting
+import SnapshotTesting
 import SwiftSoup
 import XCTVapor
 

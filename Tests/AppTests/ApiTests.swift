@@ -13,7 +13,6 @@
 // limitations under the License.
 
 @testable import App
-
 import PackageCollectionsSigning
 import SnapshotTesting
 import XCTVapor
@@ -67,14 +66,14 @@ class ApiTests: AppTestCase {
         try await Search.refresh(on: app.db).get()
 
         let event = ActorIsolated<TestEvent?>(nil)
-        Current.postPlausibleEvent = { _, kind, path, _ in
+        Current.postPlausibleEvent = { @Sendable _, kind, path, _ in
             await event.setValue(.init(kind: kind, path: path))
         }
 
         // MUT
-        try app.test(.GET, "api/search?query=foo%20bar",
+        try await app.test(.GET, "api/search?query=foo%20bar",
                      headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier1)),
-                     afterResponse: { res in
+                     afterResponse: { res async in
             // validation
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(
@@ -110,8 +109,8 @@ class ApiTests: AppTestCase {
         Current.apiSigningKey = { "secret" }
 
         // MUT
-        try app.test(.GET, "api/search?query=test",
-                     afterResponse: { res in
+        try await app.test(.GET, "api/search?query=test",
+                     afterResponse: { res async in
             // validation
             XCTAssertEqual(res.status, .unauthorized)
         })
@@ -277,7 +276,7 @@ class ApiTests: AppTestCase {
             swiftVersion: .latest
         )
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-        try app.test(
+        try await app.test(
             .POST,
             "api/versions/\(versionId)/build-report",
             headers: .bearerApplicationJSON("secr3t"),
@@ -285,7 +284,7 @@ class ApiTests: AppTestCase {
             afterResponse: { res in
                 // validation
                 XCTAssertEqual(res.status, .noContent)
-                let builds = try Build.query(on: app.db).all().wait()
+                let builds = try await Build.query(on: app.db).all()
                 XCTAssertEqual(builds.count, 1)
                 let b = try builds.first.unwrap()
                 XCTAssertEqual(b.id, .id1)
@@ -568,6 +567,7 @@ class ApiTests: AppTestCase {
 
     func test_post_docReport_unauthenticated() async throws {
         // setup
+        let app = self.app!
         Current.builderToken = { "secr3t" }
         let p = try await savePackageAsync(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
@@ -676,15 +676,15 @@ class ApiTests: AppTestCase {
             .save(on: app.db)
 
         let event = ActorIsolated<TestEvent?>(nil)
-        Current.postPlausibleEvent = { _, kind, path, _ in
+        Current.postPlausibleEvent = { @Sendable _, kind, path, _ in
             await event.setValue(.init(kind: kind, path: path))
         }
 
         // MUT - swift versions
-        try app.test(
+        try await app.test(
             .GET,
             "api/packages/\(owner)/\(repo)/badge?type=swift-versions",
-            afterResponse: { res in
+            afterResponse: { res async throws in
                 // validation
                 XCTAssertEqual(res.status, .ok)
 
@@ -699,10 +699,10 @@ class ApiTests: AppTestCase {
             })
 
         // MUT - platforms
-        try app.test(
+        try await app.test(
             .GET,
             "api/packages/\(owner)/\(repo)/badge?type=platforms",
-            afterResponse: { res in
+            afterResponse: { res async throws in
                 // validation
                 XCTAssertEqual(res.status, .ok)
 
@@ -746,7 +746,7 @@ class ApiTests: AppTestCase {
         try await Search.refresh(on: app.db).get()
 
         let event = ActorIsolated<TestEvent?>(nil)
-        Current.postPlausibleEvent = { _, kind, path, _ in
+        Current.postPlausibleEvent = { @Sendable _, kind, path, _ in
             await event.setValue(.init(kind: kind, path: path))
         }
 
@@ -769,10 +769,10 @@ class ApiTests: AppTestCase {
                 }
                 """)
 
-            try app.test(.POST, "api/package-collections",
+            try await app.test(.POST, "api/package-collections",
                          headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier3)),
                          body: body,
-                         afterResponse: { res in
+                         afterResponse: { res async throws in
                 // validation
                 XCTAssertEqual(res.status, .ok)
                 let container = try res.content.decode(SignedCollection.self)
@@ -940,9 +940,9 @@ class ApiTests: AppTestCase {
                              owner: owner).save(on: app.db)
 
         do {  // MUT - happy path
-            try app.test(.GET, "api/packages/owner/repo",
+            try await app.test(.GET, "api/packages/owner/repo",
                          headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier3)),
-                         afterResponse: { res in
+                         afterResponse: { res async throws in
                 // validation
                 XCTAssertEqual(res.status, .ok)
                 let model = try res.content.decode(API.PackageController.GetRoute.Model.self)
@@ -951,35 +951,35 @@ class ApiTests: AppTestCase {
         }
 
         do {  // MUT - unauthorized (no token provided)
-            try app.test(.GET, "api/packages/owner/repo",
+            try await app.test(.GET, "api/packages/owner/repo",
                          headers: .applicationJSON,
-                         afterResponse: { res in
+                         afterResponse: { res async in
                 // validation
                 XCTAssertEqual(res.status, .unauthorized)
             })
         }
 
         do {  // MUT - unauthorized (wrong token provided)
-            try app.test(.GET, "api/packages/owner/repo",
+            try await app.test(.GET, "api/packages/owner/repo",
                          headers: .bearerApplicationJSON("bad token"),
-                         afterResponse: { res in
+                         afterResponse: { res async in
                 // validation
                 XCTAssertEqual(res.status, .unauthorized)
             })
         }
 
         do {  // MUT - unauthorized (signed with wrong key)
-            try app.test(.GET, "api/packages/unknown/package",
+            try await app.test(.GET, "api/packages/unknown/package",
                          headers: .bearerApplicationJSON((try .apiToken(secretKey: "wrong", tier: .tier3))),
-                         afterResponse: { res in
+                         afterResponse: { res async in
                 // validation
                 XCTAssertEqual(res.status, .unauthorized)
             })
         }
         do {  // MUT - package not found
-            try app.test(.GET, "api/packages/unknown/package",
+            try await app.test(.GET, "api/packages/unknown/package",
                          headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
-                         afterResponse: { res in
+                         afterResponse: { res async in
                 // validation
                 XCTAssertEqual(res.status, .notFound)
             })
@@ -1002,12 +1002,12 @@ class ApiTests: AppTestCase {
             .save(on: app.db)
 
         // MUT
-        try app.test(.GET, "api/dependencies",
+        try await app.test(.GET, "api/dependencies",
                      headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
-                     afterResponse: { res in
+                     afterResponse: { res async in
             // validation
             XCTAssertEqual(res.status, .ok)
-            XCTAssert(res.body.asString().count > 0)
+            XCTAssertGreaterThan(res.body.asString().count, 0)
         })
     }
 

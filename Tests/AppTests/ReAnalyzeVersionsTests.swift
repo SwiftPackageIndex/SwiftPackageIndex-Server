@@ -41,13 +41,13 @@ class ReAnalyzeVersionsTests: AppTestCase {
                              name: "1",
                              owner: "foo").save(on: app.db)
 
-        Current.git.commitCount = { _ in 12 }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.lastCommitDate = { _ in .t1 }
-        Current.git.getTags = { _ in [.tag(1, 2, 3)] }
-        Current.git.hasBranch = { _, _ in true }
-        Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
-        Current.git.shortlog = { _ in
+        Current.git.commitCount = { @Sendable _ in 12 }
+        Current.git.firstCommitDate = { @Sendable _ in .t0 }
+        Current.git.lastCommitDate = { @Sendable _ in .t1 }
+        Current.git.getTags = { @Sendable _ in [.tag(1, 2, 3)] }
+        Current.git.hasBranch = { @Sendable _, _ in true }
+        Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
+        Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
@@ -184,19 +184,19 @@ class ReAnalyzeVersionsTests: AppTestCase {
                                   processingStage: .ingestion)
         try await Repository(package: pkg,
                              defaultBranch: "main").save(on: app.db)
-        Current.git.commitCount = { _ in 12 }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.lastCommitDate = { _ in .t1 }
-        Current.git.getTags = { _ in [] }
-        Current.git.hasBranch = { _, _ in true }
-        Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
-        Current.git.shortlog = { _ in
+        Current.git.commitCount = { @Sendable _ in 12 }
+        Current.git.firstCommitDate = { @Sendable _ in .t0 }
+        Current.git.lastCommitDate = { @Sendable _ in .t1 }
+        Current.git.getTags = { @Sendable _ in [] }
+        Current.git.hasBranch = { @Sendable _, _ in true }
+        Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
+        Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
         }
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             if cmd == .swiftDumpPackage {
                 return #"""
                         {
@@ -218,7 +218,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
             XCTAssertEqual(candidates.count, 1)
         }
 
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             if cmd == .swiftDumpPackage {
                 // simulate error during package dump
                 struct Error: Swift.Error { }

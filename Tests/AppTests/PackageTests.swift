@@ -283,22 +283,22 @@ final class PackageTests: AppTestCase {
         let url = "1".asGithubUrl
         Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         Current.fetchPackageList = { _ in [url.url] }
-        Current.git.commitCount = { _ in 12 }
-        Current.git.firstCommitDate = { _ in Date(timeIntervalSince1970: 0) }
-        Current.git.getTags = { _ in [] }
-        Current.git.hasBranch = { _, _ in true }
-        Current.git.lastCommitDate = { _ in Date(timeIntervalSince1970: 1) }
-        Current.git.revisionInfo = { _, _ in
+        Current.git.commitCount = { @Sendable _ in 12 }
+        Current.git.firstCommitDate = { @Sendable _ in Date(timeIntervalSince1970: 0) }
+        Current.git.getTags = { @Sendable _ in [] }
+        Current.git.hasBranch = { @Sendable _, _ in true }
+        Current.git.lastCommitDate = { @Sendable _ in Date(timeIntervalSince1970: 1) }
+        Current.git.revisionInfo = { @Sendable _, _ in
             .init(commit: "sha",
                   date: Date(timeIntervalSince1970: 0))
         }
-        Current.git.shortlog = { _ in
+        Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
         }
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             if cmd.description.hasSuffix("swift package dump-package") {
                 return #"{ "name": "Mock", "products": [] }"#
             }

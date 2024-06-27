@@ -13,16 +13,14 @@
 // limitations under the License.
 
 @testable import App
-
 import XCTVapor
 import SemanticVersion
-
 
 final class MastodonTests: AppTestCase {
 
     func test_endToEnd() async throws {
         // setup
-        var message: String?
+        nonisolated(unsafe) var message: String?
         Current.mastodonPost = { _, msg in
             if message == nil {
                 message = msg
@@ -35,20 +33,20 @@ final class MastodonTests: AppTestCase {
         Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         Current.fetchPackageList = { _ in [url.url] }
 
-        Current.git.commitCount = { _ in 12 }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.lastCommitDate = { _ in .t2 }
-        Current.git.hasBranch = { _, _ in true }
-        Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
-        Current.git.shortlog = { _ in
+        Current.git.commitCount = { @Sendable _ in 12 }
+        Current.git.firstCommitDate = { @Sendable _ in .t0 }
+        Current.git.lastCommitDate = { @Sendable _ in .t2 }
         Current.git.getTags = { @Sendable _ in [Reference.tag(1, 2, 3)] }
+        Current.git.hasBranch = { @Sendable _, _ in true }
+        Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
+        Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
         }
 
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             if cmd.description.hasSuffix("swift package dump-package") {
                 return #"{ "name": "Mock", "products": [], "targets": [] }"#
             }

@@ -15,7 +15,7 @@
 import XCTest
 
 @testable import App
-
+import NIOConcurrencyHelpers
 import Fluent
 import SPIManifest
 import SQLKit
@@ -525,7 +525,7 @@ class BuildTriggerTests: AppTestCase {
         }
 
         do {  // fist run: we are at capacity and should not be triggering more builds
-            Current.getStatusCount = { _, _ in self.future(300) }
+            Current.getStatusCount = { c, _ in c.eventLoop.makeSucceededFuture(300) }
 
             let pkgId = UUID()
             let versionId = UUID()
@@ -550,7 +550,7 @@ class BuildTriggerTests: AppTestCase {
         triggerCount = 0
 
         do {  // second run: we are just below capacity and allow more builds to be triggered
-            Current.getStatusCount = { _, _ in self.future(299) }
+            Current.getStatusCount = { c, _ in c.eventLoop.makeSucceededFuture(299) }
 
             let pkgId = UUID()
             let versionId = UUID()
@@ -573,7 +573,7 @@ class BuildTriggerTests: AppTestCase {
         }
 
         do {  // third run: we are at capacity and using the `force` flag
-            Current.getStatusCount = { _, _ in self.future(300) }
+            Current.getStatusCount = { c, _ in c.eventLoop.makeSucceededFuture(300) }
 
             var triggerCount = 0
             let client = MockClient { _, res in
@@ -615,14 +615,14 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = Gitlab.Builder.triggerBuild
-        var triggerCount = 0
+        let triggerCount = NIOLockedValueBox<Int>(0)
         let client = MockClient { _, res in
-            triggerCount += 1
+            triggerCount.withLockedValue { $0 += 1 }
             try? res.content.encode(
                 Gitlab.Builder.Response.init(webUrl: "http://web_url")
             )
         }
-        Current.getStatusCount = { _, _ in self.future(299 + triggerCount) }
+        Current.getStatusCount = { c, _ in c.eventLoop.makeSucceededFuture(299 + triggerCount.withLockedValue { $0 }) }
 
         let pkgIds = [UUID(), UUID()]
         try pkgIds.forEach { id in
@@ -638,7 +638,7 @@ class BuildTriggerTests: AppTestCase {
                                 mode: .limit(4))
 
         // validate - only the first batch must be allowed to trigger
-        XCTAssertEqual(triggerCount, 27)
+        XCTAssertEqual(triggerCount.withLockedValue { $0 }, 27)
     }
 
     func test_triggerBuilds_trimming() async throws {
@@ -914,6 +914,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_trimBuilds_significant_version() async throws {
         // setup
+        let app = self.app!
         let pkgId = UUID()
         let p = Package(id: pkgId, url: "1")
         try await p.save(on: app.db)
@@ -949,6 +950,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_trimBuilds_non_significant_version() async throws {
         // setup
+        let app = self.app!
         let pkgId = UUID()
         let p = Package(id: pkgId, url: "1")
         try await p.save(on: app.db)
@@ -1034,6 +1036,7 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(deleteCount, 3)
+        let app = self.app!
         try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id),
                                       [.id0, .id1, .id2, .id3, .id4])
     }
