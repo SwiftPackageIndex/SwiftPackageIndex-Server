@@ -36,7 +36,7 @@ enum Supporters {
         .init(name: "MacStadium",
               logo: .init(lightModeUrl: "/images/sponsors/macstadium.png",
                           darkModeUrl: "/images/sponsors/macstadium~dark.png"),
-              url: "https://macstadium.com"),
+              url: "https://www.macstadium.com/?utm_medium=referral&utm_source=partner-post&utm_campaign=FOSS%20Program_Swift%20Package%20Index"),
         .init(name: "Microsoft Azure",
               logo: .init(lightModeUrl: "/images/sponsors/microsoft.png",
                           darkModeUrl: "/images/sponsors/microsoft~dark.png"),
