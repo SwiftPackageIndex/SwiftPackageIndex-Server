@@ -85,15 +85,13 @@ extension ReadyForSwift6Show {
                 ),
                 .p(
                     .strong(.text("A: ")),
-                    .text("Yes. The builds that produce the results on this page have strict concurrency checking set to "),
-                    .code("complete"),
-                    .text(" to check for data race safety in Swift 6 language mode. We pass "),
+                    .text("Yes. These charts plot the status of packages as if every package had opted in to the Swift 6 language mode and enabled “complete” concurrency checking. We pass "),
                     .code("-strict-concurrency=complete"),
                     .text(" to either "),
                     .code("swift build"),
                     .text(" or "),
                     .code("xcodebuild"),
-                    .text(".")
+                    .text(" to achieve this by enabling all data race safety checks in the compiler.")
                 ),
                 .hr(
                     .class("minor")
