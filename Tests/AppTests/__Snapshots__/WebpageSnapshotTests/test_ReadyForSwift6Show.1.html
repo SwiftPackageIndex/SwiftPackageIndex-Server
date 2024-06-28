@@ -106,11 +106,10 @@
           <strong>Q: </strong>Are additional parameters added to the build command for these tests compared to the “standard” Swift Package Index builds that determine Swift version compatibility on package pages?
         </p>
         <p>
-          <strong>A: </strong>Yes. The builds that produce the results on this page have strict concurrency checking set to 
-          <code>complete</code> to check for data race safety in Swift 6 language mode. We pass 
+          <strong>A: </strong>Yes. These charts plot the status of packages as if every package had opted in to the Swift 6 language mode and enabled “complete” concurrency checking. We pass 
           <code>-strict-concurrency=complete</code> to either 
           <code>swift build</code> or 
-          <code>xcodebuild</code>.
+          <code>xcodebuild</code> to achieve this by enabling all data race safety checks in the compiler.
         </p>
         <hr class="minor"/>
         <p>
