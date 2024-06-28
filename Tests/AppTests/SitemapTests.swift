@@ -49,12 +49,14 @@ class SitemapTests: SnapshotTestCase {
         // We also need to set up a new app that's configured for production,
         // because app.test is not affected by Current overrides.
         let prodApp = try await setup(.production)
-        defer { prodApp.shutdown() }
-
-        // MUT
-        try await prodApp.test(.GET, "/sitemap.xml") { res async in
-            // Validation
-            XCTAssertEqual(res.status, .ok)
+        try await App.run {
+            // MUT
+            try await prodApp.test(.GET, "/sitemap.xml") { res async in
+                // Validation
+                XCTAssertEqual(res.status, .ok)
+            }
+        } defer: {
+            try await prodApp.asyncShutdown()
         }
     }
 
@@ -87,12 +89,14 @@ class SitemapTests: SnapshotTestCase {
         // We also need to set up a new app that's configured for production,
         // because app.test is not affected by Current overrides.
         let prodApp = try await setup(.production)
-        defer { prodApp.shutdown() }
-
-        // MUT
-        try await prodApp.test(.GET, "/sitemap-static-pages.xml") { res async in
-            // Validation
-            XCTAssertEqual(res.status, .ok)
+        try await App.run {
+            // MUT
+            try await prodApp.test(.GET, "/sitemap-static-pages.xml") { res async in
+                // Validation
+                XCTAssertEqual(res.status, .ok)
+            }
+        } defer: {
+            try await prodApp.asyncShutdown()
         }
     }
 
