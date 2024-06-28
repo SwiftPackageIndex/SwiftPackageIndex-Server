@@ -28,10 +28,11 @@ class GitlabBuilderTests: AppTestCase {
     }
 
     func test_variables_encoding() async throws {
+        // Ensure the POST variables are encoded correctly
+        // setup
+        let app = try await setup(.testing)
+        
         try await App.run {
-            // Ensure the POST variables are encoded correctly
-            // setup
-            let app = try await setup(.testing)
             let req = Request(application: app, on: app.eventLoopGroup.next())
             let dto = Gitlab.Builder.PostDTO(token: "token",
                                              ref: "ref",
