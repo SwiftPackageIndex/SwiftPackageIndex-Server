@@ -13,13 +13,10 @@
 // limitations under the License.
 
 @testable import App
-
-import Parsing
+@preconcurrency import Parsing
 import XCTest
 
-
 class QueryPlanTests: XCTestCase {
-
     func test_cost_parse() throws {
         XCTAssertEqual(
             try QueryPlan.cost.parse("cost=1.05..12.06 rows=1 width=205"),
@@ -57,8 +54,6 @@ class QueryPlanTests: XCTestCase {
                        .init(cost: .init(firstRow: 555.79, total: 566.89),
                              actualTime: .init(firstRow: 53.590, total: 53.927)))
     }
-
-
 }
 
 

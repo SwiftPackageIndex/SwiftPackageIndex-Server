@@ -23,7 +23,7 @@ import SQLKit
 /// keyword:!apple - The package keywords do not contain 'apple'
 /// ```
 struct KeywordSearchFilter: SearchFilterProtocol {
-    static var key: SearchFilter.Key = .keyword
+    static let key: SearchFilter.Key = .keyword
 
     var predicate: SearchFilter.Predicate
 

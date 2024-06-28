@@ -44,7 +44,7 @@ extension XCTestCase {
 }
 
 
-extension URL: ExpressibleByStringLiteral {
+extension Foundation.URL: Swift.ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         precondition(!value.isEmpty, "cannot convert empty string to URL")
         self = URL(string: value)!
@@ -85,7 +85,7 @@ extension Array where Element == String {
 }
 
 
-extension AppError: Equatable {
+extension App.AppError: Swift.Equatable {
     public static func == (lhs: AppError, rhs: AppError) -> Bool {
         switch (lhs, rhs) {
             case let (.envVariableNotSet(v1), .envVariableNotSet(v2)):

@@ -15,11 +15,11 @@
 import Foundation
 
 import Fluent
-import Plot
+@preconcurrency import Plot
 import Vapor
 
 
-struct RSSFeed {
+struct RSSFeed: Sendable {
     var title: String
     var description: String
     var link: String

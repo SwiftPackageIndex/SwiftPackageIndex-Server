@@ -30,7 +30,7 @@ class QueryPerformanceTests: XCTestCase {
         // Update db settings for CI runs in
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/settings/secrets/actions
         // or in `.env.staging` for local runs.
-        self.app = Application(.staging)
+        self.app = try await Application.make(.staging)
         self.app.logger.logLevel = Environment.get("LOG_LEVEL")
             .flatMap(Logger.Level.init(rawValue:)) ?? .warning
         let host = try await configure(app)

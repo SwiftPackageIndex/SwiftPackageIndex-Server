@@ -16,7 +16,7 @@
 // see: https://github.com/SwiftPackageIndex/UpdateCommunitySponsors
 
 extension Array<Supporters.Community> {
-    static var gitHubSponsors: Self = [
+    static let gitHubSponsors: Self = [
         .init(
             login: "czottmann",
             name: "Carlo Zottmann",

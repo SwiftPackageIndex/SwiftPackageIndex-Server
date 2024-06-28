@@ -14,8 +14,8 @@
 
 import Basics
 import Fluent
-import PackageCollectionsModel
-import PackageCollectionsSigning
+@preconcurrency import PackageCollectionsModel
+@preconcurrency import PackageCollectionsSigning
 import Vapor
 
 

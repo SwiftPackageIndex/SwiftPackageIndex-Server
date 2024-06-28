@@ -31,20 +31,24 @@ class GitlabBuilderTests: AppTestCase {
         // Ensure the POST variables are encoded correctly
         // setup
         let app = try await setup(.testing)
-        defer { app.shutdown() }
-        let req = Request(application: app, on: app.eventLoopGroup.next())
-        let dto = Gitlab.Builder.PostDTO(token: "token",
-                                         ref: "ref",
-                                         variables: ["FOO": "bar"])
+        
+        try await App.run {
+            let req = Request(application: app, on: app.eventLoopGroup.next())
+            let dto = Gitlab.Builder.PostDTO(token: "token",
+                                             ref: "ref",
+                                             variables: ["FOO": "bar"])
 
-        // MUT
-        try req.query.encode(dto)
+            // MUT
+            try req.query.encode(dto)
 
-        // validate
-        // Gitlab accepts both `variables[FOO]=bar` and `variables%5BFOO%5D=bar` for the [] encoding.
-        // Since Vapor 4.92.1 this is now encoded as `variables%5BFOO%5D=bar`.
-        XCTAssertEqual(req.url.query?.split(separator: "&").sorted(),
-                       ["ref=ref", "token=token", "variables%5BFOO%5D=bar"])
+            // validate
+            // Gitlab accepts both `variables[FOO]=bar` and `variables%5BFOO%5D=bar` for the [] encoding.
+            // Since Vapor 4.92.1 this is now encoded as `variables%5BFOO%5D=bar`.
+            XCTAssertEqual(req.url.query?.split(separator: "&").sorted(),
+                           ["ref=ref", "token=token", "variables%5BFOO%5D=bar"])
+        } defer: {
+            try await app.asyncShutdown()
+        }
     }
 
     func test_triggerBuild() throws {

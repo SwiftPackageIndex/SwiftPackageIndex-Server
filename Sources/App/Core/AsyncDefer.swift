@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Plot
-import Vapor
 
-
-extension Plot.RSS: Vapor.AsyncResponseEncodable {
-    public func encodeResponse(for request: Request) async throws -> Response {
-        let res = Response(status: .ok, body: .init(string: self.render()))
-        res.headers.add(name: "Content-Type", value: "application/rss+xml; charset=utf-8")
-        return res
+func run(_ operation: () async throws -> Void,
+         defer deferredOperation: () async throws -> Void) async throws {
+    do {
+        try await operation()
+        try await deferredOperation()
+    } catch {
+        try await deferredOperation()
+        throw error
     }
 }

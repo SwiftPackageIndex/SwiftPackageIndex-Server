@@ -55,7 +55,7 @@ extension Gitlab {
 extension Gitlab.Builder {
 
 #if DEBUG
-    static var branch = "main"
+    nonisolated(unsafe) static var branch = "main"
 #else
     static let branch = "main"
 #endif

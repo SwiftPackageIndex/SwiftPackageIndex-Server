@@ -15,13 +15,13 @@
 import Plot
 import Vapor
 
-extension SiteMapIndex: AsyncResponseEncodable, Renderable {
+extension Plot.SiteMapIndex: Vapor.AsyncResponseEncodable, Renderable {
     public func encodeResponse(for request: Request) async throws -> Response {
         try await encodeXMLResponse(for: request)
     }
 }
 
-extension SiteMap: AsyncResponseEncodable, Renderable {
+extension Plot.SiteMap: Vapor.AsyncResponseEncodable, Renderable {
     public func encodeResponse(for request: Request) async throws -> Response {
         try await encodeXMLResponse(for: request)
     }

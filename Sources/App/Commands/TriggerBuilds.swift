@@ -16,7 +16,7 @@ import Fluent
 import PostgresKit
 import SQLKit
 import Vapor
-
+@preconcurrency import SPIManifest
 
 struct TriggerBuildsCommand: AsyncCommand {
     let defaultLimit = 1
