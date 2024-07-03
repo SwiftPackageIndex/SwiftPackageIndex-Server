@@ -82,14 +82,6 @@
             }
         }
 
-        .runner > span {
-            padding-left: 22px;
-            background-position: left center;
-            background-repeat: no-repeat;
-            background-size: 15px;
-            background-image: var(--image-server);
-        }
-
         &:hover {
             .status {
                 background-color: var(--grid-failed-background);
