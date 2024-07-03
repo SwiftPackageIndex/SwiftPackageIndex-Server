@@ -13,7 +13,7 @@
 // limitations under the License.
 
 @testable import App
-@preconcurrency import Parsing
+import Parsing
 import XCTest
 
 class QueryPlanTests: XCTestCase {

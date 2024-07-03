@@ -1,4 +1,4 @@
-@preconcurrency import Cache
+import Cache
 
 typealias CurrentReferenceCache = ExpiringCache<String, String>
 
