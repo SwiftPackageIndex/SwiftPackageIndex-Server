@@ -227,7 +227,6 @@ extension DimensionLabels {
     static func buildReportLabels(_ build: App.Build) -> Self {
         .init([
             ("platform", build.platform.rawValue),
-            ("runnerId", build.runnerId ?? ""),
             ("swiftVersion", "\(build.swiftVersion)"),
         ])
     }
