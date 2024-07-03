@@ -110,13 +110,7 @@ enum BuildShow {
                     .code(
                         .text(model.buildInfo.logs)
                     )
-                ),
-                .unwrap(model.buildInfo.runner, {
-                    .p(
-                        .strong("Build Machine:"),
-                        .text(" \($0)")
-                    )
-                })
+                )
             )
         }
     }

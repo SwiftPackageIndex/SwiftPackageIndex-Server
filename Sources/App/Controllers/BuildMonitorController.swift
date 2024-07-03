@@ -24,7 +24,6 @@ enum BuildMonitorController {
             .field(Build.self, \.$platform)
             .field(Build.self, \.$swiftVersion)
             .field(Build.self, \.$status)
-            .field(Build.self, \.$runnerId)
             .field(Version.self, \.$packageName)
             .field(Version.self, \.$reference)
             .field(Version.self, \.$latest)

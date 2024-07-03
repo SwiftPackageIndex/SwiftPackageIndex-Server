@@ -30,7 +30,6 @@ class BuildMonitorIndexModelTests: AppTestCase {
             try Build(id: .id0,
                       version: version,
                       platform: .macosXcodebuild,
-                      runnerId: BuildRunner.mac0.rawValue,
                       status: .ok,
                       swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
             try Repository(package: package,
@@ -51,7 +50,6 @@ class BuildMonitorIndexModelTests: AppTestCase {
         XCTAssertEqual(model.reference, .branch("main"))
         XCTAssertEqual(model.referenceKind, .defaultBranch)
         XCTAssertEqual(model.status, .ok)
-        XCTAssertEqual(model.runner, .mac0)
     }
 
     func test_init_from_Build_without_repository_name() throws {
@@ -123,27 +121,5 @@ class BuildMonitorIndexModelTests: AppTestCase {
         let model = try XCTUnwrap(BuildMonitorIndex.Model(buildResult: buildResult))
 
         XCTAssertEqual(model.repositoryOwnerName, "daveverwer from Repository.owner")
-    }
-
-    func test_init_from_Build_invalid_runnerId() throws {
-        do {
-            let package = try savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
-            let version = try Version(package: package)
-            try version.save(on: app.db).wait()
-            try Build(version: version,
-                      platform: .macosXcodebuild,
-                      runnerId: "This is not a runnerId",
-                      status: .ok,
-                      swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
-            try Repository(package: package).save(on: app.db).wait()
-        }
-
-        // Query results back through the Joined4
-        let buildResult = try BuildResult.query(on: app.db).first().wait().unwrap()
-
-        // MUT
-        let model = try XCTUnwrap(BuildMonitorIndex.Model(buildResult: buildResult))
-
-        XCTAssertNil(model.runner)
     }
 }

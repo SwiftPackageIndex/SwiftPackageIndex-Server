@@ -26,8 +26,7 @@ extension Array where Element == BuildMonitorIndex.Model {
                   swiftVersion: .init(5, 6, 0),
                   reference: .tag(.init(1, 0, 0), "1.0.0"),
                   referenceKind: .release,
-                  status: .ok,
-                  runner: .mac0),
+                  status: .ok),
             .init(buildId: .id1,
                   createdAt: Current.date().adding(hours: -2),
                   packageName: "Rester",
@@ -36,8 +35,7 @@ extension Array where Element == BuildMonitorIndex.Model {
                   swiftVersion: SwiftVersion(5, 6, 0),
                   reference: .tag(.init(1, 0, 0, "beta1", ""), "1.0.0-beta1"),
                   referenceKind: .preRelease,
-                  status: .failed,
-                  runner: .linux1),
+                  status: .failed),
             .init(buildId: .id2,
                   createdAt: Current.date().adding(hours: -3),
                   packageName: "AccessibilitySnapshotColorBlindness",
@@ -46,8 +44,7 @@ extension Array where Element == BuildMonitorIndex.Model {
                   swiftVersion: SwiftVersion(5, 5, 0),
                   reference: .branch("main"),
                   referenceKind: .defaultBranch,
-                  status: .triggered,
-                  runner: nil)
+                  status: .triggered)
         ]
     }
 }
