@@ -366,8 +366,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-extras.git",
       "state" : {
-        "revision" : "a3b640d7dc567225db7c94386a6e71aded1bfa63",
-        "version" : "1.22.0"
+        "revision" : "05c36b57453d23ea63785d58a7dbc7b70ba1745e",
+        "version" : "1.23.0"
       }
     },
     {
