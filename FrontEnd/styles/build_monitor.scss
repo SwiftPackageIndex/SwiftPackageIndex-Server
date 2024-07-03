@@ -22,7 +22,7 @@
 
     .row {
         display: grid;
-        grid-template-columns: repeat(2, 2fr) 3fr repeat(2, 2fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 5px;
         padding: 10px;
         background-color: var(--grid-default-background);
@@ -33,7 +33,7 @@
         }
 
         .package-name {
-            grid-column: 1 / span 4;
+            grid-column: 1 / span 3;
 
             h3 {
                 margin: 0;
@@ -49,7 +49,7 @@
 
         .status {
             display: flex;
-            grid-column: 5;
+            grid-column: 4;
             grid-row: 1 / span 2;
             flex-direction: column;
             gap: 3px;

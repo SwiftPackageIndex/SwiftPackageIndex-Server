@@ -27,7 +27,6 @@ extension BuildMonitorIndex {
         var platform: Build.Platform
         var swiftVersion: SwiftVersion
         var status: Build.Status
-        var runner: BuildRunner?
 
         internal init(buildId: UUID,
                       createdAt: Date,
@@ -37,8 +36,7 @@ extension BuildMonitorIndex {
                       swiftVersion: SwiftVersion,
                       reference: Reference,
                       referenceKind: Version.Kind?,
-                      status: Build.Status,
-                      runner: BuildRunner?) {
+                      status: Build.Status) {
             self.buildId = buildId
             self.createdAt = createdAt
             self.packageName = packageName
@@ -48,15 +46,12 @@ extension BuildMonitorIndex {
             self.reference = reference
             self.referenceKind = referenceKind
             self.status = status
-            self.runner = runner
         }
 
         init?(buildResult: BuildResult) {
             guard let id = buildResult.build.id,
                   let createdAt = buildResult.build.createdAt
             else { return nil }
-
-            let runner = buildResult.build.runnerId.flatMap(BuildRunner.init(rawValue:))
 
             self.init(buildId: id,
                       createdAt: createdAt,
@@ -66,8 +61,7 @@ extension BuildMonitorIndex {
                       swiftVersion: buildResult.build.swiftVersion,
                       reference: buildResult.version.reference,
                       referenceKind: buildResult.version.latest,
-                      status: buildResult.build.status,
-                      runner: runner)
+                      status: buildResult.build.status)
         }
 
         func buildMonitorItem() -> Node<HTML.BodyContext> {
@@ -100,14 +94,6 @@ extension BuildMonitorIndex {
                     ),
                     .div(
                         .text(platform.displayName)
-                    ),
-                    .div(
-                        .class("runner"),
-                        .unwrap(runner, {
-                            .span(
-                                .text($0.description)
-                            )
-                        })
                     )
                 )
             )

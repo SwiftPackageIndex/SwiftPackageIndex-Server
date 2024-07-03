@@ -31,8 +31,7 @@ extension BuildShow {
                 let repositoryOwner = result.repository.owner,
                 let repositoryName = result.repository.name,
                 let buildInfo = BuildInfo(build: result.build, logs: logs),
-                let versionId = result.version.id,
-                let buildDate = result.build.updatedAt
+                let versionId = result.version.id
             else { return nil }
             self.init(buildInfo: buildInfo,
                       packageName: result.version.packageName ?? repositoryName,
@@ -66,7 +65,6 @@ extension BuildShow {
         var platform: App.Build.Platform
         var status: App.Build.Status
         var swiftVersion: SwiftVersion
-        var runner: BuildRunner?
         var buildDate: Date?
         var commitHash: String?
 
@@ -77,7 +75,6 @@ extension BuildShow {
                       platform: build.platform,
                       status: build.status,
                       swiftVersion: swiftVersion,
-                      runner: build.runnerId.flatMap(BuildRunner.init(rawValue:)),
                       buildDate: build.buildDate,
                       commitHash: build.commitHash)
         }
@@ -87,7 +84,6 @@ extension BuildShow {
                       platform: App.Build.Platform,
                       status: App.Build.Status,
                       swiftVersion: SwiftVersion,
-                      runner: BuildRunner? = nil,
                       buildDate: Date? = nil,
                       commitHash: String? = nil) {
             self.buildCommand = buildCommand
@@ -95,7 +91,6 @@ extension BuildShow {
             self.platform = platform
             self.status = status
             self.swiftVersion = swiftVersion
-            self.runner = runner
             self.buildDate = buildDate
             self.commitHash = commitHash
         }
