@@ -51,7 +51,7 @@ struct AppEnvironment: Sendable {
     var fetchS3Readme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> String
     var fileManager: FileManager
     var getStatusCount: @Sendable (_ client: Client,
-                         _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
+                                   _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
     var git: Git
     var githubToken: @Sendable () -> String?
     var gitlabApiToken: @Sendable () -> String?
@@ -73,19 +73,19 @@ struct AppEnvironment: Sendable {
     var shell: Shell
     var siteURL: @Sendable () -> String
     var storeS3Readme: @Sendable (_ owner: String,
-                        _ repository: String,
-                        _ readme: String) async throws -> String
+                                  _ repository: String,
+                                  _ readme: String) async throws -> String
     var storeS3ReadmeImages: @Sendable (_ client: Client,
-                              _ imagesToCache: [Github.Readme.ImageToCache]) async throws -> Void
+                                        _ imagesToCache: [Github.Readme.ImageToCache]) async throws -> Void
     var timeZone: @Sendable () -> TimeZone
     var triggerBuild: @Sendable (_ client: Client,
-                       _ buildId: Build.Id,
-                       _ cloneURL: String,
-                       _ isDocBuild: Bool,
-                       _ platform: Build.Platform,
-                       _ reference: Reference,
-                       _ swiftVersion: SwiftVersion,
-                       _ versionID: Version.Id) -> EventLoopFuture<Build.TriggerResponse>
+                                 _ buildId: Build.Id,
+                                 _ cloneURL: String,
+                                 _ isDocBuild: Bool,
+                                 _ platform: Build.Platform,
+                                 _ reference: Reference,
+                                 _ swiftVersion: SwiftVersion,
+                                 _ versionID: Version.Id) -> EventLoopFuture<Build.TriggerResponse>
 }
 
 
@@ -161,17 +161,17 @@ extension AppEnvironment {
                 .map { Data($0.utf8) }
         },
         currentReferenceCache: { .live },
-        date: Date.init,
+        date: { .init() },
         dbId: { Environment.get("DATABASE_ID") },
         environment: { (try? Environment.detect()) ?? .development },
         fetchDocumentation: { client, url in try await client.get(url) },
-        fetchHTTPStatusCode: Networking.fetchHTTPStatusCode,
-        fetchPackageList: liveFetchPackageList,
-        fetchPackageDenyList: liveFetchPackageDenyList,
-        fetchLicense: Github.fetchLicense(client:owner:repository:),
-        fetchMetadata: Github.fetchMetadata(client:owner:repository:),
-        fetchReadme: Github.fetchReadme(client:owner:repository:),
-        fetchS3Readme: S3Store.fetchReadme(client:owner:repository:),
+        fetchHTTPStatusCode: { url in try await Networking.fetchHTTPStatusCode(url) },
+        fetchPackageList: { client in try await liveFetchPackageList(client) },
+        fetchPackageDenyList: { client in try await liveFetchPackageDenyList(client) },
+        fetchLicense: { client, owner, repo in await Github.fetchLicense(client:client, owner: owner, repository: repo) },
+        fetchMetadata: { client, owner, repo in try await Github.fetchMetadata(client:client, owner: owner, repository: repo) },
+        fetchReadme: { client, owner, repo in await Github.fetchReadme(client:client, owner: owner, repository: repo) },
+        fetchS3Readme: { client, owner, repo in try await S3Store.fetchReadme(client:client, owner: owner, repository: repo) },
         fileManager: .live,
         getStatusCount: { client, status in
             Gitlab.Builder.getStatusCount(
@@ -203,8 +203,8 @@ extension AppEnvironment {
         mastodonPost: { client, message in try await Mastodon.post(client: client, message: message) },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },
-        postPlausibleEvent: Plausible.postEvent,
-        random: Double.random,
+        postPlausibleEvent: { client, kind, path, user in try await Plausible.postEvent(client: client, kind: kind, path: path, user: user) },
+        random: { range in Double.random(in: range) },
         runnerIds: {
             Environment.get("RUNNER_IDS")
                 .map { Data($0.utf8) }
@@ -215,10 +215,19 @@ extension AppEnvironment {
         setLogger: { logger in Self.logger = logger },
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
-        storeS3Readme: S3Store.storeReadme(owner:repository:readme:),
-        storeS3ReadmeImages: S3Store.storeReadmeImages(client:imagesToCache:),
+        storeS3Readme: { owner, repo, readme in try await S3Store.storeReadme(owner: owner, repository: repo, readme: readme) },
+        storeS3ReadmeImages: { client, images in try await S3Store.storeReadmeImages(client: client, imagesToCache: images) },
         timeZone: { .current },
-        triggerBuild: Gitlab.Builder.triggerBuild
+        triggerBuild: { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+            Gitlab.Builder.triggerBuild(client: client,
+                                        buildId: buildId,
+                                        cloneURL: cloneURL,
+                                        isDocBuild: isDocBuild,
+                                        platform: platform,
+                                        reference: ref,
+                                        swiftVersion: swiftVersion,
+                                        versionID: versionID)
+        }
     )
 }
 
@@ -295,13 +304,13 @@ struct Git: Sendable {
     var shortlog: @Sendable (String) async throws -> String
 
     static let live: Self = .init(
-        commitCount: commitCount(at:),
-        firstCommitDate: firstCommitDate(at:),
-        lastCommitDate: lastCommitDate(at:),
-        getTags: getTags(at:),
-        hasBranch: hasBranch(_:at:),
-        revisionInfo: revisionInfo(_:at:),
-        shortlog: shortlog(at:)
+        commitCount: { path in try await commitCount(at: path) },
+        firstCommitDate: { path in try await firstCommitDate(at: path) },
+        lastCommitDate: { path in try await lastCommitDate(at: path) },
+        getTags: { path in try await getTags(at: path) },
+        hasBranch: { ref, path in try await hasBranch(ref, at: path) },
+        revisionInfo: { ref, path in try await revisionInfo(ref, at: path) },
+        shortlog: { path in try await shortlog(at: path) }
     )
 }
 
