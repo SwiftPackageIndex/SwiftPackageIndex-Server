@@ -186,5 +186,5 @@
 - slug: switching-to-ephemeral-macos-build-runners
   title: Switching to ephemeral macOS build runners
   summary: We recently transitioned our Mac build machines that power our compatibility and documentation build system from a manually configured and maintained collection of Mac mini machines to a new Orka cluster from MacStadium. It provides complete isolation for builds, and a more efficient use of our build machines.
-  published_at: 2024-06-03
-  published: false
+  published_at: 2024-07-08
+  published: true
