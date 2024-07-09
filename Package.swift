@@ -42,7 +42,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.11.1"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
-        .package(url: "https://github.com/soto-project/soto.git", from: "7.0.0"),
+        .package(url: "https://github.com/soto-project/soto.git", from: "6.0.0"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/jwt-kit", from: "4.13.0"),
