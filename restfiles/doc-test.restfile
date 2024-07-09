@@ -174,14 +174,6 @@ requests:
     url: ${base_url}/apple/swift-distributed-tracing/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /apple/swift-docc-plugin/documentation:
-    url: ${base_url}/apple/swift-docc-plugin/documentation
-    validation:
-      status: .regex((2|3)\d\d)
-  /apple/swift-docc/documentation:
-    url: ${base_url}/apple/swift-docc/documentation
-    validation:
-      status: .regex((2|3)\d\d)
   /apple/swift-http-structured-headers/documentation:
     url: ${base_url}/apple/swift-http-structured-headers/documentation
     validation:
@@ -192,10 +184,6 @@ requests:
       status: .regex((2|3)\d\d)
   /apple/swift-log/documentation:
     url: ${base_url}/apple/swift-log/documentation
-    validation:
-      status: .regex((2|3)\d\d)
-  /apple/swift-markdown/documentation:
-    url: ${base_url}/apple/swift-markdown/documentation
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-metrics-extras/documentation:
@@ -560,6 +548,18 @@ requests:
       status: .regex((2|3)\d\d)
   /swiftcsv/SwiftCSV/documentation:
     url: ${base_url}/swiftcsv/SwiftCSV/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /swiftlang/swift-docc-plugin/documentation:
+    url: ${base_url}/swiftlang/swift-docc-plugin/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /swiftlang/swift-docc/documentation:
+    url: ${base_url}/swiftlang/swift-docc/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /swiftlang/swift-markdown/documentation:
+    url: ${base_url}/swiftlang/swift-markdown/documentation
     validation:
       status: .regex((2|3)\d\d)
   /swiftlang/swift-syntax/documentation:
