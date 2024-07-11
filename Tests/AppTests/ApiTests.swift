@@ -859,8 +859,8 @@ class ApiTests: AppTestCase {
                             // validation
                             XCTAssertEqual(res.status, .ok)
                             let pkgColl = try res.content.decode(PackageCollection.self)
-                            assertSnapshot(matching: pkgColl, as: .dump)
-            })
+                            assertSnapshot(of: pkgColl, as: .dump)
+                        })
         }
     }
 

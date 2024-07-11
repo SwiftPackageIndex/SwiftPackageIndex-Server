@@ -152,10 +152,10 @@ class AnalyzerTests: AppTestCase {
 
         // Snapshot for each package individually to avoid ordering issues when
         // concurrent processing causes commands to interleave between packages.
-        assertSnapshot(matching: commands.value
+        assertSnapshot(of: commands.value
                         .filter { $0.path.hasSuffix("foo-1") }
                         .map(\.description), as: .dump)
-        assertSnapshot(matching: commands.value
+        assertSnapshot(of: commands.value
                         .filter { $0.path.hasSuffix("foo-2") }
                         .map(\.description), as: .dump)
 
@@ -480,7 +480,7 @@ class AnalyzerTests: AppTestCase {
         _ = try await Analyze.refreshCheckout(package: jpr)
 
         // validate
-        assertSnapshot(matching: commands.value, as: .dump)
+        assertSnapshot(of: commands.value, as: .dump)
     }
 
     func test_updateRepository() async throws {
@@ -935,7 +935,7 @@ class AnalyzerTests: AppTestCase {
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
-        assertSnapshot(matching: commands.value, as: .dump)
+        assertSnapshot(of: commands.value, as: .dump)
     }
 
     @MainActor
@@ -972,7 +972,7 @@ class AnalyzerTests: AppTestCase {
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
-        assertSnapshot(matching: commands.value, as: .dump)
+        assertSnapshot(of: commands.value, as: .dump)
     }
 
     func test_dumpPackage_5_4() async throws {
@@ -1059,9 +1059,9 @@ class AnalyzerTests: AppTestCase {
                 }
             }
 #if os(macOS)
-            assertSnapshot(matching: json, as: .init(pathExtension: "json", diffing: .lines), named: "macos")
+            assertSnapshot(of: json, as: .init(pathExtension: "json", diffing: .lines), named: "macos")
 #elseif os(Linux)
-            assertSnapshot(matching: json, as: .init(pathExtension: "json", diffing: .lines), named: "linux")
+            assertSnapshot(of: json, as: .init(pathExtension: "json", diffing: .lines), named: "linux")
 #endif
         }
     }
@@ -1119,7 +1119,7 @@ class AnalyzerTests: AppTestCase {
         _ = try await Analyze.refreshCheckout(package: pkg)
 
         // validate
-        assertSnapshot(matching: commands.value, as: .dump)
+        assertSnapshot(of: commands.value, as: .dump)
     }
 
     func test_updateLatestVersions() async throws {

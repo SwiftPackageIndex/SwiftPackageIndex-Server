@@ -65,7 +65,7 @@ class PackageCollectionControllerTests: AppTestCase {
                 // validation
                 XCTAssertEqual(res.status, .ok)
                 let json = try res.content.decode(PackageCollection.self)
-                assertSnapshot(matching: json, as: .json(encoder))
+                assertSnapshot(of: json, as: .json(encoder))
             })
     }
 

@@ -142,7 +142,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         )
 
         let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedHistory, as: .lines)
+        assertSnapshot(of: renderedHistory, as: .lines)
     }
 
     func test_binary_targets() throws {
@@ -151,7 +151,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         model.licenseUrl = "<license-url-here>"
 
         let renderedBinaryOnly = model.binaryTargetsItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedBinaryOnly, as: .lines)
+        assertSnapshot(of: renderedBinaryOnly, as: .lines)
     }
 
     func test_binary_targets_no_license() throws {
@@ -160,7 +160,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         model.licenseUrl = nil
 
         let renderedBinaryOnly = model.binaryTargetsItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedBinaryOnly, as: .lines)
+        assertSnapshot(of: renderedBinaryOnly, as: .lines)
     }
 
     func test_history_archived_package() throws {
@@ -175,7 +175,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         model.isArchived = true
 
         let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedHistory, as: .lines)
+        assertSnapshot(of: renderedHistory, as: .lines)
     }
 
     func test_archived_warning_line_for_active_package() throws {
@@ -183,7 +183,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         model.isArchived = false
 
         let renderedHistory = model.archivedListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedHistory, as: .lines)
+        assertSnapshot(of: renderedHistory, as: .lines)
     }
 
     func test_archived_warning_line_for_archived_package() throws {
@@ -191,7 +191,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         model.isArchived = true
 
         let renderedHistory = model.archivedListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedHistory, as: .lines)
+        assertSnapshot(of: renderedHistory, as: .lines)
     }
 
     func test_activity_variants__missing_open_issue() throws {
@@ -199,7 +199,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         model.activity?.openIssuesURL = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedActivity, as: .lines)
+        assertSnapshot(of: renderedActivity, as: .lines)
     }
 
     func test_activity_variants__missing_open_PRs() throws {
@@ -207,7 +207,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         model.activity?.openPullRequestsURL = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedActivity, as: .lines)
+        assertSnapshot(of: renderedActivity, as: .lines)
     }
 
     func test_activity_variants__missing_open_issues_and_PRs() throws {
@@ -216,7 +216,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         model.activity?.openPullRequestsURL = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedActivity, as: .lines)
+        assertSnapshot(of: renderedActivity, as: .lines)
     }
 
     func test_activity_variants__missing_last_closed_issue() throws {
@@ -224,7 +224,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         model.activity?.lastIssueClosedAt = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedActivity, as: .lines)
+        assertSnapshot(of: renderedActivity, as: .lines)
     }
 
     func test_activity_variants__missing_last_closed_PR() throws {
@@ -232,7 +232,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         model.activity?.lastPullRequestClosedAt = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedActivity, as: .lines)
+        assertSnapshot(of: renderedActivity, as: .lines)
     }
 
     func test_activity_variants__missing_last_closed_issue_and_PR() throws {
@@ -241,7 +241,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         model.activity?.lastPullRequestClosedAt = nil
 
         let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedActivity, as: .lines)
+        assertSnapshot(of: renderedActivity, as: .lines)
     }
 
     func test_activity_variants__missing_everything() throws {
