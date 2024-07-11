@@ -24,9 +24,12 @@ class SnapshotTestCase: AppTestCase {
         try super.setUpWithError()
 
         Current.date = { Date(timeIntervalSince1970: 0) }
-
-        SnapshotTesting.isRecording = false
-        SnapshotTesting.diffTool = "ksdiff"
     }
     
+    override func invokeTest() {
+        withSnapshotTesting(record: .missing, diffTool: .ksdiff) {
+            super.invokeTest()
+        }
+    }
+
 }
