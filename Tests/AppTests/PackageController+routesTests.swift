@@ -484,7 +484,6 @@ class PackageController_routesTests: SnapshotTestCase {
 
     @MainActor
     func test_documentation_routes_current() async throws {
-        throw XCTSkip("Crashes with NSInternalInconsistencyException in SnapshotTesting/AssertSnapshot.swift:317")
         // Test the current (~) documentation routes:
         //   /owner/package/documentation/~ + various path elements
         // setup
@@ -564,7 +563,6 @@ class PackageController_routesTests: SnapshotTestCase {
 
     @MainActor
     func test_documentation_routes_current_rewrite() async throws {
-        throw XCTSkip("Crashes with NSInternalInconsistencyException in SnapshotTesting/AssertSnapshot.swift:317")
         // Test the current (~) documentation routes with baseURL rewriting:
         //   /owner/package/documentation/~ + various path elements
         // setup
@@ -636,7 +634,6 @@ class PackageController_routesTests: SnapshotTestCase {
 
     @MainActor
     func test_documentation_routes_ref() async throws {
-        throw XCTSkip("Crashes with NSInternalInconsistencyException in SnapshotTesting/AssertSnapshot.swift:317")
         // Test the documentation routes with a reference:
         //   /owner/package/documentation/{reference} + various path elements
         // setup
@@ -1046,7 +1043,6 @@ class PackageController_routesTests: SnapshotTestCase {
 
     @MainActor
     func test_documentation_issue_2287() async throws {
-        throw XCTSkip("Crashes with NSInternalInconsistencyException in SnapshotTesting/AssertSnapshot.swift:317")
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2287
         // Ensure references are path encoded
         // setup
@@ -1109,7 +1105,6 @@ class PackageController_routesTests: SnapshotTestCase {
 
     @MainActor
     func test_documentation_routes_tutorials() async throws {
-        throw XCTSkip("Crashes with NSInternalInconsistencyException in SnapshotTesting/AssertSnapshot.swift:317")
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
@@ -1356,7 +1351,6 @@ class PackageController_routesTests: SnapshotTestCase {
 
     @MainActor
     func test_issue_2288() async throws {
-        throw XCTSkip("Crashes with NSInternalInconsistencyException in SnapshotTesting/AssertSnapshot.swift:317")
         // Ensures default branch updates don't introduce a "documentation gap"
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
 

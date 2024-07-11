@@ -281,7 +281,6 @@ class API_PackageControllerTests: AppTestCase {
 
     func test_BuildInfo_query() async throws {
         // setup
-        throw XCTSkip("Currently failing due to https://github.com/vapor/fluent-kit/issues/612")
         do {
             let pkg = try savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
