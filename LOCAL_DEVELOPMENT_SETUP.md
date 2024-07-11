@@ -218,7 +218,7 @@ The trickiest part of this is to ensure the test or app container can connect to
 So, in order to run the tests in a Linux container run:
 
 ```
-docker run --rm -v "$PWD":/host -w /host --add-host=host.docker.internal:host-gateway registry.gitlab.com/finestructure/spi-base:1.0.0 swift test
+docker run --rm -v "$PWD":/host -w /host --add-host=host.docker.internal:host-gateway registry.gitlab.com/finestructure/spi-base:1.0.1 swift test
 ```
 
 Make sure you use the most recent `spi-base` image. You can find the latest image name in the `test-docker` target, which also provides a convenient way to run all all tests in a docker container.
