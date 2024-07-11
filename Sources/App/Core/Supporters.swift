@@ -19,18 +19,35 @@ enum Supporters {
                                                       width: 100, height: 123),
                                           url: "http://apple.com")
 
-    static var corporate: [Corporate] = [
-        .init(name: "Emerge Tools",
-              logo: .init(lightModeUrl: "/images/sponsors/emerge-tools.png",
-                          darkModeUrl: "/images/sponsors/emerge-tools~dark.png"),
-              url: "https://www.emergetools.com/?utm_source=spi2&utm_medium=sponsor&utm_campaign=emerge",
-              advertisingCopy: "Join the future of mobile development. Trusted by top companies like Duolingo, Square, DoorDash & more…"),
-        .init(name: "Genius Scan SDK",
-              logo: .init(lightModeUrl: "/images/sponsors/genius-scan.png",
-                          darkModeUrl: "/images/sponsors/genius-scan~dark.png"),
-              url: "https://geniusscansdk.com/?utm_source=swiftpackageindex&utm_medium=referral&utm_campaign=spi_2024_jan_jun",
-              advertisingCopy: "Embed a reliable, high-quality, privacy-focused document scanner in your app."),
-    ]
+    static var corporate: [Corporate] = {
+        if Current.environment() == .production {
+            return [
+                .init(name: "Emerge Tools",
+                      logo: .init(lightModeUrl: "/images/sponsors/emerge-tools.png",
+                                  darkModeUrl: "/images/sponsors/emerge-tools~dark.png"),
+                      url: "https://www.emergetools.com/?utm_source=spi2&utm_medium=sponsor&utm_campaign=emerge",
+                      advertisingCopy: "Join the future of mobile development. Trusted by top companies like Duolingo, Square, DoorDash & more…"),
+                .init(name: "Genius Scan SDK",
+                      logo: .init(lightModeUrl: "/images/sponsors/genius-scan.png",
+                                  darkModeUrl: "/images/sponsors/genius-scan~dark.png"),
+                      url: "https://geniusscansdk.com/?utm_source=swiftpackageindex&utm_medium=referral&utm_campaign=spi_2024_jan_jun",
+                      advertisingCopy: "Embed a reliable, high-quality, privacy-focused document scanner in your app."),
+            ]
+        } else {
+            return [
+                .init(name: "Emerge Tools",
+                      logo: .init(lightModeUrl: "/images/sponsors/emerge-tools.png",
+                                  darkModeUrl: "/images/sponsors/emerge-tools~dark.png"),
+                      url: "https://www.emergetools.com/?utm_source=spi2&utm_medium=sponsor&utm_campaign=emerge",
+                      advertisingCopy: "Join the future of mobile development. Trusted by top companies like Duolingo, Square, DoorDash & more…"),
+                .init(name: "ContextSDK",
+                      logo: .init(lightModeUrl: "/images/sponsors/contextsdk.svg",
+                                  darkModeUrl: "/images/sponsors/contextsdk~dark.svg"),
+                      url: "https://contextsdk.com",
+                      advertisingCopy: "Intent detection with real-world context. Lean, lightweight and GDPR compliant out of the box."),
+            ]
+        }
+    }()
 
     static var infrastructure: [Corporate] = [
         .init(name: "MacStadium",
