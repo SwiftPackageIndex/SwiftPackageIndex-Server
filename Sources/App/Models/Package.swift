@@ -301,7 +301,7 @@ extension Package {
                                 limit: Int) async throws -> [Joined<Package, Repository>] {
         try await Joined.query(on: database)
             .filter(for: stage)
-            .sort(.sql(raw: "status != 'new'"))
+            .sort(.sql(unsafeRaw: "status != 'new'"))
             .sort(\.$updatedAt)
             .limit(limit)
             .all()

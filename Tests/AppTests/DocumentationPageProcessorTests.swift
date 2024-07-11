@@ -56,7 +56,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
         )
 
         // MUT & validate
-        assertSnapshot(matching: processor.header, as: .html)
+        assertSnapshot(of: processor.header, as: .html)
     }
 
     func test_rewriteBaseUrls() throws {

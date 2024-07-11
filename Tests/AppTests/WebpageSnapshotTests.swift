@@ -35,7 +35,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
         let page = { HomeIndex.View(path: "/", model: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_HomeIndexView_development() throws {
@@ -45,7 +45,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
         let page = { HomeIndex.View(path: "/", model: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView() throws {
@@ -53,7 +53,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.homepageUrl = "https://swiftpackageindex.com/"
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_binary_targets() throws {
@@ -63,7 +63,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_few_keywords() throws {
@@ -79,7 +79,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_many_keywords() throws {
@@ -102,7 +102,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_emoji_summary() throws {
@@ -111,7 +111,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_open_source_license() throws {
@@ -120,7 +120,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.licenseUrl = "https://example.com/license.html"
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_app_store_incompatible_license() throws {
@@ -129,7 +129,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.licenseUrl = "https://example.com/license.html"
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_other_license() throws {
@@ -138,7 +138,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.licenseUrl = "https://example.com/license.html"
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_no_license() throws {
@@ -147,7 +147,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.licenseUrl = nil
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_no_authors_activity() throws {
@@ -158,7 +158,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.activity = nil
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_withPackageFundingLinks() throws {
@@ -171,7 +171,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         ]
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_with_documentation_link() throws {
@@ -179,7 +179,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.documentationTarget = .internal(docVersion: .reference("main"), archive: "archive")
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_single_row_tables() throws {
@@ -211,7 +211,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         }
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_no_builds() throws {
@@ -221,7 +221,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.platformBuildInfo = .init(stable: nil, beta: nil, latest: nil)
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView_canonicalURL_noImageSnapshots() throws {
@@ -232,19 +232,19 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.repositoryName = "repo"
         let page = { PackageShow.View(path: "/OWNER/Repo", model: model, packageSchema: .mock).document() }
         
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
     
     func test_PackageShowView_missingPackage() throws {
         let page = { MissingPackage.View(path: "", model: .mock).document() }
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageReadmeView() throws {
         let model = PackageReadme.Model.mock
         let page = { PackageReadme.View(model: model).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     // Note: This snapshot test deliberately omits an image snapshot as the HTML being tested has no explicit styling.
@@ -256,7 +256,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                         readme: "")
         let page = { PackageReadme.View(model: model).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     // Note: This snapshot test deliberately omits an image snapshot as the HTML being tested has no explicit styling.
@@ -264,32 +264,32 @@ class WebpageSnapshotTests: SnapshotTestCase {
         let model = PackageReadme.Model.noReadme
         let page = { PackageReadme.View(model: model).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageReleasesView() throws {
         let model = PackageReleases.Model.mock
         let page = { PackageReleases.View(model: model).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageReleasesView_NoModel() throws {
         let page = { PackageReleases.View(model: nil).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_ErrorPageView() throws {
         let page = { ErrorPage.View(path: "", error: Abort(.notFound)).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_MarkdownPage() throws {
         let page = { MarkdownPage(path: "", "privacy.md").document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_MarkdownPageStyling() throws {
@@ -298,37 +298,37 @@ class WebpageSnapshotTests: SnapshotTestCase {
         let html = MarkdownParser().parse(markdown).html
         let page = { MarkdownPage(path: "", html: html).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_BuildIndex() throws {
         let page = { BuildIndex.View(path: "", model: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_BuildShow() throws {
         let page = { BuildShow.View(path: "", model: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_BuildMonitorIndex() throws {
         let page = { BuildMonitorIndex.View(path: "", builds: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_MaintainerInfoIndex() throws {
         let page = { MaintainerInfoIndex.View(path: "", model: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_AuthorShow() throws {
         let page = { AuthorShow.View(path: "", model: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_SearchShow() throws {
@@ -406,26 +406,26 @@ class WebpageSnapshotTests: SnapshotTestCase {
         let page = { SearchShow.View(path: "/search?query=foo",
                                      model: .mock(results: mockResults)).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_SearchShow_withFilters() throws {
         let page = { SearchShow.View(path: "", model: .mockWithFilter()).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_SearchShow_withXSSAttempt() throws {
         let page = { SearchShow.View(path: "/search?query=%27%3E%22%3E%3C/script%3E%3Csvg/onload=confirm(%27XSS%27)%3E",
                                      model: .mockWithXSS()).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_KeywordShow() throws {
         let page = { KeywordShow.View(path: "", model: .mock).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_DocCTemplate() throws {
@@ -452,7 +452,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
                                                                  rawHtml: doccHtml))
 
-        assertSnapshot(matching: processor.processedPage, as: .html)
+        assertSnapshot(of: processor.processedPage, as: .html)
     }
 
     func test_DocCTemplate_outdatedStableVersion() throws {
@@ -483,7 +483,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
                                                                  rawHtml: doccHtml))
 
-        assertSnapshot(matching: processor.processedPage, as: .html)
+        assertSnapshot(of: processor.processedPage, as: .html)
     }
 
     func test_DocCTemplate_multipleVersions() throws {
@@ -520,7 +520,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  updatedAt: Date(timeIntervalSince1970: 0),
                                                                  rawHtml: doccHtml))
 
-        assertSnapshot(matching: processor.processedPage, as: .html)
+        assertSnapshot(of: processor.processedPage, as: .html)
     }
 
     func test_SupportersShow() throws {
@@ -529,14 +529,14 @@ class WebpageSnapshotTests: SnapshotTestCase {
         let model = SupportersShow.Model()
         let page = { SupportersShow.View(path: "", model: model).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_ReadyForSwift6Show() throws {
         let model = ReadyForSwift6Show.Model()
         let page = { ReadyForSwift6Show.View(path: "", model: model).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_ValidateSPIManifest_show() throws {
@@ -544,7 +544,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         let model = ValidateSPIManifest.Model(validationResult: .valid(manifest))
         let page = { ValidateSPIManifest.View(path: "", model: model).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_Blog_index() {
@@ -552,7 +552,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         let model = BlogActions.Model.mock
         let page = { BlogActions.Index.View(path: "", model: model).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_Blog_show() {
@@ -569,6 +569,6 @@ class WebpageSnapshotTests: SnapshotTestCase {
         let model = BlogActions.Model.PostSummary.mock()
         let page = { BlogActions.Show.View(path: "", model: model).document() }
 
-        assertSnapshot(matching: page, as: .html)
+        assertSnapshot(of: page, as: .html)
     }
 }

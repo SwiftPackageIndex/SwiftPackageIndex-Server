@@ -34,7 +34,7 @@ class RSSTests: SnapshotTestCase {
         let item = RecentPackage.mock().rssItem
 
         // MUT + validation
-        assertSnapshot(matching: item.render(indentedBy: .spaces(2)),
+        assertSnapshot(of: item.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
@@ -60,7 +60,7 @@ class RSSTests: SnapshotTestCase {
         )
 
         // MUT + validation
-        assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
+        assertSnapshot(of: feed.rss.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
@@ -86,7 +86,7 @@ class RSSTests: SnapshotTestCase {
         let feed = try await RSSFeed.recentPackages(on: app.db, limit: 8)
 
         // validation
-        assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
+        assertSnapshot(of: feed.rss.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
@@ -127,7 +127,7 @@ class RSSTests: SnapshotTestCase {
         let feed = try await RSSFeed.recentReleases(on: app.db, limit: 8)
 
         // validation
-        assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
+        assertSnapshot(of: feed.rss.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
@@ -172,7 +172,7 @@ class RSSTests: SnapshotTestCase {
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
             // validation
-            assertSnapshot(matching: String(decoding: res.body.readableBytesView, as: UTF8.self),
+            assertSnapshot(of: String(decoding: res.body.readableBytesView, as: UTF8.self),
                            as: .init(pathExtension: "xml", diffing: .lines))
         })
     }
@@ -209,7 +209,7 @@ class RSSTests: SnapshotTestCase {
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
             // validation
-            assertSnapshot(matching: String(decoding: res.body.readableBytesView, as: UTF8.self),
+            assertSnapshot(of: String(decoding: res.body.readableBytesView, as: UTF8.self),
                            as: .init(pathExtension: "xml", diffing: .lines))
         })
     }
@@ -246,7 +246,7 @@ class RSSTests: SnapshotTestCase {
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
             // validation
-            assertSnapshot(matching: String(decoding: res.body.readableBytesView, as: UTF8.self),
+            assertSnapshot(of: String(decoding: res.body.readableBytesView, as: UTF8.self),
                            as: .init(pathExtension: "xml", diffing: .lines))
         })
     }
@@ -284,7 +284,7 @@ class RSSTests: SnapshotTestCase {
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
             // validation
-            assertSnapshot(matching: String(decoding: res.body.readableBytesView, as: UTF8.self),
+            assertSnapshot(of: String(decoding: res.body.readableBytesView, as: UTF8.self),
                            as: .init(pathExtension: "xml", diffing: .lines))
         })
     }

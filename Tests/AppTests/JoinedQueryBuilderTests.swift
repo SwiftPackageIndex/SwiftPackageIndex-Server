@@ -39,7 +39,7 @@ class JoinedQueryBuilderTests: AppTestCase {
         do {  // test sort(_ sort: DatabaseQuery.Sort)
             // MUT
             let res = try query()
-                .sort(DatabaseQuery.Sort.sort(.sql(raw: "url"), .descending))
+                .sort(DatabaseQuery.Sort.sort(.sql(unsafeRaw: "url"), .descending))
                 .all().wait()
 
             // validate
@@ -59,7 +59,7 @@ class JoinedQueryBuilderTests: AppTestCase {
         do {  // test sort(_ field: DatabaseQuery.Field, _ direction:)
             // MUT
             let res = try query()
-                .sort(DatabaseQuery.Field.sql(raw: "url"), .descending)
+                .sort(DatabaseQuery.Field.sql(unsafeRaw: "url"), .descending)
                 .all().wait()
 
             // validate

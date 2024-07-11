@@ -39,7 +39,7 @@ class SitemapTests: SnapshotTestCase {
         let siteMapIndex = try await SiteMapController.index(req: req)
 
         // Validation
-        assertSnapshot(matching: siteMapIndex.render(indentedBy: .spaces(2)),
+        assertSnapshot(of: siteMapIndex.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
@@ -78,7 +78,7 @@ class SitemapTests: SnapshotTestCase {
         let siteMap = try await SiteMapController.staticPages(req: req)
 
         // Validation
-        assertSnapshot(matching: siteMap.render(indentedBy: .spaces(2)),
+        assertSnapshot(of: siteMap.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
@@ -209,7 +209,7 @@ class SitemapTests: SnapshotTestCase {
         let xml = sitemap.render(indentedBy: .spaces(2))
 
         // Validation
-        assertSnapshot(matching: xml, as: .init(pathExtension: "xml", diffing: .lines))
+        assertSnapshot(of: xml, as: .init(pathExtension: "xml", diffing: .lines))
     }
 
     @MainActor
@@ -238,7 +238,7 @@ class SitemapTests: SnapshotTestCase {
         let xml = sitemap.render(indentedBy: .spaces(2))
 
         // Validation
-        assertSnapshot(matching: xml, as: .init(pathExtension: "xml", diffing: .lines))
+        assertSnapshot(of: xml, as: .init(pathExtension: "xml", diffing: .lines))
     }
 
 }
