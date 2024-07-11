@@ -1,5 +1,5 @@
 {
-  "originHash" : "c46455091ffa577320377ff0c99e3f5a1c37d6ae72d7c74d2ec7deb9e5140013",
+  "originHash" : "856b71caa5a79a7ac5edf6496f62c2ee3944fdffb5eb6536bea285f88981e944",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -186,8 +186,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soto-project/soto.git",
       "state" : {
-        "revision" : "c28c3efa72e6beceae6f38f8c8fe18e7c57e3418",
-        "version" : "6.8.0"
+        "revision" : "7f1225d1992debad64d6f0adec4dfc2c15a49367",
+        "version" : "7.0.0"
       }
     },
     {
@@ -195,8 +195,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soto-project/soto-core.git",
       "state" : {
-        "revision" : "3ed66ec536bc372360d7e3ec39a5e8b1870747ea",
-        "version" : "6.5.2"
+        "revision" : "86145a0e6a5091bf124fc18aa029698c4c419b1a",
+        "version" : "7.0.0"
       }
     },
     {
@@ -308,6 +308,15 @@
       }
     },
     {
+      "identity" : "swift-distributed-tracing",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-distributed-tracing.git",
+      "state" : {
+        "revision" : "11c756c5c4d7de0eeed8595695cadd7fa107aa19",
+        "version" : "1.1.1"
+      }
+    },
+    {
       "identity" : "swift-driver",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-driver.git",
@@ -319,7 +328,7 @@
     {
       "identity" : "swift-http-types",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-http-types.git",
+      "location" : "https://github.com/apple/swift-http-types",
       "state" : {
         "revision" : "1ddbea1ee34354a6a2532c60f98501c35ae8edfa",
         "version" : "1.2.0"
@@ -422,6 +431,15 @@
       "state" : {
         "revision" : "a0e7d73f462c1c38c59dc40a3969ac40cea42950",
         "version" : "0.13.0"
+      }
+    },
+    {
+      "identity" : "swift-service-context",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-service-context.git",
+      "state" : {
+        "revision" : "ce0141c8f123132dbd02fd45fea448018762df1b",
+        "version" : "1.0.0"
       }
     },
     {
