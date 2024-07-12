@@ -13,8 +13,10 @@
 // limitations under the License.
 
 @testable import App
+
 import XCTVapor
 import SemanticVersion
+
 
 final class MastodonTests: AppTestCase {
 

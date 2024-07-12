@@ -13,9 +13,10 @@
 // limitations under the License.
 
 @testable import App
-import SnapshotTesting
+
 import InlineSnapshotTesting
 import XCTVapor
+
 
 class SocialTests: AppTestCase {
 

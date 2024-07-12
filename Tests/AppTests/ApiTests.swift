@@ -567,7 +567,6 @@ class ApiTests: AppTestCase {
 
     func test_post_docReport_unauthenticated() async throws {
         // setup
-        let app = self.app!
         Current.builderToken = { "secr3t" }
         let p = try await savePackageAsync(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)

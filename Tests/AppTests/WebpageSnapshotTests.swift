@@ -22,6 +22,7 @@ import SPIManifest
 import SnapshotTesting
 import Vapor
 
+
 class WebpageSnapshotTests: SnapshotTestCase {
 
     override func setUpWithError() throws {

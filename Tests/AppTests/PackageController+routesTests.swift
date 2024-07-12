@@ -14,7 +14,9 @@
 
 import XCTest
 import XCTVapor
+
 @testable import App
+
 import SnapshotTesting
 import SwiftSoup
 import Vapor
@@ -224,7 +226,6 @@ class PackageController_routesTests: SnapshotTestCase {
               </p>
             </turbo-frame>
             """)
-        let app = self.app!
         try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
         let s3Readme = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first()?.s3Readme)
         XCTAssert(s3Readme.isError)

@@ -995,7 +995,6 @@ class BuildTriggerTests: AppTestCase {
 
     func test_trimBuilds_significant_version() async throws {
         // setup
-        let app = self.app!
         let pkgId = UUID()
         let p = Package(id: pkgId, url: "1")
         try await p.save(on: app.db)
@@ -1031,7 +1030,6 @@ class BuildTriggerTests: AppTestCase {
 
     func test_trimBuilds_non_significant_version() async throws {
         // setup
-        let app = self.app!
         let pkgId = UUID()
         let p = Package(id: pkgId, url: "1")
         try await p.save(on: app.db)
