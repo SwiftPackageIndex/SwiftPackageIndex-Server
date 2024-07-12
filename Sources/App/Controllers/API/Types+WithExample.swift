@@ -3,9 +3,10 @@ import VaporToOpenAPI
 import DependencyResolution
 import PackageCollectionsSigning
 
+
 // MARK: - External types
 
-extension Foundation.Date: VaporToOpenAPI.WithExample {
+extension Date: VaporToOpenAPI.WithExample {
     public static var example: Self { .init(rfc1123: "Sat, 25 Apr 2020 10:55:00 UTC")! }
 }
 

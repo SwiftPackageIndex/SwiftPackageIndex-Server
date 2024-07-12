@@ -16,7 +16,9 @@ import Metrics
 import Prometheus
 import Vapor
 
+
 enum AppMetrics {
+
     nonisolated(unsafe) static var initialized = false
 
     static func bootstrap() {

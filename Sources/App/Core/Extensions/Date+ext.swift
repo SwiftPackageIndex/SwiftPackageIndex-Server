@@ -53,7 +53,7 @@ extension DateFormatter {
 
 
 // LosslessStringConvertible conformance is required by @Option command line argument conversion
-extension Foundation.Date: Swift.LosslessStringConvertible {
+extension Date: Swift.LosslessStringConvertible {
     private static var iso8601: ISO8601DateFormatter { ISO8601DateFormatter() }
     private static var ymd: DateFormatter {
         let formatter = DateFormatter()

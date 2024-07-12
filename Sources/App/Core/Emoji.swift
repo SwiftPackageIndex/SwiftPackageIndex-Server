@@ -15,6 +15,7 @@
 import Foundation
 import Vapor
 
+
 fileprivate struct Emoji: Decodable {
     enum CodingKeys: String, CodingKey {
         case unicode = "emoji"
@@ -24,6 +25,7 @@ fileprivate struct Emoji: Decodable {
     let unicode: String
     let names: [String]
 }
+
 
 struct EmojiStorage {
     nonisolated(unsafe) static var current = EmojiStorage()
@@ -74,13 +76,11 @@ struct EmojiStorage {
 
         return mutableString
     }
-
 }
 
-extension String {
 
+extension String {
     func replaceShorthandEmojis() -> String {
         return EmojiStorage.current.replace(inString: self)
     }
-
 }

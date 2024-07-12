@@ -21,6 +21,7 @@ import Vapor
 import FoundationNetworking
 #endif
 
+
 struct AppEnvironment: Sendable {
     var allowBuildTriggers: @Sendable () -> Bool
     var allowTwitterPosts: @Sendable () -> Bool

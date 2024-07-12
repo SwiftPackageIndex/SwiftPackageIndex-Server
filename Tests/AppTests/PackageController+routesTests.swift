@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import XCTest
-import XCTVapor
 
 @testable import App
 

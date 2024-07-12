@@ -15,6 +15,7 @@
 import Plot
 import Vapor
 
+
 extension Plot.SiteMapIndex: Vapor.AsyncResponseEncodable, Renderable {
     public func encodeResponse(for request: Request) async throws -> Response {
         try await encodeXMLResponse(for: request)

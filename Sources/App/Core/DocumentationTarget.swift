@@ -15,6 +15,7 @@
 import Fluent
 @preconcurrency import SPIManifest
 
+
 enum DocumentationTarget: Equatable, Codable {
     case external(url: String)
     case `internal`(docVersion: DocVersion, archive: String)
