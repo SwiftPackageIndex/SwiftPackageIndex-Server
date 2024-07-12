@@ -13,11 +13,13 @@
 // limitations under the License.
 
 
-func run(_ operation: () async throws -> Void,
-         defer deferredOperation: () async throws -> Void) async throws {
+@discardableResult
+func run<T>(_ operation: () async throws -> T,
+         defer deferredOperation: () async throws -> Void) async throws -> T {
     do {
-        try await operation()
+        let result = try await operation()
         try await deferredOperation()
+        return result
     } catch {
         try await deferredOperation()
         throw error
