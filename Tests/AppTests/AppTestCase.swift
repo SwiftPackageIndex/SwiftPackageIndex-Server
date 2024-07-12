@@ -20,10 +20,6 @@ class AppTestCase: XCTestCase {
     var app: Application!
     let logger = CapturingLogger()
 
-    func future<T>(_ value: T) -> EventLoopFuture<T> {
-        app.eventLoopGroup.next().future(value)
-    }
-
     override func setUp() async throws {
         try await super.setUp()
         app = try await setup(.testing)
@@ -33,7 +29,7 @@ class AppTestCase: XCTestCase {
     }
 
     override func tearDown() async throws {
-        app.shutdown()
+        try await app.asyncShutdown()
         try await super.tearDown()
     }
 }

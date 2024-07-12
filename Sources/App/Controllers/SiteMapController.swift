@@ -17,9 +17,10 @@ import Fluent
 import SQLKit
 import Plot
 
+
 enum SiteMapController {
 
-    static var staticRoutes: [SiteURL] = [
+    static let staticRoutes: [SiteURL] = [
         .home,
         .addAPackage,
         .faq,

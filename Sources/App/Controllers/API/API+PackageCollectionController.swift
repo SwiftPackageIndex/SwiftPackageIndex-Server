@@ -14,6 +14,7 @@
 
 import Fluent
 import PackageCollectionsModel
+import PackageCollectionsSigning
 import Vapor
 
 
@@ -59,7 +60,7 @@ extension API {
 }
 
 
-extension SignedCollection: Content {}
+extension PackageCollectionSigning.Model.SignedCollection: Vapor.Content {}
 
 
 extension API {

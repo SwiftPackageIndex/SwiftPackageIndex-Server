@@ -32,16 +32,20 @@ public struct S3Store {
 
     public func save(payload: Data, to key: Key) async throws {
         let client = AWSClient(credentialProvider: .static(accessKeyId: credentials.keyId, secretAccessKey: credentials.secret))
-        defer { try? client.syncShutdown() }
-        let s3 = S3(client: client, region: Self.region)
-
-        let req = S3.PutObjectRequest(
-            acl: .publicRead,  // requires "Block all public access" to be "off"
-            body: .init(buffer: .init(data: payload)),
-            bucket: key.bucket,
-            key: key.path
-        )
-        _ = try await s3.putObject(req)
+        do {
+            let s3 = S3(client: client, region: Self.region)
+            let req = S3.PutObjectRequest(
+                acl: .publicRead,  // requires "Block all public access" to be "off"
+                body: .init(buffer: .init(data: payload)),
+                bucket: key.bucket,
+                key: key.path
+            )
+            _ = try await s3.putObject(req)
+            try await client.shutdown()
+        } catch {
+            try await client.shutdown()
+            throw error
+        }
     }
 }
 

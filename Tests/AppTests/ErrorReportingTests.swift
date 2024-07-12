@@ -49,8 +49,8 @@ class ErrorReportingTests: AppTestCase {
     func test_Analyzer_error_reporting() async throws {
         // setup
         try await Package(id: .id1, url: "1".asGithubUrl.url, processingStage: .ingestion).save(on: app.db)
-        Current.fileManager.fileExists = { _ in true }
-        Current.shell.run = { cmd, path in
+        Current.fileManager.fileExists = { @Sendable _ in true }
+        Current.shell.run = { @Sendable cmd, path in
             if cmd.description == "git tag" { return "1.0.0" }
             // returning a blank string will cause an exception when trying to
             // decode it as the manifest result - we use this to simulate errors

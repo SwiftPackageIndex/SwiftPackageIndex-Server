@@ -19,7 +19,7 @@ import Vapor
 
 enum AppMetrics {
 
-    static var initialized = false
+    nonisolated(unsafe) static var initialized = false
 
     static func bootstrap() {
         // prevent tests from boostrapping multiple times

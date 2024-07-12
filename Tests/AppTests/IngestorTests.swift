@@ -561,7 +561,7 @@ class IngestorTests: AppTestCase {
         // use mock for metadata request which we're not interested in ...
         Current.fetchMetadata = { _, _, _ in Github.Metadata() }
         // and live fetch request for fetchLicense, whose behaviour we want to test ...
-        Current.fetchLicense = Github.fetchLicense(client:owner:repository:)
+        Current.fetchLicense = { client, owner, repo in await Github.fetchLicense(client: client, owner: owner, repository: repo) }
         // and simulate its underlying request returning a 404 (by making all requests
         // return a 404, but it's the only one we're sending)
         let client = MockClient { _, resp in resp.status = .notFound }

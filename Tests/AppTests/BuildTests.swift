@@ -128,7 +128,16 @@ class BuildTests: AppTestCase {
 
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
-        Current.triggerBuild = Gitlab.Builder.triggerBuild
+        Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+            Gitlab.Builder.triggerBuild(client: client,
+                                        buildId: buildId,
+                                        cloneURL: cloneURL,
+                                        isDocBuild: isDocBuild,
+                                        platform: platform,
+                                        reference: ref,
+                                        swiftVersion: swiftVersion,
+                                        versionID: versionID)
+        }
         var called = false
         let client = MockClient { req, res in
             called = true
@@ -184,7 +193,16 @@ class BuildTests: AppTestCase {
 
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
-        Current.triggerBuild = Gitlab.Builder.triggerBuild
+        Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+            Gitlab.Builder.triggerBuild(client: client,
+                                        buildId: buildId,
+                                        cloneURL: cloneURL,
+                                        isDocBuild: isDocBuild,
+                                        platform: platform,
+                                        reference: ref,
+                                        swiftVersion: swiftVersion,
+                                        versionID: versionID)
+        }
         var called = false
         let client = MockClient { req, res in
             called = true

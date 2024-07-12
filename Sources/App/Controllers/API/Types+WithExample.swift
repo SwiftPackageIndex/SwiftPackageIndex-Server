@@ -1,11 +1,27 @@
+// Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import Foundation
 
 import VaporToOpenAPI
 import DependencyResolution
+import PackageCollectionsSigning
+
 
 // MARK: - External types
 
-extension Date: WithExample {
+extension Date: VaporToOpenAPI.WithExample {
     public static var example: Self { .init(rfc1123: "Sat, 25 Apr 2020 10:55:00 UTC")! }
 }
 
@@ -85,7 +101,7 @@ extension API.PostPackageCollectionDTO: WithExample {
     }
 }
 
-extension PackageCollectionModel.V1.Collection: WithExample {
+extension PackageCollectionModel.V1.Collection: VaporToOpenAPI.WithExample {
     public static var example: Self {
         .init(name: "Packages by mona",
               overview: "A collection of packages authored by mona from the Swift Package Index",
@@ -104,7 +120,7 @@ extension PackageCollectionModel.V1.Collection: WithExample {
     }
 }
 
-extension PackageCollectionModel.V1.Signature.Certificate: WithExample {
+extension PackageCollectionModel.V1.Signature.Certificate: VaporToOpenAPI.WithExample {
     public static var example: Self {
         .init(subject: .init(userID: "V676TFACYJ",
                              commonName: "Swift Package Collection: SPI Operations Limited",
@@ -117,13 +133,13 @@ extension PackageCollectionModel.V1.Signature.Certificate: WithExample {
     }
 }
 
-extension PackageCollectionModel.V1.Signature: WithExample {
+extension PackageCollectionModel.V1.Signature: VaporToOpenAPI.WithExample {
     public static var example: Self {
         .init(signature: "ewogICJhbGciIDogIlJ...<snip>...WD1pXXPrkvVJlv4w", certificate: .example)
     }
 }
 
-extension SignedCollection: WithExample {
+extension PackageCollectionSigning.Model.SignedCollection: VaporToOpenAPI.WithExample {
     public static var example: Self {
         .init(collection: .example, signature: .example)
     }

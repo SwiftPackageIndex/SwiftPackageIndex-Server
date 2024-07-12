@@ -16,6 +16,8 @@ import Foundation
 
 import Fluent
 import SemanticVersion
+@preconcurrency import SPIManifest
+
 
 struct DocumentationMetadata {
     var owner: String?

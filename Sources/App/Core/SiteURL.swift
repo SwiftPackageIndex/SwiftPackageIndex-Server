@@ -28,7 +28,7 @@ import Vapor
 // Enums based on String are automatically Resourceable via RawRepresentable.
 
 
-enum Api: Resourceable {
+enum Api: Resourceable, Sendable {
     case builds(_ id: Parameter<UUID>, BuildsPathComponents)
     case dependencies
     case packages(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagesPathComponents)
@@ -103,7 +103,7 @@ enum Docs: String, Resourceable {
 }
 
 
-enum SiteURL: Resourceable {
+enum SiteURL: Resourceable, Sendable {
 
     case addAPackage
     case api(Api)
@@ -309,19 +309,19 @@ enum SiteURL: Resourceable {
         }
     }
 
-    static let _absoluteURL: (String) -> String = { path in
+    static let _absoluteURL: @Sendable (String) -> String = { path in
         Current.siteURL() + relativeURL(path)
     }
 
-    static let _relativeURL: (String) -> String = { path in
+    static let _relativeURL: @Sendable (String) -> String = { path in
         guard path.hasPrefix("/") else { return "/" + path }
         return path
     }
 
     #if DEBUG
     // make `var` for debug so we can dependency inject
-    static var absoluteURL = _absoluteURL
-    static var relativeURL = _relativeURL
+    nonisolated(unsafe) static var absoluteURL = _absoluteURL
+    nonisolated(unsafe) static var relativeURL = _relativeURL
     #else
     static let absoluteURL = _absoluteURL
     static let relativeURL = _relativeURL
@@ -377,7 +377,7 @@ extension Resourceable where Self: RawRepresentable, RawValue == String {
 }
 
 
-enum Parameter<T> {
+enum Parameter<T: Sendable>: Sendable {
     case key
     case value(T)
 }

@@ -25,14 +25,14 @@ extension Supporters {
 }
 
 extension Array<Supporters.Corporate> {
-    static var mock: Self = [
+    static let mock: Self = [
         .init(name: "Sample Sponsor", logo: .init(lightModeUrl: "/images/logo.svg", darkModeUrl: "/images/logo.svg"), url: "https://example.com/sponsored/link", advertisingCopy: "Sponsored links tell everyone about a thing that you can use to do another thing to do!"),
         .init(name: "Sample Sponsor", logo: .init(lightModeUrl: "/images/logo.svg", darkModeUrl: "/images/logo.svg"), url: "https://example.com/sponsored/link", advertisingCopy: "Sponsored links tell everyone about a thing that you can use to do another thing to do!")
     ]
 }
 
 extension Array<Supporters.Community> {
-    static var mock: Self = [
+    static let mock: Self = [
         .init(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
         .init(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),
         .init(login: "sponsor", name: "Community Sponsor", avatarUrl: "/images/logo.svg"),

@@ -27,7 +27,7 @@ import Foundation
 /// last_activity:<2021-10-01 - Last maintenance activity on any day older than November 1st 2021
 /// ```
 struct LastActivitySearchFilter: SearchFilterProtocol {
-    static var key: SearchFilter.Key = .lastActivity
+    static let key: SearchFilter.Key = .lastActivity
 
     var predicate: SearchFilter.Predicate
 

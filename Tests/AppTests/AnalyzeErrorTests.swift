@@ -34,7 +34,7 @@ final class AnalyzeErrorTests: AppTestCase {
 
     let socialPosts = ActorIsolated<[String]>([])
 
-    static var defaultShellRun: (ShellOutCommand, String) throws -> String = { cmd, path in
+    static let defaultShellRun: @Sendable (ShellOutCommand, String) throws -> String = { @Sendable cmd, path in
         switch cmd {
             case .swiftDumpPackage where path.hasSuffix("foo-1"):
                 return packageSwift1
@@ -72,21 +72,21 @@ final class AnalyzeErrorTests: AppTestCase {
             Repository(package: pkgs[1], defaultBranch: "main", name: "2", owner: "foo"),
         ].save(on: app.db)
 
-        Current.git.commitCount = { _ in 1 }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.lastCommitDate = { _ in .t1 }
-        Current.git.getTags = { checkoutDir in
+        Current.git.commitCount = { @Sendable _ in 1 }
+        Current.git.firstCommitDate = { @Sendable _ in .t0 }
+        Current.git.lastCommitDate = { @Sendable _ in .t1 }
+        Current.git.getTags = { @Sendable checkoutDir in
             if checkoutDir.hasSuffix("foo-1") { return [] }
             if checkoutDir.hasSuffix("foo-2") { return [.tag(1, 2, 3)] }
             throw SetupError()
         }
-        Current.git.hasBranch = { _, _ in true }
-        Current.git.revisionInfo = { ref, checkoutDir in
+        Current.git.hasBranch = { @Sendable _, _ in true }
+        Current.git.revisionInfo = { @Sendable ref, checkoutDir in
             if checkoutDir.hasSuffix("foo-1") { return .init(commit: "commit \(ref)", date: .t1) }
             if checkoutDir.hasSuffix("foo-2") { return .init(commit: "commit \(ref)", date: .t1) }
             throw SetupError()
         }
-        Current.git.shortlog = { _ in
+        Current.git.shortlog = { @Sendable _ in
             """
             1000\tPerson 1
              871\tPerson 2
@@ -98,14 +98,14 @@ final class AnalyzeErrorTests: AppTestCase {
 
         Current.shell.run = Self.defaultShellRun
 
-        Current.mastodonPost = { _, message in
-            await self.socialPosts.withValue { $0.append(message) }
+        Current.mastodonPost = { [socialPosts = self.socialPosts] _, message in
+            await socialPosts.withValue { $0.append(message) }
         }
     }
 
     func test_analyze_refreshCheckout_failed() async throws {
         // setup
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             switch cmd {
                 case _ where cmd.description.contains("git clone https://github.com/foo/1"):
                     throw SimulatedError()
@@ -157,7 +157,7 @@ final class AnalyzeErrorTests: AppTestCase {
 
     func test_analyze_getPackageInfo_gitCheckout_error() async throws {
         // setup
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             switch cmd {
                 case .gitCheckout(branch: "main", quiet: true) where path.hasSuffix("foo-1"):
                     throw SimulatedError()
@@ -183,7 +183,7 @@ final class AnalyzeErrorTests: AppTestCase {
 
     func test_analyze_dumpPackage_missing_manifest() async throws {
         // setup
-        Current.fileManager.fileExists = { path in
+        Current.fileManager.fileExists = { @Sendable path in
             if path.hasSuffix("github.com-foo-1/Package.swift") {
                 return false
             }

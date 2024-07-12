@@ -167,7 +167,7 @@ class RSSTests: SnapshotTestCase {
         try await RecentRelease.refresh(on: app.db)
 
         // MUT
-        try app.test(.GET, "releases.rss", afterResponse:  { res in
+        try await app.test(.GET, "releases.rss", afterResponse:  { @Sendable res async in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
@@ -204,7 +204,7 @@ class RSSTests: SnapshotTestCase {
         try await RecentRelease.refresh(on: app.db)
 
         // MUT
-        try app.test(.GET, "releases.rss?major=true", afterResponse: { res in
+        try await app.test(.GET, "releases.rss?major=true", afterResponse: { @Sendable res async in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
@@ -241,7 +241,7 @@ class RSSTests: SnapshotTestCase {
         try await RecentRelease.refresh(on: app.db)
 
         // MUT
-        try app.test(.GET, "releases.rss?major=true&minor=true", afterResponse: { res in
+        try await app.test(.GET, "releases.rss?major=true&minor=true", afterResponse: { @Sendable res async in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
@@ -279,7 +279,7 @@ class RSSTests: SnapshotTestCase {
         try await RecentRelease.refresh(on: app.db)
 
         // MUT
-        try app.test(.GET, "releases.rss?pre=true", afterResponse: { res in
+        try await app.test(.GET, "releases.rss?pre=true", afterResponse: { @Sendable res async in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))

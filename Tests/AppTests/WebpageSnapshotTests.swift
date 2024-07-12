@@ -556,7 +556,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
 
     func test_Blog_show() {
-        Current.fileManager.contents = { _ in
+        Current.fileManager.contents = { @Sendable _ in
             """
             This is some Markdown with [a link](https://example.com) and some _formatting_.
 

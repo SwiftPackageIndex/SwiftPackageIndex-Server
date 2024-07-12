@@ -16,6 +16,7 @@ import Fluent
 import PostgresKit
 import SQLKit
 import Vapor
+@preconcurrency import SPIManifest
 
 
 struct TriggerBuildsCommand: AsyncCommand {

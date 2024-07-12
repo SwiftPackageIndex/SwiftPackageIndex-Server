@@ -18,14 +18,15 @@ import Fluent
 import SQLKit
 import Vapor
 import XCTest
+import NIOConcurrencyHelpers
 
 
 // MARK: - Test helpers
 
-private var _schemaCreated = false
+private let _schemaCreated = NIOLockedValueBox<Bool>(false)
 
 func setup(_ environment: Environment, resetDb: Bool = true) async throws -> Application {
-    let app = Application(environment)
+    let app = try await Application.make(environment)
     let host = try await configure(app)
 
     // Ensure `.testing` refers to "postgres" or "localhost"
@@ -34,10 +35,10 @@ func setup(_ environment: Environment, resetDb: Bool = true) async throws -> App
 
     app.logger.logLevel = Environment.get("LOG_LEVEL").flatMap(Logger.Level.init(rawValue:)) ?? .warning
 
-    if !_schemaCreated {
+    if !(_schemaCreated.withLockedValue { $0 }) {
         // ensure we create the schema when running the first test
         try await app.autoMigrate()
-        _schemaCreated = true
+        _schemaCreated.withLockedValue { $0 = true }
     }
     if resetDb { try await _resetDb(app) }
 
@@ -48,16 +49,16 @@ func setup(_ environment: Environment, resetDb: Bool = true) async throws -> App
 }
 
 
-private var tableNamesCache: [String]?
+private let tableNamesCache: NIOLockedValueBox<[String]?> = .init(nil)
 
 func _resetDb(_ app: Application) async throws {
     guard let db = app.db as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
 
-    guard let tables = tableNamesCache else {
+    guard let tables = tableNamesCache.withLockedValue({ $0 }) else {
         struct Row: Decodable { var table_name: String }
-        tableNamesCache = try await db.raw("""
+        let tableNames = try await db.raw("""
                 SELECT table_name FROM
                 information_schema.tables
                 WHERE
@@ -67,9 +68,8 @@ func _resetDb(_ app: Application) async throws {
                 """)
             .all(decoding: Row.self)
             .map(\.table_name)
-        if tableNamesCache != nil {
-            try await _resetDb(app)
-        }
+        tableNamesCache.withLockedValue { $0 = tableNames }
+        try await _resetDb(app)
         return
     }
 

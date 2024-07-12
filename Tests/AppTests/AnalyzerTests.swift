@@ -18,9 +18,10 @@ import XCTest
 
 import Fluent
 import SPIManifest
-import ShellOut
+@preconcurrency import ShellOut
 import SnapshotTesting
 import Vapor
+import NIOConcurrencyHelpers
 
 
 class AnalyzerTests: AppTestCase {
@@ -50,7 +51,7 @@ class AnalyzerTests: AppTestCase {
         let checkoutDir = QueueIsolated<String?>(nil)
         let commands = QueueIsolated<[Command]>([])
         let firstDirCloned = QueueIsolated(false)
-        Current.fileManager.fileExists = { path in
+        Current.fileManager.fileExists = { @Sendable path in
             if let outDir = checkoutDir.value,
                path == "\(outDir)/github.com-foo-1" { return firstDirCloned.value }
             // let the check for the second repo checkout path succeed to simulate pull
@@ -60,7 +61,7 @@ class AnalyzerTests: AppTestCase {
             if path.hasSuffix("Package.resolved") { return true }
             return false
         }
-        Current.fileManager.createDirectory = { path, _, _ in checkoutDir.setValue(path) }
+        Current.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.setValue(path) }
         Current.git = .live
         Current.loadSPIManifest = { path in
             if path.hasSuffix("foo-1") {
@@ -69,7 +70,7 @@ class AnalyzerTests: AppTestCase {
                 return nil
             }
         }
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!, with: ".")
             commands.withValue {
                 $0.append(.init(command: cmd, path: trimmedPath)!)
@@ -228,14 +229,14 @@ class AnalyzerTests: AppTestCase {
                           packageName: "foo-1",
                           reference: .tag(1, 0, 0)).save(on: app.db)
 
-        Current.fileManager.fileExists = { _ in true }
+        Current.fileManager.fileExists = { @Sendable _ in true }
 
-        Current.git.commitCount = { _ in 12 }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.lastCommitDate = { _ in .t2 }
-        Current.git.getTags = { _ in [.tag(1, 0, 0), .tag(1, 1, 1)] }
-        Current.git.hasBranch = { _, _ in true }
-        Current.git.revisionInfo = { ref, _ in
+        Current.git.commitCount = { @Sendable _ in 12 }
+        Current.git.firstCommitDate = { @Sendable _ in .t0 }
+        Current.git.lastCommitDate = { @Sendable _ in .t2 }
+        Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0), .tag(1, 1, 1)] }
+        Current.git.hasBranch = { @Sendable _, _ in true }
+        Current.git.revisionInfo = { @Sendable ref, _ in
             // simulate the following scenario:
             //   - main branch has moved from commit0 -> commit3 (timestamp t3)
             //   - 1.0.0 has been re-tagged (!) from commit0 -> commit1 (timestamp t1)
@@ -251,14 +252,14 @@ class AnalyzerTests: AppTestCase {
                     fatalError("unexpected reference: \(ref)")
             }
         }
-        Current.git.shortlog = { _ in
+        Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
         }
 
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             if cmd.description.hasSuffix("package dump-package") {
                 return #"""
                     {
@@ -302,11 +303,11 @@ class AnalyzerTests: AppTestCase {
             try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         }
 
-        Current.git.commitCount = { _ in 12 }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.lastCommitDate = { _ in .t1 }
-        Current.git.hasBranch = { _, _ in false }  // simulate analysis error via branch mismatch
-        Current.git.shortlog = { _ in "" }
+        Current.git.commitCount = { @Sendable _ in 12 }
+        Current.git.firstCommitDate = { @Sendable _ in .t0 }
+        Current.git.lastCommitDate = { @Sendable _ in .t1 }
+        Current.git.hasBranch = { @Sendable _, _ in false }  // simulate analysis error via branch mismatch
+        Current.git.shortlog = { @Sendable _ in "" }
 
         // Ensure candidate selection is as expected
         try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
@@ -340,20 +341,20 @@ class AnalyzerTests: AppTestCase {
         }
         let lastUpdate = Date()
 
-        Current.git.commitCount = { _ in 12 }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.lastCommitDate = { _ in .t1 }
-        Current.git.getTags = { _ in [.tag(1, 0, 0)] }
-        Current.git.hasBranch = { _, _ in true }
-        Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
-        Current.git.shortlog = { _ in
+        Current.git.commitCount = { @Sendable _ in 12 }
+        Current.git.firstCommitDate = { @Sendable _ in .t0 }
+        Current.git.lastCommitDate = { @Sendable _ in .t1 }
+        Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0)] }
+        Current.git.hasBranch = { @Sendable _, _ in true }
+        Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
+        Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
         }
 
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             // first package fails
             if cmd.description.hasSuffix("swift package dump-package") && path.hasSuffix("foo-1") {
                 return "bad data"
@@ -384,35 +385,38 @@ class AnalyzerTests: AppTestCase {
         for p in pkgs {
             try await Repository(package: p, defaultBranch: "main").save(on: app.db)
         }
-        var checkoutDir: String? = nil
+        let checkoutDir: NIOLockedValueBox<String?> = .init(nil)
 
-        Current.fileManager.fileExists = { path in
-            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-1" { return true }
-            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
+        Current.fileManager.fileExists = { @Sendable path in
+            if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-1" { return true }
+            if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-2" { return true }
             if path.hasSuffix("Package.swift") { return true }
             return false
         }
-        Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
+        Current.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.withLockedValue { $0 = path } }
 
         Current.git = .live
 
         let refs: [Reference] = [.tag(1, 0, 0), .tag(1, 1, 1), .branch("main")]
-        var mockResults: [ShellOutCommand: String] = [
-            .gitListTags: refs.filter(\.isTag).map { "\($0)" }.joined(separator: "\n"),
-            .gitCommitCount: "12",
-            .gitFirstCommitDate: "0",
-            .gitLastCommitDate: "1",
-            .gitShortlog : """
+        let mockResults = {
+            var res: [ShellOutCommand: String] = [
+                .gitListTags: refs.filter(\.isTag).map { "\($0)" }.joined(separator: "\n"),
+                .gitCommitCount: "12",
+                .gitFirstCommitDate: "0",
+                .gitLastCommitDate: "1",
+                .gitShortlog : """
                             10\tPerson 1
                              2\tPerson 2
                             """
-        ]
-        for (idx, ref) in refs.enumerated() {
-            mockResults[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
-        }
+            ]
+            for (idx, ref) in refs.enumerated() {
+                res[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
+            }
+            return res
+        }()
 
         let commands = QueueIsolated<[Command]>([])
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             commands.withValue {
                 $0.append(.init(command: cmd, path: path)!)
             }
@@ -464,9 +468,9 @@ class AnalyzerTests: AppTestCase {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
         try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
-        Current.fileManager.fileExists = { _ in true }
+        Current.fileManager.fileExists = { @Sendable _ in true }
         let commands = QueueIsolated<[String]>([])
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             // mask variable checkout
             let checkoutDir = Current.fileManager.checkoutsDirectory()
             commands.withValue {
@@ -485,16 +489,16 @@ class AnalyzerTests: AppTestCase {
 
     func test_updateRepository() async throws {
         // setup
-        Current.git.commitCount = { _ in 12 }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.lastCommitDate = { _ in .t1 }
-        Current.git.shortlog = { _ in
+        Current.git.commitCount = { @Sendable _ in 12 }
+        Current.git.firstCommitDate = { @Sendable _ in .t0 }
+        Current.git.lastCommitDate = { @Sendable _ in .t1 }
+        Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
         }
-        Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
+        Current.shell.run = { @Sendable cmd, _ in throw TestError.unknownCommand }
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try await pkg.save(on: app.db)
         try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
@@ -522,9 +526,9 @@ class AnalyzerTests: AppTestCase {
 
     func test_getIncomingVersions() async throws {
         // setup
-        Current.git.getTags = { _ in [.tag(1, 2, 3)] }
-        Current.git.hasBranch = { _, _ in true }
-        Current.git.revisionInfo = { ref, _ in .init(commit: "sha-\(ref)", date: .t0) }
+        Current.git.getTags = { @Sendable _ in [.tag(1, 2, 3)] }
+        Current.git.hasBranch = { @Sendable _, _ in true }
+        Current.git.revisionInfo = { @Sendable ref, _ in .init(commit: "sha-\(ref)", date: .t0) }
         do {
             let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
             try await pkg.save(on: app.db)
@@ -541,7 +545,7 @@ class AnalyzerTests: AppTestCase {
 
     func test_getIncomingVersions_default_branch_mismatch() async throws {
         // setup
-        Current.git.hasBranch = { _, _ in false}  // simulate branch mismatch
+        Current.git.hasBranch = { @Sendable _, _ in false}  // simulate branch mismatch
         do {
             let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
             try await pkg.save(on: app.db)
@@ -579,14 +583,14 @@ class AnalyzerTests: AppTestCase {
 
     func test_diffVersions() async throws {
         //setup
-        Current.git.getTags = { _ in [.tag(1, 2, 3)] }
-        Current.git.hasBranch = { _, _ in true }
-        Current.git.revisionInfo = { ref, _ in
+        Current.git.getTags = { @Sendable _ in [.tag(1, 2, 3)] }
+        Current.git.hasBranch = { @Sendable _, _ in true }
+        Current.git.revisionInfo = { @Sendable ref, _ in
             if ref == .branch("main") { return . init(commit: "sha.main", date: .t0) }
             if ref == .tag(1, 2, 3) { return .init(commit: "sha.1.2.3", date: .t1) }
             fatalError("unknown ref: \(ref)")
         }
-        Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
+        Current.shell.run = { @Sendable cmd, _ in throw TestError.unknownCommand }
         let pkgId = UUID()
         do {
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url)
@@ -712,7 +716,7 @@ class AnalyzerTests: AppTestCase {
         // Tests getPackageInfo(package:version:)
         // setup
         let commands = QueueIsolated<[String]>([])
-        Current.shell.run = { cmd, _ in
+        Current.shell.run = { @Sendable cmd, _ in
             commands.withValue {
                 $0.append(cmd.description)
             }
@@ -848,19 +852,19 @@ class AnalyzerTests: AppTestCase {
         // Regression test for issue 29
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/29
         // setup
-        Current.git.commitCount = { _ in 12 }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.lastCommitDate = { _ in .t1 }
-        Current.git.getTags = { _ in [.tag(1, 0, 0), .tag(2, 0, 0)] }
-        Current.git.hasBranch = { _, _ in true }
-        Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
-        Current.git.shortlog = { _ in
+        Current.git.commitCount = { @Sendable _ in 12 }
+        Current.git.firstCommitDate = { @Sendable _ in .t0 }
+        Current.git.lastCommitDate = { @Sendable _ in .t1 }
+        Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0), .tag(2, 0, 0)] }
+        Current.git.hasBranch = { @Sendable _, _ in true }
+        Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
+        Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
         }
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             if cmd.description.hasSuffix("swift package dump-package") {
                 return #"""
                     {
@@ -915,10 +919,10 @@ class AnalyzerTests: AppTestCase {
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which
         // we want to trigger the cleanup mechanism
-        Current.fileManager.fileExists = { path in true }
+        Current.fileManager.fileExists = { @Sendable path in true }
 
         let commands = QueueIsolated<[String]>([])
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             commands.withValue {
                 let c = cmd.description.replacingOccurrences(of: checkoutDir, with: "...")
                 $0.append(c)
@@ -927,7 +931,7 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        let res = await pkgs.mapAsync { pkg in
+        let res = await pkgs.mapAsync { @Sendable pkg in
             await Result {
                 try await Analyze.refreshCheckout(package: pkg)
             }
@@ -949,10 +953,10 @@ class AnalyzerTests: AppTestCase {
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which
         // we want to trigger the cleanup mechanism
-        Current.fileManager.fileExists = { path in true }
+        Current.fileManager.fileExists = { @Sendable path in true }
 
         let commands = QueueIsolated<[String]>([])
-        Current.shell.run = { cmd, path in
+        Current.shell.run = { @Sendable cmd, path in
             commands.withValue {
                 let c = cmd.description.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
                 $0.append(c)
@@ -964,7 +968,7 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        let res = await pkgs.mapAsync { pkg in
+        let res = await pkgs.mapAsync { @Sendable pkg in
             await Result {
                 try await Analyze.refreshCheckout(package: pkg)
             }
@@ -1042,7 +1046,7 @@ class AnalyzerTests: AppTestCase {
         // setup
         Current.fileManager = .live
         Current.shell = .live
-        try await withTempDir { tempDir in
+        try await withTempDir { @Sendable tempDir in
             let fixture = fixturesDirectory()
                 .appendingPathComponent("5.9-Package-swift").path
             let fname = tempDir.appending("/Package.swift")
@@ -1103,9 +1107,9 @@ class AnalyzerTests: AppTestCase {
             try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         }
         let pkg = try await Package.fetchCandidate(app.db, id: .id0)
-        Current.fileManager.fileExists = { _ in true }
+        Current.fileManager.fileExists = { @Sendable _ in true }
         let commands = QueueIsolated<[String]>([])
-        Current.shell.run = { cmd, _ in
+        Current.shell.run = { @Sendable cmd, _ in
             commands.withValue {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
@@ -1190,13 +1194,13 @@ class AnalyzerTests: AppTestCase {
             let url = "1".asGithubUrl.url
             let pkg = Package.init(url: url, processingStage: .ingestion)
             try await pkg.save(on: app.db)
-            Current.fileManager.fileExists = { path in
+            Current.fileManager.fileExists = { @Sendable path in
                 if path.hasSuffix("github.com-foo-1") { return false }
                 return true
             }
             let repoDir = try Current.fileManager.checkoutsDirectory() + "/" + XCTUnwrap(pkg.cacheDirectoryName)
             struct ShellOutError: Error {}
-            Current.shell.run = { cmd, path in
+            Current.shell.run = { @Sendable cmd, path in
                 if cmd == .gitClone(url: url, to: repoDir) {
                     throw ShellOutError()
                 }
@@ -1219,21 +1223,21 @@ class AnalyzerTests: AppTestCase {
     func test_trimCheckouts() throws {
         // setup
         Current.fileManager.checkoutsDirectory = { "/checkouts" }
-        Current.fileManager.contentsOfDirectory = { _ in ["foo", "bar"] }
-        Current.fileManager.attributesOfItem = { path in
+        Current.fileManager.contentsOfDirectory = { @Sendable _ in ["foo", "bar"] }
+        Current.fileManager.attributesOfItem = { @Sendable path in
             [
                 "/checkouts/foo": [FileAttributeKey.modificationDate: Current.date().adding(days: -31)],
                 "/checkouts/bar": [FileAttributeKey.modificationDate: Current.date().adding(days: -29)],
             ][path]!
         }
-        var removedPaths = [String]()
-        Current.fileManager.removeItem = { removedPaths.append($0) }
+        let removedPaths = NIOLockedValueBox<[String]>([])
+        Current.fileManager.removeItem = { @Sendable p in removedPaths.withLockedValue { $0.append(p) } }
 
         // MUT
         try Analyze.trimCheckouts()
 
         // validate
-        XCTAssertEqual(removedPaths, ["/checkouts/foo"])
+        XCTAssertEqual(removedPaths.withLockedValue { $0 }, ["/checkouts/foo"])
     }
 
     func test_issue_2571_tags() async throws {
@@ -1258,23 +1262,23 @@ class AnalyzerTests: AppTestCase {
                           latest: .release,
                           packageName: "foo-1",
                           reference: .tag(1, 0, 0)).save(on: app.db)
-        Current.fileManager.fileExists = { _ in true }
-        Current.git.commitCount = { _ in 2 }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.hasBranch = { _, _ in true }
-        Current.git.lastCommitDate = { _ in .t1 }
+        Current.fileManager.fileExists = { @Sendable _ in true }
+        Current.git.commitCount = { @Sendable _ in 2 }
+        Current.git.firstCommitDate = { @Sendable _ in .t0 }
+        Current.git.hasBranch = { @Sendable _, _ in true }
+        Current.git.lastCommitDate = { @Sendable _ in .t1 }
         struct Error: Swift.Error { }
-        Current.git.shortlog = { _ in
+        Current.git.shortlog = { @Sendable _ in
             """
             1\tPerson 1
             1\tPerson 2
             """
         }
-        Current.shell.run = { cmd, path in "" }
+        Current.shell.run = { @Sendable cmd, path in "" }
 
         do {  // first scenario: bad getTags
-            Current.git.getTags = { _ in throw Error() }
-            Current.git.revisionInfo = { _, _ in .init(commit: "", date: .t1) }
+            Current.git.getTags = { @Sendable _ in throw Error() }
+            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "", date: .t1) }
 
             // MUT
             try await Analyze.analyze(client: app.client,
@@ -1289,8 +1293,8 @@ class AnalyzerTests: AppTestCase {
         }
 
         do {  // second scenario: revisionInfo throws
-            Current.git.getTags = { _ in [.tag(1, 0, 0)] }
-            Current.git.revisionInfo = { _, _ in throw Error() }
+            Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0)] }
+            Current.git.revisionInfo = { @Sendable _, _ in throw Error() }
 
             // MUT
             try await Analyze.analyze(client: app.client,
@@ -1305,8 +1309,8 @@ class AnalyzerTests: AppTestCase {
         }
 
         do {  // second scenario: gitTags throws
-            Current.git.getTags = { _ in throw Error() }
-            Current.git.revisionInfo = { _, _ in .init(commit: "", date: .t1) }
+            Current.git.getTags = { @Sendable _ in throw Error() }
+            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "", date: .t1) }
 
             // MUT
             try await Analyze.analyze(client: app.client,
@@ -1321,9 +1325,9 @@ class AnalyzerTests: AppTestCase {
         }
 
         do {  // third scenario: everything throws
-            Current.shell.run = { _, _ in throw Error() }
-            Current.git.getTags = { _ in throw Error() }
-            Current.git.revisionInfo = { _, _ in throw Error() }
+            Current.shell.run = { @Sendable _, _ in throw Error() }
+            Current.git.getTags = { @Sendable _ in throw Error() }
+            Current.git.revisionInfo = { @Sendable _, _ in throw Error() }
 
             // MUT
             try await Analyze.analyze(client: app.client,
@@ -1360,23 +1364,23 @@ class AnalyzerTests: AppTestCase {
                           latest: .release,
                           packageName: "foo-1",
                           reference: .tag(1, 0, 0)).save(on: app.db)
-        Current.fileManager.fileExists = { _ in true }
-        Current.git.commitCount = { _ in 2 }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.hasBranch = { _, _ in true }
-        Current.git.lastCommitDate = { _ in .t1 }
+        Current.fileManager.fileExists = { @Sendable _ in true }
+        Current.git.commitCount = { @Sendable _ in 2 }
+        Current.git.firstCommitDate = { @Sendable _ in .t0 }
+        Current.git.hasBranch = { @Sendable _, _ in true }
+        Current.git.lastCommitDate = { @Sendable _ in .t1 }
         struct Error: Swift.Error { }
-        Current.git.shortlog = { _ in
+        Current.git.shortlog = { @Sendable _ in
             """
             1\tPerson 1
             1\tPerson 2
             """
         }
-        Current.git.getTags = { _ in [.tag(1, 0, 0)] }
-        Current.shell.run = { cmd, path in return "" }
+        Current.git.getTags = {@Sendable  _ in [.tag(1, 0, 0)] }
+        Current.shell.run = { @Sendable cmd, path in return "" }
 
         do {  // ensure happy path passes test (no revision changes)
-            Current.git.revisionInfo = { ref, _ in
+            Current.git.revisionInfo = { @Sendable ref, _ in
                 switch ref {
                     case .tag(.init(1, 0, 0), "1.0.0"):
                         return .init(commit: "commit0", date: .t0)
@@ -1405,7 +1409,7 @@ class AnalyzerTests: AppTestCase {
         try await pkg.save(on: app.db)
 
         do {  // simulate "main" branch moving forward to ("commit0", .t1)
-            Current.git.revisionInfo = { ref, _ in
+            Current.git.revisionInfo = { @Sendable ref, _ in
                 switch ref {
                     case .tag(.init(1, 0, 0), "1.0.0"):
                         return .init(commit: "commit0", date: .t0)
@@ -1416,7 +1420,7 @@ class AnalyzerTests: AppTestCase {
                         throw Error()
                 }
             }
-            Current.shell.run = { cmd, path in
+            Current.shell.run = { @Sendable cmd, path in
                 // simulate error in getPackageInfo by failing checkout
                 if cmd == .gitCheckout(branch: "main") {
                     throw Error()
@@ -1454,14 +1458,14 @@ class AnalyzerTests: AppTestCase {
                              name: "1",
                              owner: "foo",
                              stars: 100).save(on: app.db)
-        Current.git.commitCount = { _ in 12 }
-        Current.git.getTags = { _ in [] }
-        Current.git.hasBranch = { _, _ in true }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.lastCommitDate = { _ in .t1 }
-        Current.git.revisionInfo = { _, _ in .init(commit: "sha1", date: .t0) }
-        Current.git.shortlog = { _ in "10\tPerson 1" }
-        Current.shell.run = { cmd, path in
+        Current.git.commitCount = { @Sendable _ in 12 }
+        Current.git.getTags = { @Sendable _ in [] }
+        Current.git.hasBranch = { @Sendable _, _ in true }
+        Current.git.firstCommitDate = { @Sendable _ in .t0 }
+        Current.git.lastCommitDate = { @Sendable _ in .t1 }
+        Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha1", date: .t0) }
+        Current.git.shortlog = { @Sendable _ in "10\tPerson 1" }
+        Current.shell.run = { @Sendable cmd, path in
             if cmd == .swiftDumpPackage { return .packageDump(name: "foo1") }
             return ""
         }
@@ -1493,7 +1497,7 @@ class AnalyzerTests: AppTestCase {
         }
         
         // now we simulate a new version on the default branch
-        Current.git.revisionInfo = { _, _ in .init(commit: "sha2", date: .t1) }
+        Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha2", date: .t1) }
         
         // third analysis pass
         try await Analyze.analyze(client: app.client, database: app.db, mode: .id(.id0))

@@ -329,18 +329,20 @@ class API_PackageControllerTests: AppTestCase {
         // validate
         // just test reference names and some details for `latest`
         // more detailed tests are covered in the lower level test
-        XCTAssertEqual(res.platform?.latest?.referenceName, "main")
-        XCTAssertEqual(res.platform?.latest?.results[.iOS], .compatible)
-        XCTAssertEqual(res.platform?.latest?.results[.tvOS], .incompatible)
-        XCTAssertEqual(res.platform?.latest?.results[.watchOS], .unknown)
-        XCTAssertEqual(res.platform?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res.platform?.beta?.referenceName, "2.0.0-b1")
-        XCTAssertEqual(res.swiftVersion?.latest?.referenceName, "main")
-        XCTAssertEqual(res.swiftVersion?.latest?.results[.v5_10], .compatible)
-        XCTAssertEqual(res.swiftVersion?.latest?.results[.v5_9], .incompatible)
-        XCTAssertEqual(res.swiftVersion?.latest?.results[.v5_8], .unknown)
-        XCTAssertEqual(res.swiftVersion?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res.swiftVersion?.beta?.referenceName, "2.0.0-b1")
+        let platform = try XCTUnwrap(res.platform)
+        XCTAssertEqual(platform.latest?.referenceName, "main")
+        XCTAssertEqual(platform.latest?.results[.iOS], .compatible)
+        XCTAssertEqual(platform.latest?.results[.tvOS], .incompatible)
+        XCTAssertEqual(platform.latest?.results[.watchOS], .unknown)
+        XCTAssertEqual(platform.stable?.referenceName, "1.2.3")
+        XCTAssertEqual(platform.beta?.referenceName, "2.0.0-b1")
+        let swiftVersion = try XCTUnwrap(res.swiftVersion)
+        XCTAssertEqual(swiftVersion.latest?.referenceName, "main")
+        XCTAssertEqual(swiftVersion.latest?.results[.v5_10], .compatible)
+        XCTAssertEqual(swiftVersion.latest?.results[.v5_9], .incompatible)
+        XCTAssertEqual(swiftVersion.latest?.results[.v5_8], .unknown)
+        XCTAssertEqual(swiftVersion.stable?.referenceName, "1.2.3")
+        XCTAssertEqual(swiftVersion.beta?.referenceName, "2.0.0-b1")
     }
 
     func test_GetRoute_query() async throws {

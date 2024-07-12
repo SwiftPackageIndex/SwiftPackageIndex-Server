@@ -40,10 +40,10 @@ extension SearchFilter.Predicate {
     /// creating a different `SQLBind` depending on whether the bindable value is
     /// and array or not.
     enum BoundValue {
-        case value(Encodable)
-        case array([Encodable])
+        case value(any Encodable & Sendable)
+        case array([any Encodable & Sendable])
 
-        var sqlBind: SQLExpression {
+        var sqlBind: any SQLExpression {
             switch self {
                 case .value(let value):
                     return SQLBind(value)

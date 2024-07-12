@@ -27,7 +27,7 @@ import Foundation
 /// last_commit:<2020-07-01 - Last commit made on any day older than July 1st 2020
 /// ```
 struct LastCommitSearchFilter: SearchFilterProtocol {
-    static var key: SearchFilter.Key = .lastCommit
+    static let key: SearchFilter.Key = .lastCommit
 
     var predicate: SearchFilter.Predicate
 

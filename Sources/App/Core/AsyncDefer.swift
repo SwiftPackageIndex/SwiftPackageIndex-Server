@@ -12,17 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 
-extension NumberFormatter {
-    static var spiDefault: NumberFormatter {
-        let f = NumberFormatter()
-        f.thousandSeparator = ","
-        f.numberStyle = .decimal
-        return f
-    }
-
-    func string(from value: Int) -> String? {
-        string(from: NSNumber(value: value))
+@discardableResult
+func run<T>(_ operation: () async throws -> T,
+         defer deferredOperation: () async throws -> Void) async throws -> T {
+    do {
+        let result = try await operation()
+        try await deferredOperation()
+        return result
+    } catch {
+        try await deferredOperation()
+        throw error
     }
 }

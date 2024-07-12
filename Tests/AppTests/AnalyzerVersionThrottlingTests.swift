@@ -163,10 +163,10 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
     func test_diffVersions() async throws {
         // Test that diffVersions applies throttling
         // setup
-        var t: Date = .t0
+        nonisolated(unsafe) var t: Date = .t0
         Current.date = { t }
-        Current.git.getTags = { _ in [.branch("main")] }
-        Current.git.hasBranch = { _, _ in true }
+        Current.git.getTags = { @Sendable _ in [.branch("main")] }
+        Current.git.hasBranch = { @Sendable _, _ in true }
         let pkg = Package(url: "1".asGithubUrl.url)
         try await pkg.save(on: app.db)
         try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
@@ -175,7 +175,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         do {  // keep old version if too soon
-            Current.git.revisionInfo = { _, _ in
+            Current.git.revisionInfo = { @Sendable _, _ in
                 .init(commit: "sha_new", date: Date.t0.addingTimeInterval(.hours(-1)) )
             }
 
@@ -193,7 +193,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         do {  // new version must come through
             t = t.addingTimeInterval(.hours(2))
 
-            Current.git.revisionInfo = { _, _ in
+            Current.git.revisionInfo = { @Sendable [t = t] _, _ in
                 // now simulate a newer branch revision
                 .init(commit: "sha_new2", date: t )
             }
@@ -215,8 +215,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         // and checking the diffs are as expected.
         // Leaving tags out of it for simplicity - they are tested specifically
         // in test_throttle_ignore_tags above.
-        Current.git.getTags = { _ in [] }
-        Current.git.hasBranch = { _, _ in true }
+        Current.git.getTags = { @Sendable _ in [] }
+        Current.git.hasBranch = { @Sendable _, _ in true }
 
         // Little helper to simulate minimal version reconciliation
         func runVersionReconciliation() async throws -> VersionDelta {
@@ -235,11 +235,11 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         // start at t0
-        var t = Date.t0
+        nonisolated(unsafe) var t = Date.t0
         Current.date = { t }
 
         do {  // start with a branch revision
-            Current.git.revisionInfo = { _, _ in .init(commit: "sha0", date: t ) }
+            Current.git.revisionInfo = { @Sendable [t = t] _, _ in .init(commit: "sha0", date: t ) }
 
             let delta = try await runVersionReconciliation()
             XCTAssertEqual(delta.toAdd.map(\.commit), ["sha0"])
@@ -249,7 +249,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
         do {  // one hour later a new commit landed - which should be ignored
             t = t.addingTimeInterval(.hours(1))
-            Current.git.revisionInfo = { _, _ in .init(commit: "sha1", date: t ) }
+            Current.git.revisionInfo = { @Sendable [t = t] _, _ in .init(commit: "sha1", date: t ) }
 
             let delta = try await runVersionReconciliation()
             XCTAssertEqual(delta.toAdd, [])
@@ -260,7 +260,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         do {  // run another 5 commits every four hours - they all should be ignored
             for idx in 1...5 {
                 t = t.addingTimeInterval(.hours(4))
-                Current.git.revisionInfo = { _, _ in .init(commit: "sha\(idx+1)", date: t ) }
+                Current.git.revisionInfo = { @Sendable [t = t] _, _ in .init(commit: "sha\(idx+1)", date: t ) }
 
                 let delta = try await runVersionReconciliation()
                 XCTAssertEqual(delta.toAdd, [])
@@ -271,7 +271,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
         do {  // advancing another 4 hours should finally create a new version
             t = t.addingTimeInterval(.hours(4))
-            Current.git.revisionInfo = { _, _ in .init(commit: "sha7", date: t ) }
+            Current.git.revisionInfo = { @Sendable [t = t] _, _ in .init(commit: "sha7", date: t ) }
 
             let delta = try await runVersionReconciliation()
             XCTAssertEqual(delta.toAdd.map(\.commit), ["sha7"])
@@ -345,6 +345,6 @@ private func makeVersion(_ package: Package,
 }
 
 
-extension Version: CustomDebugStringConvertible {
+extension App.Version: Swift.CustomDebugStringConvertible {
     public var debugDescription: String { commit }
 }

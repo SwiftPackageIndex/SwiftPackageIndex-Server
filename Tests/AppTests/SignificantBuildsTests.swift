@@ -112,7 +112,7 @@ class SignificantBuildsTests: XCTestCase {
 }
 
 
-extension SignificantBuilds.BuildInfo: Comparable {
+extension App.SignificantBuilds.BuildInfo: Swift.Comparable {
     public static func < (lhs: SignificantBuilds.BuildInfo, rhs: SignificantBuilds.BuildInfo) -> Bool {
         if lhs.swiftVersion != rhs.swiftVersion {
             return lhs.swiftVersion < rhs.swiftVersion

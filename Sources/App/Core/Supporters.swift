@@ -13,13 +13,13 @@
 // limitations under the License.
 
 enum Supporters {
-    static var primary: Corporate = .init(name: "Apple",
+    static let primary: Corporate = .init(name: "Apple",
                                           logo: .init(lightModeUrl: "/images/sponsors/apple.svg",
                                                       darkModeUrl: "/images/sponsors/apple~dark.svg",
                                                       width: 100, height: 123),
                                           url: "http://apple.com")
 
-    static var corporate: [Corporate] = {
+    nonisolated(unsafe) static var corporate: [Corporate] = {
         if Current.environment() == .production {
             return [
                 .init(name: "Emerge Tools",
@@ -49,7 +49,7 @@ enum Supporters {
         }
     }()
 
-    static var infrastructure: [Corporate] = [
+    nonisolated(unsafe) static var infrastructure: [Corporate] = [
         .init(name: "MacStadium",
               logo: .init(lightModeUrl: "/images/sponsors/macstadium.png",
                           darkModeUrl: "/images/sponsors/macstadium~dark.png"),
@@ -60,7 +60,7 @@ enum Supporters {
               url: "https://azure.microsoft.com")
     ]
 
-    static var community: [Community] = .gitHubSponsors
+    nonisolated(unsafe) static var community: [Community] = .gitHubSponsors
 
     struct Corporate {
         var name: String

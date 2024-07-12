@@ -19,7 +19,7 @@ import XCTest
 class BlogActionsModelTests: AppTestCase {
 
     func test_init_loadSummaries() async throws {
-        Current.fileManager.contents = { _ in
+        Current.fileManager.contents = { @Sendable _ in
             """
             - slug: post-1
               title: Blog post title one
@@ -68,7 +68,7 @@ class BlogActionsModelTests: AppTestCase {
     }
 
     func test_postSummary_postMarkdown_load() async throws {
-        Current.fileManager.contents = { _ in
+        Current.fileManager.contents = { @Sendable _ in
             """
             This is some Markdown with [a link](https://example.com) and some _formatting_.
             """.data(using: .utf8)
