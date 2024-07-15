@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version:5.10
 
 // Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
@@ -109,7 +109,9 @@ let package = Package(
                     ],
                     swiftSettings: swiftSettings)
     ],
-    swiftLanguageVersions: [.v6]
+    swiftLanguageVersions: [.v5]
 )
 
-var swiftSettings: [SwiftSetting] { [] }
+var swiftSettings: [SwiftSetting] { [
+    .enableExperimentalFeature("StrictConcurrency"),
+] }
