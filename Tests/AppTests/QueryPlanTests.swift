@@ -14,7 +14,7 @@
 
 @testable import App
 
-import Parsing
+@preconcurrency import Parsing
 import XCTest
 
 
