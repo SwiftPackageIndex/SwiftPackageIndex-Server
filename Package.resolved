@@ -265,7 +265,7 @@
     {
       "identity" : "swift-case-paths",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-case-paths",
+      "location" : "https://github.com/pointfreeco/swift-case-paths.git",
       "state" : {
         "revision" : "b871e5ed11a23e52c2896a92ce2c829982ff8619",
         "version" : "1.4.2"
@@ -463,7 +463,7 @@
     {
       "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/swiftlang/swift-syntax",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
       "state" : {
         "revision" : "64889f0c732f210a935a0ad7cda38f77f876262d",
         "version" : "509.1.1"
