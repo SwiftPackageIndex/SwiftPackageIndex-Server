@@ -1,5 +1,5 @@
 {
-  "originHash" : "856b71caa5a79a7ac5edf6496f62c2ee3944fdffb5eb6536bea285f88981e944",
+  "originHash" : "b389ca40b161d96fb39eacaef614e8eafea4c013abee819e2c85e2deb41d7b9d",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -265,10 +265,10 @@
     {
       "identity" : "swift-case-paths",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-case-paths.git",
+      "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "b871e5ed11a23e52c2896a92ce2c829982ff8619",
-        "version" : "1.4.2"
+        "revision" : "b9ad2661b6e8fb411fef6a441c9955c3413afac0",
+        "version" : "1.5.0"
       }
     },
     {
@@ -456,14 +456,14 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing.git",
       "state" : {
-        "revision" : "63d3b45dd249878a41c56274a748ca2c1c9c5230",
-        "version" : "1.17.1"
+        "revision" : "c097f955b4e724690f0fc8ffb7a6d4b881c9c4e3",
+        "version" : "1.17.2"
       }
     },
     {
       "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-syntax.git",
+      "location" : "https://github.com/swiftlang/swift-syntax",
       "state" : {
         "revision" : "64889f0c732f210a935a0ad7cda38f77f876262d",
         "version" : "509.1.1"
