@@ -1026,6 +1026,7 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(deleteCount, 1)
+        let app = self.app!
         try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id), [.id1, .id2])
     }
 
@@ -1061,6 +1062,7 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(deleteCount, 2)
+        let app = self.app!
         try await XCTAssertEqualAsync(try await Build.query(on: app.db).all().map(\.id), [.id1])
     }
 

@@ -100,6 +100,7 @@ class IngestorTests: AppTestCase {
 
         // validate
         do {
+            let app = self.app!
             try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
             let repo = try await Repository.query(on: app.db).first().unwrap()
             XCTAssertEqual(repo.summary, "This is package foo/bar")
@@ -158,6 +159,7 @@ class IngestorTests: AppTestCase {
 
         // validate
         do {
+            let app = self.app!
             try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
             let repo = try await Repository.query(on: app.db).first().unwrap()
             XCTAssertEqual(repo.defaultBranch, "main")
@@ -400,6 +402,7 @@ class IngestorTests: AppTestCase {
 
     func test_ingest_storeS3Readme() async throws {
         // setup
+        let app = self.app!
         let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
         try await pkg.save(on: app.db)
         Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
@@ -542,6 +545,7 @@ class IngestorTests: AppTestCase {
             try await ingest(client: app.client, database: app.db, mode: .limit(1))
 
             // validate
+            let app = self.app!
             try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
             let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
             XCTAssertEqual(storeCalls.value, 1)

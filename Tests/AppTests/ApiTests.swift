@@ -577,6 +577,7 @@ class ApiTests: AppTestCase {
         let buildId = try b.requireID()
         let dto: API.PostDocReportDTO = .init(status: .ok)
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+        let app = self.app!
 
         // MUT - no auth header
         try await app.test(
