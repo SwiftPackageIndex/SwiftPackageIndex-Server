@@ -38,6 +38,8 @@ let package = Package(
         .package(url: "https://github.com/SwiftPackageIndex/ShellOut.git", from: "3.1.4"),
         .package(url: "https://github.com/apple/swift-package-manager.git", branch: "release/5.10"),
         .package(url: "https://github.com/dankinsoid/VaporToOpenAPI.git", from: "4.4.4"),
+        // Pinned due to https://github.com/pointfreeco/swift-case-paths/issues/180
+        .package(url: "https://github.com/pointfreeco/swift-case-paths.git", exact: "1.4.2"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "1.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.11.1"),
