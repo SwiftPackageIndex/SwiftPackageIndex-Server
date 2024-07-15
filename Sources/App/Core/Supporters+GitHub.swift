@@ -423,6 +423,11 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/88908726?v=4"
         ),
         .init(
+            login: "AliMark71",
+            name: "Ali AlSalman",
+            avatarUrl: "https://avatars.githubusercontent.com/u/88995125?u=bb03d697f6f6394e66201df1e02ac01880e2457a&v=4"
+        ),
+        .init(
             login: "sparrowcode",
             name: "Sparrow Code",
             avatarUrl: "https://avatars.githubusercontent.com/u/98487302?v=4"
