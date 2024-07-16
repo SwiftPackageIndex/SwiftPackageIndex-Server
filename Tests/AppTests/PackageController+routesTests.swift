@@ -1020,7 +1020,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let linkElements = try document.select("link[rel='canonical']")
             XCTAssertEqual(linkElements.count, 1)
 
-            let href = try linkElements.first()!.attr("href")
+            let href = try linkElements.first()?.attr("href")
             XCTAssertEqual(href, "/Owner/Package/1.2.3/documentation/a/b")
         }
     }
