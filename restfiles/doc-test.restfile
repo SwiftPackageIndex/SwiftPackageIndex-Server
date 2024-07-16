@@ -550,12 +550,10 @@ requests:
     url: ${base_url}/swiftcsv/SwiftCSV/documentation
     validation:
       status: .regex((2|3)\d\d)
-  # Temporarily disabled, tracked here:
-  # https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/3201
-  # /swiftlang/swift-docc-plugin/documentation:
-  #   url: ${base_url}/swiftlang/swift-docc-plugin/documentation
-  #   validation:
-  #     status: .regex((2|3)\d\d)
+  /swiftlang/swift-docc-plugin/documentation:
+    url: ${base_url}/swiftlang/swift-docc-plugin/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /swiftlang/swift-docc/documentation:
     url: ${base_url}/swiftlang/swift-docc/documentation
     validation:
