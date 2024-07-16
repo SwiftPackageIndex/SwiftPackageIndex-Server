@@ -121,11 +121,9 @@ enum PackageController {
             .init(archive: $0, isCurrent: $0.name == route.archive)
         }
 
-        let canonicalUrl = Self.canonicalDocumentationUrl(from: "\(req.url)",
+        let canonicalUrl = Self.canonicalDocumentationUrl(fromUrlPath: "\(req.url)",
                                                           owner: documentationMetadata.owner,
-                                                          repository: documentationMetadata.repository,
-                                                          docVersion: route.docVersion,
-                                                          toTarget: documentationMetadata.canonicalTarget)
+                                                          repository: documentationMetadata.repository)
 
         // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
         guard let body = awsResponse.body,
@@ -454,21 +452,19 @@ extension PackageController {
 }
 
 extension PackageController {
-    static func canonicalDocumentationUrl(from url: String,
+    static func canonicalDocumentationUrl(fromUrlPath urlPath: String,
                                           owner: String?,
-                                          repository: String?,
-                                          docVersion: DocVersion,
-                                          toTarget target: DocumentationTarget?) -> String? {
-        guard let owner, let repository, let target else { return nil }
+                                          repository: String?) -> String? {
+        guard let owner, let repository else { return nil }
 
-        // It's important to use `docVersion.reference` here to make sure we match with true reference urls and not ~
-        let urlPrefix = "/\(owner)/\(repository)/\(docVersion.reference.pathEncoded)/"
-        if case let .internal(canonicalReference, _) = target,
-           url.lowercased().hasPrefix(urlPrefix.lowercased()) {
-            return "/\(owner)/\(repository)/\(canonicalReference)/\(url.dropFirst(urlPrefix.count))"
-        } else {
-            return nil
-        }
+        var urlComponents = urlPath.components(separatedBy: "/")
+
+        guard urlComponents.prefix(3) == ["", owner, repository], urlComponents.count > 4
+        else { return nil }
+
+        // Replace the reference with the "current" tilde character regardless of the incoming reference.
+        urlComponents[3] = "~"
+        return Current.siteURL() + urlComponents.joined(by: "/")
     }
 }
 
