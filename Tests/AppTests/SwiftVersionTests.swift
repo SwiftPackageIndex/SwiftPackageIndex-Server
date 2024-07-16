@@ -20,13 +20,13 @@ import XCTest
 class SwiftVersionTests: XCTestCase {
 
     func test_swiftVerRegex() throws {
-        XCTAssert(swiftVerRegex.matches("1"))
-        XCTAssert(swiftVerRegex.matches("1.2"))
-        XCTAssert(swiftVerRegex.matches("1.2.3"))
-        XCTAssert(swiftVerRegex.matches("v1"))
-        XCTAssertFalse(swiftVerRegex.matches("1."))
-        XCTAssertFalse(swiftVerRegex.matches("1.2."))
-        XCTAssertFalse(swiftVerRegex.matches("1.2.3-pre"))
+        XCTAssert(SwiftVersion.swiftVerRegex.matches("1"))
+        XCTAssert(SwiftVersion.swiftVerRegex.matches("1.2"))
+        XCTAssert(SwiftVersion.swiftVerRegex.matches("1.2.3"))
+        XCTAssert(SwiftVersion.swiftVerRegex.matches("v1"))
+        XCTAssertFalse(SwiftVersion.swiftVerRegex.matches("1."))
+        XCTAssertFalse(SwiftVersion.swiftVerRegex.matches("1.2."))
+        XCTAssertFalse(SwiftVersion.swiftVerRegex.matches("1.2.3-pre"))
     }
 
     func test_init() throws {

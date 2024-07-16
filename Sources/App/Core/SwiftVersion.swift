@@ -30,9 +30,9 @@ struct SwiftVersion: Content, Equatable, Hashable {
 
 extension SwiftVersion: LosslessStringConvertible {
     init?(_ string: String) {
-        let groups = swiftVerRegex.matchGroups(string)
+        let groups = Self.swiftVerRegex.matchGroups(string)
         guard
-            groups.count == swiftVerRegex.numberOfCaptureGroups,
+            groups.count == Self.swiftVerRegex.numberOfCaptureGroups,
             let major = Int(groups[0])
         else { return nil }
         self = .init(major, Int(groups[1]) ?? 0, Int(groups[2]) ?? 0)
@@ -71,6 +71,24 @@ extension SwiftVersion: LosslessStringConvertible {
 
         }
     }
+
+    static var swiftVerRegex: NSRegularExpression {
+        NSRegularExpression(
+            #"""
+            ^
+            v?                              # SPI extension: allow leading 'v'
+            (?<major>0|[1-9]\d*)
+            (?:\.
+              (?<minor>0|[1-9]\d*)
+            )?
+            (?:\.
+              (?<patch>0|[1-9]\d*)
+            )?
+            $
+            """#, options: [.allowCommentsAndWhitespace]
+        )
+    }
+
 }
 
 
@@ -100,17 +118,3 @@ extension SwiftVersion {
 extension SwiftVersion {
     static var latest: Self { allActive.sorted().last! }
 }
-
-
-let swiftVerRegex = NSRegularExpression(#"""
-^
-v?                              # SPI extension: allow leading 'v'
-(?<major>0|[1-9]\d*)
-(?:\.
-  (?<minor>0|[1-9]\d*)
-)?
-(?:\.
-  (?<patch>0|[1-9]\d*)
-)?
-$
-"""#, options: [.allowCommentsAndWhitespace])
