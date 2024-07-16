@@ -202,6 +202,8 @@ struct DocumentationPageProcessor {
             ]))
         }
 
+#warning("The 'View latest release documentation' needs changing too.")
+
         @Dependency(\.environment) var environment
         return Plot.Node.group(
             .header(
