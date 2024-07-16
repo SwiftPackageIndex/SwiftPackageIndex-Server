@@ -194,6 +194,7 @@ struct DocumentationPageProcessor {
             ]))
         }
 
+#warning("The 'View latest release documentation' needs changing too.")
         return Plot.Node.group(
             .header(
                 .class("spi"),
