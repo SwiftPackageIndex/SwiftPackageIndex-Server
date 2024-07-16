@@ -15,6 +15,7 @@
 @testable import App
 
 import InlineSnapshotTesting
+import NIOConcurrencyHelpers
 import XCTVapor
 
 
@@ -190,8 +191,8 @@ class SocialTests: AppTestCase {
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
-        let posted = ActorIsolated(0)
-        Current.mastodonPost = { _, _ in await posted.increment() }
+        let posted: NIOLockedValueBox<Int> = .init(0)
+        Current.mastodonPost = { _, _ in posted.withLockedValue { $0 += 1 } }
 
         // MUT
         try await Social.postToFirehose(client: app.client,
@@ -199,7 +200,7 @@ class SocialTests: AppTestCase {
                                         versions: versions)
 
         // validate
-        try await XCTAssertEqualAsync(await posted.value, 2)
+        try await XCTAssertEqualAsync(posted.withLockedValue { $0 }, 2)
     }
 
     func test_postToFirehose_only_latest() async throws {
@@ -218,10 +219,10 @@ class SocialTests: AppTestCase {
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
-        let posted = ActorIsolated(0)
+        let posted: NIOLockedValueBox<Int> = .init(0)
         Current.mastodonPost = { _, msg in
             XCTAssertTrue(msg.contains("v2.0.0"))
-            await posted.increment()
+            posted.withLockedValue { $0 += 1 }
         }
 
         // MUT
@@ -230,7 +231,7 @@ class SocialTests: AppTestCase {
                                          versions: versions)
 
         // validate
-        try await XCTAssertEqualAsync(await posted.value, 1)
+        try await XCTAssertEqualAsync(posted.withLockedValue { $0 }, 1)
     }
 
     func test_urlEncoding() async throws {

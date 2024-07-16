@@ -66,6 +66,8 @@ final class DocUploadTests: AppTestCase {
         let docUploadId = UUID()
         try await DocUpload(id: docUploadId, status: .ok)
             .attach(to: b, on: app.db)
+        let app = self.app!
+
         try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 1)
@@ -95,6 +97,7 @@ final class DocUploadTests: AppTestCase {
         try await b.save(on: app.db)
         try await DocUpload(id: UUID(), status: .ok)
             .attach(to: b, on: app.db)
+        let app = self.app!
 
         try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 1)
@@ -120,6 +123,8 @@ final class DocUploadTests: AppTestCase {
         try await b.save(on: app.db)
         try await DocUpload(id: UUID(), status: .ok)
             .attach(to: b, on: app.db)
+        let app = self.app!
+
         try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await Build.query(on: app.db).count(), 1)
         try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 1)

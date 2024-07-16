@@ -113,5 +113,6 @@ let package = Package(
 )
 
 var swiftSettings: [SwiftSetting] { [
-//    .enableExperimentalFeature("StrictConcurrency"),
+    .enableExperimentalFeature("StrictConcurrency"),
+    .enableUpcomingFeature("StrictConcurrency")
 ] }

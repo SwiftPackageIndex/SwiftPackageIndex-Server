@@ -198,6 +198,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg2.score, 40)
 
         // ensure stats, recent packages, and releases are refreshed
+        let app = self.app!
         try await XCTAssertEqualAsync(try await Stats.fetch(on: app.db).get(), .init(packageCount: 2))
         try await XCTAssertEqualAsync(try await RecentPackage.fetch(on: app.db).count, 2)
         try await XCTAssertEqualAsync(try await RecentRelease.fetch(on: app.db).count, 2)
@@ -310,6 +311,7 @@ class AnalyzerTests: AppTestCase {
         Current.git.shortlog = { @Sendable _ in "" }
 
         // Ensure candidate selection is as expected
+        let app = self.app!
         try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
         try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 1)
 
@@ -682,6 +684,7 @@ class AnalyzerTests: AppTestCase {
         ))
 
         do {  // validate
+            let app = self.app!
             try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
             let v = try await XCTUnwrapAsync(await Version.query(on: app.db).first())
             XCTAssertEqual(v.docArchives, [.init(name: "foo", title: "Foo")])
@@ -705,6 +708,7 @@ class AnalyzerTests: AppTestCase {
         ))
 
         do {  // validate
+            let app = self.app!
             try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 2)
             let versions = try await XCTUnwrapAsync(await Version.query(on: app.db).sort(\.$commit).all())
             XCTAssertEqual(versions[0].docArchives, [.init(name: "foo", title: "Foo")])
