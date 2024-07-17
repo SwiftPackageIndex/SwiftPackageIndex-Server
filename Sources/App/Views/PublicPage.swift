@@ -471,9 +471,8 @@ class PublicPage {
                     .data(named: "action", value: "click->debug-console#disable")
                 )
             ),
-            .h3("Debugging information"),
             .section(
-                .data(named: "debug-console-target", value: "data-grid"),
+                .data(named: "debug-console-target", value: "grid"),
                 .group(
                     frontEndDebugConsoleData().map({ dataItem -> Node<HTML.BodyContext> in
                             .group(

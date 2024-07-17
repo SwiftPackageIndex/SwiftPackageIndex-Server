@@ -15,14 +15,16 @@
 import { Controller } from '@hotwired/stimulus'
 
 export class DebugConsoleController extends Controller {
-    connect() {
-        console.log('DebugConsoleController connected')
+    static targets = ['grid']
 
+    connect() {
         // Debug console is Hidden by default. Make it visble by typing:
         //   `localStorage.setItem('spiDebug', 'true');`
         // into the browser console.
         if (localStorage.getItem('spiDebug') === 'true') {
             this.element.classList.remove('hidden')
+
+            this.addCanonicalUrls()
         }
     }
 
@@ -33,5 +35,25 @@ export class DebugConsoleController extends Controller {
     disable() {
         this.element.classList.add('hidden')
         localStorage.setItem('spiDebug', 'false')
+    }
+
+    newGridCell(contents) {
+        const cellElement = document.createElement('div')
+        cellElement.innerText = contents
+        return cellElement
+    }
+
+    addCanonicalUrls() {
+        const canonicalUrl = document.querySelector('link[rel="canonical"]').href
+        const windowUrl = window.location.href
+
+        this.gridTarget.appendChild(this.newGridCell('Canonical URL'))
+        this.gridTarget.appendChild(this.newGridCell(canonicalUrl))
+
+        this.gridTarget.appendChild(this.newGridCell('Window URL'))
+        this.gridTarget.appendChild(this.newGridCell(windowUrl))
+
+        this.gridTarget.appendChild(this.newGridCell('URLs Match'))
+        this.gridTarget.appendChild(this.newGridCell(canonicalUrl === windowUrl))
     }
 }

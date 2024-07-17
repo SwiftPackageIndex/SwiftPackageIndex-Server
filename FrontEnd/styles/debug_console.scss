@@ -28,10 +28,6 @@
     background-color: var(--debug-console-background);
     border-top: 1px solid var(--debug-console-border);
 
-    h3 {
-        margin: 5px;
-    }
-
     .buttons {
         position: absolute;
         top: 0;
@@ -56,14 +52,15 @@
         }
     }
 
-    [data-debug-console-target='data-grid'] {
+    [data-debug-console-target='grid'] {
         display: grid;
-        grid-template-columns: 1fr 10fr;
+        grid-template-columns: min-content 1fr;
+        gap: 3px 20px;
         padding: 5px;
-        font-size: 13px;
 
         > *:nth-child(odd) {
             font-weight: 600;
+            white-space: nowrap;
         }
     }
 }
