@@ -1,5 +1,5 @@
 {
-  "originHash" : "b389ca40b161d96fb39eacaef614e8eafea4c013abee819e2c85e2deb41d7b9d",
+  "originHash" : "9d1b882c68028f134e3d870eb9cd98035c73da84c1207d141837b4fe1ce6d1c2",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -267,8 +267,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths.git",
       "state" : {
-        "revision" : "b871e5ed11a23e52c2896a92ce2c829982ff8619",
-        "version" : "1.4.2"
+        "revision" : "bdd3bf565e84eab0fd612d07749e5b360d5e7d15",
+        "version" : "1.5.1"
       }
     },
     {
@@ -330,8 +330,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-http-types",
       "state" : {
-        "revision" : "1ddbea1ee34354a6a2532c60f98501c35ae8edfa",
-        "version" : "1.2.0"
+        "revision" : "ae67c8178eb46944fd85e4dc6dd970e1f3ed6ccd",
+        "version" : "1.3.0"
       }
     },
     {
