@@ -2,5 +2,13 @@
     {
         "date": "2024-06-10",
         "value": "Xcode 16 beta 1 released at WWDC '24"
+    },
+    {
+        "date": "2024-06-25",
+        "value": "Xcode 16 beta 2 released"
+    },
+    {
+        "date": "2024-07-08",
+        "value": "Xcode 16 beta 3 released"
     }
 ]
