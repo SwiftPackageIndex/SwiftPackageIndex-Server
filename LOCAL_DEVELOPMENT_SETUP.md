@@ -8,9 +8,9 @@ It is not possible to run the [build system](https://blog.swiftpackageindex.com/
 
 ### Setup the Back End
 
-Once you have the project cloned locally, the `Makefile` defines a set of useful commands to get you up and running.
-
 Ensure that the latest version of Xcode is "selected" and not the command line tools. You can check this with `xcode-select -p` and set it with `xcode-select -s`.
+
+Once you have the project cloned locally, the `Makefile` defines a set of useful commands to get you up and running.
 
 You'll need some environment variables configured before you can run the project. There are template files in the repository as `.env.testing.template` and `.env.development.template` and your first step should be to copy these files as `.env.testing` and `.env.development` and review their content in case your setup deviates from the default.
 
@@ -26,9 +26,9 @@ Then, to set up the schema and migrate the database to the latest version, run:
 make migrate
 ```
 
-Then, either run `make run` to start the server, or in most situations, you'll find working with Xcode easier at this stage. Open the project with Xcode and open the Product menu, select "Scheme" and "Manage Schemes…".
+Then, either run `make run` to start the server, or in most situations, you'll find working with Xcode easier. Open the project with Xcode and open the Product menu, select "Scheme" and "Manage Schemes…".
 
-Select the "SPI-Server" scheme and click the "Edit…" button. Select the "Run" scheme action from the source list and switch to the "Options" tab. Find the "Working Directory" setting and tick "Use a custom working directory:", then select the directory where you have your working copy of the project.
+Select the "SPI-Server-Package" scheme and click the "Edit…" button. Select the "Run" scheme action from the source list and on the "Info" tab, set the "Executable" to "Run". Then, switch to the "Options" tab. Find the "Working Directory" setting and tick "Use a custom working directory:", then select the directory where you have your checked out copy of the project.
 
 ![A screenshot of Xcode showing the Edit Scheme window with the Run scheme action selected.](.readme-images/edit-scheme.png)
 
