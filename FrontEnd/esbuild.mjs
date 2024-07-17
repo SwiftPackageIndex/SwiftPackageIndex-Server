@@ -17,7 +17,13 @@ import { sassPlugin } from 'esbuild-sass-plugin'
 
 try {
     const context = await esbuild.context({
-        entryPoints: ['FrontEnd/main.js', 'FrontEnd/main.scss', 'FrontEnd/docc.scss'],
+        entryPoints: [
+            'FrontEnd/main.js',
+            'FrontEnd/shared.js',
+            'FrontEnd/main.scss',
+            'FrontEnd/docc.scss',
+            'FrontEnd/shared.scss',
+        ],
         outdir: 'Public',
         bundle: true,
         sourcemap: true,

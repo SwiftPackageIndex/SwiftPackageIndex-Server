@@ -18,8 +18,12 @@ node_modules
 .parcel-cache
 Public/main.js
 Public/main.js.map
+Public/shared.js
+Public/shared.js.map
 Public/main.css
 Public/main.css.map
+Public/shared.css
+Public/shared.css.map
 Public/docc.css
 Public/docc.css.map
 Tests/AppTests/__Snapshots__/WebpageSnapshotTests/*

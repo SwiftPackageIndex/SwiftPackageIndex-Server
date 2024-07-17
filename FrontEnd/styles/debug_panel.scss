@@ -13,10 +13,10 @@
 // limitations under the License.
 
 // -------------------------------------------------------------------------
-// Front End Debug Console
+// Debug console panel shared between the site and documentation.
 // -------------------------------------------------------------------------
 
-[data-controller='debug-console'] {
+spi-debug-panel {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -58,7 +58,7 @@
         gap: 3px 20px;
         padding: 5px;
 
-        > *:nth-child(odd) {
+        tr > td:first-child {
             font-weight: 600;
             white-space: nowrap;
         }

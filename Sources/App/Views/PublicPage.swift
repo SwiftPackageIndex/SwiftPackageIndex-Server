@@ -54,11 +54,21 @@ class PublicPage {
             rssFeeds(),
             .link(
                 .rel(.stylesheet),
+                .href(SiteURL.stylesheets("shared").relativeURL() + "?" + ResourceReloadIdentifier.value),
+                .data(named: "turbolinks-track", value: "reload")
+            ),
+            .link(
+                .rel(.stylesheet),
                 .href(SiteURL.stylesheets("main").relativeURL() + "?" + ResourceReloadIdentifier.value),
                 .data(named: "turbolinks-track", value: "reload")
             ),
             .script(
                 .src(SiteURL.javascripts("main").relativeURL() + "?" + ResourceReloadIdentifier.value),
+                .data(named: "turbolinks-track", value: "reload"),
+                .defer()
+            ),
+            .script(
+                .src(SiteURL.javascripts("shared").relativeURL() + "?" + ResourceReloadIdentifier.value),
                 .data(named: "turbolinks-track", value: "reload"),
                 .defer()
             ),
@@ -455,38 +465,7 @@ class PublicPage {
     /// Output a hidden-by-default panel on the page showing useful debug information
     /// - Returns: The HTML for the debug console element.
     final func frontEndDebugConsole() -> Node<HTML.BodyContext> {
-        .div(
-            .class("hidden"),
-            .data(named: "controller", value: "debug-console"),
-            .div(
-                .class("buttons"),
-                .button(
-                    .text("Hide"),
-                    .title("Temporarily hide this panel"),
-                    .data(named: "action", value: "click->debug-console#hide")
-                ),
-                .button(
-                    .text("Disable"),
-                    .title("Disable the debug console"),
-                    .data(named: "action", value: "click->debug-console#disable")
-                )
-            ),
-            .section(
-                .data(named: "debug-console-target", value: "grid"),
-                .group(
-                    frontEndDebugConsoleData().map({ dataItem -> Node<HTML.BodyContext> in
-                            .group(
-                                .div(
-                                    .text(dataItem.title)
-                                ),
-                                .div(
-                                    .text(dataItem.value)
-                                )
-                            )
-                    })
-                )
-            )
-        )
+        .spiFrontEndDebugConsole(dataItems: frontEndDebugConsoleData())
     }
 
     /// Returns the debug information that a page would like to show in the front-end debug console.

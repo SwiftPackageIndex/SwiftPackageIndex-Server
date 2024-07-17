@@ -79,7 +79,8 @@ struct DocumentationPageProcessor {
             if let metaNoIndex = self.metaNoIndex {
                 try document.head()?.prepend(metaNoIndex)
             }
-            try document.head()?.append(self.stylesheetLink)
+            try document.head()?.append(self.stylesheetLinks)
+            try document.head()?.append(self.javascriptLinks)
             if let canonicalUrl = self.canonicalUrl {
                 try document.head()?.append(
                     // We should not use `url` here as some of the DocC JavaScript lowercases
@@ -93,6 +94,7 @@ struct DocumentationPageProcessor {
             }
             try document.body()?.prepend(self.header)
             try document.body()?.append(self.footer)
+            try document.body()?.append(self.frontEndDebugPanel)
             if let analyticsScript = self.analyticsScript {
                 try document.head()?.append(analyticsScript)
             }
@@ -109,10 +111,20 @@ struct DocumentationPageProcessor {
         ).render()
     }
 
-    var stylesheetLink: String {
-        Plot.Node.link(
-            .rel(.stylesheet),
-            .href(SiteURL.stylesheets("docc").relativeURL() + "?" + ResourceReloadIdentifier.value)
+    var stylesheetLinks: String {
+        Plot.Node.group(["docc", "shared"].map { stylesheetName -> Plot.Node<HTML.HeadContext> in
+                .link(
+                    .rel(.stylesheet),
+                    .href(SiteURL.stylesheets(stylesheetName).relativeURL() + "?" + ResourceReloadIdentifier.value)
+                )
+        }).render()
+    }
+
+    var javascriptLinks: String {
+        Plot.Node<HTML.HeadContext>.script(
+            .src(SiteURL.javascripts("shared").relativeURL() + "?" + ResourceReloadIdentifier.value),
+            .data(named: "turbolinks-track", value: "reload"),
+            .defer()
         ).render()
     }
 
@@ -278,6 +290,10 @@ struct DocumentationPageProcessor {
             ),
             .if(Current.environment() == .development, stagingBanner())
         ).render()
+    }
+
+    var frontEndDebugPanel: String {
+        Plot.Node<HTML.BodyContext>.spiFrontEndDebugConsole(dataItems: []).render()
     }
 
     var processedPage: String {
