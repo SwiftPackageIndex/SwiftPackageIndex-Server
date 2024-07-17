@@ -238,7 +238,6 @@ class PublicPage {
             .class(bodyClass() ?? ""),
             .forEach(bodyAttributes(), { .attribute($0) }),
             preBody(),
-            bodyComments(),
             stagingBanner(),
             header(),
             announcementBanner(),
@@ -248,14 +247,9 @@ class PublicPage {
             postMain(),
             footer(),
             stagingBanner(),
-            postBody()
+            postBody(),
+            frontEndDebugConsole()
         )
-    }
-
-    /// Any page level HTML comments for hidden metadata.
-    /// - Returns: An element, or `group` of elements.
-    func bodyComments() -> Node<HTML.BodyContext> {
-        .empty
     }
 
     /// A staging banner, which only appears on the staging/development server.
@@ -458,6 +452,49 @@ class PublicPage {
         )
     }
 
+    /// Output a hidden-by-default panel on the page showing useful debug information
+    /// - Returns: The HTML for the debug console element.
+    final func frontEndDebugConsole() -> Node<HTML.BodyContext> {
+        .div(
+            .class("hidden"),
+            .data(named: "controller", value: "debug-console"),
+            .div(
+                .class("buttons"),
+                .button(
+                    .text("Hide"),
+                    .title("Temporarily hide this panel"),
+                    .data(named: "action", value: "click->debug-console#hide")
+                ),
+                .button(
+                    .text("Disable"),
+                    .title("Disable the debug console"),
+                    .data(named: "action", value: "click->debug-console#disable")
+                )
+            ),
+            .h3("Debugging information"),
+            .section(
+                .data(named: "debug-console-target", value: "data-grid"),
+                .group(
+                    frontEndDebugConsoleData().map({ dataItem -> Node<HTML.BodyContext> in
+                            .group(
+                                .div(
+                                    .text(dataItem.title)
+                                ),
+                                .div(
+                                    .text(dataItem.value)
+                                )
+                            )
+                    })
+                )
+            )
+        )
+    }
+
+    /// Returns the debug information that a page would like to show in the front-end debug console.
+    /// - Returns: An array of `DebugConsoleDataItem` structs that will be displayed by `frontEndDebugConsole()`.
+    func frontEndDebugConsoleData() -> [DebugConsoleDataItem] {
+        []
+    }
 }
 
 extension PublicPage {
@@ -467,4 +504,11 @@ extension PublicPage {
         case packages
     }
 
+}
+
+extension PublicPage {
+    struct DebugConsoleDataItem {
+        var title: String
+        var value: String
+    }
 }

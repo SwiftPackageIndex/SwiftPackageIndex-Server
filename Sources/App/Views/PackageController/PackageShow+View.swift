@@ -51,13 +51,6 @@ extension PackageShow {
             "package"
         }
 
-        override func bodyComments() -> Node<HTML.BodyContext> {
-            .group(
-                .comment(model.packageId.uuidString),
-                .comment(model.score.map(String.init) ?? "unknown")
-            )
-        }
-
         override func breadcrumbs() -> [Breadcrumb] {
             [
                 Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
@@ -70,6 +63,13 @@ extension PackageShow {
             .unwrap(packageSchema) {
                 .structuredData($0)
             }
+        }
+
+        override func frontEndDebugConsoleData() -> [PublicPage.DebugConsoleDataItem] {
+            [
+                .init(title: "Package ID", value: model.packageId.uuidString),
+                .init(title: "Score", value: model.score.map(String.init) ?? "No score.")
+            ]
         }
 
         override func content() -> Node<HTML.BodyContext> {
