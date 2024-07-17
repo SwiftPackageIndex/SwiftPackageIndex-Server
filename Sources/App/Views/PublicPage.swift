@@ -465,7 +465,7 @@ class PublicPage {
     /// Output a hidden-by-default panel on the page showing useful debug information
     /// - Returns: The HTML for the debug console element.
     final func frontEndDebugConsole() -> Node<HTML.BodyContext> {
-        .spiFrontEndDebugConsole(dataItems: frontEndDebugConsoleData())
+        .spiFrontEndDebugPanel(dataItems: frontEndDebugConsoleData())
     }
 
     /// Returns the debug information that a page would like to show in the front-end debug console.

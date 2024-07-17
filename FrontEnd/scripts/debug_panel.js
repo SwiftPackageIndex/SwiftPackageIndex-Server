@@ -19,44 +19,73 @@ export class SPIDebugPanel extends HTMLElement {
         // into the browser console.
         if (localStorage.getItem('spiDebug') === 'true') {
             this.classList.remove('hidden')
+
+            this.reset()
+            this.addButtons()
             this.addCanonicalUrls()
         }
-
-        this.querySelector('.buttons > .hide').addEventListener('click', () => {
-            this.classList.add('hidden')
-        })
-
-        this.querySelector('.buttons > .disable').addEventListener('click', () => {
-            this.classList.add('hidden')
-            localStorage.setItem('spiDebug', 'false')
-        })
     }
 
     disconnectedCallback() {
         console.log('SPIDebugPanel disconnectedCallback')
     }
 
-    newTableRow(title, value) {
+    reset() {
+        const buttonsContainer = this.querySelector('.buttons')
+        if (buttonsContainer) buttonsContainer.remove()
+
+        const dynamicRowElements = this.querySelectorAll('tr:not([server-side])')
+        dynamicRowElements.forEach((row) => row.remove())
+    }
+
+    addButtons() {
+        const hideButton = document.createElement('button')
+        hideButton.innerText = 'Hide'
+        hideButton.title = 'Temporarily hide this panel'
+        hideButton.addEventListener('click', () => {
+            this.classList.add('hidden')
+        })
+
+        const disableButton = document.createElement('button')
+        disableButton.innerText = 'Disable'
+        disableButton.title = 'Disable the debug panel'
+        disableButton.addEventListener('click', () => {
+            localStorage.setItem('spiDebug', 'false')
+            this.classList.add('hidden')
+        })
+
+        const buttonsContainer = document.createElement('div')
+        buttonsContainer.classList.add('buttons')
+        buttonsContainer.appendChild(hideButton)
+        buttonsContainer.appendChild(disableButton)
+        this.prepend(buttonsContainer)
+    }
+
+    newTableRow(title, value, valueCssClass) {
+        const tableElement = this.querySelector('table > tbody')
         const rowElement = document.createElement('tr')
 
         const titleCellElement = document.createElement('td')
         titleCellElement.innerText = title
 
+        const valueSpanElement = document.createElement('span')
+        valueSpanElement.innerText = value
         const valueCellElement = document.createElement('td')
-        valueCellElement.innerText = value
+        valueCellElement.appendChild(valueSpanElement)
+        if (valueCssClass) valueCellElement.classList.add(valueCssClass)
 
         rowElement.appendChild(titleCellElement)
         rowElement.appendChild(valueCellElement)
-        return rowElement
+        tableElement.appendChild(rowElement)
     }
 
     addCanonicalUrls() {
-        const tableElement = this.querySelector('table')
         const canonicalUrl = document.querySelector('link[rel="canonical"]').href
         const windowUrl = window.location.href
+        const matchingCanonicalUrl = canonicalUrl === windowUrl
 
-        tableElement.appendChild(this.newTableRow('Canonical URL', canonicalUrl))
-        tableElement.appendChild(this.newTableRow('Window URL', windowUrl))
-        tableElement.appendChild(this.newTableRow('URLs Match', canonicalUrl === windowUrl))
+        this.newTableRow('Canonical URL', canonicalUrl)
+        this.newTableRow('Window URL', windowUrl)
+        this.newTableRow('Canonical Match', matchingCanonicalUrl, matchingCanonicalUrl ? 'green' : 'red')
     }
 }

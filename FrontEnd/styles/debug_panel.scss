@@ -25,6 +25,7 @@ spi-debug-panel {
     overflow-y: auto;
     max-height: 500px;
     min-height: 100px;
+    padding: 18px;
     background-color: var(--debug-console-background);
     border-top: 1px solid var(--debug-console-border);
 
@@ -38,7 +39,7 @@ spi-debug-panel {
 
         button {
             cursor: pointer;
-            padding: 2px 6px;
+            padding: 0 6px;
             font-size: 10px;
             color: var(--page-text);
             background: none;
@@ -52,15 +53,37 @@ spi-debug-panel {
         }
     }
 
-    [data-debug-console-target='grid'] {
-        display: grid;
-        grid-template-columns: min-content 1fr;
-        gap: 3px 20px;
-        padding: 5px;
+    table {
+        width: 100%;
+        border-collapse: collapse;
 
-        tr > td:first-child {
-            font-weight: 600;
-            white-space: nowrap;
+        tr {
+            > td:first-child {
+                width: 20%;
+                font-size: 14px;
+                font-weight: 600;
+                white-space: nowrap;
+            }
+
+            > td:last-child {
+                width: 80%;
+                font-family: monospace;
+                font-size: 12px;
+            }
+        }
+
+        td > span {
+            padding: 3px;
+        }
+
+        td.green > span {
+            color: var(--very-light-grey);
+            background-color: var(--mid-green);
+        }
+
+        td.red > span {
+            color: var(--very-light-grey);
+            background-color: var(--mid-red);
         }
     }
 }

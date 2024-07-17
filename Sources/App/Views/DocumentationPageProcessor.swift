@@ -293,7 +293,7 @@ struct DocumentationPageProcessor {
     }
 
     var frontEndDebugPanel: String {
-        Plot.Node<HTML.BodyContext>.spiFrontEndDebugConsole(dataItems: []).render()
+        Plot.Node<HTML.BodyContext>.spiFrontEndDebugPanel(dataItems: []).render()
     }
 
     var processedPage: String {
