@@ -27,6 +27,7 @@ class SnapshotTestCase: AppTestCase {
     }
     
     override func invokeTest() {
+        // To force a re-record of all snapshots, use `record: .all` rather than `record: .missing`.
         withSnapshotTesting(record: .missing, diffTool: .ksdiff) {
             super.invokeTest()
         }
