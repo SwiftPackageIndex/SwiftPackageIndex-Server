@@ -65,7 +65,7 @@ extension PackageShow {
             }
         }
 
-        override func frontEndDebugConsoleData() -> [PublicPage.DebugConsoleDataItem] {
+        override func frontEndDebugPanelData() -> [PublicPage.FrontEndDebugPanelDataItem] {
             [
                 .init(title: "Package ID", value: model.packageId.uuidString),
                 .init(title: "Score", value: model.score.map(String.init) ?? "No score.")

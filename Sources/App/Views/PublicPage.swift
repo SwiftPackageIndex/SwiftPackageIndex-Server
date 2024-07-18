@@ -63,12 +63,12 @@ class PublicPage {
                 .data(named: "turbolinks-track", value: "reload")
             ),
             .script(
-                .src(SiteURL.javascripts("main").relativeURL() + "?" + ResourceReloadIdentifier.value),
+                .src(SiteURL.javascripts("shared").relativeURL() + "?" + ResourceReloadIdentifier.value),
                 .data(named: "turbolinks-track", value: "reload"),
                 .defer()
             ),
             .script(
-                .src(SiteURL.javascripts("shared").relativeURL() + "?" + ResourceReloadIdentifier.value),
+                .src(SiteURL.javascripts("main").relativeURL() + "?" + ResourceReloadIdentifier.value),
                 .data(named: "turbolinks-track", value: "reload"),
                 .defer()
             ),
@@ -258,7 +258,7 @@ class PublicPage {
             footer(),
             stagingBanner(),
             postBody(),
-            frontEndDebugConsole()
+            frontEndDebugPanel()
         )
     }
 
@@ -464,13 +464,13 @@ class PublicPage {
 
     /// Output a hidden-by-default panel on the page showing useful debug information
     /// - Returns: The HTML for the debug console element.
-    final func frontEndDebugConsole() -> Node<HTML.BodyContext> {
-        .spiFrontEndDebugPanel(dataItems: frontEndDebugConsoleData())
+    final func frontEndDebugPanel() -> Node<HTML.BodyContext> {
+        .spiFrontEndDebugPanel(dataItems: frontEndDebugPanelData())
     }
 
     /// Returns the debug information that a page would like to show in the front-end debug console.
     /// - Returns: An array of `DebugConsoleDataItem` structs that will be displayed by `frontEndDebugConsole()`.
-    func frontEndDebugConsoleData() -> [DebugConsoleDataItem] {
+    func frontEndDebugPanelData() -> [FrontEndDebugPanelDataItem] {
         []
     }
 }
@@ -485,7 +485,7 @@ extension PublicPage {
 }
 
 extension PublicPage {
-    struct DebugConsoleDataItem {
+    struct FrontEndDebugPanelDataItem {
         var title: String
         var value: String
     }

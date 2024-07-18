@@ -207,7 +207,7 @@ extension Node where Context: HTML.BodyContext {
         )
     }
 
-    static func spiFrontEndDebugPanel(dataItems: [PublicPage.DebugConsoleDataItem]) -> Node<HTML.BodyContext> {
+    static func spiFrontEndDebugPanel(dataItems: [PublicPage.FrontEndDebugPanelDataItem]) -> Node<HTML.BodyContext> {
         .element(named: "spi-debug-panel", nodes: [
             .class("hidden"),
             .table(
