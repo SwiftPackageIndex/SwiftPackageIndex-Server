@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="/owner/package/main/path/to/some/styles.css?12345" /> 
   <script src="/owner/package/main/path/to/some/script.js?12345" defer></script> 
   <link rel="stylesheet" href="/docc.css?test" />
+  <link rel="stylesheet" href="/shared.css?test" />
+  <script src="/shared.js?test" data-turbolinks-track="reload" defer></script>
   <script async defer data-domain="swiftpackageindex.com" src="https://plausible.io/js/plausible.outbound-links.js"></script> 
   <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
  </head> 
@@ -45,5 +47,10 @@
     <small>The Swift Package Index is entirely funded by sponsorship. Thank you to <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship">all our sponsors for their generosity</a>.</small>
    </div>
   </footer>
+  <spi-debug-panel class="hidden">
+   <table>
+    <tbody></tbody>
+   </table>
+  </spi-debug-panel>
  </body>
 </html>

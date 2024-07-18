@@ -24,7 +24,9 @@
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major Package Releases" href="http://localhost:8080/releases.rss?major=true"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major & Minor Package Releases" href="http://localhost:8080/releases.rss?major=true&minor=true"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Package Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
+    <link rel="stylesheet" href="/shared.css?test" data-turbolinks-track="reload"/>
     <link rel="stylesheet" href="/main.css?test" data-turbolinks-track="reload"/>
+    <script src="/shared.js?test" data-turbolinks-track="reload" defer></script>
     <script src="/main.js?test" data-turbolinks-track="reload" defer></script>
   </head>
   <body class="home">
@@ -247,5 +249,10 @@
       <a href="https://swiftpackageindex.com">visit swiftpackageindex.com</a>.
     </div>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","potentialAction":{"@context":"https://schema.org","@type":"SearchAction","query-input":"required name=search_term_string","target":{"@context":"https://schema.org","@type":"EntryPoint","urlTemplate":"http://localhost:8080/search?query={search_term_string}"}},"url":"http://localhost:8080/"}</script>
+    <spi-debug-panel class="hidden">
+      <table>
+        <tbody></tbody>
+      </table>
+    </spi-debug-panel>
   </body>
 </html>

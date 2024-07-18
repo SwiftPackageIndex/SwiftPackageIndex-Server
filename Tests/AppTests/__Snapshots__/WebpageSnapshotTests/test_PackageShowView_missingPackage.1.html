@@ -23,7 +23,9 @@
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major Package Releases" href="http://localhost:8080/releases.rss?major=true"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major & Minor Package Releases" href="http://localhost:8080/releases.rss?major=true&minor=true"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Package Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
+    <link rel="stylesheet" href="/shared.css?test" data-turbolinks-track="reload"/>
     <link rel="stylesheet" href="/main.css?test" data-turbolinks-track="reload"/>
+    <script src="/shared.js?test" data-turbolinks-track="reload" defer></script>
     <script src="/main.js?test" data-turbolinks-track="reload" defer></script><script async defer data-domain="swiftpackageindex.com" src="https://plausible.io/js/plausible.outbound-links.js"></script>
 <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
   </head>
@@ -106,5 +108,10 @@
         </nav>
       </div>
     </footer>
+    <spi-debug-panel class="hidden">
+      <table>
+        <tbody></tbody>
+      </table>
+    </spi-debug-panel>
   </body>
 </html>
