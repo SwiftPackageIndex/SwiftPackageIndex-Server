@@ -18,7 +18,9 @@
     <meta property="og:image" content="http://localhost:8080/images/logo.png"/>
     <link rel="shortcut icon" href="/images/logo-tiny.png" type="image/png"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index Blog" href="http://localhost:8080/blog/feed.xml"/>
+    <link rel="stylesheet" href="/shared.css?test" data-turbolinks-track="reload"/>
     <link rel="stylesheet" href="/main.css?test" data-turbolinks-track="reload"/>
+    <script src="/shared.js?test" data-turbolinks-track="reload" defer></script>
     <script src="/main.js?test" data-turbolinks-track="reload" defer></script><script async defer data-domain="swiftpackageindex.com" src="https://plausible.io/js/plausible.outbound-links.js"></script>
 <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
   </head>
@@ -121,5 +123,10 @@
         </nav>
       </div>
     </footer>
+    <spi-debug-panel class="hidden">
+      <table>
+        <tbody></tbody>
+      </table>
+    </spi-debug-panel>
   </body>
 </html>

@@ -54,8 +54,18 @@ class PublicPage {
             rssFeeds(),
             .link(
                 .rel(.stylesheet),
+                .href(SiteURL.stylesheets("shared").relativeURL() + "?" + ResourceReloadIdentifier.value),
+                .data(named: "turbolinks-track", value: "reload")
+            ),
+            .link(
+                .rel(.stylesheet),
                 .href(SiteURL.stylesheets("main").relativeURL() + "?" + ResourceReloadIdentifier.value),
                 .data(named: "turbolinks-track", value: "reload")
+            ),
+            .script(
+                .src(SiteURL.javascripts("shared").relativeURL() + "?" + ResourceReloadIdentifier.value),
+                .data(named: "turbolinks-track", value: "reload"),
+                .defer()
             ),
             .script(
                 .src(SiteURL.javascripts("main").relativeURL() + "?" + ResourceReloadIdentifier.value),
@@ -238,7 +248,6 @@ class PublicPage {
             .class(bodyClass() ?? ""),
             .forEach(bodyAttributes(), { .attribute($0) }),
             preBody(),
-            bodyComments(),
             stagingBanner(),
             header(),
             announcementBanner(),
@@ -248,14 +257,9 @@ class PublicPage {
             postMain(),
             footer(),
             stagingBanner(),
-            postBody()
+            postBody(),
+            frontEndDebugPanel()
         )
-    }
-
-    /// Any page level HTML comments for hidden metadata.
-    /// - Returns: An element, or `group` of elements.
-    func bodyComments() -> Node<HTML.BodyContext> {
-        .empty
     }
 
     /// A staging banner, which only appears on the staging/development server.
@@ -458,6 +462,17 @@ class PublicPage {
         )
     }
 
+    /// Output a hidden-by-default panel on the page showing useful debug information
+    /// - Returns: The HTML for the debug console element.
+    final func frontEndDebugPanel() -> Node<HTML.BodyContext> {
+        .spiFrontEndDebugPanel(dataItems: frontEndDebugPanelData())
+    }
+
+    /// Returns the debug information that a page would like to show in the front-end debug console.
+    /// - Returns: An array of `DebugConsoleDataItem` structs that will be displayed by `frontEndDebugConsole()`.
+    func frontEndDebugPanelData() -> [FrontEndDebugPanelDataItem] {
+        []
+    }
 }
 
 extension PublicPage {
@@ -467,4 +482,11 @@ extension PublicPage {
         case packages
     }
 
+}
+
+extension PublicPage {
+    struct FrontEndDebugPanelDataItem {
+        var title: String
+        var value: String
+    }
 }

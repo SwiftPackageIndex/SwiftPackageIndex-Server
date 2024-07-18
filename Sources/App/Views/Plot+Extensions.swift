@@ -206,6 +206,29 @@ extension Node where Context: HTML.BodyContext {
             )
         )
     }
+
+    static func spiFrontEndDebugPanel(dataItems: [PublicPage.FrontEndDebugPanelDataItem]) -> Node<HTML.BodyContext> {
+        .element(named: "spi-debug-panel", nodes: [
+            .class("hidden"),
+            .table(
+                .tbody(
+                    .group(
+                        dataItems.map({ dataItem -> Node<HTML.TableContext> in
+                                .tr(
+                                    .attribute(named: "server-side"),
+                                    .td(
+                                        .text(dataItem.title)
+                                    ),
+                                    .td(
+                                        .text(dataItem.value)
+                                    )
+                                )
+                        })
+                    )
+                )
+            )
+        ])
+    }
 }
 
 extension Node where Context == HTML.FormContext {

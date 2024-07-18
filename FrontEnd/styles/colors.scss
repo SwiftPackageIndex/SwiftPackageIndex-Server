@@ -187,6 +187,10 @@
     --avatar-shadow: 0 2px 2px 3px rgba(0, 0, 0, 5%);
 
     --rss-subscribe-color: var(--orange);
+
+    --debug-console-background: var(--light-blue);
+    --debug-console-border: var(--grey);
+    --debug-console-button-hover: var(--light-grey);
 }
 
 // Dark mode.
@@ -309,5 +313,9 @@
             rgba(25, 25, 35, 0%) 50%,
             rgba(25, 25, 35, 100%) 100%
         );
+
+        --debug-console-background: var(--dark-blue);
+        --debug-console-border: var(--light-grey);
+        --debug-console-button-hover: var(--dark-grey);
     }
 }
