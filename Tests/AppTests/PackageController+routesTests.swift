@@ -483,7 +483,6 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    @MainActor
     func test_documentation_routes_current() async throws {
         // Test the current (~) documentation routes:
         //   /owner/package/documentation/~ + various path elements
@@ -518,7 +517,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
 
         // test fully qualified route
-        try await app.test(.GET, "/owner/package/~/documentation/target") { @Sendable res in
+        try await app.test(.GET, "/owner/package/~/documentation/target") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
@@ -532,7 +531,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
 
         // test catchall
-        try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { @Sendable res in
+        try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
@@ -547,7 +546,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
 
         // Test case insensitive path.
-        try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { @Sendable res in
+        try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
@@ -562,7 +561,6 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    @MainActor
     func test_documentation_routes_current_rewrite() async throws {
         // Test the current (~) documentation routes with baseURL rewriting:
         //   /owner/package/documentation/~ + various path elements
@@ -591,7 +589,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // MUT
 
         // test fully qualified route
-        try await app.test(.GET, "/owner/package/~/documentation/target") { @Sendable res in
+        try await app.test(.GET, "/owner/package/~/documentation/target") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
@@ -605,7 +603,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
 
         // test catchall
-        try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { @Sendable res in
+        try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
@@ -619,7 +617,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
 
         // Test case insensitive path.
-        try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { @Sendable res in
+        try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
@@ -633,7 +631,6 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    @MainActor
     func test_documentation_routes_ref() async throws {
         // Test the documentation routes with a reference:
         //   /owner/package/documentation/{reference} + various path elements
@@ -668,7 +665,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
 
         // test fully qualified route
-        try await app.test(.GET, "/owner/package/1.2.3/documentation/target") { @Sendable res in
+        try await app.test(.GET, "/owner/package/1.2.3/documentation/target") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
@@ -682,7 +679,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
 
         // test catchall
-        try await app.test(.GET, "/owner/package/1.2.3/documentation/target/a/b#anchor") { @Sendable res in
+        try await app.test(.GET, "/owner/package/1.2.3/documentation/target/a/b#anchor") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
@@ -696,7 +693,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
 
         // Test case insensitive path.
-        try await app.test(.GET, "/Owner/Package/1.2.3/documentation/target/A/b#Anchor") { @Sendable res in
+        try await app.test(.GET, "/Owner/Package/1.2.3/documentation/target/A/b#Anchor") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
@@ -1042,7 +1039,6 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    @MainActor
     func test_documentation_issue_2287() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2287
         // Ensure references are path encoded
@@ -1063,7 +1059,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // MUT
 
         // test default path
-        try await app.test(.GET, "/owner/package/~/documentation/target") { @Sendable res in
+        try await app.test(.GET, "/owner/package/~/documentation/target") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             let body = String(buffer: res.body)
@@ -1077,7 +1073,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
 
         // test reference root path
-        try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/target") { @Sendable res in
+        try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/target") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             let body = String(buffer: res.body)
@@ -1090,7 +1086,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
 
         // test path a/b
-        try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/a/b") { @Sendable res in
+        try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/a/b") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
@@ -1104,7 +1100,6 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    @MainActor
     func test_documentation_routes_tutorials() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -1129,17 +1124,17 @@ class PackageController_routesTests: SnapshotTestCase {
         Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // MUT
-        try await app.test(.GET, "/owner/package/~/tutorials") { @Sendable res async in
+        try await app.test(.GET, "/owner/package/~/tutorials") { res async in
             XCTAssertEqual(res.status, .notFound)
         }
-        try await app.test(.GET, "/owner/package/~/tutorials/foo") { @Sendable res in
+        try await app.test(.GET, "/owner/package/~/tutorials/foo") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             let body = String(buffer: res.body)
             assertSnapshot(of: body, as: .html, named: "index")
             XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
         }
-        try await app.test(.GET, "/owner/package/~/tutorials/foo#anchor") { @Sendable res in
+        try await app.test(.GET, "/owner/package/~/tutorials/foo#anchor") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             let body = String(buffer: res.body)
@@ -1350,7 +1345,6 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    @MainActor
     func test_issue_2288() async throws {
         // Ensures default branch updates don't introduce a "documentation gap"
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
@@ -1392,7 +1386,7 @@ class PackageController_routesTests: SnapshotTestCase {
         Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
         // Ensure documentation is resolved
-        try await app.test(.GET, "/foo/bar/~/documentation/target") { @Sendable res in
+        try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
@@ -1406,7 +1400,7 @@ class PackageController_routesTests: SnapshotTestCase {
         XCTAssertEqual(commit, ["new-commit"])
 
         // Ensure documentation is still being resolved
-        try await app.test(.GET, "/foo/bar/~/documentation/target") { @Sendable res in
+        try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
             await Task.yield() // essential to avoid deadlocking
             XCTAssertEqual(res.status, .ok)
             assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
