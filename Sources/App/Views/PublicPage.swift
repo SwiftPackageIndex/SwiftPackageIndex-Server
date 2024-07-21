@@ -248,6 +248,8 @@ class PublicPage {
             .class(bodyClass() ?? ""),
             .forEach(bodyAttributes(), { .attribute($0) }),
             preBody(),
+            bodyComments(),
+
             stagingBanner(),
             header(),
             announcementBanner(),
@@ -260,6 +262,12 @@ class PublicPage {
             postBody(),
             frontEndDebugPanel()
         )
+    }
+
+    /// Any page level HTML comments for hidden metadata.
+    /// - Returns: An element, or `group` of elements.
+    func bodyComments() -> Node<HTML.BodyContext> {
+        .empty
     }
 
     /// A staging banner, which only appears on the staging/development server.

@@ -51,6 +51,12 @@ extension PackageShow {
             "package"
         }
 
+        override func bodyComments() -> Node<HTML.BodyContext> {
+            .group(
+                .comment(model.packageId.uuidString)
+            )
+        }
+
         override func breadcrumbs() -> [Breadcrumb] {
             [
                 Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
