@@ -249,7 +249,6 @@ class PublicPage {
             .forEach(bodyAttributes(), { .attribute($0) }),
             preBody(),
             bodyComments(),
-
             stagingBanner(),
             header(),
             announcementBanner(),
