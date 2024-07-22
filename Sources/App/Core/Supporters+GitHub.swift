@@ -198,11 +198,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/1696960?u=480042020f9901e9459be75fc2e891081b6f0492&v=4"
         ),
         .init(
-            login: "jobearrr",
-            name: "Jobert Sá",
-            avatarUrl: "https://avatars.githubusercontent.com/u/1816444?u=990266b92bcc6b930fee6dc2425f6272493c1a7f&v=4"
-        ),
-        .init(
             login: "radmakr",
             name: "Thomas Rademaker",
             avatarUrl: "https://avatars.githubusercontent.com/u/1885323?u=236e99eb7cb909bff3a7e9f5c85f120dc458fd27&v=4"
