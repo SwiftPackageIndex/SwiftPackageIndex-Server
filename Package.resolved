@@ -1,5 +1,5 @@
 {
-  "originHash" : "ad3306d0afdd23d58b150ced6647c0dc782784b82d8caa70b06c722d7246074b",
+  "originHash" : "223c7ccc369c3e65877308b03456beb266b139bc1c753b713ba77b40dc4b6e6f",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -121,10 +121,10 @@
     {
       "identity" : "plot",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/daveverwer/Plot.git",
+      "location" : "https://github.com/SwiftPackageIndex/Plot.git",
       "state" : {
-        "branch" : "sitemapindex",
-        "revision" : "d4a416a8eca17485b93470bc86ae9b26d30ee6a2"
+        "branch" : "main",
+        "revision" : "3ee6fa631a22401643b21146a68c953b87a0a752"
       }
     },
     {
