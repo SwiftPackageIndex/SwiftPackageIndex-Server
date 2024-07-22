@@ -122,6 +122,10 @@ requests:
     url: ${base_url}/airbnb/lottie-ios/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /apple/live-caller-id-lookup-example/documentation:
+    url: ${base_url}/apple/live-caller-id-lookup-example/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /apple/swift-algorithms/documentation:
     url: ${base_url}/apple/swift-algorithms/documentation
     validation:
@@ -172,6 +176,10 @@ requests:
       status: .regex((2|3)\d\d)
   /apple/swift-distributed-tracing/documentation:
     url: ${base_url}/apple/swift-distributed-tracing/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /apple/swift-homomorphic-encryption/documentation:
+    url: ${base_url}/apple/swift-homomorphic-encryption/documentation
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-http-structured-headers/documentation:
@@ -315,6 +323,10 @@ requests:
     url: ${base_url}/groue/GRDB.swift/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /groue/GRDBQuery/documentation:
+    url: ${base_url}/groue/GRDBQuery/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /groue/Semaphore/documentation:
     url: ${base_url}/groue/Semaphore/documentation
     validation:
@@ -375,6 +387,10 @@ requests:
       status: .regex((2|3)\d\d)
   /marcoarment/Blackbird/documentation:
     url: ${base_url}/marcoarment/Blackbird/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /mattmassicotte/Queue/documentation:
+    url: ${base_url}/mattmassicotte/Queue/documentation
     validation:
       status: .regex((2|3)\d\d)
   /maxxfrazer/FocusEntity/documentation:
@@ -439,6 +455,10 @@ requests:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-dependencies/documentation:
     url: ${base_url}/pointfreeco/swift-dependencies/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /pointfreeco/swift-identified-collections/documentation:
+    url: ${base_url}/pointfreeco/swift-identified-collections/documentation
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-macro-testing/documentation:
@@ -586,7 +606,15 @@ requests:
     url: ${base_url}/vapor-community/HTMLKit/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /vapor-community/PassKit/documentation:
+    url: ${base_url}/vapor-community/PassKit/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /vtourraine/AcknowList/documentation:
     url: ${base_url}/vtourraine/AcknowList/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /yaslab/CSV.swift/documentation:
+    url: ${base_url}/yaslab/CSV.swift/documentation
     validation:
       status: .regex((2|3)\d\d)
