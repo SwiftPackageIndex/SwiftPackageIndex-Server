@@ -22,7 +22,7 @@ There are a few requirements for inclusion in the index, but they aren't onerous
 
 <div class="note">
 <p><strong>Note:</strong> Our build system can now generate and host DocC documentation and make it available from your package’s page in the index. All we need is a little configuration data so that we know how best to build your docs.</p>
-<p><a href="https://blog.swiftpackageindex.com/posts/auto-generating-auto-hosting-and-auto-updating-docc-documentation/">More information here</a>.</p>
+<p><a href="https://swiftpackageindex.com/swiftpackageindex/spimanifest/documentation/spimanifest/commonusecases#Host-DocC-documentation-in-the-Swift-Package-Index">More information here</a>.</p>
 </div>
 
 <div class="note">
