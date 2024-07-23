@@ -69,8 +69,8 @@ compactor:
   delete_request_store: filesystem
 
 # https://grafana.com/docs/loki/latest/operations/storage/retention/#configuring-the-retention-period
-  limits_config:
-    retention_period: 336h # 14 days
+limits_config:
+  retention_period: 336h # 14 days
 
 ruler:
   storage:
