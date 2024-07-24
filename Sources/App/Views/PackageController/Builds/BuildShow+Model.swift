@@ -67,6 +67,7 @@ extension BuildShow {
         var swiftVersion: SwiftVersion
         var buildDate: Date?
         var commitHash: String?
+        var swift6ErrorCount: Int?
 
         init?(build: App.Build, logs: String?) {
             guard let swiftVersion = build.swiftVersion.compatibility else { return nil }
@@ -76,7 +77,8 @@ extension BuildShow {
                       status: build.status,
                       swiftVersion: swiftVersion,
                       buildDate: build.buildDate,
-                      commitHash: build.commitHash)
+                      commitHash: build.commitHash,
+                      swift6ErrorCount: build.buildErrors?.numSwift6Errors)
         }
 
         internal init(buildCommand: String,
@@ -85,7 +87,8 @@ extension BuildShow {
                       status: App.Build.Status,
                       swiftVersion: SwiftVersion,
                       buildDate: Date? = nil,
-                      commitHash: String? = nil) {
+                      commitHash: String? = nil,
+                      swift6ErrorCount: Int?) {
             self.buildCommand = buildCommand
             self.logs = logs
             self.platform = platform
@@ -93,6 +96,7 @@ extension BuildShow {
             self.swiftVersion = swiftVersion
             self.buildDate = buildDate
             self.commitHash = commitHash
+            self.swift6ErrorCount = swift6ErrorCount
         }
 
         var xcodeVersion: String? {

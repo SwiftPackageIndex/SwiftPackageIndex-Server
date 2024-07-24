@@ -106,6 +106,9 @@ enum BuildShow {
                     },
                     .text(".")
                 ),
+                .unwrap(model.buildInfo.swift6ErrorCount) {
+                    .p(.strong("Swift 6 data race errors: \($0)"))
+                },
                 .h3("Build Command"),
                 .pre(
                     .code(
