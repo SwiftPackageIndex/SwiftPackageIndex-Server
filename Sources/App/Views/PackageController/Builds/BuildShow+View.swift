@@ -70,6 +70,15 @@ enum BuildShow {
                         .href(model.packageURL),
                         .text(model.packageName)
                     ),
+                    .unwrap(model.buildInfo.buildDetails) {
+                        .group(
+                            .text(", reference "),
+                            .strong("\(model.reference)"),
+                            .text(" ("),
+                            .code("\($0.commitHash.prefix(6))"),
+                            .text("),")
+                        )
+                    },
                     .text(" with "),
                     .strong(
                         .text(model.buildInfo.swiftVersion.longDisplayName),
@@ -86,20 +95,20 @@ enum BuildShow {
                     .unwrap(model.buildInfo.xcodeVersion) {
                         .group(
                             .text(" using "),
-                            .strong(.text($0)),
-                            .text(" at "),
-                            .strong(.text(model.reference))
+                            .strong(.text($0))
                         )
                     },
                     .unwrap(model.buildInfo.buildDetails) {
                         .group(
-                            .text(" (\($0.commitHash.prefix(6)))"),
                             .text(" on "),
                             .strong(.text(DateFormatter.utcFullDateTimeDateFormatter.string(from: $0.buildDate) + " UTC"))
                         )
                     },
                     .text(".")
                 ),
+                .unwrap(model.buildInfo.swift6ErrorCount) {
+                    .p(.strong("Swift 6 data race errors: \($0)"))
+                },
                 .h3("Build Command"),
                 .pre(
                     .code(
