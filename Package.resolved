@@ -141,8 +141,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-nio.git",
       "state" : {
-        "revision" : "5c268768890b062803a49f1358becc478f954265",
-        "version" : "1.21.5"
+        "revision" : "d18b137640222fe29a22568077c4799d213fdf96",
+        "version" : "1.22.0"
       }
     },
     {
@@ -366,8 +366,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "fc79798d5a150d61361a27ce0c51169b889e23de",
-        "version" : "2.68.0"
+        "revision" : "e4abde8be0e49dc7d66e6eed651254accdcd9533",
+        "version" : "2.69.0"
       }
     },
     {
@@ -447,8 +447,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server/swift-service-lifecycle.git",
       "state" : {
-        "revision" : "d58e6bf2b1ae2884cf204a8b5bcaaa7aae3c1ff0",
-        "version" : "2.6.0"
+        "revision" : "24c800fb494fbee6e42bc156dc94232dc08971af",
+        "version" : "2.6.1"
       }
     },
     {
@@ -492,8 +492,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dankinsoid/SwiftOpenAPI.git",
       "state" : {
-        "revision" : "d4ac9379e1f7071844deda554c247c8cb13823ce",
-        "version" : "2.20.0"
+        "revision" : "44f9468f5ac0ce9e931062dcc667b4a8e2c498d0",
+        "version" : "2.20.1"
       }
     },
     {
@@ -546,8 +546,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "c85092304cda8cb38d2d68454b29609a8013620b",
-        "version" : "1.2.1"
+        "revision" : "357ca1e5dd31f613a1d43320870ebc219386a495",
+        "version" : "1.2.2"
       }
     },
     {
