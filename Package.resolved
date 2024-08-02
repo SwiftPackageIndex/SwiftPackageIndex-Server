@@ -1,5 +1,5 @@
 {
-  "originHash" : "65b183db20b341341d507a6f6d2ccb4bc5cda9d883d6d5115fa5795506f6fc0c",
+  "originHash" : "d1d3bacdd4c08e6f3e6fe1bbfab78c388b87485a47ffea1e7d1a8d805c4cd247",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/async-kit.git",
       "state" : {
-        "revision" : "15b3fb7b2437f9db11f6ddcf365c5b5db8c3a346",
-        "version" : "1.19.1"
+        "revision" : "e048c8ee94967e8d8a1c2ec0e1156d6f7fa34d31",
+        "version" : "1.20.0"
       }
     },
     {
@@ -303,8 +303,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-custom-dump.git",
       "state" : {
-        "revision" : "f01efb26f3a192a0e88dcdb7c3c391ec2fc25d9c",
-        "version" : "1.3.0"
+        "revision" : "aec6a73f5c1dc1f1be4f61888094b95cf995d973",
+        "version" : "1.3.2"
       }
     },
     {
@@ -456,8 +456,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing.git",
       "state" : {
-        "revision" : "c097f955b4e724690f0fc8ffb7a6d4b881c9c4e3",
-        "version" : "1.17.2"
+        "revision" : "e883fc9ea51e76dc9ed13fd4a92b0ee258a1e8c9",
+        "version" : "1.17.3"
       }
     },
     {
