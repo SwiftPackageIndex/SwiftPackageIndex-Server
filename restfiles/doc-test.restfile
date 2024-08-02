@@ -271,10 +271,6 @@ requests:
     url: ${base_url}/apple/swift-system/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /apple/swift-testing/documentation:
-    url: ${base_url}/apple/swift-testing/documentation
-    validation:
-      status: .regex((2|3)\d\d)
   /argmaxinc/WhisperKit/documentation:
     url: ${base_url}/argmaxinc/WhisperKit/documentation
     validation:
@@ -584,6 +580,10 @@ requests:
       status: .regex((2|3)\d\d)
   /swiftlang/swift-syntax/documentation:
     url: ${base_url}/swiftlang/swift-syntax/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /swiftlang/swift-testing/documentation:
+    url: ${base_url}/swiftlang/swift-testing/documentation
     validation:
       status: .regex((2|3)\d\d)
   /swiftwasm/JavaScriptKit/documentation:
