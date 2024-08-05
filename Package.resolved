@@ -1,5 +1,5 @@
 {
-  "originHash" : "d1d3bacdd4c08e6f3e6fe1bbfab78c388b87485a47ffea1e7d1a8d805c4cd247",
+  "originHash" : "223c7ccc369c3e65877308b03456beb266b139bc1c753b713ba77b40dc4b6e6f",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -96,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/adam-fowler/jmespath.swift.git",
       "state" : {
-        "revision" : "4513d319c4aaa6c3b2ac18e1e6566a803515ad91",
-        "version" : "1.0.2"
+        "revision" : "3877a5060e85ae33e3b9fe51ab581784f65ec80e",
+        "version" : "1.0.3"
       }
     },
     {
@@ -303,8 +303,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-custom-dump.git",
       "state" : {
-        "revision" : "f01efb26f3a192a0e88dcdb7c3c391ec2fc25d9c",
-        "version" : "1.3.0"
+        "revision" : "82645ec760917961cfa08c9c0c7104a57a0fa4b1",
+        "version" : "1.3.3"
       }
     },
     {
