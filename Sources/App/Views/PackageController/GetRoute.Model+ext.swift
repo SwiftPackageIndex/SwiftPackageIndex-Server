@@ -225,8 +225,7 @@ extension API.PackageController.GetRoute.Model {
         if isArchived {
             releasesSentenceFragments.append(contentsOf: [
                 "Before being archived, it had ",
-                commitsLinkNode, " and ", releasesLinkNode,
-                " before being archived."
+                commitsLinkNode, " and ", releasesLinkNode, "."
             ])
         } else {
             releasesSentenceFragments.append(contentsOf: [
