@@ -166,8 +166,8 @@ extension PackageShow {
             .section(
                 .ul(
                     .class("main-metadata"),
-                    model.authorsListItem(),
                     model.archivedListItem(),
+                    model.authorsListItem(),
                     model.binaryTargetsItem(),
                     model.historyListItem(),
                     model.activityListItem(),
