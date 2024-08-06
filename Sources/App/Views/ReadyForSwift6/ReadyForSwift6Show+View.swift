@@ -98,6 +98,19 @@ extension ReadyForSwift6Show {
                 ),
                 .p(
                     .strong(.text("Q: ")),
+                    .text("Are packages that show zero data-race compiler diagnostics guaranteed to be safe from data-race errors?")
+                ),
+                .p(
+                    .strong(.text("A: ")),
+                    .text("No. We gather data on data-race safety from Swift compiler diagnostics with “complete” concurrency checks enabled. We can’t tell if the diagnostics produce zero errors due to a genuine lack of data-race safety errors or whether errors have been suppressed using techniques like "),
+                    .code("@unchecked Sendable"),
+                    .text(".")
+                ),
+                .hr(
+                    .class("minor")
+                ),
+                .p(
+                    .strong(.text("Q: ")),
                     .text("Why use "),
                     .code("-strict-concurrency=complete"),
                     .text(" instead of "),
