@@ -649,9 +649,9 @@ extension API.PackageController.GetRoute.Model.Swift6Readiness {
     var text: String {
         switch dataRaceSafety {
             case .safe:
-                return "Safe from data races"
+                return "Zero data race safety errors"
             case .unsafe:
-                return "Has data race errors"
+                return "Has data race safety errors"
             case .unknown:
                 return "No data race safety information available"
         }

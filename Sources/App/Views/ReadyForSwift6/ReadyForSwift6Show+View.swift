@@ -38,7 +38,7 @@ extension ReadyForSwift6Show {
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .h2("Ready for Swift 6"),
-                .p("The Swift 6 language mode prevents data-races at compile time. When you opt into Swift 6 mode, the compiler will produce errors when your code has a risk of concurrent access, turning hard-to-debug runtime failures into compiler errors."),
+                .p("The Swift 6 language mode prevents data races at compile time. When you opt into Swift 6 mode, the compiler will produce errors when your code has a risk of concurrent access, turning hard-to-debug runtime failures into compiler errors."),
                 .p("To track the progress of the Swift package ecosystem, the Swift Package Index is running regular package compatibility checks across all packages in the index."),
                 .p(
                     .text("For help migrating your project's code, see the "),
@@ -50,16 +50,16 @@ extension ReadyForSwift6Show {
                 ),
                 .h3(
                     .id("total-zero-errors"),
-                    "Total packages with Swift 6 zero data-race safety errors"
+                    "Total packages with Swift 6 zero data race safety errors"
                 ),
-                .p("Packages with zero data-race safety compiler diagnostics during a successful build on at least one tested platform."),
+                .p("This chart shows packages with zero data race safety compiler diagnostics during a successful build on at least one tested platform."),
                 model.readyForSwift6Chart(kind: .compatiblePackages, includeTotals: true),
                 .h3(
                     .id("total-errors"),
-                    "Total Swift 6 data-race safety errors"
+                    "Total Swift 6 data race safety errors"
                 ),
                 .p(
-                    .text("The total number of all data-race safety diagnostics across "),
+                    .text("This chart shows the total number of all data race safety diagnostics across "),
                     .em("all"),
                     .text(" packages.")
                 ),
@@ -74,7 +74,7 @@ extension ReadyForSwift6Show {
                 ),
                 .p(
                     .strong(.text("A: ")),
-                    .text("Swift 6 introduces complete concurrency checking, a compiler feature that checks your code for data-race safety. The number of data race safety errors reflects how many issues the compiler detected relating to these concurrency or data-race checks. The total errors chart plots the total number of these errors summed across all packages.")
+                    .text("Swift 6 introduces complete concurrency checking, a compiler feature that checks your code for data race safety. The number of data race safety errors reflects how many issues the compiler detected relating to these concurrency or data race checks. The total errors chart plots the total number of these errors summed across all packages.")
                 ),
                 .hr(
                     .class("minor")
@@ -98,6 +98,19 @@ extension ReadyForSwift6Show {
                 ),
                 .p(
                     .strong(.text("Q: ")),
+                    .text("Are packages that show zero data race compiler diagnostics guaranteed to be safe from data race errors?")
+                ),
+                .p(
+                    .strong(.text("A: ")),
+                    .text("No. We gather data on data race safety from Swift compiler diagnostics with “complete” concurrency checks enabled. We can’t tell if the diagnostics produce zero errors due to a genuine lack of data race safety errors or whether errors have been suppressed using techniques like "),
+                    .code("@unchecked Sendable"),
+                    .text(".")
+                ),
+                .hr(
+                    .class("minor")
+                ),
+                .p(
+                    .strong(.text("Q: ")),
                     .text("Why use "),
                     .code("-strict-concurrency=complete"),
                     .text(" instead of "),
@@ -106,7 +119,7 @@ extension ReadyForSwift6Show {
                 ),
                 .p(
                     .strong(.text("A: ")),
-                    .text("Data-race safety diagnostics are determined in different stages of the compiler. For example, type checking produces some data-race safety errors, and others are diagnosed during control-flow analysis after code generation. If type checking produces errors, the compiler will not proceed to code generation, so testing with "),
+                    .text("Data race safety diagnostics are determined in different stages of the compiler. For example, type checking produces some data race safety errors, and others are diagnosed during control-flow analysis after code generation. If type checking produces errors, the compiler will not proceed to code generation, so testing with "),
                     .code("-swift-version 6"),
                     .text(" would show fewer errors than really exist across the package ecosystem.")
                 ),
