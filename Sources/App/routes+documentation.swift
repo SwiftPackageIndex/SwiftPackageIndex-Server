@@ -33,13 +33,6 @@ func docRoutes(_ app: Application) throws {
         req.redirect(to: SiteURL.relativeURL(for: try await req.getDocRedirect(), fragment: .documentation))
     }.excludeFromOpenAPI()
 
-    if Current.environment() == .development {
-        let crashRoute = Environment.get("CRASH_ROUTE") ?? "crash"
-        app.get(.init(stringLiteral: crashRoute)) { req in
-            fatalError("crash route triggered: crash expected")
-        }
-    }
-
     // Stable URLs with reference (real reference or ~)
     app.get(":owner", ":repository", ":reference", "documentation", ":archive") {
         let route = try await $0.getDocRoute(fragment: .documentation)
