@@ -351,9 +351,9 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
-    func stableReleaseMetadata() -> Node<HTML.ListContext> {
+    func latestReleaseMetadata() -> Node<HTML.ListContext> {
         guard let dateLink = releases.stable else { return .empty }
-        return releaseMetadata(dateLink, title: "Latest Stable Release", cssClass: "stable")
+        return releaseMetadata(dateLink, title: "Latest Release", cssClass: "stable")
     }
 
     func betaReleaseMetadata() -> Node<HTML.ListContext> {

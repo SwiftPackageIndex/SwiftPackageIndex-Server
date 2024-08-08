@@ -301,7 +301,7 @@ extension PackageShow {
                 .class("sidebar-versions"),
                 .ariaLabel("Versions"),
                 .ul(
-                    model.stableReleaseMetadata(),
+                    model.latestReleaseMetadata(),
                     model.betaReleaseMetadata(),
                     model.defaultBranchMetadata()
                 )
