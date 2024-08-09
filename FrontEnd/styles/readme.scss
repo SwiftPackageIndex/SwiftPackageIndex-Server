@@ -90,6 +90,21 @@
     details {
         margin: 20px 0;
     }
+
+    .markdown-alert {
+        padding-left: 10px;
+        border-left: solid black;
+    }
+
+    .markdown-alert-title {
+        display: block;
+        margin-top: 20px;
+        font-weight: 500;
+    }
+
+    .markdown-alert-title svg {
+        margin-right: 10px;
+    }
 }
 
 g-emoji {
