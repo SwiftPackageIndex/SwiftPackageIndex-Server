@@ -92,18 +92,17 @@
     }
 
     .markdown-alert {
-        padding-left: 10px;
+        padding-left: 15px;
         border-left: solid black;
     }
 
     .markdown-alert-title {
-        display: block;
-        margin-top: 20px;
         font-weight: 500;
     }
 
     .markdown-alert-title svg {
         margin-right: 10px;
+        transform: translateY(3px);
     }
 }
 
