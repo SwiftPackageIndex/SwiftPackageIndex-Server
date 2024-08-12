@@ -441,6 +441,10 @@ requests:
     url: ${base_url}/pointfreeco/swift-case-paths/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /pointfreeco/swift-clocks/documentation:
+    url: ${base_url}/pointfreeco/swift-clocks/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /pointfreeco/swift-composable-architecture/documentation:
     url: ${base_url}/pointfreeco/swift-composable-architecture/documentation
     validation:
@@ -457,8 +461,16 @@ requests:
     url: ${base_url}/pointfreeco/swift-identified-collections/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /pointfreeco/swift-issue-reporting/documentation:
+    url: ${base_url}/pointfreeco/swift-issue-reporting/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /pointfreeco/swift-macro-testing/documentation:
     url: ${base_url}/pointfreeco/swift-macro-testing/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /pointfreeco/swift-navigation/documentation:
+    url: ${base_url}/pointfreeco/swift-navigation/documentation
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-perception/documentation:
@@ -471,10 +483,6 @@ requests:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-url-routing/documentation:
     url: ${base_url}/pointfreeco/swift-url-routing/documentation
-    validation:
-      status: .regex((2|3)\d\d)
-  /pointfreeco/swiftui-navigation/documentation:
-    url: ${base_url}/pointfreeco/swiftui-navigation/documentation
     validation:
       status: .regex((2|3)\d\d)
   /richardtop/CalendarKit/documentation:
@@ -584,6 +592,10 @@ requests:
       status: .regex((2|3)\d\d)
   /swiftlang/swift-testing/documentation:
     url: ${base_url}/swiftlang/swift-testing/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /swiftlang/swiftly/documentation:
+    url: ${base_url}/swiftlang/swiftly/documentation
     validation:
       status: .regex((2|3)\d\d)
   /swiftwasm/JavaScriptKit/documentation:
