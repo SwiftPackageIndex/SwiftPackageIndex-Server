@@ -1,5 +1,5 @@
 {
-  "originHash" : "dc32cbdbb2634e53f3b623785b254f86818d602b020e0993af79b3d8eab63b35",
+  "originHash" : "223c7ccc369c3e65877308b03456beb266b139bc1c753b713ba77b40dc4b6e6f",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-kit.git",
       "state" : {
-        "revision" : "cff1c3e7e948ac4ac8b6760351aa44795e35df57",
-        "version" : "1.48.6"
+        "revision" : "614d3ec27cdef50cfb9fc3cfd382b6a4d9578cff",
+        "version" : "1.49.0"
       }
     },
     {
