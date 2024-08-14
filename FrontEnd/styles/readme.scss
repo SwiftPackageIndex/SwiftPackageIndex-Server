@@ -90,6 +90,45 @@
     details {
         margin: 20px 0;
     }
+
+    .markdown-alert {
+        padding-left: 15px;
+        fill: currentColor;
+        border-left: solid 3px;
+    }
+
+    .markdown-alert-title {
+        font-weight: 500;
+    }
+
+    .markdown-alert p:nth-child(2) {
+        color: black;
+    }
+
+    .markdown-alert-title svg {
+        margin-right: 10px;
+        transform: translateY(3px);
+    }
+
+    .markdown-alert-note {
+        color: var(--mid-blue);
+    }
+
+    .markdown-alert-tip {
+        color: var(--dark-green);
+    }
+
+    .markdown-alert-important {
+        color: var(--mid-purple);
+    }
+
+    .markdown-alert-warning {
+        color: var(--yellow);
+    }
+
+    .markdown-alert-caution {
+        color: var(--mid-red);
+    }
 }
 
 g-emoji {
