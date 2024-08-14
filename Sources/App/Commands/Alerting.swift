@@ -164,14 +164,14 @@ extension Alerting {
               r.name AS "repository",
               p.status,
               p.processing_stage,
-              r.updated_at
+              p.updated_at
             FROM
               repositories r
               JOIN packages p ON r.package_id = p.id
             WHERE
-              r.updated_at < now() - INTERVAL \(literal: "\(timePeriod.hours) hours")
+              p.updated_at < now() - INTERVAL \(literal: "\(timePeriod.hours) hours")
             ORDER BY
-              updated_at
+              p.updated_at
             """)
             .all(decoding: Mon001Row.self)
         return rows.isValid()
