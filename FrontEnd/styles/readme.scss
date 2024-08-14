@@ -91,13 +91,38 @@
         margin: 20px 0;
     }
 
+    .markdown-alert-note {
+        color: var(--mid-blue);
+    }
+
+    .markdown-alert-tip {
+        color: var(--dark-green);
+    }
+
+    .markdown-alert-important {
+        color: var(--mid-purple);
+    }
+
+    .markdown-alert-warning {
+        color: var(--yellow);
+    }
+
+    .markdown-alert-caution {
+        color: var(--mid-red);
+    }
+
     .markdown-alert {
         padding-left: 15px;
-        border-left: solid black;
+        fill: currentColor;
+        border-left: solid currentColor;
     }
 
     .markdown-alert-title {
         font-weight: 500;
+    }
+
+    .markdown-alert p:nth-child(2) {
+        color: black;
     }
 
     .markdown-alert-title svg {
