@@ -91,6 +91,25 @@
         margin: 20px 0;
     }
 
+    .markdown-alert {
+        padding-left: 15px;
+        fill: currentColor;
+        border-left: solid;
+    }
+
+    .markdown-alert-title {
+        font-weight: 500;
+    }
+
+    .markdown-alert p:nth-child(2) {
+        color: black;
+    }
+
+    .markdown-alert-title svg {
+        margin-right: 10px;
+        transform: translateY(3px);
+    }
+
     .markdown-alert-note {
         color: var(--mid-blue);
     }
@@ -109,25 +128,6 @@
 
     .markdown-alert-caution {
         color: var(--mid-red);
-    }
-
-    .markdown-alert {
-        padding-left: 15px;
-        fill: currentColor;
-        border-left: solid currentColor;
-    }
-
-    .markdown-alert-title {
-        font-weight: 500;
-    }
-
-    .markdown-alert p:nth-child(2) {
-        color: black;
-    }
-
-    .markdown-alert-title svg {
-        margin-right: 10px;
-        transform: translateY(3px);
     }
 }
 
