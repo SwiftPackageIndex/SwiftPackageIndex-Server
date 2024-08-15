@@ -150,7 +150,7 @@ extension ReadyForSwift6Show {
                     ),
                     .text(", again with the same criteria as above applied. Nothing newer than March 19th and nothing without commits in the last year. The SSWG incubated data set is the same idea but sourced from the "),
                     .a(
-                        .href("https://www.swift.org/sswg/#projects"),
+                        .href("https://www.swift.org/sswg/incubated-packages.html"),
                         .text("Swift Server Workgroup incubated packages list")
                     ),
                     .text(".")
