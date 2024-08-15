@@ -100,6 +100,7 @@ func ingest(client: Client,
         for pkg in packages {
             group.addTask {
                 let result = await Result {
+                    Current.logger().info("Ingesting \(pkg.package.url)")
                     let (metadata, license, readme) = try await fetchMetadata(client: client, package: pkg)
                     let repo = try await Repository.findOrCreate(on: database, for: pkg.model)
 
