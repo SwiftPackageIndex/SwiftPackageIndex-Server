@@ -408,6 +408,50 @@ class ApiTests: AppTestCase {
             })
     }
 
+    func test_post_buildReport_package_updatedAt() async throws {
+        // Ensure we don't change packages.updatedAt when receiving a build report.
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/3290#issuecomment-2293101104
+        // setup
+        Current.builderToken = { "secr3t" }
+        let p = try savePackage(on: app.db, "1")
+        let originalPackageUpdate = p.updatedAt
+        let v = try Version(package: p, latest: .defaultBranch)
+        try await v.save(on: app.db)
+        let versionId = try v.requireID()
+
+        // MUT
+        let dto: API.PostBuildReportDTO = .init(
+            buildCommand: "xcodebuild -scheme Foo",
+            buildDate: .t0,
+            buildDuration: 123.4,
+            buildErrors: .init(numSwift6Errors: 42),
+            builderVersion: "1.2.3",
+            buildId: .id0,
+            commitHash: "sha",
+            jobUrl: "https://example.com/jobs/1",
+            logUrl: "log url",
+            platform: .macosXcodebuild,
+            productDependencies: [.init(identity: "identity", name: "name", url: "url", dependencies: [])],
+            resolvedDependencies: [.init(packageName: "packageName", repositoryURL: "repositoryURL")],
+            runnerId: "some-runner",
+            status: .failed,
+            swiftVersion: .init(5, 2, 0)
+        )
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .secondsSince1970
+        let body: ByteBuffer = .init(data: try encoder.encode(dto))
+        try await app.test(
+            .POST,
+            "api/versions/\(versionId)/build-report",
+            headers: .bearerApplicationJSON("secr3t"),
+            body: body,
+            afterResponse: { res async throws in
+                // validation
+                let p = try await XCTUnwrapAsync(await Package.find(p.id, on: app.db))
+                XCTAssertEqual(p.updatedAt, originalPackageUpdate)
+            })
+    }
+
     func test_post_docReport() async throws {
         // setup
         Current.builderToken = { "secr3t" }
