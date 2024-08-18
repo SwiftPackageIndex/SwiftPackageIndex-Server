@@ -111,7 +111,7 @@
     }
 
     .markdown-alert p:nth-child(2) {
-        color: black;
+        color: var(--page-text);
     }
 
     .markdown-alert-title svg {
