@@ -40,6 +40,14 @@ class MarkdownPage: PublicPage {
         super.init(path: path)
     }
 
+    init(path: String, markdown: String) {
+        let result = MarkdownParser().parse(markdown)
+        metadata = result.metadata
+        html = result.html
+
+        super.init(path: path)
+    }
+
     init(path: String, html: String) {
         self.metadata = [:]
         self.html = html
