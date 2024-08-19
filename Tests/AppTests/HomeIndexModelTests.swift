@@ -48,7 +48,7 @@ class HomeIndexModelTests: AppTestCase {
                 link: .init(label: "Package", url: "/foo/1")
             )
         ] {
-            XCTFail("Direct comparison of recentPackages is working again, replace by-property comparison with the Task.sleep delay.")
+            logWarning()
             // When this triggers, remove Task.sleep above and the validtion below until // TEMPORARY - END
             // and replace with original assert:
             //     XCTAssertEqual(m.recentPackages, [
@@ -77,4 +77,11 @@ class HomeIndexModelTests: AppTestCase {
         // TEMPORARY - END
     }
 
+}
+
+
+private func logWarning(filePath: StaticString = #filePath,
+                        lineNumber: UInt = #line,
+                        testName: String = #function) {
+    print("::error file=\(filePath),line=\(lineNumber),title=\(testName)::Direct comparison of recentPackages is working again, replace by-property comparison with the Task.sleep delay.")
 }

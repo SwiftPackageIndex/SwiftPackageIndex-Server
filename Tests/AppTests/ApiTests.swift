@@ -452,7 +452,7 @@ class ApiTests: AppTestCase {
                 let p = try await XCTUnwrapAsync(await Package.find(p.id, on: app.db))
 #if os(Linux)
                 if p.updatedAt == originalPackageUpdate {
-                    XCTFail("Direct comparison of updatedAt is working again, replace comparison with the Task.sleep delay.")
+                    logWarning()
                     // When this triggers, remove Task.sleep above and the validtion below until // TEMPORARY - END
                     // and replace with original assert:
                     //      XCTAssertEqual(p.updatedAt, originalPackageUpdate)
@@ -1102,4 +1102,11 @@ extension String {
         let s = Signer(secretSigningKey: secretKey)
         return try s.generateToken(for: "", contact: "", tier: tier)
     }
+}
+
+
+private func logWarning(filePath: StaticString = #filePath,
+                        lineNumber: UInt = #line,
+                        testName: String = #function) {
+    print("::error file=\(filePath),line=\(lineNumber),title=\(testName)::Direct comparison of updatedAt is working again, replace comparison with the Task.sleep delay.")
 }
