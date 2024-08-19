@@ -414,10 +414,12 @@ class ApiTests: AppTestCase {
         // setup
         Current.builderToken = { "secr3t" }
         let p = try savePackage(on: app.db, "1")
-        let originalPackageUpdate = p.updatedAt
+        let originalPackageUpdate = try XCTUnwrap(p.updatedAt)
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
         let versionId = try v.requireID()
+        // Sleep for 1ms to ensure we can detect a difference between update times.
+        try await Task.sleep(nanoseconds: UInt64(1e6))
 
         // MUT
         let dto: API.PostBuildReportDTO = .init(
@@ -448,7 +450,13 @@ class ApiTests: AppTestCase {
             afterResponse: { res async throws in
                 // validation
                 let p = try await XCTUnwrapAsync(await Package.find(p.id, on: app.db))
-                XCTAssertEqual(p.updatedAt, originalPackageUpdate)
+                let updatedAt = try XCTUnwrap(p.updatedAt)
+                // Comaring the dates directly fails due to tiny rounding differences with the new swift-foundation types on Linux
+                // E.g.
+                // 1724071056.5824609
+                // 1724071056.5824614
+                // By testing only to accuracy 10e-5 and delaying by 10e-3 we ensure we properly detect if the value was changed.
+                XCTAssertEqual(updatedAt.timeIntervalSince1970, originalPackageUpdate.timeIntervalSince1970, accuracy: 10e-5)
             })
     }
 
