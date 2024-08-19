@@ -57,6 +57,12 @@ class PackageCollectionControllerTests: AppTestCase {
                        owner: "foo",
                        summary: "summary 1").create(on: app.db).wait()
 
+#if os(macOS)
+        let testName = "macOS"
+#else
+        let testName = "linux"
+#endif
+
         // MUT
         try app.test(
             .GET,
@@ -65,7 +71,7 @@ class PackageCollectionControllerTests: AppTestCase {
                 // validation
                 XCTAssertEqual(res.status, .ok)
                 let json = try res.content.decode(PackageCollection.self)
-                assertSnapshot(of: json, as: .json(encoder))
+                assertSnapshot(of: json, as: .json(encoder), named: testName)
             })
     }
 
