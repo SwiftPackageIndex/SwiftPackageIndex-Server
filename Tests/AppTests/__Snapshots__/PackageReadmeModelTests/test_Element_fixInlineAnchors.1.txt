@@ -1,0 +1,5 @@
+<p>README content.</p> 
+<a href="https://example.com/url">Standard link.</a> 
+<a href="#user-content-anchor">Lower case anchor link.</a> 
+<a href="#user-content-anchor">Upper case anchor link.</a> 
+<a>Invalid link.</a>

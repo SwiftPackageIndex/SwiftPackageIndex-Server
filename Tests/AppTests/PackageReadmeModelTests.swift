@@ -65,7 +65,6 @@ class PackageReadmeModelTests: SnapshotTestCase {
 
         // validate
         let html = try XCTUnwrap(try element?.html())
-        // This assert is a snapshot, because Xcode strips trailing whitespace and the html has blank spaces at the end of each line, breaking the assert.
         assertSnapshot(of: html, as: .lines)
     }
 
@@ -91,7 +90,6 @@ class PackageReadmeModelTests: SnapshotTestCase {
 
         // validate
         let html = try XCTUnwrap(try element?.html())
-        // This assert is a snapshot, because Xcode strips trailing whitespace and the html has blank spaces at the end of each line, breaking the assert.
         assertSnapshot(of: html, as: .lines)
     }
 
@@ -108,5 +106,49 @@ class PackageReadmeModelTests: SnapshotTestCase {
         XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "https://full.host/and/path")).absoluteString, "https://full.host/and/path")
         XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "https://full.host/encoded%20spaces")).absoluteString, "https://full.host/encoded%20spaces")
         XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "https://full.host/unencoded spaces")).absoluteString, "https://full.host/unencoded%20spaces")
+    }
+
+    func test_Element_fixInlineAnchors() throws {
+        // setup
+        let element = Element.extractReadme("""
+            <div id="readme">
+                <article>
+                    <p>README content.</p>
+                    <a href="https://example.com/url">Standard link.</a>
+                    <a href="#anchor">Lower case anchor link.</a>
+                    <a href="#Anchor">Upper case anchor link.</a>
+                    <a>Invalid link.</a>
+                </article>
+            </div>
+            """)
+
+        // MUT
+        element?.fixInlineAnchors()
+
+        // validate
+        let html = try XCTUnwrap(try element?.html())
+        assertSnapshot(of: html, as: .lines)
+    }
+
+    func test_Element_disableTurboOnLinks() throws {
+        // setup
+        let element = Element.extractReadme("""
+            <div id="readme">
+                <article>
+                    <p>README content.</p>
+                    <a href="https://example.com/url">Absolute link.</a>
+                    <a href="/url">Relative link.</a>
+                    <a href="#anchor">Lower case anchor link.</a>
+                    <a>Invalid link.</a>
+                </article>
+            </div>
+            """)
+
+        // MUT
+        element?.disableTurboOnLinks()
+
+        // validate
+        let html = try XCTUnwrap(try element?.html())
+        assertSnapshot(of: html, as: .lines)
     }
 }
