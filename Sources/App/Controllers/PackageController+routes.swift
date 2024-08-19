@@ -20,6 +20,7 @@ import SemanticVersion
 
 enum PackageController {
 
+    @Sendable
     static func show(req: Request) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
@@ -178,6 +179,7 @@ enum PackageController {
         return response
     }
 
+    @Sendable
     static func siteMap(req: Request) async throws -> SiteMap {
         guard
             let owner = req.parameters.get("owner"),
@@ -289,6 +291,7 @@ enum PackageController {
         }
     }
 
+    @Sendable
     static func readme(req: Request) async throws -> Node<HTML.BodyContext> {
         guard
             let owner = req.parameters.get("owner"),
@@ -324,6 +327,7 @@ enum PackageController {
         }
     }
 
+    @Sendable
     static func releases(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
         guard
             let owner = req.parameters.get("owner"),
@@ -334,10 +338,11 @@ enum PackageController {
 
         return Joined<Package, Repository>
             .query(on: req.db, owner: owner, repository: repository)
-            .map(PackageReleases.Model.init(package:))
+            .map { PackageReleases.Model.init(package: $0) }
             .map { PackageReleases.View(model: $0).document() }
     }
 
+    @Sendable
     static func builds(req: Request) async throws -> HTML {
         guard
             let owner = req.parameters.get("owner"),
@@ -356,6 +361,7 @@ enum PackageController {
         return BuildIndex.View(path: req.url.path, model: model).document()
     }
 
+    @Sendable
     static func maintainerInfo(req: Request) async throws -> HTML {
         guard
             let owner = req.parameters.get("owner"),

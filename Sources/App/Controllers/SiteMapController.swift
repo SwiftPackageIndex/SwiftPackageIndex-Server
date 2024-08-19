@@ -44,6 +44,7 @@ enum SiteMapController {
     /// Generate a sitemap index page for a given request
     /// - Parameter req: `Request`
     /// - Returns: `SiteMapIndex`
+    @Sendable
     static func index(req: Request) async throws -> SiteMapIndex {
         guard let db = req.db as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
@@ -119,6 +120,7 @@ enum SiteMapController {
         )
     }
 
+    @Sendable
     static func staticPages(req: Request) async throws -> SiteMap {
         SiteMap(
             .group(

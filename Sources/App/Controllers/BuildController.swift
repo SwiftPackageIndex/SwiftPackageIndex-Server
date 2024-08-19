@@ -18,6 +18,7 @@ import Vapor
 
 
 enum BuildController {
+    @Sendable
     static func show(req: Request) throws -> EventLoopFuture<HTML> {
         guard let id = req.parameters.get("id"),
               let buildId = UUID.init(uuidString: id)
@@ -28,7 +29,7 @@ enum BuildController {
                 Build.fetchLogs(client: req.client, logUrl: result.build.logUrl)
                     .map { (result, $0) }
             }
-            .map(BuildShow.Model.init(result:logs:))
+            .map { BuildShow.Model.init(result: $0, logs: $1) }
             .unwrap(or: Abort(.notFound))
             .map {
                 BuildShow.View(path: req.url.path, model: $0).document()

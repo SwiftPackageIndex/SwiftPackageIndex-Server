@@ -18,6 +18,7 @@ import Vapor
 
 enum SupportersController {
 
+    @Sendable
     static func show(req: Request) async throws -> HTML {
         let model = SupportersShow.Model()
         return SupportersShow.View(path: req.url.string, model: model).document()

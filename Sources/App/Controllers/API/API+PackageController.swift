@@ -20,6 +20,7 @@ extension API {
 
     enum PackageController {
 
+        @Sendable
         static func get(req: Request) async throws -> GetRoute.Model {
             guard
                 let owner = req.parameters.get("owner"),
@@ -35,6 +36,7 @@ extension API {
             var type: BadgeType
         }
 
+        @Sendable
         static func badge(req: Request) async throws -> Badge {
             guard
                 let owner = req.parameters.get("owner"),

@@ -27,6 +27,7 @@ extension API {
             var resolvedDependencies: [CanonicalPackageURL]?
         }
 
+        @Sendable
         static func get(req: Request) async throws -> [PackageRecord] {
             try await query(on: req.db)
         }

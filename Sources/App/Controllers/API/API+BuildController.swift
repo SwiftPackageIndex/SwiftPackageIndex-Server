@@ -20,6 +20,7 @@ import Vapor
 extension API {
 
     enum BuildController {
+        @Sendable
         static func buildReport(req: Request) async throws -> HTTPStatus {
             let dto = try req.content.decode(PostBuildReportDTO.self, using: buildReportDecoder)
             let version = try await App.Version
@@ -100,6 +101,7 @@ extension API {
             return decoder
         }
 
+        @Sendable
         static func docReport(req: Request) async throws -> HTTPStatus {
             let dto = try req.content.decode(PostDocReportDTO.self)
             let buildId = try req.parameters.get("id")

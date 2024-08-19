@@ -19,6 +19,7 @@ import Vapor
 
 enum SearchController {
 
+    @Sendable
     static func show(req: Request) async throws -> HTML {
         let query = try req.query.decode(API.SearchController.Query.self)
 
