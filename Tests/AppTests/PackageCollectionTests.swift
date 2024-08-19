@@ -383,11 +383,7 @@ class PackageCollectionTests: AppTestCase {
             .wait()
 
         // validate
-#if os(macOS)
-        assertSnapshot(of: res, as: .json(encoder), named: "macOS")
-#else
-        assertSnapshot(of: res, as: .json(encoder), named: "linux")
-#endif
+        assertSnapshot(of: res, as: .json(encoder))
     }
 
     func test_generate_from_urls_noResults() throws {
@@ -482,11 +478,7 @@ class PackageCollectionTests: AppTestCase {
             .wait()
 
         // validate
-#if os(macOS)
-        assertSnapshot(of: res, as: .json(encoder), named: "macOS")
-#else
-        assertSnapshot(of: res, as: .json(encoder), named: "linux")
-#endif
+        assertSnapshot(of: res, as: .json(encoder))
     }
 
     func test_generate_for_owner_noResults() throws {
@@ -788,11 +780,7 @@ class PackageCollectionTests: AppTestCase {
 
         // validate signed collection content
         XCTAssertFalse(signedCollection.signature.signature.isEmpty)
-#if os(macOS)
-        assertSnapshot(of: signedCollection, as: .json(encoder), named: "macOS")
-#else
-        assertSnapshot(of: signedCollection, as: .json(encoder), named: "linux")
-#endif
+        assertSnapshot(of: signedCollection, as: .json(encoder))
 
         // validate signature
         let validated = try SignedCollection.validate(eventLoop: app.eventLoopGroup.next(),
