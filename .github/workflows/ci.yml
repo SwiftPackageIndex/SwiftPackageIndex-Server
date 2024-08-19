@@ -25,7 +25,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.0.1
+      image: registry.gitlab.com/finestructure/spi-base:847e56642a971795e132c9a523a14a285c791bef
       options: --privileged
     services:
       postgres:
