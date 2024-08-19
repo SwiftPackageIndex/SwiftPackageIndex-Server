@@ -47,6 +47,7 @@ enum KeywordController {
         }
     }
 
+    @Sendable
     static func show(req: Request) async throws -> HTML {
         guard let keyword = req.parameters.get("keyword") else {
             throw Abort(.notFound)

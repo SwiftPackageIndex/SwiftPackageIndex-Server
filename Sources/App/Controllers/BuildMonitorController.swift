@@ -17,6 +17,7 @@ import Plot
 import Vapor
 
 enum BuildMonitorController {
+    @Sendable
     static func index(req: Request) async throws -> HTML {
         let builds = try await BuildResult.query(on: req.db)
             .field(Build.self, \.$id)

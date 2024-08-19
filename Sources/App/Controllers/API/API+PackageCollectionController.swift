@@ -22,6 +22,7 @@ extension API {
 
     enum PackageCollectionController {
 
+        @Sendable
         static func generate(req: Request) throws -> EventLoopFuture<SignedCollection> {
             AppMetrics.apiPackageCollectionGetTotal?.inc()
 

@@ -17,10 +17,12 @@ import Plot
 
 enum BlogController {
 
+    @Sendable
     static func index(req: Request) async throws -> HTML {
         BlogActions.Index.View(path: req.url.path, model: try BlogActions.Model()).document()
     }
 
+    @Sendable
     static func indexFeed(req: Request) async throws -> RSS {
         let model = try BlogActions.Model()
         let items = model.summaries.map { summary -> Node <RSS.ChannelContext> in
@@ -54,6 +56,7 @@ enum BlogController {
                        items: items).rss
     }
 
+    @Sendable
     static func show(req: Request) async throws -> HTML {
         guard let slug = req.parameters.get("slug")
         else { throw Abort(.notFound) }

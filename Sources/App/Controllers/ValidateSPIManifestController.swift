@@ -19,11 +19,13 @@ import SPIManifest
 
 enum ValidateSPIManifestController {
 
+    @Sendable
     static func show(req: Request) async throws -> HTML {
         let model = ValidateSPIManifest.Model()
         return ValidateSPIManifest.View(path: req.url.path, model: model).document()
     }
 
+    @Sendable
     static func validate(req: Request) async throws -> HTML {
         struct FormData: Content {
             var manifest: String

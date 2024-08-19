@@ -47,6 +47,7 @@ extension API {
             }
         }
 
+        @Sendable
         static func get(req: Request) async throws -> Search.Response {
             let query = try req.query.decode(Query.self)
             AppMetrics.apiSearchGetTotal?.inc()

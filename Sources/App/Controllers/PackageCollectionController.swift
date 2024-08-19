@@ -16,6 +16,7 @@ import Vapor
 
 
 enum PackageCollectionController {
+    @Sendable
     static func generate(req: Request) throws -> EventLoopFuture<SignedCollection> {
         AppMetrics.packageCollectionGetTotal?.inc()
 

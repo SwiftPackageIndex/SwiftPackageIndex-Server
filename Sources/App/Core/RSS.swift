@@ -39,6 +39,7 @@ struct RSSFeed: Sendable {
         )
     }
 
+    @Sendable
     static func showPackages(req: Request) async throws -> RSS {
         try await RSSFeed.recentPackages(on: req.db, limit: Constants.rssFeedMaxItemCount).rss
     }
@@ -60,6 +61,7 @@ struct RSSFeed: Sendable {
         }
     }
 
+    @Sendable
     static func showReleases(req: Request) async throws -> RSS {
         let filter = try req.query.decode(Query.self).filter
         return try await RSSFeed.recentReleases(on: req.db,

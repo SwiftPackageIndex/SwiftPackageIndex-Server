@@ -16,7 +16,7 @@ import Vapor
 import Plot
 
 enum ReadyForSwift6Controller {
-
+    @Sendable
     static func show(req: Request) async throws -> HTML {
         let model = ReadyForSwift6Show.Model()
         return ReadyForSwift6Show.View(path: req.url.string, model: model).document()

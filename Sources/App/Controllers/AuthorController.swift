@@ -33,6 +33,7 @@ enum AuthorController {
             }
     }
 
+    @Sendable
     static func show(req: Request) throws -> EventLoopFuture<HTML> {
         guard let owner = req.parameters.get("owner") else {
             return req.eventLoop.future(error: Abort(.notFound))
