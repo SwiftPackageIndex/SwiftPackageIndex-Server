@@ -62,6 +62,7 @@ extension AppEnvironment {
             gitlabPipelineToken: { nil },
             gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
             hideStagingBanner: { false },
+            homepageInterstitial: { nil },
             httpClient: { httpClient },
             loadSPIManifest: { _ in nil },
             logger: { logger },

@@ -59,6 +59,7 @@ struct AppEnvironment: Sendable {
     var gitlabPipelineToken: @Sendable () -> String?
     var gitlabPipelineLimit: @Sendable () -> Int
     var hideStagingBanner: @Sendable () -> Bool
+    var homepageInterstitial: @Sendable () -> String?
     var httpClient: @Sendable () -> Client
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var logger: @Sendable () -> Logger
@@ -194,6 +195,7 @@ extension AppEnvironment {
             Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
                 ?? Constants.defaultHideStagingBanner
         },
+        homepageInterstitial: { Environment.get("HOMEPAGE_INTERSTITIAL") },
         httpClient: { httpClient },
         loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },

@@ -23,8 +23,12 @@ import VaporToOpenAPI
 func routes(_ app: Application) throws {
     do {  // home page
         app.get { req in
-            let model = try await HomeIndex.Model.query(database: req.db)
-            return HomeIndex.View(path: req.url.path, model: model).document()
+            if let interstitial = Current.homepageInterstitial() {
+                return MarkdownPage(path: req.url.path, markdown: interstitial).document()
+            } else {
+                let model = try await HomeIndex.Model.query(database: req.db)
+                return HomeIndex.View(path: req.url.path, model: model).document()
+            }
         }.excludeFromOpenAPI()
     }
 
