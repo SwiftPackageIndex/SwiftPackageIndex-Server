@@ -55,6 +55,8 @@ extension PackageReadme {
             guard let readmeElement = Element.extractReadme(rawReadme) else { return nil }
             readmeElement.rewriteRelativeImages(to: repoTriple)
             readmeElement.rewriteRelativeLinks(to: repoTriple)
+            readmeElement.fixInlineAnchors()
+            readmeElement.disableTurboOnLinks()
             return readmeElement
         }
     }
@@ -101,7 +103,37 @@ extension Element {
             }
         } catch {
             // Errors are being intentionally eaten here. The worst that can happen if the
-            // HTML selection/parsing fails is that relative links don't get corrected.
+            // HTML selection/parsing fails is that links don't get corrected.
+        }
+    }
+
+    func fixInlineAnchors() {
+        do {
+            let linkElements = try select("a")
+            for linkElement in linkElements {
+                let linkDestination = try linkElement.attr("href")
+                if linkDestination.hasPrefix("#") {
+                    // GitHub adds `user-content` to all anchor destinations but does not change
+                    // the anchors that link to the destinations or match the case that it uses. :rollseyes:
+                    try linkElement.attr("href", "#user-content-\(linkDestination.dropFirst().lowercased())")
+                }
+            }
+        } catch {
+            // Errors are being intentionally eaten here. The worst that can happen if the
+            // HTML selection/parsing fails is that links don't get corrected.
+        }
+    }
+
+    func disableTurboOnLinks() {
+        do {
+            let linkElements = try select("a")
+            for linkElement in linkElements {
+                // Disable Turbo on *all* link elements.
+                try linkElement.attr("data-turbo", "false")
+            }
+        } catch {
+            // Errors are being intentionally eaten here. The worst that can happen if the
+            // HTML selection/parsing fails is that links don't get corrected.
         }
     }
 }

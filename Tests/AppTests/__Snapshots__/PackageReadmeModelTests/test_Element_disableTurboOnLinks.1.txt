@@ -1,0 +1,5 @@
+<p>README content.</p> 
+<a href="https://example.com/url" data-turbo="false">Absolute link.</a> 
+<a href="/url" data-turbo="false">Relative link.</a> 
+<a href="#anchor" data-turbo="false">Lower case anchor link.</a> 
+<a data-turbo="false">Invalid link.</a>

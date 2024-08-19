@@ -342,10 +342,7 @@ extension PackageShow {
                                         .value(model.repositoryName),
                                         .readme).relativeURL(),
                 .data(named: "controller", value: "readme"),
-                .data(named: "action", value: """
-                        turbo:frame-load->readme#fixReadmeAnchors \
-                        turbo:frame-load->readme#navigateToAnchorFromLocation
-                        """),
+                .data(named: "action", value: "turbo:frame-load->readme#navigateToAnchorFromLocation"),
                 .div(.spinner())
             )
         }
