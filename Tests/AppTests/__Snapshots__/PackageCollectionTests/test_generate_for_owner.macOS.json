@@ -1,0 +1,138 @@
+{
+  "formatVersion" : "1.0",
+  "generatedAt" : "2021-01-08T13:25:45Z",
+  "generatedBy" : {
+    "name" : "Foo"
+  },
+  "keywords" : [
+    "key",
+    "word"
+  ],
+  "name" : "Packages by foo",
+  "overview" : "A collection of packages authored by foo from the Swift Package Index",
+  "packages" : [
+    {
+      "keywords" : [
+        "key",
+        "word"
+      ],
+      "license" : {
+        "name" : "MIT",
+        "url" : "https:\/\/foo\/mit"
+      },
+      "summary" : "summary 1",
+      "url" : "https:\/\/github.com\/foo\/1",
+      "versions" : [
+        {
+          "defaultToolsVersion" : "5.2",
+          "license" : {
+            "name" : "MIT",
+            "url" : "https:\/\/foo\/mit"
+          },
+          "manifests" : {
+            "5.2" : {
+              "minimumPlatformVersions" : [
+
+              ],
+              "packageName" : "P1-tag",
+              "products" : [
+                {
+                  "name" : "P1Lib",
+                  "targets" : [
+                    "t1"
+                  ],
+                  "type" : {
+                    "library" : [
+                      "automatic"
+                    ]
+                  }
+                }
+              ],
+              "targets" : [
+                {
+                  "moduleName" : "t1",
+                  "name" : "t1"
+                }
+              ],
+              "toolsVersion" : "5.2"
+            }
+          },
+          "signer" : {
+            "commonName" : "Swift Package Index",
+            "organizationName" : "Swift Package Index",
+            "organizationalUnitName" : "Swift Package Index",
+            "type" : "ADP"
+          },
+          "verifiedCompatibility" : [
+            {
+              "platform" : {
+                "name" : "ios"
+              },
+              "swiftVersion" : "5.6"
+            }
+          ],
+          "version" : "2.0.0"
+        }
+      ]
+    },
+    {
+      "keywords" : [
+        "key",
+        "word"
+      ],
+      "license" : {
+        "name" : "MIT",
+        "url" : "https:\/\/foo\/mit"
+      },
+      "summary" : "summary 2",
+      "url" : "https:\/\/github.com\/foo\/2",
+      "versions" : [
+        {
+          "defaultToolsVersion" : "5.3",
+          "license" : {
+            "name" : "MIT",
+            "url" : "https:\/\/foo\/mit"
+          },
+          "manifests" : {
+            "5.3" : {
+              "minimumPlatformVersions" : [
+
+              ],
+              "packageName" : "P2-tag",
+              "products" : [
+                {
+                  "name" : "P1Lib",
+                  "targets" : [
+                    "t2"
+                  ],
+                  "type" : {
+                    "library" : [
+                      "automatic"
+                    ]
+                  }
+                }
+              ],
+              "targets" : [
+                {
+                  "moduleName" : "t2",
+                  "name" : "t2"
+                }
+              ],
+              "toolsVersion" : "5.3"
+            }
+          },
+          "signer" : {
+            "commonName" : "Swift Package Index",
+            "organizationName" : "Swift Package Index",
+            "organizationalUnitName" : "Swift Package Index",
+            "type" : "ADP"
+          },
+          "verifiedCompatibility" : [
+
+          ],
+          "version" : "1.2.3"
+        }
+      ]
+    }
+  ]
+}
