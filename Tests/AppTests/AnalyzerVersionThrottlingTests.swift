@@ -163,8 +163,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
     func test_diffVersions() async throws {
         // Test that diffVersions applies throttling
         // setup
-        nonisolated(unsafe) var t: Date = .t0
-        Current.date = { t }
+        Current.date = { .t0 }
         Current.git.getTags = { @Sendable _ in [.branch("main")] }
         Current.git.hasBranch = { @Sendable _, _ in true }
         let pkg = Package(url: "1".asGithubUrl.url)
@@ -176,7 +175,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
         do {  // keep old version if too soon
             Current.git.revisionInfo = { @Sendable _, _ in
-                .init(commit: "sha_new", date: Date.t0.addingTimeInterval(.hours(-1)) )
+                .init(commit: "sha_new", date: .t0.addingTimeInterval(.hours(-1)) )
             }
 
             // MUT
@@ -191,11 +190,10 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
 
         do {  // new version must come through
-            t = t.addingTimeInterval(.hours(2))
-
-            Current.git.revisionInfo = { @Sendable [t = t] _, _ in
+            Current.date = { .t0.addingTimeInterval(.hours(2)) }
+            Current.git.revisionInfo = { @Sendable _, _ in
                 // now simulate a newer branch revision
-                .init(commit: "sha_new2", date: t )
+                .init(commit: "sha_new2", date: .t0.addingTimeInterval(.hours(2)) )
             }
 
             // MUT
@@ -235,11 +233,20 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         // start at t0
-        nonisolated(unsafe) var t = Date.t0
-        Current.date = { t }
+        let commitDates: [Date] = [
+            .t0,
+            .t0.addingTimeInterval(.hours(1)),
+            .t0.addingTimeInterval(.hours(5)),
+            .t0.addingTimeInterval(.hours(9)),
+            .t0.addingTimeInterval(.hours(13)),
+            .t0.addingTimeInterval(.hours(17)),
+            .t0.addingTimeInterval(.hours(21)),
+            .t0.addingTimeInterval(.hours(25)),
+        ]
 
         do {  // start with a branch revision
-            Current.git.revisionInfo = { @Sendable [t = t] _, _ in .init(commit: "sha0", date: t ) }
+            Current.date = { commitDates[0] }
+            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha0", date: commitDates[0] ) }
 
             let delta = try await runVersionReconciliation()
             XCTAssertEqual(delta.toAdd.map(\.commit), ["sha0"])
@@ -248,8 +255,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
 
         do {  // one hour later a new commit landed - which should be ignored
-            t = t.addingTimeInterval(.hours(1))
-            Current.git.revisionInfo = { @Sendable [t = t] _, _ in .init(commit: "sha1", date: t ) }
+            Current.date = { commitDates[1] }
+            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha1", date: commitDates[1] ) }
 
             let delta = try await runVersionReconciliation()
             XCTAssertEqual(delta.toAdd, [])
@@ -258,9 +265,9 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
 
         do {  // run another 5 commits every four hours - they all should be ignored
-            for idx in 1...5 {
-                t = t.addingTimeInterval(.hours(4))
-                Current.git.revisionInfo = { @Sendable [t = t] _, _ in .init(commit: "sha\(idx+1)", date: t ) }
+            for idx in 2...6 {
+                Current.date = { commitDates[idx] }
+                Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha\(idx)", date: commitDates[idx] ) }
 
                 let delta = try await runVersionReconciliation()
                 XCTAssertEqual(delta.toAdd, [])
@@ -269,9 +276,9 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             }
         }
 
-        do {  // advancing another 4 hours should finally create a new version
-            t = t.addingTimeInterval(.hours(4))
-            Current.git.revisionInfo = { @Sendable [t = t] _, _ in .init(commit: "sha7", date: t ) }
+        do {  // advancing another 4 hours for a total of 25 hours should finally create a new version
+            Current.date = { commitDates[7] }
+            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha7", date: commitDates[7] ) }
 
             let delta = try await runVersionReconciliation()
             XCTAssertEqual(delta.toAdd.map(\.commit), ["sha7"])
