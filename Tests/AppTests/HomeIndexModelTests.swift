@@ -41,6 +41,24 @@ class HomeIndexModelTests: AppTestCase {
 
         // validate
         let createdAt = try XCTUnwrap(pkg.createdAt)
+#if os(Linux)
+        if m.recentPackages == [
+            .init(
+                date: createdAt,
+                link: .init(label: "Package", url: "/foo/1")
+            )
+        ] {
+            XCTFail("Direct comparison of recentPackages is working again, replace by-property comparison with the Task.sleep delay.")
+            // When this triggers, remove Task.sleep above and the validtion below until // TEMPORARY - END
+            // and replace with original assert:
+            //     XCTAssertEqual(m.recentPackages, [
+            //         .init(
+            //             date: createdAt,
+            //             link: .init(label: "Package", url: "/foo/1")
+            //         )
+            //     ])
+        }
+#endif
         XCTAssertEqual(m.recentPackages.count, 1)
         let recent = try XCTUnwrap(m.recentPackages.first)
         // Comaring the dates directly fails due to tiny rounding differences with the new swift-foundation types on Linux
@@ -56,6 +74,7 @@ class HomeIndexModelTests: AppTestCase {
                   date: "\(date: Date(timeIntervalSince1970: 0), relativeTo: Current.date())",
                   url: "/foo/1"),
         ])
+        // TEMPORARY - END
     }
 
 }

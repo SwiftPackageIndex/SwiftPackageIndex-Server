@@ -450,6 +450,14 @@ class ApiTests: AppTestCase {
             afterResponse: { res async throws in
                 // validation
                 let p = try await XCTUnwrapAsync(await Package.find(p.id, on: app.db))
+#if os(Linux)
+                if p.updatedAt == originalPackageUpdate {
+                    XCTFail("Direct comparison of updatedAt is working again, replace comparison with the Task.sleep delay.")
+                    // When this triggers, remove Task.sleep above and the validtion below until // TEMPORARY - END
+                    // and replace with original assert:
+                    //      XCTAssertEqual(p.updatedAt, originalPackageUpdate)
+                }
+#endif
                 let updatedAt = try XCTUnwrap(p.updatedAt)
                 // Comaring the dates directly fails due to tiny rounding differences with the new swift-foundation types on Linux
                 // E.g.
@@ -457,6 +465,7 @@ class ApiTests: AppTestCase {
                 // 1724071056.5824614
                 // By testing only to accuracy 10e-5 and delaying by 10e-3 we ensure we properly detect if the value was changed.
                 XCTAssertEqual(updatedAt.timeIntervalSince1970, originalPackageUpdate.timeIntervalSince1970, accuracy: 10e-5)
+                // TEMPORARY - END
             })
     }
 
