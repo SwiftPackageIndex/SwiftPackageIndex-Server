@@ -69,9 +69,18 @@
         display: none;
     }
 
-    .anchor {
-        position: absolute;
-        visibility: hidden;
+    .markdown-heading {
+        position: relative;
+
+        > a {
+            position: absolute;
+            top: 0;
+            left: 0;
+
+            svg {
+                visibility: hidden;
+            }
+        }
     }
 
     .contains-task-list {
