@@ -65,4 +65,12 @@ final class RoutesTests: AppTestCase {
         }
     }
 
+    func test_HomePageInterstitial() throws {
+        Current.homepageInterstitial = { "HOMEPAGE_INTERSTITIAL" }
+
+        try app.test(.GET, "/") { res in
+            XCTAssertContains(res.body.string, "HOMEPAGE_INTERSTITIAL")
+        }
+    }
+
 }
