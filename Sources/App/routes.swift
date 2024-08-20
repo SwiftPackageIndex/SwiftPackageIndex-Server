@@ -24,7 +24,8 @@ func routes(_ app: Application) throws {
     do {  // home page
         app.get { req in
             if let interstitial = Current.homepageInterstitial() {
-                return MarkdownPage(path: req.url.path, markdown: interstitial).document()
+                let model = MaintenanceIndex.Model(markdown: interstitial)
+                return MaintenanceIndex.View(path: req.url.path, model: model).document()
             } else {
                 let model = try await HomeIndex.Model.query(database: req.db)
                 return HomeIndex.View(path: req.url.path, model: model).document()
