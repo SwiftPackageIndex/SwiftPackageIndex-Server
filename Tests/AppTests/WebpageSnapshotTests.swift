@@ -60,7 +60,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         let model = MaintenanceIndex.Model(markdown: interstitial)
         let page = { MaintenanceIndex.View(path: "/", model: model).document() }
 
-        assertSnapshot(of: page, as: .html, record: true)
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView() throws {
