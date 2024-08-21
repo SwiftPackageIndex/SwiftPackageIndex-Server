@@ -56,8 +56,8 @@
           },
           "signer" : {
             "commonName" : "Swift Package Index",
-            "organizationName" : "Swift Package Index",
             "organizationalUnitName" : "Swift Package Index",
+            "organizationName" : "Swift Package Index",
             "type" : "ADP"
           },
           "verifiedCompatibility" : [
