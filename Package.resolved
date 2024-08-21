@@ -1,5 +1,5 @@
 {
-  "originHash" : "c2b200868ac2f7119d2d650322eea4ce260f45a63a44fbadcbd1f07a3615def2",
+  "originHash" : "223c7ccc369c3e65877308b03456beb266b139bc1c753b713ba77b40dc4b6e6f",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/console-kit.git",
       "state" : {
-        "revision" : "9f7932f22ab6f64aafadc14491e694179b7d0f6f",
-        "version" : "4.14.3"
+        "revision" : "78c0dd739df8cb9ee14a8bbbf770facc4fc3402a",
+        "version" : "4.15.0"
       }
     },
     {
@@ -141,8 +141,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-nio.git",
       "state" : {
-        "revision" : "d18b137640222fe29a22568077c4799d213fdf96",
-        "version" : "1.22.0"
+        "revision" : "cd5318a01a1efcb1e0b3c82a0ce5c9fefaf1cb2d",
+        "version" : "1.22.1"
       }
     },
     {
@@ -393,8 +393,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-ssl.git",
       "state" : {
-        "revision" : "a9fa5efd86e7ce2e5c1b6de113262e58035ca251",
-        "version" : "2.27.1"
+        "revision" : "7b84abbdcef69cc3be6573ac12440220789dcd69",
+        "version" : "2.27.2"
       }
     },
     {
@@ -519,8 +519,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "a823735db57b46100b0c61cdfc5a08525b1e7cad",
-        "version" : "4.102.1"
+        "revision" : "1da8bbab10c84596ca4a239c507e5c023b3c08b3",
+        "version" : "4.103.1"
       }
     },
     {
@@ -546,8 +546,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "9829b6a67cc9fb08ccdb499eb92d2be5cc2f5d64",
-        "version" : "1.2.4"
+        "revision" : "96beb108a57f24c8476ae1f309239270772b2940",
+        "version" : "1.2.5"
       }
     },
     {
