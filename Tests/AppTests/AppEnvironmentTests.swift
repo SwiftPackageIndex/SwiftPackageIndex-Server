@@ -29,4 +29,29 @@ class AppEnvironmentTests: XCTestCase {
         XCTAssertEqual(Current.fileManager.checkoutsDirectory(), "/tmp/foo")
     }
 
+    func test_homepageInterstitial() throws {
+        defer { unsetenv("HOMEPAGE_INTERSTITIAL") }
+        Current.homepageInterstitial = AppEnvironment.live.homepageInterstitial
+        do {
+            unsetenv("HOMEPAGE_INTERSTITIAL")
+            XCTAssertEqual(Current.homepageInterstitial(), nil)
+        }
+        do {
+            setenv("HOMEPAGE_INTERSTITIAL", "foo", 1)
+            XCTAssertEqual(Current.homepageInterstitial(), "foo")
+        }
+        do {
+            setenv("HOMEPAGE_INTERSTITIAL", "", 1)
+            XCTAssertEqual(Current.homepageInterstitial(), nil)
+        }
+        do {
+            setenv("HOMEPAGE_INTERSTITIAL", " ", 1)
+            XCTAssertEqual(Current.homepageInterstitial(), nil)
+        }
+        do {
+            setenv("HOMEPAGE_INTERSTITIAL", " \t\n ", 1)
+            XCTAssertEqual(Current.homepageInterstitial(), nil)
+        }
+    }
+
 }
