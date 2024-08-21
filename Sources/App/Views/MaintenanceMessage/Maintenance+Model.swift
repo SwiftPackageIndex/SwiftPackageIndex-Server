@@ -15,7 +15,7 @@
 import Foundation
 import Ink
 
-enum MaintenanceIndex {
+enum MaintenanceMessageIndex {
 
     struct Model {
 

@@ -48,8 +48,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
         assertSnapshot(of: page, as: .html)
     }
 
-    func test_MaintenanceIndexView() throws {
-        let interstitial = """
+    func test_MaintenanceMessageIndexView() throws {
+        let maintenanceMessage = """
             # ⚠️ Server Maintenance ⚠️
             
             We are currently performing an update to our database server.
@@ -57,8 +57,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
             Service should be restored within a few minutes.
             """
 
-        let model = MaintenanceIndex.Model(markdown: interstitial)
-        let page = { MaintenanceIndex.View(path: "/", model: model).document() }
+        let model = MaintenanceMessageIndex.Model(markdown: maintenanceMessage)
+        let page = { MaintenanceMessageIndex.View(path: "/", model: model).document() }
 
         assertSnapshot(of: page, as: .html)
     }

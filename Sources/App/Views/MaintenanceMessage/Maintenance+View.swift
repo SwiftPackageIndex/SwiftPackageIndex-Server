@@ -15,7 +15,7 @@
 import Foundation
 import Plot
 
-extension MaintenanceIndex {
+extension MaintenanceMessageIndex {
 
     class View: PublicPage {
 

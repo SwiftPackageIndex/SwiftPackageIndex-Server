@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // -------------------------------------------------------------------------
-// Site maintenance page, set by HOMEPAGE_INTERSTITIAL in the environment.
+// Site maintenance page which replaces the home page when enabled.
 // -------------------------------------------------------------------------
 
 body.maintenance {
@@ -29,7 +29,7 @@ body.maintenance {
             background-position: top center;
             background-repeat: no-repeat;
             background-size: 40px;
-            background-image: var(--image-warning);
+            background-image: var(--image-info);
         }
     }
 }
