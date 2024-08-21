@@ -50,7 +50,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_MaintenanceMessageIndexView() throws {
         let maintenanceMessage = """
-            # ⚠️ Server Maintenance ⚠️
+            # Server Maintenance
             
             We are currently performing an update to our database server.
             
