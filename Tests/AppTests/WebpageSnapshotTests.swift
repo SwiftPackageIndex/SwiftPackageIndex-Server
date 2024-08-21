@@ -48,20 +48,19 @@ class WebpageSnapshotTests: SnapshotTestCase {
         assertSnapshot(of: page, as: .html)
     }
 
-    func test_HomeIndexView_interstitial() throws {
-        Current.homepageInterstitial = {
-            """
-            # ⚠️ Server Maintenance ⚠️
+    func test_MaintenanceMessageIndexView() throws {
+        let maintenanceMessage = """
+            # Server Maintenance
             
             We are currently performing an update to our database server.
             
             Service should be restored within a few minutes.
             """
-        }
 
-        try app.test(.GET, "/") { res in
-            assertSnapshot(of: res.body.string, as: .html)
-        }
+        let model = MaintenanceMessageIndex.Model(markdown: maintenanceMessage)
+        let page = { MaintenanceMessageIndex.View(path: "/", model: model).document() }
+
+        assertSnapshot(of: page, as: .html)
     }
 
     func test_PackageShowView() throws {

@@ -65,4 +65,12 @@ final class RoutesTests: AppTestCase {
         }
     }
 
+    func test_maintenanceMessage() throws {
+        Current.maintenanceMessage = { "MAINTENANCE_MESSAGE" }
+
+        try app.test(.GET, "/") { res in
+            XCTAssertContains(res.body.string, "MAINTENANCE_MESSAGE")
+        }
+    }
+
 }

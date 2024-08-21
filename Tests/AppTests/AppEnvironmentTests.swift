@@ -29,28 +29,28 @@ class AppEnvironmentTests: XCTestCase {
         XCTAssertEqual(Current.fileManager.checkoutsDirectory(), "/tmp/foo")
     }
 
-    func test_homepageInterstitial() throws {
-        defer { unsetenv("HOMEPAGE_INTERSTITIAL") }
-        Current.homepageInterstitial = AppEnvironment.live.homepageInterstitial
+    func test_maintenanceMessage() throws {
+        defer { unsetenv("MAINTENANCE_MESSAGE") }
+        Current.maintenanceMessage = AppEnvironment.live.maintenanceMessage
         do {
-            unsetenv("HOMEPAGE_INTERSTITIAL")
-            XCTAssertEqual(Current.homepageInterstitial(), nil)
+            unsetenv("MAINTENANCE_MESSAGE")
+            XCTAssertEqual(Current.maintenanceMessage(), nil)
         }
         do {
-            setenv("HOMEPAGE_INTERSTITIAL", "foo", 1)
-            XCTAssertEqual(Current.homepageInterstitial(), "foo")
+            setenv("MAINTENANCE_MESSAGE", "foo", 1)
+            XCTAssertEqual(Current.maintenanceMessage(), "foo")
         }
         do {
-            setenv("HOMEPAGE_INTERSTITIAL", "", 1)
-            XCTAssertEqual(Current.homepageInterstitial(), nil)
+            setenv("MAINTENANCE_MESSAGE", "", 1)
+            XCTAssertEqual(Current.maintenanceMessage(), nil)
         }
         do {
-            setenv("HOMEPAGE_INTERSTITIAL", " ", 1)
-            XCTAssertEqual(Current.homepageInterstitial(), nil)
+            setenv("MAINTENANCE_MESSAGE", " ", 1)
+            XCTAssertEqual(Current.maintenanceMessage(), nil)
         }
         do {
-            setenv("HOMEPAGE_INTERSTITIAL", " \t\n ", 1)
-            XCTAssertEqual(Current.homepageInterstitial(), nil)
+            setenv("MAINTENANCE_MESSAGE", " \t\n ", 1)
+            XCTAssertEqual(Current.maintenanceMessage(), nil)
         }
     }
 
