@@ -45,7 +45,7 @@ extension String {
     }
 
     var trimmed: String? {
-        let trimmedString = trimmingCharacters(in: .whitespaces)
+        let trimmedString = trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmedString.isEmpty { return nil }
         return trimmedString
     }

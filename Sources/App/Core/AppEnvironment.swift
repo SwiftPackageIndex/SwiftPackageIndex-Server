@@ -195,7 +195,9 @@ extension AppEnvironment {
             Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
                 ?? Constants.defaultHideStagingBanner
         },
-        homepageInterstitial: { Environment.get("HOMEPAGE_INTERSTITIAL") },
+        homepageInterstitial: {
+            Environment.get("HOMEPAGE_INTERSTITIAL").flatMap(\.trimmed)
+        },
         httpClient: { httpClient },
         loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },
