@@ -240,7 +240,7 @@ class IngestorTests: AppTestCase {
                                                             "https://github.com/foo/2"])
             .map(Joined<Package, Repository>.init(model:))
         let results: [Result<Joined<Package, Repository>, Error>] = [
-            .failure(AppError.metadataRequestFailed(try pkgs[0].model.requireID(), .badRequest, "1")),
+            .failure(AppError.genericError(try pkgs[0].model.requireID(), "error 1")),
             .success(pkgs[1])
         ]
 
@@ -253,7 +253,7 @@ class IngestorTests: AppTestCase {
         // validate
         do {
             let pkgs = try await Package.query(on: app.db).sort(\.$url).all()
-            XCTAssertEqual(pkgs.map(\.status), [.metadataRequestFailed, .new])
+            XCTAssertEqual(pkgs.map(\.status), [.ingestionFailed, .new])
             XCTAssertEqual(pkgs.map(\.processingStage), [.ingestion, .ingestion])
         }
     }
@@ -308,7 +308,7 @@ class IngestorTests: AppTestCase {
                                                    processingStage: .reconciliation)
         Current.fetchMetadata = { _, owner, repository in
             if owner == "foo" && repository == "2" {
-                throw AppError.metadataRequestFailed(packages[1].id, .badRequest, URI("2"))
+                throw AppError.genericError(packages[1].id, "error 2")
             }
             return .mock(owner: owner, repository: repository)
         }
@@ -326,7 +326,7 @@ class IngestorTests: AppTestCase {
         (try await Package.query(on: app.db).all()).forEach { pkg in
             switch pkg.url {
                 case "https://github.com/foo/2":
-                    XCTAssertEqual(pkg.status, .metadataRequestFailed)
+                    XCTAssertEqual(pkg.status, .ingestionFailed)
                 default:
                     XCTAssertEqual(pkg.status, .new)
             }

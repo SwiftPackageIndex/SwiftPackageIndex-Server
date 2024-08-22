@@ -123,8 +123,6 @@ func recordError(database: Database,
             try await setStatus(id: id, status: .cacheDirectoryDoesNotExist)
         case let .invalidRevision(id, _):
             try await setStatus(id: id, status: .analysisFailed)
-        case let .metadataRequestFailed(id, _, _):
-            try await setStatus(id: id, status: .metadataRequestFailed)
         case let .noValidVersions(id, _):
             try await setStatus(id: id, status: .noValidVersions)
     }
