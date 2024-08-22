@@ -16,12 +16,6 @@ import Fluent
 
 
 extension Array where Element: FluentKit.Model {
-    public func save(on database: Database) -> EventLoopFuture<Void> {
-        map {
-            $0.save(on: database)
-        }.flatten(on: database.eventLoop)
-    }
-
     public func save(on database: Database) async throws -> Void {
         for element in self {
             try await element.save(on: database)

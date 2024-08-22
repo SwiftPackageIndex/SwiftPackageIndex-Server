@@ -242,18 +242,18 @@ final class PackageTests: AppTestCase {
         )
     }
 
-    func test_findSignificantReleases_old_beta() throws {
+    func test_findSignificantReleases_old_beta() async throws {
         // Test to ensure outdated betas aren't picked up as latest versions
         // setup
         let pkg = Package(id: UUID(), url: "1")
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try await pkg.save(on: app.db)
+        try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         let versions = [
             try Version(package: pkg, packageName: "foo", reference: .branch("main")),
             try Version(package: pkg, packageName: "foo", reference: .tag(2, 0, 0)),
             try Version(package: pkg, packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
         ]
-        try versions.save(on: app.db).wait()
+        try await versions.save(on: app.db)
 
         // MUT
         let (release, preRelease, defaultBranch) = Package.findSignificantReleases(versions: versions, branch: "main")
