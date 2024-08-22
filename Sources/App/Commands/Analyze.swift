@@ -196,7 +196,7 @@ extension Analyze {
             }
 
             for (version, pkgInfo) in versionsPkgInfo {
-                try await updateVersion(on: tx, version: version, packageInfo: pkgInfo).get()
+                try await updateVersion(on: tx, version: version, packageInfo: pkgInfo)
                 try await recreateProducts(on: tx, version: version, manifest: pkgInfo.packageManifest)
                 try await recreateTargets(on: tx, version: version, manifest: pkgInfo.packageManifest)
             }
@@ -567,7 +567,7 @@ extension Analyze {
     /// - Returns: future
     static func updateVersion(on database: Database,
                               version: Version,
-                              packageInfo: PackageInfo) -> EventLoopFuture<Void> {
+                              packageInfo: PackageInfo) async throws {
         let manifest = packageInfo.packageManifest
         version.packageName = manifest.name
         version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
@@ -576,13 +576,13 @@ extension Analyze {
         version.spiManifest = packageInfo.spiManifest
         version.hasBinaryTargets = packageInfo.packageManifest.targets.contains { $0.type == .binary }
 
-        return version.save(on: database)
+        try await version.save(on: database)
     }
 
 
     static func recreateProducts(on database: Database, version: Version, manifest: Manifest) async throws {
-        try await deleteProducts(on: database, version: version).get()
-        try await createProducts(on: database, version: version, manifest: manifest).get()
+        try await deleteProducts(on: database, version: version)
+        try await createProducts(on: database, version: version, manifest: manifest)
     }
 
 
@@ -591,11 +591,9 @@ extension Analyze {
     ///   - database: database connection
     ///   - version: parent model object
     /// - Returns: future
-    static func deleteProducts(on database: Database, version: Version) -> EventLoopFuture<Void> {
-        guard let versionId = version.id else {
-            return database.eventLoop.future()
-        }
-        return Product.query(on: database)
+    static func deleteProducts(on database: Database, version: Version) async throws {
+        guard let versionId = version.id else { return }
+        try await Product.query(on: database)
             .filter(\.$version.$id == versionId)
             .delete()
     }
@@ -607,8 +605,8 @@ extension Analyze {
     ///   - version: version to update
     ///   - manifest: `Manifest` data
     /// - Returns: future
-    static func createProducts(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
-        manifest.products.compactMap { manifestProduct in
+    static func createProducts(on database: Database, version: Version, manifest: Manifest) async throws {
+        try await manifest.products.compactMap { manifestProduct in
             try? Product(version: version,
                          type: .init(manifestProductType: manifestProduct.type),
                          name: manifestProduct.name,
@@ -619,8 +617,8 @@ extension Analyze {
 
 
     static func recreateTargets(on database: Database, version: Version, manifest: Manifest) async throws {
-        try await deleteTargets(on: database, version: version).get()
-        try await createTargets(on: database, version: version, manifest: manifest).get()
+        try await deleteTargets(on: database, version: version)
+        try await createTargets(on: database, version: version, manifest: manifest)
     }
 
 
@@ -629,11 +627,9 @@ extension Analyze {
     ///   - database: database connection
     ///   - version: parent model object
     /// - Returns: future
-    static func deleteTargets(on database: Database, version: Version) -> EventLoopFuture<Void> {
-        guard let versionId = version.id else {
-            return database.eventLoop.future()
-        }
-        return Target.query(on: database)
+    static func deleteTargets(on database: Database, version: Version) async throws {
+        guard let versionId = version.id else { return }
+        try await Target.query(on: database)
             .filter(\.$version.$id == versionId)
             .delete()
     }
@@ -645,8 +641,8 @@ extension Analyze {
     ///   - version: version to update
     ///   - manifest: `Manifest` data
     /// - Returns: future
-    static func createTargets(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
-        manifest.targets.compactMap {
+    static func createTargets(on database: Database, version: Version, manifest: Manifest) async throws {
+        try await manifest.targets.compactMap {
             try? Target(version: version, name: $0.name, type: .init(manifestTargetType: $0.type))
         }
         .create(on: database)
