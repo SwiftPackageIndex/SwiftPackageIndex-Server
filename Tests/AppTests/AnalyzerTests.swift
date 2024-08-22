@@ -746,10 +746,10 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(info.packageManifest.name, "SPI-Server")
     }
 
-    func test_updateVersion() throws {
+    func test_updateVersion() async throws {
         // setup
         let pkg = Package(id: UUID(), url: "1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let version = try Version(package: pkg, reference: .branch("main"))
         let manifest = Manifest(name: "foo",
                                 platforms: [.init(platformName: .ios, version: "11.0"),
@@ -767,13 +767,12 @@ class AnalyzerTests: AppTestCase {
             """)
 
         // MUT
-        _ = try Analyze.updateVersion(on: app.db,
-                                      version: version,
-                                      packageInfo: .init(packageManifest: manifest,
-                                                         spiManifest: spiManifest)).wait()
+        _ = try await Analyze.updateVersion(on: app.db,
+                                            version: version,
+                                            packageInfo: .init(packageManifest: manifest, spiManifest: spiManifest))
 
         // read back and validate
-        let v = try Version.query(on: app.db).first().wait()!
+        let v = try await XCTUnwrapAsync(await Version.query(on: app.db).first())
         XCTAssertEqual(v.packageName, "foo")
         XCTAssertEqual(v.resolvedDependencies?.map(\.packageName), nil)
         XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0"].asSwiftVersions)
@@ -782,7 +781,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(v.spiManifest, spiManifest)
     }
 
-    func test_createProducts() throws {
+    func test_createProducts() async throws {
         // setup
         let p = Package(id: UUID(), url: "1")
         let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
@@ -795,20 +794,20 @@ class AnalyzerTests: AppTestCase {
                                           type: .executable)],
                          targets: [],
                          toolsVersion: .init(version: "5.0.0"))
-        try p.save(on: app.db).wait()
-        try v.save(on: app.db).wait()
+        try await p.save(on: app.db)
+        try await v.save(on: app.db)
 
         // MUT
-        try Analyze.createProducts(on: app.db, version: v, manifest: m).wait()
+        try await Analyze.createProducts(on: app.db, version: v, manifest: m)
 
         // validation
-        let products = try Product.query(on: app.db).sort(\.$createdAt).all().wait()
+        let products = try await Product.query(on: app.db).sort(\.$createdAt).all()
         XCTAssertEqual(products.map(\.name), ["p1", "p2"])
         XCTAssertEqual(products.map(\.targets), [["t1", "t2"], ["t3", "t4"]])
         XCTAssertEqual(products.map(\.type), [.library(.automatic), .executable])
     }
 
-    func test_createTargets() throws {
+    func test_createTargets() async throws {
         // setup
         let p = Package(id: UUID(), url: "1")
         let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
@@ -816,14 +815,14 @@ class AnalyzerTests: AppTestCase {
                          products: [],
                          targets: [.init(name: "t1", type: .regular), .init(name: "t2", type: .executable)],
                          toolsVersion: .init(version: "5.0.0"))
-        try p.save(on: app.db).wait()
-        try v.save(on: app.db).wait()
+        try await p.save(on: app.db)
+        try await v.save(on: app.db)
 
         // MUT
-        try Analyze.createTargets(on: app.db, version: v, manifest: m).wait()
+        try await Analyze.createTargets(on: app.db, version: v, manifest: m)
 
         // validation
-        let targets = try Target.query(on: app.db).sort(\.$createdAt).all().wait()
+        let targets = try await Target.query(on: app.db).sort(\.$createdAt).all()
         XCTAssertEqual(targets.map(\.name), ["t1", "t2"])
         XCTAssertEqual(targets.map(\.type), [.regular, .executable])
     }

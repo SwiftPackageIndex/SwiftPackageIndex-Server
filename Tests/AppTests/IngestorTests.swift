@@ -265,7 +265,7 @@ class IngestorTests: AppTestCase {
             Package(id: UUID(), url: "https://github.com/foo/1", status: .ok, processingStage: .reconciliation),
             Package(id: UUID(), url: "https://github.com/foo/2", status: .new, processingStage: .reconciliation)
         ]
-        try await pkgs.save(on: app.db).get()
+        try await pkgs.save(on: app.db)
         let results: [Result<Joined<Package, Repository>, Error>] = [ .success(.init(model: pkgs[0])),
                                                                       .success(.init(model: pkgs[1]))]
 

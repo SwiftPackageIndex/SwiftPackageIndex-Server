@@ -144,7 +144,7 @@ class VersionDiffTests: AppTestCase {
     // Test [Version] based diff (higher level interface)
     // Just run an integration scenario, the details are covered in the test above
 
-    func test_diff_1() throws {
+    func test_diff_1() async throws {
         // Branch changes commit hash
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -154,7 +154,7 @@ class VersionDiffTests: AppTestCase {
             try .init(id: keptId,
                       package: pkg, commit: "hash2", reference: .tag(1, 2, 3)),
         ]
-        try saved.save(on: app.db).wait()
+        try await saved.save(on: app.db)
 
         // MUT
         let res = Version.diff(local: saved, incoming: [

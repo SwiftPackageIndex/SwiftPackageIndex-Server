@@ -19,8 +19,6 @@ import Vapor
 
 /// Update packages (in the `[Result<Joined<Package, Repository>, Error>]` array).
 ///
-/// Unlike the overload with a result parameter `Result<(Joined<Package, Repository>, [Version])` this will not use `Version` information to update the package.
-///
 /// - Parameters:
 ///   - client: `Client` object
 ///   - database: `Database` object

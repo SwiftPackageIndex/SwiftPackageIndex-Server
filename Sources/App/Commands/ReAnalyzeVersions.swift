@@ -201,15 +201,9 @@ enum ReAnalyzeVersions {
                         continue
                     }
 
-                    try await Analyze.updateVersion(on: tx,
-                                                    version: version,
-                                                    packageInfo: pkgInfo).get()
-                    try await Analyze.recreateProducts(on: tx,
-                                                       version: version,
-                                                       manifest: pkgInfo.packageManifest)
-                    try await Analyze.recreateTargets(on: tx,
-                                                      version: version,
-                                                      manifest: pkgInfo.packageManifest)
+                    try await Analyze.updateVersion(on: tx, version: version, packageInfo: pkgInfo)
+                    try await Analyze.recreateProducts(on: tx, version: version, manifest: pkgInfo.packageManifest)
+                    try await Analyze.recreateTargets(on: tx, version: version, manifest: pkgInfo.packageManifest)
                 }
 
                 // No need to run `updateLatestVersions` because we're only operating on existing versions,
