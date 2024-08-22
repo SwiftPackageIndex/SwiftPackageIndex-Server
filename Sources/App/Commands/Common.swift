@@ -121,12 +121,8 @@ func recordError(database: Database,
             try await setStatus(id: id, status: .invalidCachePath)
         case let .cacheDirectoryDoesNotExist(id, _):
             try await setStatus(id: id, status: .cacheDirectoryDoesNotExist)
-        case let .invalidPackageUrl(id, _):
-            try await setStatus(id: id, status: .invalidUrl)
         case let .invalidRevision(id, _):
             try await setStatus(id: id, status: .analysisFailed)
-        case let .metadataRequestFailed(id, _, _):
-            try await setStatus(id: id, status: .metadataRequestFailed)
         case let .noValidVersions(id, _):
             try await setStatus(id: id, status: .noValidVersions)
     }

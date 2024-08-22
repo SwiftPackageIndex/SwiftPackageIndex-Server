@@ -22,11 +22,11 @@ class ErrorReportingTests: AppTestCase {
     func test_recordError() async throws {
         let pkg = try await savePackageAsync(on: app.db, "1")
         try await recordError(database: app.db,
-                              error: AppError.invalidPackageUrl(pkg.id, "foo"),
+                              error: AppError.cacheDirectoryDoesNotExist(pkg.id, "path"),
                               stage: .ingestion)
         do {
             let pkg = try fetch(id: pkg.id, on: app.db)
-            XCTAssertEqual(pkg.status, .invalidUrl)
+            XCTAssertEqual(pkg.status, .cacheDirectoryDoesNotExist)
             XCTAssertEqual(pkg.processingStage, .ingestion)
         }
     }
