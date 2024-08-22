@@ -94,8 +94,6 @@ extension App.AppError: Swift.Equatable {
                 return (id1, v1) == (id2, v2)
             case let (.invalidPackageCachePath(id1, v1), .invalidPackageCachePath(id2, v2)):
                 return (id1, v1) == (id2, v2)
-            case let (.invalidPackageUrl(id1, v1), .invalidPackageUrl(id2, v2)):
-                return (id1, v1) == (id2, v2)
             case let (.invalidRevision(id1, v1), .invalidRevision(id2, v2)):
                 return (id1, v1) == (id2, v2)
             case let (.metadataRequestFailed(id1, s1, u1), .metadataRequestFailed(id2, s2, u2)):
