@@ -369,8 +369,8 @@ requests:
     url: ${base_url}/krzyzanowskim/CryptoSwift/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /li3zhen1/Grape/documentation:
-    url: ${base_url}/li3zhen1/Grape/documentation
+  /SwiftGraphs/Grape/documentation:
+    url: ${base_url}/SwiftGraphs/Grape/documentation
     validation:
       status: .regex((2|3)\d\d)
   /liuliu/dflat/documentation:
