@@ -16,25 +16,23 @@ import Fluent
 import SQLKit
 
 
-struct CreateRepositoriesNameIndex: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
+struct CreateRepositoriesNameIndex: AsyncMigration {
+    func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
         // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/176#issuecomment-637710906
         // for details about this index
-        return db.raw("CREATE EXTENSION IF NOT EXISTS pg_trgm").run()
-            .flatMap {
-                db.raw("CREATE INDEX idx_repositories_name ON repositories USING gin (name gin_trgm_ops)").run() }
+        try await db.raw("CREATE EXTENSION IF NOT EXISTS pg_trgm").run()
+        try await db.raw("CREATE INDEX idx_repositories_name ON repositories USING gin (name gin_trgm_ops)").run()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
+    func revert(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return
-            db.raw("DROP INDEX idx_repositories_name").run()
-            .flatMap { db.raw("DROP EXTENSION pg_trgm").run() }
+        try await db.raw("DROP INDEX idx_repositories_name").run()
+        try await db.raw("DROP EXTENSION pg_trgm").run()
     }
 }

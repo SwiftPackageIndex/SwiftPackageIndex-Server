@@ -15,15 +15,15 @@
 import Fluent
 
 
-struct UpdateBuildAddJobUrl: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("builds")
+struct UpdateBuildAddJobUrl: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.schema("builds")
             .field("job_url", .string)
             .update()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("builds")
+    func revert(on database: Database) async throws {
+        try await database.schema("builds")
             .deleteField("job_url")
             .update()
     }

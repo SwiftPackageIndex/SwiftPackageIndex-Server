@@ -15,15 +15,15 @@
 import Fluent
 
 
-struct UpdateRepositoryAddReleases: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("repositories")
+struct UpdateRepositoryAddReleases: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.schema("repositories")
             .field("releases", .array(of: .json), .sql(.default("{}")))
             .update()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("repositories")
+    func revert(on database: Database) async throws {
+        try await database.schema("repositories")
             .deleteField("releases")
             .update()
     }

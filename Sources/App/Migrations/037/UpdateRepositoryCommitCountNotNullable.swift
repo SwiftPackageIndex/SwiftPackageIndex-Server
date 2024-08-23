@@ -15,38 +15,35 @@
 import Fluent
 import SQLKit
 
-struct UpdateRepositoryCommitCountNotNullable: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.transaction { tx in
+struct UpdateRepositoryCommitCountNotNullable: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.transaction { tx in
             guard let db = tx as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
-            return db.raw(
+            try await db.raw(
                 #"UPDATE "repositories" SET "commit_count" = 0 WHERE "commit_count" IS NULL"#
-            ).run().flatMap {
-                db.raw(
-                    #"ALTER TABLE "repositories" ALTER COLUMN "commit_count" SET DEFAULT 0"#
-                ).run()
-            }.flatMap {
-                db.raw(
-                    #"ALTER TABLE "repositories" ALTER COLUMN "commit_count" SET NOT NULL"#
-                ).run()
-            }
+            ).run()
+            try await db.raw(
+                #"ALTER TABLE "repositories" ALTER COLUMN "commit_count" SET DEFAULT 0"#
+            ).run()
+            try await db.raw(
+                #"ALTER TABLE "repositories" ALTER COLUMN "commit_count" SET NOT NULL"#
+            ).run()
         }
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.transaction { tx in
+    func revert(on database: Database) async throws {
+        try await database.transaction { tx in
             guard let db = tx as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
-            return db.raw(
+            try await db.raw(
                 #"ALTER TABLE "repositories" ALTER COLUMN "commit_count" DROP NOT NULL"#
-            ).run().flatMap {
-                db.raw(
-                    #"ALTER TABLE "repositories" ALTER COLUMN "commit_count" DROP DEFAULT"#
-                ).run()
-            }
+            ).run()
+            try await db.raw(
+                #"ALTER TABLE "repositories" ALTER COLUMN "commit_count" DROP DEFAULT"#
+            ).run()
         }
     }
 }

@@ -16,12 +16,12 @@ import Fluent
 import SQLKit
 
 
-struct CreateRecentPackages: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
+struct CreateRecentPackages: AsyncMigration {
+    func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw(
+        try await db.raw(
             """
             -- v0
             CREATE MATERIALIZED VIEW recent_packages AS
@@ -39,10 +39,10 @@ struct CreateRecentPackages: Migration {
         ).run()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
+    func revert(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("DROP MATERIALIZED VIEW recent_packages").run()
+        try await db.raw("DROP MATERIALIZED VIEW recent_packages").run()
     }
 }

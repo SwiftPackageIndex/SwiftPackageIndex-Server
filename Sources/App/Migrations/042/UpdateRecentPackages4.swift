@@ -16,10 +16,10 @@ import Fluent
 import SQLKit
 
 
-struct UpdateRecentPackages4: Migration {
+struct UpdateRecentPackages4: AsyncMigration {
     let dropSQL: SQLQueryString = "DROP MATERIALIZED VIEW recent_packages"
 
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
+    func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
@@ -49,11 +49,11 @@ struct UpdateRecentPackages4: Migration {
                 created_at DESC
             LIMIT 500;
             """
-        return db.raw(dropSQL).run()
-            .flatMap { db.raw(updatedViewSQL).run() }
+        try await db.raw(dropSQL).run()
+        try await db.raw(updatedViewSQL).run()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
+    func revert(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
@@ -80,7 +80,7 @@ struct UpdateRecentPackages4: Migration {
             order by created_at desc
             limit 100
             """
-        return db.raw(dropSQL).run()
-            .flatMap { db.raw(oldViewSQL).run() }
+        try await db.raw(dropSQL).run()
+        try await db.raw(oldViewSQL).run()
     }
 }

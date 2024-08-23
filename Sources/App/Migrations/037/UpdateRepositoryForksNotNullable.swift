@@ -15,38 +15,35 @@
 import Fluent
 import SQLKit
 
-struct UpdateRepositoryForksNotNullable: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.transaction { tx in
+struct UpdateRepositoryForksNotNullable: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.transaction { tx in
             guard let db = tx as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
-            return db.raw(
+            try await db.raw(
                 #"UPDATE "repositories" SET "forks" = 0 WHERE "forks" IS NULL"#
-            ).run().flatMap {
-                db.raw(
-                    #"ALTER TABLE "repositories" ALTER COLUMN "forks" SET DEFAULT 0"#
-                ).run()
-            }.flatMap {
-                db.raw(
-                    #"ALTER TABLE "repositories" ALTER COLUMN "forks" SET NOT NULL"#
-                ).run()
-            }
+            ).run()
+            try await db.raw(
+                #"ALTER TABLE "repositories" ALTER COLUMN "forks" SET DEFAULT 0"#
+            ).run()
+            try await db.raw(
+                #"ALTER TABLE "repositories" ALTER COLUMN "forks" SET NOT NULL"#
+            ).run()
         }
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.transaction { tx in
+    func revert(on database: Database) async throws {
+        try await database.transaction { tx in
             guard let db = tx as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
-            return db.raw(
+            try await db.raw(
                 #"ALTER TABLE "repositories" ALTER COLUMN "forks" DROP NOT NULL"#
-            ).run().flatMap {
-                db.raw(
-                    #"ALTER TABLE "repositories" ALTER COLUMN "forks" DROP DEFAULT"#
-                ).run()
-            }
+            ).run()
+            try await db.raw(
+                #"ALTER TABLE "repositories" ALTER COLUMN "forks" DROP DEFAULT"#
+            ).run()
         }
     }
 }

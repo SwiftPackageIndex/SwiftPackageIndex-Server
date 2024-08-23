@@ -14,16 +14,16 @@
 
 import Fluent
 
-struct UpdateProductType: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("products")
+struct UpdateProductType: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.schema("products")
             .deleteField("type")
             .field("type", .json)
             .update()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("products")
+    func revert(on database: Database) async throws {
+        try await database.schema("products")
             .deleteField("type")
             .field("type", .string, .required)
             .update()

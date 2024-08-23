@@ -15,15 +15,15 @@
 import Fluent
 
 
-struct UpdatePackageAppPlatformCompatibility: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("packages")
+struct UpdatePackageAppPlatformCompatibility: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.schema("packages")
             .field("platform_compatibility", .array(of: .string), .sql(.default("{}")))
             .update()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("packages")
+    func revert(on database: Database) async throws {
+        try await database.schema("packages")
             .deleteField("platform_compatibility")
             .update()
     }

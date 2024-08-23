@@ -15,15 +15,15 @@
 import Fluent
 
 
-struct UpdateRepositoryAddReadmeUrl: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("repositories")
+struct UpdateRepositoryAddReadmeUrl: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.schema("repositories")
             .field("readme_url", .string)
             .update()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("repositories")
+    func revert(on database: Database) async throws {
+        try await database.schema("repositories")
             .deleteField("readme_url")
             .update()
     }

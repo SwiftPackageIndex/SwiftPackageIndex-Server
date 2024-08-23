@@ -16,12 +16,12 @@ import Fluent
 import SQLKit
 
 
-struct CreateStats: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
+struct CreateStats: AsyncMigration {
+    func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw(
+        try await db.raw(
             """
             -- v0
             CREATE MATERIALIZED VIEW stats AS
@@ -33,10 +33,10 @@ struct CreateStats: Migration {
         ).run()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
+    func revert(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("DROP MATERIALIZED VIEW stats").run()
+        try await db.raw("DROP MATERIALIZED VIEW stats").run()
     }
 }

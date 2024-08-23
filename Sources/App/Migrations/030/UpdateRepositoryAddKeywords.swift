@@ -15,15 +15,15 @@
 import Fluent
 
 
-struct UpdateRepositoryAddKeywords: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("repositories")
+struct UpdateRepositoryAddKeywords: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.schema("repositories")
             .field("keywords", .array(of: .string), .sql(.default("{}")))
             .update()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("repositories")
+    func revert(on database: Database) async throws {
+        try await database.schema("repositories")
             .deleteField("keywords")
             .update()
     }

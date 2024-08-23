@@ -16,12 +16,12 @@ import Fluent
 import SQLKit
 
 
-struct CreateSearch: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
+struct CreateSearch: AsyncMigration {
+    func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw(
+        try await db.raw(
             """
             -- v1
             CREATE MATERIALIZED VIEW search AS
@@ -40,10 +40,10 @@ struct CreateSearch: Migration {
         ).run()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
+    func revert(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("DROP MATERIALIZED VIEW search").run()
+        try await db.raw("DROP MATERIALIZED VIEW search").run()
     }
 }

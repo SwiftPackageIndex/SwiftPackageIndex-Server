@@ -16,13 +16,13 @@ import Fluent
 import SQLKit
 
 
-struct AddLastActivityAtToRepositories: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
+struct AddLastActivityAtToRepositories: AsyncMigration {
+    func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        return db.raw("""
+        try await db.raw("""
             ALTER TABLE repositories
             ADD COLUMN last_activity_at TIMESTAMPTZ GENERATED ALWAYS AS (
                 GREATEST(last_commit_date, last_issue_closed_at, last_pull_request_closed_at)
@@ -30,12 +30,12 @@ struct AddLastActivityAtToRepositories: Migration {
             """).run()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
+    func revert(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        return db.raw("""
+        try await db.raw("""
             ALTER TABLE repositories DROP COLUMN last_activity_at;
             """).run()
     }

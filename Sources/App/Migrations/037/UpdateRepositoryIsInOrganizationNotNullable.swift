@@ -15,38 +15,35 @@
 import Fluent
 import SQLKit
 
-struct UpdateRepositoryIsInOrganizationNotNullable: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.transaction { tx in
+struct UpdateRepositoryIsInOrganizationNotNullable: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.transaction { tx in
             guard let db = tx as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
-            return db.raw(
+            try await db.raw(
                 #"UPDATE "repositories" SET "is_in_organization" = false WHERE "is_in_organization" IS NULL"#
-            ).run().flatMap {
-                db.raw(
-                    #"ALTER TABLE "repositories" ALTER COLUMN "is_in_organization" SET DEFAULT false"#
-                ).run()
-            }.flatMap {
-                db.raw(
-                    #"ALTER TABLE "repositories" ALTER COLUMN "is_in_organization" SET NOT NULL"#
-                ).run()
-            }
+            ).run()
+            try await db.raw(
+                #"ALTER TABLE "repositories" ALTER COLUMN "is_in_organization" SET DEFAULT false"#
+            ).run()
+            try await db.raw(
+                #"ALTER TABLE "repositories" ALTER COLUMN "is_in_organization" SET NOT NULL"#
+            ).run()
         }
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.transaction { tx in
+    func revert(on database: Database) async throws {
+        try await database.transaction { tx in
             guard let db = tx as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
-            return db.raw(
+            try await db.raw(
                 #"ALTER TABLE "repositories" ALTER COLUMN "is_in_organization" DROP NOT NULL"#
-            ).run().flatMap {
-                db.raw(
-                    #"ALTER TABLE "repositories" ALTER COLUMN "is_in_organization" DROP DEFAULT"#
-                ).run()
-            }
+            ).run()
+            try await db.raw(
+                #"ALTER TABLE "repositories" ALTER COLUMN "is_in_organization" DROP DEFAULT"#
+            ).run()
         }
     }
 }

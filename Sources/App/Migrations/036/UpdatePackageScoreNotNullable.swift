@@ -15,38 +15,25 @@
 import Fluent
 import SQLKit
 
-struct UpdatePackageScoreNotNullable: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.transaction { tx in
+struct UpdatePackageScoreNotNullable: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.transaction { tx in
             guard let db = tx as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
-            return db.raw(
-                #"UPDATE "packages" SET "score" = 0 WHERE "score" IS NULL"#
-            ).run().flatMap {
-                db.raw(
-                    #"ALTER TABLE "packages" ALTER COLUMN "score" SET DEFAULT 0"#
-                ).run()
-            }.flatMap {
-                db.raw(
-                    #"ALTER TABLE "packages" ALTER COLUMN "score" SET NOT NULL"#
-                ).run()
-            }
+            try await db.raw(#"UPDATE "packages" SET "score" = 0 WHERE "score" IS NULL"#).run()
+            try await db.raw(#"ALTER TABLE "packages" ALTER COLUMN "score" SET DEFAULT 0"#).run()
+            try await db.raw(#"ALTER TABLE "packages" ALTER COLUMN "score" SET NOT NULL"#).run()
         }
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.transaction { tx in
+    func revert(on database: Database) async throws {
+        try await database.transaction { tx in
             guard let db = tx as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
-            return db.raw(
-                #"ALTER TABLE "packages" ALTER COLUMN "score" DROP NOT NULL"#
-            ).run().flatMap {
-                db.raw(
-                    #"ALTER TABLE "packages" ALTER COLUMN "score" DROP DEFAULT"#
-                ).run()
-            }
+            try await db.raw(#"ALTER TABLE "packages" ALTER COLUMN "score" DROP NOT NULL"#).run()
+            try await db.raw(#"ALTER TABLE "packages" ALTER COLUMN "score" DROP DEFAULT"#).run()
         }
 
     }
