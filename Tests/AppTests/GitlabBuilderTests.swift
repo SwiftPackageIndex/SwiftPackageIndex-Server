@@ -51,7 +51,7 @@ class GitlabBuilderTests: AppTestCase {
         }
     }
 
-    func test_triggerBuild() throws {
+    func test_triggerBuild() async throws {
         Current.awsDocsBucket = { "docs-bucket" }
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
@@ -85,18 +85,18 @@ class GitlabBuilderTests: AppTestCase {
         }
 
         // MUT
-        _ = try Gitlab.Builder.triggerBuild(client: client,
-                                            buildId: buildId,
-                                            cloneURL: "https://github.com/daveverwer/LeftPad.git",
-                                            isDocBuild: false,
-                                            platform: .macosSpm,
-                                            reference: .tag(.init(1, 2, 3)),
-                                            swiftVersion: .init(5, 2, 4),
-                                            versionID: versionID).wait()
+        _ = try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: buildId,
+                                                  cloneURL: "https://github.com/daveverwer/LeftPad.git",
+                                                  isDocBuild: false,
+                                                  platform: .macosSpm,
+                                                  reference: .tag(.init(1, 2, 3)),
+                                                  swiftVersion: .init(5, 2, 4),
+                                                  versionID: versionID)
         XCTAssertTrue(called)
     }
 
-    func test_issue_588() throws {
+    func test_issue_588() async throws {
         Current.awsDocsBucket = { "docs-bucket" }
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
@@ -115,18 +115,18 @@ class GitlabBuilderTests: AppTestCase {
         }
 
         // MUT
-        _ = try Gitlab.Builder.triggerBuild(client: client,
-                                            buildId: .id0,
-                                            cloneURL: "https://github.com/daveverwer/LeftPad.git",
-                                            isDocBuild: false,
-                                            platform: .macosSpm,
-                                            reference: .tag(.init(1, 2, 3)),
-                                            swiftVersion: .v6_0,
-                                            versionID: .id1).wait()
+        _ = try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: .id0,
+                                                  cloneURL: "https://github.com/daveverwer/LeftPad.git",
+                                                  isDocBuild: false,
+                                                  platform: .macosSpm,
+                                                  reference: .tag(.init(1, 2, 3)),
+                                                  swiftVersion: .v6_0,
+                                                  versionID: .id1)
         XCTAssertTrue(called)
     }
 
-    func test_getStatusCount() throws {
+    func test_getStatusCount() async throws {
         Current.gitlabApiToken = { "api token" }
         Current.gitlabPipelineToken = { nil }
 
@@ -148,10 +148,10 @@ class GitlabBuilderTests: AppTestCase {
             page += 1
         }
 
-        let res = try Gitlab.Builder.getStatusCount(client: client,
-                                                    status: .pending,
-                                                    pageSize: 20,
-                                                    maxPageCount: 3).wait()
+        let res = try await Gitlab.Builder.getStatusCount(client: client,
+                                                          status: .pending,
+                                                          pageSize: 20,
+                                                          maxPageCount: 3)
         XCTAssertEqual(res, 30)
     }
 
@@ -196,7 +196,7 @@ class LiveGitlabBuilderTests: AppTestCase {
             platform: .macosSpm,
             reference: .tag(.init(0, 3, 2)),
             swiftVersion: .v4,
-            versionID: versionID).get()
+            versionID: versionID)
 
         print("status: \(res.status)")
         print("buildId: \(buildId)")

@@ -51,8 +51,7 @@ struct AppEnvironment: Sendable {
     var fetchReadme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.Readme?
     var fetchS3Readme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> String
     var fileManager: FileManager
-    var getStatusCount: @Sendable (_ client: Client,
-                                   _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
+    var getStatusCount: @Sendable (_ client: Client, _ status: Gitlab.Builder.Status) async throws -> Int
     var git: Git
     var githubToken: @Sendable () -> String?
     var gitlabApiToken: @Sendable () -> String?
@@ -87,7 +86,7 @@ struct AppEnvironment: Sendable {
                                  _ platform: Build.Platform,
                                  _ reference: Reference,
                                  _ swiftVersion: SwiftVersion,
-                                 _ versionID: Version.Id) -> EventLoopFuture<Build.TriggerResponse>
+                                 _ versionID: Version.Id) async throws -> Build.TriggerResponse
 }
 
 
@@ -176,12 +175,11 @@ extension AppEnvironment {
         fetchS3Readme: { client, owner, repo in try await S3Store.fetchReadme(client:client, owner: owner, repository: repo) },
         fileManager: .live,
         getStatusCount: { client, status in
-            Gitlab.Builder.getStatusCount(
-                client: client,
-                status: status,
-                page: 1,
-                pageSize: 100,
-                maxPageCount: 5)
+            try await Gitlab.Builder.getStatusCount(client: client,
+                                                    status: status,
+                                                    page: 1,
+                                                    pageSize: 100,
+                                                    maxPageCount: 5)
         },
         git: .live,
         githubToken: { Environment.get("GITHUB_TOKEN") },
@@ -224,14 +222,14 @@ extension AppEnvironment {
         storeS3ReadmeImages: { client, images in try await S3Store.storeReadmeImages(client: client, imagesToCache: images) },
         timeZone: { .current },
         triggerBuild: { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            Gitlab.Builder.triggerBuild(client: client,
-                                        buildId: buildId,
-                                        cloneURL: cloneURL,
-                                        isDocBuild: isDocBuild,
-                                        platform: platform,
-                                        reference: ref,
-                                        swiftVersion: swiftVersion,
-                                        versionID: versionID)
+            try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: buildId,
+                                                  cloneURL: cloneURL,
+                                                  isDocBuild: isDocBuild,
+                                                  platform: platform,
+                                                  reference: ref,
+                                                  swiftVersion: swiftVersion,
+                                                  versionID: versionID)
         }
     )
 }
