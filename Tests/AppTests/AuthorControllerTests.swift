@@ -19,70 +19,72 @@ import XCTest
 
 class AuthorControllerTests: AppTestCase {
 
-    func test_query() throws {
+    func test_query() async throws {
         // setup
         let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, owner: "owner").save(on: app.db).wait()
-        try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+        try await Repository(package: p, owner: "owner").save(on: app.db)
+        try await Version(package: p, latest: .defaultBranch).save(on: app.db)
 
         // MUT
-        let pkg = try AuthorController.query(on: app.db, owner: "owner").wait()
+        let pkg = try await AuthorController.query(on: app.db, owner: "owner")
 
         // validate
         XCTAssertEqual(pkg.map(\.model.id), [p.id])
     }
 
-    func test_query_no_version() throws {
+    func test_query_no_version() async throws {
         // setup
         let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, owner: "owner").save(on: app.db).wait()
+        try await Repository(package: p, owner: "owner").save(on: app.db)
 
         // MUT
-        XCTAssertThrowsError(
-            try AuthorController.query(on: app.db, owner: "owner").wait()
-        ) {
+        do {
+            _ = try await AuthorController.query(on: app.db, owner: "owner")
+            XCTFail("Expected Abort.notFound")
+        } catch let error as Abort {
             // validate
-            let error = $0 as? Abort
-            XCTAssertEqual(error?.status, .notFound)
+            XCTAssertEqual(error.status, .notFound)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
         }
     }
 
-    func test_query_sort_alphabetically() throws {
+    func test_query_sort_alphabetically() async throws {
         // setup
-        try (["gamma", "alpha", "beta"]).forEach { packageName in
+        for packageName in ["gamma", "alpha", "beta"] {
             let p = Package(url: "\(packageName)".url)
-            try p.save(on: app.db).wait()
-            try Repository(package: p, owner: "owner").save(on: app.db).wait()
-            try Version(package: p, latest: .defaultBranch, packageName: packageName).save(on: app.db).wait()
+            try await p.save(on: app.db)
+            try await Repository(package: p, owner: "owner").save(on: app.db)
+            try await Version(package: p, latest: .defaultBranch, packageName: packageName).save(on: app.db)
         }
 
         // MUT
-        let pkg = try AuthorController.query(on: app.db, owner: "owner").wait()
+        let pkg = try await AuthorController.query(on: app.db, owner: "owner")
 
         // validate
         XCTAssertEqual(pkg.map(\.model.url), ["alpha", "beta", "gamma"])
     }
 
-    func test_show_owner() throws {
+    func test_show_owner() async throws {
         // setup
         let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, owner: "owner").save(on: app.db).wait()
-        try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+        try await Repository(package: p, owner: "owner").save(on: app.db)
+        try await Version(package: p, latest: .defaultBranch).save(on: app.db)
 
         // MUT
-        try app.test(.GET, "/owner", afterResponse: { response in
+        try await app.test(.GET, "/owner", afterResponse: { response async in
             XCTAssertEqual(response.status, .ok)
         })
     }
 
-    func test_show_owner_empty() throws {
+    func test_show_owner_empty() async throws {
         // setup
         let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, owner: "owner").save(on: app.db).wait()
-        try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+        try await Repository(package: p, owner: "owner").save(on: app.db)
+        try await Version(package: p, latest: .defaultBranch).save(on: app.db)
 
         // MUT
-        try app.test(.GET, "/fake-owner", afterResponse: { response in
+        try await app.test(.GET, "/fake-owner", afterResponse: { response async in
             XCTAssertEqual(response.status, .notFound)
         })
     }

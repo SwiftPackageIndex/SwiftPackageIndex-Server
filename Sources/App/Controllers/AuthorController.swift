@@ -19,37 +19,33 @@ import Vapor
 
 enum AuthorController {
 
-    static func query(on database: Database, owner: String) -> EventLoopFuture<[Joined3<Package, Repository, Version>]> {
-        Joined3<Package, Repository, Version>
+    static func query(on database: Database, owner: String) async throws -> [Joined3<Package, Repository, Version>] {
+        let packages = try await Joined3<Package, Repository, Version>
             .query(on: database, version: .defaultBranch)
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .sort(Version.self, \.$packageName)
             .all()
-            .flatMapThrowing {
-                if $0.isEmpty {
-                    throw Abort(.notFound)
-                }
-                return $0
-            }
+
+        if packages.isEmpty { throw Abort(.notFound) }
+
+        return packages
     }
 
     @Sendable
-    static func show(req: Request) throws -> EventLoopFuture<HTML> {
+    static func show(req: Request) async throws -> HTML {
         guard let owner = req.parameters.get("owner") else {
-            return req.eventLoop.future(error: Abort(.notFound))
+            throw Abort(.notFound)
         }
 
-        return Self.query(on: req.db, owner: owner)
-            .map {
-                AuthorShow.Model(
-                    owner: $0.first?.repository.owner ?? owner,
-                    ownerName: $0.first?.repository.ownerDisplayName ?? owner,
-                    packages: $0.compactMap(PackageInfo.init(package:))
-                )
-            }
-            .map {
-                AuthorShow.View(path: req.url.path, model: $0).document()
-            }
+        let packages = try await Self.query(on: req.db, owner: owner)
+
+        let model = AuthorShow.Model(
+            owner: packages.first?.repository.owner ?? owner,
+            ownerName: packages.first?.repository.ownerDisplayName ?? owner,
+            packages: packages.compactMap(PackageInfo.init(package:))
+        )
+
+        return AuthorShow.View(path: req.url.path, model: model).document()
     }
 
 }

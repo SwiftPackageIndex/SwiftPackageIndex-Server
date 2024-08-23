@@ -24,10 +24,6 @@ extension Renderable {
         encodeResponse(status: .ok)
     }
 
-    public func encodeResponse(for request: Request) -> EventLoopFuture<Response> {
-        request.eventLoop.future(encodeResponse(status: .ok))
-    }
-
     public func encodeResponse(status: HTTPResponseStatus) -> Response {
         let res = Response(status: status, body: .init(string: self.render()))
         res.headers.add(name: "Content-Type", value: "text/html; charset=utf-8")
@@ -35,8 +31,6 @@ extension Renderable {
     }
 }
 
-extension Plot.HTML: Renderable, Vapor.ResponseEncodable, Vapor.AsyncResponseEncodable  {
-}
+extension Plot.HTML: Renderable, Vapor.AsyncResponseEncodable  { }
 
-extension Plot.Node: Renderable, Vapor.ResponseEncodable, Vapor.AsyncResponseEncodable {
-}
+extension Plot.Node: Renderable, Vapor.AsyncResponseEncodable { }
