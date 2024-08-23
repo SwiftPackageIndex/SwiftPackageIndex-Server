@@ -44,39 +44,30 @@ extension PackageCollection {
                          collectionName: String? = nil,
                          keywords: [String]? = nil,
                          overview: String? = nil,
-                         revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
-        VersionResult.query(on: db, filterBy: filter)
-            .map { results in
-                // Multiple versions can reference the same package, therefore
-                // we need to group them so we don't create duplicate packages.
-                results.groupedByPackage(sortBy: .url)
-            }
-            .map { groups -> ([Package], String, String) in
-                let packages = groups.compactMap {
-                    Package.init(resultGroup: $0,
-                                 keywords: keywords)
-                }
-                let authorLabel = authorLabel(repositories: groups.map(\.repository))
-                let collectionName = collectionName ?? Self.collectionName(for: filter, authorLabel: authorLabel)
-                let overview = overview ?? Self.overview(for: filter, authorLabel: authorLabel)
-                return (packages, collectionName, overview)
-            }
-            .flatMap { packages, collectionName, overview in
-                guard !packages.isEmpty else {
-                    return db.eventLoop.makeFailedFuture(Error.noResults)
-                }
-                return db.eventLoop.makeSucceededFuture(
-                    PackageCollection.init(
-                        name: collectionName,
-                        overview: overview,
-                        keywords: keywords,
-                        packages: packages,
-                        formatVersion: .v1_0,
-                        revision: revision,
-                        generatedAt: Current.date(),
-                        generatedBy: authorName.map(Author.init(name:)))
-                )
-            }
+                         revision: Int? = nil) async throws -> PackageCollection {
+        let results = try await VersionResult.query(on: db, filterBy: filter)
+
+        // Multiple versions can reference the same package, therefore
+        // we need to group them so we don't create duplicate packages.
+        let groups = results.groupedByPackage(sortBy: .url)
+
+        let packages = groups.compactMap { Package.init(resultGroup: $0, keywords: keywords) }
+        let authorLabel = authorLabel(repositories: groups.map(\.repository))
+        let collectionName = collectionName ?? Self.collectionName(for: filter, authorLabel: authorLabel)
+        let overview = overview ?? Self.overview(for: filter, authorLabel: authorLabel)
+
+        guard !packages.isEmpty else { throw Error.noResults }
+
+        return PackageCollection.init(
+            name: collectionName,
+            overview: overview,
+            keywords: keywords,
+            packages: packages,
+            formatVersion: .v1_0,
+            revision: revision,
+            generatedAt: Current.date(),
+            generatedBy: authorName.map(Author.init(name:))
+        )
     }
 
     static func authorLabel(repositories: [Repository]) -> String? {

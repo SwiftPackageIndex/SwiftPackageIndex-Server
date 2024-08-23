@@ -30,36 +30,30 @@ extension SignedCollection {
                          collectionName: String? = nil,
                          keywords: [String]? = nil,
                          overview: String? = nil,
-                         revision: Int? = nil) -> EventLoopFuture<SignedCollection> {
-        PackageCollection.generate(db: db,
-                                   filterBy: filter,
-                                   authorName: authorName,
-                                   collectionName: collectionName,
-                                   keywords: keywords,
-                                   overview: overview,
-                                   revision: revision)
-            .flatMap {
-                sign(eventLoop: db.eventLoop, collection: $0)
-            }
+                         revision: Int? = nil) async throws -> SignedCollection {
+        let collection  = try await PackageCollection.generate(db: db,
+                                                               filterBy: filter,
+                                                               authorName: authorName,
+                                                               collectionName: collectionName,
+                                                               keywords: keywords,
+                                                               overview: overview,
+                                                               revision: revision)
+        return try await sign(collection: collection)
     }
 
-    static func sign(eventLoop: EventLoop, collection: PackageCollection) -> EventLoopFuture<SignedCollection> {
+    static func sign(collection: PackageCollection) async throws -> SignedCollection {
         guard let privateKey = Current.collectionSigningPrivateKey() else {
-            return eventLoop.makeFailedFuture(AppError.envVariableNotSet("COLLECTION_SIGNING_PRIVATE_KEY"))
+            throw AppError.envVariableNotSet("COLLECTION_SIGNING_PRIVATE_KEY")
         }
 
-        return eventLoop.makeFutureWithTask {
-            try await signer.sign(collection: collection,
-                                  certChainPaths: Current.collectionSigningCertificateChain(),
-                                  privateKeyPEM: privateKey)
-        }
+        return try await signer.sign(collection: collection,
+                                     certChainPaths: Current.collectionSigningCertificateChain(),
+                                     privateKeyPEM: privateKey)
     }
 
-    static func validate(eventLoop: EventLoop, signedCollection: SignedCollection) -> EventLoopFuture<Bool> {
-        eventLoop.makeFutureWithTask {
-            try await signer.validate(signedCollection: signedCollection)
-            return true
-        }
+    static func validate(signedCollection: SignedCollection) async throws -> Bool {
+        try await signer.validate(signedCollection: signedCollection)
+        return true
     }
 
     static let certsDir = URL(fileURLWithPath: Current.fileManager.workingDirectory())

@@ -40,7 +40,7 @@ extension PackageCollection.VersionResult {
     var targets: [App.Target] { version.targets }
     var version: App.Version { model.version }
 
-    static func query(on database: Database, filterBy filter: PackageCollection.Filter) -> EventLoopFuture<[Self]> {
+    static func query(on database: Database, filterBy filter: PackageCollection.Filter) async throws -> [Self] {
         let query = M
             .query(
                 on: database,
@@ -59,8 +59,8 @@ extension PackageCollection.VersionResult {
                 query.filter(App.Package.self, \.$url ~~ packageURLs)
         }
 
-        return query.all()
-            .mapEach(Self.init(model:))
+        return try await query.all()
+            .map(Self.init(model:))
     }
 }
 
