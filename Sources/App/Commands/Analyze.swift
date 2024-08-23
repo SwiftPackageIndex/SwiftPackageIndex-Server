@@ -158,9 +158,9 @@ extension Analyze {
 
         try await RecentPackage.refresh(on: database)
         try await RecentRelease.refresh(on: database)
-        try await Search.refresh(on: database).get()
-        try await Stats.refresh(on: database).get()
-        try await WeightedKeyword.refresh(on: database).get()
+        try await Search.refresh(on: database)
+        try await Stats.refresh(on: database)
+        try await WeightedKeyword.refresh(on: database)
     }
 
 

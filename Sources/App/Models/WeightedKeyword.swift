@@ -48,11 +48,11 @@ extension WeightedKeyword {
             .all(decoding: Self.self)
     }
 
-    static func refresh(on database: Database) -> EventLoopFuture<Void> {
+    static func refresh(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("REFRESH MATERIALIZED VIEW \(ident: Self.schema)").run()
+        try await db.raw("REFRESH MATERIALIZED VIEW \(ident: Self.schema)").run()
     }
 }
 

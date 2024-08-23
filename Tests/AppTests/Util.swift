@@ -79,9 +79,9 @@ func _resetDb(_ app: Application) async throws {
 
     try await RecentPackage.refresh(on: app.db)
     try await RecentRelease.refresh(on: app.db)
-    try await Search.refresh(on: app.db).get()
-    try await Stats.refresh(on: app.db).get()
-    try await WeightedKeyword.refresh(on: app.db).get()
+    try await Search.refresh(on: app.db)
+    try await Stats.refresh(on: app.db)
+    try await WeightedKeyword.refresh(on: app.db)
 }
 
 

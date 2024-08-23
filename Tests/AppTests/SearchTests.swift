@@ -202,7 +202,7 @@ class SearchTests: AppTestCase {
                              summary: "bar package").save(on: app.db)
         try await Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db)
         try await Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["bar"], page: 1, pageSize: 20).get()
@@ -248,7 +248,7 @@ class SearchTests: AppTestCase {
                        summary: "package 2 description").save(on: app.db)
         try await Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db)
         try await Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["owner", "bar"], page: 1, pageSize: 20).get()
@@ -288,7 +288,7 @@ class SearchTests: AppTestCase {
         try await v.save(on: app.db)
         try await Product(version: v, type: .library(.automatic), name: "lib").save(on: app.db)
         try await Product(version: v, type: .plugin, name: "plugin").save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["bar"], page: 1, pageSize: 20).get()
@@ -318,7 +318,7 @@ class SearchTests: AppTestCase {
                              summary: "bar package").save(on: app.db)
         try await Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db)
         try await Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["'"], page: 1, pageSize: 20).get()
@@ -356,7 +356,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         do {  // first page
             // MUT
@@ -407,7 +407,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         do {  // first page
             // MUT
@@ -446,7 +446,7 @@ class SearchTests: AppTestCase {
         try await packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
             .save(on: app.db)
 
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
         
         do {  // page out of bounds (too large)
               // MUT
@@ -481,7 +481,7 @@ class SearchTests: AppTestCase {
                                  summary: "\(idx)").save(on: app.db)
             try await Version(package: p, packageName: "\(idx)", reference: .branch("main")).save(on: app.db)
         }
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).get()
@@ -524,7 +524,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p3, packageName: "some name", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["ink"], page: 1, pageSize: 20).get()
@@ -564,7 +564,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p3, packageName: "some name", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["foo", "bar"], page: 1, pageSize: 20).get()
@@ -605,7 +605,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p3, packageName: nil, reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["bar"], page: 1, pageSize: 20).get()
@@ -635,7 +635,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p2, packageName: "foo2", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).get()
@@ -659,7 +659,7 @@ class SearchTests: AppTestCase {
         try await Version(package: p1, packageName: nil, reference: .branch("main"))
             .save(on: app.db)
 
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).get()
@@ -703,7 +703,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p3, packageName: "Foo3", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["ping"], page: 1, pageSize: 20).get()
@@ -735,7 +735,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p2, packageName: "SwiftSyntax", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["syntax"], page: 1, pageSize: 20).get()
@@ -801,7 +801,7 @@ class SearchTests: AppTestCase {
             Version(package: pkgs[0], packageName: "p0", reference: .branch("main")),
             Version(package: pkgs[1], packageName: "p1", reference: .branch("main"))
         ].save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["topic"], page: 1, pageSize: 20).get()
@@ -832,7 +832,7 @@ class SearchTests: AppTestCase {
         try await (0..<4).map {
             try Version(package: pkgs[$0], packageName: "p\($0)", reference: .branch("main"))
         }.save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["topic"], page: 1, pageSize: 20).get()
@@ -869,7 +869,7 @@ class SearchTests: AppTestCase {
         try await (0..<4).map {
             try Version(package: pkgs[$0], packageName: "p\($0)", reference: .branch("main"))
         }.save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["author"], page: 1, pageSize: 20).get()
@@ -904,7 +904,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p2, packageName: "p2", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).get()
@@ -940,7 +940,7 @@ class SearchTests: AppTestCase {
         let v2 = try Version(package: p2, latest: .defaultBranch, packageName: "p2", reference: .branch("main"))
         try await v2.save(on: app.db)
         try await Product(version: v2, type: .library(.automatic), name: "ModuleName").save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["modulename"], page: 1, pageSize: 20).get()
@@ -983,7 +983,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p2, packageName: "p2", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["stars:>15"], page: 1, pageSize: 20).get()
@@ -1012,7 +1012,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p2, packageName: "p2", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         do { // Baseline
             let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20).get()
@@ -1082,7 +1082,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p2, packageName: "p2", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         do {
             // MUT
@@ -1125,7 +1125,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p2, packageName: "p2", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         do {
             // MUT
@@ -1168,7 +1168,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p2, packageName: "p2", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         do {
             // MUT
@@ -1211,7 +1211,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p2, packageName: "p2", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         do {
             // MUT
@@ -1254,7 +1254,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p2, packageName: "p2", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         do {
             // MUT
@@ -1303,7 +1303,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p2, packageName: "p2", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         do {
             // MUT
@@ -1345,7 +1345,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p2, packageName: "p2", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         do {
             // MUT
@@ -1394,7 +1394,7 @@ class SearchTests: AppTestCase {
             try await v.save(on: app.db)
             try await Product(version: v, type: .plugin, name: "plugin").save(on: app.db)
         }
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         do {
             // MUT
@@ -1446,7 +1446,7 @@ class SearchTests: AppTestCase {
             try await v.save(on: app.db)
             try await Target(version: v, name: "t2", type: .macro).save(on: app.db)
         }
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         do {
             // MUT
@@ -1493,7 +1493,7 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
         try await Version(package: p2, packageName: "p2", reference: .branch("main"))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
         
         // MUT
         let res = try await Search.fetch(app.db, ["test", "license:>mit"], page: 1, pageSize: 20).get()
@@ -1518,7 +1518,7 @@ class SearchTests: AppTestCase {
                           reference: .branch("main"),
                           spiManifest: .init(externalLinks: .init(documentation: "doc link")))
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         // MUT
         let res = try await Search.fetch(app.db, ["1"], page: 1, pageSize: 20).get()
