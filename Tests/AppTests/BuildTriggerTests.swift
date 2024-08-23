@@ -335,14 +335,14 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            Gitlab.Builder.triggerBuild(client: client,
-                                        buildId: buildId,
-                                        cloneURL: cloneURL,
-                                        isDocBuild: isDocBuild,
-                                        platform: platform,
-                                        reference: ref,
-                                        swiftVersion: swiftVersion,
-                                        versionID: versionID)
+            try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: buildId,
+                                                  cloneURL: cloneURL,
+                                                  isDocBuild: isDocBuild,
+                                                  platform: platform,
+                                                  reference: ref,
+                                                  swiftVersion: swiftVersion,
+                                                  versionID: versionID)
         }
         let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
         let client = MockClient { req, res in
@@ -393,14 +393,14 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            Gitlab.Builder.triggerBuild(client: client,
-                                        buildId: buildId,
-                                        cloneURL: cloneURL,
-                                        isDocBuild: isDocBuild,
-                                        platform: platform,
-                                        reference: ref,
-                                        swiftVersion: swiftVersion,
-                                        versionID: versionID)
+            try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: buildId,
+                                                  cloneURL: cloneURL,
+                                                  isDocBuild: isDocBuild,
+                                                  platform: platform,
+                                                  reference: ref,
+                                                  swiftVersion: swiftVersion,
+                                                  versionID: versionID)
         }
         let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
         let client = MockClient { req, res in
@@ -478,14 +478,14 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            Gitlab.Builder.triggerBuild(client: client,
-                                        buildId: buildId,
-                                        cloneURL: cloneURL,
-                                        isDocBuild: isDocBuild,
-                                        platform: platform,
-                                        reference: ref,
-                                        swiftVersion: swiftVersion,
-                                        versionID: versionID)
+            try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: buildId,
+                                                  cloneURL: cloneURL,
+                                                  isDocBuild: isDocBuild,
+                                                  platform: platform,
+                                                  reference: ref,
+                                                  swiftVersion: swiftVersion,
+                                                  versionID: versionID)
         }
         let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
         let client = MockClient { req, res in
@@ -544,14 +544,14 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            Gitlab.Builder.triggerBuild(client: client,
-                                        buildId: buildId,
-                                        cloneURL: cloneURL,
-                                        isDocBuild: isDocBuild,
-                                        platform: platform,
-                                        reference: ref,
-                                        swiftVersion: swiftVersion,
-                                        versionID: versionID)
+            try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: buildId,
+                                                  cloneURL: cloneURL,
+                                                  isDocBuild: isDocBuild,
+                                                  platform: platform,
+                                                  reference: ref,
+                                                  swiftVersion: swiftVersion,
+                                                  versionID: versionID)
         }
         var triggerCount = 0
         let client = MockClient { _, res in
@@ -562,7 +562,7 @@ class BuildTriggerTests: AppTestCase {
         }
 
         do {  // fist run: we are at capacity and should not be triggering more builds
-            Current.getStatusCount = { c, _ in c.eventLoop.makeSucceededFuture(300) }
+            Current.getStatusCount = { _, _ in 300 }
 
             let pkgId = UUID()
             let versionId = UUID()
@@ -587,7 +587,7 @@ class BuildTriggerTests: AppTestCase {
         triggerCount = 0
 
         do {  // second run: we are just below capacity and allow more builds to be triggered
-            Current.getStatusCount = { c, _ in c.eventLoop.makeSucceededFuture(299) }
+            Current.getStatusCount = { c, _ in 299 }
 
             let pkgId = UUID()
             let versionId = UUID()
@@ -610,7 +610,7 @@ class BuildTriggerTests: AppTestCase {
         }
 
         do {  // third run: we are at capacity and using the `force` flag
-            Current.getStatusCount = { c, _ in c.eventLoop.makeSucceededFuture(300) }
+            Current.getStatusCount = { c, _ in 300 }
 
             var triggerCount = 0
             let client = MockClient { _, res in
@@ -652,14 +652,14 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            Gitlab.Builder.triggerBuild(client: client,
-                                        buildId: buildId,
-                                        cloneURL: cloneURL,
-                                        isDocBuild: isDocBuild,
-                                        platform: platform,
-                                        reference: ref,
-                                        swiftVersion: swiftVersion,
-                                        versionID: versionID)
+            try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: buildId,
+                                                  cloneURL: cloneURL,
+                                                  isDocBuild: isDocBuild,
+                                                  platform: platform,
+                                                  reference: ref,
+                                                  swiftVersion: swiftVersion,
+                                                  versionID: versionID)
         }
         let triggerCount = NIOLockedValueBox<Int>(0)
         let client = MockClient { _, res in
@@ -668,7 +668,7 @@ class BuildTriggerTests: AppTestCase {
                 Gitlab.Builder.Response.init(webUrl: "http://web_url")
             )
         }
-        Current.getStatusCount = { c, _ in c.eventLoop.makeSucceededFuture(299 + triggerCount.withLockedValue { $0 }) }
+        Current.getStatusCount = { c, _ in 299 + triggerCount.withLockedValue { $0 } }
 
         let pkgIds = [UUID(), UUID()]
         try pkgIds.forEach { id in
@@ -727,14 +727,14 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            Gitlab.Builder.triggerBuild(client: client,
-                                        buildId: buildId,
-                                        cloneURL: cloneURL,
-                                        isDocBuild: isDocBuild,
-                                        platform: platform,
-                                        reference: ref,
-                                        swiftVersion: swiftVersion,
-                                        versionID: versionID)
+            try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: buildId,
+                                                  cloneURL: cloneURL,
+                                                  isDocBuild: isDocBuild,
+                                                  platform: platform,
+                                                  reference: ref,
+                                                  swiftVersion: swiftVersion,
+                                                  versionID: versionID)
         }
         var triggerCount = 0
         let client = MockClient { _, res in
@@ -818,14 +818,14 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            Gitlab.Builder.triggerBuild(client: client,
-                                        buildId: buildId,
-                                        cloneURL: cloneURL,
-                                        isDocBuild: isDocBuild,
-                                        platform: platform,
-                                        reference: ref,
-                                        swiftVersion: swiftVersion,
-                                        versionID: versionID)
+            try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: buildId,
+                                                  cloneURL: cloneURL,
+                                                  isDocBuild: isDocBuild,
+                                                  platform: platform,
+                                                  reference: ref,
+                                                  swiftVersion: swiftVersion,
+                                                  versionID: versionID)
         }
         var triggerCount = 0
         let client = MockClient { _, res in
@@ -887,14 +887,14 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            Gitlab.Builder.triggerBuild(client: client,
-                                        buildId: buildId,
-                                        cloneURL: cloneURL,
-                                        isDocBuild: isDocBuild,
-                                        platform: platform,
-                                        reference: ref,
-                                        swiftVersion: swiftVersion,
-                                        versionID: versionID)
+            try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: buildId,
+                                                  cloneURL: cloneURL,
+                                                  isDocBuild: isDocBuild,
+                                                  platform: platform,
+                                                  reference: ref,
+                                                  swiftVersion: swiftVersion,
+                                                  versionID: versionID)
         }
         var triggerCount = 0
         let client = MockClient { _, res in
@@ -958,14 +958,14 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            Gitlab.Builder.triggerBuild(client: client,
-                                        buildId: buildId,
-                                        cloneURL: cloneURL,
-                                        isDocBuild: isDocBuild,
-                                        platform: platform,
-                                        reference: ref,
-                                        swiftVersion: swiftVersion,
-                                        versionID: versionID)
+            try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: buildId,
+                                                  cloneURL: cloneURL,
+                                                  isDocBuild: isDocBuild,
+                                                  platform: platform,
+                                                  reference: ref,
+                                                  swiftVersion: swiftVersion,
+                                                  versionID: versionID)
         }
         var triggerCount = 0
         let client = MockClient { _, res in

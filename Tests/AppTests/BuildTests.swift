@@ -22,11 +22,11 @@ import XCTVapor
 
 class BuildTests: AppTestCase {
 
-    func test_save() throws {
+    func test_save() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
         let v = try Version(package: pkg)
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
         let b = try Build(version: v,
                           buildCommand: #"xcrun xcodebuild -scheme "Foo""#,
                           jobUrl: "https://example.com/jobs/1",
@@ -36,10 +36,10 @@ class BuildTests: AppTestCase {
                           swiftVersion: .init(5, 2, 0))
 
         // MUT
-        try b.save(on: app.db).wait()
+        try await b.save(on: app.db)
 
         do {  // validate
-            let b = try XCTUnwrap(Build.find(b.id, on: app.db).wait())
+            let b = try await XCTUnwrapAsync(try await Build.find(b.id, on: app.db))
             XCTAssertEqual(b.buildCommand, #"xcrun xcodebuild -scheme "Foo""#)
             XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
             XCTAssertEqual(b.logUrl, "https://example.com/logs/1")
@@ -50,93 +50,105 @@ class BuildTests: AppTestCase {
         }
     }
 
-    func test_delete_cascade() throws {
+    func test_delete_cascade() async throws {
         // Ensure deleting a version also deletes the builds
         // setup
         let pkg = try savePackage(on: app.db, "1")
         let v = try Version(package: pkg)
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
         let b = try Build(version: v,
                           platform: .iOS,
                           status: .ok,
                           swiftVersion: .init(5, 2, 0))
-        try b.save(on: app.db).wait()
-        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+        try await b.save(on: app.db)
+        do {
+            let count = try await Build.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
+        }
 
         // MUT
-        try v.delete(on: app.db).wait()
+        try await v.delete(on: app.db)
 
         // validate
-        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+        do {
+            let count = try await Build.query(on: app.db).count()
+            XCTAssertEqual(count, 0)
+        }
     }
 
-    func test_unique_constraint() throws {
+    func test_unique_constraint() async throws {
         // Ensure builds are unique over (id, platform, swiftVersion)
         // setup
         let pkg = try savePackage(on: app.db, "1")
         let v1 = try Version(package: pkg)
-        try v1.save(on: app.db).wait()
+        try await v1.save(on: app.db)
         let v2 = try Version(package: pkg)
-        try v2.save(on: app.db).wait()
+        try await v2.save(on: app.db)
 
         // MUT
         // initial save - ok
-        try Build(version: v1,
-                  platform: .linux,
-                  status: .ok,
-                  swiftVersion: .init(5, 2, 0)).save(on: app.db).wait()
+        try await Build(version: v1,
+                        platform: .linux,
+                        status: .ok,
+                        swiftVersion: .init(5, 2, 0)).save(on: app.db)
         // different version - ok
-        try Build(version: v2,
-                  platform: .linux,
-                  status: .ok,
-                  swiftVersion: .init(5, 2, 0)).save(on: app.db).wait()
+        try await Build(version: v2,
+                        platform: .linux,
+                        status: .ok,
+                        swiftVersion: .init(5, 2, 0)).save(on: app.db)
         // different platform - ok
-        try Build(version: v1,
-                  platform: .macosXcodebuild,
-                  status: .ok,
-                  swiftVersion: .init(5, 2, 0)).save(on: app.db).wait()
+        try await Build(version: v1,
+                        platform: .macosXcodebuild,
+                        status: .ok,
+                        swiftVersion: .init(5, 2, 0)).save(on: app.db)
         // different swiftVersion - ok
-        try Build(version: v1,
-                  platform: .linux,
-                  status: .ok,
-                  swiftVersion: .init(4, 0, 0)).save(on: app.db).wait()
+        try await Build(version: v1,
+                        platform: .linux,
+                        status: .ok,
+                        swiftVersion: .init(4, 0, 0)).save(on: app.db)
 
         // (v1, linx, 5.2.0) - not ok
-        XCTAssertThrowsError(
-            try Build(version: v1,
-                      platform: .linux,
-                      status: .ok,
-                      swiftVersion: .init(5, 2, 0)).save(on: app.db).wait()
-        ) {
-            XCTAssertEqual(($0 as? PSQLError)?.isUniqueViolation, .some(true))
+        do {
+            try await Build(version: v1,
+                            platform: .linux,
+                            status: .ok,
+                            swiftVersion: .init(5, 2, 0)).save(on: app.db)
+            XCTFail("Expected unique constraint violation")
+        } catch let error as PSQLError {
+            XCTAssertEqual(error.isUniqueViolation, true)
+        } catch {
+            XCTFail("unexpected error: \(error)")
         }
 
         // validate
-        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 4)
+        do {
+            let count = try await Build.query(on: app.db).count()
+            XCTAssertEqual(count, 4)
+        }
     }
 
-    func test_trigger() throws {
+    func test_trigger() async throws {
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
         Current.siteURL = { "http://example.com" }
         // setup
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .branch("main"))
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
         let buildId = UUID()
         let versionID = try XCTUnwrap(v.id)
 
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            Gitlab.Builder.triggerBuild(client: client,
-                                        buildId: buildId,
-                                        cloneURL: cloneURL,
-                                        isDocBuild: isDocBuild,
-                                        platform: platform,
-                                        reference: ref,
-                                        swiftVersion: swiftVersion,
-                                        versionID: versionID)
+            try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: buildId,
+                                                  cloneURL: cloneURL,
+                                                  isDocBuild: isDocBuild,
+                                                  platform: platform,
+                                                  reference: ref,
+                                                  swiftVersion: swiftVersion,
+                                                  versionID: versionID)
         }
         var called = false
         let client = MockClient { req, res in
@@ -165,20 +177,20 @@ class BuildTests: AppTestCase {
         }
 
         // MUT
-        let res = try Build.trigger(database: app.db,
-                                    client: client,
-                                    buildId: buildId,
-                                    isDocBuild: false,
-                                    platform: .macosXcodebuild,
-                                    swiftVersion: .init(5, 2, 4),
-                                    versionId: versionID).wait()
+        let res = try await Build.trigger(database: app.db,
+                                          client: client,
+                                          buildId: buildId,
+                                          isDocBuild: false,
+                                          platform: .macosXcodebuild,
+                                          swiftVersion: .init(5, 2, 4),
+                                          versionId: versionID)
 
         // validate
         XCTAssertTrue(called)
         XCTAssertEqual(res.status, .created)
     }
 
-    func test_trigger_isDocBuild() throws {
+    func test_trigger_isDocBuild() async throws {
         // Same test as test_trigger above, except we trigger with isDocBuild: true
         // and expect a 15m TIMEOUT instead of 10m
         Current.builderToken = { "builder token" }
@@ -187,21 +199,21 @@ class BuildTests: AppTestCase {
         // setup
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .branch("main"))
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
         let buildId = UUID()
         let versionID = try XCTUnwrap(v.id)
 
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            Gitlab.Builder.triggerBuild(client: client,
-                                        buildId: buildId,
-                                        cloneURL: cloneURL,
-                                        isDocBuild: isDocBuild,
-                                        platform: platform,
-                                        reference: ref,
-                                        swiftVersion: swiftVersion,
-                                        versionID: versionID)
+            try await Gitlab.Builder.triggerBuild(client: client,
+                                                  buildId: buildId,
+                                                  cloneURL: cloneURL,
+                                                  isDocBuild: isDocBuild,
+                                                  platform: platform,
+                                                  reference: ref,
+                                                  swiftVersion: swiftVersion,
+                                                  versionID: versionID)
         }
         var called = false
         let client = MockClient { req, res in
@@ -217,13 +229,13 @@ class BuildTests: AppTestCase {
         }
 
         // MUT
-        let res = try Build.trigger(database: app.db,
-                                    client: client,
-                                    buildId: buildId,
-                                    isDocBuild: true,
-                                    platform: .macosXcodebuild,
-                                    swiftVersion: .init(5, 2, 4),
-                                    versionId: versionID).wait()
+        let res = try await Build.trigger(database: app.db,
+                                          client: client,
+                                          buildId: buildId,
+                                          isDocBuild: true,
+                                          platform: .macosXcodebuild,
+                                          swiftVersion: .init(5, 2, 4),
+                                          versionId: versionID)
 
         // validate
         XCTAssertTrue(called)
@@ -293,120 +305,119 @@ class BuildTests: AppTestCase {
 
     }
 
-    func test_delete_by_versionId() throws {
+    func test_delete_by_versionId() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
         let vid1 = UUID()
         let v1 = try Version(id: vid1, package: pkg)
-        try v1.save(on: app.db).wait()
+        try await v1.save(on: app.db)
         let vid2 = UUID()
         let v2 = try Version(id: vid2, package: pkg)
-        try v2.save(on: app.db).wait()
-        try Build(version: v1, platform: .iOS, status: .ok, swiftVersion: .v2)
-            .save(on: app.db).wait()
-        try Build(version: v2, platform: .iOS, status: .ok, swiftVersion: .v2)
-            .save(on: app.db).wait()
+        try await v2.save(on: app.db)
+        try await Build(version: v1, platform: .iOS, status: .ok, swiftVersion: .v2)
+            .save(on: app.db)
+        try await Build(version: v2, platform: .iOS, status: .ok, swiftVersion: .v2)
+            .save(on: app.db)
 
         // MUT
-        let count = try Build.delete(on: app.db, versionId: vid2).wait()
+        let count = try await Build.delete(on: app.db, versionId: vid2).get()
 
         // validate
         XCTAssertEqual(count, 1)
-        let builds = try Build.query(on: app.db).all().wait()
+        let builds = try await Build.query(on: app.db).all()
         XCTAssertEqual(builds.map(\.$version.id), [vid1])
     }
 
-    func test_delete_by_packageId() throws {
+    func test_delete_by_packageId() async throws {
         // setup
         let pkgId1 = UUID()
         let pkg1 = Package(id: pkgId1, url: "1")
-        try pkg1.save(on: app.db).wait()
+        try await pkg1.save(on: app.db)
         let pkgId2 = UUID()
         let pkg2 = Package(id: pkgId2, url: "2")
-        try pkg2.save(on: app.db).wait()
+        try await pkg2.save(on: app.db)
 
         let v1 = try Version(package: pkg1)
-        try v1.save(on: app.db).wait()
+        try await v1.save(on: app.db)
         let v2 = try Version(package: pkg2)
-        try v2.save(on: app.db).wait()
+        try await v2.save(on: app.db)
 
         // save different platforms as an easy way to check the correct one has been deleted
-        try Build(version: v1, platform: .iOS, status: .ok, swiftVersion: .v2)
-            .save(on: app.db).wait()
-        try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v2)
-            .save(on: app.db).wait()
+        try await Build(version: v1, platform: .iOS, status: .ok, swiftVersion: .v2)
+            .save(on: app.db)
+        try await Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v2)
+            .save(on: app.db)
 
 
         // MUT
-        let count = try Build.delete(on: app.db, packageId: pkgId2).wait()
+        let count = try await Build.delete(on: app.db, packageId: pkgId2).get()
 
         // validate
         XCTAssertEqual(count, 1)
-        let builds = try Build.query(on: app.db).all().wait()
+        let builds = try await Build.query(on: app.db).all()
         XCTAssertEqual(builds.map(\.platform), [.iOS])
     }
 
-    func test_delete_by_packageId_versionKind() throws {
+    func test_delete_by_packageId_versionKind() async throws {
         // setup
         let pkgId1 = UUID()
         let pkg1 = Package(id: pkgId1, url: "1")
-        try pkg1.save(on: app.db).wait()
+        try await pkg1.save(on: app.db)
         let pkgId2 = UUID()
         let pkg2 = Package(id: pkgId2, url: "2")
-        try pkg2.save(on: app.db).wait()
+        try await pkg2.save(on: app.db)
 
         let v1 = try Version(package: pkg1)
-        try v1.save(on: app.db).wait()
+        try await v1.save(on: app.db)
         let v2 = try Version(package: pkg2, latest: .defaultBranch)
-        try v2.save(on: app.db).wait()
+        try await v2.save(on: app.db)
         let v3 = try Version(package: pkg2, latest: .release)
-        try v3.save(on: app.db).wait()
+        try await v3.save(on: app.db)
 
         // save different platforms as an easy way to check the correct one has been deleted
-        try Build(version: v1, platform: .iOS, status: .ok, swiftVersion: .v2)
-            .save(on: app.db).wait()
-        try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v2)
-            .save(on: app.db).wait()
-        try Build(version: v3, platform: .tvOS, status: .ok, swiftVersion: .v2)
-            .save(on: app.db).wait()
+        try await Build(version: v1, platform: .iOS, status: .ok, swiftVersion: .v2)
+            .save(on: app.db)
+        try await Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v2)
+            .save(on: app.db)
+        try await Build(version: v3, platform: .tvOS, status: .ok, swiftVersion: .v2)
+            .save(on: app.db)
 
         // MUT
-        let count = try Build.delete(on: app.db, packageId: pkgId2, versionKind: .defaultBranch).wait()
+        let count = try await Build.delete(on: app.db, packageId: pkgId2, versionKind: .defaultBranch).get()
 
         // validate
         XCTAssertEqual(count, 1)
-        let builds = try Build.query(on: app.db).all().wait()
+        let builds = try await Build.query(on: app.db).all()
         XCTAssertEqual(builds.map(\.platform), [.iOS, .tvOS])
     }
 
-    func test_pending_to_triggered_migration() throws {
+    func test_pending_to_triggered_migration() async throws {
         // setup
         let p = Package(url: "1")
-        try p.save(on: app.db).wait()
+        try await p.save(on: app.db)
         let v = try Version(package: p, latest: .defaultBranch)
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
         // save a Build with status 'triggered'
-        try Build(id: .id0, version: v, platform: .iOS, status: .triggered, swiftVersion: .v1).save(on: app.db).wait()
+        try await Build(id: .id0, version: v, platform: .iOS, status: .triggered, swiftVersion: .v1).save(on: app.db)
 
         // MUT - test roll back to previous schema, migrating 'triggered' -> 'pending'
-        try UpdateBuildPendingToTriggered().revert(on: app.db).wait()
+        try await UpdateBuildPendingToTriggered().revert(on: app.db)
 
         do {  // validate
             struct Row: Codable, Equatable {
                 var status: String
             }
-            let result = try (app.db as! SQLDatabase)
+            let result = try await (app.db as! SQLDatabase)
                 .raw("SELECT status FROM builds")
                 .all(decoding: Row.self)
-                .wait()
             XCTAssertEqual(result, [.init(status: "pending")])
         }
 
         // MUT - test migrating 'pending' -> 'triggered'
-        try UpdateBuildPendingToTriggered().prepare(on: app.db).wait()
+        try await UpdateBuildPendingToTriggered().prepare(on: app.db)
 
         // validate
-        let b = try XCTUnwrap(Build.find(.id0, on: app.db).wait())
+        let b = try await XCTUnwrapAsync(try await Build.find(.id0, on: app.db))
         XCTAssertEqual(b.status, .triggered)
     }
 

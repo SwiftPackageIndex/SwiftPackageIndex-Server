@@ -191,8 +191,8 @@ func triggerBuilds(on database: Database,
         }
     }
 
-    async let pendingJobsTask = Current.getStatusCount(client, .pending).get()
-    async let runningJobsTask = Current.getStatusCount(client, .running).get()
+    async let pendingJobsTask = Current.getStatusCount(client, .pending)
+    async let runningJobsTask = Current.getStatusCount(client, .running)
     let pendingJobs = try await pendingJobsTask
     let runningJobs = try await runningJobsTask
 
@@ -270,7 +270,7 @@ func triggerBuildsUnchecked(on database: Database,
                                                            isDocBuild: trigger.docPairs.contains(pair),
                                                            platform: pair.platform,
                                                            swiftVersion: pair.swiftVersion,
-                                                           versionId: trigger.versionId).get()
+                                                           versionId: trigger.versionId)
                     guard [HTTPStatus.ok, .created].contains(response.status),
                           let jobUrl = response.webUrl
                     else { return }

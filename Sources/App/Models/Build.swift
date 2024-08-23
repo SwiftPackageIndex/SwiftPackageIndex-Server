@@ -179,23 +179,21 @@ extension Build {
                         isDocBuild: Bool,
                         platform: Build.Platform,
                         swiftVersion: SwiftVersion,
-                        versionId: Version.Id) -> EventLoopFuture<TriggerResponse> {
-        let version: EventLoopFuture<Version> = Version
+                        versionId: Version.Id) async throws -> TriggerResponse {
+        let version = try await Version
             .query(on: database)
             .filter(\.$id == versionId)
             .with(\.$package)
             .first()
             .unwrap(or: Abort(.notFound))
-        return version.flatMap {
-            return Current.triggerBuild(client,
-                                        buildId,
-                                        $0.package.url,
-                                        isDocBuild,
-                                        platform,
-                                        $0.reference,
-                                        swiftVersion,
-                                        versionId)
-        }
+        return try await Current.triggerBuild(client,
+                                              buildId,
+                                              version.package.url,
+                                              isDocBuild,
+                                              platform,
+                                              version.reference,
+                                              swiftVersion,
+                                              versionId)
     }
 
 }

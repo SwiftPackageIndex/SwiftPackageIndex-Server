@@ -55,7 +55,7 @@ extension AppEnvironment {
             fetchReadme: { _,  _, _ in .init(html: "readme html", htmlUrl: "readme html url", imagesToCache: []) },
             fetchS3Readme: { _, _, _ in "" },
             fileManager: .mock,
-            getStatusCount: { _, _ in eventLoop.future(100) },
+            getStatusCount: { _, _ in 100 },
             git: .mock,
             githubToken: { nil },
             gitlabApiToken: { nil },
@@ -80,9 +80,7 @@ extension AppEnvironment {
             storeS3Readme: { _, _, _ in "s3ObjectUrl" },
             storeS3ReadmeImages: { _, _ in },
             timeZone: { .utc },
-            triggerBuild: { _, _, _, _, _, _, _, _ in
-                eventLoop.future(.init(status: .ok, webUrl: "http://web_url"))
-            }
+            triggerBuild: { _, _, _, _, _, _, _, _ in .init(status: .ok, webUrl: "http://web_url") }
         )
     }
 }

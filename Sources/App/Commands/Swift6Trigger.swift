@@ -181,7 +181,7 @@ extension Swift6TriggerCommand {
         if force {
             Current.logger().info("Skipping pending pipeline check")
         } else {
-            let pendingJobs = try await Current.getStatusCount(client, .pending).get()
+            let pendingJobs = try await Current.getStatusCount(client, .pending)
             guard pendingJobs + triggers.count < Current.gitlabPipelineLimit() else {
                 Current.logger().info("too many pending pipelines (\(pendingJobs))")
                 return
