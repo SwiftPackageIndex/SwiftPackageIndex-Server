@@ -16,10 +16,10 @@ import Fluent
 import SQLKit
 
 
-struct UpdateSearch4: Migration {
+struct UpdateSearch4: AsyncMigration {
     let dropSQL: SQLQueryString = "DROP MATERIALIZED VIEW search"
 
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
+    func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
@@ -27,8 +27,8 @@ struct UpdateSearch4: Migration {
         // ** IMPORTANT **
         // When updating the query underlying the materialized view, make sure to also
         // update the matching performance test in QueryPerformanceTests.test_Search_refresh!
-        return db.raw(dropSQL).run()
-            .flatMap { db.raw("""
+        try await db.raw(dropSQL).run()
+        try await db.raw("""
             -- v5
             CREATE MATERIALIZED VIEW search AS
             SELECT
@@ -48,16 +48,16 @@ struct UpdateSearch4: Migration {
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
-            """).run() }
+            """).run()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
+    func revert(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        return db.raw(dropSQL).run()
-            .flatMap { db.raw("""
+        try await db.raw(dropSQL).run()
+        try await db.raw("""
             -- v4
             CREATE MATERIALIZED VIEW search AS
             SELECT
@@ -76,6 +76,6 @@ struct UpdateSearch4: Migration {
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
-            """).run() }
+            """).run()
     }
 }

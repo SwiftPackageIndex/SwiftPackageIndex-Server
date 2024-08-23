@@ -14,9 +14,9 @@
 
 import Fluent
 
-struct UpdateVersionAddResolvedDependencies: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("versions")
+struct UpdateVersionAddResolvedDependencies: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.schema("versions")
             .field("resolved_dependencies",
                    .array(of: .json),
                    .sql(.default("{}"))
@@ -24,8 +24,8 @@ struct UpdateVersionAddResolvedDependencies: Migration {
             .update()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("versions")
+    func revert(on database: Database) async throws {
+        try await database.schema("versions")
             .deleteField("resolved_dependencies")
             .update()
     }

@@ -15,8 +15,8 @@
 import Fluent
 import SQLKit
 
-struct UpdateBuildPendingToTriggered: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
+struct UpdateBuildPendingToTriggered: AsyncMigration {
+    func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
@@ -24,10 +24,10 @@ struct UpdateBuildPendingToTriggered: Migration {
             """
             UPDATE builds SET status = 'triggered' WHERE status = 'pending'
             """
-        return db.raw(update).run()
+        try await db.raw(update).run()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
+    func revert(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
@@ -35,6 +35,6 @@ struct UpdateBuildPendingToTriggered: Migration {
             """
             UPDATE builds SET status = 'pending' WHERE status = 'triggered'
             """
-        return db.raw(update).run()
+        try await db.raw(update).run()
     }
 }

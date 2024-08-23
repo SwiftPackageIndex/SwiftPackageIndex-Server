@@ -15,38 +15,35 @@
 import Fluent
 import SQLKit
 
-struct UpdateRepositoryIsArchivedNotNullable: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.transaction { tx in
+struct UpdateRepositoryIsArchivedNotNullable: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.transaction { tx in
             guard let db = tx as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
-            return db.raw(
+            try await db.raw(
                 #"UPDATE "repositories" SET "is_archived" = false WHERE "is_archived" IS NULL"#
-            ).run().flatMap {
-                db.raw(
-                    #"ALTER TABLE "repositories" ALTER COLUMN "is_archived" SET DEFAULT false"#
-                ).run()
-            }.flatMap {
-                db.raw(
-                    #"ALTER TABLE "repositories" ALTER COLUMN "is_archived" SET NOT NULL"#
-                ).run()
-            }
+            ).run()
+            try await db.raw(
+                #"ALTER TABLE "repositories" ALTER COLUMN "is_archived" SET DEFAULT false"#
+            ).run()
+            try await db.raw(
+                #"ALTER TABLE "repositories" ALTER COLUMN "is_archived" SET NOT NULL"#
+            ).run()
         }
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.transaction { tx in
+    func revert(on database: Database) async throws {
+        try await database.transaction { tx in
             guard let db = tx as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
-            return db.raw(
+            try await db.raw(
                 #"ALTER TABLE "repositories" ALTER COLUMN "is_archived" DROP NOT NULL"#
-            ).run().flatMap {
-                db.raw(
-                    #"ALTER TABLE "repositories" ALTER COLUMN "is_archived" DROP DEFAULT"#
-                ).run()
-            }
+            ).run()
+            try await db.raw(
+                #"ALTER TABLE "repositories" ALTER COLUMN "is_archived" DROP DEFAULT"#
+            ).run()
         }
     }
 }

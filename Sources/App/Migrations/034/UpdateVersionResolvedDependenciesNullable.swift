@@ -15,9 +15,9 @@
 import Fluent
 import SQLKit
 
-struct UpdateVersionResolvedDependenciesNullable: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("versions")
+struct UpdateVersionResolvedDependenciesNullable: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.schema("versions")
             .deleteField("resolved_dependencies")
             .field("resolved_dependencies",
                    .array(of: .json)
@@ -25,8 +25,8 @@ struct UpdateVersionResolvedDependenciesNullable: Migration {
             .update()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("versions")
+    func revert(on database: Database) async throws {
+        try await database.schema("versions")
             .deleteField("resolved_dependencies")
             .field("resolved_dependencies",
                    .array(of: .json),

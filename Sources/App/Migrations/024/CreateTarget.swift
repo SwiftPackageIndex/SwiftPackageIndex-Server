@@ -14,9 +14,9 @@
 
 import Fluent
 
-struct CreateTarget: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("targets")
+struct CreateTarget: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        return try await database.schema("targets")
             // managed fields
             .id()
             .field("created_at", .datetime)
@@ -32,7 +32,7 @@ struct CreateTarget: Migration {
             .create()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("targets").delete()
+    func revert(on database: Database) async throws {
+        return try await database.schema("targets").delete()
     }
 }

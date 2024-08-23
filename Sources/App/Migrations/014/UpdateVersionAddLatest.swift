@@ -15,15 +15,15 @@
 import Fluent
 
 
-struct UpdateVersionAddLatest: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("versions")
+struct UpdateVersionAddLatest: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.schema("versions")
             .field("latest", .string)
             .update()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        database.schema("versions")
+    func revert(on database: Database) async throws {
+        try await database.schema("versions")
             .deleteField("latest")
             .update()
     }
