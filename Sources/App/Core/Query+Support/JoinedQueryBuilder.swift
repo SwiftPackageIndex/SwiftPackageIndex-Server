@@ -149,12 +149,10 @@ struct JoinedQueryBuilder<J: ModelInitializable> {
             .optionalMap(J.init(model:))
     }
 
-    func page(_ page: Int, size pageSize: Int) -> EventLoopFuture<Page<J>> {
-        queryBuilder.page(page, size: pageSize)
-            .map { page in
-            .init(results: page.results.map(J.init(model:)),
-                  hasMoreResults: page.hasMoreResults)
-            }
+    func page(_ page: Int, size pageSize: Int) async throws -> Page<J> {
+        let page = try await queryBuilder.page(page, size: pageSize)
+        return .init(results: page.results.map(J.init(model:)),
+                     hasMoreResults: page.hasMoreResults)
     }
 
     func serialize(_ processSQL: ((sql: String, binds: [any Encodable])) -> Void) -> Self {

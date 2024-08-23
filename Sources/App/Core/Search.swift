@@ -369,7 +369,7 @@ enum Search {
     static func fetch(_ database: Database,
                       _ terms: [String],
                       page: Int,
-                      pageSize: Int) -> EventLoopFuture<Search.Response> {
+                      pageSize: Int) async throws -> Search.Response {
         let page = page.clamped(to: 1...)
         let (sanitizedTerms, filters) = SearchFilter.split(terms: sanitize(terms))
 
@@ -382,24 +382,23 @@ enum Search {
                                 filters: filters,
                                 page: page,
                                 pageSize: pageSize) else {
-            return database.eventLoop.future(.init(hasMoreResults: false,
-                                                   searchTerm: sanitizedTerms.joined(separator: " "),
-                                                   searchFilters: [],
-                                                   results: []))
+            return .init(hasMoreResults: false,
+                         searchTerm: sanitizedTerms.joined(separator: " "),
+                         searchFilters: [],
+                         results: [])
         }
-        return query.all(decoding: DBRecord.self)
-            .mapEachCompact(Result.init)
-            .map { results in                
-                let hasMoreResults = results.filter(\.isPackage).count > pageSize
-                // first page has non-package results prepended, extend prefix for them
-                let keep = (page == 1)
-                ? pageSize + results.filter{ !$0.isPackage }.count
-                : pageSize
-                return Search.Response(hasMoreResults: hasMoreResults,
-                                       searchTerm: sanitizedTerms.joined(separator: " "),
-                                       searchFilters: filters.map { $0.viewModel },
-                                       results: Array(results.prefix(keep)))
-            }
+        let results = try await query.all(decoding: DBRecord.self).compactMap(Result.init)
+
+        let hasMoreResults = results.filter(\.isPackage).count > pageSize
+        // first page has non-package results prepended, extend prefix for them
+        let keep = (page == 1)
+            ? pageSize + results.filter { !$0.isPackage }.count
+            : pageSize
+
+        return Search.Response(hasMoreResults: hasMoreResults,
+                               searchTerm: sanitizedTerms.joined(separator: " "),
+                               searchFilters: filters.map { $0.viewModel },
+                               results: Array(results.prefix(keep)))
     }
 
     static func refresh(on database: Database) async throws {

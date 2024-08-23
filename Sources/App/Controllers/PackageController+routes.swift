@@ -301,7 +301,7 @@ enum PackageController {
         }
 
         let pkg = try await Joined<Package, Repository>
-            .query(on: req.db, owner: owner, repository: repository).get()
+            .query(on: req.db, owner: owner, repository: repository)
 
         // For repositories that have no README file at all.
         guard let readmeHtmlUrl = pkg.repository?.readmeHtmlUrl else {
@@ -328,18 +328,15 @@ enum PackageController {
     }
 
     @Sendable
-    static func releases(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
+    static func releases(req: Request) async throws -> Node<HTML.BodyContext> {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
-        else {
-            return req.eventLoop.future(error: Abort(.notFound))
-        }
+        else { throw Abort(.notFound) }
 
-        return Joined<Package, Repository>
-            .query(on: req.db, owner: owner, repository: repository)
-            .map { PackageReleases.Model.init(package: $0) }
-            .map { PackageReleases.View(model: $0).document() }
+        let pkg = try await Joined<Package, Repository>.query(on: req.db, owner: owner, repository: repository)
+        let model = PackageReleases.Model(package: pkg)
+        return PackageReleases.View(model: model).document()
     }
 
     @Sendable

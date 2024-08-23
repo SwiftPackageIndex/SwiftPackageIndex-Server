@@ -26,8 +26,8 @@ extension Joined where M == Package, R == Repository {
               method: .left)
     }
 
-    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-        query(on: database)
+    static func query(on database: Database, owner: String, repository: String) async throws -> Self {
+        try await query(on: database)
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .filter(Repository.self, \.$name, .custom("ilike"), repository)
             .first()

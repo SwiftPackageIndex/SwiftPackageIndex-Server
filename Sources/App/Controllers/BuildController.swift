@@ -19,21 +19,15 @@ import Vapor
 
 enum BuildController {
     @Sendable
-    static func show(req: Request) throws -> EventLoopFuture<HTML> {
+    static func show(req: Request) async throws -> HTML {
         guard let id = req.parameters.get("id"),
               let buildId = UUID.init(uuidString: id)
-        else { return req.eventLoop.future(error: Abort(.notFound)) }
+        else { throw Abort(.notFound) }
 
-        return BuildResult.query(on: req.db, buildId: buildId)
-            .flatMap { result in
-                Build.fetchLogs(client: req.client, logUrl: result.build.logUrl)
-                    .map { (result, $0) }
-            }
-            .map { BuildShow.Model.init(result: $0, logs: $1) }
-            .unwrap(or: Abort(.notFound))
-            .map {
-                BuildShow.View(path: req.url.path, model: $0).document()
-            }
+        let result = try await BuildResult.query(on: req.db, buildId: buildId)
+        let logs = try await Build.fetchLogs(client: req.client, logUrl: result.build.logUrl)
+        guard let model = BuildShow.Model(result: result, logs: logs) else { throw Abort(.notFound) }
+        return BuildShow.View(path: req.url.path, model: model).document()
     }
 
 }

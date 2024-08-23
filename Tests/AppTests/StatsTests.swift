@@ -32,7 +32,7 @@ class StatsTests: AppTestCase {
         try await Stats.refresh(on: app.db)
 
         // MUT
-        let res = try await Stats.fetch(on: app.db).get()
+        let res = try await Stats.fetch(on: app.db)
 
         // validate
         XCTAssertEqual(res, .some(.init(packageCount: 2)))

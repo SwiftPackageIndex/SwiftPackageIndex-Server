@@ -34,8 +34,8 @@ extension BuildResult {
         )
     }
 
-    static func query(on database: Database, buildId: Build.Id) -> EventLoopFuture<Self> {
-        query(on: database)
+    static func query(on database: Database, buildId: Build.Id) async throws -> Self {
+        try await query(on: database)
             .filter(\.$id == buildId)
             .first()
             .unwrap(or: Abort(.notFound))

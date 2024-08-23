@@ -19,21 +19,21 @@ import XCTest
 class JoinedTests: AppTestCase {
     typealias JPR = Joined<Package, Repository>
 
-    func test_query_owner_repository() throws {
+    func test_query_owner_repository() async throws {
         // setup
         let pkg = Package(url: "1")
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, name: "bar", owner: "foo")
-            .save(on: app.db).wait()
+        try await pkg.save(on: app.db)
+        try await Repository(package: pkg, name: "bar", owner: "foo")
+            .save(on: app.db)
         do {  // inselected package
             let pkg = Package(url: "2")
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, name: "bar2", owner: "foo")
-                .save(on: app.db).wait()
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg, name: "bar2", owner: "foo")
+                .save(on: app.db)
         }
 
         // MUT
-        let jpr = try JPR.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let jpr = try await JPR.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
         XCTAssertEqual(jpr.package.id, pkg.id)
@@ -41,14 +41,14 @@ class JoinedTests: AppTestCase {
         XCTAssertEqual(jpr.repository?.name, "bar")
     }
 
-    func test_repository_access() throws {
+    func test_repository_access() async throws {
         // Test accessing repository through the join vs through the package relation
         // setup
         let p = try savePackage(on: app.db, "1")
-        try Repository(package: p).save(on: app.db).wait()
+        try await Repository(package: p).save(on: app.db)
 
         // MUT
-        let jpr = try XCTUnwrap(JPR.query(on: app.db).first().wait())
+        let jpr = try await XCTUnwrapAsync(try await JPR.query(on: app.db).first())
 
         // validate
         XCTAssertNotNil(jpr.repository)
