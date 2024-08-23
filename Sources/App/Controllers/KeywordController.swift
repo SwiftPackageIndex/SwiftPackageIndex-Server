@@ -19,8 +19,8 @@ import Vapor
 
 enum KeywordController {
 
-    static func query(on database: Database, keyword: String, page: Int, pageSize: Int) -> EventLoopFuture<Page<Joined3<Package, Repository, Version>>> {
-        Joined3<Package, Repository, Version>
+    static func query(on database: Database, keyword: String, page: Int, pageSize: Int) async throws -> Page<Joined3<Package, Repository, Version>> {
+        try await Joined3<Package, Repository, Version>
             .query(on: database, version: .defaultBranch)
             .filter(Repository.self, \.$keywords, .custom("@>"), [keyword])
             .sort(\.$score, .descending)
@@ -53,7 +53,7 @@ enum KeywordController {
             throw Abort(.notFound)
         }
         let query = try req.query.decode(Query.self)
-        let page = try await Self.query(on: req.db, keyword: keyword, page: query.page, pageSize: query.pageSize).get()
+        let page = try await Self.query(on: req.db, keyword: keyword, page: query.page, pageSize: query.pageSize)
 
         guard !page.results.isEmpty else {
             throw Abort(.notFound)

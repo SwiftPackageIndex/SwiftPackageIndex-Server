@@ -28,18 +28,15 @@ extension QueryBuilder {
     ///   - page: requested page, first page is 1
     ///   - pageSize: number of elements per page
     /// - Returns: a `QueryBuilder`
-    func page(_ page: Int, size pageSize: Int) -> EventLoopFuture<Page<Model>> {
+    func page(_ page: Int, size pageSize: Int) async throws -> Page<Model> {
         // page is one-based, clamp it to ensure we get a >=0 offset
         let page = page.clamped(to: 1...)
         let offset = (page - 1) * pageSize
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
-        return self
-            .offset(offset)
+        let results = try await self.offset(offset)
             .limit(limit)
             .all()
-            .map { results in
-                .init(results: Array(results.prefix(pageSize)),
-                      hasMoreResults: results.count > pageSize)
-            }
+        return .init(results: Array(results.prefix(pageSize)),
+                     hasMoreResults: results.count > pageSize)
     }
 }

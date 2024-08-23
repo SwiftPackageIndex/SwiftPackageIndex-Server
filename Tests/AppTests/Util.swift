@@ -158,6 +158,7 @@ class MockClient: Client, @unchecked Sendable {
     let eventLoopGroup: EventLoopGroup
     var updateResponse: (ClientRequest, inout ClientResponse) -> Void
 
+    // We have to keep this EventLoopFuture for now, because the signature is part of Vapor's Client protocol
     func send(_ request: ClientRequest) -> EventLoopFuture<ClientResponse> {
         var response = ClientResponse()
         updateResponse(request, &response)

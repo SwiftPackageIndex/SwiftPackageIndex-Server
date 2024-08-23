@@ -19,102 +19,102 @@ import XCTest
 
 class KeywordControllerTests: AppTestCase {
 
-    func test_query() throws {
+    func test_query() async throws {
         // setup
         do {
             let p = try savePackage(on: app.db, "0")
-            try Repository(package: p,
-                           keywords: ["bar"],
-                           name: "0",
-                           owner: "owner")
-                .save(on: app.db).wait()
-            try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+            try await Repository(package: p,
+                                 keywords: ["bar"],
+                                 name: "0",
+                                 owner: "owner")
+            .save(on: app.db)
+            try await Version(package: p, latest: .defaultBranch).save(on: app.db)
         }
         do {
             let p = try savePackage(on: app.db, "1")
-            try Repository(package: p,
-                           keywords: ["foo"],
-                           name: "1",
-                           owner: "owner")
-                .save(on: app.db).wait()
-            try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+            try await Repository(package: p,
+                                 keywords: ["foo"],
+                                 name: "1",
+                                 owner: "owner")
+            .save(on: app.db)
+            try await Version(package: p, latest: .defaultBranch).save(on: app.db)
         }
         do {
             let p = try savePackage(on: app.db, "2")
-            try Repository(package: p,
-                           name: "2",
-                           owner: "owner")
-                .save(on: app.db).wait()
-            try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+            try await Repository(package: p,
+                                 name: "2",
+                                 owner: "owner")
+            .save(on: app.db)
+            try await Version(package: p, latest: .defaultBranch).save(on: app.db)
         }
         // MUT
-        let page = try KeywordController.query(on: app.db,
-                                               keyword: "foo",
-                                               page: 1,
-                                               pageSize: 10).wait()
+        let page = try await KeywordController.query(on: app.db,
+                                                     keyword: "foo",
+                                                     page: 1,
+                                                     pageSize: 10)
 
         // validation
         XCTAssertEqual(page.results.map(\.model.url), ["1"])
         XCTAssertEqual(page.hasMoreResults, false)
     }
 
-    func test_query_pagination() throws {
+    func test_query_pagination() async throws {
         // setup
-        try (0..<9).shuffled().forEach { idx in
+        for idx in (0..<9).shuffled() {
             let p = Package(url: "\(idx)".url, score: 10 - idx)
-            try p.save(on: app.db).wait()
-            try Repository(package: p,
-                           keywords: ["foo"],
-                           name: "\(idx)",
-                           owner: "owner").save(on: app.db).wait()
-            try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+            try await p.save(on: app.db)
+            try await Repository(package: p,
+                                 keywords: ["foo"],
+                                 name: "\(idx)",
+                                 owner: "owner").save(on: app.db)
+            try await Version(package: p, latest: .defaultBranch).save(on: app.db)
         }
         do {  // first page
-            // MUT
-            let page = try KeywordController.query(on: app.db,
-                                                   keyword: "foo",
-                                                   page: 1,
-                                                   pageSize: 3).wait()
+              // MUT
+            let page = try await KeywordController.query(on: app.db,
+                                                         keyword: "foo",
+                                                         page: 1,
+                                                         pageSize: 3)
             // validate
             XCTAssertEqual(page.results.map(\.model.url), ["0", "1", "2"])
             XCTAssertEqual(page.hasMoreResults, true)
         }
         do {  // second page
-            // MUT
-            let page = try KeywordController.query(on: app.db,
-                                                   keyword: "foo",
-                                                   page: 2,
-                                                   pageSize: 3).wait()
+              // MUT
+            let page = try await KeywordController.query(on: app.db,
+                                                         keyword: "foo",
+                                                         page: 2,
+                                                         pageSize: 3)
             // validate
             XCTAssertEqual(page.results.map(\.model.url), ["3", "4", "5"])
             XCTAssertEqual(page.hasMoreResults, true)
         }
         do {  // last page
-            // MUT
-            let page = try KeywordController.query(on: app.db,
-                                                   keyword: "foo",
-                                                   page: 3,
-                                                   pageSize: 3).wait()
+              // MUT
+            let page = try await KeywordController.query(on: app.db,
+                                                         keyword: "foo",
+                                                         page: 3,
+                                                         pageSize: 3)
             // validate
             XCTAssertEqual(page.results.map(\.model.url), ["6", "7", "8"])
             XCTAssertEqual(page.hasMoreResults, false)
         }
     }
 
-    func test_show_keyword() throws {
+    func test_show_keyword() async throws {
         // setup
         do {
             let p = try savePackage(on: app.db, "1")
-            try Repository(package: p,
-                           keywords: ["foo"],
-                           name: "1",
-                           owner: "owner").save(on: app.db).wait()
-            try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+            try await Repository(package: p,
+                                 keywords: ["foo"],
+                                 name: "1",
+                                 owner: "owner").save(on: app.db)
+            try await Version(package: p, latest: .defaultBranch).save(on: app.db)
         }
         // MUT
-        try app.test(.GET, "/keywords/foo") {
+        try await app.test(.GET, "/keywords/foo") { req async in
             // validate
-            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual(req.status, .ok)
         }
     }
 

@@ -24,6 +24,7 @@ final class TestDatabase: @unchecked Sendable, SQLDatabase {
         self._dialect = GenericDialect()
     }
 
+    // We have to keep this EventLoopFuture for now, because the signature is part of Vapor's SQLDatabase protocol
     func execute(sql query: SQLExpression, _ onRow: @escaping (SQLRow) -> ()) -> EventLoopFuture<Void> {
         var serializer = SQLSerializer(database: self)
         query.serialize(to: &serializer)
