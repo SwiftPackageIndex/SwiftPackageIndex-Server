@@ -19,20 +19,18 @@ import XCTVapor
 
 class BuildResultTests: AppTestCase {
 
-    func test_query() throws {
+    func test_query() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
         let repo = try Repository(package: pkg)
-        try repo.save(on: app.db).wait()
+        try await repo.save(on: app.db)
         let version = try Version(package: pkg)
-        try version.save(on: app.db).wait()
+        try await version.save(on: app.db)
         let build = try Build(version: version, platform: .iOS, status: .ok, swiftVersion: .init(5, 3, 0))
-        try build.save(on: app.db).wait()
+        try await build.save(on: app.db)
 
         // MUT
-        let res = try BuildResult
-            .query(on: app.db, buildId: build.id!)
-            .wait()
+        let res = try await BuildResult.query(on: app.db, buildId: build.id!)
 
         // validate
         XCTAssertEqual(res.build.id, build.id)

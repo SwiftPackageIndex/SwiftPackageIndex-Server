@@ -29,25 +29,23 @@ class BuildShowModelTests: AppTestCase {
         XCTAssertEqual(Model.mock.packageURL, "/foo/bar")
     }
 
-    func test_init() throws {
+    func test_init() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
-        try Repository(package: pkg,
+        try await Repository(package: pkg,
                        defaultBranch: "main",
                        forks: 42,
                        license: .mit,
                        name: "bar",
                        owner: "foo",
                        stars: 17,
-                       summary: "summary").save(on: app.db).wait()
+                       summary: "summary").save(on: app.db)
         let version = try Version(id: UUID(), package: pkg, packageName: "Bar", reference: .branch("main"))
-        try version.save(on: app.db).wait()
+        try await version.save(on: app.db)
         let buildId = UUID()
-        try Build(id: buildId, version: version, platform: .iOS, status: .ok, swiftVersion: .v3)
-            .save(on: app.db).wait()
-        let result = try BuildResult
-            .query(on: app.db, buildId: buildId)
-            .wait()
+        try await Build(id: buildId, version: version, platform: .iOS, status: .ok, swiftVersion: .v3)
+            .save(on: app.db)
+        let result = try await BuildResult.query(on: app.db, buildId: buildId)
 
         // MUT
         let model = BuildShow.Model(result: result, logs: "logs")

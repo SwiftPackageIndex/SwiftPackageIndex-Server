@@ -277,12 +277,9 @@ extension Build {
 
 extension Build {
 
-    static func fetchLogs(client: Client, logUrl: String?) -> EventLoopFuture<String?> {
-        guard let logUrl = logUrl else {
-            return client.eventLoop.future(nil)
-        }
-        return client.get(URI(string: logUrl))
-            .map { $0.body?.asString() }
+    static func fetchLogs(client: Client, logUrl: String?) async throws -> String? {
+        guard let logUrl = logUrl else { return nil }
+        return try await client.get(URI(string: logUrl)).body?.asString()
     }
 
 }
