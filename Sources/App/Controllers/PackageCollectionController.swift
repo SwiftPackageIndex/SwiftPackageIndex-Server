@@ -17,22 +17,19 @@ import Vapor
 
 enum PackageCollectionController {
     @Sendable
-    static func generate(req: Request) throws -> EventLoopFuture<SignedCollection> {
+    static func generate(req: Request) async throws -> SignedCollection {
         AppMetrics.packageCollectionGetTotal?.inc()
 
-        guard let owner = req.parameters.get("owner") else {
-            return req.eventLoop.future(error: Abort(.notFound))
-        }
+        guard let owner = req.parameters.get("owner") else { throw Abort(.notFound) }
 
-        return SignedCollection.generate(
-            db: req.db,
-            filterBy: .author(owner),
-            authorName: "\(owner) via the Swift Package Index"
-        ).flatMapError {
-            if case PackageCollection.Error.noResults = $0 {
-                return req.eventLoop.makeFailedFuture(Abort(.notFound))
-            }
-            return req.eventLoop.makeFailedFuture($0)
+        do {
+            return try await SignedCollection.generate(
+                db: req.db,
+                filterBy: .author(owner),
+                authorName: "\(owner) via the Swift Package Index"
+            )
+        } catch PackageCollection.Error.noResults {
+            throw Abort(.notFound)
         }
     }
 }

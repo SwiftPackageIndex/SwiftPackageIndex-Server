@@ -23,14 +23,14 @@ extension API {
     enum PackageCollectionController {
 
         @Sendable
-        static func generate(req: Request) throws -> EventLoopFuture<SignedCollection> {
+        static func generate(req: Request) async throws -> SignedCollection {
             AppMetrics.apiPackageCollectionGetTotal?.inc()
 
             let dto = try req.content.decode(PostPackageCollectionDTO.self)
 
             switch dto.selection {
                 case let .author(author):
-                    return SignedCollection.generate(
+                    return try await SignedCollection.generate(
                         db: req.db,
                         filterBy: .author(author),
                         authorName: dto.authorName ?? "Swift Package Index",
@@ -44,7 +44,7 @@ extension API {
                     guard packageURLs.count <= 20 else {
                         throw Abort(.badRequest)
                     }
-                    return SignedCollection.generate(
+                    return try await SignedCollection.generate(
                         db: req.db,
                         filterBy: .urls(packageURLs),
                         authorName: dto.authorName ?? "Swift Package Index",
