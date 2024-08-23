@@ -36,11 +36,11 @@ extension Stats {
     }
 
 
-    static func fetch(on database: Database) -> EventLoopFuture<Stats?> {
+    static func fetch(on database: Database) async throws -> Stats? {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("SELECT * FROM \(ident: Self.schema)")
+        return try await db.raw("SELECT * FROM \(ident: Self.schema)")
             .first(decoding: Stats.self)
     }
 }

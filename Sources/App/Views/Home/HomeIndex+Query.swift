@@ -18,7 +18,7 @@ import Plot
 
 extension HomeIndex.Model {
     static func query(database: Database) async throws -> Self {
-        let stats = try await Stats.fetch(on: database).get()
+        let stats = try await Stats.fetch(on: database)
         let packages = try await RecentPackage.fetch(on: database).map(makeDateLink)
         let releases = try await RecentRelease.fetch(on: database)
             .map(Release.init(recent:))
