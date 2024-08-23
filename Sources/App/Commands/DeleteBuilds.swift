@@ -15,7 +15,7 @@
 import Vapor
 
 
-struct DeleteBuildsCommand: Command {
+struct DeleteBuildsCommand: AsyncCommand {
     struct Signature: CommandSignature {
         @Option(name: "version-id", short: "v")
         var versionId: UUID?
@@ -27,25 +27,21 @@ struct DeleteBuildsCommand: Command {
 
     var help: String { "Delete build records" }
 
-    func run(using context: CommandContext, signature: Signature) throws {
+    func run(using context: CommandContext, signature: Signature) async throws {
 
         switch (signature.versionId, signature.packageId) {
             case let (versionId?, .none):
                 context.console.info("Deleting builds for version id \(versionId) ...")
-                let count = try Build.delete(on: context.application.db,
-                                             versionId: versionId).wait()
+                let count = try await Build.delete(on: context.application.db, versionId: versionId)
                 context.console.info("Deleted \(pluralizedCount: count, singular: "record")")
 
             case let (.none, packageId?):
                 context.console.info("Deleting builds for package id \(packageId) ...")
                 let count: Int
                 if let kind = signature.latest {
-                    count = try Build.delete(on: context.application.db,
-                                             packageId: packageId,
-                                             versionKind: kind).wait()
+                    count = try await Build.delete(on: context.application.db, packageId: packageId, versionKind: kind)
                 } else {
-                    count = try Build.delete(on: context.application.db,
-                                                 packageId: packageId).wait()
+                    count = try await Build.delete(on: context.application.db, packageId: packageId)
                 }
                 context.console.info("Deleted \(pluralizedCount: count, singular: "record")")
 

@@ -221,8 +221,8 @@ extension Build {
 // MARK: - Deletion
 
 extension Build {
-    static func delete(on database: Database, versionId: Version.Id) -> EventLoopFuture<Int> {
-        delete(on: database, deleteSQL: """
+    static func delete(on database: Database, versionId: Version.Id) async throws -> Int {
+        try await delete(on: database, deleteSQL: """
             DELETE
             FROM builds b
             USING versions v
@@ -233,8 +233,8 @@ extension Build {
     }
 
     static func delete(on database: Database,
-                       packageId: Package.Id) -> EventLoopFuture<Int> {
-        delete(on: database, deleteSQL: """
+                       packageId: Package.Id) async throws -> Int {
+        try await delete(on: database, deleteSQL: """
             DELETE
             FROM builds b
             USING versions v, packages p
@@ -247,8 +247,8 @@ extension Build {
 
     static func delete(on database: Database,
                        packageId: Package.Id,
-                       versionKind: Version.Kind) -> EventLoopFuture<Int> {
-        delete(on: database, deleteSQL: """
+                       versionKind: Version.Kind) async throws -> Int {
+        try await delete(on: database, deleteSQL: """
             DELETE
             FROM builds b
             USING versions v, packages p
@@ -261,13 +261,13 @@ extension Build {
     }
 
     static func delete(on database: Database,
-                       deleteSQL: SQLQueryString) -> EventLoopFuture<Int> {
+                       deleteSQL: SQLQueryString) async throws -> Int {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw(deleteSQL)
+        return try await db.raw(deleteSQL)
             .all()
-            .map { $0.count }
+            .count
     }
 
 }

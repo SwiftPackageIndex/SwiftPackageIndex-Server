@@ -320,7 +320,7 @@ class BuildTests: AppTestCase {
             .save(on: app.db)
 
         // MUT
-        let count = try await Build.delete(on: app.db, versionId: vid2).get()
+        let count = try await Build.delete(on: app.db, versionId: vid2)
 
         // validate
         XCTAssertEqual(count, 1)
@@ -350,7 +350,7 @@ class BuildTests: AppTestCase {
 
 
         // MUT
-        let count = try await Build.delete(on: app.db, packageId: pkgId2).get()
+        let count = try await Build.delete(on: app.db, packageId: pkgId2)
 
         // validate
         XCTAssertEqual(count, 1)
@@ -383,7 +383,7 @@ class BuildTests: AppTestCase {
             .save(on: app.db)
 
         // MUT
-        let count = try await Build.delete(on: app.db, packageId: pkgId2, versionKind: .defaultBranch).get()
+        let count = try await Build.delete(on: app.db, packageId: pkgId2, versionKind: .defaultBranch)
 
         // validate
         XCTAssertEqual(count, 1)
