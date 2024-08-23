@@ -19,20 +19,20 @@ import XCTVapor
 
 class StatsTests: AppTestCase {
 
-    func test_fetch() throws {
+    func test_fetch() async throws {
         // setup
         do {
             let pkg = Package(id: UUID(), url: "1")
-            try pkg.save(on: app.db).wait()
+            try await pkg.save(on: app.db)
         }
         do {
             let pkg = Package(id: UUID(), url: "2")
-            try pkg.save(on: app.db).wait()
+            try await pkg.save(on: app.db)
         }
-        try Stats.refresh(on: app.db).wait()
+        try await Stats.refresh(on: app.db)
 
         // MUT
-        let res = try Stats.fetch(on: app.db).wait()
+        let res = try await Stats.fetch(on: app.db).get()
 
         // validate
         XCTAssertEqual(res, .some(.init(packageCount: 2)))

@@ -64,7 +64,7 @@ class ApiTests: AppTestCase {
                              summary: "foo bar package").save(on: app.db)
         try await Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db)
         try await Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         let event = ActorIsolated<TestEvent?>(nil)
         Current.postPlausibleEvent = { @Sendable _, kind, path, _ in
@@ -805,7 +805,7 @@ class ApiTests: AppTestCase {
         try await v.save(on: app.db)
         try await Product(version: v, type: .library(.automatic), name: "lib")
             .save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         let event = ActorIsolated<TestEvent?>(nil)
         Current.postPlausibleEvent = { @Sendable _, kind, path, _ in
@@ -850,7 +850,7 @@ class ApiTests: AppTestCase {
         }
     }
 
-    func test_package_collections_packageURLs() throws {
+    func test_package_collections_packageURLs() async throws {
         try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         // setup
         let refDate = Date(timeIntervalSince1970: 0)
@@ -858,27 +858,27 @@ class ApiTests: AppTestCase {
         Current.apiSigningKey = { "secret" }
         let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
                          url: "1")
-        try p1.save(on: app.db).wait()
+        try await p1.save(on: app.db)
         let p2 = Package(id: UUID(uuidString: "4e256250-d1ea-4cdd-9fe9-0fc5dce17a80")!,
                          url: "2")
-        try p2.save(on: app.db).wait()
-        try Repository(package: p1,
-                       defaultBranch: "main",
-                       summary: "some package").save(on: app.db).wait()
-        try Repository(package: p2,
-                       defaultBranch: "main",
-                       name: "name 2",
-                       owner: "foo",
-                       summary: "foo bar package").save(on: app.db).wait()
+        try await p2.save(on: app.db)
+        try await Repository(package: p1,
+                             defaultBranch: "main",
+                             summary: "some package").save(on: app.db)
+        try await Repository(package: p2,
+                             defaultBranch: "main",
+                             name: "name 2",
+                             owner: "foo",
+                             summary: "foo bar package").save(on: app.db)
         do {
             let v = try Version(package: p1,
                                 latest: .release,
                                 packageName: "Foo",
                                 reference: .tag(1, 2, 3),
                                 toolsVersion: "5.3")
-            try v.save(on: app.db).wait()
-            try Product(version: v, type: .library(.automatic), name: "p1")
-                .save(on: app.db).wait()
+            try await v.save(on: app.db)
+            try await Product(version: v, type: .library(.automatic), name: "p1")
+                .save(on: app.db)
         }
         do {
             let v = try Version(package: p2,
@@ -886,11 +886,11 @@ class ApiTests: AppTestCase {
                                 packageName: "Bar",
                                 reference: .tag(2, 0, 0),
                                 toolsVersion: "5.4")
-            try v.save(on: app.db).wait()
-            try Product(version: v, type: .library(.automatic), name: "p2")
-                .save(on: app.db).wait()
+            try await v.save(on: app.db)
+            try await Product(version: v, type: .library(.automatic), name: "p2")
+                .save(on: app.db)
         }
-        try Search.refresh(on: app.db).wait()
+        try await Search.refresh(on: app.db)
 
         do {  // MUT
             let body: ByteBuffer = .init(string: """
@@ -913,16 +913,16 @@ class ApiTests: AppTestCase {
                 }
                 """)
 
-            try app.test(.POST,
-                         "api/package-collections",
-                         headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
-                         body: body,
-                         afterResponse: { res in
-                            // validation
-                            XCTAssertEqual(res.status, .ok)
-                            let pkgColl = try res.content.decode(PackageCollection.self)
-                            assertSnapshot(of: pkgColl, as: .dump)
-                        })
+            try await app.test(.POST,
+                               "api/package-collections",
+                               headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
+                               body: body,
+                               afterResponse: { res async throws in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                let pkgColl = try res.content.decode(PackageCollection.self)
+                assertSnapshot(of: pkgColl, as: .dump)
+            })
         }
     }
 

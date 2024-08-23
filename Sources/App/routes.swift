@@ -275,10 +275,8 @@ func routes(_ app: Application) throws {
     }
 
     do {  // Metrics
-        app.get("metrics") { req -> EventLoopFuture<String> in
-            let promise = req.eventLoop.makePromise(of: String.self)
-            try MetricsSystem.prometheus().collect(into: promise)
-            return promise.futureResult
+        app.get("metrics") { req -> String in
+            try await MetricsSystem.prometheus().collect()
         }.excludeFromOpenAPI()
     }
 }

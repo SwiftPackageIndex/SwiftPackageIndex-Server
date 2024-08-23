@@ -31,7 +31,7 @@ class SitemapTests: SnapshotTestCase {
                                                 owner: "foo") }.save(on: app.db)
         try await packages.map { try Version(package: $0, packageName: "foo",
                                              reference: .branch("default")) }.save(on: app.db)
-        try await Search.refresh(on: app.db).get()
+        try await Search.refresh(on: app.db)
 
         let req = Request(application: app, on: app.eventLoopGroup.next())
 

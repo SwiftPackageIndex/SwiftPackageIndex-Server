@@ -88,9 +88,7 @@ enum ReAnalyzeVersions {
                 }
             }
             do {
-                try await AppMetrics.push(client: client,
-                                          jobName: "re-analyze-versions")
-                .get()
+                try await AppMetrics.push(client: client, jobName: "re-analyze-versions")
             } catch {
                 Current.logger().warning("\(error.localizedDescription)")
             }
