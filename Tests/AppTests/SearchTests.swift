@@ -205,7 +205,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["bar"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["bar"], page: 1, pageSize: 20)
 
         // validation
         XCTAssertEqual(res,
@@ -251,7 +251,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["owner", "bar"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["owner", "bar"], page: 1, pageSize: 20)
 
         // validation
         XCTAssertEqual(res,
@@ -291,7 +291,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["bar"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["bar"], page: 1, pageSize: 20)
 
         // validate
         XCTAssertEqual(res.results.count, 1)
@@ -321,7 +321,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["'"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["'"], page: 1, pageSize: 20)
 
         // validation
         XCTAssertEqual(res,
@@ -484,7 +484,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["foo"], page: 1, pageSize: 20)
 
         // validation
         XCTAssertEqual(res.results.count, 11)
@@ -527,7 +527,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["ink"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["ink"], page: 1, pageSize: 20)
 
         XCTAssertEqual(res.results.map(\.package?.repositoryName), ["1", "3", "2"])
     }
@@ -567,7 +567,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["foo", "bar"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["foo", "bar"], page: 1, pageSize: 20)
 
         XCTAssertEqual(res.results.map(\.package?.repositoryName),
                        ["1", "3", "2"])
@@ -608,7 +608,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["bar"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["bar"], page: 1, pageSize: 20)
 
         XCTAssertEqual(res.results.map(\.package?.repositoryName),
                        ["1", "2", "3"])
@@ -638,7 +638,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["foo"], page: 1, pageSize: 20)
 
         // ensure only the author result is coming through, not the packages
         XCTAssertEqual(res.results.map(\.testDescription), ["a:foobar"])
@@ -662,7 +662,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["foo"], page: 1, pageSize: 20)
 
         let packageResult = try XCTUnwrap(res.results.first?.package)
         XCTAssertEqual(packageResult.packageId, .id0)
@@ -706,7 +706,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["ping"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["ping"], page: 1, pageSize: 20)
 
         // validate
         XCTAssertEqual(res.results.map(\.package?.repositoryName),
@@ -738,7 +738,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["syntax"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["syntax"], page: 1, pageSize: 20)
 
         // validate
         XCTAssertEqual(res.results.map(\.package?.repositoryName),
@@ -764,7 +764,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["*"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["*"], page: 1, pageSize: 20)
 
             // validation
             XCTAssertEqual(res, .init(hasMoreResults: false, searchTerm: "\\*", searchFilters: [], results: []))
@@ -772,7 +772,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["\\"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["\\"], page: 1, pageSize: 20)
 
             // validation
             XCTAssertEqual(res, .init(hasMoreResults: false, searchTerm: "", searchFilters: [], results: []))
@@ -804,7 +804,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["topic"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["topic"], page: 1, pageSize: 20)
 
         XCTAssertEqual(res.results.map(\.testDescription), ["k:topic", "p:p1"])
     }
@@ -835,7 +835,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["topic"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["topic"], page: 1, pageSize: 20)
 
         // validate
         // The keyword results are unordered in SQL because they're ordered by frequency
@@ -872,7 +872,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["author"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["author"], page: 1, pageSize: 20)
 
         // validate that keyword results are ordered by levenshtein distance
         // (packages are also matched via their keywords)
@@ -907,7 +907,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["foo"], page: 1, pageSize: 20)
 
         XCTAssertEqual(res.results, [
             .author(.init(name: "foo")),
@@ -943,7 +943,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["modulename"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["modulename"], page: 1, pageSize: 20)
 
         XCTAssertEqual(res.results.count, 1)
         XCTAssertEqual(res.results, [
@@ -986,7 +986,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["stars:>15"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["stars:>15"], page: 1, pageSize: 20)
         XCTAssertEqual(res.results.count, 1)
         XCTAssertEqual(res.results.compactMap(\.package).compactMap(\.packageName).sorted(), ["p1"])
     }
@@ -1015,31 +1015,31 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         do { // Baseline
-            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20)
             XCTAssertEqual(res.results.count, 2)
             XCTAssertEqual(res.results.compactMap(\.package).compactMap(\.packageName).sorted(), ["p1", "p2"])
         }
 
         do { // Greater Than
-            let res = try await Search.fetch(app.db, ["test", "stars:>25"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "stars:>25"], page: 1, pageSize: 20)
             XCTAssertEqual(res.results.count, 1)
             XCTAssertEqual(res.results.first?.package?.packageName, "p1")
         }
 
         do { // Less Than
-            let res = try await Search.fetch(app.db, ["test", "stars:<25"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "stars:<25"], page: 1, pageSize: 20)
             XCTAssertEqual(res.results.count, 1)
             XCTAssertEqual(res.results.first?.package?.packageName, "p2")
         }
 
         do { // Equal
-            let res = try await Search.fetch(app.db, ["test", "stars:50"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "stars:50"], page: 1, pageSize: 20)
             XCTAssertEqual(res.results.count, 1)
             XCTAssertEqual(res.results.first?.package?.packageName, "p1")
         }
 
         do { // Not Equals
-            let res = try await Search.fetch(app.db, ["test", "stars:!50"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "stars:!50"], page: 1, pageSize: 20)
             XCTAssertEqual(res.results.count, 1)
             XCTAssertEqual(res.results.first?.package?.packageName, "p2")
         }
@@ -1086,7 +1086,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["test", "author:foo"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "author:foo"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
@@ -1094,7 +1094,7 @@ class SearchTests: AppTestCase {
 
         do {  // double check that leaving the filter term off selects both packages
               // MUT
-            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(
@@ -1129,7 +1129,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["test", "keyword:kw1"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "keyword:kw1"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
@@ -1137,7 +1137,7 @@ class SearchTests: AppTestCase {
 
         do {  // double check that leaving the filter term off selects both packages
               // MUT
-            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(
@@ -1172,7 +1172,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["test", "last_activity:<1970-01-01"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "last_activity:<1970-01-01"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
@@ -1180,7 +1180,7 @@ class SearchTests: AppTestCase {
 
         do {  // double check that leaving the filter term off selects both packages
               // MUT
-            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(
@@ -1215,7 +1215,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["test", "last_commit:<1970-01-01"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "last_commit:<1970-01-01"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
@@ -1223,7 +1223,7 @@ class SearchTests: AppTestCase {
 
         do {  // double check that leaving the filter term off selects both packages
               // MUT
-            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(
@@ -1258,7 +1258,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["test", "license:mit"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "license:mit"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
@@ -1266,7 +1266,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["test", "license:compatible"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "license:compatible"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
@@ -1274,7 +1274,7 @@ class SearchTests: AppTestCase {
 
         do {  // double check that leaving the filter term off selects both packages
               // MUT
-            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(
@@ -1307,7 +1307,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["test", "platform:ios"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "platform:ios"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
@@ -1315,7 +1315,7 @@ class SearchTests: AppTestCase {
 
         do {  // double check that leaving the filter term off selects both packages
               // MUT
-            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(
@@ -1349,7 +1349,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["test", "stars:>5"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "stars:>5"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
@@ -1357,7 +1357,7 @@ class SearchTests: AppTestCase {
 
         do {  // double check that leaving the filter term off selects both packages
               // MUT
-            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(
@@ -1398,7 +1398,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["test", "product:plugin"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "product:plugin"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(res.results.count, 1)
@@ -1409,7 +1409,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(res.results.count, 2)
@@ -1450,7 +1450,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["test", "product:macro"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test", "product:macro"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(res.results.count, 1)
@@ -1461,7 +1461,7 @@ class SearchTests: AppTestCase {
 
         do {
             // MUT
-            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20).get()
+            let res = try await Search.fetch(app.db, ["test"], page: 1, pageSize: 20)
 
             // validate
             XCTAssertEqual(res.results.count, 2)
@@ -1496,7 +1496,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
         
         // MUT
-        let res = try await Search.fetch(app.db, ["test", "license:>mit"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["test", "license:>mit"], page: 1, pageSize: 20)
         
         // validate
         XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), [])
@@ -1521,7 +1521,7 @@ class SearchTests: AppTestCase {
         try await Search.refresh(on: app.db)
 
         // MUT
-        let res = try await Search.fetch(app.db, ["1"], page: 1, pageSize: 20).get()
+        let res = try await Search.fetch(app.db, ["1"], page: 1, pageSize: 20)
 
         // validate
         XCTAssertEqual(res.results.first?.package?.hasDocs, true)

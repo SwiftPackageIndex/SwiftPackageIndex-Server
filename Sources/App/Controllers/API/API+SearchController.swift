@@ -68,9 +68,6 @@ extension API {
                          searchFilters: [],
                          results: [])
         }
-        return try await Search.fetch(database,
-                                      terms,
-                                      page: query.page,
-                                      pageSize: query.pageSize).get()
+        return try await Search.fetch(database, terms, page: query.page, pageSize: query.pageSize)
     }
 }
