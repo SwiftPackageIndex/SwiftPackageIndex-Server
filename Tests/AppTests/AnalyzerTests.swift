@@ -33,7 +33,7 @@ class AnalyzerTests: AppTestCase {
         // expected shell commands for the happy path.)
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
+        let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
         try await Repository(package: pkgs[0],
                              defaultBranch: "main",
                              name: "1",
@@ -300,7 +300,7 @@ class AnalyzerTests: AppTestCase {
         // Ensure a package that fails analysis goes back to ingesting and isn't stuck in an analysis loop
         // setup
         do {
-            let pkg = try savePackage(on: app.db, "https://github.com/foo/1", processingStage: .ingestion)
+            let pkg = try await savePackage(on: app.db, "https://github.com/foo/1", processingStage: .ingestion)
             try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         }
 
@@ -337,7 +337,7 @@ class AnalyzerTests: AppTestCase {
         // Ensure packages record success/error status
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
+        let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
         for p in pkgs {
             try await Repository(package: p, defaultBranch: "main").save(on: app.db)
         }
@@ -383,7 +383,7 @@ class AnalyzerTests: AppTestCase {
         // Test to ensure exceptions don't interrupt processing
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
+        let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
         for p in pkgs {
             try await Repository(package: p, defaultBranch: "main").save(on: app.db)
         }
@@ -468,7 +468,7 @@ class AnalyzerTests: AppTestCase {
     @MainActor
     func test_refreshCheckout() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
+        let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
         try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         Current.fileManager.fileExists = { @Sendable _ in true }
         let commands = QueueIsolated<[String]>([])
@@ -631,7 +631,7 @@ class AnalyzerTests: AppTestCase {
             .mock(description: "rel 2.3.0", publishedAt: 4, tagName: "2.3.0", url: "some url"),
             .mock(description: nil, tagName: "2.4.0")
         ]).save(on: app.db)
-        let versions: [Version] = try [
+        let versions: [Version] = try await [
             (Date(timeIntervalSince1970: 0), Reference.tag(1, 2, 3)),
             (Date(timeIntervalSince1970: 1), Reference.tag(2, 0, 0)),
             (Date(timeIntervalSince1970: 2), Reference.tag(2, 1, 0)),
@@ -639,12 +639,12 @@ class AnalyzerTests: AppTestCase {
             (Date(timeIntervalSince1970: 4), Reference.tag(2, 3, 0)),
             (Date(timeIntervalSince1970: 5), Reference.tag(2, 4, 0)),
             (Date(timeIntervalSince1970: 6), Reference.branch("main")),
-        ].map { date, ref in
+        ].mapAsync { date, ref in
             let v = try Version(id: UUID(),
                                 package: pkg,
                                 commitDate: date,
                                 reference: ref)
-            try v.save(on: app.db).wait()
+            try await v.save(on: app.db)
             return v
         }
         let jpr = try await Package.fetchCandidate(app.db, id: .id0)
@@ -729,7 +729,7 @@ class AnalyzerTests: AppTestCase {
             }
             return ""
         }
-        let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
+        let pkg = try await savePackage(on: app.db, "https://github.com/foo/1")
         try await Repository(package: pkg, name: "1", owner: "foo").save(on: app.db)
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
         try await version.save(on: app.db)
@@ -829,7 +829,7 @@ class AnalyzerTests: AppTestCase {
 
     func test_updatePackages() async throws {
         // setup
-        let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
+        let packages = try await savePackages(on: app.db, ["1", "2"].asURLs)
             .map(Joined<Package, Repository>.init(model:))
         let results: [Result<Joined<Package, Repository>, Error>] = [
             // feed in one error to see it passed through
@@ -894,9 +894,9 @@ class AnalyzerTests: AppTestCase {
             }
             return ""
         }
-        let pkgs = try savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)
-        try pkgs.forEach {
-            try Repository(package: $0, defaultBranch: "main").save(on: app.db).wait()
+        let pkgs = try await savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)
+        for pkg in pkgs {
+            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         }
 
         // MUT
@@ -907,8 +907,9 @@ class AnalyzerTests: AppTestCase {
         // validation
         // 1 version for the default branch + 2 for the tags each = 6 versions
         // 2 products per version = 12 products
-        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 6)
-        XCTAssertEqual(try Product.query(on: app.db).count().wait(), 12)
+        let db = app.db
+        try await XCTAssertEqualAsync(try await Version.query(on: db).count(), 6)
+        try await XCTAssertEqualAsync(try await Product.query(on: db).count(), 12)
     }
 
     @MainActor
@@ -916,7 +917,7 @@ class AnalyzerTests: AppTestCase {
         // Certain git commands fail when index.lock exists
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/70
         // setup
-        try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
+        try await savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
         let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
         let checkoutDir = Current.fileManager.checkoutsDirectory()
@@ -950,7 +951,7 @@ class AnalyzerTests: AppTestCase {
         // git checkout can still fail despite git reset --hard + git clean
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
         // setup
-        try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
+        try await savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
         let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
         let checkoutDir = Current.fileManager.checkoutsDirectory()
@@ -1106,7 +1107,7 @@ class AnalyzerTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/693
         // setup
         do {
-            let pkg = try savePackage(on: app.db, id: .id0, "1".asGithubUrl.url)
+            let pkg = try await savePackage(on: app.db, id: .id0, "1".asGithubUrl.url)
             try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         }
         let pkg = try await Package.fetchCandidate(app.db, id: .id0)
@@ -1455,7 +1456,7 @@ class AnalyzerTests: AppTestCase {
         // Ensure we preserve dependency counts from previous default branch version
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2873
         // setup
-        let pkg = try await savePackageAsync(on: app.db, id: .id0, "https://github.com/foo/1".url, processingStage: .ingestion)
+        let pkg = try await savePackage(on: app.db, id: .id0, "https://github.com/foo/1".url, processingStage: .ingestion)
         try await Repository(package: pkg,
                              defaultBranch: "main",
                              name: "1",

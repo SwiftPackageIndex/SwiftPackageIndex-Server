@@ -128,12 +128,12 @@ class ApiTests: AppTestCase {
         )
     }
 
-    func test_post_buildReport() throws {
+    func test_post_buildReport() async throws {
         // setup
         Current.builderToken = { "secr3t" }
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
         let versionId = try v.requireID()
 
         do {  // MUT - initial insert
@@ -157,15 +157,15 @@ class ApiTests: AppTestCase {
             let encoder = JSONEncoder()
             encoder.dateEncodingStrategy = .secondsSince1970
             let body: ByteBuffer = .init(data: try encoder.encode(dto))
-            try app.test(
+            try await app.test(
                 .POST,
                 "api/versions/\(versionId)/build-report",
                 headers: .bearerApplicationJSON("secr3t"),
                 body: body,
-                afterResponse: { res in
+                afterResponse: { res async throws in
                     // validation
                     XCTAssertEqual(res.status, .noContent)
-                    let builds = try Build.query(on: app.db).all().wait()
+                    let builds = try await Build.query(on: app.db).all()
                     XCTAssertEqual(builds.count, 1)
                     let b = try builds.first.unwrap()
                     XCTAssertEqual(b.id, .id0)
@@ -181,7 +181,7 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(b.runnerId, "some-runner")
                     XCTAssertEqual(b.status, .failed)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
-                    let v = try Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound)).wait()
+                    let v = try await Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound))
                     XCTAssertEqual(v.productDependencies, [.init(identity: "identity",
                                                                  name: "name",
                                                                  url: "url",
@@ -189,7 +189,7 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(v.resolvedDependencies, [.init(packageName: "packageName",
                                                                   repositoryURL: "repositoryURL")])
                     // build failed, hence no package platform compatibility yet
-                    let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
+                    let p = try await XCTUnwrapAsync(try await Package.find(p.id, on: app.db))
                     XCTAssertEqual(p.platformCompatibility, [])
                 })
         }
@@ -204,27 +204,27 @@ class ApiTests: AppTestCase {
                 swiftVersion: .init(5, 2, 0)
             )
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-            try app.test(
+            try await app.test(
                 .POST,
                 "api/versions/\(versionId)/build-report",
                 headers: .bearerApplicationJSON("secr3t"),
                 body: body,
-                afterResponse: { res in
+                afterResponse: { res async throws in
                     // validation
                     XCTAssertEqual(res.status, .noContent)
-                    let builds = try Build.query(on: app.db).all().wait()
+                    let builds = try await Build.query(on: app.db).all()
                     XCTAssertEqual(builds.count, 1)
                     let b = try builds.first.unwrap()
                     XCTAssertEqual(b.id, .id0)
                     XCTAssertEqual(b.platform, .macosXcodebuild)
                     XCTAssertEqual(b.status, .ok)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
-                    let v = try Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound)).wait()
+                    let v = try await Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound))
                     XCTAssertEqual(v.resolvedDependencies,
                                    [.init(packageName: "foo",
                                           repositoryURL: "http://foo/bar")])
                     // build ok now -> package is macos compatible
-                    let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
+                    let p = try await XCTUnwrapAsync(try await Package.find(p.id, on: app.db))
                     XCTAssertEqual(p.platformCompatibility, [.macOS])
                 })
         }
@@ -239,17 +239,17 @@ class ApiTests: AppTestCase {
                 swiftVersion: .init(5, 2, 0)
             )
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-            try app.test(
+            try await app.test(
                 .POST,
                 "api/versions/\(versionId)/build-report",
                 headers: .bearerApplicationJSON("secr3t"),
                 body: body,
-                afterResponse: { res in
+                afterResponse: { res async throws in
                     // validation
-                    let builds = try Build.query(on: app.db).all().wait()
+                    let builds = try await Build.query(on: app.db).all()
                     XCTAssertEqual(Set(builds.map(\.id)), Set([.id0, .id1]))
                     // additional ios build ok -> package is also ios compatible
-                    let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
+                    let p = try await XCTUnwrapAsync(try await Package.find(p.id, on: app.db))
                     XCTAssertEqual(p.platformCompatibility, [.iOS, .macOS])
                 })
         }
@@ -264,7 +264,7 @@ class ApiTests: AppTestCase {
         // configured build id.
         // setup
         Current.builderToken = { "secr3t" }
-        let p = try await savePackageAsync(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
         let versionId = try v.requireID()
@@ -295,12 +295,12 @@ class ApiTests: AppTestCase {
             })
     }
 
-    func test_post_buildReport_infrastructureError() throws {
+    func test_post_buildReport_infrastructureError() async throws {
         // setup
         Current.builderToken = { "secr3t" }
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p)
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
         let versionId = try XCTUnwrap(v.id)
 
         let dto: API.PostBuildReportDTO = .init(
@@ -312,37 +312,38 @@ class ApiTests: AppTestCase {
             status: .infrastructureError,
             swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-        try app.test(
+        try await app.test(
             .POST,
             "api/versions/\(versionId)/build-report",
             headers: .bearerApplicationJSON("secr3t"),
             body: body,
-            afterResponse: { res in
+            afterResponse: { res async throws in
                 // validation
                 XCTAssertEqual(res.status, .noContent)
-                let builds = try Build.query(on: app.db).all().wait()
+                let builds = try await Build.query(on: app.db).all()
                 XCTAssertEqual(builds.count, 1)
                 let b = try builds.first.unwrap()
                 XCTAssertEqual(b.status, .infrastructureError)
             })
     }
 
-    func test_post_buildReport_unauthenticated() throws {
+    func test_post_buildReport_unauthenticated() async throws {
         // Ensure unauthenticated access raises a 401
         // setup
         Current.builderToken = { "secr3t" }
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p)
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
         let versionId = try XCTUnwrap(v.id)
         let dto: API.PostBuildReportDTO = .init(buildId: .id0,
                                                 platform: .macosXcodebuild,
                                                 status: .ok,
                                                 swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+        let db = app.db
 
         // MUT - no auth header
-        try app.test(
+        try await app.test(
             .POST,
             "api/versions/\(versionId)/build-report",
             headers: .applicationJSON,
@@ -350,12 +351,12 @@ class ApiTests: AppTestCase {
             afterResponse: { res in
                 // validation
                 XCTAssertEqual(res.status, .unauthorized)
-                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+                try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 0)
             }
         )
 
         // MUT - wrong token
-        try app.test(
+        try await app.test(
             .POST,
             "api/versions/\(versionId)/build-report",
             headers: .bearerApplicationJSON("wrong"),
@@ -363,13 +364,13 @@ class ApiTests: AppTestCase {
             afterResponse: { res in
                 // validation
                 XCTAssertEqual(res.status, .unauthorized)
-                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+                try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 0)
             }
         )
 
         // MUT - without server token
         Current.builderToken = { nil }
-        try app.test(
+        try await app.test(
             .POST,
             "api/versions/\(versionId)/build-report",
             headers: .bearerApplicationJSON("secr3t"),
@@ -377,19 +378,19 @@ class ApiTests: AppTestCase {
             afterResponse: { res in
                 // validation
                 XCTAssertEqual(res.status, .unauthorized)
-                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+                try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 0)
             }
         )
     }
 
-    func test_post_buildReport_large() throws {
+    func test_post_buildReport_large() async throws {
         // Ensure we can handle large build reports
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2825
         // setup
         Current.builderToken = { "secr3t" }
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
         let versionId = try v.requireID()
 
         // MUT
@@ -397,12 +398,12 @@ class ApiTests: AppTestCase {
         XCTAssert(data.count > 16_000, "was: \(data.count) bytes")
         let body: ByteBuffer = .init(data: data)
         let outOfTheWayPort = 12_345
-        try app.testable(method: .running(port: outOfTheWayPort)).test(
+        try await app.testable(method: .running(port: outOfTheWayPort)).test(
             .POST,
             "api/versions/\(versionId)/build-report",
             headers: .bearerApplicationJSON("secr3t"),
             body: body,
-            afterResponse: { res in
+            afterResponse: { res async in
                 // validation
                 XCTAssertEqual(res.status, .noContent)
             })
@@ -413,7 +414,7 @@ class ApiTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/3290#issuecomment-2293101104
         // setup
         Current.builderToken = { "secr3t" }
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let originalPackageUpdate = try XCTUnwrap(p.updatedAt)
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
@@ -472,7 +473,7 @@ class ApiTests: AppTestCase {
     func test_post_docReport() async throws {
         // setup
         Current.builderToken = { "secr3t" }
-        let p = try await savePackageAsync(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
         let b = try Build(version: v, platform: .iOS, status: .ok, swiftVersion: .v3)
@@ -560,7 +561,7 @@ class ApiTests: AppTestCase {
         // Ensure a subsequent doc report on a different build does not trip over a UK violation
         // setup
         Current.builderToken = { "secr3t" }
-        let p = try await savePackageAsync(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
         let b1 = try Build(id: .id0, version: v, platform: .linux, status: .ok, swiftVersion: .v3)
@@ -630,7 +631,7 @@ class ApiTests: AppTestCase {
     func test_post_docReport_unauthenticated() async throws {
         // setup
         Current.builderToken = { "secr3t" }
-        let p = try await savePackageAsync(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
         let b = try Build(version: v, platform: .iOS, status: .ok, swiftVersion: .v3)
@@ -683,7 +684,7 @@ class ApiTests: AppTestCase {
 
     func test_BadgeRoute_query() async throws {
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .release, reference: .tag(.init(1, 2, 3)))
         try await v.save(on: app.db)
         try await Repository(package: p,
@@ -697,7 +698,7 @@ class ApiTests: AppTestCase {
         try await Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v2)
             .save(on: app.db)
         do { // save decoy
-            let p = try savePackage(on: app.db, "2")
+            let p = try await savePackage(on: app.db, "2")
             let v = try Version(package: p, latest: .release, reference: .tag(.init(2, 0, 0)))
             try await v.save(on: app.db)
             try await Repository(package: p,
@@ -723,7 +724,7 @@ class ApiTests: AppTestCase {
         // setup
         let owner = "owner"
         let repo = "repo"
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .release, reference: .tag(1, 2, 3))
         try await v.save(on: app.db)
         try await Repository(package: p,
@@ -992,7 +993,7 @@ class ApiTests: AppTestCase {
         Current.apiSigningKey = { "secret" }
         let owner = "owner"
         let repo = "repo"
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch, reference: .branch("main"))
         try await v.save(on: app.db)
         try await Repository(package: p,
@@ -1051,7 +1052,7 @@ class ApiTests: AppTestCase {
     func test_dependencies_get() async throws {
         // setup
         Current.apiSigningKey = { "secret" }
-        let pkg = try savePackage(on: app.db, id: .id0, "http://github.com/foo/bar")
+        let pkg = try await savePackage(on: app.db, id: .id0, "http://github.com/foo/bar")
         try await Repository(package: pkg,
                              defaultBranch: "default",
                              name: "bar",

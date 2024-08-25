@@ -19,20 +19,20 @@ import XCTVapor
 
 class PackageCollectionControllerTests: AppTestCase {
 
-    func test_owner_request() throws {
+    func test_owner_request() async throws {
         try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         // setup
         Current.date = { .t0 }
-        let p = try savePackage(on: app.db, "https://github.com/foo/1")
+        let p = try await savePackage(on: app.db, "https://github.com/foo/1")
         do {
             let v = try Version(id: UUID(),
                                 package: p,
                                 packageName: "P1-main",
                                 reference: .branch("main"),
                                 toolsVersion: "5.0")
-            try v.save(on: app.db).wait()
-            try Product(version: v, type: .library(.automatic), name: "P1Lib")
-                .save(on: app.db).wait()
+            try await v.save(on: app.db)
+            try await Product(version: v, type: .library(.automatic), name: "P1Lib")
+                .save(on: app.db)
         }
         do {
             let v = try Version(id: UUID(),
@@ -41,27 +41,27 @@ class PackageCollectionControllerTests: AppTestCase {
                                 packageName: "P1-tag",
                                 reference: .tag(1, 2, 3),
                                 toolsVersion: "5.1")
-            try v.save(on: app.db).wait()
-            try Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
-                .save(on: app.db).wait()
-            try Build(version: v,
-                      platform: .iOS,
-                      status: .ok,
-                      swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
-            try Target(version: v, name: "t1").save(on: app.db).wait()
+            try await v.save(on: app.db)
+            try await Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
+                .save(on: app.db)
+            try await Build(version: v,
+                            platform: .iOS,
+                            status: .ok,
+                            swiftVersion: .init(5, 6, 0)).save(on: app.db)
+            try await Target(version: v, name: "t1").save(on: app.db)
         }
-        try Repository(package: p,
-                       defaultBranch: "main",
-                       license: .mit,
-                       licenseUrl: "https://foo/mit",
-                       owner: "foo",
-                       summary: "summary 1").create(on: app.db).wait()
+        try await Repository(package: p,
+                             defaultBranch: "main",
+                             license: .mit,
+                             licenseUrl: "https://foo/mit",
+                             owner: "foo",
+                             summary: "summary 1").create(on: app.db)
 
         // MUT
-        try app.test(
+        try await app.test(
             .GET,
             "foo/collection.json",
-            afterResponse: { res in
+            afterResponse: { res async throws in
                 // validation
                 XCTAssertEqual(res.status, .ok)
                 let json = try res.content.decode(PackageCollection.self)

@@ -188,8 +188,8 @@ class SearchTests: AppTestCase {
     func test_fetch_single() async throws {
         // Test search with a single term
         // setup
-        let p1 = try savePackage(on: app.db, "1")
-        let p2 = try savePackage(on: app.db, "2")
+        let p1 = try await savePackage(on: app.db, "1")
+        let p2 = try await savePackage(on: app.db, "2")
         try await Repository(package: p1,
                              defaultBranch: "main",
                              summary: "some package").save(on: app.db)
@@ -232,8 +232,8 @@ class SearchTests: AppTestCase {
     func test_fetch_multiple() async throws {
         // Test search with multiple terms ("and")
         // setup
-        let p1 = try savePackage(on: app.db, "1")
-        let p2 = try savePackage(on: app.db, "2")
+        let p1 = try await savePackage(on: app.db, "1")
+        let p2 = try await savePackage(on: app.db, "2")
         try await Repository(package: p1,
                        defaultBranch: "main",
                        name: "package 1",
@@ -301,8 +301,8 @@ class SearchTests: AppTestCase {
     func test_quoting() async throws {
         // Test searching for a `'`
         // setup
-        let p1 = try savePackage(on: app.db, "1")
-        let p2 = try savePackage(on: app.db, "2")
+        let p1 = try await savePackage(on: app.db, "1")
+        let p2 = try await savePackage(on: app.db, "2")
         try await Repository(package: p1,
                              defaultBranch: "main",
                              lastCommitDate: .t0,

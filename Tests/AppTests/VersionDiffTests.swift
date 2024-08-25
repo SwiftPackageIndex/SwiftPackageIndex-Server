@@ -147,7 +147,7 @@ class VersionDiffTests: AppTestCase {
     func test_diff_1() async throws {
         // Branch changes commit hash
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let keptId = UUID()
         let saved: [Version] = [
             try .init(package: pkg, commit: "hash1", reference: .branch("main")),

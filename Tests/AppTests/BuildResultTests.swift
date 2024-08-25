@@ -21,7 +21,7 @@ class BuildResultTests: AppTestCase {
 
     func test_query() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         let repo = try Repository(package: pkg)
         try await repo.save(on: app.db)
         let version = try Version(package: pkg)

@@ -62,7 +62,7 @@ class MetricsTests: AppTestCase {
         let initialDeletedTag = try XCTUnwrap(
             AppMetrics.analyzeVersionsDeletedCount?.get(.versionLabels(kind: .tag))
         )
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let new = [
             try Version(package: pkg, reference: .branch("main")),
             try Version(package: pkg, reference: .tag(1, 2, 3)),
@@ -110,7 +110,7 @@ class MetricsTests: AppTestCase {
 
     func test_ingestDurationSeconds() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
 
         // MUT
         try await ingest(client: app.client, database: app.db, mode: .id(pkg.id!))
@@ -121,7 +121,7 @@ class MetricsTests: AppTestCase {
 
     func test_analyzeDurationSeconds() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
 
         // MUT
         try await Analyze.analyze(client: app.client, database: app.db, mode: .id(pkg.id!))
@@ -132,7 +132,7 @@ class MetricsTests: AppTestCase {
 
     func test_triggerBuildsDurationSeconds() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
 
         // MUT
         try await triggerBuilds(on: app.db, client: app.client, mode: .packageId(pkg.id!, force: true))

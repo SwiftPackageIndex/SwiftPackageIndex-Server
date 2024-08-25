@@ -21,20 +21,20 @@ import XCTVapor
 
 final class TargetTests: AppTestCase {
 
-    func test_save() throws {
+    func test_save() async throws {
         // setup
         let v = Version()
         v.commit = "" // required field
         v.commitDate = .distantPast // required field
         v.reference = .branch("main")  // required field
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
         let t = try Target(version: v, name: "target")
 
         // MUT
-        try t.save(on: app.db).wait()
+        try await t.save(on: app.db)
 
         // validate
-        let readBack = try XCTUnwrap(Target.query(on: app.db).first().wait())
+        let readBack = try await XCTUnwrapAsync(try await Target.query(on: app.db).first())
         XCTAssertNotNil(readBack.id)
         XCTAssertEqual(readBack.$version.id, v.id)
         XCTAssertNotNil(readBack.createdAt)
@@ -42,22 +42,28 @@ final class TargetTests: AppTestCase {
         XCTAssertEqual(readBack.name, "target")
     }
 
-    func test_delete_cascade() throws {
+    func test_delete_cascade() async throws {
         // setup
         let v = Version()
         v.commit = "" // required field
         v.commitDate = .distantPast // required field
         v.reference = .branch("main")  // required field
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
         let t = try Target(version: v, name: "target")
-        try t.save(on: app.db).wait()
-        XCTAssertNotNil(try Target.query(on: app.db).first().wait())
+        try await t.save(on: app.db)
+        do {
+            let target = try await Target.query(on: app.db).first()
+            XCTAssertNotNil(target)
+        }
 
         // MUT
-        try v.delete(on: app.db).wait()
+        try await v.delete(on: app.db)
 
         // validate
-        XCTAssertNil(try Target.query(on: app.db).first().wait())
+        do {
+            let target = try await Target.query(on: app.db).first()
+            XCTAssertNil(target)
+        }
     }
 
 }

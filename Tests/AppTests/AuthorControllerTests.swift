@@ -21,7 +21,7 @@ class AuthorControllerTests: AppTestCase {
 
     func test_query() async throws {
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         try await Repository(package: p, owner: "owner").save(on: app.db)
         try await Version(package: p, latest: .defaultBranch).save(on: app.db)
 
@@ -34,7 +34,7 @@ class AuthorControllerTests: AppTestCase {
 
     func test_query_no_version() async throws {
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         try await Repository(package: p, owner: "owner").save(on: app.db)
 
         // MUT
@@ -67,7 +67,7 @@ class AuthorControllerTests: AppTestCase {
 
     func test_show_owner() async throws {
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         try await Repository(package: p, owner: "owner").save(on: app.db)
         try await Version(package: p, latest: .defaultBranch).save(on: app.db)
 
@@ -79,7 +79,7 @@ class AuthorControllerTests: AppTestCase {
 
     func test_show_owner_empty() async throws {
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         try await Repository(package: p, owner: "owner").save(on: app.db)
         try await Version(package: p, latest: .defaultBranch).save(on: app.db)
 

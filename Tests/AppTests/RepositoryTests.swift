@@ -20,9 +20,9 @@ import XCTVapor
 
 final class RepositoryTests: AppTestCase {
 
-    func test_save() throws {
+    func test_save() async throws {
         let pkg = Package(id: UUID(), url: "1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let repo = try Repository(id: UUID(),
                                   package: pkg,
                                   authors: PackageAuthors(authors: [
@@ -54,10 +54,10 @@ final class RepositoryTests: AppTestCase {
                                   stars: 42,
                                   summary: "desc")
 
-        try repo.save(on: app.db).wait()
+        try await repo.save(on: app.db)
 
         do {
-            let r = try XCTUnwrap(Repository.find(repo.id, on: app.db).wait())
+            let r = try await XCTUnwrapAsync(try await Repository.find(repo.id, on: app.db))
             XCTAssertEqual(r.$package.id, pkg.id)
             XCTAssertEqual(r.authors,
                            PackageAuthors(authors: [ .init(name: "Foo"), .init(name: "Bar")],
@@ -90,9 +90,9 @@ final class RepositoryTests: AppTestCase {
         }
     }
 
-    func test_generated_lastActivityAt_lastCommitDate() throws {
+    func test_generated_lastActivityAt_lastCommitDate() async throws {
         let pkg = Package(url: "p1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
 
         let oldestDate = Date(timeIntervalSinceReferenceDate: 0)
         let moreRecentDate = Date(timeIntervalSinceReferenceDate: 100)
@@ -101,15 +101,15 @@ final class RepositoryTests: AppTestCase {
         repo.lastCommitDate = moreRecentDate
         repo.lastIssueClosedAt = oldestDate
         repo.lastPullRequestClosedAt = oldestDate
-        try repo.save(on: app.db).wait()
+        try await repo.save(on: app.db)
 
-        let fetchedRepo = try XCTUnwrap(Repository.find(repo.id, on: app.db).wait())
+        let fetchedRepo = try await XCTUnwrapAsync(try await Repository.find(repo.id, on: app.db))
         XCTAssertEqual(fetchedRepo.lastActivityAt, moreRecentDate)
     }
 
-    func test_generated_lastActivityAt_lastIssueClosedAt() throws {
+    func test_generated_lastActivityAt_lastIssueClosedAt() async throws {
         let pkg = Package(url: "p1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
 
         let oldestDate = Date(timeIntervalSinceReferenceDate: 0)
         let moreRecentDate = Date(timeIntervalSinceReferenceDate: 100)
@@ -118,15 +118,15 @@ final class RepositoryTests: AppTestCase {
         repo.lastCommitDate = oldestDate
         repo.lastIssueClosedAt = moreRecentDate
         repo.lastPullRequestClosedAt = oldestDate
-        try repo.save(on: app.db).wait()
+        try await repo.save(on: app.db)
 
-        let fetchedRepo = try XCTUnwrap(Repository.find(repo.id, on: app.db).wait())
+        let fetchedRepo = try await XCTUnwrapAsync(try await Repository.find(repo.id, on: app.db))
         XCTAssertEqual(fetchedRepo.lastActivityAt, moreRecentDate)
     }
 
-    func test_generated_lastActivityAt_lastPullRequestClosedAt() throws {
+    func test_generated_lastActivityAt_lastPullRequestClosedAt() async throws {
         let pkg = Package(url: "p1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
 
         let oldestDate = Date(timeIntervalSinceReferenceDate: 0)
         let moreRecentDate = Date(timeIntervalSinceReferenceDate: 100)
@@ -135,15 +135,15 @@ final class RepositoryTests: AppTestCase {
         repo.lastCommitDate = oldestDate
         repo.lastIssueClosedAt = oldestDate
         repo.lastPullRequestClosedAt = moreRecentDate
-        try repo.save(on: app.db).wait()
+        try await repo.save(on: app.db)
 
-        let fetchedRepo = try XCTUnwrap(Repository.find(repo.id, on: app.db).wait())
+        let fetchedRepo = try await XCTUnwrapAsync(try await Repository.find(repo.id, on: app.db))
         XCTAssertEqual(fetchedRepo.lastActivityAt, moreRecentDate)
     }
 
-    func test_generated_lastActivityAt_nullValues() throws {
+    func test_generated_lastActivityAt_nullValues() async throws {
         let pkg = Package(url: "p1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
 
         let date = Date(timeIntervalSinceReferenceDate: 0)
 
@@ -151,111 +151,118 @@ final class RepositoryTests: AppTestCase {
         repo.lastCommitDate = date
         repo.lastIssueClosedAt = nil
         repo.lastPullRequestClosedAt = nil
-        try repo.save(on: app.db).wait()
+        try await repo.save(on: app.db)
 
-        let fetchedRepo = try XCTUnwrap(Repository.find(repo.id, on: app.db).wait())
+        let fetchedRepo = try await XCTUnwrapAsync(try await Repository.find(repo.id, on: app.db))
         XCTAssertEqual(fetchedRepo.lastActivityAt, date)
     }
 
-    func test_package_relationship() throws {
+    func test_package_relationship() async throws {
         let pkg = Package(url: "p1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let repo = try Repository(package: pkg)
-        try repo.save(on: app.db).wait()
+        try await repo.save(on: app.db)
         // test some ways to resolve the relationship
         XCTAssertEqual(repo.$package.id, pkg.id)
-        XCTAssertEqual(try repo.$package.get(on: app.db).wait().url, "p1")
+        let db = app.db
+        try await XCTAssertEqualAsync(try await repo.$package.get(on: db).url, "p1")
 
         // ensure one-to-one is in place
         do {
             let repo = try Repository(package: pkg)
-            XCTAssertThrowsError(try repo.save(on: app.db).wait())
-            XCTAssertEqual(try Repository.query(on: app.db).all().wait().count, 1)
+            do {
+                try await repo.save(on: app.db)
+                XCTFail("Expected error")
+            } catch { }
+            try await XCTAssertEqualAsync(try await Repository.query(on: db).all().count, 1)
         }
     }
 
-    func test_forkedFrom_relationship() throws {
+    func test_forkedFrom_relationship() async throws {
         let p1 = Package(url: "p1")
-        try p1.save(on: app.db).wait()
+        try await p1.save(on: app.db)
         let p2 = Package(url: "p2")
-        try p2.save(on: app.db).wait()
+        try await p2.save(on: app.db)
 
         // test forked from link
         let parent = try Repository(package: p1)
-        try parent.save(on: app.db).wait()
+        try await parent.save(on: app.db)
         let child = try Repository(package: p2, forkedFrom: parent)
-        try child.save(on: app.db).wait()
+        try await child.save(on: app.db)
     }
 
-    func test_delete_cascade() throws {
+    func test_delete_cascade() async throws {
         // delete package must delete repository
         let pkg = Package(id: UUID(), url: "1")
         let repo = try Repository(id: UUID(), package: pkg)
-        try pkg.save(on: app.db).wait()
-        try repo.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
+        try await repo.save(on: app.db)
 
-        XCTAssertEqual(try Package.query(on: app.db).count().wait(), 1)
-        XCTAssertEqual(try Repository.query(on: app.db).count().wait(), 1)
+        let db = app.db
+        try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 1)
+        try await XCTAssertEqualAsync(try await Repository.query(on: db).count(), 1)
 
         // MUT
-        try pkg.delete(on: app.db).wait()
+        try await pkg.delete(on: app.db)
 
         // version and product should be deleted
-        XCTAssertEqual(try Package.query(on: app.db).count().wait(), 0)
-        XCTAssertEqual(try Repository.query(on: app.db).count().wait(), 0)
+        try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 0)
+        try await XCTAssertEqualAsync(try await Repository.query(on: db).count(), 0)
     }
 
-    func test_uniqueOwnerRepository() throws {
+    func test_uniqueOwnerRepository() async throws {
         // Ensure owner/repository is unique, testing various combinations with
         // matching/non-matching case
-        let p1 = try savePackage(on: app.db, "1")
-        try Repository(id: UUID(), package: p1, name: "bar", owner: "foo").save(on: app.db).wait()
-        let p2 = try savePackage(on: app.db, "2")
+        let p1 = try await savePackage(on: app.db, "1")
+        try await Repository(id: UUID(), package: p1, name: "bar", owner: "foo").save(on: app.db)
+        let p2 = try await savePackage(on: app.db, "2")
+        let db = app.db
 
-        XCTAssertThrowsError(
+        do {
             // MUT - identical
-            try Repository(id: UUID(), package: p2, name: "bar", owner: "foo").save(on: app.db).wait()
-        ) {
-            XCTAssert(String(reflecting: $0).contains(
+            try await Repository(id: UUID(), package: p2, name: "bar", owner: "foo").save(on: app.db)
+            XCTFail("Expected error")
+        } catch {
+            XCTAssert(String(reflecting: error).contains(
                 #"duplicate key value violates unique constraint "idx_repositories_owner_name""#),
-                      "was: \($0.localizedDescription)"
+                      "was: \(error.localizedDescription)"
             )
-            XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
+            try await XCTAssertEqualAsync(try await Repository.query(on: db).all().count, 1)
         }
 
-        XCTAssertThrowsError(
+        do {
             // MUT - diffrent case repository
-            try Repository(id: UUID(), package: p2, name: "Bar", owner: "foo").save(on: app.db).wait()
-        ) {
-            XCTAssert(String(reflecting: $0).contains(
+            try await Repository(id: UUID(), package: p2, name: "Bar", owner: "foo").save(on: app.db)
+            XCTFail("Expected error")
+        } catch {
+            XCTAssert(String(reflecting: error).contains(
                 #"duplicate key value violates unique constraint "idx_repositories_owner_name""#),
-                      "was: \($0.localizedDescription)"
+                      "was: \(error.localizedDescription)"
             )
-            XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
+            try await XCTAssertEqualAsync(try await Repository.query(on: db).all().count, 1)
         }
 
-        XCTAssertThrowsError(
+        do {
             // MUT - diffrent case owner
-            try Repository(id: UUID(), package: p2, name: "bar", owner: "Foo").save(on: app.db).wait()
-        ) {
-            XCTAssert(String(reflecting: $0).contains(
+            try await Repository(id: UUID(), package: p2, name: "bar", owner: "Foo").save(on: app.db)
+            XCTFail("Expected error")
+        } catch {
+            XCTAssert(String(reflecting: error).contains(
                 #"duplicate key value violates unique constraint "idx_repositories_owner_name""#),
-                      "was: \($0.localizedDescription)"
+                      "was: \(error.localizedDescription)"
             )
-            XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
+            try await XCTAssertEqualAsync(try await Repository.query(on: db).all().count, 1)
         }
     }
 
-    func test_name_index() throws {
+    func test_name_index() async throws {
         let db = try XCTUnwrap(app.db as? SQLDatabase)
         // Quick way to check index exists - this will throw
         //   "server: index "idx_repositories_name" does not exist (DropErrorMsgNonExistent)"
         // if it doesn't
-        XCTAssertNoThrow(try db.raw("DROP INDEX idx_repositories_name").run().wait())
+        try await db.raw("DROP INDEX idx_repositories_name").run()
         // Recreate index or else the revert in the next tests setUp is going to fail
-        try db.raw(
-            "CREATE INDEX idx_repositories_name ON repositories USING gin (name gin_trgm_ops)"
-        ).run().wait()
+        try await db.raw("CREATE INDEX idx_repositories_name ON repositories USING gin (name gin_trgm_ops)").run()
     }
     
     func test_S3Readme_needsUpdate() {

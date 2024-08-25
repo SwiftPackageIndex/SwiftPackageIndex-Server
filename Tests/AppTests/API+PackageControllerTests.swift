@@ -27,7 +27,7 @@ class API_PackageControllerTests: AppTestCase {
         Current.date = {
             Date.init(timeIntervalSince1970: 1608000588)  // Dec 15, 2020
         }
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg,
                              commitCount: 1433,
                              defaultBranch: "default",
@@ -65,7 +65,7 @@ class API_PackageControllerTests: AppTestCase {
         Current.date = {
             Date.init(timeIntervalSince1970: 1608000588)  // Dec 15, 2020
         }
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg,
                              commitCount: 1433,
                              defaultBranch: "default",
@@ -135,7 +135,7 @@ class API_PackageControllerTests: AppTestCase {
 
     func test_ProductCount_query() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg,
                              defaultBranch: "main",
                              name: "bar",
@@ -282,7 +282,7 @@ class API_PackageControllerTests: AppTestCase {
     func test_BuildInfo_query() async throws {
         // setup
         do {
-            let pkg = try savePackage(on: app.db, "1".url)
+            let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  name: "bar",
@@ -304,7 +304,7 @@ class API_PackageControllerTests: AppTestCase {
             }
         }
         do { // unrelated package and build
-            let pkg = try savePackage(on: app.db, "2".url)
+            let pkg = try await savePackage(on: app.db, "2".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  name: "bar2",
@@ -348,7 +348,7 @@ class API_PackageControllerTests: AppTestCase {
     func test_GetRoute_query() async throws {
         // ensure GetRoute.query is wired up correctly (detailed tests are elsewhere)
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "bar", owner: "foo")
             .save(on: app.db)
         try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)

@@ -20,12 +20,12 @@ import XCTVapor
 class ErrorReportingTests: AppTestCase {
 
     func test_recordError() async throws {
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await recordError(database: app.db,
                               error: AppError.cacheDirectoryDoesNotExist(pkg.id, "path"),
                               stage: .ingestion)
         do {
-            let pkg = try fetch(id: pkg.id, on: app.db)
+            let pkg = try await XCTUnwrapAsync(try await Package.find(pkg.id, on: app.db))
             XCTAssertEqual(pkg.status, .cacheDirectoryDoesNotExist)
             XCTAssertEqual(pkg.processingStage, .ingestion)
         }
@@ -73,7 +73,7 @@ class ErrorReportingTests: AppTestCase {
 
     func test_invalidPackageCachePath() async throws {
         // setup
-        try await savePackagesAsync(on: app.db, ["1", "2"], processingStage: .ingestion)
+        try await savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
 
         // MUT
         try await Analyze.analyze(client: app.client,

@@ -22,7 +22,7 @@ final class DocumentationTargetTests: AppTestCase {
     func test_external() async throws {
         // Test external doc url lookup
         // setup
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
                              name: "bar",
                              owner: "foo").save(on: app.db)
@@ -50,7 +50,7 @@ final class DocumentationTargetTests: AppTestCase {
     func test_external_override() async throws {
         // Test external doc url lookup overriding internal doc archives
         // setup
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
                              name: "bar",
                              owner: "foo").save(on: app.db)
@@ -80,7 +80,7 @@ final class DocumentationTargetTests: AppTestCase {
 
     func test_internal_defaultBranch() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
                              name: "bar",
                              owner: "foo").save(on: app.db)
@@ -104,7 +104,7 @@ final class DocumentationTargetTests: AppTestCase {
 
     func test_internal_stableBranch() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
                              name: "bar",
                              owner: "foo").save(on: app.db)

@@ -25,7 +25,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     func test_init_no_packageName() async throws {
         // Tests behaviour when we're lacking data
         // setup package without package name
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
         let version = try App.Version(package: pkg,
                                       latest: .defaultBranch,
@@ -50,7 +50,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     }
 
     func test_init_packageIdentity() async throws {
-        let pkg = try savePackage(on: app.db, URL(string: "https://github.com/foo/swift-bar.git")!)
+        let pkg = try await savePackage(on: app.db, URL(string: "https://github.com/foo/swift-bar.git")!)
         try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
         let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
         try await version.save(on: app.db)
@@ -71,7 +71,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     }
 
     func test_init_generated_documentation() async throws {
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
         let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
         version.docArchives = [.init(name: "archive1", title: "Archive One")]
@@ -93,7 +93,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     }
 
     func test_init_external_documentation() async throws {
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
         let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
         version.spiManifest = try .init(yml: """
@@ -454,7 +454,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
     func test_languagePlatformInfo() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg,
                              defaultBranch: "default",
                              name: "bar",

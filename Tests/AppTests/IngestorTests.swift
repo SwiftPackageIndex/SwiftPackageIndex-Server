@@ -64,8 +64,8 @@ class IngestorTests: AppTestCase {
             case badRequest
         }
 
-        let packages = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1",
-                                                                "https://github.com/foo/2"])
+        let packages = try await savePackages(on: app.db, ["https://github.com/foo/1",
+                                                           "https://github.com/foo/2"])
             .map(Joined<Package, Repository>.init(model:))
         Current.fetchMetadata = { _, owner, repository in
             if owner == "foo" && repository == "1" {
@@ -87,7 +87,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_updateRepository_insert() async throws {
-        let pkg = try await savePackageAsync(on: app.db, "https://github.com/foo/bar")
+        let pkg = try await savePackage(on: app.db, "https://github.com/foo/bar")
         let repo = Repository(packageId: try pkg.requireID())
 
         // MUT
@@ -108,7 +108,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_updateRepository_update() async throws {
-        let pkg = try await savePackageAsync(on: app.db, "https://github.com/foo/bar")
+        let pkg = try await savePackage(on: app.db, "https://github.com/foo/bar")
         let repo = Repository(packageId: try pkg.requireID())
         let md: Github.Metadata = .init(defaultBranch: "main",
                                         forks: 1,
@@ -199,7 +199,7 @@ class IngestorTests: AppTestCase {
 
     func test_homePageEmptyString() async throws {
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "2")
+        let pkg = try await savePackage(on: app.db, "2")
         let repo = Repository(packageId: try pkg.requireID())
         let md: Github.Metadata = .init(defaultBranch: "main",
                                         forks: 1,
@@ -236,8 +236,8 @@ class IngestorTests: AppTestCase {
 
     func test_updatePackage() async throws {
         // setup
-        let pkgs = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1",
-                                                            "https://github.com/foo/2"])
+        let pkgs = try await savePackages(on: app.db, ["https://github.com/foo/1",
+                                                       "https://github.com/foo/2"])
             .map(Joined<Package, Repository>.init(model:))
         let results: [Result<Joined<Package, Repository>, Error>] = [
             .failure(AppError.genericError(try pkgs[0].model.requireID(), "error 1")),
@@ -304,8 +304,8 @@ class IngestorTests: AppTestCase {
         let urls = ["https://github.com/foo/1",
                     "https://github.com/foo/2",
                     "https://github.com/foo/3"]
-        let packages = try await savePackagesAsync(on: app.db, urls.asURLs,
-                                                   processingStage: .reconciliation)
+        let packages = try await savePackages(on: app.db, urls.asURLs,
+                                              processingStage: .reconciliation)
         Current.fetchMetadata = { _, owner, repository in
             if owner == "foo" && repository == "2" {
                 throw AppError.genericError(packages[1].id, "error 2")

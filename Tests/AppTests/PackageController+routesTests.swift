@@ -23,16 +23,16 @@ import Vapor
 
 class PackageController_routesTests: SnapshotTestCase {
 
-    func test_show() throws {
+    func test_show() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
+        let pkg = try await savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
         // MUT
-        try app.test(.GET, "/owner/package") {
-            XCTAssertEqual($0.status, .ok)
+        try await app.test(.GET, "/owner/package") { res async in
+            XCTAssertEqual(res.status, .ok)
         }
     }
 
@@ -67,7 +67,7 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_ShowModel_packageAvailable() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
@@ -136,7 +136,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_readme_route() async throws {
         // Test that readme route is set up
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
@@ -150,7 +150,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_readme_basic() async throws {
         // Test readme fragment happy path
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, defaultBranch: "main", name: "package", owner: "owner", readmeHtmlUrl: "html url")
             .save(on: app.db)
         try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
@@ -172,7 +172,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_readme_no_readmeHtmlUrl() async throws {
         // Test readme fragment when there's no readme html url
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner", readmeHtmlUrl: nil)
             .save(on: app.db)
         try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
@@ -201,7 +201,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // setup
         struct Error: Swift.Error { }
         Current.fetchS3Readme = { _, _, _ in throw Error() }
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg,
                              name: "package",
                              owner: "owner",
@@ -231,58 +231,58 @@ class PackageController_routesTests: SnapshotTestCase {
         XCTAssert(s3Readme.isError)
     }
 
-    func test_releases() throws {
+    func test_releases() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
+        let pkg = try await savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
         // MUT
-        try app.test(.GET, "/owner/package/releases") {
-            XCTAssertEqual($0.status, .ok)
+        try await app.test(.GET, "/owner/package/releases") { res async in
+            XCTAssertEqual(res.status, .ok)
         }
     }
 
-    func test_builds() throws {
+    func test_builds() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
+        let pkg = try await savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
         // MUT
-        try app.test(.GET, "/owner/package/builds") {
-            XCTAssertEqual($0.status, .ok)
+        try await app.test(.GET, "/owner/package/builds") { res async in
+            XCTAssertEqual(res.status, .ok)
         }
     }
 
-    func test_maintainerInfo() throws {
+    func test_maintainerInfo() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
-            .save(on: app.db).wait()
+        let pkg = try await savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
+            .save(on: app.db)
 
         // MUT
-        try app.test(.GET, "/owner/package/information-for-package-maintainers") {
-            XCTAssertEqual($0.status, .ok)
+        try await app.test(.GET, "/owner/package/information-for-package-maintainers") { res async in
+            XCTAssertEqual(res.status, .ok)
         }
     }
 
-    func test_maintainerInfo_no_packageName() throws {
+    func test_maintainerInfo_no_packageName() async throws {
         // Ensure we display the page even if packageName is not set
         // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch, packageName: nil)
-            .save(on: app.db).wait()
+        let pkg = try await savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg, latest: .defaultBranch, packageName: nil)
+            .save(on: app.db)
 
         // MUT
-        try app.test(.GET, "/owner/package/information-for-package-maintainers") {
-            XCTAssertEqual($0.status, .ok)
+        try await app.test(.GET, "/owner/package/information-for-package-maintainers") { res async in
+            XCTAssertEqual(res.status, .ok)
         }
     }
 
@@ -431,7 +431,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // Test the redirect documentation routes without any reference:
         //   /owner/package/documentation + various path elements
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
@@ -487,7 +487,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // Test the current (~) documentation routes:
         //   /owner/package/documentation/~ + various path elements
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
@@ -565,7 +565,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // Test the current (~) documentation routes with baseURL rewriting:
         //   /owner/package/documentation/~ + various path elements
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
@@ -635,7 +635,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // Test the documentation routes with a reference:
         //   /owner/package/documentation/{reference} + various path elements
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
@@ -710,7 +710,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_routes_no_archive() async throws {
         // Test documentation routes when no archive is in the path
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
@@ -746,85 +746,85 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    func test_documentationRoot_notFound() throws {
+    func test_documentationRoot_notFound() async throws {
         // setup
         Current.fetchDocumentation = { _, _ in .init(status: .notFound) }
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg,
+        let pkg = try await savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
                     commit: "0123456789",
                     commitDate: .t0,
                     docArchives: [], // No docArchives!
                     latest: .defaultBranch,
                     packageName: "pkg",
                     reference: .branch("main"))
-        .save(on: app.db).wait()
-        try Version(package: pkg,
+        .save(on: app.db)
+        try await Version(package: pkg,
                     commit: "9876543210",
                     commitDate: .t0,
                     docArchives: [], // No docArchives!
                     latest: .release,
                     packageName: "pkg",
                     reference: .tag(1, 0, 0))
-        .save(on: app.db).wait()
+        .save(on: app.db)
 
         // MUT
-        try app.test(.GET, "/owner/package/main/documentation") {
-            XCTAssertEqual($0.status, .notFound)
+        try await app.test(.GET, "/owner/package/main/documentation") { res async in
+            XCTAssertEqual(res.status, .notFound)
         }
-        try app.test(.GET, "/owner/package/1.0.0/documentation") {
-            XCTAssertEqual($0.status, .notFound)
+        try await app.test(.GET, "/owner/package/1.0.0/documentation") { res async in
+            XCTAssertEqual(res.status, .notFound)
         }
     }
 
-    func test_documentation_404() throws {
+    func test_documentation_404() async throws {
         // Test conversion of any doc fetching errors into 404s.
         // setup
         Current.fetchDocumentation = { _, uri in .init(status: .badRequest) }
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
-            .save(on: app.db).wait()
+        let pkg = try await savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
+            .save(on: app.db)
 
         // MUT
         // test base url
-        try app.test(.GET, "/owner/package/1.2.3/documentation") {
-            XCTAssertEqual($0.status, .notFound)
+        try await app.test(.GET, "/owner/package/1.2.3/documentation") { res async in
+            XCTAssertEqual(res.status, .notFound)
         }
 
         // test path a/b
-        try app.test(.GET, "/owner/package/1.2.3/documentation/a/b") {
-            XCTAssertEqual($0.status, .notFound)
+        try await app.test(.GET, "/owner/package/1.2.3/documentation/a/b") { res async in
+            XCTAssertEqual(res.status, .notFound)
         }
     }
 
-    func test_documentation_error() throws {
+    func test_documentation_error() async throws {
         // Test behaviour when fetchDocumentation throws
         struct SomeError: Error { }
         Current.fetchDocumentation = { _, _ in throw SomeError() }
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg,
-                    commit: "123",
-                    commitDate: .t0,
-                    docArchives: [.init(name: "foo", title: "Foo")],
-                    latest: .defaultBranch,
-                    packageName: "pkg",
-                    reference: .tag(1, 2, 3))
-            .save(on: app.db).wait()
+        let pkg = try await savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
+                          commit: "123",
+                          commitDate: .t0,
+                          docArchives: [.init(name: "foo", title: "Foo")],
+                          latest: .defaultBranch,
+                          packageName: "pkg",
+                          reference: .tag(1, 2, 3))
+        .save(on: app.db)
 
         // MUT
-        try app.test(.GET, "/owner/package/1.2.3/documentation") {
-            XCTAssertEqual($0.status, .seeOther)
-            XCTAssertEqual($0.headers.location, "/owner/package/1.2.3/documentation/foo")
+        try await app.test(.GET, "/owner/package/1.2.3/documentation") { res async in
+            XCTAssertEqual(res.status, .seeOther)
+            XCTAssertEqual(res.headers.location, "/owner/package/1.2.3/documentation/foo")
         }
-        try app.test(.GET, "/owner/package/1.2.3/documentation/foo") {
+        try await app.test(.GET, "/owner/package/1.2.3/documentation/foo") { res async in
             // hits Current.fetchDocumentation which throws, converted to notFound
             // Regression test for https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2015
-            XCTAssertEqual($0.status, .notFound)
+            XCTAssertEqual(res.status, .notFound)
         }
     }
 
@@ -834,7 +834,7 @@ class PackageController_routesTests: SnapshotTestCase {
             // embed uri.path in the body as a simple way to test the requested url
             .init(status: .ok, body: .init(string: uri.path))
         }
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
@@ -888,7 +888,7 @@ class PackageController_routesTests: SnapshotTestCase {
             // embed uri.path in the body as a simple way to test the requested url
             .init(status: .ok, body: .init(string: uri.path))
         }
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
@@ -942,7 +942,7 @@ class PackageController_routesTests: SnapshotTestCase {
             // embed uri.path in the body as a simple way to test the requested url
             .init(status: .ok, body: .init(string: uri.path))
         }
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
@@ -1008,7 +1008,7 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    func test_documentation_canonicalCapitalisation() throws {
+    func test_documentation_canonicalCapitalisation() async throws {
         // setup
         Current.fetchDocumentation = { _, uri in
             // embed uri.path in the body as a simple way to test the requested url
@@ -1017,20 +1017,20 @@ class PackageController_routesTests: SnapshotTestCase {
         
         // The `packageName` property on the `Version` has been set to the lower-cased version so
         // we can be sure the canonical URL is built from the properties on the `Repository` model.
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "Package", owner: "Owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg,
+        let pkg = try await savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "Package", owner: "Owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
                     commit: "0123456789",
                     commitDate: .t0,
                     docArchives: [.init(name: "docs", title: "Docs")],
                     latest: .defaultBranch,
                     packageName: "package",
                     reference: .tag(1, 2, 3))
-            .save(on: app.db).wait()
+            .save(on: app.db)
 
-        try app.test(.GET, "/owner/package/1.2.3/documentation/a/b") { response in
-            let document = try SwiftSoup.parse(response.body.string)
+        try await app.test(.GET, "/owner/package/1.2.3/documentation/a/b") { res async throws in
+            let document = try SwiftSoup.parse(res.body.string)
             let linkElements = try document.select("link[rel='canonical']")
             XCTAssertEqual(linkElements.count, 1)
 
@@ -1043,7 +1043,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2287
         // Ensure references are path encoded
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
@@ -1102,7 +1102,7 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_documentation_routes_tutorials() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db)
         try await Version(package: pkg,
@@ -1201,41 +1201,41 @@ class PackageController_routesTests: SnapshotTestCase {
         }
     }
 
-    func test_tutorial() throws {
+    func test_tutorial() async throws {
         // setup
         Current.fetchDocumentation = { _, uri in
             // embed uri.path in the body as a simple way to test the requested url
             .init(status: .ok, body: .init(string: "<p>\(uri.path)</p>"))
         }
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg,
+        let pkg = try await savePackage(on: app.db, "1")
+        try await Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: pkg,
                     commit: "0123456789",
                     commitDate: Date(timeIntervalSince1970: 0),
                     docArchives: [.init(name: "docs", title: "Docs")],
                     latest: .defaultBranch,
                     packageName: "pkg",
                     reference: .tag(.init(1, 2, 3)))
-            .save(on: app.db).wait()
+            .save(on: app.db)
 
         // MUT
         // test path a/b
-        try app.test(.GET, "/owner/package/1.2.3/tutorials/a/b") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+        try await app.test(.GET, "/owner/package/1.2.3/tutorials/a/b") { res async in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
             XCTAssertTrue(
-                $0.body.asString().contains("<p>/owner/package/1.2.3/tutorials/a/b</p>"),
-                "was: \($0.body.asString())"
+                res.body.asString().contains("<p>/owner/package/1.2.3/tutorials/a/b</p>"),
+                "was: \(res.body.asString())"
             )
             // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
-            XCTAssertTrue($0.body.asString().contains(#"<link rel="stylesheet" href="/docc.css?test" />"#),
-                          "was: \($0.body.asString())")
+            XCTAssertTrue(res.body.asString().contains(#"<link rel="stylesheet" href="/docc.css?test" />"#),
+                          "was: \(res.body.asString())")
         }
 
         // Test case insensitive path.
-        try app.test(.GET, "/Owner/Package/1.2.3/tutorials/a/b") {
-            XCTAssertEqual($0.status, .ok)
+        try await app.test(.GET, "/Owner/Package/1.2.3/tutorials/a/b") { res async in
+            XCTAssertEqual(res.status, .ok)
         }
     }
 
@@ -1350,7 +1350,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
 
         // setup
-        let pkg = try savePackage(on: app.db, "https://github.com/foo/bar".url, processingStage: .ingestion)
+        let pkg = try await savePackage(on: app.db, "https://github.com/foo/bar".url, processingStage: .ingestion)
         try await Repository(package: pkg, defaultBranch: "main", name: "bar", owner: "foo")
             .save(on: app.db)
         try await Version(package: pkg,

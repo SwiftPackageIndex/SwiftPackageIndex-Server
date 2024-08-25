@@ -19,12 +19,12 @@ import XCTest
 
 class AnalyzerVersionThrottlingTests: AppTestCase {
 
-    func test_throttle_keep_old() throws {
+    func test_throttle_keep_old() async throws {
         // Test keeping old when within throttling window
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let old = try makeVersion(pkg, "sha_old", -.hours(23), .branch("main"))
         let new = try makeVersion(pkg, "sha_new", -.hours(1), .branch("main"))
 
@@ -35,12 +35,12 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [old])
     }
 
-    func test_throttle_take_new() throws {
+    func test_throttle_take_new() async throws {
         // Test picking new version when old one is outside the window
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let old = try makeVersion(pkg, "sha_old", .hours(-26), .branch("main"))
         let new = try makeVersion(pkg, "sha_new", .hours(-1), .branch("main"))
 
@@ -51,12 +51,12 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [new])
     }
 
-    func test_throttle_ignore_tags() throws {
+    func test_throttle_ignore_tags() async throws {
         // Test to ensure tags are exempt from throttling
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let old = try makeVersion(pkg, "sha_old", .hours(-23), .tag(1, 0, 0))
         let new = try makeVersion(pkg, "sha_new", .hours(-1), .tag(2, 0, 0))
 
@@ -67,12 +67,12 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [new])
     }
 
-    func test_throttle_new_package() throws {
+    func test_throttle_new_package() async throws {
         // Test picking up a new package's branch
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let new = try makeVersion(pkg, "sha_new", .hours(-1), .branch("main"))
 
         // MUT
@@ -82,14 +82,14 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [new])
     }
 
-    func test_throttle_branch_ref_change() throws {
+    func test_throttle_branch_ref_change() async throws {
         // Test behaviour when changing default branch names
         // Changed to return [new] to avoid branch renames causing 404s
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2217
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let old = try makeVersion(pkg, "sha_old", .hours(-23), .branch("develop"))
         let new = try makeVersion(pkg, "sha_new", .hours(-1), .branch("main"))
 
@@ -100,14 +100,14 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [new])
     }
 
-    func test_throttle_rename() throws {
+    func test_throttle_rename() async throws {
         // Ensure incoming branch renames are throttled
         // Changed to return [new] to avoid branch renames causing 404s
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2217
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let old = try makeVersion(pkg, "sha", .hours(-1), .branch("main-old"))
         let new = try makeVersion(pkg, "sha", .hours(-1), .branch("main-new"))
 
@@ -118,14 +118,14 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [new])
     }
 
-    func test_throttle_multiple_incoming_branches_keep_old() throws {
+    func test_throttle_multiple_incoming_branches_keep_old() async throws {
         // Test behaviour with multiple incoming branch revisions
         // NB: this is a theoretical scenario, in practise there should only
         // ever be one branch revision among the incoming revisions.
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let old = try makeVersion(pkg, "sha_old", .hours(-23), .branch("main"))
         let new0 = try makeVersion(pkg, "sha_new0", .hours(-3), .branch("main"))
         let new1 = try makeVersion(pkg, "sha_new1", .hours(-2), .branch("main"))
@@ -139,14 +139,14 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [old])
     }
 
-    func test_throttle_multiple_incoming_branches_take_new() throws {
+    func test_throttle_multiple_incoming_branches_take_new() async throws {
         // Test behaviour with multiple incoming branch revisions
         // NB: this is a theoretical scenario, in practise there should only
         // ever be one branch revision among the incoming revisions.
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let old = try makeVersion(pkg, "sha_old", .hours(-26), .branch("main"))
         let new0 = try makeVersion(pkg, "sha_new0", .hours(-3), .branch("main"))
         let new1 = try makeVersion(pkg, "sha_new1", .hours(-2), .branch("main"))
@@ -287,7 +287,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
     }
 
-    func test_throttle_force_push() throws {
+    func test_throttle_force_push() async throws {
         // Test the exceptional case where we have a newer branch revision in
         // the db than the incoming version. This could happen for instance
         // if an older branch revision is force pushed, effectively removing
@@ -296,7 +296,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
 
         do {  // both within window
             let ex = try makeVersion(pkg, "sha-ex", .hours(-1), .branch("main"))

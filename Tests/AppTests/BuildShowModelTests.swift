@@ -31,7 +31,7 @@ class BuildShowModelTests: AppTestCase {
 
     func test_init() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
                        defaultBranch: "main",
                        forks: 42,

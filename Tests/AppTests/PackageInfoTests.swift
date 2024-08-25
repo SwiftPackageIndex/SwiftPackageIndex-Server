@@ -22,7 +22,7 @@ class PackageInfoTests: AppTestCase {
     func test_title_package_name() async throws {
         // Ensure title is populated from package.name()
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         try await Repository(package: p, name: "repo name", owner: "owner")
             .save(on: app.db)
         try await Version(package: p, latest: .defaultBranch, packageName: "package name")
@@ -41,7 +41,7 @@ class PackageInfoTests: AppTestCase {
     func test_title_repo_name() async throws {
         // Ensure title is populated from repoName if package.name() is nil
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         try await Repository(package: p, name: "repo name", owner: "owner")
             .save(on: app.db)
         try await Version(package: p, latest: .defaultBranch, packageName: nil)

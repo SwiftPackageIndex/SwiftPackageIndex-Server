@@ -21,7 +21,7 @@ class Joined3Tests: AppTestCase {
 
     func test_query_no_version() async throws {
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         try await Repository(package: p).save(on: app.db)
 
         // MUT
@@ -34,7 +34,7 @@ class Joined3Tests: AppTestCase {
     func test_query_multiple_versions() async throws {
         // Ensure multiple versions don't multiply the package selection
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         try await Repository(package: p).save(on: app.db)
         try await Version(package: p, latest: .defaultBranch).save(on: app.db)
         try await Version(package: p, latest: .release).save(on: app.db)
@@ -52,7 +52,7 @@ class Joined3Tests: AppTestCase {
     func test_query_relationship_properties() async throws {
         // Ensure relationship properties are populated by query
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         try await Repository(package: p, owner: "owner").save(on: app.db)
         try await Version(package: p,
                     latest: .defaultBranch,
@@ -73,7 +73,7 @@ class Joined3Tests: AppTestCase {
         // force unwrap the `repository` or `version` properties in the pathological
         // event, because there are no results to access the properties on.
         do {  // no repository
-            let p = try savePackage(on: app.db, "1")
+            let p = try await savePackage(on: app.db, "1")
             try await Version(package: p,
                         latest: .defaultBranch,
                         packageName: "package name").save(on: app.db)
@@ -87,7 +87,7 @@ class Joined3Tests: AppTestCase {
             XCTAssertTrue(res.isEmpty)
         }
         do {  // no version
-            let p = try savePackage(on: app.db, "2")
+            let p = try await savePackage(on: app.db, "2")
             try await Repository(package: p, owner: "owner").save(on: app.db)
 
             // MUT

@@ -24,7 +24,7 @@ class BuildTests: AppTestCase {
 
     func test_save() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let v = try Version(package: pkg)
         try await v.save(on: app.db)
         let b = try Build(version: v,
@@ -53,7 +53,7 @@ class BuildTests: AppTestCase {
     func test_delete_cascade() async throws {
         // Ensure deleting a version also deletes the builds
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let v = try Version(package: pkg)
         try await v.save(on: app.db)
         let b = try Build(version: v,
@@ -79,7 +79,7 @@ class BuildTests: AppTestCase {
     func test_unique_constraint() async throws {
         // Ensure builds are unique over (id, platform, swiftVersion)
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let v1 = try Version(package: pkg)
         try await v1.save(on: app.db)
         let v2 = try Version(package: pkg)
@@ -132,7 +132,7 @@ class BuildTests: AppTestCase {
         Current.gitlabPipelineToken = { "pipeline token" }
         Current.siteURL = { "http://example.com" }
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .branch("main"))
         try await v.save(on: app.db)
         let buildId = UUID()
@@ -197,7 +197,7 @@ class BuildTests: AppTestCase {
         Current.gitlabPipelineToken = { "pipeline token" }
         Current.siteURL = { "http://example.com" }
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .branch("main"))
         try await v.save(on: app.db)
         let buildId = UUID()
@@ -245,7 +245,7 @@ class BuildTests: AppTestCase {
     func test_query() async throws {
         // Test querying by (platform/swiftVersion/versionId)
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let v1 = try Version(package: pkg)
         try await v1.save(on: app.db)
         do { // decoy version and build
@@ -307,7 +307,7 @@ class BuildTests: AppTestCase {
 
     func test_delete_by_versionId() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let vid1 = UUID()
         let v1 = try Version(id: vid1, package: pkg)
         try await v1.save(on: app.db)

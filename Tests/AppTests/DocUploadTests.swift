@@ -22,7 +22,7 @@ final class DocUploadTests: AppTestCase {
 
     func test_attach() async throws {
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let versionId = UUID()
         let buildId = UUID()
         let docUploadId = UUID()
@@ -57,7 +57,7 @@ final class DocUploadTests: AppTestCase {
     func test_detachAndDelete() async throws {
         // Ensure deleting doc_uploads doesn't cascade into builds
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let v = try Version(id: UUID(), package: pkg)
         try await v.save(on: app.db)
         let buildId = UUID()
@@ -89,7 +89,7 @@ final class DocUploadTests: AppTestCase {
 
     func test_delete_cascade_build() async throws {
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let buildId = UUID()
         let v = try Version(id: UUID(), package: pkg)
         try await v.save(on: app.db)
@@ -115,7 +115,7 @@ final class DocUploadTests: AppTestCase {
 
     func test_delete_cascade_version() async throws {
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let versionId = UUID()
         let v = try Version(id: versionId, package: pkg)
         try await v.save(on: app.db)
@@ -142,7 +142,7 @@ final class DocUploadTests: AppTestCase {
     func test_unique_constraint_doc_uploads_build_id() async throws {
         // Ensure different doc_uploads cannot be attached to the same build
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let v = try Version(id: UUID(), package: pkg)
         try await v.save(on: app.db)
         let b = try Build(version: v, platform: .iOS, status: .ok, swiftVersion: .v3)
@@ -167,7 +167,7 @@ final class DocUploadTests: AppTestCase {
     func test_unique_constraint_builds_doc_upload_id_1() async throws {
         // Ensure doc_upload cannot be attached to two different versions (via builds from two different versions)
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let v1 = try Version(id: UUID(), package: pkg)
         try await v1.save(on: app.db)
         let v2 = try Version(id: UUID(), package: pkg)
@@ -195,7 +195,7 @@ final class DocUploadTests: AppTestCase {
     func test_unique_constraint_builds_doc_upload_id_2() async throws {
         // Ensure doc_upload cannot be attached to same version more than once (via two builds from same version)
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let v = try Version(id: UUID(), package: pkg)
         try await v.save(on: app.db)
         let b1 = try Build(id: UUID(), version: v, platform: .linux, status: .ok, swiftVersion: .v3)
@@ -221,7 +221,7 @@ final class DocUploadTests: AppTestCase {
     func test_unique_constraint_builds_version_id_partial() async throws {
         // Ensure no single version can reference two doc_uploads
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let v = try Version(id: UUID(), package: pkg)
         try await v.save(on: app.db)
         let b1 = try Build(id: UUID(), version: v, platform: .linux, status: .ok, swiftVersion: .v3)

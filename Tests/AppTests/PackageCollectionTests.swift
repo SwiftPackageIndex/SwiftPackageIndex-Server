@@ -37,7 +37,7 @@ class PackageCollectionTests: AppTestCase {
         // Tests PackageResult.query with the url filter option
         // setup
         for index in (0..<3) {
-            let pkg = try savePackage(on: app.db, "url-\(index)".url)
+            let pkg = try await savePackage(on: app.db, "url-\(index)".url)
             do {
                 let v = try Version(package: pkg,
                                     latest: .release,
@@ -84,7 +84,7 @@ class PackageCollectionTests: AppTestCase {
         // Tests PackageResult.query without results has safe relationship accessors
         // setup
         for index in (0..<3) {
-            let pkg = try savePackage(on: app.db, "url-\(index)".url)
+            let pkg = try await savePackage(on: app.db, "url-\(index)".url)
             do {
                 let v = try Version(package: pkg,
                                     latest: .release,
@@ -131,7 +131,7 @@ class PackageCollectionTests: AppTestCase {
         // first package
         let owners = ["foo", "foo", "someone else"]
         for index in (0..<3) {
-            let pkg = try savePackage(on: app.db, "url-\(index)".url)
+            let pkg = try await savePackage(on: app.db, "url-\(index)".url)
             do {
                 let v = try Version(package: pkg,
                                     latest: .release,
@@ -346,7 +346,7 @@ class PackageCollectionTests: AppTestCase {
     func test_generate_from_urls() async throws {
         // setup
         Current.date = { Date(timeIntervalSince1970: 1610112345) }
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         do {
             let v = try Version(package: pkg,
                                 latest: .release,
@@ -395,7 +395,7 @@ class PackageCollectionTests: AppTestCase {
         // setup
         Current.date = { Date(timeIntervalSince1970: 1610112345) }
         // first package
-        let p1 = try savePackage(on: app.db, "https://github.com/foo/1")
+        let p1 = try await savePackage(on: app.db, "https://github.com/foo/1")
         do {
             let v = try Version(id: UUID(),
                                 package: p1,
@@ -423,7 +423,7 @@ class PackageCollectionTests: AppTestCase {
             try await Target(version: v, name: "t1").save(on: app.db)
         }
         // second package
-        let p2 = try savePackage(on: app.db, "https://github.com/foo/2")
+        let p2 = try await savePackage(on: app.db, "https://github.com/foo/2")
         do {
             let v = try Version(id: UUID(),
                                 package: p2,
@@ -447,7 +447,7 @@ class PackageCollectionTests: AppTestCase {
             try await Target(version: v, name: "t2").save(on: app.db)
         }
         // unrelated package
-        _ = try savePackage(on: app.db, "https://github.com/bar/1")
+        _ = try await savePackage(on: app.db, "https://github.com/bar/1")
         try await Repository(package: p1,
                              defaultBranch: "main",
                              license: .mit,
@@ -491,7 +491,7 @@ class PackageCollectionTests: AppTestCase {
         // Ensure we only export significant versions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1147
         // setup
-        let p = try savePackage(on: app.db, "https://github.com/foo/1")
+        let p = try await savePackage(on: app.db, "https://github.com/foo/1")
         try await Repository(package: p,
                              defaultBranch: "main",
                              license: .mit,
@@ -631,7 +631,7 @@ class PackageCollectionTests: AppTestCase {
 
     func test_case_insensitive_owner_matching() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
+        let pkg = try await savePackage(on: app.db, "https://github.com/foo/1")
         do {
             let v = try Version(id: UUID(),
                                 package: pkg,
@@ -665,7 +665,7 @@ class PackageCollectionTests: AppTestCase {
         // Ensure ownerName is used in collectionName and overview
         // setup
         // first package
-        let p1 = try savePackage(on: app.db, "https://github.com/foo/1")
+        let p1 = try await savePackage(on: app.db, "https://github.com/foo/1")
         do {
             let v = try Version(id: UUID(),
                                 package: p1,

@@ -22,7 +22,7 @@ class KeywordControllerTests: AppTestCase {
     func test_query() async throws {
         // setup
         do {
-            let p = try savePackage(on: app.db, "0")
+            let p = try await savePackage(on: app.db, "0")
             try await Repository(package: p,
                                  keywords: ["bar"],
                                  name: "0",
@@ -31,7 +31,7 @@ class KeywordControllerTests: AppTestCase {
             try await Version(package: p, latest: .defaultBranch).save(on: app.db)
         }
         do {
-            let p = try savePackage(on: app.db, "1")
+            let p = try await savePackage(on: app.db, "1")
             try await Repository(package: p,
                                  keywords: ["foo"],
                                  name: "1",
@@ -40,7 +40,7 @@ class KeywordControllerTests: AppTestCase {
             try await Version(package: p, latest: .defaultBranch).save(on: app.db)
         }
         do {
-            let p = try savePackage(on: app.db, "2")
+            let p = try await savePackage(on: app.db, "2")
             try await Repository(package: p,
                                  name: "2",
                                  owner: "owner")
@@ -104,7 +104,7 @@ class KeywordControllerTests: AppTestCase {
     func test_show_keyword() async throws {
         // setup
         do {
-            let p = try savePackage(on: app.db, "1")
+            let p = try await savePackage(on: app.db, "1")
             try await Repository(package: p,
                                  keywords: ["foo"],
                                  name: "1",

@@ -233,16 +233,15 @@ class ScoreTests: AppTestCase {
 
     func test_computeDetails() async throws {
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db)
         try await Version(package: pkg,
                           docArchives: [.init(name: "archive1", title: "Archive One")],
                           reference: .branch("default"),
                           resolvedDependencies: [],
                           swiftVersions: ["5"].asSwiftVersions).save(on: app.db)
-        try (0..<20).forEach {
-            try Version(package: pkg, reference: .tag(.init($0, 0, 0)))
-                .save(on: app.db).wait()
+        for idx in (0..<20) {
+            try await Version(package: pkg, reference: .tag(.init(idx, 0, 0))).save(on: app.db)
         }
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
         // update versions
@@ -266,16 +265,15 @@ class ScoreTests: AppTestCase {
 
     func test_computeDetails_unknown_resolvedDependencies() async throws {
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db)
         try await Version(package: pkg,
                           docArchives: [.init(name: "archive1", title: "Archive One")],
                           reference: .branch("default"),
                           resolvedDependencies: nil,
                           swiftVersions: ["5"].asSwiftVersions).save(on: app.db)
-        try (0..<20).forEach {
-            try Version(package: pkg, reference: .tag(.init($0, 0, 0)))
-                .save(on: app.db).wait()
+        for idx in (0..<20) {
+            try await Version(package: pkg, reference: .tag(.init(idx, 0, 0))).save(on: app.db)
         }
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
         // update versions

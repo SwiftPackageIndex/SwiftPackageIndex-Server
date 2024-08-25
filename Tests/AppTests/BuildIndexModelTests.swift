@@ -23,7 +23,7 @@ class BuildIndexModelTests: AppTestCase {
     func test_init_no_name() async throws {
         // Tests behaviour when we're lacking data
         // setup package without package name
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
                              defaultBranch: "main",
                              forks: 42,
