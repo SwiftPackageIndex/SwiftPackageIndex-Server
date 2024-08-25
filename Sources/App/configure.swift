@@ -335,17 +335,14 @@ public func configure(_ app: Application) async throws -> String {
         app.migrations.add(UpdateBuildAddBuildDateCommitHash())
     }
 
-    app.commands.use(Analyze.Command(), as: "analyze")
-    app.commands.use(CreateRestfileCommand(), as: "create-restfile")
-    app.commands.use(DeleteBuildsCommand(), as: "delete-builds")
-    app.commands.use(IngestCommand(), as: "ingest")
-    app.commands.use(ReconcileCommand(), as: "reconcile")
-    app.commands.use(TriggerBuildsCommand(), as: "trigger-builds")
-    app.commands.use(ReAnalyzeVersions.Command(), as: "re-analyze-versions")
-    app.commands.use(Alerting.Command(), as: "alerting")
-    if Current.environment() == .development {
-        app.commands.use(Swift6TriggerCommand(), as: "swift-6-trigger")
-    }
+    app.asyncCommands.use(Analyze.Command(), as: "analyze")
+    app.asyncCommands.use(CreateRestfileCommand(), as: "create-restfile")
+    app.asyncCommands.use(DeleteBuildsCommand(), as: "delete-builds")
+    app.asyncCommands.use(IngestCommand(), as: "ingest")
+    app.asyncCommands.use(ReconcileCommand(), as: "reconcile")
+    app.asyncCommands.use(TriggerBuildsCommand(), as: "trigger-builds")
+    app.asyncCommands.use(ReAnalyzeVersions.Command(), as: "re-analyze-versions")
+    app.asyncCommands.use(Alerting.Command(), as: "alerting")
 
     // register routes
     try routes(app)
