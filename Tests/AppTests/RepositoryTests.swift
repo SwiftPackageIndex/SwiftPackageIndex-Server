@@ -221,7 +221,7 @@ final class RepositoryTests: AppTestCase {
         do {
             // MUT - identical
             try await Repository(id: UUID(), package: p2, name: "bar", owner: "foo").save(on: app.db)
-            XCTFail("Expcted error")
+            XCTFail("Expected error")
         } catch {
             XCTAssert(String(reflecting: error).contains(
                 #"duplicate key value violates unique constraint "idx_repositories_owner_name""#),
@@ -233,6 +233,7 @@ final class RepositoryTests: AppTestCase {
         do {
             // MUT - diffrent case repository
             try await Repository(id: UUID(), package: p2, name: "Bar", owner: "foo").save(on: app.db)
+            XCTFail("Expected error")
         } catch {
             XCTAssert(String(reflecting: error).contains(
                 #"duplicate key value violates unique constraint "idx_repositories_owner_name""#),
@@ -244,6 +245,7 @@ final class RepositoryTests: AppTestCase {
         do {
             // MUT - diffrent case owner
             try await Repository(id: UUID(), package: p2, name: "bar", owner: "Foo").save(on: app.db)
+            XCTFail("Expected error")
         } catch {
             XCTAssert(String(reflecting: error).contains(
                 #"duplicate key value violates unique constraint "idx_repositories_owner_name""#),
