@@ -61,17 +61,17 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(Package(url: "http:///foo/bar").cacheDirectoryName, nil)
     }
 
-    func test_save_status() throws {
+    func test_save_status() async throws {
         do {  // default status
             let pkg = Package()  // avoid using init with default argument in order to test db default
             pkg.url = "1"
-            try pkg.save(on: app.db).wait()
-            let readBack = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            try await pkg.save(on: app.db)
+            let readBack = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
             XCTAssertEqual(readBack.status, .new)
         }
         do {  // with status
-            try Package(url: "2", status: .ok).save(on: app.db).wait()
-            let pkg = try XCTUnwrap(try Package.query(on: app.db).filter(by: "2").first().wait())
+            try await Package(url: "2", status: .ok).save(on: app.db)
+            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).filter(by: "2").first())
             XCTAssertEqual(pkg.status, .ok)
         }
     }
@@ -115,51 +115,54 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(p.platformCompatibility, [.iOS, .macOS])
     }
 
-    func test_unique_url() throws {
-        try Package(url: "p1").save(on: app.db).wait()
-        XCTAssertThrowsError(try Package(url: "p1").save(on: app.db).wait())
+    func test_unique_url() async throws {
+        try await Package(url: "p1").save(on: app.db)
+        do {
+            try await Package(url: "p1").save(on: app.db)
+            XCTFail("Expected error")
+        } catch { }
     }
 
-    func test_filter_by_url() throws {
-        try ["https://foo.com/1", "https://foo.com/2"].forEach {
-            try Package(url: $0).save(on: app.db).wait()
+    func test_filter_by_url() async throws {
+        for url in ["https://foo.com/1", "https://foo.com/2"] {
+            try await Package(url: url.url).save(on: app.db)
         }
-        let res = try Package.query(on: app.db).filter(by: "https://foo.com/1").all().wait()
+        let res = try await Package.query(on: app.db).filter(by: "https://foo.com/1").all()
         XCTAssertEqual(res.map(\.url), ["https://foo.com/1"])
     }
 
-    func test_repository() throws {
-        let pkg = try savePackage(on: app.db, "1")
+    func test_repository() async throws {
+        let pkg = try await savePackage(on: app.db, "1")
         do {
-            let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$repositories).first().wait())
+            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).with(\.$repositories).first())
             XCTAssertEqual(pkg.repositories.first, nil)
         }
         do {
             let repo = try Repository(package: pkg)
-            try repo.save(on: app.db).wait()
-            let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$repositories).first().wait())
+            try await repo.save(on: app.db)
+            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).with(\.$repositories).first())
             XCTAssertEqual(pkg.repositories.first, repo)
         }
     }
 
-    func test_versions() throws {
-        let pkg = try savePackage(on: app.db, "1")
+    func test_versions() async throws {
+        let pkg = try await savePackage(on: app.db, "1")
         let versions = [
             try Version(package: pkg, reference: .branch("branch")),
             try Version(package: pkg, reference: .branch("default")),
             try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
         ]
-        try versions.create(on: app.db).wait()
+        try await versions.create(on: app.db)
         do {
-            let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$versions).first().wait())
+            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).with(\.$versions).first())
             XCTAssertEqual(pkg.versions.count, 3)
         }
     }
 
-    func test_findBranchVersion() throws {
+    func test_findBranchVersion() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+        let pkg = try await savePackage(on: app.db, "1")
+        try await Repository(package: pkg, defaultBranch: "default").create(on: app.db)
         let versions = [
             try Version(package: pkg, reference: .branch("branch")),
             try Version(package: pkg, commitDate: Current.date().adding(days: -1),
@@ -170,7 +173,7 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, commitDate: Current.date().adding(days: -2),
                         reference: .tag(.init(3, 0, 0, "beta"))),
         ]
-        try versions.create(on: app.db).wait()
+        try await versions.create(on: app.db)
 
         // MUT
         let version = Package.findBranchVersion(versions: versions,
@@ -180,9 +183,9 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(version?.reference, .branch("default"))
     }
 
-    func test_findRelease() throws {
+    func test_findRelease() async throws {
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let versions: [Version] = [
             try .init(package: p, reference: .tag(2, 0, 0)),
             try .init(package: p, reference: .tag(1, 2, 3)),
@@ -194,9 +197,9 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(Package.findRelease(versions)?.reference, .tag(2, 0, 0))
     }
 
-    func test_findPreRelease() throws {
+    func test_findPreRelease() async throws {
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
 
         // MUT & validation
@@ -222,12 +225,12 @@ final class PackageTests: AppTestCase {
         )
     }
 
-    func test_findPreRelease_double_digit_build() throws {
+    func test_findPreRelease_double_digit_build() async throws {
         // Test pre-release sorting of betas with double digit build numbers,
         // e.g. 2.0.0-b11 should come after 2.0.0-b9
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/706
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
 
         // MUT & validation
@@ -304,13 +307,14 @@ final class PackageTests: AppTestCase {
             }
             return ""
         }
+        let db = app.db
         // run reconcile to ingest package
         try await reconcile(client: app.client, database: app.db)
-        XCTAssertEqual(try Package.query(on: app.db).count().wait(), 1)
+        try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 1)
 
         // MUT & validate
         do {
-            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
             XCTAssertTrue(pkg.isNew)
         }
 
@@ -319,7 +323,7 @@ final class PackageTests: AppTestCase {
 
         // MUT & validate
         do {
-            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
             XCTAssertTrue(pkg.isNew)
         }
 
@@ -330,7 +334,7 @@ final class PackageTests: AppTestCase {
 
         // MUT & validate
         do {
-            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
             XCTAssertFalse(pkg.isNew)
         }
 
@@ -338,14 +342,14 @@ final class PackageTests: AppTestCase {
 
         try await reconcile(client: app.client, database: app.db)
         do {
-            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
             XCTAssertFalse(pkg.isNew)
         }
 
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         try await ingest(client: app.client, database: app.db, mode: .limit(10))
         do {
-            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
             XCTAssertFalse(pkg.isNew)
         }
 
@@ -353,7 +357,7 @@ final class PackageTests: AppTestCase {
                                   database: app.db,
                                   mode: .limit(10))
         do {
-            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
             XCTAssertFalse(pkg.isNew)
         }
     }
@@ -365,29 +369,29 @@ final class PackageTests: AppTestCase {
         XCTAssertTrue(pkg.isNew)
     }
 
-    func test_save_platformCompatibility_save() throws {
-        try Package(url: "1".url, platformCompatibility: [.iOS, .macOS, .iOS])
-            .save(on: app.db).wait()
-        let readBack = try XCTUnwrap(Package.query(on: app.db).first().wait())
+    func test_save_platformCompatibility_save() async throws {
+        try await Package(url: "1".url, platformCompatibility: [.iOS, .macOS, .iOS])
+            .save(on: app.db)
+        let readBack = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
         XCTAssertEqual(readBack.platformCompatibility, [.iOS, .macOS])
     }
 
-    func test_save_platformCompatibility_read_nonunique() throws {
+    func test_save_platformCompatibility_read_nonunique() async throws {
         // test reading back of a non-unique array (this shouldn't be
         // occuring but we can't enforce a set at the DDL level so it's
         // technically possible and we want to ensure it doesn't cause
         // errors)
-        try Package(url: "1".url).save(on: app.db).wait()
-        try (app.db as! SQLDatabase).raw(
+        try await Package(url: "1".url).save(on: app.db)
+        try await (app.db as! SQLDatabase).raw(
             "update packages set platform_compatibility = '{ios,ios}'"
-        ).run().wait()
-        let readBack = try XCTUnwrap(Package.query(on: app.db).first().wait())
+        ).run()
+        let readBack = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
         XCTAssertEqual(readBack.platformCompatibility, [.iOS])
     }
 
     func test_updatePlatformCompatibility() async throws {
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try await v.save(on: app.db)
         for platform in Build.Platform.allCases {
@@ -411,18 +415,18 @@ final class PackageTests: AppTestCase {
             try await Build(version: v, platform: platform, status: .ok, swiftVersion: .v1)
                 .save(on: app.db)
         }
-        try savePackage(on: app.db, "2")
+        try await savePackage(on: app.db, "2")
 
         // MUT
         try await Package.updatePlatformCompatibility(for: p.requireID(), on: app.db)
 
         // validate
-        let p1 = try XCTUnwrap(
-            Package.query(on: app.db).filter(by: "1".url).first().wait()
+        let p1 = try await XCTUnwrapAsync(
+            try await Package.query(on: app.db).filter(by: "1".url).first()
         )
         XCTAssertEqual(p1.platformCompatibility, [.iOS, .macOS, .linux, .tvOS, .visionOS, .watchOS])
-        let p2 = try XCTUnwrap(
-            Package.query(on: app.db).filter(by: "2".url).first().wait()
+        let p2 = try await XCTUnwrapAsync(
+            try await Package.query(on: app.db).filter(by: "2".url).first()
         )
         XCTAssertEqual(p2.platformCompatibility, [])
     }

@@ -24,7 +24,7 @@ class PackageController_BuildsRouteTests: AppTestCase {
     func test_BuildInfo_query() async throws {
         // setup
         do {
-            let pkg = try savePackage(on: app.db, "1".url)
+            let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  name: "bar",
@@ -50,7 +50,7 @@ class PackageController_BuildsRouteTests: AppTestCase {
             }
         }
         do { // unrelated package and build
-            let pkg = try savePackage(on: app.db, "2".url)
+            let pkg = try await savePackage(on: app.db, "2".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  name: "bar2",
@@ -86,7 +86,7 @@ class PackageController_BuildsRouteTests: AppTestCase {
 
     func test_query() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
                              defaultBranch: "main",
                              forks: 42,
@@ -120,7 +120,7 @@ class PackageController_BuildsRouteTests: AppTestCase {
 
     func test_query_no_builds() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
                              defaultBranch: "main",
                              forks: 42,

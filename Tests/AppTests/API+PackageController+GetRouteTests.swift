@@ -23,7 +23,7 @@ class API_PackageController_GetRouteTests: AppTestCase {
 
     func test_releaseInfo() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg,
                              defaultBranch: "default",
                              name: "bar",
@@ -69,7 +69,7 @@ class API_PackageController_GetRouteTests: AppTestCase {
     func test_releaseInfo_exclude_non_latest() async throws {
         // Test to ensure that we don't include versions with `latest IS NULL`
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg,
                              defaultBranch: "default",
                              name: "bar",

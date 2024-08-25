@@ -21,7 +21,7 @@ final class API_DependencyControllerTests: AppTestCase {
 
     func test_query() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, id: .id0, "http://github.com/foo/bar")
+        let pkg = try await savePackage(on: app.db, id: .id0, "http://github.com/foo/bar")
         try await Repository(package: pkg,
                              defaultBranch: "default",
                              name: "bar",

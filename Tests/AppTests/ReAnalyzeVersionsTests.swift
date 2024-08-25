@@ -31,9 +31,9 @@ class ReAnalyzeVersionsTests: AppTestCase {
         // - then change input data in fields that are affecting existing versions (which `analysis` is "blind" to)
         // - run analysis again to confirm "blindness"
         // - run re-analysis and confirm changes are now reflected
-        let pkg = try savePackage(on: app.db,
-                                  "https://github.com/foo/1".url,
-                                  processingStage: .ingestion)
+        let pkg = try await savePackage(on: app.db,
+                                        "https://github.com/foo/1".url,
+                                        processingStage: .ingestion)
         let repoId = UUID()
         try await Repository(id: repoId,
                              package: pkg,
@@ -179,9 +179,9 @@ class ReAnalyzeVersionsTests: AppTestCase {
         // churn over and over on failing versions.
         let cutoff = Date.t1
         Current.date = { .t2 }
-        let pkg = try savePackage(on: app.db,
-                                  "https://github.com/foo/1".url,
-                                  processingStage: .ingestion)
+        let pkg = try await savePackage(on: app.db,
+                                        "https://github.com/foo/1".url,
+                                        processingStage: .ingestion)
         try await Repository(package: pkg,
                              defaultBranch: "main").save(on: app.db)
         Current.git.commitCount = { @Sendable _ in 12 }

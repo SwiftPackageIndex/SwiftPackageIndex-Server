@@ -21,7 +21,7 @@ class BuildMonitorControllerTests: AppTestCase {
 
     func test_show_owner() async throws {
         do {
-            let package = try savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
+            let package = try await savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
             let version = try Version(package: package)
             try await version.save(on: app.db)
             try await Build(version: version,

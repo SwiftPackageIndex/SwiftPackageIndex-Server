@@ -44,7 +44,7 @@ class JoinedTests: AppTestCase {
     func test_repository_access() async throws {
         // Test accessing repository through the join vs through the package relation
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         try await Repository(package: p).save(on: app.db)
 
         // MUT
@@ -65,7 +65,7 @@ class JoinedTests: AppTestCase {
     func test_repository_update() async throws {
         // Test updating the repository through the join
         // setup
-        let p = try savePackage(on: app.db, "1")
+        let p = try await savePackage(on: app.db, "1")
         try await Repository(package: p).save(on: app.db)
 
         let jpr = try await XCTUnwrapAsync(try await JPR.query(on: app.db).first())

@@ -233,7 +233,7 @@ class ScoreTests: AppTestCase {
 
     func test_computeDetails() async throws {
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db)
         try await Version(package: pkg,
                           docArchives: [.init(name: "archive1", title: "Archive One")],
@@ -265,7 +265,7 @@ class ScoreTests: AppTestCase {
 
     func test_computeDetails_unknown_resolvedDependencies() async throws {
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         try await Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db)
         try await Version(package: pkg,
                           docArchives: [.init(name: "archive1", title: "Archive One")],

@@ -23,7 +23,7 @@ class PackageResultTests: AppTestCase {
     typealias PackageResult = PackageController.PackageResult
 
     func test_joined5() async throws {
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
                              defaultBranch: "main",
                              forks: 42,
@@ -56,7 +56,7 @@ class PackageResultTests: AppTestCase {
 
     func test_joined5_no_preRelease() async throws {
         do {
-            let pkg = try savePackage(on: app.db, "1".url)
+            let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  forks: 42,
@@ -74,7 +74,7 @@ class PackageResultTests: AppTestCase {
         }
         do {
             // unrelated package to test join behaviour
-            let pkg = try savePackage(on: app.db, "2".url)
+            let pkg = try await savePackage(on: app.db, "2".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  forks: 42,
@@ -104,7 +104,7 @@ class PackageResultTests: AppTestCase {
 
     func test_joined5_defaultBranch_only() async throws {
         do {
-            let pkg = try savePackage(on: app.db, "1".url)
+            let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  forks: 42,
@@ -119,7 +119,7 @@ class PackageResultTests: AppTestCase {
         }
         do {
             // unrelated package to test join behaviour
-            let pkg = try savePackage(on: app.db, "2".url)
+            let pkg = try await savePackage(on: app.db, "2".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  forks: 42,
@@ -148,7 +148,7 @@ class PackageResultTests: AppTestCase {
 
     func test_query_owner_repository() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
                              defaultBranch: "main",
                              forks: 42,
@@ -173,7 +173,7 @@ class PackageResultTests: AppTestCase {
 
     func test_query_owner_repository_case_insensitivity() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         try await Repository(package: pkg,
                              defaultBranch: "main",
                              forks: 42,
@@ -197,7 +197,7 @@ class PackageResultTests: AppTestCase {
 
     func test_activity() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "https://github.com/Alamofire/Alamofire")
+        let pkg = try await savePackage(on: app.db, "https://github.com/Alamofire/Alamofire")
         try await Repository(package: pkg,
                              lastIssueClosedAt: .t0,
                              lastPullRequestClosedAt: .t1,
@@ -225,7 +225,7 @@ class PackageResultTests: AppTestCase {
         // setup
         do {
             // first package has docs
-            let pkg = try savePackage(on: app.db, "1".url)
+            let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  forks: 42,
@@ -253,7 +253,7 @@ class PackageResultTests: AppTestCase {
         }
         do {
             // second package doesn't have docs
-            let pkg = try savePackage(on: app.db, "2".url)
+            let pkg = try await savePackage(on: app.db, "2".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  forks: 42,

@@ -21,7 +21,7 @@ class BuildMonitorIndexModelTests: AppTestCase {
 
     func test_init_from_Build() async throws {
         do {
-            let package = try savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
+            let package = try await savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
             let version = try Version(package: package,
                                       latest: .defaultBranch,
                                       packageName: "LeftPad from Version.packageName",
@@ -54,7 +54,7 @@ class BuildMonitorIndexModelTests: AppTestCase {
 
     func test_init_from_Build_without_repository_name() async throws {
         do {
-            let package = try savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
+            let package = try await savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
             let version = try Version(package: package,
                                       packageName: nil) // Deliberately missing a `packageName`
             try await version.save(on: app.db)
@@ -77,7 +77,7 @@ class BuildMonitorIndexModelTests: AppTestCase {
 
     func test_init_from_Build_with_no_package_name() async throws {
         do {
-            let package = try savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
+            let package = try await savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
             let version = try Version(package: package,
                                       packageName: nil) // Deliberately missing a `packageName`
             try await version.save(on: app.db)
@@ -101,7 +101,7 @@ class BuildMonitorIndexModelTests: AppTestCase {
 
     func test_init_from_Build_without_ownerName() async throws {
         do {
-            let package = try savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
+            let package = try await savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
             let version = try Version(package: package)
             try await version.save(on: app.db)
             try await Build(version: version,

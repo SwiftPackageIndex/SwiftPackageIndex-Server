@@ -20,13 +20,13 @@ import XCTVapor
 
 class VersionTests: AppTestCase {
 
-    func test_save() throws {
+    func test_save() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
+        let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
         let v = try Version(package: pkg)
 
         // MUT - save to create
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
 
         // validation
         XCTAssertEqual(v.$package.id, pkg.id)
@@ -45,10 +45,10 @@ class VersionTests: AppTestCase {
         v.url = pkg.versionUrl(for: v.reference)
 
         // MUT - save to update
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
 
         do {  // validation
-            let v = try XCTUnwrap(Version.find(v.id, on: app.db).wait())
+            let v = try await XCTUnwrapAsync(try await Version.find(v.id, on: app.db))
             XCTAssertEqual(v.commit, "commit")
             XCTAssertEqual(v.latest, .defaultBranch)
             XCTAssertEqual(v.packageName, "pname")
@@ -103,45 +103,46 @@ class VersionTests: AppTestCase {
         }
     }
 
-    func test_empty_array_error() throws {
+    func test_empty_array_error() async throws {
         // Test for
         // invalid field: swift_versions type: Array<SemVer> error: Unexpected data type: JSONB[]. Expected array.
         // Fix is .sql(.default("{}"))
         // setup
 
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try await savePackage(on: app.db, "1")
         let v = try Version(package: pkg)
 
         // MUT
-        try v.save(on: app.db).wait()
+        try await v.save(on: app.db)
 
         // validation
-        _ = try XCTUnwrap(Version.find(v.id, on: app.db).wait())
+        _ = try await XCTUnwrapAsync(try await Version.find(v.id, on: app.db))
     }
 
-    func test_delete_cascade() throws {
+    func test_delete_cascade() async throws {
         // delete package must delete version
         // setup
+        let db = app.db
 
         let pkg = Package(id: UUID(), url: "1")
         let ver = try Version(id: UUID(), package: pkg)
-        try pkg.save(on: app.db).wait()
-        try ver.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
+        try await ver.save(on: app.db)
 
-        XCTAssertEqual(try Package.query(on: app.db).count().wait(), 1)
-        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 1)
+        try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 1)
+        try await XCTAssertEqualAsync(try await Version.query(on: db).count(), 1)
 
         // MUT
-        try pkg.delete(on: app.db).wait()
+        try await pkg.delete(on: app.db)
 
         // version should be deleted
-        XCTAssertEqual(try Package.query(on: app.db).count().wait(), 0)
-        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 0)
+        try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 0)
+        try await XCTAssertEqualAsync(try await Version.query(on: db).count(), 0)
     }
 
-    func test_isBranch() throws {
+    func test_isBranch() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
+        let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
         let v1 = try Version(package: pkg, reference: .branch("main"))
         let v2 = try Version(package: pkg, reference: .tag(1, 2, 3))
 
@@ -150,9 +151,9 @@ class VersionTests: AppTestCase {
         XCTAssertFalse(v2.isBranch)
     }
 
-    func test_latestBranchVersion() throws {
+    func test_latestBranchVersion() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
+        let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
         let vid = UUID()
         let v1 = try Version(id: UUID(),
                              package: pkg,
@@ -178,7 +179,7 @@ class VersionTests: AppTestCase {
 
     func test_defaults() async throws {
         // setup
-        let pkg = try await savePackageAsync(on: app.db, "1".asGithubUrl.url)
+        let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
         let v = try Version(package: pkg)
 
         // MUT

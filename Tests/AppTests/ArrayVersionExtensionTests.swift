@@ -22,7 +22,7 @@ import SPIManifest
 class ArrayVersionExtensionTests: AppTestCase {
 
     func test_Array_canonicalDocumentationTarget() async throws {
-        let pkg = try await savePackageAsync(on: app.db, "1".url)
+        let pkg = try await savePackage(on: app.db, "1".url)
         let archive = DocArchive(name: "foo", title: "Foo")
 
         do {
