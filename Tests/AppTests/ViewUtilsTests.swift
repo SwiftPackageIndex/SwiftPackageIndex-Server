@@ -47,12 +47,12 @@ class ViewUtilsTests: XCTestCase {
 // Test that require DB access
 class ViewUtilsDBTests: AppTestCase {
 
-    func test_makeLink() throws {
+    func test_makeLink() async throws {
         // setup
         let pkg = Package(url: "1")
-        try pkg.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
         let version = try Version(package: pkg)
-        try version.save(on: app.db).wait()
+        try await version.save(on: app.db)
 
         do {  // branch reference
             version.reference = .branch("main")

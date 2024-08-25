@@ -19,20 +19,20 @@ import XCTest
 
 class BuildMonitorControllerTests: AppTestCase {
 
-    func test_show_owner() throws {
+    func test_show_owner() async throws {
         do {
             let package = try savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
             let version = try Version(package: package)
-            try version.save(on: app.db).wait()
-            try Build(version: version,
-                      platform: .macosXcodebuild,
-                      status: .ok,
-                      swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
-            try Repository(package: package).save(on: app.db).wait()
+            try await version.save(on: app.db)
+            try await Build(version: version,
+                            platform: .macosXcodebuild,
+                            status: .ok,
+                            swiftVersion: .init(5, 6, 0)).save(on: app.db)
+            try await Repository(package: package).save(on: app.db)
         }
 
         // MUT
-        try app.test(.GET, "/build-monitor", afterResponse: { response in
+        try await app.test(.GET, "/build-monitor", afterResponse: { response async in
             XCTAssertEqual(response.status, .ok)
         })
     }

@@ -149,20 +149,20 @@ class ReAnalyzeVersionsTests: AppTestCase {
         do {
             let p = Package(url: "1")
             try await p.save(on: app.db)
-            try createVersion(app.db, p, updatedAt: .t0)
-            try createVersion(app.db, p, updatedAt: .t1)
+            try await createVersion(app.db, p, updatedAt: .t0)
+            try await createVersion(app.db, p, updatedAt: .t1)
         }
         do {
             let p = Package(url: "2")
             try await p.save(on: app.db)
-            try createVersion(app.db, p, updatedAt: .t1)
-            try createVersion(app.db, p, updatedAt: .t3)
+            try await createVersion(app.db, p, updatedAt: .t1)
+            try await createVersion(app.db, p, updatedAt: .t3)
         }
         do {
             let p = Package(url: "3")
             try await p.save(on: app.db)
-            try createVersion(app.db, p, updatedAt: .t3)
-            try createVersion(app.db, p, updatedAt: .t4)
+            try await createVersion(app.db, p, updatedAt: .t3)
+            try await createVersion(app.db, p, updatedAt: .t4)
         }
 
         // MUT
@@ -211,7 +211,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   mode: .limit(10))
-        try setAllVersionsUpdatedAt(app.db, updatedAt: .t0)
+        try await setAllVersionsUpdatedAt(app.db, updatedAt: .t0)
         do {
             let candidates = try await Package
                 .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10)
@@ -245,31 +245,29 @@ class ReAnalyzeVersionsTests: AppTestCase {
 
 private func createVersion(_ db: Database,
                            _ package: Package,
-                           updatedAt: Date) throws {
+                           updatedAt: Date) async throws {
     let id = UUID()
-    try Version(id: id, package: package).save(on: db).wait()
-    try setUpdatedAt(db, versionId: id, updatedAt: updatedAt)
+    try await Version(id: id, package: package).save(on: db)
+    try await setUpdatedAt(db, versionId: id, updatedAt: updatedAt)
 }
 
 
 private func setUpdatedAt(_ db: Database,
                           versionId: Version.Id,
-                          updatedAt: Date) throws {
+                          updatedAt: Date) async throws {
     let db = db as! SQLDatabase
-    try db.raw("""
+    try await db.raw("""
         update versions set updated_at = to_timestamp(\(bind: updatedAt.timeIntervalSince1970))
         where id = \(bind: versionId)
         """)
         .run()
-        .wait()
 }
 
 
-private func setAllVersionsUpdatedAt(_ db: Database, updatedAt: Date) throws {
+private func setAllVersionsUpdatedAt(_ db: Database, updatedAt: Date) async throws {
     let db = db as! SQLDatabase
-    try db.raw("""
+    try await db.raw("""
         update versions set updated_at = to_timestamp(\(bind: updatedAt.timeIntervalSince1970))
         """)
         .run()
-        .wait()
 }

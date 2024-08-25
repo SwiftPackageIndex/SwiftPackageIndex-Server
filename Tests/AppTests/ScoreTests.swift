@@ -240,9 +240,8 @@ class ScoreTests: AppTestCase {
                           reference: .branch("default"),
                           resolvedDependencies: [],
                           swiftVersions: ["5"].asSwiftVersions).save(on: app.db)
-        try (0..<20).forEach {
-            try Version(package: pkg, reference: .tag(.init($0, 0, 0)))
-                .save(on: app.db).wait()
+        for idx in (0..<20) {
+            try await Version(package: pkg, reference: .tag(.init(idx, 0, 0))).save(on: app.db)
         }
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
         // update versions
@@ -273,9 +272,8 @@ class ScoreTests: AppTestCase {
                           reference: .branch("default"),
                           resolvedDependencies: nil,
                           swiftVersions: ["5"].asSwiftVersions).save(on: app.db)
-        try (0..<20).forEach {
-            try Version(package: pkg, reference: .tag(.init($0, 0, 0)))
-                .save(on: app.db).wait()
+        for idx in (0..<20) {
+            try await Version(package: pkg, reference: .tag(.init(idx, 0, 0))).save(on: app.db)
         }
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
         // update versions

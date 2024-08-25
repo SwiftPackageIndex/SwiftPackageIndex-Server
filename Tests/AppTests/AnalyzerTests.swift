@@ -631,7 +631,7 @@ class AnalyzerTests: AppTestCase {
             .mock(description: "rel 2.3.0", publishedAt: 4, tagName: "2.3.0", url: "some url"),
             .mock(description: nil, tagName: "2.4.0")
         ]).save(on: app.db)
-        let versions: [Version] = try [
+        let versions: [Version] = try await [
             (Date(timeIntervalSince1970: 0), Reference.tag(1, 2, 3)),
             (Date(timeIntervalSince1970: 1), Reference.tag(2, 0, 0)),
             (Date(timeIntervalSince1970: 2), Reference.tag(2, 1, 0)),
@@ -639,12 +639,12 @@ class AnalyzerTests: AppTestCase {
             (Date(timeIntervalSince1970: 4), Reference.tag(2, 3, 0)),
             (Date(timeIntervalSince1970: 5), Reference.tag(2, 4, 0)),
             (Date(timeIntervalSince1970: 6), Reference.branch("main")),
-        ].map { date, ref in
+        ].mapAsync { date, ref in
             let v = try Version(id: UUID(),
                                 package: pkg,
                                 commitDate: date,
                                 reference: ref)
-            try v.save(on: app.db).wait()
+            try await v.save(on: app.db)
             return v
         }
         let jpr = try await Package.fetchCandidate(app.db, id: .id0)
@@ -895,8 +895,8 @@ class AnalyzerTests: AppTestCase {
             return ""
         }
         let pkgs = try savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)
-        try pkgs.forEach {
-            try Repository(package: $0, defaultBranch: "main").save(on: app.db).wait()
+        for pkg in pkgs {
+            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         }
 
         // MUT
@@ -907,8 +907,9 @@ class AnalyzerTests: AppTestCase {
         // validation
         // 1 version for the default branch + 2 for the tags each = 6 versions
         // 2 products per version = 12 products
-        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 6)
-        XCTAssertEqual(try Product.query(on: app.db).count().wait(), 12)
+        let db = app.db
+        try await XCTAssertEqualAsync(try await Version.query(on: db).count(), 6)
+        try await XCTAssertEqualAsync(try await Product.query(on: db).count(), 12)
     }
 
     @MainActor
