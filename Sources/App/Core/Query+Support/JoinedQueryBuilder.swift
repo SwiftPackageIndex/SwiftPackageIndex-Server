@@ -139,11 +139,6 @@ struct JoinedQueryBuilder<J: ModelInitializable> {
             .map(J.init(model:))
     }
 
-    func first() -> EventLoopFuture<J?> {
-        queryBuilder.first()
-            .optionalMap(J.init(model:))
-    }
-
     func page(_ page: Int, size pageSize: Int) async throws -> Page<J> {
         let page = try await queryBuilder.page(page, size: pageSize)
         return .init(results: page.results.map(J.init(model:)),

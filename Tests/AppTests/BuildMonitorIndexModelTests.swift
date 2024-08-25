@@ -19,25 +19,25 @@ import XCTVapor
 
 class BuildMonitorIndexModelTests: AppTestCase {
 
-    func test_init_from_Build() throws {
+    func test_init_from_Build() async throws {
         do {
             let package = try savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
             let version = try Version(package: package,
                                       latest: .defaultBranch,
                                       packageName: "LeftPad from Version.packageName",
                                       reference: .branch("main"))
-            try version.save(on: app.db).wait()
-            try Build(id: .id0,
-                      version: version,
-                      platform: .macosXcodebuild,
-                      status: .ok,
-                      swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
-            try Repository(package: package,
-                           ownerName: "Dave Verwer from Repository.ownerName").save(on: app.db).wait()
+            try await version.save(on: app.db)
+            try await Build(id: .id0,
+                            version: version,
+                            platform: .macosXcodebuild,
+                            status: .ok,
+                            swiftVersion: .init(5, 6, 0)).save(on: app.db)
+            try await Repository(package: package,
+                                 ownerName: "Dave Verwer from Repository.ownerName").save(on: app.db)
         }
 
         // Query results back through the Joined4
-        let buildResult = try BuildResult.query(on: app.db).first().wait().unwrap()
+        let buildResult = try await BuildResult.query(on: app.db).first().unwrap()
 
         // MUT
         let model = try XCTUnwrap(BuildMonitorIndex.Model(buildResult: buildResult))
@@ -52,22 +52,22 @@ class BuildMonitorIndexModelTests: AppTestCase {
         XCTAssertEqual(model.status, .ok)
     }
 
-    func test_init_from_Build_without_repository_name() throws {
+    func test_init_from_Build_without_repository_name() async throws {
         do {
             let package = try savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
             let version = try Version(package: package,
                                       packageName: nil) // Deliberately missing a `packageName`
-            try version.save(on: app.db).wait()
-            try Build(version: version,
-                      platform: .macosXcodebuild,
-                      status: .ok,
-                      swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
-            try Repository(package: package,
-                           name: "LeftPad from Repository.name").save(on: app.db).wait()
+            try await version.save(on: app.db)
+            try await Build(version: version,
+                            platform: .macosXcodebuild,
+                            status: .ok,
+                            swiftVersion: .init(5, 6, 0)).save(on: app.db)
+            try await Repository(package: package,
+                                 name: "LeftPad from Repository.name").save(on: app.db)
         }
 
         // Query results back through the Joined4
-        let buildResult = try BuildResult.query(on: app.db).first().wait().unwrap()
+        let buildResult = try await BuildResult.query(on: app.db).first().unwrap()
 
         // MUT
         let model = try XCTUnwrap(BuildMonitorIndex.Model(buildResult: buildResult))
@@ -75,23 +75,23 @@ class BuildMonitorIndexModelTests: AppTestCase {
         XCTAssertEqual(model.packageName, "LeftPad from Repository.name")
     }
 
-    func test_init_from_Build_with_no_package_name() throws {
+    func test_init_from_Build_with_no_package_name() async throws {
         do {
             let package = try savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
             let version = try Version(package: package,
                                       packageName: nil) // Deliberately missing a `packageName`
-            try version.save(on: app.db).wait()
-            try Build(version: version,
-                      platform: .macosXcodebuild,
-                      status: .ok,
-                      swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
-            try Repository(package: package,
-                           name: nil) // Deliberately missing a `name`
-                .save(on: app.db).wait()
+            try await version.save(on: app.db)
+            try await Build(version: version,
+                            platform: .macosXcodebuild,
+                            status: .ok,
+                            swiftVersion: .init(5, 6, 0)).save(on: app.db)
+            try await Repository(package: package,
+                                 name: nil) // Deliberately missing a `name`
+            .save(on: app.db)
         }
 
         // Query results back through the Joined4
-        let buildResult = try BuildResult.query(on: app.db).first().wait().unwrap()
+        let buildResult = try await BuildResult.query(on: app.db).first().unwrap()
 
         // MUT
         let model = try XCTUnwrap(BuildMonitorIndex.Model(buildResult: buildResult))
@@ -99,23 +99,23 @@ class BuildMonitorIndexModelTests: AppTestCase {
         XCTAssertEqual(model.packageName, "Unknown Package")
     }
 
-    func test_init_from_Build_without_ownerName() throws {
+    func test_init_from_Build_without_ownerName() async throws {
         do {
             let package = try savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
             let version = try Version(package: package)
-            try version.save(on: app.db).wait()
-            try Build(version: version,
-                      platform: .macosXcodebuild,
-                      status: .ok,
-                      swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
-            try Repository(package: package,
-                           owner: "daveverwer from Repository.owner",
-                           ownerName: nil) // Deliberately missing an `ownerName`
-                .save(on: app.db).wait()
+            try await version.save(on: app.db)
+            try await Build(version: version,
+                            platform: .macosXcodebuild,
+                            status: .ok,
+                            swiftVersion: .init(5, 6, 0)).save(on: app.db)
+            try await Repository(package: package,
+                                 owner: "daveverwer from Repository.owner",
+                                 ownerName: nil) // Deliberately missing an `ownerName`
+            .save(on: app.db)
         }
 
         // Query results back through the Joined4
-        let buildResult = try BuildResult.query(on: app.db).first().wait().unwrap()
+        let buildResult = try await BuildResult.query(on: app.db).first().unwrap()
 
         // MUT
         let model = try XCTUnwrap(BuildMonitorIndex.Model(buildResult: buildResult))
