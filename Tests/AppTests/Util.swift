@@ -128,11 +128,6 @@ func savePackages(on db: Database, _ urls: [URL],
 }
 
 
-func fetch(id: Package.Id?, on db: Database, file: StaticString = #file, line: UInt = #line) throws -> Package {
-    try XCTUnwrap(try Package.find(id, on: db).wait(), file: (file), line: line)
-}
-
-
 // MARK: - Client mocking
 
 

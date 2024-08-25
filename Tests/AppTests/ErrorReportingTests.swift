@@ -25,7 +25,7 @@ class ErrorReportingTests: AppTestCase {
                               error: AppError.cacheDirectoryDoesNotExist(pkg.id, "path"),
                               stage: .ingestion)
         do {
-            let pkg = try fetch(id: pkg.id, on: app.db)
+            let pkg = try await XCTUnwrapAsync(try await Package.find(pkg.id, on: app.db))
             XCTAssertEqual(pkg.status, .cacheDirectoryDoesNotExist)
             XCTAssertEqual(pkg.processingStage, .ingestion)
         }
