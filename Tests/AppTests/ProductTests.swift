@@ -58,7 +58,7 @@ class ProductTests: AppTestCase {
         }
     }
 
-    func test_Product_save() throws {
+    func test_Product_save() async throws {
         let pkg = Package(id: UUID(), url: "1")
         let ver = try Version(id: UUID(), package: pkg)
         let prod = try Product(id: UUID(),
@@ -66,11 +66,11 @@ class ProductTests: AppTestCase {
                                type: .library(.automatic),
                                name: "p1",
                                targets: ["t1", "t2"])
-        try pkg.save(on: app.db).wait()
-        try ver.save(on: app.db).wait()
-        try prod.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
+        try await ver.save(on: app.db)
+        try await prod.save(on: app.db)
         do {
-            let p = try XCTUnwrap(Product.find(prod.id, on: app.db).wait())
+            let p = try await XCTUnwrapAsync(try await Product.find(prod.id, on: app.db))
             XCTAssertEqual(p.$version.id, ver.id)
             XCTAssertEqual(p.type, .library(.automatic))
             XCTAssertEqual(p.name, "p1")
@@ -78,26 +78,27 @@ class ProductTests: AppTestCase {
         }
     }
 
-    func test_delete_cascade() throws {
+    func test_delete_cascade() async throws {
         // delete version must delete products
         let pkg = Package(id: UUID(), url: "1")
         let ver = try Version(id: UUID(), package: pkg)
         let prod = try Product(id: UUID(), version: ver, type: .library(.automatic), name: "p1")
-        try pkg.save(on: app.db).wait()
-        try ver.save(on: app.db).wait()
-        try prod.save(on: app.db).wait()
+        try await pkg.save(on: app.db)
+        try await ver.save(on: app.db)
+        try await prod.save(on: app.db)
+        let db = app.db
 
-        XCTAssertEqual(try Package.query(on: app.db).count().wait(), 1)
-        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 1)
-        XCTAssertEqual(try Product.query(on: app.db).count().wait(), 1)
+        try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 1)
+        try await XCTAssertEqualAsync(try await Version.query(on: db).count(), 1)
+        try await XCTAssertEqualAsync(try await Product.query(on: db).count(), 1)
 
         // MUT
-        try ver.delete(on: app.db).wait()
+        try await ver.delete(on: app.db)
 
         // version and product should be deleted
-        XCTAssertEqual(try Package.query(on: app.db).count().wait(), 1)
-        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 0)
-        XCTAssertEqual(try Product.query(on: app.db).count().wait(), 0)
+        try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 1)
+        try await XCTAssertEqualAsync(try await Version.query(on: db).count(), 0)
+        try await XCTAssertEqualAsync(try await Product.query(on: db).count(), 0)
     }
 
 }

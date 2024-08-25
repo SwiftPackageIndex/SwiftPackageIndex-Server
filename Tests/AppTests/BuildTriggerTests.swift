@@ -42,36 +42,36 @@ class BuildTriggerTests: AppTestCase {
                                 latest: .defaultBranch,
                                 reference: .branch("main"))
             try await v.save(on: app.db)
-            try BuildPair.all.forEach { pair in
-                try Build(id: UUID(),
-                          version: v,
-                          platform: pair.platform,
-                          status: .ok,
-                          swiftVersion: pair.swiftVersion)
-                    .save(on: app.db).wait()
+            for pair in BuildPair.all {
+                try await Build(id: UUID(),
+                                version: v,
+                                platform: pair.platform,
+                                status: .ok,
+                                swiftVersion: pair.swiftVersion)
+                .save(on: app.db)
             }
         }
         // save two packages with partially completed builds
-        try [pkgIdIncomplete1, pkgIdIncomplete2].forEach { id in
+        for id in [pkgIdIncomplete1, pkgIdIncomplete2] {
             let p = Package(id: id, url: id.uuidString.url)
-            try p.save(on: app.db).wait()
-            try [Version.Kind.defaultBranch, .release].forEach { kind in
+            try await p.save(on: app.db)
+            for kind in [Version.Kind.defaultBranch, .release] {
                 let v = try Version(package: p,
                                     latest: kind,
                                     reference: kind == .release
-                                        ? .tag(1, 2, 3)
-                                        : .branch("main"))
-                try v.save(on: app.db).wait()
-                try BuildPair.all
+                                    ? .tag(1, 2, 3)
+                                    : .branch("main"))
+                try await v.save(on: app.db)
+                for pair in BuildPair.all
                     .dropFirst() // skip one platform to create a build gap
-                    .forEach { pair in
-                        try Build(id: UUID(),
-                                  version: v,
-                                  platform: pair.platform,
-                                  status: .ok,
-                                  swiftVersion: pair.swiftVersion)
-                            .save(on: app.db).wait()
-                    }
+                {
+                    try await Build(id: UUID(),
+                                    version: v,
+                                    platform: pair.platform,
+                                    status: .ok,
+                                    swiftVersion: pair.swiftVersion)
+                    .save(on: app.db)
+                }
             }
         }
 
@@ -90,13 +90,13 @@ class BuildTriggerTests: AppTestCase {
         let pkgId = UUID()
         let p = Package(id: pkgId, url: pkgId.uuidString.url)
         try await p.save(on: app.db)
-        try [Version.Kind.defaultBranch, .release].forEach { kind in
+        for kind in [Version.Kind.defaultBranch, .release] {
             let v = try Version(package: p,
                                 latest: kind,
                                 reference: kind == .release
-                                    ? .tag(1, 2, 3)
-                                    : .branch("main"))
-            try v.save(on: app.db).wait()
+                                ? .tag(1, 2, 3)
+                                : .branch("main"))
+            try await v.save(on: app.db)
         }
 
         // MUT
@@ -157,26 +157,26 @@ class BuildTriggerTests: AppTestCase {
         let pkgIdIncomplete2 = UUID()
         Current.buildTriggerAllowList = { [pkgIdIncomplete2] }
         // save two packages with partially completed builds
-        try [pkgIdIncomplete1, pkgIdIncomplete2].forEach { id in
+        for id in [pkgIdIncomplete1, pkgIdIncomplete2] {
             let p = Package(id: id, url: id.uuidString.url)
-            try p.save(on: app.db).wait()
-            try [Version.Kind.defaultBranch, .release].forEach { kind in
+            try await p.save(on: app.db)
+            for kind in [Version.Kind.defaultBranch, .release] {
                 let v = try Version(package: p,
                                     latest: kind,
                                     reference: kind == .release
                                         ? .tag(1, 2, 3)
                                         : .branch("main"))
-                try v.save(on: app.db).wait()
-                try BuildPair.all
+                try await v.save(on: app.db)
+                for pair in BuildPair.all
                     .dropFirst() // skip one platform to create a build gap
-                    .forEach { pair in
-                        try Build(id: UUID(),
-                                  version: v,
-                                  platform: pair.platform,
-                                  status: .ok,
-                                  swiftVersion: pair.swiftVersion)
-                            .save(on: app.db).wait()
-                    }
+                {
+                    try await Build(id: UUID(),
+                                    version: v,
+                                    platform: pair.platform,
+                                    status: .ok,
+                                    swiftVersion: pair.swiftVersion)
+                    .save(on: app.db)
+                }
             }
         }
 
@@ -213,16 +213,16 @@ class BuildTriggerTests: AppTestCase {
                                 latest: .release,
                                 reference: .tag(1, 2, 3))
             try await v.save(on: app.db)
-            try Build.Platform.allActive
-                .filter { $0 != droppedPlatform } // skip one platform to create a build gap
-                .forEach { platform in
-                try SwiftVersion.allActive.forEach { swiftVersion in
-                    try Build(id: UUID(),
-                              version: v,
-                              platform: platform,
-                              status: .ok,
-                              swiftVersion: swiftVersion)
-                        .save(on: app.db).wait()
+            for platform in Build.Platform.allActive
+                .filter({ $0 != droppedPlatform }) // skip one platform to create a build gap
+            {
+                for swiftVersion in SwiftVersion.allActive {
+                    try await Build(id: UUID(),
+                                    version: v,
+                                    platform: platform,
+                                    status: .ok,
+                                    swiftVersion: swiftVersion)
+                    .save(on: app.db)
                 }
             }
         }
@@ -303,16 +303,16 @@ class BuildTriggerTests: AppTestCase {
                                   - documentation_targets: [t0]
                                 """))
             try await v.save(on: app.db)
-            try Build.Platform.allActive
-                .filter { $0 != .macosSpm } // skip macosSpm platform to create a build gap
-                .forEach { platform in
-                try SwiftVersion.allActive.forEach { swiftVersion in
-                    try Build(id: UUID(),
-                              version: v,
-                              platform: platform,
-                              status: .ok,
-                              swiftVersion: swiftVersion)
-                        .save(on: app.db).wait()
+            for platform in Build.Platform.allActive
+                .filter({ $0 != .macosSpm }) // skip macosSpm platform to create a build gap
+            {
+                for swiftVersion in SwiftVersion.allActive {
+                    try await Build(id: UUID(),
+                                    version: v,
+                                    platform: platform,
+                                    status: .ok,
+                                    swiftVersion: swiftVersion)
+                    .save(on: app.db)
                 }
             }
         }
@@ -671,11 +671,11 @@ class BuildTriggerTests: AppTestCase {
         Current.getStatusCount = { c, _ in 299 + triggerCount.withLockedValue { $0 } }
 
         let pkgIds = [UUID(), UUID()]
-        try pkgIds.forEach { id in
+        for id in pkgIds {
             let p = Package(id: id, url: id.uuidString.url)
-            try p.save(on: app.db).wait()
-            try Version(id: UUID(), package: p, latest: .defaultBranch, reference: .branch("main"))
-                .save(on: app.db).wait()
+            try await p.save(on: app.db)
+            try await Version(id: UUID(), package: p, latest: .defaultBranch, reference: .branch("main"))
+                .save(on: app.db)
         }
 
         // MUT
@@ -705,7 +705,8 @@ class BuildTriggerTests: AppTestCase {
             .save(on: app.db)
         // shift createdAt back to make build eligible from trimming
         try await updateBuildCreatedAt(id: .id2, addTimeInterval: -.hours(5), on: app.db)
-        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+        let db = app.db
+        try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 1)
 
         // MUT
         try await triggerBuilds(on: app.db,
@@ -1019,7 +1020,8 @@ class BuildTriggerTests: AppTestCase {
             try await updateBuildCreatedAt(id: .id2, addTimeInterval: -.hours(5), on: app.db)
         }
 
-        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 3)
+        let db = app.db
+        try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 3)
 
         // MUT
         let deleteCount = try await trimBuilds(on: app.db)
@@ -1055,7 +1057,8 @@ class BuildTriggerTests: AppTestCase {
             try await updateBuildCreatedAt(id: .id2, addTimeInterval: -.hours(5), on: app.db)
         }
 
-        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 3)
+        let db = app.db
+        try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 3)
 
         // MUT
         let deleteCount = try await trimBuilds(on: app.db)
@@ -1111,7 +1114,8 @@ class BuildTriggerTests: AppTestCase {
             }
         }
 
-        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 8)
+        let db = app.db
+        try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 8)
 
         // MUT
         let deleteCount = try await trimBuilds(on: app.db)
@@ -1167,7 +1171,8 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(deleteCount, 0)
-        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+        let db = app.db
+        try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 1)
 
         // make build "old" by resetting "created_at"
         try await updateBuildCreatedAt(id: buildId, addTimeInterval: -.hours(4), on: app.db)
@@ -1202,7 +1207,8 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(deleteCount, 0)
-        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+        let db = app.db
+        try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 1)
 
         // make build "old" by resetting "created_at"
         try await updateBuildCreatedAt(id: buildId, addTimeInterval: -.hours(5), on: app.db)

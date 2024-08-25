@@ -26,8 +26,8 @@ class JoinedQueryBuilderTests: AppTestCase {
 
     func test_sort() async throws {
         // setup
-        try (0..<3).shuffled().forEach { idx in
-            try Package(url: "\(idx)".url).save(on: app.db).wait()
+        for idx in (0..<3).shuffled() {
+            try await Package(url: "\(idx)".url).save(on: app.db)
         }
         // query helper
         func query() -> JoinedQueryBuilder<Package> {
