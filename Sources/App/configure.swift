@@ -343,9 +343,6 @@ public func configure(_ app: Application) async throws -> String {
     app.asyncCommands.use(TriggerBuildsCommand(), as: "trigger-builds")
     app.asyncCommands.use(ReAnalyzeVersions.Command(), as: "re-analyze-versions")
     app.asyncCommands.use(Alerting.Command(), as: "alerting")
-    if Current.environment() == .development {
-        app.asyncCommands.use(Swift6TriggerCommand(), as: "swift-6-trigger")
-    }
 
     // register routes
     try routes(app)
