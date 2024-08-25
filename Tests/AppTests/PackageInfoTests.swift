@@ -19,18 +19,17 @@ import XCTest
 
 class PackageInfoTests: AppTestCase {
 
-    func test_title_package_name() throws {
+    func test_title_package_name() async throws {
         // Ensure title is populated from package.name()
         // setup
         let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, name: "repo name", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: p, latest: .defaultBranch, packageName: "package name")
-            .save(on: app.db).wait()
-        let joined = try XCTUnwrap(Joined3<Package, Repository, Version>
-                                    .query(on: app.db, version: .defaultBranch)
-                                    .first()
-                                    .wait())
+        try await Repository(package: p, name: "repo name", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: p, latest: .defaultBranch, packageName: "package name")
+            .save(on: app.db)
+        let joined = try await XCTUnwrapAsync(try await Joined3<Package, Repository, Version>
+            .query(on: app.db, version: .defaultBranch)
+            .first())
 
         // MUT
         let pkgInfo = PackageInfo(package: joined)
@@ -39,18 +38,17 @@ class PackageInfoTests: AppTestCase {
         XCTAssertEqual(pkgInfo?.title, "package name")
     }
 
-    func test_title_repo_name() throws {
+    func test_title_repo_name() async throws {
         // Ensure title is populated from repoName if package.name() is nil
         // setup
         let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, name: "repo name", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: p, latest: .defaultBranch, packageName: nil)
-            .save(on: app.db).wait()
-        let joined = try XCTUnwrap(Joined3<Package, Repository, Version>
-                                    .query(on: app.db, version: .defaultBranch)
-                                    .first()
-                                    .wait())
+        try await Repository(package: p, name: "repo name", owner: "owner")
+            .save(on: app.db)
+        try await Version(package: p, latest: .defaultBranch, packageName: nil)
+            .save(on: app.db)
+        let joined = try await XCTUnwrapAsync(try await Joined3<Package, Repository, Version>
+            .query(on: app.db, version: .defaultBranch)
+            .first())
 
         // MUT
         let pkgInfo = PackageInfo(package: joined)

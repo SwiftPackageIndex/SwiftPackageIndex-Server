@@ -24,7 +24,7 @@ import XCTest
 /// and essentially compiler checked.
 class JoinedQueryBuilderTests: AppTestCase {
 
-    func test_sort() throws {
+    func test_sort() async throws {
         // setup
         try (0..<3).shuffled().forEach { idx in
             try Package(url: "\(idx)".url).save(on: app.db).wait()
@@ -38,9 +38,9 @@ class JoinedQueryBuilderTests: AppTestCase {
 
         do {  // test sort(_ sort: DatabaseQuery.Sort)
             // MUT
-            let res = try query()
+            let res = try await query()
                 .sort(DatabaseQuery.Sort.sort(.sql(unsafeRaw: "url"), .descending))
-                .all().wait()
+                .all()
 
             // validate
             XCTAssertEqual(res.map(\.url), ["2", "1", "0"])
@@ -48,9 +48,9 @@ class JoinedQueryBuilderTests: AppTestCase {
 
         do {  // test sort<Field>(_ field: KeyPath<...>, _ direction:)
             // MUT
-            let res = try query()
+            let res = try await query()
                 .sort(\.$url, .descending)
-                .all().wait()
+                .all()
 
             // validate
             XCTAssertEqual(res.map(\.url), ["2", "1", "0"])
@@ -58,9 +58,9 @@ class JoinedQueryBuilderTests: AppTestCase {
 
         do {  // test sort(_ field: DatabaseQuery.Field, _ direction:)
             // MUT
-            let res = try query()
+            let res = try await query()
                 .sort(DatabaseQuery.Field.sql(unsafeRaw: "url"), .descending)
-                .all().wait()
+                .all()
 
             // validate
             XCTAssertEqual(res.map(\.url), ["2", "1", "0"])
