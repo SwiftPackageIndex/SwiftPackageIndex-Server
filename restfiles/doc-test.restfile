@@ -214,6 +214,10 @@ requests:
     url: ${base_url}/apple/swift-nio-http2/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /apple/swift-nio-oblivious-http/documentation:
+    url: ${base_url}/apple/swift-nio-oblivious-http/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /apple/swift-nio-ssh/documentation:
     url: ${base_url}/apple/swift-nio-ssh/documentation
     validation:
