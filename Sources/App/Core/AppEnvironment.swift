@@ -101,7 +101,9 @@ extension AppEnvironment {
             do {
                 try await Current.postPlausibleEvent(Current.httpClient(), event, path, user)
             } catch {
-                Current.logger().warning("Plausible.postEvent failed: \(error)")
+                /// track which client is being used; useful in tests
+                let httpClient = "Current.httpClient() of type \(type(of: Current.httpClient()))"
+                Current.logger().warning("Plausible.postEvent failed where: \(httpClient) with \(error)")
             }
         }
     }
