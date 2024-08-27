@@ -130,6 +130,30 @@ class PackageReadmeModelTests: SnapshotTestCase {
         assertSnapshot(of: html, as: .lines)
     }
 
+    func test_Element_fixProtectedCachedImages() throws {
+        // setup
+        let element = Element.extractReadme("""
+            <div id="readme">
+                <article>
+                    <p>README content.</p>
+                    <img src="https://example.com/standard.png" />
+                    <img src="https://camo.githubusercontent.com/0123456789" data-canonical-src="https://example.com/cached.png" />
+                    <img src="https://camo.githubusercontent.com/0123456789" data-canonical-src="" />
+                    <img src="https://camo.githubusercontent.com/0123456789" />
+                    <img src="https://example.com/0123456789" data-canonical-src="https://example.com/cached.png" />
+                    <img />
+                </article>
+            </div>
+            """)
+
+        // MUT
+        element?.fixProtectedCachedImages()
+
+        // validate
+        let html = try XCTUnwrap(try element?.html())
+        assertSnapshot(of: html, as: .lines)
+    }
+
     func test_Element_disableTurboOnLinks() throws {
         // setup
         let element = Element.extractReadme("""
