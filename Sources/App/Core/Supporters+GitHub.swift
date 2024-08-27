@@ -393,6 +393,11 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/35671299?u=2f44069a09e1088091ef0cef4d410fbdbd5ad663&v=4"
         ),
         .init(
+            login: "Morssel",
+            name: "Morssel",
+            avatarUrl: "https://avatars.githubusercontent.com/u/36113140?u=ed1c02613091f6eb6d99acddc479e570285a351f&v=4"
+        ),
+        .init(
             login: "jiachenyee",
             name: "Jia Chen",
             avatarUrl: "https://avatars.githubusercontent.com/u/36725840?u=bf47e96b64a0a9ce09e73974756227c5a667ad99&v=4"
