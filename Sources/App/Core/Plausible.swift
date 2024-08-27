@@ -37,6 +37,7 @@ enum Plausible {
         case sitemapIndex = "/sitemap-index"
         case sitemapStaticPages = "/sitemap-static"
         case sitemapPackage = "/{owner}/{repository}/sitemap"
+        case maintainerPage = "/{owner}/{repository}/information-for-package-maintainers"
     }
 
     struct Error: Swift.Error {

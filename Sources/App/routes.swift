@@ -71,7 +71,8 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.package(.key, .key, .builds).pathComponents,
                 use: PackageController.builds).excludeFromOpenAPI()
         app.get(SiteURL.package(.key, .key, .maintainerInfo).pathComponents,
-                use: PackageController.maintainerInfo).excludeFromOpenAPI()
+                use: PackageController.maintainerInfo
+        ).excludeFromOpenAPI()
 
         // Only serve sitemaps in production.
         if Current.environment() == .production {
@@ -271,6 +272,13 @@ func routes(_ app: Application) throws {
                 $0.get(SiteURL.siteMapStaticPages.pathComponents, use: SiteMapController.staticPages)
                     .excludeFromOpenAPI()
             }
+        }
+    }
+
+    do { /// apply BackendReportingMiddleware to track page views for GET req to /:owner/:repository/information-for-package-maintainers
+        app.group(BackendReportingMiddleware(path: .maintainerPage)) {
+            $0.get(SiteURL.package(.key, .key, .maintainerInfo).pathComponents, use: PackageController.maintainerInfo)
+                .excludeFromOpenAPI()
         }
     }
 
