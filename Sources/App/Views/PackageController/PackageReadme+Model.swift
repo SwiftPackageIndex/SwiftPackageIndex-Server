@@ -129,7 +129,6 @@ extension Element {
         do {
             let imageElements = try select("img[data-canonical-src]")
             for imageElement in imageElements {
-                let cachedUrl = try imageElement.attr("src")
                 let originalUrl = try imageElement.attr("data-canonical-src")
                 if originalUrl.hasPrefix("http") {
                     try imageElement.attr("src", originalUrl)
