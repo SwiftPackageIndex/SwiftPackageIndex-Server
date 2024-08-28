@@ -56,6 +56,7 @@ extension PackageReadme {
             readmeElement.rewriteRelativeImages(to: repoTriple)
             readmeElement.rewriteRelativeLinks(to: repoTriple)
             readmeElement.fixInlineAnchors()
+            readmeElement.fixProtectedCachedImages()
             readmeElement.disableTurboOnLinks()
             return readmeElement
         }
@@ -121,6 +122,21 @@ extension Element {
         } catch {
             // Errors are being intentionally eaten here. The worst that can happen if the
             // HTML selection/parsing fails is that links don't get corrected.
+        }
+    }
+
+    func fixProtectedCachedImages() {
+        do {
+            let imageElements = try select("img[data-canonical-src]")
+            for imageElement in imageElements {
+                let originalUrl = try imageElement.attr("data-canonical-src")
+                if originalUrl.hasPrefix("http") {
+                    try imageElement.attr("src", originalUrl)
+                }
+            }
+        } catch {
+            // Errors are being intentionally eaten here. The worst that can happen if the
+            // HTML selection/parsing fails is that cached images don't get corrected.
         }
     }
 

@@ -1,0 +1,7 @@
+<p>README content.</p> 
+<img src="https://example.com/standard.png" /> 
+<img src="https://example.com/cached.png" data-canonical-src="https://example.com/cached.png" /> 
+<img src="https://camo.githubusercontent.com/0123456789" data-canonical-src="" /> 
+<img src="https://camo.githubusercontent.com/0123456789" /> 
+<img src="https://example.com/cached.png" data-canonical-src="https://example.com/cached.png" /> 
+<img />
