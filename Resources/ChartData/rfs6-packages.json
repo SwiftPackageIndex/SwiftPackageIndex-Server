@@ -51,6 +51,12 @@
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 5 (16A5221g)",
         "value" : 1551
+      },
+      {
+        "date" : "2024-08-28",
+        "toolchainId" : "com.apple.dt.Xcode",
+        "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 6 (16A5230g)",
+        "value" : 1545
       }
     ]
   },
@@ -106,6 +112,12 @@
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 5 (16A5221g)",
         "value" : 21
+      },
+      {
+        "date" : "2024-08-28",
+        "toolchainId" : "com.apple.dt.Xcode",
+        "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 6 (16A5230g)",
+        "value" : 21
       }
     ]
   },
@@ -160,6 +172,12 @@
         "date" : "2024-08-17",
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 5 (16A5221g)",
+        "value" : 9
+      },
+      {
+        "date" : "2024-08-28",
+        "toolchainId" : "com.apple.dt.Xcode",
+        "toolchainLabel" : "Swift 6.0 Xcode 16.0 beta 6 (16A5230g)",
         "value" : 9
       }
     ]
