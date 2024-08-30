@@ -61,7 +61,7 @@ extension S3Store {
         }
     }
 
-    public struct Key: Equatable {
+    public struct Key: Equatable, Sendable {
         public let bucket: String
         public let path: String
 
