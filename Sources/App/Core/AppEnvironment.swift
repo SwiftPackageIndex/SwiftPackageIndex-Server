@@ -51,9 +51,9 @@ struct AppEnvironment: Sendable {
     var siteURL: @Sendable () -> String
     var storeS3Readme: @Sendable (_ owner: String,
                                   _ repository: String,
-                                  _ readme: String) async throws -> String
+                                  _ readme: String) async throws(S3ReadmeError) -> String
     var storeS3ReadmeImages: @Sendable (_ client: Client,
-                                        _ imagesToCache: [Github.Readme.ImageToCache]) async throws -> Void
+                                        _ imagesToCache: [Github.Readme.ImageToCache]) async throws(S3ReadmeError) -> Void
     var timeZone: @Sendable () -> TimeZone
     var triggerBuild: @Sendable (_ client: Client,
                                  _ buildId: Build.Id,
@@ -131,8 +131,12 @@ extension AppEnvironment {
         setLogger: { logger in Self.logger = logger },
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
-        storeS3Readme: { owner, repo, readme in try await S3Store.storeReadme(owner: owner, repository: repo, readme: readme) },
-        storeS3ReadmeImages: { client, images in try await S3Store.storeReadmeImages(client: client, imagesToCache: images) },
+        storeS3Readme: { owner, repo, readme throws(S3ReadmeError) in
+            try await S3Store.storeReadme(owner: owner, repository: repo, readme: readme)
+        },
+        storeS3ReadmeImages: { client, images throws(S3ReadmeError) in
+            try await S3Store.storeReadmeImages(client: client, imagesToCache: images)
+        },
         timeZone: { .current },
         triggerBuild: { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
             try await Gitlab.Builder.triggerBuild(client: client,

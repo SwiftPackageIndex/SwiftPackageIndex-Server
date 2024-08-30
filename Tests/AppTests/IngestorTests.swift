@@ -575,10 +575,9 @@ class IngestorTests: AppTestCase {
                          imagesToCache: [])
         }
         let storeCalls = QueueIsolated(0)
-        struct Error: Swift.Error { }
-        Current.storeS3Readme = { owner, repo, html in
+        Current.storeS3Readme = { owner, repo, html throws(S3ReadmeError) in
             storeCalls.increment()
-            throw Error()
+            throw .storeReadmeFailed
         }
 
         do { // first ingestion, no readme has been saved
