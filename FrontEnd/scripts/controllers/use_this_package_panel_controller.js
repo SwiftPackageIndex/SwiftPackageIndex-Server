@@ -26,6 +26,7 @@ export class UseThisPackagePanelController extends Controller {
         const optionElement = selectElement.options[selectElement.selectedIndex]
         const packageName = optionElement.dataset.package
         const productName = optionElement.dataset.product
-        this.snippetTarget.value = `.product(name: "${productName}", package: "${packageName}")`
+        const prefix = type == "plugin" ? ".plugin" : ".product"
+        this.snippetTarget.value = `${prefix}(name: "${productName}", package: "${packageName}")`
     }
 }

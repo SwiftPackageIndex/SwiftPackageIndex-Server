@@ -415,10 +415,12 @@ extension API.PackageController.GetRoute.Model {
                     .data(named: "action", value: "input->use-this-package-panel#updateProductSnippet"),
                     .attribute(named: "name", value: "products"),
                     .id("products"),
-                    .forEach(products, { product in
+                    // Filter out products of type `executable` until we add support for them.
+                    .forEach(products.filter({ $0.type != .executable }), { product in
                             .option(
                                 .data(named: "package", value: package),
                                 .data(named: "product", value: product.name),
+                                .data(named: "type", value: product.type.stringValue),
                                 .value(product.name),
                                 .label(product.name)
                             )
