@@ -420,7 +420,7 @@ extension API.PackageController.GetRoute.Model {
                             .option(
                                 .data(named: "package", value: package),
                                 .data(named: "product", value: product.name),
-                                .data(named: "type", value: product.type.stringValue),
+                                .data(named: "type", value: product.type.rawValue),
                                 .value(product.name),
                                 .label(product.name)
                             )
