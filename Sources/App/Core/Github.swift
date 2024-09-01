@@ -19,24 +19,13 @@ import S3Store
 
 enum Github {
 
-    enum Error: LocalizedError {
+    enum Error: Swift.Error {
+        case decodeContentFailed(URI, Swift.Error)
         case missingToken
         case noBody
-        case invalidURI(Package.Id?, _ url: String)
+        case invalidURL(String)
+        case postRequestFailed(URI, Swift.Error)
         case requestFailed(HTTPStatus)
-
-        var errorDescription: String? {
-            switch self {
-                case .missingToken:
-                    return "missing Github API token"
-                case .noBody:
-                    return "no body"
-                case let .invalidURI(id, url):
-                    return "invalid URL: \(url) (id: \(id?.uuidString ?? "nil"))"
-                case .requestFailed(let statusCode):
-                    return "request failed with status code: \(statusCode)"
-            }
-        }
     }
 
     static var decoder: JSONDecoder {
@@ -60,13 +49,13 @@ enum Github {
         return response.status == .forbidden && limit == 0
     }
 
-    static func parseOwnerName(url: String) throws -> (owner: String, name: String) {
+    static func parseOwnerName(url: String) throws(Github.Error) -> (owner: String, name: String) {
         let parts = url
             .droppingGithubComPrefix
             .droppingGitExtension
             .split(separator: "/")
             .map(String.init)
-        guard parts.count == 2 else { throw Error.invalidURI(nil, url) }
+        guard parts.count == 2 else { throw Error.invalidURL(url) }
         return (owner: parts[0], name: parts[1])
     }
 
@@ -181,13 +170,18 @@ extension Github {
         var query: String
     }
 
-    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, query: GraphQLQuery) async throws -> T {
+    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, query: GraphQLQuery) async throws(Github.Error) -> T {
         guard let token = Current.githubToken() else {
             throw Error.missingToken
         }
 
-        let response = try await client.post(Self.graphQLApiUri, headers: defaultHeaders(with: token)) {
-            try $0.content.encode(query)
+        let response: ClientResponse
+        do {
+            response = try await client.post(Self.graphQLApiUri, headers: defaultHeaders(with: token)) {
+                try $0.content.encode(query)
+            }
+        } catch {
+            throw .postRequestFailed(Self.graphQLApiUri, error)
         }
 
         guard !isRateLimited(response) else {
@@ -200,10 +194,14 @@ extension Github {
             throw Error.requestFailed(response.status)
         }
 
-        return try response.content.decode(T.self, using: decoder)
+        do {
+            return try response.content.decode(T.self, using: decoder)
+        } catch {
+            throw .decodeContentFailed(Self.graphQLApiUri, error)
+        }
     }
 
-    static func fetchMetadata(client: Client, owner: String, repository: String) async throws -> Metadata {
+    static func fetchMetadata(client: Client, owner: String, repository: String) async throws(Github.Error) -> Metadata {
         struct Response<T: Decodable & Equatable>: Decodable, Equatable {
             var data: T
         }
