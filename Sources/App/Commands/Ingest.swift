@@ -16,6 +16,17 @@ import Vapor
 import Fluent
 
 
+enum Ingestion {
+    enum Error: Swift.Error {
+        case fetchMetadataFailed(owner: String, name: String, error: Swift.Error)
+        case findOrCreateRepositoryFailed(url: String, error: Swift.Error)
+        case invalidURL(String)
+        case noRepositoryMetadata(owner: String?, name: String?)
+        case repositorySaveFailed(owner: String?, name: String?, error: Swift.Error)
+    }
+}
+
+
 struct IngestCommand: AsyncCommand {
     typealias Signature = SPICommand.Signature
 
@@ -159,17 +170,82 @@ func ingestOriginal(client: Client, database: Database, package: Joined<Package,
 }
 
 
-func fetchMetadata(client: Client, package: Joined<Package, Repository>) async throws -> (Github.Metadata, Github.License?, Github.Readme?) {
+extension Ingestion {
+    static func ingestNew(client: Client, database: Database, package: Joined<Package, Repository>) async {
+        let result = await Result { () async throws(Ingestion.Error) -> Joined<Package, Repository> in
+            Current.logger().info("Ingesting \(package.package.url)")
+            let (metadata, license, readme) = try await fetchMetadata(client: client, package: package)
+            let repo = try await Result {
+                try await Repository.findOrCreate(on: database, for: package.model)
+            }.mapError {
+                Ingestion.Error.findOrCreateRepositoryFailed(url: package.package.url, error: $0)
+            }.get()
+
+            let s3Readme: S3Readme?
+            do throws(S3ReadmeError) {
+                s3Readme = try await storeS3Readme(client: client, repository: repo, metadata: metadata, readme: readme)
+            } catch {
+                // We don't want to fail ingestion in case storing the readme fails - warn and continue.
+                Current.logger().warning("storeS3Readme failed: \(error)")
+                s3Readme = .error("\(error)")
+            }
+
+            try await updateRepository(on: database, for: repo, metadata: metadata, licenseInfo: license, readmeInfo: readme, s3Readme: s3Readme)
+            return package
+        }
+
+        switch result {
+            case .success:
+                AppMetrics.ingestMetadataSuccessCount?.inc()
+            case .failure:
+                AppMetrics.ingestMetadataFailureCount?.inc()
+        }
+
+        do {
+            try await updatePackage(client: client, database: database, result: result, stage: .ingestion)
+        } catch {
+            Current.logger().report(error: error)
+        }
+    }
+
+
+    static func storeS3Readme(client: Client, repository: Repository, metadata: Github.Metadata, readme: Github.Readme?) async throws(S3ReadmeError) -> S3Readme? {
+        if let upstreamEtag = readme?.etag,
+           repository.s3Readme?.needsUpdate(upstreamEtag: upstreamEtag) ?? true,
+           let owner = metadata.repositoryOwner,
+           let repository = metadata.repositoryName,
+           let html = readme?.html {
+            let objectUrl = try await Current.storeS3Readme(owner, repository, html)
+            if let imagesToCache = readme?.imagesToCache, imagesToCache.isEmpty == false {
+                try await Current.storeS3ReadmeImages(client, imagesToCache)
+            }
+            return .cached(s3ObjectUrl: objectUrl, githubEtag: upstreamEtag)
+        } else {
+            return repository.s3Readme
+        }
+    }
+}
+
+func fetchMetadata(client: Client, package: Joined<Package, Repository>) async throws(Ingestion.Error) -> (Github.Metadata, Github.License?, Github.Readme?) {
     // Even though we get through a `Joined<Package, Repository>` as a parameter, it's
     // we must not rely on `repository` as it will be nil when a package is first ingested.
     // The only way to get `owner` and `repository` here is by parsing them from the URL.
-    let (owner, repository) = try Github.parseOwnerName(url: package.model.url)
+    let (owner, repository) = try Result {
+        try Github.parseOwnerName(url: package.model.url)
+    }.mapError { _ in
+        Ingestion.Error.invalidURL(package.model.url)
+    }.get()
 
-    async let metadata = try await Current.fetchMetadata(client, owner, repository)
     async let license = await Current.fetchLicense(client, owner, repository)
     async let readme = await Current.fetchReadme(client, owner, repository)
 
-    return try await (metadata, license, readme)
+    // First one should be an `async let` as well but it doesn't compile right now. Reported as
+    // https://github.com/swiftlang/swift/issues/76169
+    return (try await Result { try await Current.fetchMetadata(client, owner, repository) }
+        .mapError { Ingestion.Error.fetchMetadataFailed(owner: owner, name: repository, error: $0) }
+        .get(),
+            await license,
+            await readme)
 }
 
 
@@ -185,13 +261,9 @@ func updateRepository(on database: Database,
                       licenseInfo: Github.License?,
                       readmeInfo: Github.Readme?,
                       s3Readme: S3Readme?,
-                      fork: Fork? = nil) async throws {
+                      fork: Fork? = nil) async throws(Ingestion.Error) {
     guard let repoMetadata = metadata.repository else {
-        if repository.$package.value == nil {
-            try await repository.$package.load(on: database)
-        }
-        throw AppError.genericError(repository.package.id,
-                                    "repository metadata is nil for package \(repository.name ?? "unknown")")
+        throw .noRepositoryMetadata(owner: repository.owner, name: repository.name)
     }
 
     repository.defaultBranch = repoMetadata.defaultBranch
@@ -219,7 +291,11 @@ func updateRepository(on database: Database,
     repository.summary = repoMetadata.description
     repository.forkedFrom = fork
 
-    try await repository.save(on: database)
+    try await Result {
+        try await repository.save(on: database)
+    }.mapError {
+        Ingestion.Error.repositorySaveFailed(owner: repository.owner, name: repository.name, error: $0)
+    }.get()
 }
 
 func getFork(on database: Database, parent: Github.Metadata.Parent?) async -> Fork? {

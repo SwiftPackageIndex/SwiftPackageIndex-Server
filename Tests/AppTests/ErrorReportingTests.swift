@@ -35,7 +35,7 @@ class ErrorReportingTests: AppTestCase {
     func test_Ingestor_error_reporting() async throws {
         // setup
         try await Package(url: "1", processingStage: .reconciliation).save(on: app.db)
-        Current.fetchMetadata = { _, _, _ in throw Github.Error.invalidURI(nil, "1") }
+        Current.fetchMetadata = { _, _, _ in throw Github.Error.invalidURL("1") }
 
         try await withDependencies {
             $0.date.now = .now
@@ -47,7 +47,7 @@ class ErrorReportingTests: AppTestCase {
         // validation
         logger.logs.withValue {
             XCTAssertEqual($0, [.init(level: .warning,
-                                      message: #"App.Github.Error.invalidURI(nil, "1")"#)])
+                                      message: #"App.Ingestion.Error.invalidURL("1")"#)])
         }
     }
 

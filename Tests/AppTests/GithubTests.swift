@@ -35,11 +35,13 @@ class GithubTests: AppTestCase {
             XCTAssertEqual(res.owner, "foo")
             XCTAssertEqual(res.name, "bar")
         }
-        XCTAssertThrowsError(
-            try Github.parseOwnerName(url: "https://github.com/foo/bar/baz")
-        ) { error in
-            XCTAssertEqual(error.localizedDescription,
-                           "invalid URL: https://github.com/foo/bar/baz (id: nil)")
+        do {
+            _ = try Github.parseOwnerName(url: "https://github.com/foo/bar/baz")
+            XCTFail("Expected error")
+        } catch let Github.Error.invalidURL(url) {
+            XCTAssertEqual(url, "https://github.com/foo/bar/baz")
+        } catch {
+            XCTFail("Unexpected error: \(error)")
         }
     }
 
@@ -203,7 +205,7 @@ class GithubTests: AppTestCase {
             _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
             XCTFail("expected error to be thrown")
         } catch {
-            guard case Github.Error.invalidURI = error else {
+            guard case Github.Error.invalidURL = error else {
                 XCTFail("unexpected error: \(error.localizedDescription)")
                 return
             }
@@ -223,12 +225,15 @@ class GithubTests: AppTestCase {
         do {
             _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
             XCTFail("expected error to be thrown")
-        } catch {
+        } catch let Github.Error.decodeContentFailed(uri, error) {
             // validation
+            XCTAssertEqual(uri, "https://api.github.com/graphql")
             guard case DecodingError.dataCorrupted = error else {
                 XCTFail("unexpected error: \(error.localizedDescription)")
                 return
             }
+        } catch {
+            XCTFail("Unexpected error: \(error)")
         }
     }
 
