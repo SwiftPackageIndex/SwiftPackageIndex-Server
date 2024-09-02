@@ -125,7 +125,8 @@ class IngestorTests: AppTestCase {
                                             Date(timeIntervalSince1970: 1),
                                         ],
                                         license: .mit,
-                                        openIssues: 1,
+                                        openIssues: 1, 
+                                        parentUrl: nil,
                                         openPullRequests: 2,
                                         owner: "foo",
                                         pullRequestsClosedAtDates: [
@@ -208,6 +209,7 @@ class IngestorTests: AppTestCase {
                                         issuesClosedAtDates: [],
                                         license: .mit,
                                         openIssues: 1,
+                                        parentUrl: nil, 
                                         openPullRequests: 2,
                                         owner: "foo",
                                         pullRequestsClosedAtDates: [],
@@ -353,6 +355,7 @@ class IngestorTests: AppTestCase {
                 issuesClosedAtDates: [],
                 license: .mit,
                 openIssues: 0,
+                parentUrl: nil, 
                 openPullRequests: 0,
                 owner: "owner",
                 pullRequestsClosedAtDates: [],
@@ -593,5 +596,93 @@ class IngestorTests: AppTestCase {
         // Validation
         let postMigrationFetchedRepo = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
         XCTAssertEqual(postMigrationFetchedRepo.s3Readme, .cached(s3ObjectUrl: "object-url", githubEtag: ""))
+    }
+    
+    func test_ingest_storeForkedFromPackageInSPI() async throws {
+        let pkg = Package(url: "https://github.com/foo/bar.git".url,
+                          processingStage: .analysis)
+        let forkedPkg = Package(
+            url: "https://github.com/taz/bar.git",
+            processingStage: .reconciliation
+        )
+        try await pkg.save(on: app.db)
+        try await forkedPkg.save(on: app.db)
+        Current.fetchMetadata = { _, owner, repository in
+                .mock(owner: owner, repository: repository, parentUrl: "https://github.com/foo/bar.git")
+        }
+
+        // MUT
+        try await ingest(client: app.client, database: app.db, mode: .limit(1))
+        
+        guard let forkedId = forkedPkg.id else {
+            XCTFail("Failed to get forked package id")
+            return
+        }
+        
+        guard let id = pkg.id else {
+            XCTFail("Failed to get package id")
+            return
+        }
+        
+        let repo = try await Repository
+            .query(on: app.db)
+            .filter(\Repository.$package.$id == forkedId).first()
+        
+        XCTAssertNotNil(repo?.forkedFrom)
+        
+        XCTAssertEqual(repo?.forkedFrom, .parentId(id))
+        
+    }
+    
+    func test_ingest_storeForkedFromPackageNotInSPI() async throws {
+        let forkedPkg = Package(
+            url: "https://github.com/taz/bar.git",
+            processingStage: .reconciliation
+        )
+        try await forkedPkg.save(on: app.db)
+        Current.fetchMetadata = { _, owner, repository in 
+            .mock(owner: owner, repository: repository, parentUrl: "https://github.com/foo/bar.git")
+        }
+
+        // MUT
+        try await ingest(client: app.client, database: app.db, mode: .limit(1))
+        
+        guard let forkedId = forkedPkg.id else {
+            XCTFail("Failed to get forked package id")
+            return
+        }
+        
+        let repo = try await Repository
+            .query(on: app.db)
+            .filter(\Repository.$package.$id == forkedId).first()
+        
+        XCTAssertNotNil(repo?.forkedFrom)
+        
+        XCTAssertEqual(repo?.forkedFrom, .parentURL("https://github.com/foo/bar.git"))
+    }
+    
+    func test_ingest_storeForkedFromShouldNeNil() async throws {
+        let forkedPkg = Package(
+            url: "https://github.com/taz/bar.git",
+            processingStage: .reconciliation
+        )
+        try await forkedPkg.save(on: app.db)
+        Current.fetchMetadata = { _, owner, repository in
+                .mock(owner: owner, repository: repository, parentUrl: nil)
+        }
+
+        // MUT
+        try await ingest(client: app.client, database: app.db, mode: .limit(1))
+        
+        guard let forkedId = forkedPkg.id else {
+            XCTFail("Failed to get forked package id")
+            return
+        }
+        
+        let repo = try await Repository
+            .query(on: app.db)
+            .filter(\Repository.$package.$id == forkedId).first()
+        
+        XCTAssertNil(repo?.forkedFrom)
     }
 }

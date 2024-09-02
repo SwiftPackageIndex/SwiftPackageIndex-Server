@@ -34,9 +34,6 @@ final class Repository: @unchecked Sendable, Model, Content {
 
     // reference fields
 
-    @OptionalParent(key: "forked_from_id")  // TODO: remove or implement
-    var forkedFrom: Repository?
-
     @Parent(key: "package_id")
     var package: Package
 
@@ -122,6 +119,9 @@ final class Repository: @unchecked Sendable, Model, Content {
 
     @Field(key: "summary")
     var summary: String?
+    
+    @Field(key: "forked_from")
+    var forkedFrom: Fork?
 
     // initializers
 
@@ -135,7 +135,7 @@ final class Repository: @unchecked Sendable, Model, Content {
          firstCommitDate: Date? = nil,
          forks: Int = 0,
          fundingLinks: [FundingLink] = [],
-         forkedFrom: Repository? = nil,
+         forkedFrom: Fork? = nil,
          homepageUrl: String? = nil,
          isArchived: Bool = false,
          isInOrganization: Bool = false,
@@ -164,9 +164,7 @@ final class Repository: @unchecked Sendable, Model, Content {
         self.commitCount = commitCount
         self.firstCommitDate = firstCommitDate
         self.forks = forks
-        if let forkId = forkedFrom?.id {
-            self.$forkedFrom.id = forkId
-        }
+        self.forkedFrom = forkedFrom
         self.fundingLinks = fundingLinks
         self.homepageUrl = homepageUrl
         self.isArchived = isArchived
@@ -272,4 +270,9 @@ enum S3Readme: Codable, Equatable {
                 return true
         }
     }
+}
+
+enum Fork: Codable, Equatable {
+    case parentId(Package.Id)
+    case parentURL(String)
 }

@@ -124,13 +124,30 @@ func ingest(client: Client,
                         Current.logger().warning("storeS3Readme failed")
                         s3Readme = .error("\(error)")
                     }
+                    
+                    var fork: Fork?
+                    do {
+                        if let parentUrl = metadata.repository?.normalizedParentUrl {
+                            if let packageId = try await Package.query(on: database)
+                                .filter(\.$url == parentUrl)
+                                .first()?.id {
+                                fork = .parentId(packageId)
+                            } else {
+                                fork = .parentURL(parentUrl)
+                            }
+                        }
+                    } catch {
+                        Current.logger().warning("updating forked from failed")
+                    }
 
                     try await updateRepository(on: database,
                                                for: repo,
                                                metadata: metadata,
                                                licenseInfo: license,
                                                readmeInfo: readme,
-                                               s3Readme: s3Readme)
+                                               s3Readme: s3Readme,
+                                               forkedFrom: fork)
+                        
                     return pkg
                 }
 
@@ -177,7 +194,8 @@ func updateRepository(on database: Database,
                       metadata: Github.Metadata,
                       licenseInfo: Github.License?,
                       readmeInfo: Github.Readme?,
-                      s3Readme: S3Readme?) async throws {
+                      s3Readme: S3Readme?,
+                      forkedFrom: Fork? = nil) async throws {
     guard let repoMetadata = metadata.repository else {
         if repository.$package.value == nil {
             try await repository.$package.load(on: database)
@@ -208,6 +226,7 @@ func updateRepository(on database: Database,
     repository.releases = repoMetadata.releases.nodes.map(Release.init(from:))
     repository.stars = repoMetadata.stargazerCount
     repository.summary = repoMetadata.description
+    repository.forkedFrom = forkedFrom
 
     try await repository.save(on: database)
 }
@@ -223,4 +242,14 @@ private extension Github.Metadata {
 private extension Github.Metadata.Repository {
     var repositoryOwner: String? { owner.login }
     var repositoryName: String? { name }
+}
+
+private extension Github.Metadata.Repository {
+    // Returns a normalized version of the URL. Adding a `.git` if not present.
+    var normalizedParentUrl: String? {
+        guard let url = parent.url else { return nil }
+        guard !url.hasSuffix(".git") else { return url }
+        let normalizedUrl = url + ".git"
+        return normalizedUrl
+    }
 }
