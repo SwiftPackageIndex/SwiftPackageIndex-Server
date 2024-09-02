@@ -16,11 +16,18 @@
 
 set -eu
 IMPORT_FILE=$1
+
+POSTGRES_IMAGE="postgres:16.3-alpine"
+
 docker rm -f spi_dev
-docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 6432:5432 -d postgres:16.3-alpine
+docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 6432:5432 -d $POSTGRES_IMAGE
 echo "Giving Postgres a moment to launch ..."
 sleep 5
+
 echo "Creating Azure roles"
-PGPASSWORD=xxx psql -h "${HOST:-localhost}" -p 6432 -U spi_dev -d spi_dev -c 'CREATE ROLE azure_pg_admin; CREATE ROLE azuresu;'
+psql="docker run --rm -v $PWD:/host -w /host --network=host -e PGPASSWORD=xxx $POSTGRES_IMAGE psql"
+$psql -h "${HOST:-localhost}" -p 6432 -U spi_dev -d spi_dev -c 'CREATE ROLE azure_pg_admin; CREATE ROLE azuresu;'
+
 echo "Importing"
-PGPASSWORD=xxx pg_restore --no-owner -h "${HOST:-localhost}" -p 6432 -U spi_dev -d spi_dev < "$IMPORT_FILE"
+pg_restore="docker run --rm -i -v $PWD:/host -w /host --network=host -e PGPASSWORD=xxx $POSTGRES_IMAGE pg_restore"
+$pg_restore --no-owner -h "${HOST:-localhost}" -p 6432 -U spi_dev -d spi_dev < "$IMPORT_FILE"
