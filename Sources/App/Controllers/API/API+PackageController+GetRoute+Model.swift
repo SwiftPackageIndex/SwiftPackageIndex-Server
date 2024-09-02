@@ -230,7 +230,7 @@ extension API.PackageController.GetRoute.Model {
             self.type = type
         }
 
-        enum ProductType: Codable, Equatable {
+        enum ProductType: String, Codable, Equatable {
             case library
             case executable
             case plugin
