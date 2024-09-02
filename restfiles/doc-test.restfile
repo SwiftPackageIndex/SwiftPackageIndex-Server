@@ -33,6 +33,12 @@ requests:
     url: ${base_url}/CoreOffice/XMLCoder/documentation
     validation:
       status: .regex((2|3)\d\d)
+  # Build failure due to what looks like misconfiguration:
+  #   error: target 'Snapshotting' is not a Swift source module
+  # /EmergeTools/SnapshotPreviews-iOS/documentation:
+  #   url: ${base_url}/EmergeTools/SnapshotPreviews-iOS/documentation
+  #   validation:
+  #     status: .regex((2|3)\d\d)
   /FabrizioBrancati/Queuer/documentation:
     url: ${base_url}/FabrizioBrancati/Queuer/documentation
     validation:
@@ -100,6 +106,10 @@ requests:
       status: .regex((2|3)\d\d)
   /RevenueCat/purchases-ios/documentation:
     url: ${base_url}/RevenueCat/purchases-ios/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /SwiftGraphs/Grape/documentation:
+    url: ${base_url}/SwiftGraphs/Grape/documentation
     validation:
       status: .regex((2|3)\d\d)
   /SwiftyLab/MetaCodable/documentation:
@@ -373,10 +383,6 @@ requests:
     url: ${base_url}/krzyzanowskim/CryptoSwift/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /SwiftGraphs/Grape/documentation:
-    url: ${base_url}/SwiftGraphs/Grape/documentation
-    validation:
-      status: .regex((2|3)\d\d)
   /liuliu/dflat/documentation:
     url: ${base_url}/liuliu/dflat/documentation
     validation:
@@ -431,6 +437,10 @@ requests:
       status: .regex((2|3)\d\d)
   /ordo-one/package-benchmark/documentation:
     url: ${base_url}/ordo-one/package-benchmark/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /orlandos-nl/Citadel/documentation:
+    url: ${base_url}/orlandos-nl/Citadel/documentation
     validation:
       status: .regex((2|3)\d\d)
   /orlandos-nl/MongoKitten/documentation:
@@ -624,6 +634,10 @@ requests:
       status: .regex((2|3)\d\d)
   /vapor-community/PassKit/documentation:
     url: ${base_url}/vapor-community/PassKit/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /vapor-community/Zip/documentation:
+    url: ${base_url}/vapor-community/Zip/documentation
     validation:
       status: .regex((2|3)\d\d)
   /vtourraine/AcknowList/documentation:
