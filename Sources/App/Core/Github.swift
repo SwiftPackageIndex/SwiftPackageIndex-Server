@@ -284,6 +284,9 @@ extension Github {
                     homepageUrl
                     isArchived
                     isFork
+                    parent {
+                        url
+                    }
                     isInOrganization
                     licenseInfo {
                       name
@@ -348,6 +351,7 @@ extension Github {
             var isArchived: Bool
             // periphery:ignore
             var isFork: Bool
+            var parent: Parent
             var isInOrganization: Bool
             var licenseInfo: LicenseInfo?
             var mergedPullRequests: IssueNodes
@@ -458,6 +462,10 @@ extension Github {
                     var name: String
                 }
             }
+        }
+        
+        struct Parent: Decodable, Equatable {
+            var url: String?
         }
     }
 

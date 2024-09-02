@@ -178,19 +178,6 @@ final class RepositoryTests: AppTestCase {
         }
     }
 
-    func test_forkedFrom_relationship() async throws {
-        let p1 = Package(url: "p1")
-        try await p1.save(on: app.db)
-        let p2 = Package(url: "p2")
-        try await p2.save(on: app.db)
-
-        // test forked from link
-        let parent = try Repository(package: p1)
-        try await parent.save(on: app.db)
-        let child = try Repository(package: p2, forkedFrom: parent)
-        try await child.save(on: app.db)
-    }
-
     func test_delete_cascade() async throws {
         // delete package must delete repository
         let pkg = Package(id: UUID(), url: "1")

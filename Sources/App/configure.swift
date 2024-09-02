@@ -334,6 +334,9 @@ public func configure(_ app: Application) async throws -> String {
     do { // Migration 078 - Add `build_date` and `commit_hash` to `builds`
         app.migrations.add(UpdateBuildAddBuildDateCommitHash())
     }
+    do { // Migration 079 - Add `fork` to `repositories`
+        app.migrations.add(UpdateRepositoryAddFork())
+    }
 
     app.asyncCommands.use(Analyze.Command(), as: "analyze")
     app.asyncCommands.use(CreateRestfileCommand(), as: "create-restfile")
