@@ -125,28 +125,12 @@ func ingest(client: Client,
                         s3Readme = .error("\(error)")
                     }
                     
-                    var fork: Fork?
-                    do {
-                        if let parentUrl = metadata.repository?.normalizedParentUrl {
-                            if let packageId = try await Package.query(on: database)
-                                .filter(\.$url == parentUrl)
-                                .first()?.id {
-                                fork = .parentId(packageId)
-                            } else {
-                                fork = .parentURL(parentUrl)
-                            }
-                        }
-                    } catch {
-                        Current.logger().warning("updating forked from failed")
-                    }
-
                     try await updateRepository(on: database,
                                                for: repo,
                                                metadata: metadata,
                                                licenseInfo: license,
                                                readmeInfo: readme,
-                                               s3Readme: s3Readme,
-                                               forkedFrom: fork)
+                                               s3Readme: s3Readme)
                         
                     return pkg
                 }
@@ -194,14 +178,28 @@ func updateRepository(on database: Database,
                       metadata: Github.Metadata,
                       licenseInfo: Github.License?,
                       readmeInfo: Github.Readme?,
-                      s3Readme: S3Readme?,
-                      forkedFrom: Fork? = nil) async throws {
+                      s3Readme: S3Readme?) async throws {
     guard let repoMetadata = metadata.repository else {
         if repository.$package.value == nil {
             try await repository.$package.load(on: database)
         }
         throw AppError.genericError(repository.package.id,
                                     "repository metadata is nil for package \(repository.name ?? "unknown")")
+    }
+    
+    var fork: Fork?
+    do {
+        if let parentUrl = metadata.repository?.normalizedParentUrl {
+            if let packageId = try await Package.query(on: database)
+                .filter(\.$url == parentUrl)
+                .first()?.id {
+                fork = .parentId(packageId)
+            } else {
+                fork = .parentURL(parentUrl)
+            }
+        }
+    } catch {
+        Current.logger().warning("updating forked from failed")
     }
 
     repository.defaultBranch = repoMetadata.defaultBranch
@@ -226,7 +224,7 @@ func updateRepository(on database: Database,
     repository.releases = repoMetadata.releases.nodes.map(Release.init(from:))
     repository.stars = repoMetadata.stargazerCount
     repository.summary = repoMetadata.description
-    repository.forkedFrom = forkedFrom
+    repository.forkedFrom = fork
 
     try await repository.save(on: database)
 }
