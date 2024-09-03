@@ -58,6 +58,7 @@ class PackageCollectionControllerTests: AppTestCase {
                              summary: "summary 1").create(on: app.db)
 
         // MUT
+        let encoder = self.encoder
         try await app.test(
             .GET,
             "foo/collection.json",
