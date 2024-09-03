@@ -191,7 +191,7 @@ func updateRepository(on database: Database,
     do {
         if let parentUrl = metadata.repository?.normalizedParentUrl {
             if let packageId = try await Package.query(on: database)
-                .filter(\.$url == parentUrl)
+                .filter(\.$url, .custom("ilike"), parentUrl)
                 .first()?.id {
                 fork = .parentId(packageId)
             } else {
