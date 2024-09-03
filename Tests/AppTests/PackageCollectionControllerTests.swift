@@ -61,7 +61,7 @@ class PackageCollectionControllerTests: AppTestCase {
         try await app.test(
             .GET,
             "foo/collection.json",
-            afterResponse: { res async throws in
+            afterResponse: { @MainActor res async throws in
                 // validation
                 XCTAssertEqual(res.status, .ok)
                 let json = try res.content.decode(PackageCollection.self)

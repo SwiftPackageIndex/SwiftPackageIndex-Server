@@ -370,8 +370,13 @@ class PackageCollectionTests: AppTestCase {
                                                        keywords: ["key", "word"],
                                                        overview: "overview")
 
-        // validate
+#if compiler(<6)
+        await MainActor.run {  // validate
+            assertSnapshot(of: res, as: .json(encoder))
+        }
+#else
         assertSnapshot(of: res, as: .json(encoder))
+#endif
     }
 
     func test_generate_from_urls_noResults() async throws {
@@ -467,8 +472,13 @@ class PackageCollectionTests: AppTestCase {
                                                        authorName: "Foo",
                                                        keywords: ["key", "word"])
 
-        // validate
+#if compiler(<6)
+        await MainActor.run {  // validate
+            assertSnapshot(of: res, as: .json(encoder))
+        }
+#else
         assertSnapshot(of: res, as: .json(encoder))
+#endif
     }
 
     func test_generate_for_owner_noResults() async throws {
@@ -768,7 +778,13 @@ class PackageCollectionTests: AppTestCase {
 
         // validate signed collection content
         XCTAssertFalse(signedCollection.signature.signature.isEmpty)
+#if compiler(<6)
+        await MainActor.run {
+            assertSnapshot(of: signedCollection, as: .json(encoder))
+        }
+#else
         assertSnapshot(of: signedCollection, as: .json(encoder))
+#endif
 
         // validate signature
         let validated = try await SignedCollection.validate(signedCollection: signedCollection)
