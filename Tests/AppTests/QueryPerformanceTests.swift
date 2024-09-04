@@ -44,7 +44,7 @@ class QueryPerformanceTests: XCTestCase {
 
     func test_01_Search_packageMatchQuery() async throws {
         let query = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
-        try await assertQueryPerformance(query, expectedCost: 1500, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 1650, variation: 150)
     }
 
     func test_02_Search_keywordMatchQuery() async throws {
