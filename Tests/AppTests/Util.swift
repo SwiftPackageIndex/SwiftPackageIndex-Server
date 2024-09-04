@@ -26,6 +26,43 @@ import NIOConcurrencyHelpers
 private let _schemaCreated = NIOLockedValueBox<Bool>(false)
 
 func setup(_ environment: Environment, resetDb: Bool = true) async throws -> Application {
+    if !(_schemaCreated.withLockedValue { $0 }) {
+        print("Creating initial schema...")
+        await DotEnvFile.load(for: environment, fileio: .init(threadPool: .singleton))
+        let testDb = Environment.get("DATABASE_NAME")!
+        do {
+            try await withDatabase("postgres") {
+                try await $0.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(testDb) WITH (FORCE)"))
+                try await $0.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(testDb)"))
+            }
+        } catch {
+            print(String(reflecting: error))
+            throw error
+        }
+        do {  // ensure we re-create the schema when running the first test
+            let app = try await Application.make(environment)
+            try await configure(app)
+            try await app.autoMigrate()
+            _schemaCreated.withLockedValue { $0 = true }
+            try await app.asyncShutdown()
+        } catch {
+            print(String(reflecting: error))
+            throw error
+        }
+        print("Created initial schema.")
+    }
+
+    if resetDb {
+        let start = Date()
+        defer { print("Resetting database took: \(Date().timeIntervalSince(start))s") }
+        try await _resetDb()
+//        try await RecentPackage.refresh(on: app.db)
+//        try await RecentRelease.refresh(on: app.db)
+//        try await Search.refresh(on: app.db)
+//        try await Stats.refresh(on: app.db)
+//        try await WeightedKeyword.refresh(on: app.db)
+    }
+
     let app = try await Application.make(environment)
     let host = try await configure(app)
 
@@ -33,14 +70,8 @@ func setup(_ environment: Environment, resetDb: Bool = true) async throws -> App
     precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
                  ".testing must be a local db, was: \(host)")
 
-    app.logger.logLevel = Environment.get("LOG_LEVEL").flatMap(Logger.Level.init(rawValue:)) ?? .warning
 
-    if !(_schemaCreated.withLockedValue { $0 }) {
-        // ensure we create the schema when running the first test
-        try await app.autoMigrate()
-        _schemaCreated.withLockedValue { $0 = true }
-    }
-    if resetDb { try await _resetDb(app) }
+    app.logger.logLevel = Environment.get("LOG_LEVEL").flatMap(Logger.Level.init(rawValue:)) ?? .warning
 
     // Always start with a baseline mock environment to avoid hitting live resources
     Current = .mock(eventLoop: app.eventLoopGroup.next())
@@ -49,39 +80,70 @@ func setup(_ environment: Environment, resetDb: Bool = true) async throws -> App
 }
 
 
+import PostgresNIO
+
+func connect(to databaseName: String) throws -> PostgresClient {
+    let host = Environment.get("DATABASE_HOST")!
+    let port = Environment.get("DATABASE_PORT").flatMap(Int.init)!
+    let username = Environment.get("DATABASE_USERNAME")!
+    let password = Environment.get("DATABASE_PASSWORD")!
+
+    let config = PostgresClient.Configuration(host: host, port: port, username: username, password: password, database: databaseName, tls: .disable)
+    return .init(configuration: config)
+}
+
+func withDatabase(_ databaseName: String, _ query: @escaping (PostgresClient) async throws -> Void) async throws {
+    let client = try connect(to: databaseName)
+    try await withThrowingTaskGroup(of: Void.self) { taskGroup in
+        taskGroup.addTask {
+            await client.run()
+        }
+
+        try await query(client)
+
+        taskGroup.cancelAll()
+    }
+}
+
+
 private let tableNamesCache: NIOLockedValueBox<[String]?> = .init(nil)
+private let snapshotCreated = ActorIsolated(false)
 
-func _resetDb(_ app: Application) async throws {
-    guard let db = app.db as? SQLDatabase else {
-        fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+func _resetDb() async throws {
+    // FIXME: get this dynamically
+    let dbName = "spi_test"
+    let templateName = dbName + "_template"
+
+    try await snapshotCreated.withValue { snapshotCreated in
+        if snapshotCreated {
+            // delete db and re-create from snapshot
+            print("Deleting and re-creating from snapshot...")
+            do {
+                try await withDatabase("postgres") { client in
+                    try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(dbName) WITH (FORCE)"))
+                    try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(dbName) TEMPLATE \(templateName)"))
+                }
+            } catch {
+                print(String(reflecting: error))
+                throw error
+            }
+            print("Database reset.")
+        } else {
+            // create snapshot
+            print("Creating snapshot...")
+            do {
+                try await withDatabase("postgres") { client in
+                    try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(templateName) WITH (FORCE)"))
+                    try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(templateName) TEMPLATE \(dbName)"))
+                }
+            } catch {
+                print(String(reflecting: error))
+                throw error
+            }
+            snapshotCreated = true
+            print("Snapshot created.")
+        }
     }
-
-    guard let tables = tableNamesCache.withLockedValue({ $0 }) else {
-        struct Row: Decodable { var table_name: String }
-        let tableNames = try await db.raw("""
-                SELECT table_name FROM
-                information_schema.tables
-                WHERE
-                  table_schema NOT IN ('pg_catalog', 'information_schema', 'public._fluent_migrations')
-                  AND table_schema NOT LIKE 'pg_toast%'
-                  AND table_name NOT LIKE '_fluent_%'
-                """)
-            .all(decoding: Row.self)
-            .map(\.table_name)
-        tableNamesCache.withLockedValue { $0 = tableNames }
-        try await _resetDb(app)
-        return
-    }
-
-    for table in tables {
-        try await db.raw("TRUNCATE TABLE \(ident: table) CASCADE").run()
-    }
-
-    try await RecentPackage.refresh(on: app.db)
-    try await RecentRelease.refresh(on: app.db)
-    try await Search.refresh(on: app.db)
-    try await Stats.refresh(on: app.db)
-    try await WeightedKeyword.refresh(on: app.db)
 }
 
 
