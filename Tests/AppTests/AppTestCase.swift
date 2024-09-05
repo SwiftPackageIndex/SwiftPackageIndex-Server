@@ -50,11 +50,7 @@ extension AppTestCase {
 
     static func setupApp(_ environment: Environment) async throws -> Application {
         let app = try await Application.make(environment)
-        let host = try await configure(app)
-
-        // Ensure `.testing` refers to certain restricted db hostnames and nothing else
-        precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
-                     ".testing must be a local db, was: \(host)")
+        try await configure(app)
 
         // Silence app logging
         app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
@@ -65,6 +61,14 @@ extension AppTestCase {
 
     static func setupDb(_ environment: Environment) async throws {
         await DotEnvFile.load(for: environment, fileio: .init(threadPool: .singleton))
+
+        // Ensure DATABASE_HOST is from a restricted set db hostnames and nothing else.
+        // This is safeguard against accidental inheritance of setup in QueryPerformanceTests
+        // and to ensure the database resetting cannot impact any other network hosts.
+        let host = Environment.get("DATABASE_HOST")
+        precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
+                     "DATABASE_HOST must be a local db, was: \(host)")
+
         let testDbName = Environment.get("DATABASE_NAME")!
         let snapshotName = testDbName + "_snapshot"
 
