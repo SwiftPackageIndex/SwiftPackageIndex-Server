@@ -244,7 +244,7 @@ private extension Github.Metadata.Repository {
 private extension Github.Metadata.Repository {
     // Returns a normalized version of the URL. Adding a `.git` if not present.
     var normalizedParentUrl: String? {
-        guard let url = parent.url else { return nil }
+        guard let url = parent?.url else { return nil }
         guard !url.hasSuffix(".git") else { return url }
         let normalizedUrl = url + ".git"
         return normalizedUrl

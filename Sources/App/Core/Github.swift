@@ -351,7 +351,7 @@ extension Github {
             var isArchived: Bool
             // periphery:ignore
             var isFork: Bool
-            var parent: Parent
+            var parent: Parent?
             var isInOrganization: Bool
             var licenseInfo: LicenseInfo?
             var mergedPullRequests: IssueNodes
