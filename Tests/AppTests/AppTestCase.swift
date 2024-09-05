@@ -27,11 +27,16 @@ class AppTestCase: XCTestCase {
     override func setUp() async throws {
         try await super.setUp()
         app = try await setup(.testing)
+
+        // Always start with a baseline mock environment to avoid hitting live resources
+        Current = .mock(eventLoop: app.eventLoopGroup.next())
+
+        Current.setLogger(.init(label: "test", factory: { _ in logger }))
     }
 
     func setup(_ environment: Environment) async throws -> Application {
         try await Self.setupDb(environment)
-        return try await setupApp(environment)
+        return try await Self.setupApp(environment)
     }
 
     override func tearDown() async throws {
@@ -43,18 +48,14 @@ class AppTestCase: XCTestCase {
 
 extension AppTestCase {
 
-    func setupApp(_ environment: Environment) async throws -> Application {
+    static func setupApp(_ environment: Environment) async throws -> Application {
         let app = try await Application.make(environment)
         let host = try await configure(app)
 
-        // Ensure `.testing` refers to "postgres" or "localhost"
+        // Ensure `.testing` refers to certain restricted db hostnames and nothing else
         precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
                      ".testing must be a local db, was: \(host)")
 
-        // Always start with a baseline mock environment to avoid hitting live resources
-        Current = .mock(eventLoop: app.eventLoopGroup.next())
-
-        Current.setLogger(.init(label: "test", factory: { _ in logger }))
         // Silence app logging
         app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
 
