@@ -29,7 +29,7 @@ jobs:
       options: --privileged
     services:
       postgres:
-        image: postgres:13.11-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_DB: spi_test
           POSTGRES_USER: spi_test
@@ -61,7 +61,7 @@ jobs:
   #   runs-on: macOS-latest
   #   services:
   #     postgres:
-  #       image: postgres:13.11
+  #       image: postgres:16-alpine
   #       env:
   #         POSTGRES_DB: spi_dev
   #         POSTGRES_USER: spi_dev

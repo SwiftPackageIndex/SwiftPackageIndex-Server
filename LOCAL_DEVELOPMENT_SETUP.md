@@ -40,8 +40,6 @@ Close the scheme editor and run the application by selecting "Run" from the Xcod
 
 When working locally, it's helpful to have a database with pre-populated data from the live system. [Talk to us on Discord](https://discord.gg/vQRb6KkYRw), and we'll supply you with a recent database dump that you can load with `./scripts/load-db.sh`.
 
-**Note:** Running the `load-db.sh` script requires that the Postgres command line tools are available on your system. The easiest way to get these is with [brew](https://brew.sh/) by running `brew install postgresql`.
-
 ### Setup the Front End
 
 Once the back end is set up and the server is running, the next step is to set up the front end to serve the CSS and JavaScript. We use [esbuild](https://esbuild.github.io) to build our front end files. However, you do not need to install Node or any other tools locally unless you are doing extensive work with the front-end files in this project. For small changes or to get started with front-end changes in this project, use our Docker-based scripts.
