@@ -50,6 +50,9 @@ final class Repository: @unchecked Sendable, Model, Content {
 
     @Field(key: "first_commit_date")
     var firstCommitDate: Date?
+    
+    @Field(key: "forked_from")
+    var forkedFrom: Fork?
 
     @Field(key: "forks")
     var forks: Int
@@ -119,9 +122,6 @@ final class Repository: @unchecked Sendable, Model, Content {
 
     @Field(key: "summary")
     var summary: String?
-    
-    @Field(key: "forked_from")
-    var forkedFrom: Fork?
 
     // initializers
 
