@@ -17,7 +17,7 @@
 set -eu
 IMPORT_FILE=$1
 
-POSTGRES_IMAGE="postgres:16.3-alpine"
+POSTGRES_IMAGE="postgres:16-alpine"
 
 docker rm -f spi_dev
 docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 6432:5432 -d $POSTGRES_IMAGE
