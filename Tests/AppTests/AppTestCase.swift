@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+@testable import App
+
+import NIOConcurrencyHelpers
+import PostgresNIO
 import SQLKit
 import XCTVapor
-@testable import App
+
 
 class AppTestCase: XCTestCase {
     var app: Application!
@@ -23,15 +27,109 @@ class AppTestCase: XCTestCase {
     override func setUp() async throws {
         try await super.setUp()
         app = try await setup(.testing)
-        Current.setLogger(.init(label: "test", factory: { _ in logger }))
-        // Silence app logging
-        app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
+    }
+
+    func setup(_ environment: Environment) async throws -> Application {
+        try await Self.setupDb(environment)
+        return try await setupApp(environment)
     }
 
     override func tearDown() async throws {
         try await app.asyncShutdown()
         try await super.tearDown()
     }
+}
+
+
+extension AppTestCase {
+
+    func setupApp(_ environment: Environment) async throws -> Application {
+        let app = try await Application.make(environment)
+        let host = try await configure(app)
+
+        // Ensure `.testing` refers to "postgres" or "localhost"
+        precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
+                     ".testing must be a local db, was: \(host)")
+
+        // Always start with a baseline mock environment to avoid hitting live resources
+        Current = .mock(eventLoop: app.eventLoopGroup.next())
+
+        Current.setLogger(.init(label: "test", factory: { _ in logger }))
+        // Silence app logging
+        app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
+
+        return app
+    }
+
+
+    static func setupDb(_ environment: Environment) async throws {
+        await DotEnvFile.load(for: environment, fileio: .init(threadPool: .singleton))
+        let testDbName = Environment.get("DATABASE_NAME")!
+        let snapshotName = testDbName + "_snapshot"
+
+        // Create initial db snapshot on first run
+        try await snapshotCreated.withValue { snapshotCreated in
+            if !snapshotCreated {
+                try await createSchema(environment, databaseName: testDbName)
+                try await createSnapshot(original: testDbName, snapshot: snapshotName)
+                snapshotCreated = true
+            }
+        }
+
+        try await restoreSnapshot(original: testDbName, snapshot: snapshotName)
+    }
+
+
+    static func createSchema(_ environment: Environment, databaseName: String) async throws {
+        do {
+            try await withDatabase("postgres") {  // Connect to `postgres` db in order to reset the test db
+                try await $0.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(databaseName) WITH (FORCE)"))
+                try await $0.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(databaseName)"))
+            }
+
+            do {  // Use autoMigrate to spin up the schema
+                let app = try await Application.make(environment)
+                app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
+                try await configure(app)
+                try await app.autoMigrate()
+                try await app.asyncShutdown()
+            }
+        } catch {
+            print("Create schema failed with error: ", String(reflecting: error))
+            throw error
+        }
+    }
+
+
+    static func createSnapshot(original: String, snapshot: String) async throws {
+        do {
+            try await withDatabase("postgres") { client in
+                try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(snapshot) WITH (FORCE)"))
+                try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(snapshot) TEMPLATE \(original)"))
+            }
+        } catch {
+            print("Create snapshot failed with error: ", String(reflecting: error))
+            throw error
+        }
+    }
+
+
+    static func restoreSnapshot(original: String, snapshot: String) async throws {
+        // delete db and re-create from snapshot
+        do {
+            try await withDatabase("postgres") { client in
+                try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(original) WITH (FORCE)"))
+                try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(original) TEMPLATE \(snapshot)"))
+            }
+        } catch {
+            print("Restore snapshot failed with error: ", String(reflecting: error))
+            throw error
+        }
+    }
+
+
+    static let snapshotCreated = ActorIsolated(false)
+
 }
 
 
@@ -69,3 +167,28 @@ extension AppTestCase {
         }
     }
 }
+
+
+private func connect(to databaseName: String) throws -> PostgresClient {
+    let host = Environment.get("DATABASE_HOST")!
+    let port = Environment.get("DATABASE_PORT").flatMap(Int.init)!
+    let username = Environment.get("DATABASE_USERNAME")!
+    let password = Environment.get("DATABASE_PASSWORD")!
+
+    let config = PostgresClient.Configuration(host: host, port: port, username: username, password: password, database: databaseName, tls: .disable)
+    return .init(configuration: config)
+}
+
+private func withDatabase(_ databaseName: String, _ query: @escaping (PostgresClient) async throws -> Void) async throws {
+    let client = try connect(to: databaseName)
+    try await withThrowingTaskGroup(of: Void.self) { taskGroup in
+        taskGroup.addTask {
+            await client.run()
+        }
+
+        try await query(client)
+
+        taskGroup.cancelAll()
+    }
+}
+
