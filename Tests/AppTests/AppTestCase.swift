@@ -72,18 +72,18 @@ extension AppTestCase {
         try await snapshotCreated.withValue { snapshotCreated in
             if !snapshotCreated {
                 try await createSchema(environment, databaseName: testDbName)
-                try await createSnapshot(original: testDbName, snapshot: snapshotName)
+                try await createSnapshot(original: testDbName, snapshot: snapshotName, environment: environment)
                 snapshotCreated = true
             }
         }
 
-        try await restoreSnapshot(original: testDbName, snapshot: snapshotName)
+        try await restoreSnapshot(original: testDbName, snapshot: snapshotName, environment: environment)
     }
 
 
     static func createSchema(_ environment: Environment, databaseName: String) async throws {
         do {
-            try await withDatabase("postgres") {  // Connect to `postgres` db in order to reset the test db
+            try await withDatabase("postgres", .testing) {  // Connect to `postgres` db in order to reset the test db
                 try await $0.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(databaseName) WITH (FORCE)"))
                 try await $0.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(databaseName)"))
             }
@@ -102,9 +102,9 @@ extension AppTestCase {
     }
 
 
-    static func createSnapshot(original: String, snapshot: String) async throws {
+    static func createSnapshot(original: String, snapshot: String, environment: Environment) async throws {
         do {
-            try await withDatabase("postgres") { client in
+            try await withDatabase("postgres", environment) { client in
                 try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(snapshot) WITH (FORCE)"))
                 try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(snapshot) TEMPLATE \(original)"))
             }
@@ -115,10 +115,10 @@ extension AppTestCase {
     }
 
 
-    static func restoreSnapshot(original: String, snapshot: String) async throws {
+    static func restoreSnapshot(original: String, snapshot: String, environment: Environment) async throws {
         // delete db and re-create from snapshot
         do {
-            try await withDatabase("postgres") { client in
+            try await withDatabase("postgres", environment) { client in
                 try await client.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(original) WITH (FORCE)"))
                 try await client.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(original) TEMPLATE \(snapshot)"))
             }
@@ -170,22 +170,23 @@ extension AppTestCase {
 }
 
 
-private func connect(to databaseName: String) throws -> PostgresClient {
+private func connect(to databaseName: String, _ environment: Environment) async throws -> PostgresClient {
+    await DotEnvFile.load(for: environment, fileio: .init(threadPool: .singleton))
     let host = Environment.get("DATABASE_HOST")!
     let port = Environment.get("DATABASE_PORT").flatMap(Int.init)!
     let username = Environment.get("DATABASE_USERNAME")!
     let password = Environment.get("DATABASE_PASSWORD")!
 
     let config = PostgresClient.Configuration(host: host, port: port, username: username, password: password, database: databaseName, tls: .disable)
+
     return .init(configuration: config)
 }
 
-private func withDatabase(_ databaseName: String, _ query: @escaping (PostgresClient) async throws -> Void) async throws {
-    let client = try connect(to: databaseName)
+
+private func withDatabase(_ databaseName: String, _ environment: Environment, _ query: @escaping (PostgresClient) async throws -> Void) async throws {
+    let client = try await connect(to: databaseName, environment)
     try await withThrowingTaskGroup(of: Void.self) { taskGroup in
-        taskGroup.addTask {
-            await client.run()
-        }
+        taskGroup.addTask { await client.run() }
 
         try await query(client)
 
