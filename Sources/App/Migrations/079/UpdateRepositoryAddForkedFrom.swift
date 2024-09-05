@@ -16,7 +16,7 @@ import Fluent
 import SQLKit
 
 
-struct UpdateRepositoryAddFork: AsyncMigration {
+struct UpdateRepositoryAddForkedFrom: AsyncMigration {
     func prepare(on database: Database) async throws {
         try await database.schema("repositories")
             .field("forked_from", .json)
