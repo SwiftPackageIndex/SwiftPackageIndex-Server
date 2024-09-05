@@ -97,6 +97,9 @@ db-up: db-up-dev db-up-test
 db-up-dev:
 	docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 6432:5432 -d postgres:16-alpine
 
+# Keep test db on postgres:13 for now, to make local testing faster. See
+# https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/3360#issuecomment-2331103211
+# for details
 db-up-test:
 	docker run --name spi_test \
 		-e POSTGRES_DB=spi_test \
@@ -107,18 +110,6 @@ db-up-test:
 		-p 5432:5432 \
 		-d \
 		postgres:13-alpine
-
-db-up-test-log-statement:
-	docker run --name spi_test \
-		-e POSTGRES_DB=spi_test \
-		-e POSTGRES_USER=spi_test \
-		-e POSTGRES_PASSWORD=xxx \
-		-e PGDATA=/pgdata \
-		--tmpfs /pgdata:rw,noexec,nosuid,size=1024m \
-		-p 5432:5432 \
-		--rm \
-		postgres:13-alpine \
-		postgres -c log_statement=all
 
 db-down: db-down-dev db-down-test
 
