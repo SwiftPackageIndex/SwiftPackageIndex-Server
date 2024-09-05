@@ -124,13 +124,22 @@ func ingest(client: Client,
                         Current.logger().warning("storeS3Readme failed")
                         s3Readme = .error("\(error)")
                     }
+                    
+                    let fork: Fork?
+                    do {
+                        fork = try await getFork(on: database, metadata: metadata)
+                    } catch {
+                        fork = nil
+                        Current.logger().warning("updating forked from failed")
+                    }
 
                     try await updateRepository(on: database,
                                                for: repo,
                                                metadata: metadata,
                                                licenseInfo: license,
                                                readmeInfo: readme,
-                                               s3Readme: s3Readme)
+                                               s3Readme: s3Readme,
+                                               fork: fork)
                     return pkg
                 }
 
@@ -177,28 +186,14 @@ func updateRepository(on database: Database,
                       metadata: Github.Metadata,
                       licenseInfo: Github.License?,
                       readmeInfo: Github.Readme?,
-                      s3Readme: S3Readme?) async throws {
+                      s3Readme: S3Readme?,
+                      fork: Fork? = nil) async throws {
     guard let repoMetadata = metadata.repository else {
         if repository.$package.value == nil {
             try await repository.$package.load(on: database)
         }
         throw AppError.genericError(repository.package.id,
                                     "repository metadata is nil for package \(repository.name ?? "unknown")")
-    }
-    
-    var fork: Fork?
-    do {
-        if let parentUrl = metadata.repository?.normalizedParentUrl {
-            if let packageId = try await Package.query(on: database)
-                .filter(\.$url, .custom("ilike"), parentUrl)
-                .first()?.id {
-                fork = .parentId(packageId)
-            } else {
-                fork = .parentURL(parentUrl)
-            }
-        }
-    } catch {
-        Current.logger().warning("updating forked from failed")
     }
 
     repository.defaultBranch = repoMetadata.defaultBranch
@@ -228,6 +223,20 @@ func updateRepository(on database: Database,
     try await repository.save(on: database)
 }
 
+func getFork(on database: Database, metadata: Github.Metadata) async throws -> Fork? {
+    guard let url = metadata.repository?.parent?.url,
+          let parentUrl = URL(string: url)?.normalizedParent?.absoluteString else {
+        return nil
+    }
+
+    if let packageId = try await Package.query(on: database)
+        .filter(\.$url, .custom("ilike"), parentUrl)
+        .first()?.id {
+        return .parentId(packageId)
+    } else {
+        return .parentURL(parentUrl)
+    }
+}
 
 // Helper to ensure the canonical source for these critical fields is the same in all the places where we need them
 private extension Github.Metadata {
@@ -241,12 +250,11 @@ private extension Github.Metadata.Repository {
     var repositoryName: String? { name }
 }
 
-private extension Github.Metadata.Repository {
-    // Returns a normalized version of the URL. Adding a `.git` if not present.
-    var normalizedParentUrl: String? {
-        guard let url = parent?.url else { return nil }
-        guard !url.hasSuffix(".git") else { return url }
-        let normalizedUrl = url + ".git"
-        return normalizedUrl
+private extension URL {
+    var normalizedParent: Self? {
+        guard var components = URLComponents(url: self, resolvingAgainstBaseURL: false) else { return nil }
+        if components.scheme == "http" { components.scheme = "https" }
+        if !components.path.hasSuffix(".git") { components.path = components.path + ".git" }
+        return components.url!
     }
 }

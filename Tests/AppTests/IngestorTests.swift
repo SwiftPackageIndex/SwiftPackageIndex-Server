@@ -156,7 +156,8 @@ class IngestorTests: AppTestCase {
                                                      html: "readme html",
                                                      htmlUrl: "readme html url",
                                                      imagesToCache: []),
-                                   s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"))
+                                   s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"),
+                                   fork: .parentURL("https://github.com/foo/bar.git"))
 
         // validate
         do {
@@ -165,6 +166,7 @@ class IngestorTests: AppTestCase {
             let repo = try await Repository.query(on: app.db).first().unwrap()
             XCTAssertEqual(repo.defaultBranch, "main")
             XCTAssertEqual(repo.forks, 1)
+            XCTAssertEqual(repo.forkedFrom, .parentURL("https://github.com/foo/bar.git"))
             XCTAssertEqual(repo.fundingLinks, [
                 .init(platform: .gitHub, url: "https://github.com/username"),
                 .init(platform: .customUrl, url: "https://example.com/username1"),
@@ -598,91 +600,40 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(postMigrationFetchedRepo.s3Readme, .cached(s3ObjectUrl: "object-url", githubEtag: ""))
     }
     
-    func test_ingest_storeForkedFromPackageInSPI() async throws {
-        let pkg = Package(url: "https://github.com/foo/bar.git".url,
-                          processingStage: .analysis)
-        let forkedPkg = Package(
-            url: "https://github.com/taz/bar.git",
-            processingStage: .reconciliation
-        )
-        try await pkg.save(on: app.db)
-        try await forkedPkg.save(on: app.db)
-        Current.fetchMetadata = { _, owner, repository in
-                .mock(owner: owner, repository: repository, parentUrl: "https://github.com/foo/bar.git")
+    func test_getFork() async throws {
+        try await Package(id: .id0, url: "https://github.com/foo/parent.git".url, processingStage: .analysis).save(on: app.db)
+        try await Package(url: "https://github.com/bar/forked.git", processingStage: .analysis).save(on: app.db)
+
+        var metadata = Github.Metadata.mock
+
+        do {  // test lookup when package is in the index
+            metadata.repository?.parent = .init(url: "https://github.com/foo/parent.git")
+            let fork = try await getFork(on: app.db, metadata: metadata)
+            XCTAssertEqual(fork, .parentId(.id0))
         }
 
-        // MUT
-        try await ingest(client: app.client, database: app.db, mode: .limit(1))
-        
-        guard let forkedId = forkedPkg.id else {
-            XCTFail("Failed to get forked package id")
-            return
+        do {  // test lookup when package is in the index but with different case in URL
+            metadata.repository?.parent = .init(url: "https://github.com/Foo/Parent.git")
+            let fork = try await getFork(on: app.db, metadata: metadata)
+            XCTAssertEqual(fork, .parentId(.id0))
         }
         
-        guard let id = pkg.id else {
-            XCTFail("Failed to get package id")
-            return
-        }
-        
-        let repo = try await Repository
-            .query(on: app.db)
-            .filter(\Repository.$package.$id == forkedId).first()
-        
-        XCTAssertNotNil(repo?.forkedFrom)
-        
-        XCTAssertEqual(repo?.forkedFrom, .parentId(id))
-        
-    }
-    
-    func test_ingest_storeForkedFromPackageNotInSPI() async throws {
-        let forkedPkg = Package(
-            url: "https://github.com/taz/bar.git",
-            processingStage: .reconciliation
-        )
-        try await forkedPkg.save(on: app.db)
-        Current.fetchMetadata = { _, owner, repository in 
-            .mock(owner: owner, repository: repository, parentUrl: "https://github.com/foo/bar.git")
+        do {  // test whem metadata repo url doesn't have `.git` at end
+            metadata.repository?.parent = .init(url: "https://github.com/Foo/Parent")
+            let fork = try await getFork(on: app.db, metadata: metadata)
+            XCTAssertEqual(fork, .parentId(.id0))
         }
 
-        // MUT
-        try await ingest(client: app.client, database: app.db, mode: .limit(1))
-        
-        guard let forkedId = forkedPkg.id else {
-            XCTFail("Failed to get forked package id")
-            return
-        }
-        
-        let repo = try await Repository
-            .query(on: app.db)
-            .filter(\Repository.$package.$id == forkedId).first()
-        
-        XCTAssertNotNil(repo?.forkedFrom)
-        
-        XCTAssertEqual(repo?.forkedFrom, .parentURL("https://github.com/foo/bar.git"))
-    }
-    
-    func test_ingest_storeForkedFromShouldNeNil() async throws {
-        let forkedPkg = Package(
-            url: "https://github.com/taz/bar.git",
-            processingStage: .reconciliation
-        )
-        try await forkedPkg.save(on: app.db)
-        Current.fetchMetadata = { _, owner, repository in
-                .mock(owner: owner, repository: repository, parentUrl: nil)
+        do {  // test lookup when package is not in the index
+            metadata.repository?.parent = .init(url: "https://github.com/some/other.git")
+            let fork = try await getFork(on: app.db, metadata: metadata)
+            XCTAssertEqual(fork, .parentURL("https://github.com/some/other.git"))
         }
 
-        // MUT
-        try await ingest(client: app.client, database: app.db, mode: .limit(1))
-        
-        guard let forkedId = forkedPkg.id else {
-            XCTFail("Failed to get forked package id")
-            return
+        do {  // test lookup when parent url is nil
+            metadata.repository?.parent = .init(url: nil)
+            let fork = try await getFork(on: app.db, metadata: metadata)
+            XCTAssertEqual(fork, nil)
         }
-        
-        let repo = try await Repository
-            .query(on: app.db)
-            .filter(\Repository.$package.$id == forkedId).first()
-        
-        XCTAssertNil(repo?.forkedFrom)
     }
 }
