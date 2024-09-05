@@ -106,7 +106,7 @@ db-up-test:
 		--tmpfs /pgdata:rw,noexec,nosuid,size=1024m \
 		-p 5432:5432 \
 		-d \
-		postgres:16.3-alpine
+		postgres:13-alpine
 
 db-up-test-log-statement:
 	docker run --name spi_test \
@@ -117,7 +117,7 @@ db-up-test-log-statement:
 		--tmpfs /pgdata:rw,noexec,nosuid,size=1024m \
 		-p 5432:5432 \
 		--rm \
-		postgres:16.3-alpine \
+		postgres:13-alpine \
 		postgres -c log_statement=all
 
 db-down: db-down-dev db-down-test
