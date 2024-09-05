@@ -124,14 +124,13 @@ func ingest(client: Client,
                         Current.logger().warning("storeS3Readme failed")
                         s3Readme = .error("\(error)")
                     }
-                    
+
                     try await updateRepository(on: database,
                                                for: repo,
                                                metadata: metadata,
                                                licenseInfo: license,
                                                readmeInfo: readme,
                                                s3Readme: s3Readme)
-                        
                     return pkg
                 }
 
