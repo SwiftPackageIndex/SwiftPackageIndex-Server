@@ -125,13 +125,7 @@ func ingest(client: Client,
                         s3Readme = .error("\(error)")
                     }
                     
-                    let fork: Fork?
-                    do {
-                        fork = try await getFork(on: database, metadata: metadata)
-                    } catch {
-                        fork = nil
-                        Current.logger().warning("updating forked from failed")
-                    }
+                    let fork: Fork? = try? await getFork(on: database, parent: metadata.repository?.parent)
 
                     try await updateRepository(on: database,
                                                for: repo,
@@ -223,13 +217,10 @@ func updateRepository(on database: Database,
     try await repository.save(on: database)
 }
 
-func getFork(on database: Database, metadata: Github.Metadata) async throws -> Fork? {
-    guard let url = metadata.repository?.parent?.url,
-          let parentUrl = URL(string: url)?.normalizedParent?.absoluteString else {
-        return nil
-    }
+func getFork(on database: Database, parent: Github.Metadata.Parent?) async -> Fork? {
+    guard let parentUrl = parent?.normalizedURL else { return nil }
 
-    if let packageId = try await Package.query(on: database)
+    if let packageId = try? await Package.query(on: database)
         .filter(\.$url, .custom("ilike"), parentUrl)
         .first()?.id {
         return .parentId(packageId)
@@ -250,11 +241,13 @@ private extension Github.Metadata.Repository {
     var repositoryName: String? { name }
 }
 
-private extension URL {
-    var normalizedParent: Self? {
-        guard var components = URLComponents(url: self, resolvingAgainstBaseURL: false) else { return nil }
-        if components.scheme == "http" { components.scheme = "https" }
-        if !components.path.hasSuffix(".git") { components.path = components.path + ".git" }
-        return components.url!
+private extension Github.Metadata.Parent {
+    // Returns a normalized version of the URL. Adding a `.git` if not present.
+    var normalizedURL: String? {
+        guard let url else { return nil }
+        guard let normalizedURL = URL(string: url)?.normalized?.absoluteString else {
+            return nil
+        }
+        return normalizedURL
     }
 }

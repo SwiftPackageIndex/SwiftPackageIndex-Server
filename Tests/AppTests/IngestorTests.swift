@@ -604,36 +604,31 @@ class IngestorTests: AppTestCase {
         try await Package(id: .id0, url: "https://github.com/foo/parent.git".url, processingStage: .analysis).save(on: app.db)
         try await Package(url: "https://github.com/bar/forked.git", processingStage: .analysis).save(on: app.db)
 
-        var metadata = Github.Metadata.mock
-
-        do {  // test lookup when package is in the index
-            metadata.repository?.parent = .init(url: "https://github.com/foo/parent.git")
-            let fork = try await getFork(on: app.db, metadata: metadata)
-            XCTAssertEqual(fork, .parentId(.id0))
-        }
-
-        do {  // test lookup when package is in the index but with different case in URL
-            metadata.repository?.parent = .init(url: "https://github.com/Foo/Parent.git")
-            let fork = try await getFork(on: app.db, metadata: metadata)
-            XCTAssertEqual(fork, .parentId(.id0))
-        }
+        var parent: Github.Metadata.Parent?
         
-        do {  // test whem metadata repo url doesn't have `.git` at end
-            metadata.repository?.parent = .init(url: "https://github.com/Foo/Parent")
-            let fork = try await getFork(on: app.db, metadata: metadata)
-            XCTAssertEqual(fork, .parentId(.id0))
-        }
-
-        do {  // test lookup when package is not in the index
-            metadata.repository?.parent = .init(url: "https://github.com/some/other.git")
-            let fork = try await getFork(on: app.db, metadata: metadata)
-            XCTAssertEqual(fork, .parentURL("https://github.com/some/other.git"))
-        }
-
-        do {  // test lookup when parent url is nil
-            metadata.repository?.parent = .init(url: nil)
-            let fork = try await getFork(on: app.db, metadata: metadata)
-            XCTAssertEqual(fork, nil)
-        }
+        // test lookup when package is in the index
+        parent = .init(url: "https://github.com/foo/parent.git")
+        let fork = await getFork(on: app.db, parent: parent)
+        XCTAssertEqual(fork, .parentId(.id0))
+        
+        // test lookup when package is in the index but with different case in URL
+        parent = .init(url: "https://github.com/Foo/Parent.git")
+        let fork2 = await getFork(on: app.db, parent: parent)
+        XCTAssertEqual(fork2, .parentId(.id0))
+        
+        // test whem metadata repo url doesn't have `.git` at end
+        parent = .init(url: "https://github.com/Foo/Parent")
+        let fork3 = await getFork(on: app.db, parent: parent)
+        XCTAssertEqual(fork3, .parentId(.id0))
+        
+        // test lookup when package is not in the index
+        parent = .init(url: "https://github.com/some/other.git")
+        let fork4 = await getFork(on: app.db, parent: parent)
+        XCTAssertEqual(fork4, .parentURL("https://github.com/some/other.git"))
+        
+        // test lookup when parent url is nil
+        parent = nil
+        let fork5 = await getFork(on: app.db, parent: parent)
+        XCTAssertEqual(fork5, nil)
     }
 }
