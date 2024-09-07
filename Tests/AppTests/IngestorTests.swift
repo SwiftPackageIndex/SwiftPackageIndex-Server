@@ -125,7 +125,8 @@ class IngestorTests: AppTestCase {
                                             Date(timeIntervalSince1970: 1),
                                         ],
                                         license: .mit,
-                                        openIssues: 1,
+                                        openIssues: 1, 
+                                        parentUrl: nil,
                                         openPullRequests: 2,
                                         owner: "foo",
                                         pullRequestsClosedAtDates: [
@@ -155,7 +156,8 @@ class IngestorTests: AppTestCase {
                                                      html: "readme html",
                                                      htmlUrl: "readme html url",
                                                      imagesToCache: []),
-                                   s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"))
+                                   s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"),
+                                   fork: .parentURL("https://github.com/foo/bar.git"))
 
         // validate
         do {
@@ -164,6 +166,7 @@ class IngestorTests: AppTestCase {
             let repo = try await Repository.query(on: app.db).first().unwrap()
             XCTAssertEqual(repo.defaultBranch, "main")
             XCTAssertEqual(repo.forks, 1)
+            XCTAssertEqual(repo.forkedFrom, .parentURL("https://github.com/foo/bar.git"))
             XCTAssertEqual(repo.fundingLinks, [
                 .init(platform: .gitHub, url: "https://github.com/username"),
                 .init(platform: .customUrl, url: "https://example.com/username1"),
@@ -208,6 +211,7 @@ class IngestorTests: AppTestCase {
                                         issuesClosedAtDates: [],
                                         license: .mit,
                                         openIssues: 1,
+                                        parentUrl: nil, 
                                         openPullRequests: 2,
                                         owner: "foo",
                                         pullRequestsClosedAtDates: [],
@@ -353,6 +357,7 @@ class IngestorTests: AppTestCase {
                 issuesClosedAtDates: [],
                 license: .mit,
                 openIssues: 0,
+                parentUrl: nil, 
                 openPullRequests: 0,
                 owner: "owner",
                 pullRequestsClosedAtDates: [],
@@ -593,5 +598,30 @@ class IngestorTests: AppTestCase {
         // Validation
         let postMigrationFetchedRepo = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
         XCTAssertEqual(postMigrationFetchedRepo.s3Readme, .cached(s3ObjectUrl: "object-url", githubEtag: ""))
+    }
+    
+    func test_getFork() async throws {
+        try await Package(id: .id0, url: "https://github.com/foo/parent.git".url, processingStage: .analysis).save(on: app.db)
+        try await Package(url: "https://github.com/bar/forked.git", processingStage: .analysis).save(on: app.db)
+
+        // test lookup when package is in the index
+        let fork = await getFork(on: app.db, parent: .init(url: "https://github.com/foo/parent.git"))
+        XCTAssertEqual(fork, .parentId(.id0))
+        
+        // test lookup when package is in the index but with different case in URL
+        let fork2 = await getFork(on: app.db, parent: .init(url: "https://github.com/Foo/Parent.git"))
+        XCTAssertEqual(fork2, .parentId(.id0))
+        
+        // test whem metadata repo url doesn't have `.git` at end
+        let fork3 = await getFork(on: app.db, parent: .init(url: "https://github.com/Foo/Parent"))
+        XCTAssertEqual(fork3, .parentId(.id0))
+        
+        // test lookup when package is not in the index
+        let fork4 = await getFork(on: app.db, parent: .init(url: "https://github.com/some/other.git"))
+        XCTAssertEqual(fork4, .parentURL("https://github.com/some/other.git"))
+        
+        // test lookup when parent url is nil
+        let fork5 = await getFork(on: app.db, parent: nil)
+        XCTAssertEqual(fork5, nil)
     }
 }

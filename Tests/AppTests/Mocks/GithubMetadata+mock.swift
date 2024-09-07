@@ -25,6 +25,7 @@ extension Github.Metadata {
                                   issuesClosedAtDates: [],
                                   license: .mit,
                                   openIssues: 3,
+                                  parentUrl: nil, 
                                   openPullRequests: 0,
                                   owner: "packageOwner",
                                   pullRequestsClosedAtDates: [],
@@ -34,7 +35,7 @@ extension Github.Metadata {
                                   stars: 2,
                                   summary: "desc")
 
-    static func mock(owner: String, repository: String) -> Self {
+    static func mock(owner: String, repository: String, parentUrl: String? = nil) -> Self {
         return .init(defaultBranch: "main",
                      forks: owner.count + repository.count,
                      homepageUrl: nil,
@@ -42,6 +43,7 @@ extension Github.Metadata {
                      issuesClosedAtDates: [],
                      license: .mit,
                      openIssues: 3,
+                     parentUrl: parentUrl,
                      openPullRequests: 0,
                      owner: owner,
                      pullRequestsClosedAtDates: [],
@@ -60,6 +62,7 @@ extension Github.Metadata {
          issuesClosedAtDates: [Date],
          license: License,
          openIssues: Int,
+         parentUrl: String?,
          openPullRequests: Int,
          owner: String,
          pullRequestsClosedAtDates: [Date],
@@ -84,7 +87,8 @@ extension Github.Metadata {
                               fundingLinks: fundingLinks,
                               homepageUrl: homepageUrl,
                               isArchived: false,
-                              isFork: false,
+                              isFork: false, 
+                              parent: .init(url: parentUrl),
                               isInOrganization: isInOrganization,
                               licenseInfo: .init(name: license.fullName, key: license.rawValue),
                               mergedPullRequests: .init(closedAtDates: []),

@@ -124,13 +124,16 @@ func ingest(client: Client,
                         Current.logger().warning("storeS3Readme failed")
                         s3Readme = .error("\(error)")
                     }
+                    
+                    let fork = await getFork(on: database, parent: metadata.repository?.parent)
 
                     try await updateRepository(on: database,
                                                for: repo,
                                                metadata: metadata,
                                                licenseInfo: license,
                                                readmeInfo: readme,
-                                               s3Readme: s3Readme)
+                                               s3Readme: s3Readme,
+                                               fork: fork)
                     return pkg
                 }
 
@@ -177,7 +180,8 @@ func updateRepository(on database: Database,
                       metadata: Github.Metadata,
                       licenseInfo: Github.License?,
                       readmeInfo: Github.Readme?,
-                      s3Readme: S3Readme?) async throws {
+                      s3Readme: S3Readme?,
+                      fork: Fork? = nil) async throws {
     guard let repoMetadata = metadata.repository else {
         if repository.$package.value == nil {
             try await repository.$package.load(on: database)
@@ -208,10 +212,22 @@ func updateRepository(on database: Database,
     repository.releases = repoMetadata.releases.nodes.map(Release.init(from:))
     repository.stars = repoMetadata.stargazerCount
     repository.summary = repoMetadata.description
+    repository.forkedFrom = fork
 
     try await repository.save(on: database)
 }
 
+func getFork(on database: Database, parent: Github.Metadata.Parent?) async -> Fork? {
+    guard let parentUrl = parent?.normalizedURL else { return nil }
+
+    if let packageId = try? await Package.query(on: database)
+        .filter(\.$url, .custom("ilike"), parentUrl)
+        .first()?.id {
+        return .parentId(packageId)
+    } else {
+        return .parentURL(parentUrl)
+    }
+}
 
 // Helper to ensure the canonical source for these critical fields is the same in all the places where we need them
 private extension Github.Metadata {
@@ -223,4 +239,15 @@ private extension Github.Metadata {
 private extension Github.Metadata.Repository {
     var repositoryOwner: String? { owner.login }
     var repositoryName: String? { name }
+}
+
+private extension Github.Metadata.Parent {
+    // Returns a normalized version of the URL. Adding a `.git` if not present.
+    var normalizedURL: String? {
+        guard let url else { return nil }
+        guard let normalizedURL = URL(string: url)?.normalized?.absoluteString else {
+            return nil
+        }
+        return normalizedURL
+    }
 }
