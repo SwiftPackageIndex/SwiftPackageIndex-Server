@@ -125,7 +125,7 @@ func ingest(client: Client,
                         s3Readme = .error("\(error)")
                     }
                     
-                    let fork: Fork? = try? await getFork(on: database, parent: metadata.repository?.parent)
+                    let fork = await getFork(on: database, parent: metadata.repository?.parent)
 
                     try await updateRepository(on: database,
                                                for: repo,
