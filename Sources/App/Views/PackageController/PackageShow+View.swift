@@ -167,6 +167,7 @@ extension PackageShow {
                 .ul(
                     .class("main-metadata"),
                     model.archivedListItem(),
+                    model.forkedListItem(),
                     model.authorsListItem(),
                     model.binaryTargetsItem(),
                     model.historyListItem(),

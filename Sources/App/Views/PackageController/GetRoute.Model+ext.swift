@@ -181,6 +181,25 @@ extension API.PackageController.GetRoute.Model {
             return .empty
         }
     }
+    
+    func forkedListItem() -> Node<HTML.ListContext> {
+        if let forkedFromURL {
+            let repoURLNode: Node<HTML.BodyContext> = .a(
+                .href(forkedFromURL),
+                .text("repository")
+            )
+            return .li(
+                .class("forked"),
+                .group(
+                    .text("Forked from "),
+                    repoURLNode,
+                    .text(".")
+                )
+            )
+        } else {
+            return .empty
+        }
+    }
 
     func binaryTargetsItem() -> Node<HTML.ListContext> {
         guard hasBinaryTargets else { return .empty }

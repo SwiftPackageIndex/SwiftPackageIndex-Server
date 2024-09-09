@@ -224,6 +224,13 @@ final class Repository: @unchecked Sendable, Model, Content {
             .filter(\.$package.$id == pkgId)
             .first() ?? Repository(packageId: pkgId)
     }
+    
+    static func find(on database: Database, for packageId: Package.Id) async throws -> Repository? {
+        return try await Repository.query(on: database)
+            .filter(\.$package.$id == packageId)
+            .first()
+    }
+
 }
 
 

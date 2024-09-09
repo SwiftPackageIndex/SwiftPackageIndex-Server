@@ -50,6 +50,7 @@ extension API.PackageController.GetRoute {
         var releaseReferences: [App.Version.Kind: App.Reference]
         var fundingLinks: [FundingLink]
         var swift6Readiness: Swift6Readiness?
+        var forkedFromURL: String?
 
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
@@ -81,7 +82,8 @@ extension API.PackageController.GetRoute {
                       releaseReference: App.Reference?,
                       preReleaseReference: App.Reference?,
                       fundingLinks: [FundingLink] = [],
-                      swift6Readiness: Swift6Readiness?
+                      swift6Readiness: Swift6Readiness?,
+                      forkedFromURL: String?
             ) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
@@ -123,6 +125,7 @@ extension API.PackageController.GetRoute {
             }()
             self.fundingLinks = fundingLinks
             self.swift6Readiness = swift6Readiness
+            self.forkedFromURL = forkedFromURL
         }
 
         init?(result: API.PackageController.PackageResult,
@@ -132,7 +135,8 @@ extension API.PackageController.GetRoute {
               swiftVersionBuildInfo: BuildInfo<CompatibilityMatrix.SwiftVersionCompatibility>?,
               platformBuildInfo: BuildInfo<CompatibilityMatrix.PlatformCompatibility>?,
               weightedKeywords: [WeightedKeyword] = [],
-              swift6Readiness: Swift6Readiness?) {
+              swift6Readiness: Swift6Readiness?,
+              forkedFromURL: String?) {
             // we consider certain attributes as essential and return nil (raising .notFound)
             let repository = result.repository
             guard
@@ -177,7 +181,8 @@ extension API.PackageController.GetRoute {
                 releaseReference: result.releaseVersion?.reference,
                 preReleaseReference: result.preReleaseVersion?.reference,
                 fundingLinks: result.repository.fundingLinks,
-                swift6Readiness: swift6Readiness
+                swift6Readiness: swift6Readiness,
+                forkedFromURL: forkedFromURL
             )
 
         }

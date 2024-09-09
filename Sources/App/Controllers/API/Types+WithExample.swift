@@ -247,7 +247,8 @@ extension API.PackageController.GetRoute.Model: WithExample {
               defaultBranchReference: .branch("main"),
               releaseReference: .tag(1, 2, 3, "1.2.3"),
               preReleaseReference: nil,
-              swift6Readiness: nil)
+              swift6Readiness: nil, 
+              forkedFromURL: nil)
     }
 }
 
