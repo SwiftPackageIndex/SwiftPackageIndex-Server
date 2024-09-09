@@ -87,7 +87,7 @@ extension AppTestCase {
 
     static func createSchema(_ environment: Environment, databaseName: String) async throws {
         do {
-            try await withDatabase("postgres", .testing) {  // Connect to `postgres` db in order to reset the test db
+            try await withDatabase("postgres", environment) {  // Connect to `postgres` db in order to reset the test db
                 try await $0.query(PostgresQuery(unsafeSQL: "DROP DATABASE IF EXISTS \(databaseName) WITH (FORCE)"))
                 try await $0.query(PostgresQuery(unsafeSQL: "CREATE DATABASE \(databaseName)"))
             }
