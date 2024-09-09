@@ -42,7 +42,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                      swiftVersionBuildInfo: nil,
                                                      platformBuildInfo: nil,
                                                      weightedKeywords: [],
-                                                     swift6Readiness: nil)
+                                                     swift6Readiness: nil,
+                                                     forkedFromURL: nil)
 
         // validate
         XCTAssertNotNil(m)
@@ -64,7 +65,9 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        swiftVersionBuildInfo: nil,
                                                                        platformBuildInfo: nil,
                                                                        weightedKeywords: [],
-                                                                       swift6Readiness: nil))
+                                                                       swift6Readiness: nil,
+                                                                       forkedFromURL: nil
+                                                                      ))
 
         // validate
         XCTAssertEqual(model.packageIdentity, "swift-bar")
@@ -86,7 +89,9 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        swiftVersionBuildInfo: nil,
                                                                        platformBuildInfo: nil,
                                                                        weightedKeywords: [],
-                                                                       swift6Readiness: nil))
+                                                                       swift6Readiness: nil,
+                                                                       forkedFromURL: nil
+                                                                      ))
 
         // validate
         XCTAssertEqual(model.documentationTarget, .internal(docVersion: .reference("main"), archive: "archive1"))
@@ -112,7 +117,9 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        swiftVersionBuildInfo: nil,
                                                                        platformBuildInfo: nil,
                                                                        weightedKeywords: [],
-                                                                       swift6Readiness: nil))
+                                                                       swift6Readiness: nil,
+                                                                       forkedFromURL: nil
+                                                                      ))
 
         // validate
         XCTAssertEqual(model.documentationTarget, .external(url: "https://example.com/package/documentation"))
@@ -143,6 +150,13 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
 
         let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
         assertSnapshot(of: renderedHistory, as: .lines)
+    }
+    
+    func test_forked_from() throws {
+        var model = API.PackageController.GetRoute.Model.mock
+        model.forkedFromURL = "https://github.com/owner/repository.git"
+        let renderedForkedFrom = model.forkedListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(of: renderedForkedFrom, as: .lines)
     }
 
     func test_binary_targets() throws {
@@ -328,6 +342,13 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         model.authors = API.PackageController.GetRoute.Model.AuthorMetadata
             .fromSPIManifest("By Author One, Author Two, and more!")
         XCTAssertEqual(model.authorsListItem().render(), "<li class=\"authors\">By Author One, Author Two, and more!</li>")
+    }
+    
+    func test_forkedFrom_formatting() throws {
+        var model = API.PackageController.GetRoute.Model.mock
+        model.forkedFromURL = "https://github.com/owner/repository.git"
+        let renderedForkedFrom = model.forkedListItem().render()
+        XCTAssertEqual(renderedForkedFrom, "<li class=\"forked\">Forked from <a href=\"https://github.com/owner/repository.git\">repository</a>.</li>")
     }
 
     func test_BuildInfo_init() throws {

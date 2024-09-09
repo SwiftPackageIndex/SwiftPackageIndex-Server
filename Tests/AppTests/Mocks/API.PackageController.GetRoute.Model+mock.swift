@@ -125,7 +125,8 @@ extension API.PackageController.GetRoute.Model {
             defaultBranchReference: .branch("main"),
             releaseReference: .tag(5, 2, 0),
             preReleaseReference: .tag(5, 3, 0, "beta.1"),
-            swift6Readiness: nil
+            swift6Readiness: nil,
+            forkedFromURL: nil
         )
     }
 }
