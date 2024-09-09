@@ -418,7 +418,7 @@
     {
       "identity" : "swift-package-manager",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-package-manager.git",
+      "location" : "https://github.com/swiftlang/swift-package-manager.git",
       "state" : {
         "branch" : "release/5.10",
         "revision" : "b5f8ad931b7a40b81f64765fa08c2751164759b4"
