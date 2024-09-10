@@ -43,7 +43,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                      platformBuildInfo: nil,
                                                      weightedKeywords: [],
                                                      swift6Readiness: nil,
-                                                     forkedFromURL: nil)
+                                                     forkedFromResult: nil)
 
         // validate
         XCTAssertNotNil(m)
@@ -66,7 +66,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        platformBuildInfo: nil,
                                                                        weightedKeywords: [],
                                                                        swift6Readiness: nil,
-                                                                       forkedFromURL: nil
+                                                                       forkedFromResult: nil
                                                                       ))
 
         // validate
@@ -90,7 +90,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        platformBuildInfo: nil,
                                                                        weightedKeywords: [],
                                                                        swift6Readiness: nil,
-                                                                       forkedFromURL: nil
+                                                                       forkedFromResult: nil
                                                                       ))
 
         // validate
@@ -118,7 +118,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        platformBuildInfo: nil,
                                                                        weightedKeywords: [],
                                                                        swift6Readiness: nil,
-                                                                       forkedFromURL: nil
+                                                                       forkedFromResult: nil
                                                                       ))
 
         // validate
@@ -154,7 +154,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     
     func test_forked_from() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.forkedFromURL = "https://github.com/owner/repository.git"
+        model.forkedFromInfo = .fromGitHub(url: "https://github.com/owner/repository.git")
         let renderedForkedFrom = model.forkedListItem().render(indentedBy: .spaces(2))
         assertSnapshot(of: renderedForkedFrom, as: .lines)
     }
@@ -346,7 +346,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     
     func test_forkedFrom_formatting() throws {
         var model = API.PackageController.GetRoute.Model.mock
-        model.forkedFromURL = "https://github.com/owner/repository.git"
+        model.forkedFromInfo = .fromGitHub(url: "https://github.com/owner/repository.git")
         let renderedForkedFrom = model.forkedListItem().render()
         XCTAssertEqual(renderedForkedFrom, "<li class=\"forked\">Forked from <a href=\"https://github.com/owner/repository.git\">repository</a>.</li>")
     }

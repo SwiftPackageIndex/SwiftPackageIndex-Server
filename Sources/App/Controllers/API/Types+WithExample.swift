@@ -176,7 +176,6 @@ extension API.PackageController.GetRoute.Model.History: WithExample {
 extension API.PackageController.GetRoute.Model: WithExample {
     static var example: Self {
         .init(packageId: .example,
-              packageName: "Mona",
               repositoryOwner: "mona",
               repositoryOwnerName: "Mona",
               repositoryName: "LinkedList",

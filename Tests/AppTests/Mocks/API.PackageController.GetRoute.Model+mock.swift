@@ -21,7 +21,6 @@ extension API.PackageController.GetRoute.Model {
     static var mock: Self {
         .init(
             packageId: UUID("cafecafe-cafe-cafe-cafe-cafecafecafe")!,
-            packageName: "Alamofire",
             repositoryOwner: "Alamo",
             repositoryOwnerName: "Alamofire",
             repositoryName: "Alamofire",

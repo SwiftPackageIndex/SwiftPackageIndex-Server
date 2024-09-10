@@ -20,7 +20,6 @@ import Vapor
 extension API.PackageController.GetRoute {
     struct Model: Content, Equatable {
         var packageId: Package.Id
-        var packageName: String
         var repositoryOwner: String
         var repositoryOwnerName: String
         var repositoryName: String
@@ -54,7 +53,6 @@ extension API.PackageController.GetRoute {
         var forkedFromInfo: ForkedFromInfo?
 
         internal init(packageId: Package.Id,
-                      packageName: String,
                       repositoryOwner: String,
                       repositoryOwnerName: String,
                       repositoryName: String,
@@ -88,7 +86,6 @@ extension API.PackageController.GetRoute {
                       forkedFromResult: API.PackageController.ForkedFromResult?
             ) {
             self.packageId = packageId
-            self.packageName = packageName
             self.repositoryOwner = repositoryOwner
             self.repositoryOwnerName = repositoryOwnerName
             self.repositoryName = repositoryName
@@ -132,7 +129,7 @@ extension API.PackageController.GetRoute {
                 switch forkedFromResult {
                 case .fromSPI(let repo, let owner, let ownerName, let packageName):
                     self.forkedFromInfo = ForkedFromInfo.fromSPI(
-                        packageName: packageName,
+                        packageName: self.title,
                         originalOwner: owner,
                         originalOwnerName: ownerName,
                         originalRepo: repo,
@@ -161,13 +158,11 @@ extension API.PackageController.GetRoute {
                 let repositoryOwner = repository.owner,
                 let repositoryOwnerName = repository.ownerDisplayName,
                 let repositoryName = repository.name,
-                let packageId = result.package.id,
-                let packageName = result.defaultBranchVersion.packageName
+                let packageId = result.package.id
             else { return nil }
 
             self.init(
                 packageId: packageId,
-                packageName: packageName,
                 repositoryOwner: repositoryOwner,
                 repositoryOwnerName: repositoryOwnerName,
                 repositoryName: repositoryName,
