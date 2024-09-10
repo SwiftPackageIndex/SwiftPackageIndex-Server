@@ -196,7 +196,7 @@ extension API.PackageController.GetRoute.Model {
                         repoURLNode,
                         .text(".")
                     )
-                case .fromSPI(let packageName, let owner, let ownerName, let repo, let originalPackageName):
+                case .fromSPI(let packageName, _, let ownerName, _, let originalPackageName):
                     let repoURLNode: Node<HTML.BodyContext>
                     if packageName == originalPackageName {
                         repoURLNode = .a(

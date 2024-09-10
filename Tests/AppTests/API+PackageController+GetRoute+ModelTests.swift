@@ -21,6 +21,7 @@ import SPIManifest
 
 class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     typealias PackageResult = PackageController.PackageResult
+    typealias ForkedFromResult = API.PackageController.ForkedFromResult
 
     func test_init_no_packageName() async throws {
         // Tests behaviour when we're lacking data
@@ -124,6 +125,79 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         // validate
         XCTAssertEqual(model.documentationTarget, .external(url: "https://example.com/package/documentation"))
     }
+    
+    func test_init_forked_from_github() async throws {
+        let pkg = try await savePackage(on: app.db, "1".url)
+        let repo = try Repository(package: pkg, forkedFrom: .parentURL("https://github.com/example/repo.git"), name: "bar", owner: "foo")
+        try await repo.save(on: app.db)
+        let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
+        try await version.save(on: app.db)
+        let packageResult = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
+        let forkedFromResult = try await API.PackageController.GetRoute.fetchForkedFromResult(on: app.db, repository: packageResult.repository)
+
+        // MUT
+        let model = try XCTUnwrap(API.PackageController.GetRoute.Model(result: packageResult,
+                                                                       history: nil,
+                                                                       products: [],
+                                                                       targets: [],
+                                                                       swiftVersionBuildInfo: nil,
+                                                                       platformBuildInfo: nil,
+                                                                       weightedKeywords: [],
+                                                                       swift6Readiness: nil,
+                                                                       forkedFromResult: forkedFromResult
+                                                                      ))
+
+        // validate
+        XCTAssertEqual(model.forkedFromInfo, API.PackageController.GetRoute.Model.ForkedFromInfo.fromGitHub(url: "https://github.com/example/repo.git"))
+    }
+    
+    func test_init_forked_from_spi() async throws {
+        let originalPkg = try await savePackage(on: app.db, "https://github.com/original/original")
+        let originalRepo = try Repository(
+            package: originalPkg,
+            name: "original",
+            owner: "original",
+            ownerName: "OriginalOwner"
+        )
+        try await originalRepo.save(on: app.db)
+        let originalVersion = try App.Version(package: originalPkg, latest: .defaultBranch, packageName: "OriginalPkg", reference: .branch("main"))
+        try await originalVersion.save(on: app.db)
+        let pkg = try await savePackage(on: app.db, "1".url)
+        let repo = try Repository(
+            package: pkg,
+            forkedFrom: .parentId(originalPkg.requireID()),
+            name: "bar",
+            owner: "foo"
+        )
+        try await repo.save(on: app.db)
+        let version = try App.Version(package: pkg, latest: .defaultBranch, packageName: nil, reference: .branch("main"))
+        try await version.save(on: app.db)
+        
+        let packageResult = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
+        let forkedFromResult = try await API.PackageController.GetRoute.fetchForkedFromResult(on: app.db, repository: packageResult.repository)
+
+        // MUT
+        let model = try XCTUnwrap(API.PackageController.GetRoute.Model(result: packageResult,
+                                                                       history: nil,
+                                                                       products: [],
+                                                                       targets: [],
+                                                                       swiftVersionBuildInfo: nil,
+                                                                       platformBuildInfo: nil,
+                                                                       weightedKeywords: [],
+                                                                       swift6Readiness: nil,
+                                                                       forkedFromResult: forkedFromResult
+                                                                      ))
+
+        // validate
+        let info = API.PackageController.GetRoute.Model.ForkedFromInfo.fromSPI(
+            packageName: "bar",
+            originalOwner: "original",
+            originalOwnerName: "OriginalOwner",
+            originalRepo: "original",
+            originalPackageName: "OriginalPkg"
+        )
+        XCTAssertEqual(model.forkedFromInfo, info)
+    }
 
     func test_gitHubOwnerUrl() throws {
         var model = API.PackageController.GetRoute.Model.mock
@@ -152,9 +226,35 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         assertSnapshot(of: renderedHistory, as: .lines)
     }
     
-    func test_forked_from() throws {
+    func test_forked_from_github() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.forkedFromInfo = .fromGitHub(url: "https://github.com/owner/repository.git")
+        let renderedForkedFrom = model.forkedListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(of: renderedForkedFrom, as: .lines)
+    }
+    
+    func test_forked_from_spi_same_package_name() throws {
+        var model = API.PackageController.GetRoute.Model.mock
+        model.forkedFromInfo = .fromSPI(
+            packageName: "Test",
+            originalOwner: "owner",
+            originalOwnerName: "OriginalOwner",
+            originalRepo: "repo",
+            originalPackageName: "Test"
+        )
+        let renderedForkedFrom = model.forkedListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(of: renderedForkedFrom, as: .lines)
+    }
+    
+    func test_forked_from_spi_different_package_name() throws {
+        var model = API.PackageController.GetRoute.Model.mock
+        model.forkedFromInfo = .fromSPI(
+            packageName: "Test",
+            originalOwner: "owner",
+            originalOwnerName: "OriginalOwner",
+            originalRepo: "repo",
+            originalPackageName: "Different"
+        )
         let renderedForkedFrom = model.forkedListItem().render(indentedBy: .spaces(2))
         assertSnapshot(of: renderedForkedFrom, as: .lines)
     }
@@ -344,11 +444,39 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         XCTAssertEqual(model.authorsListItem().render(), "<li class=\"authors\">By Author One, Author Two, and more!</li>")
     }
     
-    func test_forkedFrom_formatting() throws {
+    func test_forkedFrom_github_formatting() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.forkedFromInfo = .fromGitHub(url: "https://github.com/owner/repository.git")
         let renderedForkedFrom = model.forkedListItem().render()
         XCTAssertEqual(renderedForkedFrom, "<li class=\"forked\">Forked from <a href=\"https://github.com/owner/repository.git\">repository</a>.</li>")
+    }
+    
+    func test_forkedFrom_spi_same_package_name_formatting() throws {
+        var model = API.PackageController.GetRoute.Model.mock
+        model.forkedFromInfo = .fromSPI(
+            packageName: "Test",
+            originalOwner: "owner",
+            originalOwnerName: "OriginalOwner",
+            originalRepo: "repo",
+            originalPackageName: "Test"
+        )
+        let url = SiteURL.package(.value("owner"), .value("repo"), nil).absoluteURL()
+        let renderedForkedFrom = model.forkedListItem().render()
+        XCTAssertEqual(renderedForkedFrom, "<li class=\"forked\">Forked from <a href=\"\(url)\">OriginalOwner</a>.</li>")
+    }
+    
+    func test_forkedFrom_spi_different_package_name_formatting() throws {
+        var model = API.PackageController.GetRoute.Model.mock
+        model.forkedFromInfo = .fromSPI(
+            packageName: "Test",
+            originalOwner: "owner",
+            originalOwnerName: "OriginalOwner",
+            originalRepo: "repo",
+            originalPackageName: "Different"
+        )
+        let url = SiteURL.package(.value("owner"), .value("repo"), nil).absoluteURL()
+        let renderedForkedFrom = model.forkedListItem().render()
+        XCTAssertEqual(renderedForkedFrom, "<li class=\"forked\">Forked from <a href=\"\(url)\">Different by OriginalOwner</a>.</li>")
     }
 
     func test_BuildInfo_init() throws {

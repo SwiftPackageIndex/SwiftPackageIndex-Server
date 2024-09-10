@@ -70,7 +70,7 @@ extension API.PackageController {
             return (model, schema)
         }
         
-        private static func fetchForkedFromResult(on database: Database, repository: Repository) async throws -> ForkedFromResult? {
+        static func fetchForkedFromResult(on database: Database, repository: Repository) async throws -> ForkedFromResult? {
             if let forkedFrom = repository.forkedFrom {
                 switch forkedFrom {
                 case .parentId(let id):
