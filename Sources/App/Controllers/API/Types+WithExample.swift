@@ -176,6 +176,7 @@ extension API.PackageController.GetRoute.Model.History: WithExample {
 extension API.PackageController.GetRoute.Model: WithExample {
     static var example: Self {
         .init(packageId: .example,
+              packageName: "Mona",
               repositoryOwner: "mona",
               repositoryOwnerName: "Mona",
               repositoryName: "LinkedList",
@@ -248,7 +249,7 @@ extension API.PackageController.GetRoute.Model: WithExample {
               releaseReference: .tag(1, 2, 3, "1.2.3"),
               preReleaseReference: nil,
               swift6Readiness: nil, 
-              forkedFromURL: nil)
+              forkedFromResult: nil)
     }
 }
 

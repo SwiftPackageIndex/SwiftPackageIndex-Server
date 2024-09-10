@@ -31,7 +31,7 @@ extension API.PackageController {
                                                               owner: owner,
                                                               repository: repository)
             
-            let forkedFromURL = try await self.fetchForkedFromURL(on: database,
+            let forkedFromResult = try? await self.fetchForkedFromResult(on: database,
                                                                   repository: packageResult.repository)
             
             async let weightedKeywords = WeightedKeyword.query(
@@ -60,7 +60,7 @@ extension API.PackageController {
                     platformBuildInfo: buildInfo.platform,
                     weightedKeywords: weightedKeywords,
                     swift6Readiness: buildInfo.swift6Readiness,
-                    forkedFromURL: forkedFromURL
+                    forkedFromResult: forkedFromResult
                 ),
                 let schema = API.PackageSchema(result: packageResult)
             else {
@@ -70,15 +70,14 @@ extension API.PackageController {
             return (model, schema)
         }
         
-        private static func fetchForkedFromURL(on database: Database, repository: Repository) async throws -> String? {
+        private static func fetchForkedFromResult(on database: Database, repository: Repository) async throws -> ForkedFromResult? {
             if let forkedFrom = repository.forkedFrom {
                 switch forkedFrom {
                 case .parentId(let id):
-                    let repo = try await Repository.find(on: database, for: id)
-                    guard let owner = repo?.owner, let name = repo?.name else { return nil }
-                    return SiteURL.package(.value(owner), .value(name), nil).absoluteURL()
-                case .parentURL(let string):
-                    return string
+                    let info = try await ForkedFromResult.query(on: database, packageId: id)
+                    return info
+                case .parentURL(let url):
+                    return .fromGitHub(url: url)
                 }
             }
             return nil

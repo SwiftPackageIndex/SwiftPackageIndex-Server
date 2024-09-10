@@ -20,6 +20,7 @@ import Vapor
 extension API.PackageController.GetRoute {
     struct Model: Content, Equatable {
         var packageId: Package.Id
+        var packageName: String
         var repositoryOwner: String
         var repositoryOwnerName: String
         var repositoryName: String
@@ -50,9 +51,10 @@ extension API.PackageController.GetRoute {
         var releaseReferences: [App.Version.Kind: App.Reference]
         var fundingLinks: [FundingLink]
         var swift6Readiness: Swift6Readiness?
-        var forkedFromURL: String?
+        var forkedFromInfo: ForkedFromInfo?
 
         internal init(packageId: Package.Id,
+                      packageName: String,
                       repositoryOwner: String,
                       repositoryOwnerName: String,
                       repositoryName: String,
@@ -83,9 +85,10 @@ extension API.PackageController.GetRoute {
                       preReleaseReference: App.Reference?,
                       fundingLinks: [FundingLink] = [],
                       swift6Readiness: Swift6Readiness?,
-                      forkedFromURL: String?
+                      forkedFromResult: API.PackageController.ForkedFromResult?
             ) {
             self.packageId = packageId
+            self.packageName = packageName
             self.repositoryOwner = repositoryOwner
             self.repositoryOwnerName = repositoryOwnerName
             self.repositoryName = repositoryName
@@ -125,7 +128,22 @@ extension API.PackageController.GetRoute {
             }()
             self.fundingLinks = fundingLinks
             self.swift6Readiness = swift6Readiness
-            self.forkedFromURL = forkedFromURL
+            if let forkedFromResult {
+                switch forkedFromResult {
+                case .fromSPI(let repo, let owner, let ownerName, let packageName):
+                    self.forkedFromInfo = ForkedFromInfo.fromSPI(
+                        packageName: packageName,
+                        originalOwner: owner,
+                        originalOwnerName: ownerName,
+                        originalRepo: repo,
+                        originalPackageName: packageName
+                    )
+                case .fromGitHub(let url):
+                    self.forkedFromInfo = ForkedFromInfo.fromGitHub(url: url)
+                }
+            } else {
+                self.forkedFromInfo = nil
+            }
         }
 
         init?(result: API.PackageController.PackageResult,
@@ -136,18 +154,20 @@ extension API.PackageController.GetRoute {
               platformBuildInfo: BuildInfo<CompatibilityMatrix.PlatformCompatibility>?,
               weightedKeywords: [WeightedKeyword] = [],
               swift6Readiness: Swift6Readiness?,
-              forkedFromURL: String?) {
+              forkedFromResult: API.PackageController.ForkedFromResult?) {
             // we consider certain attributes as essential and return nil (raising .notFound)
             let repository = result.repository
             guard
                 let repositoryOwner = repository.owner,
                 let repositoryOwnerName = repository.ownerDisplayName,
                 let repositoryName = repository.name,
-                let packageId = result.package.id
+                let packageId = result.package.id,
+                let packageName = result.defaultBranchVersion.packageName
             else { return nil }
 
             self.init(
                 packageId: packageId,
+                packageName: packageName,
                 repositoryOwner: repositoryOwner,
                 repositoryOwnerName: repositoryOwnerName,
                 repositoryName: repositoryName,
@@ -182,7 +202,7 @@ extension API.PackageController.GetRoute {
                 preReleaseReference: result.preReleaseVersion?.reference,
                 fundingLinks: result.repository.fundingLinks,
                 swift6Readiness: swift6Readiness,
-                forkedFromURL: forkedFromURL
+                forkedFromResult: forkedFromResult
             )
 
         }
@@ -350,6 +370,26 @@ extension API.PackageController.GetRoute.Model {
                 return .unknown
             } else {
                 return results.first(where: { $0 == 0 }) != nil ? .safe : .unsafe
+            }
+        }
+    }
+    
+    enum ForkedFromInfo: Codable, Equatable {
+        case fromSPI(
+            packageName: String,
+            originalOwner: String,
+            originalOwnerName: String,
+            originalRepo: String,
+            originalPackageName: String
+        )
+        case fromGitHub(url: String)
+        
+        var url: String {
+            switch self {
+            case .fromSPI(_, let originalOwner, _, let originalRepo, _):
+                return SiteURL.package(.value(originalOwner), .value(originalRepo), nil).absoluteURL()
+            case .fromGitHub(let url):
+                return url
             }
         }
     }

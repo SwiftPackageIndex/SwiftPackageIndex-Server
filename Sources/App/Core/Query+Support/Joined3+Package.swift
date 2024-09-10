@@ -40,4 +40,12 @@ extension Joined3 where M == Package, R1 == Repository, R2 == Version {
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .filter(Repository.self, \.$name, .custom("ilike"), repository)
     }
+    
+    static func query(on database: Database, packageId: Package.Id) -> JoinedQueryBuilder<Self> {
+        query(on: database,
+              join: \Package.$id == \Repository.$package.$id, method: .inner,
+              join: \Version.$package.$id == \Package.$id, method: .inner)
+        .filter(Version.self, \Version.$latest == .defaultBranch)
+        .filter(Package.self, \Package.$id == packageId)
+    }
 }

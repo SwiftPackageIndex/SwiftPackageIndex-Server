@@ -183,18 +183,45 @@ extension API.PackageController.GetRoute.Model {
     }
     
     func forkedListItem() -> Node<HTML.ListContext> {
-        if let forkedFromURL {
-            let repoURLNode: Node<HTML.BodyContext> = .a(
-                .href(forkedFromURL),
-                .text("repository")
-            )
+        if let forkedFromInfo {
+            let item: Node<HTML.BodyContext> = {
+                switch forkedFromInfo {
+                case .fromGitHub(let url):
+                    let repoURLNode: Node<HTML.BodyContext> = .a(
+                        .href(url),
+                        .text("repository")
+                    )
+                    return  .group(
+                        .text("Forked from "),
+                        repoURLNode,
+                        .text(".")
+                    )
+                case .fromSPI(let packageName, let owner, let ownerName, let repo, let originalPackageName):
+                    let repoURLNode: Node<HTML.BodyContext>
+                    if packageName == originalPackageName {
+                        repoURLNode = .a(
+                            .href(forkedFromInfo.url),
+                            .text(ownerName)
+                        )
+                     
+                    } else {
+                        repoURLNode = .a(
+                            .href(forkedFromInfo.url),
+                            .text("\(originalPackageName) by \(ownerName)")
+                        )
+                    }
+                    
+                    return  .group(
+                        .text("Forked from "),
+                        repoURLNode,
+                        .text(".")
+                    )
+                }
+            }()
+            
             return .li(
                 .class("forked"),
-                .group(
-                    .text("Forked from "),
-                    repoURLNode,
-                    .text(".")
-                )
+                item
             )
         } else {
             return .empty
