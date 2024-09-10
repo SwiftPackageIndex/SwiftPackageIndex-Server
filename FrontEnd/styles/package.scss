@@ -69,6 +69,11 @@
                 display: block;
                 font-size: 11px;
             }
+            
+            li.forked {
+                grid-column-start: span 2;
+                background-image: var(--image-fork);
+            }
 
             li.archived {
                 grid-column-start: span 2;
