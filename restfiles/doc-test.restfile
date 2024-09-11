@@ -309,6 +309,10 @@ requests:
     url: ${base_url}/crelies/AdvancedList/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /dagronf/QRCode/documentation:
+    url: ${base_url}/dagronf/QRCode/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /davdroman/swiftui-navigation-transitions/documentation:
     url: ${base_url}/davdroman/swiftui-navigation-transitions/documentation
     validation:
@@ -580,8 +584,8 @@ requests:
     url: ${base_url}/swift-server/swift-service-lifecycle/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /swift-server/webauthn-swift/documentation:
-    url: ${base_url}/swift-server/webauthn-swift/documentation
+  /swift-server/swift-webauthn/documentation:
+    url: ${base_url}/swift-server/swift-webauthn/documentation
     validation:
       status: .regex((2|3)\d\d)
   /swiftcsv/SwiftCSV/documentation:
@@ -638,6 +642,10 @@ requests:
       status: .regex((2|3)\d\d)
   /vapor-community/Zip/documentation:
     url: ${base_url}/vapor-community/Zip/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /vapor-community/sendgrid-kit/documentation:
+    url: ${base_url}/vapor-community/sendgrid-kit/documentation
     validation:
       status: .regex((2|3)\d\d)
   /vtourraine/AcknowList/documentation:
