@@ -344,6 +344,22 @@ class PackageController_routesTests: SnapshotTestCase {
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/data/path"
         )
         XCTAssertEqual(
+            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .images, pathElements: ["path"])).string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/images/path"
+        )
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .img, pathElements: ["path"])).string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/img/path"
+        )
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .svgImages, pathElements: ["path"])).string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/images/path"
+        )
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .svgImg, pathElements: ["path"])).string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/img/path"
+        )
+        XCTAssertEqual(
             try PackageController.awsDocumentationURL(route: .init(owner: "Foo", repository: "Bar", docVersion: .reference("1.2.3"), fragment: .js, pathElements: ["path"])).string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/js/path"
         )
