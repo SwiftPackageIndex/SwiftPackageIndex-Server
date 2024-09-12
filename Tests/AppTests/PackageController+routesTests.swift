@@ -427,6 +427,27 @@ class PackageController_routesTests: SnapshotTestCase {
                        "/owner/repo/canonical-ref/documentation/archive/symbol:$-%")
     }
 
+    func test_documentation_routes_contentType() async throws {
+        try await app.test(.GET, "/owner/package/main/images/foo/bar.jpeg") { res async in
+            XCTAssertEqual(res.headers.contentType, .init(type: "application", subType: "octet-stream"))
+        }
+        try await app.test(.GET, "/owner/package/main/images/foo/bar.svg") { res async in
+            XCTAssertEqual(res.headers.contentType, .init(type: "image", subType: "svg+xml"))
+        }
+        try await app.test(.GET, "/owner/package/main/images/foo/bar.SVG") { res async in
+            XCTAssertEqual(res.headers.contentType, .init(type: "image", subType: "svg+xml"))
+        }
+        try await app.test(.GET, "/owner/package/main/img/foo/bar.jpeg") { res async in
+            XCTAssertEqual(res.headers.contentType, .init(type: "application", subType: "octet-stream"))
+        }
+        try await app.test(.GET, "/owner/package/main/img/foo/bar.svg") { res async in
+            XCTAssertEqual(res.headers.contentType, .init(type: "image", subType: "svg+xml"))
+        }
+        try await app.test(.GET, "/owner/package/main/img/foo/bar.SVG") { res async in
+            XCTAssertEqual(res.headers.contentType, .init(type: "image", subType: "svg+xml"))
+        }
+    }
+
     func test_documentation_routes_redirect() async throws {
         // Test the redirect documentation routes without any reference:
         //   /owner/package/documentation + various path elements

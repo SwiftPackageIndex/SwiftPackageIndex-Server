@@ -35,6 +35,8 @@ struct DocRoute: Equatable {
         case linkablePaths = "linkable-paths.json"
         case themeSettings = "theme-settings.json"
         case tutorials
+        case svgImages
+        case svgImg
 
         var contentType: String {
             switch self {
@@ -48,15 +50,28 @@ struct DocRoute: Equatable {
                     return "text/html; charset=utf-8"
                 case .js:
                     return "application/javascript"
+                case .svgImages, .svgImg:
+                    return "image/svg+xml"
             }
         }
 
         var requiresArchive: Bool {
             switch self {
-                case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .tutorials:
+                case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .tutorials, .svgImages, .svgImg:
                     return false
                 case .documentation:
                     return true
+            }
+        }
+
+        var urlFragment: String {
+            switch self {
+                case .css, .data, .documentation, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .tutorials:
+                    return rawValue
+                case .svgImages:
+                    return "images"
+                case .svgImg:
+                    return "img"
             }
         }
 

@@ -59,11 +59,13 @@ func docRoutes(_ app: Application) throws {
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "images", "**") {
-        let route = try await $0.getDocRoute(fragment: .images)
+        let fragment: DocRoute.Fragment = $0.parameters.hasSuffix(".svg", caseInsensitive: true) ? .svgImages : .images
+        let route = try await $0.getDocRoute(fragment: fragment)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "img", "**") {
-        let route = try await $0.getDocRoute(fragment: .img)
+        let fragment: DocRoute.Fragment = $0.parameters.hasSuffix(".svg", caseInsensitive: true) ? .svgImg : .img
+        let route = try await $0.getDocRoute(fragment: fragment)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
     app.get(":owner", ":repository", ":reference", "index", "**") {
@@ -109,8 +111,16 @@ private extension Parameters {
                 // AND THE FIX
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/3039
                 return ([archive].compactMap { $0 } + getCatchall()).map { $0.lowercased() }
-            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
+            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .svgImages, .svgImg:
                 return getCatchall()
+        }
+    }
+
+    func hasSuffix(_ suffix: String, caseInsensitive: Bool) -> Bool {
+        if caseInsensitive {
+            return getCatchall().last?.lowercased().hasSuffix(suffix.lowercased()) ?? false
+        } else {
+            return getCatchall().last?.hasSuffix(suffix) ?? false
         }
     }
 }

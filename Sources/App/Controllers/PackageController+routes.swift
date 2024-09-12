@@ -58,13 +58,7 @@ enum PackageController {
     }
 
     static func documentation(req: Request, route: DocRoute) async throws -> Response {
-        let res: ClientResponse
-        do {
-            res = try await awsResponse(client: req.client, route: route)
-        } catch {
-            print(error)
-            throw error
-        }
+        let res = try await awsResponse(client: req.client, route: route)
 
         switch route.fragment {
             case .documentation, .tutorials:
@@ -78,7 +72,7 @@ enum PackageController {
                     documentationMetadata: documentationMetadata
                 )
 
-            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings:
+            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .svgImages, .svgImg:
                 return try await res.encodeResponse(
                     status: .ok,
                     headers: req.headers
@@ -452,8 +446,8 @@ extension PackageController {
         let path = route.path
 
         switch route.fragment {
-            case .css, .data, .documentation, .images, .img, .index, .js, .tutorials:
-                return URI(string: "\(baseURL)/\(route.fragment)/\(path)")
+            case .css, .data, .documentation, .images, .img, .index, .js, .tutorials, .svgImages, .svgImg:
+                return URI(string: "\(baseURL)/\(route.fragment.urlFragment)/\(path)")
             case .faviconIco, .faviconSvg, .themeSettings:
                 return path.isEmpty
                 ? URI(string: "\(baseURL)/\(route.fragment)")
