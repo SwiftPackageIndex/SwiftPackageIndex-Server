@@ -382,24 +382,21 @@ extension API.PackageController.GetRoute.Model {
         var url: String {
             switch self {
             case .fromSPI(_, let originalOwner, _, let originalRepo, _):
-                return SiteURL.package(.value(originalOwner), .value(originalRepo), nil).absoluteURL()
+                return SiteURL.package(.value(originalOwner), .value(originalRepo), nil).relativeURL()
             case .fromGitHub(let url):
                 return url
             }
         }
 
-
-
         var ownerURL: String? {
             switch self {
             case .fromSPI(_, let owner, _, _, _):
-                return "https://github.com/\(owner)"
+                return SiteURL.author(.value(owner)).relativeURL()
             case .fromGitHub:
                 return nil
             }
         }
     }
-
 }
 
 
