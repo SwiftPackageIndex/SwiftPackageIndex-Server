@@ -22,15 +22,19 @@ extension API.PackageController {
         case fromGitHub(url: String)
         
         static func query(on database: Database, packageId: Package.Id) async throws -> ForkedFromResult? {
-            let model = try await Joined3<Package, Repository, Version>.query(on: database, packageId: packageId).first()
-            
+            let model = try await Joined3<Package, Repository, Version>
+                .query(on: database, packageId: packageId, version: .defaultBranch)
+                .first()
+
             guard let repoName = model?.repository.name,
                   let ownerName = model?.repository.ownerName,
-                  let owner = model?.repository.owner,
-                  let packageName = model?.version.packageName else {
+                  let owner = model?.repository.owner else {
                 return nil
             }
             
+            // fallback to repo name if packageName is nil
+            let packageName: String = model?.version.packageName ?? repoName
+
             return ForkedFromResult.fromSPI(
                 repository: repoName,
                 owner: owner,

@@ -1,3 +1,4 @@
 <li class="forked">Forked from 
-  <a href="http://localhost:8080/owner/repo">OriginalOwner</a>.
+  <a href="http://localhost:8080/owner/repo">Test</a> by 
+  <a href="https://github.com/owner/repo">OriginalOwner</a>.
 </li>

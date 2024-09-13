@@ -448,7 +448,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         var model = API.PackageController.GetRoute.Model.mock
         model.forkedFromInfo = .fromGitHub(url: "https://github.com/owner/repository.git")
         let renderedForkedFrom = model.forkedListItem().render()
-        XCTAssertEqual(renderedForkedFrom, "<li class=\"forked\">Forked from <a href=\"https://github.com/owner/repository.git\">repository</a>.</li>")
+        XCTAssertEqual(renderedForkedFrom, "<li class=\"forked\">Forked from <a href=\"https://github.com/owner/repository.git\">owner/repository</a>.</li>")
     }
     
     func test_forkedFrom_spi_same_package_name_formatting() throws {
@@ -461,8 +461,9 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
             originalPackageName: "Test"
         )
         let url = SiteURL.package(.value("owner"), .value("repo"), nil).absoluteURL()
+        var ownerUrl = model.forkedFromInfo?.ownerURL ?? ""
         let renderedForkedFrom = model.forkedListItem().render()
-        XCTAssertEqual(renderedForkedFrom, "<li class=\"forked\">Forked from <a href=\"\(url)\">OriginalOwner</a>.</li>")
+        XCTAssertEqual(renderedForkedFrom, "<li class=\"forked\">Forked from <a href=\"\(url)\">Test</a> by <a href=\"\(ownerUrl)\">OriginalOwner</a>.</li>")
     }
     
     func test_forkedFrom_spi_different_package_name_formatting() throws {
@@ -475,8 +476,9 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
             originalPackageName: "Different"
         )
         let url = SiteURL.package(.value("owner"), .value("repo"), nil).absoluteURL()
+        var ownerUrl = model.forkedFromInfo?.ownerURL ?? ""
         let renderedForkedFrom = model.forkedListItem().render()
-        XCTAssertEqual(renderedForkedFrom, "<li class=\"forked\">Forked from <a href=\"\(url)\">Different by OriginalOwner</a>.</li>")
+        XCTAssertEqual(renderedForkedFrom, "<li class=\"forked\">Forked from <a href=\"\(url)\">Different</a> by <a href=\"\(ownerUrl)\">OriginalOwner</a>.</li>")
     }
 
     func test_BuildInfo_init() throws {

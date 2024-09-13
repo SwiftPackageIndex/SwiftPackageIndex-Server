@@ -187,33 +187,31 @@ extension API.PackageController.GetRoute.Model {
             let item: Node<HTML.BodyContext> = {
                 switch forkedFromInfo {
                 case .fromGitHub(let url):
+                    var text = url.replacingOccurrences(of: "https://github.com/", with: "")
+                    text = text.removingSuffix(".git")
                     let repoURLNode: Node<HTML.BodyContext> = .a(
                         .href(url),
-                        .text("repository")
+                        .text(text)
                     )
                     return  .group(
                         .text("Forked from "),
                         repoURLNode,
                         .text(".")
                     )
-                case .fromSPI(let packageName, _, let ownerName, _, let originalPackageName):
-                    let repoURLNode: Node<HTML.BodyContext>
-                    if packageName == originalPackageName {
-                        repoURLNode = .a(
-                            .href(forkedFromInfo.url),
-                            .text(ownerName)
-                        )
-                     
-                    } else {
-                        repoURLNode = .a(
-                            .href(forkedFromInfo.url),
-                            .text("\(originalPackageName) by \(ownerName)")
-                        )
-                    }
-                    
+                case .fromSPI(_, _, let ownerName, _, let originalPackageName):
+                    let repoURLNode: Node<HTML.BodyContext> = .a(
+                        .href(forkedFromInfo.url),
+                        .text("\(originalPackageName)")
+                    )
+                    let ownerNode: Node<HTML.BodyContext> = .a(
+                        .href(forkedFromInfo.ownerURL ?? ""),
+                        .text("\(ownerName)")
+                    )
                     return  .group(
                         .text("Forked from "),
                         repoURLNode,
+                        .text(" by "),
+                        ownerNode,
                         .text(".")
                     )
                 }

@@ -387,6 +387,17 @@ extension API.PackageController.GetRoute.Model {
                 return url
             }
         }
+
+
+
+        var ownerURL: String? {
+            switch self {
+            case .fromSPI(_, let owner, _, _, _):
+                return "https://github.com/\(owner)"
+            case .fromGitHub:
+                return nil
+            }
+        }
     }
 
 }
