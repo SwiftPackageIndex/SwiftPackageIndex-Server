@@ -460,8 +460,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
             originalRepo: "repo",
             originalPackageName: "Test"
         )
-        let url = SiteURL.package(.value("owner"), .value("repo"), nil).absoluteURL()
-        var ownerUrl = model.forkedFromInfo?.ownerURL ?? ""
+        let url = SiteURL.package(.value("owner"), .value("repo"), nil).relativeURL()
+        let ownerUrl = model.forkedFromInfo?.ownerURL ?? ""
         let renderedForkedFrom = model.forkedListItem().render()
         XCTAssertEqual(renderedForkedFrom, "<li class=\"forked\">Forked from <a href=\"\(url)\">Test</a> by <a href=\"\(ownerUrl)\">OriginalOwner</a>.</li>")
     }
@@ -475,8 +475,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
             originalRepo: "repo",
             originalPackageName: "Different"
         )
-        let url = SiteURL.package(.value("owner"), .value("repo"), nil).absoluteURL()
-        var ownerUrl = model.forkedFromInfo?.ownerURL ?? ""
+        let url = SiteURL.package(.value("owner"), .value("repo"), nil).relativeURL()
+        let ownerUrl = model.forkedFromInfo?.ownerURL ?? ""
         let renderedForkedFrom = model.forkedListItem().render()
         XCTAssertEqual(renderedForkedFrom, "<li class=\"forked\">Forked from <a href=\"\(url)\">Different</a> by <a href=\"\(ownerUrl)\">OriginalOwner</a>.</li>")
     }
