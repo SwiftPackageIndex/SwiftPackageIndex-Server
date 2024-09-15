@@ -30,10 +30,6 @@ extension API.PackageController {
             let packageResult = try await PackageResult.query(on: database,
                                                               owner: owner,
                                                               repository: repository)
-            
-            let forkedFromResult = try? await self.fetchForkedFromResult(on: database,
-                                                                  repository: packageResult.repository)
-            
             async let weightedKeywords = WeightedKeyword.query(
                 on: database, keywords: packageResult.repository.keywords
             )
@@ -49,6 +45,7 @@ extension API.PackageController {
             async let buildInfo = API.PackageController.BuildInfo.query(on: database,
                                                                         owner: owner,
                                                                         repository: repository)
+            async let forkedFromInfo = forkedFromInfo(on: database, fork: packageResult.repository.forkedFrom)
 
             guard
                 let model = try await Self.Model(
@@ -60,7 +57,7 @@ extension API.PackageController {
                     platformBuildInfo: buildInfo.platform,
                     weightedKeywords: weightedKeywords,
                     swift6Readiness: buildInfo.swift6Readiness,
-                    forkedFromResult: forkedFromResult
+                    forkedFromInfo: forkedFromInfo
                 ),
                 let schema = API.PackageSchema(result: packageResult)
             else {
@@ -68,19 +65,6 @@ extension API.PackageController {
             }
 
             return (model, schema)
-        }
-        
-        static func fetchForkedFromResult(on database: Database, repository: Repository) async throws -> ForkedFromResult? {
-            if let forkedFrom = repository.forkedFrom {
-                switch forkedFrom {
-                case .parentId(let id):
-                    let info = try await ForkedFromResult.query(on: database, packageId: id)
-                    return info
-                case .parentURL(let url):
-                    return .fromGitHub(url: url)
-                }
-            }
-            return nil
         }
     }
 }
@@ -101,5 +85,35 @@ extension API.PackageController.GetRoute {
         return .init(stable: links[0],
                      beta: links[1],
                      latest: links[2])
+    }
+
+    static func forkedFromInfo(on database: Database, fork: Fork?) async -> Model.ForkedFromInfo? {
+        guard let forkedFrom = fork else { return nil }
+        switch forkedFrom {
+            case let .parentId(id):
+                return await Model.ForkedFromInfo.query(on: database, packageId: id)
+            case let .parentURL(url):
+                return .fromGitHub(url: url)
+        }
+    }
+}
+
+
+extension API.PackageController.GetRoute.Model.ForkedFromInfo {
+    static func query(on database: Database, packageId: Package.Id) async -> Self? {
+        let model = try? await Joined3<Package, Repository, Version>
+            .query(on: database, packageId: packageId, version: .defaultBranch)
+            .first()
+
+        guard let repoName = model?.repository.name,
+              let ownerName = model?.repository.ownerName,
+              let owner = model?.repository.owner else {
+            return nil
+        }
+
+        return .fromSPI(originalOwner: owner,
+                        originalOwnerName: ownerName,
+                        originalRepo: repoName,
+                        originalPackageName: model?.version.packageName ?? repoName)
     }
 }
