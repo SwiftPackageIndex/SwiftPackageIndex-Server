@@ -198,7 +198,7 @@ extension API.PackageController.GetRoute.Model {
                         repoURLNode,
                         .text(".")
                     )
-                case .fromSPI(_, _, let ownerName, _, let originalPackageName):
+                case .fromSPI(_, let ownerName, _, let originalPackageName):
                     let repoURLNode: Node<HTML.BodyContext> = .a(
                         .href(forkedFromInfo.url),
                         .text("\(originalPackageName)")
@@ -709,5 +709,26 @@ extension API.PackageController.GetRoute.Model.Swift6Readiness {
             lines.append("\(platform.displayName): \(errorCounts[platform].map { "\($0)" } ?? "no data")")
         }
         return lines.joined(separator: "\n")
+    }
+}
+
+
+extension API.PackageController.GetRoute.Model.ForkedFromInfo {
+    var url: String {
+        switch self {
+        case .fromSPI(let originalOwner, _, let originalRepo, _):
+            return SiteURL.package(.value(originalOwner), .value(originalRepo), nil).relativeURL()
+        case .fromGitHub(let url):
+            return url
+        }
+    }
+
+    var ownerURL: String? {
+        switch self {
+        case .fromSPI(let owner, _, _, _):
+            return SiteURL.author(.value(owner)).relativeURL()
+        case .fromGitHub:
+            return nil
+        }
     }
 }

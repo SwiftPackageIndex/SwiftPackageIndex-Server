@@ -83,7 +83,7 @@ extension API.PackageController.GetRoute {
                       preReleaseReference: App.Reference?,
                       fundingLinks: [FundingLink] = [],
                       swift6Readiness: Swift6Readiness?,
-                      forkedFromResult: API.PackageController.ForkedFromResult?
+                      forkedFromInfo: ForkedFromInfo?
             ) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
@@ -125,22 +125,7 @@ extension API.PackageController.GetRoute {
             }()
             self.fundingLinks = fundingLinks
             self.swift6Readiness = swift6Readiness
-            if let forkedFromResult {
-                switch forkedFromResult {
-                case .fromSPI(let repo, let owner, let ownerName, let packageName):
-                    self.forkedFromInfo = ForkedFromInfo.fromSPI(
-                        packageName: self.title,
-                        originalOwner: owner,
-                        originalOwnerName: ownerName,
-                        originalRepo: repo,
-                        originalPackageName: packageName
-                    )
-                case .fromGitHub(let url):
-                    self.forkedFromInfo = ForkedFromInfo.fromGitHub(url: url)
-                }
-            } else {
-                self.forkedFromInfo = nil
-            }
+            self.forkedFromInfo = forkedFromInfo
         }
 
         init?(result: API.PackageController.PackageResult,
@@ -151,7 +136,7 @@ extension API.PackageController.GetRoute {
               platformBuildInfo: BuildInfo<CompatibilityMatrix.PlatformCompatibility>?,
               weightedKeywords: [WeightedKeyword] = [],
               swift6Readiness: Swift6Readiness?,
-              forkedFromResult: API.PackageController.ForkedFromResult?) {
+              forkedFromInfo: ForkedFromInfo?) {
             // we consider certain attributes as essential and return nil (raising .notFound)
             let repository = result.repository
             guard
@@ -197,7 +182,7 @@ extension API.PackageController.GetRoute {
                 preReleaseReference: result.preReleaseVersion?.reference,
                 fundingLinks: result.repository.fundingLinks,
                 swift6Readiness: swift6Readiness,
-                forkedFromResult: forkedFromResult
+                forkedFromInfo: forkedFromInfo
             )
 
         }
@@ -370,32 +355,11 @@ extension API.PackageController.GetRoute.Model {
     }
     
     enum ForkedFromInfo: Codable, Equatable {
-        case fromSPI(
-            packageName: String,
-            originalOwner: String,
-            originalOwnerName: String,
-            originalRepo: String,
-            originalPackageName: String
-        )
+        case fromSPI(originalOwner: String,
+                     originalOwnerName: String,
+                     originalRepo: String,
+                     originalPackageName: String)
         case fromGitHub(url: String)
-        
-        var url: String {
-            switch self {
-            case .fromSPI(_, let originalOwner, _, let originalRepo, _):
-                return SiteURL.package(.value(originalOwner), .value(originalRepo), nil).relativeURL()
-            case .fromGitHub(let url):
-                return url
-            }
-        }
-
-        var ownerURL: String? {
-            switch self {
-            case .fromSPI(_, let owner, _, _, _):
-                return SiteURL.author(.value(owner)).relativeURL()
-            case .fromGitHub:
-                return nil
-            }
-        }
     }
 }
 
