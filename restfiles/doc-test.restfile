@@ -415,10 +415,6 @@ requests:
     url: ${base_url}/mchakravarty/CodeEditorView/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /mecid/SwiftUICharts/documentation:
-    url: ${base_url}/mecid/SwiftUICharts/documentation
-    validation:
-      status: .regex((2|3)\d\d)
   /mergesort/Boutique/documentation:
     url: ${base_url}/mergesort/Boutique/documentation
     validation:
