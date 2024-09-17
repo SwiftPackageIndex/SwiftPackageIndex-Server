@@ -22,5 +22,9 @@
     {
         "date": "2024-08-20",
         "value": "Xcode 16 beta 6 released"
+    },
+    {
+        "date": "2024-09-09",
+        "value": "Xcode 16 RC released"
     }
 ]
