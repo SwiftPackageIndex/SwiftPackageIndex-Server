@@ -23,25 +23,83 @@ import SnapshotTesting
 import Vapor
 import NIOConcurrencyHelpers
 
+extension ShellOutCommand {
+    static func launchDB(port: Int) -> ShellOutCommand {
+        .init(command: "docker", arguments: [
+            "run", "--name", "spi_test_\(port)",
+            "-e", "POSTGRES_DB=spi_test",
+            "-e", "POSTGRES_USER=spi_test",
+            "-e", "POSTGRES_PASSWORD=xxx",
+            "-e", "PGDATA=/pgdata",
+            "--tmpfs", "/pgdata:rw,noexec,nosuid,size=1024m",
+            "-p", "\(port):5432",
+            "-d",
+            "postgres:16-alpine"
+        ])
+    }
 
-private func withApp(_ environment: Environment, _ test: (Application, CapturingLogger) async throws -> Void) async throws {
-    try await AppTestCase.setupDb(environment)
-    let app = try await AppTestCase.setupApp(environment)
+    static func removeDB(port: Int) -> ShellOutCommand {
+        .init(command: "docker", arguments: [
+            "rm", "-f", "spi_test_\(port)"
+        ])
+    }
+}
+
+
+private func setupApp(_ environment: Environment) async throws -> Application {
+    let app = try await Application.make(environment)
+    try await configure(app)
+
+    // Silence app logging
+    app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
 
     // Always start with a baseline mock environment to avoid hitting live resources
     Current = .mock(eventLoop: app.eventLoopGroup.next())
 
+    return app
+}
+
+private func relaunchDB(on port: Int) async throws {
+    _ = try? await ShellOut.shellOut(to: .removeDB(port: port))
+    try await ShellOut.shellOut(to: .launchDB(port: port))
+}
+
+private func setupDB(on port: Int, app: Application) async throws {
+    let deadline = Date.now.addingTimeInterval(1)
+    var dbIsReady = false
+    while !dbIsReady && Date.now <= deadline {
+        do {
+            try await app.autoMigrate()
+            dbIsReady = true
+        } catch { }
+    }
+    try #require(dbIsReady)
+}
+
+private func withApp(_ environment: Environment, _ test: (Application, CapturingLogger) async throws -> Void) async throws {
+    let port = 5432
+    setenv("DATABASE_PORT", "\(port)", 1)
+    try await relaunchDB(on: port)
+
+    let app = try await setupApp(environment)
+
     let logger = CapturingLogger()
     Current.setLogger(.init(label: "test", factory: { _ in logger }))
 
-    try await test(app, logger)
+    try await setupDB(on: port, app: app)
+
+    do {
+        try await test(app, logger)
+    } catch {
+        try await app.asyncShutdown()
+        throw error
+    }
 
     try await app.asyncShutdown()
 }
 
 
-@Suite
-struct AnalyzerTests {
+@Suite struct AnalyzerTests {
 
     @Test func analyze() async throws {
         try await withApp(.testing) { app, _ in
@@ -214,6 +272,7 @@ struct AnalyzerTests {
             #expect(pkg2.score == 40)
 
             // ensure stats, recent packages, and releases are refreshed
+#warning("FIXME")
             try await XCTAssertEqualAsync(try await Stats.fetch(on: app.db), .init(packageCount: 2))
             try await XCTAssertEqualAsync(try await RecentPackage.fetch(on: app.db).count, 2)
             try await XCTAssertEqualAsync(try await RecentRelease.fetch(on: app.db).count, 2)
