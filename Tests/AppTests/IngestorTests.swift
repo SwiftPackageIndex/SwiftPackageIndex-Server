@@ -606,16 +606,16 @@ class IngestorTests: AppTestCase {
 
         // test lookup when package is in the index
         let fork = await getFork(on: app.db, parent: .init(url: "https://github.com/foo/parent.git"))
-        XCTAssertEqual(fork, .parentId(.id0))
-        
+        XCTAssertEqual(fork, .parentId(id: .id0, fallbackURL: "https://github.com/foo/parent.git"))
+
         // test lookup when package is in the index but with different case in URL
         let fork2 = await getFork(on: app.db, parent: .init(url: "https://github.com/Foo/Parent.git"))
-        XCTAssertEqual(fork2, .parentId(.id0))
-        
+        XCTAssertEqual(fork2, .parentId(id: .id0, fallbackURL: "https://github.com/Foo/Parent.git"))
+
         // test whem metadata repo url doesn't have `.git` at end
         let fork3 = await getFork(on: app.db, parent: .init(url: "https://github.com/Foo/Parent"))
-        XCTAssertEqual(fork3, .parentId(.id0))
-        
+        XCTAssertEqual(fork3, .parentId(id: .id0, fallbackURL: "https://github.com/Foo/Parent.git"))
+
         // test lookup when package is not in the index
         let fork4 = await getFork(on: app.db, parent: .init(url: "https://github.com/some/other.git"))
         XCTAssertEqual(fork4, .parentURL("https://github.com/some/other.git"))
