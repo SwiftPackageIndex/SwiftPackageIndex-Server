@@ -147,7 +147,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         let forkedFrom = await API.PackageController.GetRoute.Model.ForkedFromInfo.query(on: app.db, packageId: .id0, fallbackURL: "https://github.com/original/original.git")
 
         // validate
-        XCTAssertEqual(forkedFrom, .fromGitHub(url: "https://github.original/original.git"))
+        XCTAssertEqual(forkedFrom, .fromGitHub(url: "https://github/original/original.git"))
     }
 
     func test_gitHubOwnerUrl() throws {
