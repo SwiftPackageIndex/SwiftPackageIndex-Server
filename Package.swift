@@ -48,6 +48,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.13.0"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.102.0"),
+        .package(url: "https://github.com/vapor-community/soto-cognito-authentication.git", from: "4.0.0")
     ],
     targets: [
         .executableTarget(name: "Run", dependencies: ["App"]),
