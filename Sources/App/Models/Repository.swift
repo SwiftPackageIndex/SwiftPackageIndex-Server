@@ -274,6 +274,6 @@ enum S3Readme: Codable, Equatable {
 }
 
 enum Fork: Codable, Equatable {
-    case parentId(Package.Id)
+    case parentId(id: Package.Id, fallbackURL: String)
     case parentURL(String)
 }

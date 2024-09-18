@@ -223,7 +223,7 @@ func getFork(on database: Database, parent: Github.Metadata.Parent?) async -> Fo
     if let packageId = try? await Package.query(on: database)
         .filter(\.$url, .custom("ilike"), parentUrl)
         .first()?.id {
-        return .parentId(packageId)
+        return .parentId(id: packageId, fallbackURL: parentUrl)
     } else {
         return .parentURL(parentUrl)
     }
