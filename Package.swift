@@ -42,7 +42,8 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.11.1"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
-        .package(url: "https://github.com/soto-project/soto.git", from: "7.0.0"),
+        .package(url: "https://github.com/soto-project/soto.git", from: "6.0.0"),
+        .package(url: "https://github.com/vapor-community/soto-cognito-authentication.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.13.0"),
@@ -72,6 +73,7 @@ let package = Package(
                     .product(name: "SwiftPMPackageCollections", package: "swift-package-manager"),
                     .product(name: "Vapor", package: "vapor"),
                     .product(name: "VaporToOpenAPI", package: "VaporToOpenAPI"),
+                    .product(name: "SotoCognitoAuthentication", package: "soto-cognito-authentication")
                 ],
                 swiftSettings: swiftSettings,
                 linkerSettings: [.unsafeFlags(["-Xlinker", "-interposable"],
