@@ -337,8 +337,8 @@ public func configure(_ app: Application) async throws -> String {
     do { // Migration 079 - Add `forked_from` to `repositories`
         app.migrations.add(UpdateRepositoryAddForkedFrom())
     }
-    do { // Migration 080 - Set`forkded_from` to NULL because of Fork model change in Repository
-        app.migrations.add(UpdateRepositoryAddForkedFrom2())
+    do { // Migration 080 - Set`forked_from` to NULL because of Fork model change in Repository
+        app.migrations.add(UpdateRepositoryResetForkedFrom())
     }
 
     app.asyncCommands.use(Analyze.Command(), as: "analyze")

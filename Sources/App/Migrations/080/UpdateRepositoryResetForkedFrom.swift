@@ -16,7 +16,7 @@ import Fluent
 import SQLKit
 
 
-struct UpdateRepositoryAddForkedFrom2: AsyncMigration {
+struct UpdateRepositoryResetForkedFrom: AsyncMigration {
     func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
