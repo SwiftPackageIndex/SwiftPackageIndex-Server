@@ -90,8 +90,8 @@ extension API.PackageController.GetRoute {
     static func forkedFromInfo(on database: Database, fork: Fork?) async -> Model.ForkedFromInfo? {
         guard let forkedFrom = fork else { return nil }
         switch forkedFrom {
-            case let .parentId(id):
-                return await Model.ForkedFromInfo.query(on: database, packageId: id)
+            case .parentId(let id, let fallbackURL):
+                return await Model.ForkedFromInfo.query(on: database, packageId: id, fallbackURL: fallbackURL)
             case let .parentURL(url):
                 return .fromGitHub(url: url)
         }
@@ -100,7 +100,7 @@ extension API.PackageController.GetRoute {
 
 
 extension API.PackageController.GetRoute.Model.ForkedFromInfo {
-    static func query(on database: Database, packageId: Package.Id) async -> Self? {
+    static func query(on database: Database, packageId: Package.Id, fallbackURL: String) async -> Self? {
         let model = try? await Joined3<Package, Repository, Version>
             .query(on: database, packageId: packageId, version: .defaultBranch)
             .first()
@@ -108,7 +108,7 @@ extension API.PackageController.GetRoute.Model.ForkedFromInfo {
         guard let repoName = model?.repository.name,
               let ownerName = model?.repository.ownerName,
               let owner = model?.repository.owner else {
-            return nil
+            return .fromGitHub(url: fallbackURL)
         }
 
         return .fromSPI(originalOwner: owner,

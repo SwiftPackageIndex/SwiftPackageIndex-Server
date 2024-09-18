@@ -132,13 +132,22 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
             .save(on: app.db)
 
         // MUT
-        let forkedFrom = await API.PackageController.GetRoute.Model.ForkedFromInfo.query(on: app.db, packageId: .id0)
+        let forkedFrom = await API.PackageController.GetRoute.Model.ForkedFromInfo.query(on: app.db, packageId: .id0, fallbackURL: "https://github.com/original/original.git")
 
         // validate
         XCTAssertEqual(forkedFrom, .fromSPI(originalOwner: "original",
                                             originalOwnerName: "OriginalOwner",
                                             originalRepo: "original",
                                             originalPackageName: "OriginalPkg"))
+    }
+
+    func test_ForkedFromInfo_query_fallback() async throws {
+        // when the package can't be found resort to fallback URL
+        // MUT
+        let forkedFrom = await API.PackageController.GetRoute.Model.ForkedFromInfo.query(on: app.db, packageId: .id0, fallbackURL: "https://github.com/original/original.git")
+
+        // validate
+        XCTAssertEqual(forkedFrom, .fromGitHub(url: "https://github.original/original.git"))
     }
 
     func test_gitHubOwnerUrl() throws {
