@@ -1,0 +1,208 @@
+{
+  "cLanguageStandard" : null,
+  "cxxLanguageStandard" : null,
+  "dependencies" : [
+    {
+      "sourceControl" : [
+        {
+          "identity" : "swift-syntax",
+          "location" : {
+            "remote" : [
+              {
+                "urlString" : "https://github.com/apple/swift-syntax.git"
+              }
+            ]
+          },
+          "productFilter" : null,
+          "requirement" : {
+            "range" : [
+              {
+                "lowerBound" : "509.0.0-swift-5.9-DEVELOPMENT-SNAPSHOT-2023-04-25-b",
+                "upperBound" : "510.0.0"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "name" : "StaticMemberIterable",
+  "packageKind" : {
+    "root" : [
+      "<tempdir>"
+    ]
+  },
+  "pkgConfig" : null,
+  "platforms" : [
+    {
+      "options" : [
+
+      ],
+      "platformName" : "macos",
+      "version" : "10.15"
+    },
+    {
+      "options" : [
+
+      ],
+      "platformName" : "ios",
+      "version" : "13.0"
+    },
+    {
+      "options" : [
+
+      ],
+      "platformName" : "tvos",
+      "version" : "13.0"
+    },
+    {
+      "options" : [
+
+      ],
+      "platformName" : "watchos",
+      "version" : "6.0"
+    },
+    {
+      "options" : [
+
+      ],
+      "platformName" : "maccatalyst",
+      "version" : "13.0"
+    }
+  ],
+  "products" : [
+    {
+      "name" : "StaticMemberIterable",
+      "targets" : [
+        "StaticMemberIterable"
+      ],
+      "type" : {
+        "library" : [
+          "automatic"
+        ]
+      }
+    },
+    {
+      "name" : "StaticMemberIterableClient",
+      "targets" : [
+        "StaticMemberIterableClient"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    }
+  ],
+  "providers" : null,
+  "swiftLanguageVersions" : null,
+  "targets" : [
+    {
+      "dependencies" : [
+        {
+          "product" : [
+            "SwiftSyntaxMacros",
+            "swift-syntax",
+            null,
+            null
+          ]
+        },
+        {
+          "product" : [
+            "SwiftCompilerPlugin",
+            "swift-syntax",
+            null,
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "StaticMemberIterableMacros",
+      "packageAccess" : true,
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "macro"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "StaticMemberIterableMacros",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "StaticMemberIterable",
+      "packageAccess" : true,
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "StaticMemberIterable",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "StaticMemberIterableClient",
+      "packageAccess" : true,
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "executable"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "StaticMemberIterableMacros",
+            null
+          ]
+        },
+        {
+          "product" : [
+            "SwiftSyntaxMacrosTestSupport",
+            "swift-syntax",
+            null,
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "StaticMemberIterableTests",
+      "packageAccess" : true,
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    }
+  ],
+  "toolsVersion" : {
+    "_version" : "5.9.0"
+  }
+}
