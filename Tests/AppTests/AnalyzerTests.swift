@@ -16,12 +16,14 @@ import XCTest
 
 @testable import App
 
+import Dependencies
 import Fluent
+import NIOConcurrencyHelpers
 import SPIManifest
-@preconcurrency import ShellOut
 import SnapshotTesting
 import Vapor
-import NIOConcurrencyHelpers
+
+@preconcurrency import ShellOut
 
 
 class AnalyzerTests: AppTestCase {
@@ -310,27 +312,34 @@ class AnalyzerTests: AppTestCase {
         Current.git.hasBranch = { @Sendable _, _ in false }  // simulate analysis error via branch mismatch
         Current.git.shortlog = { @Sendable _ in "" }
 
-        // Ensure candidate selection is as expected
-        let app = self.app!
-        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
-        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 1)
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // Ensure candidate selection is as expected
+            let app = self.app!
+            try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
+            try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 1)
 
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      mode: .limit(10))
 
-        // Ensure candidate selection is now zero for analysis
-        // (and also for ingestion, as we're immediately after analysis)
-        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
-        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 0)
+            // Ensure candidate selection is now zero for analysis
+            // (and also for ingestion, as we're immediately after analysis)
+            try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
+            try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 0)
+        }
 
-        // Advance time beyond reIngestionDeadtime
-        Current.date = { .now.addingTimeInterval(Constants.reIngestionDeadtime) }
-
-        // Ensure candidate selection has flipped to ingestion
-        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 1)
-        try await XCTAssertEqualAsync( try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 0)
+        try await withDependencies {
+            // Advance time beyond reIngestionDeadtime
+            $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
+        } operation: {
+            // Ensure candidate selection has flipped to ingestion
+            let app = self.app!
+            try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 1)
+            try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 0)
+        }
     }
 
     func test_package_status() async throws {

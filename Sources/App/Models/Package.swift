@@ -320,7 +320,7 @@ private extension JoinedQueryBuilder where J == Joined<Package, Repository> {
                         .group(.and) {
                             $0
                                 .filter(\.$processingStage == .analysis)
-                                .filter(\.$updatedAt < Current.date().addingTimeInterval(-Constants.reIngestionDeadtime)
+                                .filter(\.$updatedAt < now.addingTimeInterval(-Constants.reIngestionDeadtime)
                                 )
                         }
                 }
