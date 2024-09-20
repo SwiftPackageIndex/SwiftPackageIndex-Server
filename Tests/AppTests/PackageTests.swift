@@ -14,6 +14,7 @@
 
 @testable import App
 
+import Dependencies
 import Fluent
 import SQLKit
 import Vapor
@@ -318,8 +319,12 @@ final class PackageTests: AppTestCase {
             XCTAssertTrue(pkg.isNew)
         }
 
-        // run ingestion to progress package through pipeline
-        try await ingest(client: app.client, database: app.db, mode: .limit(10))
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // run ingestion to progress package through pipeline
+            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+        }
 
         // MUT & validate
         do {
@@ -327,10 +332,14 @@ final class PackageTests: AppTestCase {
             XCTAssertTrue(pkg.isNew)
         }
 
-        // run analysis to progress package through pipeline
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // run analysis to progress package through pipeline
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      mode: .limit(10))
+        }
 
         // MUT & validate
         do {
@@ -346,8 +355,12 @@ final class PackageTests: AppTestCase {
             XCTAssertFalse(pkg.isNew)
         }
 
-        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
-        try await ingest(client: app.client, database: app.db, mode: .limit(10))
+        try await withDependencies {
+            $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
+        } operation: {
+            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+        }
+
         do {
             let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
             XCTAssertFalse(pkg.isNew)
