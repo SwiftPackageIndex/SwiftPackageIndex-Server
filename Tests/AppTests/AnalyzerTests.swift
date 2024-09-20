@@ -12,16 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Testing
-
 @testable import App
 
 import Fluent
-import SPIManifest
-@preconcurrency import ShellOut
-import SnapshotTesting
-import Vapor
+import FluentPostgresDriver
 import NIOConcurrencyHelpers
+import SPIManifest
+import SnapshotTesting
+import Testing
+import Vapor
+
+@preconcurrency import ShellOut
+
 
 extension ShellOutCommand {
     static func launchDB(port: Int) -> ShellOutCommand {
@@ -46,9 +48,9 @@ extension ShellOutCommand {
 }
 
 
-private func setupApp(_ environment: Environment) async throws -> Application {
+private func setupApp(_ environment: Environment, databasePort: Int) async throws -> Application {
     let app = try await Application.make(environment)
-    try await configure(app)
+    try await configure(app, databasePort: databasePort)
 
     // Silence app logging
     app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
@@ -59,10 +61,12 @@ private func setupApp(_ environment: Environment) async throws -> Application {
     return app
 }
 
+
 private func relaunchDB(on port: Int) async throws {
     _ = try? await ShellOut.shellOut(to: .removeDB(port: port))
     try await ShellOut.shellOut(to: .launchDB(port: port))
 }
+
 
 private func setupDB(on port: Int, app: Application) async throws {
     let deadline = Date.now.addingTimeInterval(1)
@@ -76,12 +80,19 @@ private func setupDB(on port: Int, app: Application) async throws {
     try #require(dbIsReady)
 }
 
+
+private dbIndex = ActorIsolated(0)
+
+
 private func withApp(_ environment: Environment, _ test: (Application, CapturingLogger) async throws -> Void) async throws {
-    let port = 5432
-    setenv("DATABASE_PORT", "\(port)", 1)
+    let dbOffset = await dbIndex.withValue { index in
+        index = index + 1
+        return index
+    }
+    let port = 10_000 + dbOffset
     try await relaunchDB(on: port)
 
-    let app = try await setupApp(environment)
+    let app = try await setupApp(environment, databasePort: port)
 
     let logger = CapturingLogger()
     Current.setLogger(.init(label: "test", factory: { _ in logger }))
