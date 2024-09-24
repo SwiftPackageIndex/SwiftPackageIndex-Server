@@ -181,6 +181,50 @@ extension API.PackageController.GetRoute.Model {
             return .empty
         }
     }
+    
+    func forkedListItem() -> Node<HTML.ListContext> {
+        if let forkedFromInfo {
+            let item: Node<HTML.BodyContext> = {
+                switch forkedFromInfo {
+                case .fromGitHub(let url):
+                    var text = url.replacingOccurrences(of: "https://github.com/", with: "")
+                    text = text.removingSuffix(".git")
+                    let repoURLNode: Node<HTML.BodyContext> = .a(
+                        .href(url),
+                        .text(text)
+                    )
+                    return  .group(
+                        .text("Forked from "),
+                        repoURLNode,
+                        .text(".")
+                    )
+                case .fromSPI(_, let ownerName, _, let originalPackageName):
+                    let repoURLNode: Node<HTML.BodyContext> = .a(
+                        .href(forkedFromInfo.url),
+                        .text("\(originalPackageName)")
+                    )
+                    let ownerNode: Node<HTML.BodyContext> = .a(
+                        .href(forkedFromInfo.ownerURL ?? ""),
+                        .text("\(ownerName)")
+                    )
+                    return  .group(
+                        .text("Forked from "),
+                        repoURLNode,
+                        .text(" by "),
+                        ownerNode,
+                        .text(".")
+                    )
+                }
+            }()
+            
+            return .li(
+                .class("forked"),
+                item
+            )
+        } else {
+            return .empty
+        }
+    }
 
     func binaryTargetsItem() -> Node<HTML.ListContext> {
         guard hasBinaryTargets else { return .empty }
@@ -665,5 +709,26 @@ extension API.PackageController.GetRoute.Model.Swift6Readiness {
             lines.append("\(platform.displayName): \(errorCounts[platform].map { "\($0)" } ?? "no data")")
         }
         return lines.joined(separator: "\n")
+    }
+}
+
+
+extension API.PackageController.GetRoute.Model.ForkedFromInfo {
+    var url: String {
+        switch self {
+        case .fromSPI(let originalOwner, _, let originalRepo, _):
+            return SiteURL.package(.value(originalOwner), .value(originalRepo), nil).relativeURL()
+        case .fromGitHub(let url):
+            return url
+        }
+    }
+
+    var ownerURL: String? {
+        switch self {
+        case .fromSPI(let owner, _, _, _):
+            return SiteURL.author(.value(owner)).relativeURL()
+        case .fromGitHub:
+            return nil
+        }
     }
 }

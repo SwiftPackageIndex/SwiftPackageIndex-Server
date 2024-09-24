@@ -224,6 +224,7 @@ final class Repository: @unchecked Sendable, Model, Content {
             .filter(\.$package.$id == pkgId)
             .first() ?? Repository(packageId: pkgId)
     }
+    
 }
 
 
