@@ -33,6 +33,11 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/10003?v=4"
         ),
         .init(
+            login: "davelester",
+            name: "Dave Lester",
+            avatarUrl: "https://avatars.githubusercontent.com/u/18080?u=36f524e0508ed7052cc58d239e87e0da488d3d01&v=4"
+        ),
+        .init(
             login: "phatblat",
             name: "Ben Chatelain",
             avatarUrl: "https://avatars.githubusercontent.com/u/28851?v=4"
