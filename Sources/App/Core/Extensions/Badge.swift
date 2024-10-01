@@ -52,7 +52,7 @@ struct Badge: Content, Equatable {
                   label: label,
                   message: message,
                   isError: !success,
-                  color: success ? "356fce" : "inactive",
+                  color: success ? "blue" : "inactive",
                   cacheSeconds: cacheSeconds,
                   logoSvg: Self.loadSVGLogo())
     }
