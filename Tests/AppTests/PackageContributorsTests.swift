@@ -16,12 +16,13 @@ import XCTest
 
 @testable import App
 
-class PackageContributorsTests : AppTestCase {
+class PackageContributorsTests : AppTestCase {        // test class to verify behavior of PackageContributors and PackageAuthors
 
-    func test_packageAuthors_hasAuthors() throws {
-        let noPackageAuthors = PackageAuthors(authors: [], numberOfContributors: 0)
+    func test_packageAuthors_hasAuthors() throws {        // testing if a package has authors
+        let noPackageAuthors = PackageAuthors(authors: [], numberOfContributors: 0)        // case with no authors
+        
 
-        let somePackageAuthors = PackageAuthors(authors: [
+        let somePackageAuthors = PackageAuthors(authors: [            // case with authors
             .init(name: "Person One"),
             .init(name: "Person Two")
         ], numberOfContributors: 0)
@@ -30,8 +31,9 @@ class PackageContributorsTests : AppTestCase {
         XCTAssertTrue(somePackageAuthors.hasAuthors)
     }
 
-    func test_CommitSelector_primaryContributors() throws {
+    func test_CommitSelector_primaryContributors() throws {            // testing primary contributors based on commit count
 
+        // listing contributors with different commit counts
         let candidates = [PackageContributors.Contributor(numberOfCommits: 10, name: "Tim"),
                           PackageContributors.Contributor(numberOfCommits: 100, name: "John"),
                           PackageContributors.Contributor(numberOfCommits: 900, name: "Maria"),
