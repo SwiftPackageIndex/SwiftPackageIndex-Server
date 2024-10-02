@@ -16,9 +16,10 @@
 
 import XCTVapor
 
-class LicenseTests: XCTestCase {
+class LicenseTests: XCTestCase {                // test calss for license functionalities 
 
     func test_init_from_dto() throws {
+        // verifies License class can initialize from dto and checks known licenses 
         XCTAssertEqual(License(from: Github.Metadata.LicenseInfo(key: "mit")), .mit)
         XCTAssertEqual(License(from: Github.Metadata.LicenseInfo(key: "agpl-3.0")), .agpl_3_0)
         XCTAssertEqual(License(from: Github.Metadata.LicenseInfo(key: "other")), .other)
@@ -31,6 +32,7 @@ class LicenseTests: XCTestCase {
     }
 
     func test_fullName() throws {
+        // checks full name property and return correct string
         XCTAssertEqual(License.mit.fullName, "MIT License")
         XCTAssertEqual(License.agpl_3_0.fullName, "GNU Affero General Public License v3.0")
         XCTAssertEqual(License.other.fullName, "Unknown or Unrecognised License")
@@ -38,6 +40,7 @@ class LicenseTests: XCTestCase {
     }
 
     func test_shortName() throws {
+        // checks short name property and returns correct string
         XCTAssertEqual(License.mit.shortName, "MIT")
         XCTAssertEqual(License.agpl_3_0.shortName, "AGPL 3.0")
         XCTAssertEqual(License.other.shortName, "Unknown license")
@@ -45,6 +48,7 @@ class LicenseTests: XCTestCase {
     }
 
     func test_isCompatibleWithAppStore() throws {
+        // tests if license is compatible or incompatible with app store using lincenseKind
         XCTAssertEqual(License.mit.licenseKind, .compatibleWithAppStore)
         XCTAssertEqual(License.agpl_3_0.licenseKind, .incompatibleWithAppStore)
         XCTAssertEqual(License.other.licenseKind, .other)
