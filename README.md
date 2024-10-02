@@ -1,8 +1,10 @@
 ![The Swift Package Index](.readme-images/swift-package-index.png)
 
+## Introduction
+
 **The Swift Package Index helps you make better decisions about the dependencies you use in your apps**.
 
-The [Swift Package Index](https://swiftpackageindex.com) is the place to find packages that are compatible with the [Swift Package Manager](https://swift.org/package-manager/). The project is [open-source](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/LICENSE) and written in Swift using [Vapor](https://swiftpackageindex.com/vapor/vapor).
+The [Swift Package Index](https://swiftpackageindex.com) is the place to find packages that are compatible with the [Swift Package Manager](https://swift.org/package-manager/). The project is [open-source](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/LICENSE) and written in Swift using [Vapor](https://swiftpackageindex.com/vapor/vapor). Vapor is an HTTP web framework for Swift. It is written in Vapor because it provides an expressive and easy-to-use foundation for websites, APIs, or cloud projects.
 
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftPackageIndex%2FSwiftPackageIndex-Server%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/SwiftPackageIndex/SwiftPackageIndex-Server) [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftPackageIndex%2FSwiftPackageIndex-Server%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/SwiftPackageIndex/SwiftPackageIndex-Server)
 
@@ -27,6 +29,13 @@ We also have a Discord server. If you'd like to join, please [use this invite](h
 ### Running the Project Locally
 
 The best place to start is our in-depth guide to [setting up the Swift Package Index for local development](LOCAL_DEVELOPMENT_SETUP.md)! If you run into any problems, please [start a discussion](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/discussions) or [join us on Discord](https://discord.gg/vQRb6KkYRw).
+
+(add how to run automated tests) 
+
+### How to use the Project
+(add screenshots of the project running)
+
+Examples package usage is available at this link: https://www.swift.org/documentation/package-manager/ 
 
 ### Contributor License Agreements
 
