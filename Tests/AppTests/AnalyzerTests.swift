@@ -1239,8 +1239,8 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.contentsOfDirectory = { @Sendable _ in ["foo", "bar"] }
         Current.fileManager.attributesOfItem = { @Sendable path in
             [
-                "/checkouts/foo": [FileAttributeKey.modificationDate: Current.date().adding(days: -31)],
-                "/checkouts/bar": [FileAttributeKey.modificationDate: Current.date().adding(days: -29)],
+                "/checkouts/foo": [FileAttributeKey.modificationDate: Date.now.adding(days: -31)],
+                "/checkouts/bar": [FileAttributeKey.modificationDate: Date.now.adding(days: -29)],
             ][path]!
         }
         let removedPaths = NIOLockedValueBox<[String]>([])

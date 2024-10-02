@@ -12,14 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
 import Foundation
+
+@testable import App
+
+import Dependencies
+
 
 extension Array where Element == BuildMonitorIndex.Model {
     static var mock: [BuildMonitorIndex.Model] {
-        [
+        @Dependency(\.date.now) var now
+        return [
             .init(buildId: .id0,
-                  createdAt: Current.date().adding(hours: -1),
+                  createdAt: now.adding(hours: -1),
                   packageName: "Leftpad",
                   repositoryOwnerName: "Dave Verwer",
                   platform: .macosXcodebuild,
@@ -28,7 +33,7 @@ extension Array where Element == BuildMonitorIndex.Model {
                   referenceKind: .release,
                   status: .ok),
             .init(buildId: .id1,
-                  createdAt: Current.date().adding(hours: -2),
+                  createdAt: now.adding(hours: -2),
                   packageName: "Rester",
                   repositoryOwnerName: "Sven A. Schmidt",
                   platform: .linux,
@@ -37,7 +42,7 @@ extension Array where Element == BuildMonitorIndex.Model {
                   referenceKind: .preRelease,
                   status: .failed),
             .init(buildId: .id2,
-                  createdAt: Current.date().adding(hours: -3),
+                  createdAt: now.adding(hours: -3),
                   packageName: "AccessibilitySnapshotColorBlindness",
                   repositoryOwnerName: "James Sherlock",
                   platform: .linux,

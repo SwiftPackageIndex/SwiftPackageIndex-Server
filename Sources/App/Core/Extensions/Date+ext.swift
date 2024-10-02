@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import Dependencies
 
 
 extension DateFormatter {
@@ -78,5 +79,8 @@ extension Date: Swift.LosslessStringConvertible {
 
 
 extension Date {
-    var relative: String { "\(date: self, relativeTo: Current.date())" }
+    var relative: String {
+        @Dependency(\.date.now) var now
+        return "\(date: self, relativeTo: now)"
+    }
 }

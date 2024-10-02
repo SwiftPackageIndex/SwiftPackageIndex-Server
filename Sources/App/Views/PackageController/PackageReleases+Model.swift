@@ -13,8 +13,11 @@
 // limitations under the License.
 
 import Foundation
-import Vapor
+
+import Dependencies
 import SwiftSoup
+import Vapor
+
 
 extension PackageReleases {
 
@@ -55,9 +58,10 @@ extension PackageReleases {
             self.releases = releases
         }
 
-        static func formatDate(_ date: Date?, currentDate: Date = Current.date()) -> String? {
+        static func formatDate(_ date: Date?, currentDate: Date? = nil) -> String? {
+            @Dependency(\.date.now) var now
             guard let date = date else { return nil }
-            return "Released \(date: date, relativeTo: currentDate) on \(Self.dateFormatter.string(from: date))"
+            return "Released \(date: date, relativeTo: currentDate ?? now) on \(Self.dateFormatter.string(from: date))"
         }
 
         static func updateDescription(_ description: String?, replacingTitle title: String) -> String? {

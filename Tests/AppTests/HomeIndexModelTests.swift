@@ -71,7 +71,7 @@ class HomeIndexModelTests: AppTestCase {
         XCTAssertEqual(m.recentReleases, [
             .init(packageName: "Package",
                   version: "1.2.3",
-                  date: "\(date: Date(timeIntervalSince1970: 0), relativeTo: Current.date())",
+                  date: "\(date: Date(timeIntervalSince1970: 0), relativeTo: Date.now)",
                   url: "/foo/1"),
         ])
         // TEMPORARY - END

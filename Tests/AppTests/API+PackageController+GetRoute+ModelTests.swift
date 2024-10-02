@@ -166,7 +166,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     func test_history() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.history = .init(
-            createdAt: Calendar.current.date(byAdding: .month, value: -7, to: Current.date())!,
+            createdAt: Calendar.current.date(byAdding: .month, value: -7, to: Date.now)!,
             commitCount: 12,
             commitCountURL: "https://example.com/commits.html",
             releaseCount: 2,
@@ -229,7 +229,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     func test_history_archived_package() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.history = .init(
-            createdAt: Calendar.current.date(byAdding: .month, value: -7, to: Current.date())!,
+            createdAt: Calendar.current.date(byAdding: .month, value: -7, to: Date.now)!,
             commitCount: 12,
             commitCountURL: "https://example.com/commits.html",
             releaseCount: 2,
@@ -560,20 +560,20 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
         try await [
             try App.Version(package: pkg, reference: .branch("branch")),
             try App.Version(package: pkg,
-                            commitDate: Current.date().adding(days: -1),
+                            commitDate: Date.now.adding(days: -1),
                             latest: .defaultBranch,
                             reference: .branch("default"),
                             supportedPlatforms: [.macos("10.15"), .ios("13")],
                             swiftVersions: ["5.2", "5.3"].asSwiftVersions),
             try App.Version(package: pkg, reference: .tag(.init(1, 2, 3))),
             try App.Version(package: pkg,
-                            commitDate: Current.date().adding(days: -3),
+                            commitDate: Date.now.adding(days: -3),
                             latest: .release,
                             reference: .tag(.init(2, 1, 0)),
                             supportedPlatforms: [.macos("10.13"), .ios("10")],
                             swiftVersions: ["4", "5"].asSwiftVersions),
             try App.Version(package: pkg,
-                            commitDate: Current.date().adding(days: -2),
+                            commitDate: Date.now.adding(days: -2),
                             latest: .preRelease,
                             reference: .tag(.init(3, 0, 0, "beta")),
                             supportedPlatforms: [.macos("10.14"), .ios("13")],

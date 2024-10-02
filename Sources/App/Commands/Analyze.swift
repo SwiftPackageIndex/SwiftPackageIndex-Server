@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import DependencyResolution
 import Fluent
 import SPIManifest
@@ -84,8 +85,8 @@ extension Analyze {
             }
             .forEach { pair in
                 guard let (path, mod) = pair else { return }
-                let cutoff = Current.date()
-                    .addingTimeInterval(-Constants.gitCheckoutMaxAge)
+                @Dependency(\.date.now) var now
+                let cutoff = now.addingTimeInterval(-Constants.gitCheckoutMaxAge)
                 if mod < cutoff {
                     try Current.fileManager.removeItem(atPath: path)
                     AppMetrics.analyzeTrimCheckoutsCount?.inc()
@@ -410,7 +411,8 @@ extension Analyze {
             return incoming
         }
 
-        let ageOfExistingVersion = Current.date().timeIntervalSinceReferenceDate - existingVersion.commitDate.timeIntervalSinceReferenceDate
+        @Dependency(\.date.now) var now
+        let ageOfExistingVersion = now.timeIntervalSinceReferenceDate - existingVersion.commitDate.timeIntervalSinceReferenceDate
 
         let resultingBranchVersion: Version
         if existingVersion.reference.branchName != incomingVersion.reference.branchName {

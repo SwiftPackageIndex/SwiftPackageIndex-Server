@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
+import Dependencies
 import Fluent
 import SQLKit
 import Vapor
-import XCTest
 
 
 class ReAnalyzeVersionsTests: AppTestCase {
@@ -126,7 +128,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
         // MUT
         try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
                                                       database: app.db,
-                                                      before: Current.date(),
+                                                      before: Date.now,
                                                       refreshCheckouts: false,
                                                       limit: 10)
 
@@ -178,66 +180,69 @@ class ReAnalyzeVersionsTests: AppTestCase {
         // This is to ensure our candidate selection shrinks and we don't
         // churn over and over on failing versions.
         let cutoff = Date.t1
-        Current.date = { .t2 }
-        let pkg = try await savePackage(on: app.db,
-                                        "https://github.com/foo/1".url,
-                                        processingStage: .ingestion)
-        try await Repository(package: pkg,
-                             defaultBranch: "main").save(on: app.db)
-        Current.git.commitCount = { @Sendable _ in 12 }
-        Current.git.firstCommitDate = { @Sendable _ in .t0 }
-        Current.git.lastCommitDate = { @Sendable _ in .t1 }
-        Current.git.getTags = { @Sendable _ in [] }
-        Current.git.hasBranch = { @Sendable _, _ in true }
-        Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
-        Current.git.shortlog = { @Sendable _ in
+        try await withDependencies {
+            $0.date.now = .t2
+        } operation: {
+            let pkg = try await savePackage(on: app.db,
+                                            "https://github.com/foo/1".url,
+                                            processingStage: .ingestion)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main").save(on: app.db)
+            Current.git.commitCount = { @Sendable _ in 12 }
+            Current.git.firstCommitDate = { @Sendable _ in .t0 }
+            Current.git.lastCommitDate = { @Sendable _ in .t1 }
+            Current.git.getTags = { @Sendable _ in [] }
+            Current.git.hasBranch = { @Sendable _, _ in true }
+            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
+            Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
-        }
-        Current.shell.run = { @Sendable cmd, path in
-            if cmd == .swiftDumpPackage {
-                return #"""
+            }
+            Current.shell.run = { @Sendable cmd, path in
+                if cmd == .swiftDumpPackage {
+                    return #"""
                         {
                           "name": "foo-1",
                           "products": [],
                           "targets": [{"name": "t1", "type": "executable"}]
                         }
                         """#
+                }
+                return ""
             }
-            return ""
-        }
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
-        try await setAllVersionsUpdatedAt(app.db, updatedAt: .t0)
-        do {
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      mode: .limit(10))
+            try await setAllVersionsUpdatedAt(app.db, updatedAt: .t0)
+            do {
+                let candidates = try await Package
+                    .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10)
+                XCTAssertEqual(candidates.count, 1)
+            }
+
+            Current.shell.run = { @Sendable cmd, path in
+                if cmd == .swiftDumpPackage {
+                    // simulate error during package dump
+                    struct Error: Swift.Error { }
+                    throw Error()
+                }
+                return ""
+            }
+
+            // MUT
+            try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
+                                                          database: app.db,
+                                                          before: Date.now,
+                                                          refreshCheckouts: false,
+                                                          limit: 10)
+
+            // validate
             let candidates = try await Package
                 .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10)
-            XCTAssertEqual(candidates.count, 1)
+            XCTAssertEqual(candidates.count, 0)
         }
-
-        Current.shell.run = { @Sendable cmd, path in
-            if cmd == .swiftDumpPackage {
-                // simulate error during package dump
-                struct Error: Swift.Error { }
-                throw Error()
-            }
-            return ""
-        }
-
-        // MUT
-        try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
-                                                      database: app.db,
-                                                      before: Current.date(),
-                                                      refreshCheckouts: false,
-                                                      limit: 10)
-
-        // validate
-        let candidates = try await Package
-            .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10)
-        XCTAssertEqual(candidates.count, 0)
     }
 
 }

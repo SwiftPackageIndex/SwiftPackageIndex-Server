@@ -13,7 +13,10 @@
 // limitations under the License.
 
 import Foundation
+
+import Dependencies
 import Vapor
+
 
 struct ResourceReloadIdentifier {
     static var value: String {
@@ -31,15 +34,16 @@ struct ResourceReloadIdentifier {
     }
 
     private static func modificationDate(forLocalResource resource: String) -> Date {
+        @Dependency(\.date.now) var now
         let pathToPublic = DirectoryConfiguration.detect().publicDirectory
         let url = URL(fileURLWithPath: pathToPublic + resource)
 
         // Assume the file has been modified *now* if the file can't be found.
         guard let attributes = try? Current.fileManager.attributesOfItem(atPath: url.path)
-        else { return Current.date() }
+        else { return now }
 
         // Also assume the file is modified now if the attribute doesn't exist.
         let modificationDate = attributes[FileAttributeKey.modificationDate] as? Date
-        return modificationDate ?? Current.date()
+        return modificationDate ?? now
     }
 }

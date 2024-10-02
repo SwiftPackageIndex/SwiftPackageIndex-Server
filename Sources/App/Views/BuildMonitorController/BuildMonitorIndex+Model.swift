@@ -13,7 +13,10 @@
 // limitations under the License.
 
 import Foundation
+
+import Dependencies
 import Plot
+
 
 extension BuildMonitorIndex {
 
@@ -65,7 +68,8 @@ extension BuildMonitorIndex {
         }
 
         func buildMonitorItem() -> Node<HTML.BodyContext> {
-            .a(
+            @Dependency(\.date.now) var now
+            return .a(
                 .href(SiteURL.builds(.value(buildId)).relativeURL()),
                 .div(
                     .class("row"),
@@ -82,7 +86,7 @@ extension BuildMonitorIndex {
                             .text(status.description)
                         ),
                         .small(
-                            .text("\(date: createdAt, relativeTo: Current.date())")
+                            .text("\(date: createdAt, relativeTo: now)")
                         )
                     ),
                     .div(

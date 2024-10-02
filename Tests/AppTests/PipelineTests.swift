@@ -253,7 +253,7 @@ class PipelineTests: AppTestCase {
         }
 
         // MUT - analyze again
-        let lastAnalysis = Current.date()
+        let lastAnalysis = Date.now
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   mode: .limit(10))

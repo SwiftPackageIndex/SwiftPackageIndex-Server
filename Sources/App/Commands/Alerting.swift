@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
+import NIOCore
 import SQLKit
 import Vapor
-import NIOCore
 
 
 enum Alerting {
@@ -117,7 +118,8 @@ extension Alerting {
         defer {
             Current.logger().debug("fetchBuilds elapsed: \(Date.now.timeIntervalSince(start).rounded(decimalPlaces: 2))s")
         }
-        let cutoff = Current.date().addingTimeInterval(-timePeriod.timeInterval)
+        @Dependency(\.date.now) var now
+        let cutoff = now.addingTimeInterval(-timePeriod.timeInterval)
         let builds = try await Build.query(on: database)
             .field(\.$createdAt)
             .field(\.$updatedAt)

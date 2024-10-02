@@ -13,6 +13,8 @@
 // limitations under the License.
 
 @testable import App
+
+import Dependencies
 import SnapshotTesting
 import XCTVapor
 
@@ -21,53 +23,55 @@ class PackageCollectionControllerTests: AppTestCase {
 
     func test_owner_request() async throws {
         try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
-        // setup
-        Current.date = { .t0 }
-        let p = try await savePackage(on: app.db, "https://github.com/foo/1")
-        do {
-            let v = try Version(id: UUID(),
-                                package: p,
-                                packageName: "P1-main",
-                                reference: .branch("main"),
-                                toolsVersion: "5.0")
-            try await v.save(on: app.db)
-            try await Product(version: v, type: .library(.automatic), name: "P1Lib")
-                .save(on: app.db)
-        }
-        do {
-            let v = try Version(id: UUID(),
-                                package: p,
-                                latest: .release,
-                                packageName: "P1-tag",
-                                reference: .tag(1, 2, 3),
-                                toolsVersion: "5.1")
-            try await v.save(on: app.db)
-            try await Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
-                .save(on: app.db)
-            try await Build(version: v,
-                            platform: .iOS,
-                            status: .ok,
-                            swiftVersion: .init(5, 6, 0)).save(on: app.db)
-            try await Target(version: v, name: "t1").save(on: app.db)
-        }
-        try await Repository(package: p,
-                             defaultBranch: "main",
-                             license: .mit,
-                             licenseUrl: "https://foo/mit",
-                             owner: "foo",
-                             summary: "summary 1").create(on: app.db)
+        try await withDependencies {
+            $0.date.now = .t0
+        } operation: {
+            let p = try await savePackage(on: app.db, "https://github.com/foo/1")
+            do {
+                let v = try Version(id: UUID(),
+                                    package: p,
+                                    packageName: "P1-main",
+                                    reference: .branch("main"),
+                                    toolsVersion: "5.0")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "P1Lib")
+                    .save(on: app.db)
+            }
+            do {
+                let v = try Version(id: UUID(),
+                                    package: p,
+                                    latest: .release,
+                                    packageName: "P1-tag",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.1")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
+                    .save(on: app.db)
+                try await Build(version: v,
+                                platform: .iOS,
+                                status: .ok,
+                                swiftVersion: .init(5, 6, 0)).save(on: app.db)
+                try await Target(version: v, name: "t1").save(on: app.db)
+            }
+            try await Repository(package: p,
+                                 defaultBranch: "main",
+                                 license: .mit,
+                                 licenseUrl: "https://foo/mit",
+                                 owner: "foo",
+                                 summary: "summary 1").create(on: app.db)
 
-        // MUT
-        let encoder = self.encoder
-        try await app.test(
-            .GET,
-            "foo/collection.json",
-            afterResponse: { @MainActor res async throws in
-                // validation
-                XCTAssertEqual(res.status, .ok)
-                let json = try res.content.decode(PackageCollection.self)
-                assertSnapshot(of: json, as: .json(encoder))
-            })
+            // MUT
+            let encoder = self.encoder
+            try await app.test(
+                .GET,
+                "foo/collection.json",
+                afterResponse: { @MainActor res async throws in
+                    // validation
+                    XCTAssertEqual(res.status, .ok)
+                    let json = try res.content.decode(PackageCollection.self)
+                    assertSnapshot(of: json, as: .json(encoder))
+                })
+        }
     }
 
     func test_nonexisting_404() throws {

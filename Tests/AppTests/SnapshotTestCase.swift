@@ -16,20 +16,23 @@
 
 import Foundation
 import SnapshotTesting
+import Dependencies
 
 
 class SnapshotTestCase: AppTestCase {
 
     override func setUpWithError() throws {
         try super.setUpWithError()
-
-        Current.date = { Date(timeIntervalSince1970: 0) }
     }
     
     override func invokeTest() {
         // To force a re-record of all snapshots, use `record: .all` rather than `record: .missing`.
         withSnapshotTesting(record: .missing, diffTool: .ksdiff) {
-            super.invokeTest()
+            withDependencies {
+                $0.date.now = .t0
+            } operation: {
+                super.invokeTest()
+            }
         }
     }
 

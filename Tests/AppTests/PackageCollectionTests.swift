@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-import SnapshotTesting
-import Vapor
 import XCTest
 
+@testable import App
+
 import Basics
+import Dependencies
 import PackageCollectionsSigning
+import SnapshotTesting
+import Vapor
 
 
 class PackageCollectionTests: AppTestCase {
@@ -344,39 +346,42 @@ class PackageCollectionTests: AppTestCase {
     }
 
     func test_generate_from_urls() async throws {
-        // setup
-        Current.date = { Date(timeIntervalSince1970: 1610112345) }
-        let pkg = try await savePackage(on: app.db, "1")
-        do {
-            let v = try Version(package: pkg,
-                                latest: .release,
-                                packageName: "package",
-                                reference: .tag(1, 2, 3),
-                                toolsVersion: "5.4")
-            try await v.save(on: app.db)
-            try await Product(version: v, type: .library(.automatic), name: "product")
-                .save(on: app.db)
-        }
-        try await Repository(package: pkg,
-                             license: .mit,
-                             licenseUrl: "https://foo/mit",
-                             summary: "summary").create(on: app.db)
+        try await withDependencies {
+            $0.date.now = .init(timeIntervalSince1970: 1610112345)
+        } operation: {
 
-        // MUT
-        let res = try await PackageCollection.generate(db: self.app.db,
-                                                       filterBy: .urls(["1"]),
-                                                       authorName: "Foo",
-                                                       collectionName: "Foo",
-                                                       keywords: ["key", "word"],
-                                                       overview: "overview")
+            let pkg = try await savePackage(on: app.db, "1")
+            do {
+                let v = try Version(package: pkg,
+                                    latest: .release,
+                                    packageName: "package",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.4")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "product")
+                    .save(on: app.db)
+            }
+            try await Repository(package: pkg,
+                                 license: .mit,
+                                 licenseUrl: "https://foo/mit",
+                                 summary: "summary").create(on: app.db)
+
+            // MUT
+            let res = try await PackageCollection.generate(db: self.app.db,
+                                                           filterBy: .urls(["1"]),
+                                                           authorName: "Foo",
+                                                           collectionName: "Foo",
+                                                           keywords: ["key", "word"],
+                                                           overview: "overview")
 
 #if compiler(<6)
-        await MainActor.run {  // validate
-            assertSnapshot(of: res, as: .json(encoder))
-        }
+            await MainActor.run {  // validate
+                assertSnapshot(of: res, as: .json(encoder))
+            }
 #else
-        assertSnapshot(of: res, as: .json(encoder))
+            assertSnapshot(of: res, as: .json(encoder))
 #endif
+        }
     }
 
     func test_generate_from_urls_noResults() async throws {
@@ -397,88 +402,90 @@ class PackageCollectionTests: AppTestCase {
     }
 
     func test_generate_for_owner() async throws {
-        // setup
-        Current.date = { Date(timeIntervalSince1970: 1610112345) }
-        // first package
-        let p1 = try await savePackage(on: app.db, "https://github.com/foo/1")
-        do {
-            let v = try Version(id: UUID(),
-                                package: p1,
-                                packageName: "P1-main",
-                                reference: .branch("main"),
-                                toolsVersion: "5.0")
-            try await v.save(on: app.db)
-            try await Product(version: v, type: .library(.automatic), name: "P1Lib")
-                .save(on: app.db)
-        }
-        do {
-            let v = try Version(id: UUID(),
-                                package: p1,
-                                latest: .release,
-                                packageName: "P1-tag",
-                                reference: .tag(2, 0, 0),
-                                toolsVersion: "5.2")
-            try await v.save(on: app.db)
-            try await Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
-                .save(on: app.db)
-            try await Build(version: v,
-                            platform: .iOS,
-                            status: .ok,
-                            swiftVersion: .init(5, 6, 0)).save(on: app.db)
-            try await Target(version: v, name: "t1").save(on: app.db)
-        }
-        // second package
-        let p2 = try await savePackage(on: app.db, "https://github.com/foo/2")
-        do {
-            let v = try Version(id: UUID(),
-                                package: p2,
-                                packageName: "P2-main",
-                                reference: .branch("main"),
-                                toolsVersion: "5.3")
-            try await v.save(on: app.db)
-            try await Product(version: v, type: .library(.automatic), name: "P1Lib")
-                .save(on: app.db)
-        }
-        do {
-            let v = try Version(id: UUID(),
-                                package: p2,
-                                latest: .release,
-                                packageName: "P2-tag",
-                                reference: .tag(1, 2, 3),
-                                toolsVersion: "5.3")
-            try await v.save(on: app.db)
-            try await Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t2"])
-                .save(on: app.db)
-            try await Target(version: v, name: "t2").save(on: app.db)
-        }
-        // unrelated package
-        _ = try await savePackage(on: app.db, "https://github.com/bar/1")
-        try await Repository(package: p1,
-                             defaultBranch: "main",
-                             license: .mit,
-                             licenseUrl: "https://foo/mit",
-                             owner: "foo",
-                             summary: "summary 1").create(on: app.db)
-        try await Repository(package: p2,
-                             defaultBranch: "main",
-                             license: .mit,
-                             licenseUrl: "https://foo/mit",
-                             owner: "foo",
-                             summary: "summary 2").create(on: app.db)
-
-        // MUT
-        let res = try await PackageCollection.generate(db: self.app.db,
-                                                       filterBy: .author("foo"),
-                                                       authorName: "Foo",
-                                                       keywords: ["key", "word"])
-
+        try await withDependencies {
+            $0.date.now = .init(timeIntervalSince1970: 1610112345)
+        } operation: {
+            // first package
+            let p1 = try await savePackage(on: app.db, "https://github.com/foo/1")
+            do {
+                let v = try Version(id: UUID(),
+                                    package: p1,
+                                    packageName: "P1-main",
+                                    reference: .branch("main"),
+                                    toolsVersion: "5.0")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "P1Lib")
+                    .save(on: app.db)
+            }
+            do {
+                let v = try Version(id: UUID(),
+                                    package: p1,
+                                    latest: .release,
+                                    packageName: "P1-tag",
+                                    reference: .tag(2, 0, 0),
+                                    toolsVersion: "5.2")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
+                    .save(on: app.db)
+                try await Build(version: v,
+                                platform: .iOS,
+                                status: .ok,
+                                swiftVersion: .init(5, 6, 0)).save(on: app.db)
+                try await Target(version: v, name: "t1").save(on: app.db)
+            }
+            // second package
+            let p2 = try await savePackage(on: app.db, "https://github.com/foo/2")
+            do {
+                let v = try Version(id: UUID(),
+                                    package: p2,
+                                    packageName: "P2-main",
+                                    reference: .branch("main"),
+                                    toolsVersion: "5.3")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "P1Lib")
+                    .save(on: app.db)
+            }
+            do {
+                let v = try Version(id: UUID(),
+                                    package: p2,
+                                    latest: .release,
+                                    packageName: "P2-tag",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.3")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t2"])
+                    .save(on: app.db)
+                try await Target(version: v, name: "t2").save(on: app.db)
+            }
+            // unrelated package
+            _ = try await savePackage(on: app.db, "https://github.com/bar/1")
+            try await Repository(package: p1,
+                                 defaultBranch: "main",
+                                 license: .mit,
+                                 licenseUrl: "https://foo/mit",
+                                 owner: "foo",
+                                 summary: "summary 1").create(on: app.db)
+            try await Repository(package: p2,
+                                 defaultBranch: "main",
+                                 license: .mit,
+                                 licenseUrl: "https://foo/mit",
+                                 owner: "foo",
+                                 summary: "summary 2").create(on: app.db)
+            
+            // MUT
+            let res = try await PackageCollection.generate(db: self.app.db,
+                                                           filterBy: .author("foo"),
+                                                           authorName: "Foo",
+                                                           keywords: ["key", "word"])
+            
 #if compiler(<6)
-        await MainActor.run {  // validate
-            assertSnapshot(of: res, as: .json(encoder))
-        }
+            await MainActor.run {  // validate
+                assertSnapshot(of: res, as: .json(encoder))
+            }
 #else
-        assertSnapshot(of: res, as: .json(encoder))
+            assertSnapshot(of: res, as: .json(encoder))
 #endif
+        }
     }
 
     func test_generate_for_owner_noResults() async throws {

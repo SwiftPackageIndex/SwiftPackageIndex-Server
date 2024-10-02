@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Vapor
+import Dependencies
 import Fluent
+import Vapor
 
 
 enum ReAnalyzeVersions {
@@ -48,13 +49,14 @@ enum ReAnalyzeVersions {
             let db = context.application.db
             Current.setLogger(Logger(component: "re-analyze-versions"))
 
+            @Dependency(\.date.now) var now
             if let id = signature.packageId {
                 Current.logger().info("Re-analyzing versions (id: \(id)) ...")
                 do {
                     try await reAnalyzeVersions(
                         client: client,
                         database: db,
-                        versionsLastUpdatedBefore: Current.date(),
+                        versionsLastUpdatedBefore: now,
                         refreshCheckouts: signature.refreshCheckouts,
                         packageId: id
                     )
@@ -225,8 +227,9 @@ enum ReAnalyzeVersions {
 
 
     static func setUpdatedAt(on database: Database, versions: [Version]) async throws {
+        @Dependency(\.date.now) var now
         for version in versions {
-            version.updatedAt = Current.date()
+            version.updatedAt = now
         }
         try await versions.save(on: database)
     }

@@ -166,12 +166,12 @@ final class PackageTests: AppTestCase {
         try await Repository(package: pkg, defaultBranch: "default").create(on: app.db)
         let versions = [
             try Version(package: pkg, reference: .branch("branch")),
-            try Version(package: pkg, commitDate: Current.date().adding(days: -1),
+            try Version(package: pkg, commitDate: Date.now.adding(days: -1),
                         reference: .branch("default")),
             try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
-            try Version(package: pkg, commitDate: Current.date().adding(days: -3),
+            try Version(package: pkg, commitDate: Date.now.adding(days: -3),
                         reference: .tag(.init(2, 1, 0))),
-            try Version(package: pkg, commitDate: Current.date().adding(days: -2),
+            try Version(package: pkg, commitDate: Date.now.adding(days: -2),
                         reference: .tag(.init(3, 0, 0, "beta"))),
         ]
         try await versions.create(on: app.db)

@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Fluent
 import Foundation
+
+import Dependencies
+import Fluent
 import PackageCollectionsModel
 
 
@@ -58,6 +60,8 @@ extension PackageCollection {
 
         guard !packages.isEmpty else { throw Error.noResults }
 
+        @Dependency(\.date.now) var now
+
         return PackageCollection.init(
             name: collectionName,
             overview: overview,
@@ -65,7 +69,7 @@ extension PackageCollection {
             packages: packages,
             formatVersion: .v1_0,
             revision: revision,
-            generatedAt: Current.date(),
+            generatedAt: now,
             generatedBy: authorName.map(Author.init(name:))
         )
     }
