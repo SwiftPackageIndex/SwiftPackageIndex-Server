@@ -17,10 +17,10 @@
 import XCTest
 
 
-class AlertingTests: XCTestCase {
+class AlertingTests: XCTestCase {            // unit test class for checking the alerting system's build information
 
-    func test_validatePlatformsPresent() throws {
-        let all = Build.Platform.allCases.map {
+    func test_validatePlatformsPresent() throws {        // make sure all required platforms are present
+        let all = Build.Platform.allCases.map {           // create mock build info for all platforms
             Alerting.BuildInfo.mock(platform: $0)
         }
         XCTAssertEqual(all.validatePlatformsPresent(), .ok)
@@ -30,8 +30,8 @@ class AlertingTests: XCTestCase {
                        .failed(reasons: ["Missing platform: ios", "Missing platform: linux"]))
     }
 
-    func test_validateSwiftVersionPresent() throws {
-        let all = SwiftVersion.allActive.map {
+    func test_validateSwiftVersionPresent() throws {        // test to check all required Swift versions are present
+        let all = SwiftVersion.allActive.map {            // create mock build
             Alerting.BuildInfo.mock(swiftVersion: $0)
         }
         XCTAssertEqual(all.validateSwiftVersionsPresent(), .ok)
@@ -41,8 +41,8 @@ class AlertingTests: XCTestCase {
                        .failed(reasons: ["Missing Swift version: 5.8", "Missing Swift version: 5.9"]))
     }
 
-    func test_validatePlatformsSuccessful() throws {
-        let all = Build.Platform.allCases.map {
+    func test_validatePlatformsSuccessful() throws {        //test to check all platforms have successful builds
+        let all = Build.Platform.allCases.map {            // create mock build
             Alerting.BuildInfo.mock(platform: $0, status: .ok)
         }
         XCTAssertEqual(all.validatePlatformsSuccessful(), .ok)
@@ -58,8 +58,8 @@ class AlertingTests: XCTestCase {
                        .failed(reasons: ["Platform without successful builds: ios", "Platform without successful builds: linux"]))
     }
 
-    func test_validateSwiftVersionsSuccessful() throws {
-        let all = SwiftVersion.allActive.map {
+    func test_validateSwiftVersionsSuccessful() throws {        // test to check all Swift versions have successful builds
+        let all = SwiftVersion.allActive.map {                    // mock build
             Alerting.BuildInfo.mock(swiftVersion: $0, status: .ok)
         }
         XCTAssertEqual(all.validateSwiftVersionsSuccessful(), .ok)
@@ -75,10 +75,10 @@ class AlertingTests: XCTestCase {
                        .failed(reasons: ["Swift version without successful builds: 5.8", "Swift version without successful builds: 5.9"]))
     }
 
-    func test_validateRunnerIdsPresent() throws {
-        let runnerIds = ["a", "b", "c"]
+    func test_validateRunnerIdsPresent() throws {        // test to check al runner IDs are present
+        let runnerIds = ["a", "b", "c"]                // simulate current runner IDs
         Current.runnerIds = { runnerIds }
-        let all = runnerIds.map {
+        let all = runnerIds.map {                        // mock build info for each runner ID
             Alerting.BuildInfo.mock(runnerId: $0)
         }
         XCTAssertEqual(all.validateRunnerIdsPresent(), .ok)
@@ -88,10 +88,10 @@ class AlertingTests: XCTestCase {
                        .failed(reasons: ["Missing runner id: a", "Missing runner id: b"]))
     }
 
-    func test_validateRunnerIdsSuccessful() throws {
-        let runnerIds = ["a", "b", "c"]
+    func test_validateRunnerIdsSuccessful() throws {    // test to check all runner IDs have successful builds
+        let runnerIds = ["a", "b", "c"]                // simulate current runner IDs
         Current.runnerIds = { runnerIds }
-        let all = runnerIds.map {
+        let all = runnerIds.map {                        // mock build
             Alerting.BuildInfo.mock(runnerId: $0, status: .ok)
         }
         XCTAssertEqual(all.validateRunnerIdsSuccessful(), .ok)
@@ -107,9 +107,9 @@ class AlertingTests: XCTestCase {
                        .failed(reasons: ["Runner id without successful builds: a", "Runner id without successful builds: b"]))
     }
 
-    func test_validateSuccessRateInRange() throws {
+    func test_validateSuccessRateInRange() throws {        // test to validate buil success rate is within an acceptable range
         do {
-            let okCount = 300
+            let okCount = 300                // 30% success rate 
             let failedCount = 1000 - okCount
             let okBuilds = (0..<okCount).map { _ in Alerting.BuildInfo.mock(status: .ok) }
             let failedBuilds = (0..<failedCount).map { _ in Alerting.BuildInfo.mock(status: .failed) }
@@ -136,7 +136,7 @@ class AlertingTests: XCTestCase {
         }
     }
 
-    func test_Mon001Row_isValid() throws {
+    func test_Mon001Row_isValid() throws {            // test to validate Mon001Row logic
         XCTAssertEqual([Alerting.Mon001Row]().isValid(), .ok)
         XCTAssertEqual(
             [
@@ -159,7 +159,7 @@ extension Alerting.BuildInfo {
 }
 
 
-extension [Alerting.BuildInfo] {
+extension [Alerting.BuildInfo] {            // extenstin to simplify appending an elemt to an array of BuildInfo
     func appending(_ newElement: Element) -> Self {
         var array = self
         array.append(newElement)
