@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
+import SQLKit
 import SemanticVersion
 import Vapor
-import SQLKit
 
 
 final class Package: @unchecked Sendable, Model, Content {
@@ -310,6 +311,7 @@ extension Package {
 
 private extension JoinedQueryBuilder where J == Joined<Package, Repository> {
     func filter(for stage: Package.ProcessingStage) -> Self {
+        @Dependency(\.date.now) var now
         switch stage {
             case .reconciliation:
                 fatalError("reconciliation stage does not select candidates")

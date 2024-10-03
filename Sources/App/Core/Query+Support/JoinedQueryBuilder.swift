@@ -13,14 +13,11 @@
 // limitations under the License.
 
 import FluentKit
-import Dependencies
 
 
 /// JoinedQueryBuilder is a wrapper around QueryBuilder to allow Joined to be used like a Model query without actually being a Model
 struct JoinedQueryBuilder<J: ModelInitializable> {
     var queryBuilder: QueryBuilder<J.M>
-
-    @Dependency(\.date.now) var now
 
     @discardableResult func filter(_ filter: ModelValueFilter<J.M>) -> Self {
         queryBuilder.filter(filter)
