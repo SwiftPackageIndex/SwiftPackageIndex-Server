@@ -166,7 +166,7 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
     func test_history() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.history = .init(
-            createdAt: Calendar.current.date(byAdding: .month, value: -7, to: Date.now)!,
+            createdAt: Calendar.current.date(byAdding: .month, value: -7, to: .t0)!,
             commitCount: 12,
             commitCountURL: "https://example.com/commits.html",
             releaseCount: 2,
