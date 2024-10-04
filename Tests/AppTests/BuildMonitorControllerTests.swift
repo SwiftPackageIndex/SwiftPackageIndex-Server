@@ -12,15 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
+import Dependencies
 import Vapor
-import XCTest
+
 
 class BuildMonitorControllerTests: AppTestCase {
 
     func test_show_owner() async throws {
-        do {
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
             let package = try await savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
             let version = try Version(package: package)
             try await version.save(on: app.db)
@@ -29,11 +34,11 @@ class BuildMonitorControllerTests: AppTestCase {
                             status: .ok,
                             swiftVersion: .init(5, 6, 0)).save(on: app.db)
             try await Repository(package: package).save(on: app.db)
+            
+            // MUT
+            try await app.test(.GET, "/build-monitor", afterResponse: { response async in
+                XCTAssertEqual(response.status, .ok)
+            })
         }
-
-        // MUT
-        try await app.test(.GET, "/build-monitor", afterResponse: { response async in
-            XCTAssertEqual(response.status, .ok)
-        })
     }
 }
