@@ -1234,23 +1234,27 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_trimCheckouts() throws {
-        // setup
-        Current.fileManager.checkoutsDirectory = { "/checkouts" }
-        Current.fileManager.contentsOfDirectory = { @Sendable _ in ["foo", "bar"] }
-        Current.fileManager.attributesOfItem = { @Sendable path in
-            [
-                "/checkouts/foo": [FileAttributeKey.modificationDate: Date.now.adding(days: -31)],
-                "/checkouts/bar": [FileAttributeKey.modificationDate: Date.now.adding(days: -29)],
-            ][path]!
+        try withDependencies {
+            $0.date.now = .t0
+        } operation: {
+            // setup
+            Current.fileManager.checkoutsDirectory = { "/checkouts" }
+            Current.fileManager.contentsOfDirectory = { @Sendable _ in ["foo", "bar"] }
+            Current.fileManager.attributesOfItem = { @Sendable path in
+                [
+                    "/checkouts/foo": [FileAttributeKey.modificationDate: Date.t0.adding(days: -31)],
+                    "/checkouts/bar": [FileAttributeKey.modificationDate: Date.t0.adding(days: -29)],
+                ][path]!
+            }
+            let removedPaths = NIOLockedValueBox<[String]>([])
+            Current.fileManager.removeItem = { @Sendable p in removedPaths.withLockedValue { $0.append(p) } }
+
+            // MUT
+            try Analyze.trimCheckouts()
+
+            // validate
+            XCTAssertEqual(removedPaths.withLockedValue { $0 }, ["/checkouts/foo"])
         }
-        let removedPaths = NIOLockedValueBox<[String]>([])
-        Current.fileManager.removeItem = { @Sendable p in removedPaths.withLockedValue { $0.append(p) } }
-
-        // MUT
-        try Analyze.trimCheckouts()
-
-        // validate
-        XCTAssertEqual(removedPaths.withLockedValue { $0 }, ["/checkouts/foo"])
     }
 
     func test_issue_2571_tags() async throws {
