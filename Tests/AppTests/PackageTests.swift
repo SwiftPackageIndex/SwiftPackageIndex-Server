@@ -78,12 +78,16 @@ final class PackageTests: AppTestCase {
     }
 
     func test_save_scoreDetails() async throws {
-        let pkg = Package(url: "1")
-        let scoreDetails = Score.Details.mock
-        pkg.scoreDetails = scoreDetails
-        try await pkg.save(on: app.db)
-        let readBack = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-        XCTAssertEqual(readBack.scoreDetails, scoreDetails)
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            let pkg = Package(url: "1")
+            let scoreDetails = Score.Details.mock
+            pkg.scoreDetails = scoreDetails
+            try await pkg.save(on: app.db)
+            let readBack = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+            XCTAssertEqual(readBack.scoreDetails, scoreDetails)
+        }
     }
 
     func test_encode() throws {
