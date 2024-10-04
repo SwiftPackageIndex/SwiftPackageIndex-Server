@@ -576,18 +576,22 @@ class PackageCollectionTests: AppTestCase {
             try await Target(version: v, name: "t1").save(on: app.db)
         }
 
-        // MUT
-        let res = try await PackageCollection.generate(db: self.app.db,
-                                                       filterBy: .author("foo"),
-                                                       authorName: "Foo",
-                                                       collectionName: "Foo",
-                                                       keywords: ["key", "word"],
-                                                       overview: "overview")
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // MUT
+            let res = try await PackageCollection.generate(db: self.app.db,
+                                                           filterBy: .author("foo"),
+                                                           authorName: "Foo",
+                                                           collectionName: "Foo",
+                                                           keywords: ["key", "word"],
+                                                           overview: "overview")
 
-        // validate
-        XCTAssertEqual(res.packages.count, 1)
-        XCTAssertEqual(res.packages.flatMap { $0.versions.map({$0.version}) },
-                       ["2.0.0-b1", "1.2.3"])
+            // validate
+            XCTAssertEqual(res.packages.count, 1)
+            XCTAssertEqual(res.packages.flatMap { $0.versions.map({$0.version}) },
+                           ["2.0.0-b1", "1.2.3"])
+        }
     }
 
     func test_require_products() async throws {
@@ -668,14 +672,18 @@ class PackageCollectionTests: AppTestCase {
                              owner: "Foo",
                              summary: "summary 1").create(on: app.db)
 
-        // MUT
-        let res = try await PackageCollection.generate(db: self.app.db,
-                                                       // looking for owner "foo"
-                                                       filterBy: .author("foo"),
-                                                       collectionName: "collection")
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // MUT
+            let res = try await PackageCollection.generate(db: self.app.db,
+                                                           // looking for owner "foo"
+                                                           filterBy: .author("foo"),
+                                                           collectionName: "collection")
 
-        // validate
-        XCTAssertEqual(res.packages.count, 1)
+            // validate
+            XCTAssertEqual(res.packages.count, 1)
+        }
     }
 
     func test_generate_ownerName() async throws {
@@ -708,15 +716,19 @@ class PackageCollectionTests: AppTestCase {
                              ownerName: "Foo Org",
                              summary: "summary 1").create(on: app.db)
 
-        // MUT
-        let res = try await PackageCollection.generate(db: self.app.db,
-                                                       filterBy: .author("foo"),
-                                                       authorName: "Foo",
-                                                       keywords: ["key", "word"])
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // MUT
+            let res = try await PackageCollection.generate(db: self.app.db,
+                                                           filterBy: .author("foo"),
+                                                           authorName: "Foo",
+                                                           keywords: ["key", "word"])
 
-        // validate
-        XCTAssertEqual(res.name, "Packages by Foo Org")
-        XCTAssertEqual(res.overview, "A collection of packages authored by Foo Org from the Swift Package Index")
+            // validate
+            XCTAssertEqual(res.name, "Packages by Foo Org")
+            XCTAssertEqual(res.overview, "A collection of packages authored by Foo Org from the Swift Package Index")
+        }
     }
 
     func test_Compatibility() throws {
