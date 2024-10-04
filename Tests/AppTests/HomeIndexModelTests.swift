@@ -14,6 +14,7 @@
 
 @testable import App
 
+import Dependencies
 import XCTVapor
 
 
@@ -36,45 +37,49 @@ class HomeIndexModelTests: AppTestCase {
         // Sleep for 1ms to ensure we can detect a difference between update times.
         try await Task.sleep(nanoseconds: UInt64(1e6))
 
-        // MUT
-        let m = try await HomeIndex.Model.query(database: app.db)
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // MUT
+            let m = try await HomeIndex.Model.query(database: app.db)
 
-        // validate
-        let createdAt = try XCTUnwrap(pkg.createdAt)
+            // validate
+            let createdAt = try XCTUnwrap(pkg.createdAt)
 #if os(Linux)
-        if m.recentPackages == [
-            .init(
-                date: createdAt,
-                link: .init(label: "Package", url: "/foo/1")
-            )
-        ] {
-            logWarning()
-            // When this triggers, remove Task.sleep above and the validtion below until // TEMPORARY - END
-            // and replace with original assert:
-            //     XCTAssertEqual(m.recentPackages, [
-            //         .init(
-            //             date: createdAt,
-            //             link: .init(label: "Package", url: "/foo/1")
-            //         )
-            //     ])
-        }
+            if m.recentPackages == [
+                .init(
+                    date: createdAt,
+                    link: .init(label: "Package", url: "/foo/1")
+                )
+            ] {
+                logWarning()
+                // When this triggers, remove Task.sleep above and the validtion below until // TEMPORARY - END
+                // and replace with original assert:
+                //     XCTAssertEqual(m.recentPackages, [
+                //         .init(
+                //             date: createdAt,
+                //             link: .init(label: "Package", url: "/foo/1")
+                //         )
+                //     ])
+            }
 #endif
-        XCTAssertEqual(m.recentPackages.count, 1)
-        let recent = try XCTUnwrap(m.recentPackages.first)
-        // Comaring the dates directly fails due to tiny rounding differences with the new swift-foundation types on Linux
-        // E.g.
-        // 1724071056.5824609
-        // 1724071056.5824614
-        // By testing only to accuracy 10e-5 and delaying by 10e-3 we ensure we properly detect if the value was changed.
-        XCTAssertEqual(recent.date.timeIntervalSince1970, createdAt.timeIntervalSince1970, accuracy: 10e-5)
-        XCTAssertEqual(recent.link, .init(label: "Package", url: "/foo/1"))
-        XCTAssertEqual(m.recentReleases, [
-            .init(packageName: "Package",
-                  version: "1.2.3",
-                  date: "\(date: Date(timeIntervalSince1970: 0), relativeTo: Date.now)",
-                  url: "/foo/1"),
-        ])
-        // TEMPORARY - END
+            XCTAssertEqual(m.recentPackages.count, 1)
+            let recent = try XCTUnwrap(m.recentPackages.first)
+            // Comaring the dates directly fails due to tiny rounding differences with the new swift-foundation types on Linux
+            // E.g.
+            // 1724071056.5824609
+            // 1724071056.5824614
+            // By testing only to accuracy 10e-5 and delaying by 10e-3 we ensure we properly detect if the value was changed.
+            XCTAssertEqual(recent.date.timeIntervalSince1970, createdAt.timeIntervalSince1970, accuracy: 10e-5)
+            XCTAssertEqual(recent.link, .init(label: "Package", url: "/foo/1"))
+            XCTAssertEqual(m.recentReleases, [
+                .init(packageName: "Package",
+                      version: "1.2.3",
+                      date: "\(date: Date(timeIntervalSince1970: 0), relativeTo: Date.now)",
+                      url: "/foo/1"),
+            ])
+            // TEMPORARY - END
+        }
     }
 
 }
