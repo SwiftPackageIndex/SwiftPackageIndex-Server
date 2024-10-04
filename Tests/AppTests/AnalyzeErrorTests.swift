@@ -16,6 +16,7 @@ import XCTest
 
 @testable import App
 
+import Dependencies
 import Fluent
 import ShellOut
 
@@ -32,7 +33,7 @@ final class AnalyzeErrorTests: AppTestCase {
     let badPackageID: Package.Id = .id0
     let goodPackageID: Package.Id = .id1
 
-    let socialPosts = ActorIsolated<[String]>([])
+    let socialPosts = LockIsolated<[String]>([])
 
     static let defaultShellRun: @Sendable (ShellOutCommand, String) throws -> String = { @Sendable cmd, path in
         switch cmd {
@@ -53,7 +54,7 @@ final class AnalyzeErrorTests: AppTestCase {
     override func setUp() async throws {
         try await super.setUp()
 
-        await socialPosts.setValue([])
+        socialPosts.setValue([])
 
         let pkgs = [
             Package(id: badPackageID,
@@ -99,36 +100,39 @@ final class AnalyzeErrorTests: AppTestCase {
         Current.shell.run = Self.defaultShellRun
 
         Current.mastodonPost = { [socialPosts = self.socialPosts] _, message in
-            await socialPosts.withValue { $0.append(message) }
+            socialPosts.withValue { $0.append(message) }
         }
     }
 
     func test_analyze_refreshCheckout_failed() async throws {
-        // setup
-        Current.shell.run = { @Sendable cmd, path in
-            switch cmd {
-                case _ where cmd.description.contains("git clone https://github.com/foo/1"):
-                    throw SimulatedError()
-
-                case .gitFetchAndPruneTags where path.hasSuffix("foo-1"):
-                    throw SimulatedError()
-
-                default:
-                    return try Self.defaultShellRun(cmd, path)
+        try await withDependencies {
+            $0.date.now = .t0
+        } operation: {
+            Current.shell.run = { @Sendable cmd, path in
+                switch cmd {
+                    case _ where cmd.description.contains("git clone https://github.com/foo/1"):
+                        throw SimulatedError()
+                        
+                    case .gitFetchAndPruneTags where path.hasSuffix("foo-1"):
+                        throw SimulatedError()
+                        
+                    default:
+                        return try Self.defaultShellRun(cmd, path)
+                }
             }
-        }
-
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
-
-        // validate
-        try await defaultValidation()
-        try logger.logs.withValue { logs in
-            XCTAssertEqual(logs.count, 2)
-            let error = try logs.last.unwrap()
-            XCTAssertTrue(error.message.contains("refreshCheckout failed"), "was: \(error.message)")
+            
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      mode: .limit(10))
+            
+            // validate
+            try await defaultValidation()
+            try logger.logs.withValue { logs in
+                XCTAssertEqual(logs.count, 2)
+                let error = try logs.last.unwrap()
+                XCTAssertTrue(error.message.contains("refreshCheckout failed"), "was: \(error.message)")
+            }
         }
     }
 
@@ -216,7 +220,7 @@ extension AnalyzeErrorTests {
         XCTAssertEqual(versions.count, 2)
         XCTAssertEqual(versions.filter(\.isBranch).first?.latest, .defaultBranch)
         XCTAssertEqual(versions.filter(\.isTag).first?.latest, .release)
-        await socialPosts.withValue { tweets in
+        socialPosts.withValue { tweets in
             XCTAssertEqual(tweets, [
             """
             ⬆️ foo just released foo-2 v1.2.3
