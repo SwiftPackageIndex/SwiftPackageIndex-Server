@@ -59,8 +59,8 @@ extension PackageReleases {
         }
 
         static func formatDate(_ date: Date?, currentDate: Date? = nil) -> String? {
-            @Dependency(\.date.now) var now
             guard let date = date else { return nil }
+            @Dependency(\.date.now) var now
             return "Released \(date: date, relativeTo: currentDate ?? now) on \(Self.dateFormatter.string(from: date))"
         }
 
