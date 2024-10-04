@@ -27,7 +27,7 @@ class SitemapTests: SnapshotTestCase {
         let packages = (0..<3).map { Package(url: "\($0)".url) }
         try await packages.save(on: app.db)
         try await packages.map { try Repository(package: $0, defaultBranch: "default",
-                                                lastCommitDate: Date.now, name: $0.url,
+                                                lastCommitDate: .t0, name: $0.url,
                                                 owner: "foo") }.save(on: app.db)
         try await packages.map { try Version(package: $0, packageName: "foo",
                                              reference: .branch("default")) }.save(on: app.db)
@@ -198,7 +198,7 @@ class SitemapTests: SnapshotTestCase {
         let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
         try await package.save(on: app.db)
         try await Repository(package: package, defaultBranch: "default",
-                             lastCommitDate: Date.now,
+                             lastCommitDate: .t0,
                              name: "Repo0", owner: "Owner").save(on: app.db)
         try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
                           reference: .branch("default")).save(on: app.db)
@@ -222,7 +222,7 @@ class SitemapTests: SnapshotTestCase {
         let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
         try await package.save(on: app.db)
         try await Repository(package: package, defaultBranch: "default",
-                             lastCommitDate: Date.now,
+                             lastCommitDate: .t0,
                              name: "Repo0", owner: "Owner").save(on: app.db)
         try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
                           reference: .branch("default")).save(on: app.db)
