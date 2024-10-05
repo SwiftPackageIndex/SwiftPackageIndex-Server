@@ -208,67 +208,70 @@ class AnalyzerTests: AppTestCase {
             try await XCTAssertEqualAsync(try await RecentPackage.fetch(on: app.db).count, 2)
             try await XCTAssertEqualAsync(try await RecentRelease.fetch(on: app.db).count, 2)
         }
-}
+    }
 
     func test_analyze_version_update() async throws {
-        // Ensure that new incoming versions update the latest properties and
-        // move versions in case commits change. Tests both default branch commits
-        // changing as well as a tag being moved to a different commit.
-        // setup
-        let pkgId = UUID()
-        let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg,
-                             defaultBranch: "main",
-                             name: "1",
-                             owner: "foo").save(on: app.db)
-        // add existing versions (to be reconciled)
-        try await Version(package: pkg,
-                          commit: "commit0",
-                          commitDate: .t0,
-                          latest: .defaultBranch,
-                          packageName: "foo-1",
-                          reference: .branch("main")).save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "commit0",
-                          commitDate: .t0,
-                          latest: .release,
-                          packageName: "foo-1",
-                          reference: .tag(1, 0, 0)).save(on: app.db)
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // Ensure that new incoming versions update the latest properties and
+            // move versions in case commits change. Tests both default branch commits
+            // changing as well as a tag being moved to a different commit.
+            // setup
+            let pkgId = UUID()
+            let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 name: "1",
+                                 owner: "foo").save(on: app.db)
+            // add existing versions (to be reconciled)
+            try await Version(package: pkg,
+                              commit: "commit0",
+                              commitDate: .t0,
+                              latest: .defaultBranch,
+                              packageName: "foo-1",
+                              reference: .branch("main")).save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "commit0",
+                              commitDate: .t0,
+                              latest: .release,
+                              packageName: "foo-1",
+                              reference: .tag(1, 0, 0)).save(on: app.db)
 
-        Current.fileManager.fileExists = { @Sendable _ in true }
+            Current.fileManager.fileExists = { @Sendable _ in true }
 
-        Current.git.commitCount = { @Sendable _ in 12 }
-        Current.git.firstCommitDate = { @Sendable _ in .t0 }
-        Current.git.lastCommitDate = { @Sendable _ in .t2 }
-        Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0), .tag(1, 1, 1)] }
-        Current.git.hasBranch = { @Sendable _, _ in true }
-        Current.git.revisionInfo = { @Sendable ref, _ in
-            // simulate the following scenario:
-            //   - main branch has moved from commit0 -> commit3 (timestamp t3)
-            //   - 1.0.0 has been re-tagged (!) from commit0 -> commit1 (timestamp t1)
-            //   - 1.1.1 has been added at commit2 (timestamp t2)
-            switch ref {
-                case _ where ref == .tag(1, 0, 0):
-                    return .init(commit: "commit1", date: .t1)
-                case _ where ref == .tag(1, 1, 1):
-                    return .init(commit: "commit2", date: .t2)
-                case .branch("main"):
-                    return .init(commit: "commit3", date: .t3)
-                default:
-                    fatalError("unexpected reference: \(ref)")
+            Current.git.commitCount = { @Sendable _ in 12 }
+            Current.git.firstCommitDate = { @Sendable _ in .t0 }
+            Current.git.lastCommitDate = { @Sendable _ in .t2 }
+            Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0), .tag(1, 1, 1)] }
+            Current.git.hasBranch = { @Sendable _, _ in true }
+            Current.git.revisionInfo = { @Sendable ref, _ in
+                // simulate the following scenario:
+                //   - main branch has moved from commit0 -> commit3 (timestamp t3)
+                //   - 1.0.0 has been re-tagged (!) from commit0 -> commit1 (timestamp t1)
+                //   - 1.1.1 has been added at commit2 (timestamp t2)
+                switch ref {
+                    case _ where ref == .tag(1, 0, 0):
+                        return .init(commit: "commit1", date: .t1)
+                    case _ where ref == .tag(1, 1, 1):
+                        return .init(commit: "commit2", date: .t2)
+                    case .branch("main"):
+                        return .init(commit: "commit3", date: .t3)
+                    default:
+                        fatalError("unexpected reference: \(ref)")
+                }
             }
-        }
-        Current.git.shortlog = { @Sendable _ in
+            Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
-        }
+            }
 
-        Current.shell.run = { @Sendable cmd, path in
-            if cmd.description.hasSuffix("package dump-package") {
-                return #"""
+            Current.shell.run = { @Sendable cmd, path in
+                if cmd.description.hasSuffix("package dump-package") {
+                    return #"""
                     {
                       "name": "foo-1",
                       "products": [
@@ -283,23 +286,24 @@ class AnalyzerTests: AppTestCase {
                       "targets": []
                     }
                     """#
+                }
+                return ""
             }
-            return ""
+
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      mode: .limit(10))
+
+            // validate versions
+            let p = try await Package.find(pkgId, on: app.db).unwrap()
+            try await p.$versions.load(on: app.db)
+            let versions = p.versions.sorted(by: { $0.commitDate < $1.commitDate })
+            XCTAssertEqual(versions.map(\.commitDate), [.t1, .t2, .t3])
+            XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "1.1.1", "main"])
+            XCTAssertEqual(versions.map(\.latest), [nil, .release, .defaultBranch])
+            XCTAssertEqual(versions.map(\.commit), ["commit1", "commit2", "commit3"])
         }
-
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
-
-        // validate versions
-        let p = try await Package.find(pkgId, on: app.db).unwrap()
-        try await p.$versions.load(on: app.db)
-        let versions = p.versions.sorted(by: { $0.commitDate < $1.commitDate })
-        XCTAssertEqual(versions.map(\.commitDate), [.t1, .t2, .t3])
-        XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "1.1.1", "main"])
-        XCTAssertEqual(versions.map(\.latest), [nil, .release, .defaultBranch])
-        XCTAssertEqual(versions.map(\.commit), ["commit1", "commit2", "commit3"])
     }
 
     func test_forward_progress_on_analysisError() async throws {
@@ -347,105 +351,112 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_package_status() async throws {
-        // Ensure packages record success/error status
-        // setup
-        let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
-        for p in pkgs {
-            try await Repository(package: p, defaultBranch: "main").save(on: app.db)
-        }
-        let lastUpdate = Date()
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // Ensure packages record success/error status
+            // setup
+            let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
+            let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
+            for p in pkgs {
+                try await Repository(package: p, defaultBranch: "main").save(on: app.db)
+            }
+            let lastUpdate = Date()
 
-        Current.git.commitCount = { @Sendable _ in 12 }
-        Current.git.firstCommitDate = { @Sendable _ in .t0 }
-        Current.git.lastCommitDate = { @Sendable _ in .t1 }
-        Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0)] }
-        Current.git.hasBranch = { @Sendable _, _ in true }
-        Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
-        Current.git.shortlog = { @Sendable _ in
+            Current.git.commitCount = { @Sendable _ in 12 }
+            Current.git.firstCommitDate = { @Sendable _ in .t0 }
+            Current.git.lastCommitDate = { @Sendable _ in .t1 }
+            Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0)] }
+            Current.git.hasBranch = { @Sendable _, _ in true }
+            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
+            Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
-        }
-
-        Current.shell.run = { @Sendable cmd, path in
-            // first package fails
-            if cmd.description.hasSuffix("swift package dump-package") && path.hasSuffix("foo-1") {
-                return "bad data"
             }
-            // second package succeeds
-            if cmd.description.hasSuffix("swift package dump-package") && path.hasSuffix("foo-2") {
-                return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
+
+            Current.shell.run = { @Sendable cmd, path in
+                // first package fails
+                if cmd.description.hasSuffix("swift package dump-package") && path.hasSuffix("foo-1") {
+                    return "bad data"
+                }
+                // second package succeeds
+                if cmd.description.hasSuffix("swift package dump-package") && path.hasSuffix("foo-2") {
+                    return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
+                }
+                return ""
             }
-            return ""
+
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      mode: .limit(10))
+
+            // assert packages have been updated
+            let packages = try await Package.query(on: app.db).sort(\.$createdAt).all()
+            packages.forEach { XCTAssert($0.updatedAt! > lastUpdate) }
+            XCTAssertEqual(packages.map(\.status), [.noValidVersions, .ok])
         }
-
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
-
-        // assert packages have been updated
-        let packages = try await Package.query(on: app.db).sort(\.$createdAt).all()
-        packages.forEach { XCTAssert($0.updatedAt! > lastUpdate) }
-        XCTAssertEqual(packages.map(\.status), [.noValidVersions, .ok])
     }
 
     func test_continue_on_exception() async throws {
-        // Test to ensure exceptions don't interrupt processing
-        // setup
-        let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
-        for p in pkgs {
-            try await Repository(package: p, defaultBranch: "main").save(on: app.db)
-        }
-        let checkoutDir: NIOLockedValueBox<String?> = .init(nil)
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // Test to ensure exceptions don't interrupt processing
+            // setup
+            let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
+            let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
+            for p in pkgs {
+                try await Repository(package: p, defaultBranch: "main").save(on: app.db)
+            }
+            let checkoutDir: NIOLockedValueBox<String?> = .init(nil)
 
-        Current.fileManager.fileExists = { @Sendable path in
-            if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-1" { return true }
-            if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-2" { return true }
-            if path.hasSuffix("Package.swift") { return true }
-            return false
-        }
-        Current.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.withLockedValue { $0 = path } }
+            Current.fileManager.fileExists = { @Sendable path in
+                if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-1" { return true }
+                if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-2" { return true }
+                if path.hasSuffix("Package.swift") { return true }
+                return false
+            }
+            Current.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.withLockedValue { $0 = path } }
 
-        Current.git = .live
+            Current.git = .live
 
-        let refs: [Reference] = [.tag(1, 0, 0), .tag(1, 1, 1), .branch("main")]
-        let mockResults = {
-            var res: [ShellOutCommand: String] = [
-                .gitListTags: refs.filter(\.isTag).map { "\($0)" }.joined(separator: "\n"),
-                .gitCommitCount: "12",
-                .gitFirstCommitDate: "0",
-                .gitLastCommitDate: "1",
-                .gitShortlog : """
+            let refs: [Reference] = [.tag(1, 0, 0), .tag(1, 1, 1), .branch("main")]
+            let mockResults = {
+                var res: [ShellOutCommand: String] = [
+                    .gitListTags: refs.filter(\.isTag).map { "\($0)" }.joined(separator: "\n"),
+                    .gitCommitCount: "12",
+                    .gitFirstCommitDate: "0",
+                    .gitLastCommitDate: "1",
+                    .gitShortlog : """
                             10\tPerson 1
                              2\tPerson 2
                             """
-            ]
-            for (idx, ref) in refs.enumerated() {
-                res[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
-            }
-            return res
-        }()
+                ]
+                for (idx, ref) in refs.enumerated() {
+                    res[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
+                }
+                return res
+            }()
 
-        let commands = QueueIsolated<[Command]>([])
-        Current.shell.run = { @Sendable cmd, path in
-            commands.withValue {
-                $0.append(.init(command: cmd, path: path)!)
-            }
+            let commands = QueueIsolated<[Command]>([])
+            Current.shell.run = { @Sendable cmd, path in
+                commands.withValue {
+                    $0.append(.init(command: cmd, path: path)!)
+                }
 
-            if let result = mockResults[cmd] { return result }
+                if let result = mockResults[cmd] { return result }
 
-            // simulate error in first package
-            if cmd == .swiftDumpPackage {
-                if path.hasSuffix("foo-1") {
-                    // Simulate error when reading the manifest
-                    struct Error: Swift.Error { }
-                    throw Error()
-                } else {
-                    return #"""
+                // simulate error in first package
+                if cmd == .swiftDumpPackage {
+                    if path.hasSuffix("foo-1") {
+                        // Simulate error when reading the manifest
+                        struct Error: Swift.Error { }
+                        throw Error()
+                    } else {
+                        return #"""
                     {
                       "name": "foo-2",
                       "products": [
@@ -460,22 +471,23 @@ class AnalyzerTests: AppTestCase {
                       "targets": [{"name": "t1", "type": "executable"}]
                     }
                     """#
+                    }
                 }
+
+                return ""
             }
 
-            return ""
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      mode: .limit(10))
+
+            // validation (not in detail, this is just to ensure command count is as expected)
+            XCTAssertEqual(commands.value.count, 40, "was: \(dump(commands.value))")
+            // 1 packages with 2 tags + 1 default branch each -> 3 versions (the other package fails)
+            let versionCount = try await Version.query(on: app.db).count()
+            XCTAssertEqual(versionCount, 3)
         }
-
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
-
-        // validation (not in detail, this is just to ensure command count is as expected)
-        XCTAssertEqual(commands.value.count, 40, "was: \(dump(commands.value))")
-        // 1 packages with 2 tags + 1 default branch each -> 3 versions (the other package fails)
-        let versionCount = try await Version.query(on: app.db).count()
-        XCTAssertEqual(versionCount, 3)
     }
 
     @MainActor
@@ -578,7 +590,7 @@ class AnalyzerTests: AppTestCase {
             XCTAssertEqual(msg, "Default branch 'main' does not exist in checkout")
         }
     }
-    
+
     func test_getIncomingVersions_no_default_branch() async throws {
         // setup
         // saving Package without Repository means it has no default branch
@@ -865,24 +877,27 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_issue_29() async throws {
-        // Regression test for issue 29
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/29
-        // setup
-        Current.git.commitCount = { @Sendable _ in 12 }
-        Current.git.firstCommitDate = { @Sendable _ in .t0 }
-        Current.git.lastCommitDate = { @Sendable _ in .t1 }
-        Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0), .tag(2, 0, 0)] }
-        Current.git.hasBranch = { @Sendable _, _ in true }
-        Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
-        Current.git.shortlog = { @Sendable _ in
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // Regression test for issue 29
+            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/29
+            // setup
+            Current.git.commitCount = { @Sendable _ in 12 }
+            Current.git.firstCommitDate = { @Sendable _ in .t0 }
+            Current.git.lastCommitDate = { @Sendable _ in .t1 }
+            Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0), .tag(2, 0, 0)] }
+            Current.git.hasBranch = { @Sendable _, _ in true }
+            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
+            Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
-        }
-        Current.shell.run = { @Sendable cmd, path in
-            if cmd.description.hasSuffix("swift package dump-package") {
-                return #"""
+            }
+            Current.shell.run = { @Sendable cmd, path in
+                if cmd.description.hasSuffix("swift package dump-package") {
+                    return #"""
                     {
                       "name": "foo",
                       "products": [
@@ -904,25 +919,26 @@ class AnalyzerTests: AppTestCase {
                       "targets": []
                     }
                     """#
+                }
+                return ""
             }
-            return ""
-        }
-        let pkgs = try await savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)
-        for pkg in pkgs {
-            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
-        }
+            let pkgs = try await savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)
+            for pkg in pkgs {
+                try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
+            }
 
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      mode: .limit(10))
 
-        // validation
-        // 1 version for the default branch + 2 for the tags each = 6 versions
-        // 2 products per version = 12 products
-        let db = app.db
-        try await XCTAssertEqualAsync(try await Version.query(on: db).count(), 6)
-        try await XCTAssertEqualAsync(try await Product.query(on: db).count(), 12)
+            // validation
+            // 1 version for the default branch + 2 for the tags each = 6 versions
+            // 2 products per version = 12 products
+            let db = app.db
+            try await XCTAssertEqualAsync(try await Version.query(on: db).count(), 6)
+            try await XCTAssertEqualAsync(try await Product.query(on: db).count(), 12)
+        }
     }
 
     @MainActor
@@ -1179,20 +1195,20 @@ class AnalyzerTests: AppTestCase {
         try await pkg.save(on: app.db)
         try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         try await Version(package: pkg,
-                    latest: .defaultBranch,
-                    packageName: "foo",
-                    reference: .branch("main"))
-            .save(on: app.db)
+                          latest: .defaultBranch,
+                          packageName: "foo",
+                          reference: .branch("main"))
+        .save(on: app.db)
         try await Version(package: pkg,
-                    latest: .release,
-                    packageName: "foo",
-                    reference: .tag(2, 0, 0))
-            .save(on: app.db)
+                          latest: .release,
+                          packageName: "foo",
+                          reference: .tag(2, 0, 0))
+        .save(on: app.db)
         try await Version(package: pkg,
-                    latest: .preRelease,  // this should have been nil - ensure it's reset
-                    packageName: "foo",
-                    reference: .tag(2, 0, 0, "rc1"))
-            .save(on: app.db)
+                          latest: .preRelease,  // this should have been nil - ensure it's reset
+                          packageName: "foo",
+                          reference: .tag(2, 0, 0, "rc1"))
+        .save(on: app.db)
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
         // MUT
@@ -1364,170 +1380,178 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_issue_2571_latest_version() async throws {
-        // Ensure `latest` remains set in case of AppError.noValidVersions
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
-        let pkgId = UUID()
-        let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg,
-                             defaultBranch: "main",
-                             name: "1",
-                             owner: "foo").save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "commit0",
-                          commitDate: .t0,
-                          latest: .defaultBranch,
-                          packageName: "foo-1",
-                          reference: .branch("main")).save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "commit0",
-                          commitDate: .t0,
-                          latest: .release,
-                          packageName: "foo-1",
-                          reference: .tag(1, 0, 0)).save(on: app.db)
-        Current.fileManager.fileExists = { @Sendable _ in true }
-        Current.git.commitCount = { @Sendable _ in 2 }
-        Current.git.firstCommitDate = { @Sendable _ in .t0 }
-        Current.git.hasBranch = { @Sendable _, _ in true }
-        Current.git.lastCommitDate = { @Sendable _ in .t1 }
-        struct Error: Swift.Error { }
-        Current.git.shortlog = { @Sendable _ in
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // Ensure `latest` remains set in case of AppError.noValidVersions
+            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
+            let pkgId = UUID()
+            let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 name: "1",
+                                 owner: "foo").save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "commit0",
+                              commitDate: .t0,
+                              latest: .defaultBranch,
+                              packageName: "foo-1",
+                              reference: .branch("main")).save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "commit0",
+                              commitDate: .t0,
+                              latest: .release,
+                              packageName: "foo-1",
+                              reference: .tag(1, 0, 0)).save(on: app.db)
+            Current.fileManager.fileExists = { @Sendable _ in true }
+            Current.git.commitCount = { @Sendable _ in 2 }
+            Current.git.firstCommitDate = { @Sendable _ in .t0 }
+            Current.git.hasBranch = { @Sendable _, _ in true }
+            Current.git.lastCommitDate = { @Sendable _ in .t1 }
+            struct Error: Swift.Error { }
+            Current.git.shortlog = { @Sendable _ in
             """
             1\tPerson 1
             1\tPerson 2
             """
-        }
-        Current.git.getTags = {@Sendable  _ in [.tag(1, 0, 0)] }
-        Current.shell.run = { @Sendable cmd, path in return "" }
+            }
+            Current.git.getTags = {@Sendable  _ in [.tag(1, 0, 0)] }
+            Current.shell.run = { @Sendable cmd, path in return "" }
 
-        do {  // ensure happy path passes test (no revision changes)
-            Current.git.revisionInfo = { @Sendable ref, _ in
-                switch ref {
-                    case .tag(.init(1, 0, 0), "1.0.0"):
-                        return .init(commit: "commit0", date: .t0)
-                    case .branch("main"):
-                        return .init(commit: "commit0", date: .t0)
-                    default:
+            do {  // ensure happy path passes test (no revision changes)
+                Current.git.revisionInfo = { @Sendable ref, _ in
+                    switch ref {
+                        case .tag(.init(1, 0, 0), "1.0.0"):
+                            return .init(commit: "commit0", date: .t0)
+                        case .branch("main"):
+                            return .init(commit: "commit0", date: .t0)
+                        default:
+                            throw Error()
+                    }
+                }
+
+                // MUT
+                try await Analyze.analyze(client: app.client,
+                                          database: app.db,
+                                          mode: .limit(1))
+
+                // validate versions
+                let p = try await Package.find(pkgId, on: app.db).unwrap()
+                try await p.$versions.load(on: app.db)
+                let versions = p.versions.sorted(by: { $0.reference.description < $1.reference.description })
+                XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "main"])
+                XCTAssertEqual(versions.map(\.latest), [.release, .defaultBranch])
+            }
+
+            // make package available for analysis again
+            pkg.processingStage = .ingestion
+            try await pkg.save(on: app.db)
+
+            do {  // simulate "main" branch moving forward to ("commit0", .t1)
+                Current.git.revisionInfo = { @Sendable ref, _ in
+                    switch ref {
+                        case .tag(.init(1, 0, 0), "1.0.0"):
+                            return .init(commit: "commit0", date: .t0)
+                        case .branch("main"):
+                            // main branch has new commit
+                            return .init(commit: "commit1", date: .t1)
+                        default:
+                            throw Error()
+                    }
+                }
+                Current.shell.run = { @Sendable cmd, path in
+                    // simulate error in getPackageInfo by failing checkout
+                    if cmd == .gitCheckout(branch: "main") {
                         throw Error()
+                    }
+                    return ""
                 }
-            }
 
-            // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(1))
+                // MUT
+                try await Analyze.analyze(client: app.client,
+                                          database: app.db,
+                                          mode: .limit(1))
 
-            // validate versions
-            let p = try await Package.find(pkgId, on: app.db).unwrap()
-            try await p.$versions.load(on: app.db)
-            let versions = p.versions.sorted(by: { $0.reference.description < $1.reference.description })
-            XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "main"])
-            XCTAssertEqual(versions.map(\.latest), [.release, .defaultBranch])
-        }
-
-        // make package available for analysis again
-        pkg.processingStage = .ingestion
-        try await pkg.save(on: app.db)
-
-        do {  // simulate "main" branch moving forward to ("commit0", .t1)
-            Current.git.revisionInfo = { @Sendable ref, _ in
-                switch ref {
-                    case .tag(.init(1, 0, 0), "1.0.0"):
-                        return .init(commit: "commit0", date: .t0)
-                    case .branch("main"):
-                        // main branch has new commit
-                        return .init(commit: "commit1", date: .t1)
-                    default:
-                        throw Error()
+                // validate error logs
+                try logger.logs.withValue { logs in
+                    XCTAssertEqual(logs.count, 2)
+                    let error = try logs.last.unwrap()
+                    XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
                 }
+                // validate versions
+                let p = try await Package.find(pkgId, on: app.db).unwrap()
+                try await p.$versions.load(on: app.db)
+                let versions = p.versions.sorted(by: { $0.reference.description < $1.reference.description })
+                XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "main"])
+                XCTAssertEqual(versions.map(\.latest), [.release, .defaultBranch])
             }
-            Current.shell.run = { @Sendable cmd, path in
-                // simulate error in getPackageInfo by failing checkout
-                if cmd == .gitCheckout(branch: "main") {
-                    throw Error()
-                }
-                return ""
-            }
-
-            // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(1))
-
-            // validate error logs
-            try logger.logs.withValue { logs in
-                XCTAssertEqual(logs.count, 2)
-                let error = try logs.last.unwrap()
-                XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
-            }
-            // validate versions
-            let p = try await Package.find(pkgId, on: app.db).unwrap()
-            try await p.$versions.load(on: app.db)
-            let versions = p.versions.sorted(by: { $0.reference.description < $1.reference.description })
-            XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "main"])
-            XCTAssertEqual(versions.map(\.latest), [.release, .defaultBranch])
         }
     }
 
     func test_issue_2873() async throws {
-        // Ensure we preserve dependency counts from previous default branch version
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2873
-        // setup
-        let pkg = try await savePackage(on: app.db, id: .id0, "https://github.com/foo/1".url, processingStage: .ingestion)
-        try await Repository(package: pkg,
-                             defaultBranch: "main",
-                             name: "1",
-                             owner: "foo",
-                             stars: 100).save(on: app.db)
-        Current.git.commitCount = { @Sendable _ in 12 }
-        Current.git.getTags = { @Sendable _ in [] }
-        Current.git.hasBranch = { @Sendable _, _ in true }
-        Current.git.firstCommitDate = { @Sendable _ in .t0 }
-        Current.git.lastCommitDate = { @Sendable _ in .t1 }
-        Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha1", date: .t0) }
-        Current.git.shortlog = { @Sendable _ in "10\tPerson 1" }
-        Current.shell.run = { @Sendable cmd, path in
-            if cmd == .swiftDumpPackage { return .packageDump(name: "foo1") }
-            return ""
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // Ensure we preserve dependency counts from previous default branch version
+            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2873
+            // setup
+            let pkg = try await savePackage(on: app.db, id: .id0, "https://github.com/foo/1".url, processingStage: .ingestion)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 name: "1",
+                                 owner: "foo",
+                                 stars: 100).save(on: app.db)
+            Current.git.commitCount = { @Sendable _ in 12 }
+            Current.git.getTags = { @Sendable _ in [] }
+            Current.git.hasBranch = { @Sendable _, _ in true }
+            Current.git.firstCommitDate = { @Sendable _ in .t0 }
+            Current.git.lastCommitDate = { @Sendable _ in .t1 }
+            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha1", date: .t0) }
+            Current.git.shortlog = { @Sendable _ in "10\tPerson 1" }
+            Current.shell.run = { @Sendable cmd, path in
+                if cmd == .swiftDumpPackage { return .packageDump(name: "foo1") }
+                return ""
+            }
+            
+            // MUT and validation
+            
+            // first analysis pass
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .id(.id0))
+            do { // validate
+                let pkg = try await Package.query(on: app.db).first()
+                // numberOfDependencies is nil here, because we've not yet received the info back from the build
+                XCTAssertEqual(pkg?.scoreDetails?.numberOfDependencies, nil)
+            }
+            
+            do { // receive build report - we could send an actual report here via the API but let's just update
+                 // the field directly instead, we're not testing build reporting after all
+                let version = try await Version.query(on: app.db).first()
+                version?.resolvedDependencies = .some([.init(packageName: "dep",
+                                                             repositoryURL: "https://github.com/some/dep")])
+                try await version?.save(on: app.db)
+            }
+            
+            // second analysis pass
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .id(.id0))
+            do { // validate
+                let pkg = try await Package.query(on: app.db).first()
+                // numberOfDependencies is 1 now, because we see the updated version
+                XCTAssertEqual(pkg?.scoreDetails?.numberOfDependencies, 1)
+            }
+            
+            // now we simulate a new version on the default branch
+            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha2", date: .t1) }
+            
+            // third analysis pass
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .id(.id0))
+            do { // validate
+                let pkg = try await Package.query(on: app.db).first()
+                // numberOfDependencies must be preserved as 1, even though we've not built this version yet
+                XCTAssertEqual(pkg?.scoreDetails?.numberOfDependencies, 1)
+            }
         }
-
-        // MUT and validation
-
-        // first analysis pass
-        try await Analyze.analyze(client: app.client, database: app.db, mode: .id(.id0))
-        do { // validate
-            let pkg = try await Package.query(on: app.db).first()
-            // numberOfDependencies is nil here, because we've not yet received the info back from the build
-            XCTAssertEqual(pkg?.scoreDetails?.numberOfDependencies, nil)
-        }
-        
-        do { // receive build report - we could send an actual report here via the API but let's just update
-             // the field directly instead, we're not testing build reporting after all
-            let version = try await Version.query(on: app.db).first()
-            version?.resolvedDependencies = .some([.init(packageName: "dep",
-                                                         repositoryURL: "https://github.com/some/dep")])
-            try await version?.save(on: app.db)
-        }
-        
-        // second analysis pass
-        try await Analyze.analyze(client: app.client, database: app.db, mode: .id(.id0))
-        do { // validate
-            let pkg = try await Package.query(on: app.db).first()
-            // numberOfDependencies is 1 now, because we see the updated version
-            XCTAssertEqual(pkg?.scoreDetails?.numberOfDependencies, 1)
-        }
-        
-        // now we simulate a new version on the default branch
-        Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha2", date: .t1) }
-        
-        // third analysis pass
-        try await Analyze.analyze(client: app.client, database: app.db, mode: .id(.id0))
-        do { // validate
-            let pkg = try await Package.query(on: app.db).first()
-            // numberOfDependencies must be preserved as 1, even though we've not built this version yet
-            XCTAssertEqual(pkg?.scoreDetails?.numberOfDependencies, 1)
-        }
-    }
+}
 
 }
 
