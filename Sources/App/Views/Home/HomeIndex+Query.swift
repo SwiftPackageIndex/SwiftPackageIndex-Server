@@ -47,8 +47,7 @@ extension HomeIndex.Model.Release {
     init(recent: RecentRelease) {
         packageName = recent.packageName
         version = recent.version
-        @Dependency(\.date.now) var now
-        date = "\(date: recent.releasedAt, relativeTo: now)"
+        date = recent.releasedAt.relative
         url = SiteURL.package(.value(recent.repositoryOwner),
                               .value(recent.repositoryName),
                               .none).relativeURL()
