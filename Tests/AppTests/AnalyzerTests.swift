@@ -30,64 +30,67 @@ class AnalyzerTests: AppTestCase {
 
     @MainActor
     func test_analyze() async throws {
-        // End-to-end test, where we mock at the shell command level (i.e. we
-        // don't mock the git commands themselves to ensure we're running the
-        // expected shell commands for the happy path.)
-        // setup
-        let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
-        try await Repository(package: pkgs[0],
-                             defaultBranch: "main",
-                             name: "1",
-                             owner: "foo",
-                             releases: [
-                                .mock(description: "rel 1.0.0", tagName: "1.0.0")
-                             ],
-                             stars: 25).save(on: app.db)
-        try await Repository(package: pkgs[1],
-                             defaultBranch: "main",
-                             name: "2",
-                             owner: "foo",
-                             stars: 100).save(on: app.db)
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // End-to-end test, where we mock at the shell command level (i.e. we
+            // don't mock the git commands themselves to ensure we're running the
+            // expected shell commands for the happy path.)
+            // setup
+            let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
+            let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
+            try await Repository(package: pkgs[0],
+                                 defaultBranch: "main",
+                                 name: "1",
+                                 owner: "foo",
+                                 releases: [
+                                    .mock(description: "rel 1.0.0", tagName: "1.0.0")
+                                 ],
+                                 stars: 25).save(on: app.db)
+            try await Repository(package: pkgs[1],
+                                 defaultBranch: "main",
+                                 name: "2",
+                                 owner: "foo",
+                                 stars: 100).save(on: app.db)
 
-        let checkoutDir = QueueIsolated<String?>(nil)
-        let commands = QueueIsolated<[Command]>([])
-        let firstDirCloned = QueueIsolated(false)
-        Current.fileManager.fileExists = { @Sendable path in
-            if let outDir = checkoutDir.value,
-               path == "\(outDir)/github.com-foo-1" { return firstDirCloned.value }
-            // let the check for the second repo checkout path succeed to simulate pull
-            if let outDir = checkoutDir.value,
-               path == "\(outDir)/github.com-foo-2" { return true }
-            if path.hasSuffix("Package.swift") { return true }
-            if path.hasSuffix("Package.resolved") { return true }
-            return false
-        }
-        Current.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.setValue(path) }
-        Current.git = .live
-        Current.loadSPIManifest = { path in
-            if path.hasSuffix("foo-1") {
-                return .init(builder: .init(configs: [.init(documentationTargets: ["DocTarget"])]))
-            } else {
-                return nil
+            let checkoutDir = QueueIsolated<String?>(nil)
+            let commands = QueueIsolated<[Command]>([])
+            let firstDirCloned = QueueIsolated(false)
+            Current.fileManager.fileExists = { @Sendable path in
+                if let outDir = checkoutDir.value,
+                   path == "\(outDir)/github.com-foo-1" { return firstDirCloned.value }
+                // let the check for the second repo checkout path succeed to simulate pull
+                if let outDir = checkoutDir.value,
+                   path == "\(outDir)/github.com-foo-2" { return true }
+                if path.hasSuffix("Package.swift") { return true }
+                if path.hasSuffix("Package.resolved") { return true }
+                return false
             }
-        }
-        Current.shell.run = { @Sendable cmd, path in
-            let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!, with: ".")
-            commands.withValue {
-                $0.append(.init(command: cmd, path: trimmedPath)!)
+            Current.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.setValue(path) }
+            Current.git = .live
+            Current.loadSPIManifest = { path in
+                if path.hasSuffix("foo-1") {
+                    return .init(builder: .init(configs: [.init(documentationTargets: ["DocTarget"])]))
+                } else {
+                    return nil
+                }
             }
-            if cmd.description.starts(with: "git clone") {
-                firstDirCloned.setValue(true)
-            }
-            if cmd == .gitListTags && path.hasSuffix("foo-1") {
-                return ["1.0.0", "1.1.1"].joined(separator: "\n")
-            }
-            if cmd == .gitListTags && path.hasSuffix("foo-2") {
-                return ["2.0.0", "2.1.0"].joined(separator: "\n")
-            }
-            if cmd == .swiftDumpPackage && path.hasSuffix("foo-1") {
-                return #"""
+            Current.shell.run = { @Sendable cmd, path in
+                let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!, with: ".")
+                commands.withValue {
+                    $0.append(.init(command: cmd, path: trimmedPath)!)
+                }
+                if cmd.description.starts(with: "git clone") {
+                    firstDirCloned.setValue(true)
+                }
+                if cmd == .gitListTags && path.hasSuffix("foo-1") {
+                    return ["1.0.0", "1.1.1"].joined(separator: "\n")
+                }
+                if cmd == .gitListTags && path.hasSuffix("foo-2") {
+                    return ["2.0.0", "2.1.0"].joined(separator: "\n")
+                }
+                if cmd == .swiftDumpPackage && path.hasSuffix("foo-1") {
+                    return #"""
                     {
                       "name": "foo-1",
                       "products": [
@@ -102,9 +105,9 @@ class AnalyzerTests: AppTestCase {
                       "targets": [{"name": "t1", "type": "executable"}]
                     }
                     """#
-            }
-            if cmd == .swiftDumpPackage && path.hasSuffix("foo-2") {
-                return #"""
+                }
+                if cmd == .swiftDumpPackage && path.hasSuffix("foo-2") {
+                    return #"""
                     {
                       "name": "foo-2",
                       "products": [
@@ -119,92 +122,93 @@ class AnalyzerTests: AppTestCase {
                       "targets": [{"name": "t2", "type": "regular"}]
                     }
                     """#
+                }
+
+                // Git.revisionInfo (per ref - default branch & tags)
+                // These return a string in the format `commit sha`-`timestamp (sec since 1970)`
+                // We simply use `sha` for the sha (it bears no meaning) and a range of seconds
+                // since 1970.
+                // It is important the tags aren't created at identical times for tags on the same
+                // package, or else we will collect multiple recent releases (as there is no "latest")
+                if cmd == .gitRevisionInfo(reference: .tag(1, 0, 0)) { return "sha-0" }
+                if cmd == .gitRevisionInfo(reference: .tag(1, 1, 1)) { return "sha-1" }
+                if cmd == .gitRevisionInfo(reference: .tag(2, 0, 0)) { return "sha-2" }
+                if cmd == .gitRevisionInfo(reference: .tag(2, 1, 0)) { return "sha-3" }
+                if cmd == .gitRevisionInfo(reference: .branch("main")) { return "sha-4" }
+
+                if cmd == .gitCommitCount { return "12" }
+                if cmd == .gitFirstCommitDate { return "0" }
+                if cmd == .gitLastCommitDate { return "4" }
+                if cmd == .gitShortlog {
+                    return "10\tPerson 1"
+                }
+
+                return ""
             }
 
-            // Git.revisionInfo (per ref - default branch & tags)
-            // These return a string in the format `commit sha`-`timestamp (sec since 1970)`
-            // We simply use `sha` for the sha (it bears no meaning) and a range of seconds
-            // since 1970.
-            // It is important the tags aren't created at identical times for tags on the same
-            // package, or else we will collect multiple recent releases (as there is no "latest")
-            if cmd == .gitRevisionInfo(reference: .tag(1, 0, 0)) { return "sha-0" }
-            if cmd == .gitRevisionInfo(reference: .tag(1, 1, 1)) { return "sha-1" }
-            if cmd == .gitRevisionInfo(reference: .tag(2, 0, 0)) { return "sha-2" }
-            if cmd == .gitRevisionInfo(reference: .tag(2, 1, 0)) { return "sha-3" }
-            if cmd == .gitRevisionInfo(reference: .branch("main")) { return "sha-4" }
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      mode: .limit(10))
 
-            if cmd == .gitCommitCount { return "12" }
-            if cmd == .gitFirstCommitDate { return "0" }
-            if cmd == .gitLastCommitDate { return "4" }
-            if cmd == .gitShortlog {
-                return "10\tPerson 1"
-            }
+            // validation
+            let outDir = try checkoutDir.value.unwrap()
+            XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
+            XCTAssertEqual(commands.value.count, 36)
 
-            return ""
+            // Snapshot for each package individually to avoid ordering issues when
+            // concurrent processing causes commands to interleave between packages.
+            assertSnapshot(of: commands.value
+                .filter { $0.path.hasSuffix("foo-1") }
+                .map(\.description), as: .dump)
+            assertSnapshot(of: commands.value
+                .filter { $0.path.hasSuffix("foo-2") }
+                .map(\.description), as: .dump)
+
+            // validate versions
+            // A bit awkward... create a helper? There has to be a better way?
+            let pkg1 = try await Package.query(on: app.db).filter(by: urls[0].url).with(\.$versions).first()!
+            XCTAssertEqual(pkg1.status, .ok)
+            XCTAssertEqual(pkg1.processingStage, .analysis)
+            XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1", "foo-1"])
+            let sortedVersions1 = pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+            XCTAssertEqual(sortedVersions1.map(\.reference.description), ["main", "1.0.0", "1.1.1"])
+            XCTAssertEqual(sortedVersions1.map(\.latest), [.defaultBranch, nil, .release])
+            XCTAssertEqual(sortedVersions1.map(\.releaseNotes), [nil, "rel 1.0.0", nil])
+
+            let pkg2 = try await Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first()!
+            XCTAssertEqual(pkg2.status, .ok)
+            XCTAssertEqual(pkg2.processingStage, .analysis)
+            XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2", "foo-2"])
+            let sortedVersions2 = pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+            XCTAssertEqual(sortedVersions2.map(\.reference.description), ["main", "2.0.0", "2.1.0"])
+            XCTAssertEqual(sortedVersions2.map(\.latest), [.defaultBranch, nil, .release])
+
+            // validate products
+            // (2 packages with 3 versions with 1 product each = 6 products)
+            let products = try await Product.query(on: app.db).sort(\.$name).all()
+            XCTAssertEqual(products.count, 6)
+            assertEquals(products, \.name, ["p1", "p1", "p1", "p2", "p2", "p2"])
+            assertEquals(products, \.targets,
+                         [["t1"], ["t1"], ["t1"], ["t2"], ["t2"], ["t2"]])
+            assertEquals(products, \.type, [.executable, .executable, .executable, .library(.automatic), .library(.automatic), .library(.automatic)])
+
+            // validate targets
+            // (2 packages with 3 versions with 1 target each = 6 targets)
+            let targets = try await Target.query(on: app.db).sort(\.$name).all()
+            XCTAssertEqual(targets.map(\.name), ["t1", "t1", "t1", "t2", "t2", "t2"])
+
+            // validate score
+            XCTAssertEqual(pkg1.score, 30)
+            XCTAssertEqual(pkg2.score, 40)
+
+            // ensure stats, recent packages, and releases are refreshed
+            let app = self.app!
+            try await XCTAssertEqualAsync(try await Stats.fetch(on: app.db), .init(packageCount: 2))
+            try await XCTAssertEqualAsync(try await RecentPackage.fetch(on: app.db).count, 2)
+            try await XCTAssertEqualAsync(try await RecentRelease.fetch(on: app.db).count, 2)
         }
-
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
-
-        // validation
-        let outDir = try checkoutDir.value.unwrap()
-        XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-        XCTAssertEqual(commands.value.count, 36)
-
-        // Snapshot for each package individually to avoid ordering issues when
-        // concurrent processing causes commands to interleave between packages.
-        assertSnapshot(of: commands.value
-                        .filter { $0.path.hasSuffix("foo-1") }
-                        .map(\.description), as: .dump)
-        assertSnapshot(of: commands.value
-                        .filter { $0.path.hasSuffix("foo-2") }
-                        .map(\.description), as: .dump)
-
-        // validate versions
-        // A bit awkward... create a helper? There has to be a better way?
-        let pkg1 = try await Package.query(on: app.db).filter(by: urls[0].url).with(\.$versions).first()!
-        XCTAssertEqual(pkg1.status, .ok)
-        XCTAssertEqual(pkg1.processingStage, .analysis)
-        XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1", "foo-1"])
-        let sortedVersions1 = pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-        XCTAssertEqual(sortedVersions1.map(\.reference.description), ["main", "1.0.0", "1.1.1"])
-        XCTAssertEqual(sortedVersions1.map(\.latest), [.defaultBranch, nil, .release])
-        XCTAssertEqual(sortedVersions1.map(\.releaseNotes), [nil, "rel 1.0.0", nil])
-
-        let pkg2 = try await Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first()!
-        XCTAssertEqual(pkg2.status, .ok)
-        XCTAssertEqual(pkg2.processingStage, .analysis)
-        XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2", "foo-2"])
-        let sortedVersions2 = pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-        XCTAssertEqual(sortedVersions2.map(\.reference.description), ["main", "2.0.0", "2.1.0"])
-        XCTAssertEqual(sortedVersions2.map(\.latest), [.defaultBranch, nil, .release])
-
-        // validate products
-        // (2 packages with 3 versions with 1 product each = 6 products)
-        let products = try await Product.query(on: app.db).sort(\.$name).all()
-        XCTAssertEqual(products.count, 6)
-        assertEquals(products, \.name, ["p1", "p1", "p1", "p2", "p2", "p2"])
-        assertEquals(products, \.targets,
-                     [["t1"], ["t1"], ["t1"], ["t2"], ["t2"], ["t2"]])
-        assertEquals(products, \.type, [.executable, .executable, .executable, .library(.automatic), .library(.automatic), .library(.automatic)])
-
-        // validate targets
-        // (2 packages with 3 versions with 1 target each = 6 targets)
-        let targets = try await Target.query(on: app.db).sort(\.$name).all()
-        XCTAssertEqual(targets.map(\.name), ["t1", "t1", "t1", "t2", "t2", "t2"])
-
-        // validate score
-        XCTAssertEqual(pkg1.score, 30)
-        XCTAssertEqual(pkg2.score, 40)
-
-        // ensure stats, recent packages, and releases are refreshed
-        let app = self.app!
-        try await XCTAssertEqualAsync(try await Stats.fetch(on: app.db), .init(packageCount: 2))
-        try await XCTAssertEqualAsync(try await RecentPackage.fetch(on: app.db).count, 2)
-        try await XCTAssertEqualAsync(try await RecentRelease.fetch(on: app.db).count, 2)
-    }
+}
 
     func test_analyze_version_update() async throws {
         // Ensure that new incoming versions update the latest properties and
