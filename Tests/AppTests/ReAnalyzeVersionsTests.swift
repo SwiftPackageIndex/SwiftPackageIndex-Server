@@ -25,10 +25,10 @@ import Vapor
 class ReAnalyzeVersionsTests: AppTestCase {
 
     func test_reAnalyzeVersions() async throws {
+        // Basic end-to-end test
         try await withDependencies {
             $0.date.now = .t0
         } operation: {
-            // Basic end-to-end test
             // setup
             // - package dump does not include toolsVersion, targets to simulate an "old version"
             // - run analysis to create existing version

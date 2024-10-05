@@ -423,94 +423,86 @@ class IngestorTests: AppTestCase {
     }
 
     func test_ingest_storeS3Readme() async throws {
-        // setup
-        let app = self.app!
-        let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
-        try await pkg.save(on: app.db)
-        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
-        let fetchCalls = QueueIsolated(0)
-        Current.fetchReadme = { _, _, _ in
-            fetchCalls.increment()
-            if fetchCalls.value <= 2 {
-                return .init(etag: "etag1",
-                             html: "readme html 1",
-                             htmlUrl: "readme url",
-                             imagesToCache: [])
-            } else {
-                return .init(etag: "etag2",
-                             html: "readme html 2",
-                             htmlUrl: "readme url",
-                             imagesToCache: [])
-            }
-        }
-        let storeCalls = QueueIsolated(0)
-        Current.storeS3Readme = { owner, repo, html in
-            storeCalls.increment()
-            XCTAssertEqual(owner, "foo")
-            XCTAssertEqual(repo, "bar")
-            if fetchCalls.value <= 2 {
-                XCTAssertEqual(html, "readme html 1")
-            } else {
-                XCTAssertEqual(html, "readme html 2")
-            }
-            return "objectUrl"
-        }
-
-        do { // first ingestion, no readme has been saved
-            try await withDependencies {
-                $0.date.now = .now
-            } operation: {
-                // MUT
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
-            }
-
-            // validate
-            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
-            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
-            // Ensure fetch and store have been called, etag save to repository
-            XCTAssertEqual(fetchCalls.value, 1)
-            XCTAssertEqual(storeCalls.value, 1)
-            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag1"))
-        }
-
-        do { // second pass, readme has been saved, no new save should be issued
-            pkg.processingStage = .reconciliation
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // setup
+            let app = self.app!
+            let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
             try await pkg.save(on: app.db)
-
-            try await withDependencies {
-                $0.date.now = .now
-            } operation: {
-                // MUT
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+            Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
+            let fetchCalls = QueueIsolated(0)
+            Current.fetchReadme = { _, _, _ in
+                fetchCalls.increment()
+                if fetchCalls.value <= 2 {
+                    return .init(etag: "etag1",
+                                 html: "readme html 1",
+                                 htmlUrl: "readme url",
+                                 imagesToCache: [])
+                } else {
+                    return .init(etag: "etag2",
+                                 html: "readme html 2",
+                                 htmlUrl: "readme url",
+                                 imagesToCache: [])
+                }
+            }
+            let storeCalls = QueueIsolated(0)
+            Current.storeS3Readme = { owner, repo, html in
+                storeCalls.increment()
+                XCTAssertEqual(owner, "foo")
+                XCTAssertEqual(repo, "bar")
+                if fetchCalls.value <= 2 {
+                    XCTAssertEqual(html, "readme html 1")
+                } else {
+                    XCTAssertEqual(html, "readme html 2")
+                }
+                return "objectUrl"
             }
 
-            // validate
-            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
-            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
-            // Ensure fetch and store have been called, etag save to repository
-            XCTAssertEqual(fetchCalls.value, 2)
-            XCTAssertEqual(storeCalls.value, 1)
-            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag1"))
-        }
-
-        do { // third pass, readme has changed upstream, save should be issues
-            pkg.processingStage = .reconciliation
-            try await pkg.save(on: app.db)
-
-            try await withDependencies {
-                $0.date.now = .now
-            } operation: {
-                // MUT
+            do { // first ingestion, no readme has been saved
+                 // MUT
                 try await ingest(client: app.client, database: app.db, mode: .limit(1))
+
+                // validate
+                try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+                let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+                // Ensure fetch and store have been called, etag save to repository
+                XCTAssertEqual(fetchCalls.value, 1)
+                XCTAssertEqual(storeCalls.value, 1)
+                XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag1"))
             }
 
-            // validate
-            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
-            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
-            // Ensure fetch and store have been called, etag save to repository
-            XCTAssertEqual(fetchCalls.value, 3)
-            XCTAssertEqual(storeCalls.value, 2)
-            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag2"))
+            do { // second pass, readme has been saved, no new save should be issued
+                pkg.processingStage = .reconciliation
+                try await pkg.save(on: app.db)
+
+                // MUT
+                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+
+                // validate
+                try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+                let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+                // Ensure fetch and store have been called, etag save to repository
+                XCTAssertEqual(fetchCalls.value, 2)
+                XCTAssertEqual(storeCalls.value, 1)
+                XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag1"))
+            }
+
+            do { // third pass, readme has changed upstream, save should be issues
+                pkg.processingStage = .reconciliation
+                try await pkg.save(on: app.db)
+
+                // MUT
+                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+
+                // validate
+                try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+                let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+                // Ensure fetch and store have been called, etag save to repository
+                XCTAssertEqual(fetchCalls.value, 3)
+                XCTAssertEqual(storeCalls.value, 2)
+                XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag2"))
+            }
         }
     }
 

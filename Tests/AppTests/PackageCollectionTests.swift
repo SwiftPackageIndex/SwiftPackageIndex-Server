@@ -349,7 +349,7 @@ class PackageCollectionTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .init(timeIntervalSince1970: 1610112345)
         } operation: {
-
+            // setup
             let pkg = try await savePackage(on: app.db, "1")
             do {
                 let v = try Version(package: pkg,
@@ -405,6 +405,7 @@ class PackageCollectionTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .init(timeIntervalSince1970: 1610112345)
         } operation: {
+            // setup
             // first package
             let p1 = try await savePackage(on: app.db, "https://github.com/foo/1")
             do {

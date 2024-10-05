@@ -287,95 +287,88 @@ final class PackageTests: AppTestCase {
     }
 
     func test_isNew() async throws {
-        // setup
-        let url = "1".asGithubUrl
-        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
-        Current.fetchPackageList = { _ in [url.url] }
-        Current.git.commitCount = { @Sendable _ in 12 }
-        Current.git.firstCommitDate = { @Sendable _ in Date(timeIntervalSince1970: 0) }
-        Current.git.getTags = { @Sendable _ in [] }
-        Current.git.hasBranch = { @Sendable _, _ in true }
-        Current.git.lastCommitDate = { @Sendable _ in Date(timeIntervalSince1970: 1) }
-        Current.git.revisionInfo = { @Sendable _, _ in
-            .init(commit: "sha",
-                  date: Date(timeIntervalSince1970: 0))
-        }
-        Current.git.shortlog = { @Sendable _ in
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // setup
+            let url = "1".asGithubUrl
+            Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
+            Current.fetchPackageList = { _ in [url.url] }
+            Current.git.commitCount = { @Sendable _ in 12 }
+            Current.git.firstCommitDate = { @Sendable _ in Date(timeIntervalSince1970: 0) }
+            Current.git.getTags = { @Sendable _ in [] }
+            Current.git.hasBranch = { @Sendable _, _ in true }
+            Current.git.lastCommitDate = { @Sendable _ in Date(timeIntervalSince1970: 1) }
+            Current.git.revisionInfo = { @Sendable _, _ in
+                    .init(commit: "sha",
+                          date: Date(timeIntervalSince1970: 0))
+            }
+            Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
-        }
-        Current.shell.run = { @Sendable cmd, path in
-            if cmd.description.hasSuffix("swift package dump-package") {
-                return #"{ "name": "Mock", "products": [] }"#
             }
-            return ""
-        }
-        let db = app.db
-        // run reconcile to ingest package
-        try await reconcile(client: app.client, database: app.db)
-        try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 1)
-
-        // MUT & validate
-        do {
-            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-            XCTAssertTrue(pkg.isNew)
-        }
-
-        try await withDependencies {
-            $0.date.now = .now
-        } operation: {
+            Current.shell.run = { @Sendable cmd, path in
+                if cmd.description.hasSuffix("swift package dump-package") {
+                    return #"{ "name": "Mock", "products": [] }"#
+                }
+                return ""
+            }
+            let db = app.db
+            // run reconcile to ingest package
+            try await reconcile(client: app.client, database: app.db)
+            try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 1)
+            
+            // MUT & validate
+            do {
+                let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                XCTAssertTrue(pkg.isNew)
+            }
+            
             // run ingestion to progress package through pipeline
             try await ingest(client: app.client, database: app.db, mode: .limit(10))
-        }
-
-        // MUT & validate
-        do {
-            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-            XCTAssertTrue(pkg.isNew)
-        }
-
-        try await withDependencies {
-            $0.date.now = .now
-        } operation: {
+            
+            // MUT & validate
+            do {
+                let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                XCTAssertTrue(pkg.isNew)
+            }
+            
             // run analysis to progress package through pipeline
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(10))
-        }
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+            
+            // MUT & validate
+            do {
+                let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                XCTAssertFalse(pkg.isNew)
+            }
+            
+            // run stages again to simulate the cycle...
+            
+            try await reconcile(client: app.client, database: app.db)
+            do {
+                let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                XCTAssertFalse(pkg.isNew)
+            }
+            
+            try await withDependencies {
+                $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
+            } operation: {
+                try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
-        // MUT & validate
-        do {
-            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-            XCTAssertFalse(pkg.isNew)
-        }
+                do {
+                    let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                    XCTAssertFalse(pkg.isNew)
+                }
 
-        // run stages again to simulate the cycle...
+                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
-        try await reconcile(client: app.client, database: app.db)
-        do {
-            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-            XCTAssertFalse(pkg.isNew)
-        }
-
-        try await withDependencies {
-            $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
-        } operation: {
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
-        }
-
-        do {
-            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-            XCTAssertFalse(pkg.isNew)
-        }
-
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
-        do {
-            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-            XCTAssertFalse(pkg.isNew)
+                do {
+                    let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                    XCTAssertFalse(pkg.isNew)
+                }
+            }
         }
     }
 

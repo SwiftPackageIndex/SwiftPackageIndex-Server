@@ -30,12 +30,12 @@ class AnalyzerTests: AppTestCase {
 
     @MainActor
     func test_analyze() async throws {
+        // End-to-end test, where we mock at the shell command level (i.e. we
+        // don't mock the git commands themselves to ensure we're running the
+        // expected shell commands for the happy path.)
         try await withDependencies {
             $0.date.now = .now
         } operation: {
-            // End-to-end test, where we mock at the shell command level (i.e. we
-            // don't mock the git commands themselves to ensure we're running the
-            // expected shell commands for the happy path.)
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
             let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
@@ -211,12 +211,12 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_analyze_version_update() async throws {
+        // Ensure that new incoming versions update the latest properties and
+        // move versions in case commits change. Tests both default branch commits
+        // changing as well as a tag being moved to a different commit.
         try await withDependencies {
             $0.date.now = .now
         } operation: {
-            // Ensure that new incoming versions update the latest properties and
-            // move versions in case commits change. Tests both default branch commits
-            // changing as well as a tag being moved to a different commit.
             // setup
             let pkgId = UUID()
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
@@ -308,21 +308,21 @@ class AnalyzerTests: AppTestCase {
 
     func test_forward_progress_on_analysisError() async throws {
         // Ensure a package that fails analysis goes back to ingesting and isn't stuck in an analysis loop
-        // setup
-        do {
-            let pkg = try await savePackage(on: app.db, "https://github.com/foo/1", processingStage: .ingestion)
-            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
-        }
-
-        Current.git.commitCount = { @Sendable _ in 12 }
-        Current.git.firstCommitDate = { @Sendable _ in .t0 }
-        Current.git.lastCommitDate = { @Sendable _ in .t1 }
-        Current.git.hasBranch = { @Sendable _, _ in false }  // simulate analysis error via branch mismatch
-        Current.git.shortlog = { @Sendable _ in "" }
-
         try await withDependencies {
             $0.date.now = .now
         } operation: {
+            // setup
+            do {
+                let pkg = try await savePackage(on: app.db, "https://github.com/foo/1", processingStage: .ingestion)
+                try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
+            }
+
+            Current.git.commitCount = { @Sendable _ in 12 }
+            Current.git.firstCommitDate = { @Sendable _ in .t0 }
+            Current.git.lastCommitDate = { @Sendable _ in .t1 }
+            Current.git.hasBranch = { @Sendable _, _ in false }  // simulate analysis error via branch mismatch
+            Current.git.shortlog = { @Sendable _ in "" }
+
             // Ensure candidate selection is as expected
             let app = self.app!
             try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
@@ -337,24 +337,24 @@ class AnalyzerTests: AppTestCase {
             // (and also for ingestion, as we're immediately after analysis)
             try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
             try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 0)
-        }
 
-        try await withDependencies {
-            // Advance time beyond reIngestionDeadtime
-            $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
-        } operation: {
-            // Ensure candidate selection has flipped to ingestion
-            let app = self.app!
-            try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 1)
-            try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 0)
+            try await withDependencies {
+                // Advance time beyond reIngestionDeadtime
+                $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
+            } operation: {
+                // Ensure candidate selection has flipped to ingestion
+                let app = self.app!
+                try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 1)
+                try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 0)
+            }
         }
     }
 
     func test_package_status() async throws {
+        // Ensure packages record success/error status
         try await withDependencies {
             $0.date.now = .now
         } operation: {
-            // Ensure packages record success/error status
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
             let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
@@ -401,10 +401,10 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_continue_on_exception() async throws {
+        // Test to ensure exceptions don't interrupt processing
         try await withDependencies {
             $0.date.now = .now
         } operation: {
-            // Test to ensure exceptions don't interrupt processing
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
             let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
@@ -877,11 +877,11 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_issue_29() async throws {
+        // Regression test for issue 29
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/29
         try await withDependencies {
             $0.date.now = .now
         } operation: {
-            // Regression test for issue 29
-            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/29
             // setup
             Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
@@ -1380,11 +1380,11 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_issue_2571_latest_version() async throws {
+        // Ensure `latest` remains set in case of AppError.noValidVersions
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
         try await withDependencies {
             $0.date.now = .now
         } operation: {
-            // Ensure `latest` remains set in case of AppError.noValidVersions
-            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
             let pkgId = UUID()
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
             try await pkg.save(on: app.db)
@@ -1490,11 +1490,11 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_issue_2873() async throws {
+        // Ensure we preserve dependency counts from previous default branch version
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2873
         try await withDependencies {
             $0.date.now = .now
         } operation: {
-            // Ensure we preserve dependency counts from previous default branch version
-            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2873
             // setup
             let pkg = try await savePackage(on: app.db, id: .id0, "https://github.com/foo/1".url, processingStage: .ingestion)
             try await Repository(package: pkg,
