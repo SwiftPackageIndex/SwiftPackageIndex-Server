@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Vapor
+import Dependencies
 import Fluent
-import SQLKit
 import Plot
+import SQLKit
+import Vapor
 
 
 enum SiteMapController {
@@ -67,10 +68,11 @@ enum SiteMapController {
     /// - Parameter packages: list of packages
     /// - Returns: `SiteMapIndex`
     static func index(packages: [SiteMapController.Package]) -> SiteMapIndex {
-        SiteMapIndex(
+        @Dependency(\.date.now) var now
+        return SiteMapIndex(
             .sitemap(
                 .loc(SiteURL.siteMapStaticPages.absoluteURL()),
-                .lastmod(Current.date(), timeZone: .utc) // The home page updates every day.
+                .lastmod(now, timeZone: .utc) // The home page updates every day.
             ),
             .group(
                 packages.map { package -> Node<SiteMapIndex.SiteMapIndexContext> in

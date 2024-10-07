@@ -13,10 +13,12 @@
 // limitations under the License.
 
 import Foundation
-import Plot
-import Vapor
+
+import Dependencies
 import DependencyResolution
+import Plot
 import SPIManifest
+import Vapor
 
 
 extension API.PackageController.GetRoute.Model {
@@ -181,7 +183,7 @@ extension API.PackageController.GetRoute.Model {
             return .empty
         }
     }
-    
+
     func forkedListItem() -> Node<HTML.ListContext> {
         if let forkedFromInfo {
             let item: Node<HTML.BodyContext> = {
@@ -216,7 +218,7 @@ extension API.PackageController.GetRoute.Model {
                     )
                 }
             }()
-            
+
             return .li(
                 .class("forked"),
                 item
@@ -272,8 +274,9 @@ extension API.PackageController.GetRoute.Model {
                 commitsLinkNode, " and ", releasesLinkNode, "."
             ])
         } else {
+            @Dependency(\.date.now) var now
             releasesSentenceFragments.append(contentsOf: [
-                "In development for \(inWords: Current.date().timeIntervalSince(history.createdAt)), with ",
+                "In development for \(inWords: now.timeIntervalSince(history.createdAt)), with ",
                 commitsLinkNode, " and ", releasesLinkNode,
                 "."
             ])

@@ -39,7 +39,6 @@ struct AppEnvironment: Sendable {
     var collectionSigningCertificateChain: @Sendable () -> [URL]
     var collectionSigningPrivateKey: @Sendable () -> Data?
     var currentReferenceCache: @Sendable () -> CurrentReferenceCache?
-    var date: @Sendable () -> Date
     var dbId: @Sendable () -> String?
     var environment: @Sendable () -> Environment
     var fetchDocumentation: @Sendable (_ client: Client, _ url: URI) async throws -> ClientResponse
@@ -162,7 +161,6 @@ extension AppEnvironment {
                 .map { Data($0.utf8) }
         },
         currentReferenceCache: { .live },
-        date: { .init() },
         dbId: { Environment.get("DATABASE_ID") },
         environment: { (try? Environment.detect()) ?? .development },
         fetchDocumentation: { client, url in try await client.get(url) },

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
 import Plot
 
@@ -46,7 +47,7 @@ extension HomeIndex.Model.Release {
     init(recent: RecentRelease) {
         packageName = recent.packageName
         version = recent.version
-        date = "\(date: recent.releasedAt, relativeTo: Current.date())"
+        date = recent.releasedAt.relative
         url = SiteURL.package(.value(recent.repositoryOwner),
                               .value(recent.repositoryName),
                               .none).relativeURL()

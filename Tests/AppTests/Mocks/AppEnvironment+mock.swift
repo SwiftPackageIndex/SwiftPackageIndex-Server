@@ -38,7 +38,6 @@ extension AppEnvironment {
             collectionSigningCertificateChain: AppEnvironment.live.collectionSigningCertificateChain,
             collectionSigningPrivateKey: AppEnvironment.live.collectionSigningPrivateKey,
             currentReferenceCache: { nil },
-            date: { .init() },
             dbId: { "db-id" },
             environment: { .development },
             fetchDocumentation: { _, _ in .init(status: .ok) },

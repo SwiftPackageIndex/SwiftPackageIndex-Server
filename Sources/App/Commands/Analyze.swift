@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import DependencyResolution
 import Fluent
 import SPIManifest
@@ -84,8 +85,8 @@ extension Analyze {
             }
             .forEach { pair in
                 guard let (path, mod) = pair else { return }
-                let cutoff = Current.date()
-                    .addingTimeInterval(-Constants.gitCheckoutMaxAge)
+                @Dependency(\.date.now) var now
+                let cutoff = now.addingTimeInterval(-Constants.gitCheckoutMaxAge)
                 if mod < cutoff {
                     try Current.fileManager.removeItem(atPath: path)
                     AppMetrics.analyzeTrimCheckoutsCount?.inc()
@@ -169,45 +170,53 @@ extension Analyze {
                         package: Joined<Package, Repository>) async throws {
         try await refreshCheckout(package: package)
 
-        try await database.transaction { tx in
-            try await updateRepository(on: tx, package: package)
+        // 2024-10-05 sas: We need to explicitly weave dependencies into the `transaction` closure, because escaping closures strip them.
+        // https://github.com/pointfreeco/swift-dependencies/discussions/283#discussioncomment-10846172
+        // This might not be needed in Vapor 5 / FluentKit 2
+        // TODO: verify this is still needed once we upgrade to Vapor 5 / FluentKit 2
+        try await withEscapedDependencies { dependencies in
+            try await database.transaction { tx in
+                try await dependencies.yield {
+                    try await updateRepository(on: tx, package: package)
 
-            let versionDelta = try await diffVersions(client: client, transaction: tx,
-                                                      package: package)
-            let netDeleteCount = versionDelta.toDelete.count - versionDelta.toAdd.count
-            if netDeleteCount > 1 {
-                Current.logger().warning("Suspicious loss of \(netDeleteCount) versions for package \(package.model.id)")
-            }
+                    let versionDelta = try await diffVersions(client: client, transaction: tx,
+                                                              package: package)
+                    let netDeleteCount = versionDelta.toDelete.count - versionDelta.toAdd.count
+                    if netDeleteCount > 1 {
+                        Current.logger().warning("Suspicious loss of \(netDeleteCount) versions for package \(package.model.id)")
+                    }
 
-            try await applyVersionDelta(on: tx, delta: versionDelta)
+                    try await applyVersionDelta(on: tx, delta: versionDelta)
 
-            let newVersions = versionDelta.toAdd
+                    let newVersions = versionDelta.toAdd
 
-            mergeReleaseInfo(package: package, into: newVersions)
+                    mergeReleaseInfo(package: package, into: newVersions)
 
-            var versionsPkgInfo = [(Version, PackageInfo)]()
-            for version in newVersions {
-                if let pkgInfo = try? await getPackageInfo(package: package, version: version) {
-                    versionsPkgInfo.append((version, pkgInfo))
+                    var versionsPkgInfo = [(Version, PackageInfo)]()
+                    for version in newVersions {
+                        if let pkgInfo = try? await getPackageInfo(package: package, version: version) {
+                            versionsPkgInfo.append((version, pkgInfo))
+                        }
+                    }
+                    if !newVersions.isEmpty && versionsPkgInfo.isEmpty {
+                        throw AppError.noValidVersions(package.model.id, package.model.url)
+                    }
+
+                    for (version, pkgInfo) in versionsPkgInfo {
+                        try await updateVersion(on: tx, version: version, packageInfo: pkgInfo)
+                        try await recreateProducts(on: tx, version: version, manifest: pkgInfo.packageManifest)
+                        try await recreateTargets(on: tx, version: version, manifest: pkgInfo.packageManifest)
+                    }
+
+                    let versions = try await updateLatestVersions(on: tx, package: package)
+
+                    let targets = await fetchTargets(on: tx, package: package)
+
+                    updateScore(package: package, versions: versions, targets: targets)
+
+                    await onNewVersions(client: client, package: package, versions: newVersions)
                 }
             }
-            if !newVersions.isEmpty && versionsPkgInfo.isEmpty {
-                throw AppError.noValidVersions(package.model.id, package.model.url)
-            }
-
-            for (version, pkgInfo) in versionsPkgInfo {
-                try await updateVersion(on: tx, version: version, packageInfo: pkgInfo)
-                try await recreateProducts(on: tx, version: version, manifest: pkgInfo.packageManifest)
-                try await recreateTargets(on: tx, version: version, manifest: pkgInfo.packageManifest)
-            }
-
-            let versions = try await updateLatestVersions(on: tx, package: package)
-            
-            let targets = await fetchTargets(on: tx, package: package)
-
-            updateScore(package: package, versions: versions, targets: targets)
-
-            await onNewVersions(client: client, package: package, versions: newVersions)
         }
     }
     
@@ -410,7 +419,8 @@ extension Analyze {
             return incoming
         }
 
-        let ageOfExistingVersion = Current.date().timeIntervalSinceReferenceDate - existingVersion.commitDate.timeIntervalSinceReferenceDate
+        @Dependency(\.date.now) var now
+        let ageOfExistingVersion = now.timeIntervalSinceReferenceDate - existingVersion.commitDate.timeIntervalSinceReferenceDate
 
         let resultingBranchVersion: Version
         if existingVersion.reference.branchName != incomingVersion.reference.branchName {

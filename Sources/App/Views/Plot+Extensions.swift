@@ -13,7 +13,10 @@
 // limitations under the License.
 
 import Foundation
+
+import Dependencies
 import Plot
+
 
 extension Node where Context: HTML.BodyContext {
     static func turboFrame(id: String, source: String? = nil, _ nodes: Node<HTML.BodyContext>...) -> Self {
@@ -271,7 +274,8 @@ extension Node where Context == HTML.ListContext {
                                 stars: Int?,
                                 lastActivityAt: Date?,
                                 hasDocs: Bool) -> Self {
-        .li(
+        @Dependency(\.date.now) var now
+        return .li(
             .a(
                 .href(linkUrl),
                 .h4(.text(packageName)),
@@ -309,7 +313,7 @@ extension Node where Context == HTML.ListContext {
                         .li(
                             .class("activity"),
                             .small(
-                                .text("Active \(date: $0, relativeTo: Current.date())")
+                                .text("Active \(date: $0, relativeTo: now)")
                             )
                         )
                     },

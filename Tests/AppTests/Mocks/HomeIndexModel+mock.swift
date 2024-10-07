@@ -14,23 +14,26 @@
 
 @testable import App
 
+import Dependencies
+
 
 extension HomeIndex.Model {
     static var mock: HomeIndex.Model {
-        .init(
+        @Dependency(\.date.now) var now
+        return .init(
             stats: .init(packageCount: 2544),
             recentPackages: [
-                .init(date: Current.date().adding(hours: -2),
+                .init(date: now.adding(hours: -2),
                       link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: Current.date().adding(hours: -2),
+                .init(date: now.adding(hours: -2),
                       link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: Current.date().adding(hours: -2),
+                .init(date: now.adding(hours: -2),
                       link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: Current.date().adding(hours: -2),
+                .init(date: now.adding(hours: -2),
                       link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: Current.date().adding(hours: -2),
+                .init(date: now.adding(hours: -2),
                       link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: Current.date().adding(hours: -2),
+                .init(date: now.adding(hours: -2),
                       link: .init(label: "Package", url: "https://example.com/package")),
             ],
             recentReleases: [

@@ -14,6 +14,7 @@
 
 @testable import App
 
+import Dependencies
 import XCTVapor
 
 
@@ -36,8 +37,12 @@ class ErrorReportingTests: AppTestCase {
         try await Package(url: "1", processingStage: .reconciliation).save(on: app.db)
         Current.fetchMetadata = { _, _, _ in throw Github.Error.invalidURI(nil, "1") }
 
-        // MUT
-        try await ingest(client: app.client, database: app.db, mode: .limit(10))
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // MUT
+            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+        }
 
         // validation
         logger.logs.withValue {

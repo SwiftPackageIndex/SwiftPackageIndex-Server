@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import Foundation
+
+import Dependencies
 import Plot
 
 
@@ -30,7 +32,7 @@ extension MaintainerInfoIndex {
             var score: Int
             var description: String
         }
-        
+
         func badgeURL(for type: BadgeType) -> String {
             let characterSet = CharacterSet.urlHostAllowed.subtracting(.init(charactersIn: "=:"))
             let url = SiteURL.api(.packages(.value(repositoryOwner), .value(repositoryName), .badge)).absoluteURL(parameters: [QueryParameter(key: "type", value: type.rawValue)])
@@ -48,7 +50,7 @@ extension MaintainerInfoIndex {
                                eventName: "Copy Markdown Button",
                                valueToCopy: badgeMarkdown(for: type))
         }
-        
+
         func packageScoreCategories() -> Node<HTML.BodyContext> {
             .forEach(0..<scoreCategories.count, { index in
                     .div(
@@ -59,11 +61,11 @@ extension MaintainerInfoIndex {
                     )
             })
         }
-        
+
         var packageScoreDiscussionURL: String {
             "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/discussions/2591"
         }
-        
+
         var scoreCategories: [PackageScore] {
             guard let scoreDetails else { return [] }
             return Score.Category.allCases
@@ -115,8 +117,9 @@ private extension Score.Details {
             case .maintenance:
                 // Using 750 days as it's just more than two years, meaning it should be possible to say "Last maintenance activity two years ago".
                 // The final nil-coalesce in this should never fire as it should always be possible to subtract two years from the current date.
+                @Dependency(\.date.now) var now
                 let maintainedRecently = lastActivityAt > Calendar.current.date(byAdding: .init(day: -750),
-                                                                                to: Current.date()) ?? Current.date()
+                                                                                to: now) ?? now
                 return maintainedRecently
                 ? "Last maintenance activity \(lastActivityAt.relative)."
                 : "No recent maintenance activity."

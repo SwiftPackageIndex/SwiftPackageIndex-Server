@@ -16,6 +16,7 @@ import XCTest
 
 @testable import App
 
+import Dependencies
 import SnapshotTesting
 import SwiftSoup
 import Vapor
@@ -1347,7 +1348,7 @@ class PackageController_routesTests: SnapshotTestCase {
             let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
             try await package.save(on: app.db)
             try await Repository(package: package, defaultBranch: "default",
-                                 lastCommitDate: Current.date(),
+                                 lastCommitDate: Date.now,
                                  name: "Repo0", owner: "Owner").save(on: app.db)
             try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
                               reference: .branch("default")).save(on: app.db)
@@ -1371,7 +1372,7 @@ class PackageController_routesTests: SnapshotTestCase {
         let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
         try await package.save(on: app.db)
         try await Repository(package: package, defaultBranch: "default",
-                             lastCommitDate: Current.date(),
+                             lastCommitDate: Date.now,
                              name: "Repo0", owner: "Owner").save(on: app.db)
         try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
                           reference: .branch("default")).save(on: app.db)
@@ -1419,28 +1420,31 @@ class PackageController_routesTests: SnapshotTestCase {
             return ""
         }
         // Make sure the new commit doesn't get throttled
-        Current.date = { .t1 + Constants.branchVersionRefreshDelay + 1 }
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
+        try await withDependencies {
+            $0.date.now = .t1 + Constants.branchVersionRefreshDelay + 1
+        } operation: {
+            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
-        // Ensure documentation is resolved
-        try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
-        }
+            // Ensure documentation is resolved
+            try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
+            }
 
-        // Run analyze to detect a new default branch version
-        try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(1))
+            // Run analyze to detect a new default branch version
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(1))
 
-        // Confirm that analysis has picked up the new version
-        let commit = try await Version.query(on: app.db).all().map(\.commit)
-        XCTAssertEqual(commit, ["new-commit"])
+            // Confirm that analysis has picked up the new version
+            let commit = try await Version.query(on: app.db).all().map(\.commit)
+            XCTAssertEqual(commit, ["new-commit"])
 
-        // Ensure documentation is still being resolved
-        try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
+            // Ensure documentation is still being resolved
+            try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
+            }
         }
     }
 
