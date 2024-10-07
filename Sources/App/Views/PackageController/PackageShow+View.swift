@@ -281,7 +281,7 @@ extension PackageShow {
                             )
                         )
                     },
-                    .unwrap(model.documentationTarget) { target in
+                    .unwrap(model.currentDocumentationTarget) { target in
                             .li(
                                 .a(
                                     .href(SiteURL.relativeURL(owner: model.repositoryOwner,
