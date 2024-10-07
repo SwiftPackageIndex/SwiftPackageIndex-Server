@@ -88,9 +88,19 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/137963?v=4"
         ),
         .init(
+            login: "giginet",
+            name: "Kohki Miki",
+            avatarUrl: "https://avatars.githubusercontent.com/u/147051?u=c8a8e40c507c11f7c4c678c570623212ceb06b49&v=4"
+        ),
+        .init(
             login: "bendodson",
             name: "Ben Dodson",
             avatarUrl: "https://avatars.githubusercontent.com/u/157243?v=4"
+        ),
+        .init(
+            login: "donaldww",
+            name: "Donald Wilson",
+            avatarUrl: "https://avatars.githubusercontent.com/u/221379?v=4"
         ),
         .init(
             login: "jabruder",
