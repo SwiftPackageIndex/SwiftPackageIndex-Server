@@ -84,4 +84,26 @@ class CustomCollectionTests: AppTestCase {
         }
     }
 
+    func test_CustomCollectionPackage_detach() async throws {
+        // setup
+        let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
+        try await pkg.save(on: app.db)
+        let collection = CustomCollection(id: .id1, name: "List", url: "https://github.com/foo/bar/list.json")
+        try await collection.save(on: app.db)
+        try await collection.$packages.attach(pkg, on: app.db)
+
+        // MUT
+        try await collection.$packages.detach(pkg, on: app.db)
+
+        do { // validate
+            let count = try await CustomCollectionPackage.query(on: app.db).count()
+            XCTAssertEqual(count, 0)
+        }
+
+        do { // ensure packag and collection are untouched
+            _ = try await Package.find(.id0, on: app.db).unwrap()
+            _ = try await CustomCollection.find(.id1, on: app.db).unwrap()
+        }
+    }
+
 }
