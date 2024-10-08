@@ -124,4 +124,80 @@ class CustomCollectionTests: AppTestCase {
         }
     }
 
+    func test_CustomCollection_cascade() async throws {
+        // setup
+        let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
+        try await pkg.save(on: app.db)
+        let collection = CustomCollection(id: .id1, name: "List", url: "https://github.com/foo/bar/list.json")
+        try await collection.save(on: app.db)
+        try await collection.$packages.attach(pkg, on: app.db)
+        do {
+            let count = try await CustomCollection.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
+        }
+        do {
+            let count = try await CustomCollectionPackage.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
+        }
+        do {
+            let count = try await Package.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
+        }
+
+        // MUT
+        try await collection.delete(on: app.db)
+
+        // validation
+        do {
+            let count = try await CustomCollection.query(on: app.db).count()
+            XCTAssertEqual(count, 0)
+        }
+        do {
+            let count = try await CustomCollectionPackage.query(on: app.db).count()
+            XCTAssertEqual(count, 0)
+        }
+        do {
+            let count = try await Package.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
+        }
+    }
+
+    func test_Package_cascade() async throws {
+        // setup
+        let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
+        try await pkg.save(on: app.db)
+        let collection = CustomCollection(id: .id1, name: "List", url: "https://github.com/foo/bar/list.json")
+        try await collection.save(on: app.db)
+        try await collection.$packages.attach(pkg, on: app.db)
+        do {
+            let count = try await CustomCollection.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
+        }
+        do {
+            let count = try await CustomCollectionPackage.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
+        }
+        do {
+            let count = try await Package.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
+        }
+
+        // MUT
+        try await pkg.delete(on: app.db)
+
+        // validation
+        do {
+            let count = try await CustomCollection.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
+        }
+        do {
+            let count = try await CustomCollectionPackage.query(on: app.db).count()
+            XCTAssertEqual(count, 0)
+        }
+        do {
+            let count = try await Package.query(on: app.db).count()
+            XCTAssertEqual(count, 0)
+        }
+    }
+
 }
