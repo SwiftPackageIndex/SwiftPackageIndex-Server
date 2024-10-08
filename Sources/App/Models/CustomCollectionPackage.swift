@@ -16,8 +16,8 @@ import Fluent
 import Vapor
 
 
-final class CustomCollection: @unchecked Sendable, Model, Content {
-    static let schema = "custom_collections"
+final class CustomCollectionPackage: @unchecked Sendable, Model, Content {
+    static let schema = "custom_collections+packages"
 
     typealias Id = UUID
 
@@ -33,34 +33,21 @@ final class CustomCollection: @unchecked Sendable, Model, Content {
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
 
-    // data fields
-
-    @Field(key: "name")
-    var name: String
-
-    @Field(key: "description")
-    var description: String?
-
-    @Field(key: "badge")
-    var badge: String?
-
-    @Field(key: "url")
-    var url: String
-
     // reference fields
-    @Siblings(through: CustomCollectionPackage.self, from: \.$customCollection, to: \.$package)
-    var packages: [Package]
+
+    @Parent(key: "custom_collection_id")
+    var customCollection: CustomCollection
+
+    @Parent(key: "package_id")
+    var package: Package
 
     init() { }
 
-    init(id: Id? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, name: String, description: String? = nil, badge: String? = nil, url: String) {
+    init(id: Id? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, customCollection: CustomCollection, package: Package) {
         self.id = id
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.name = name
-        self.description = description
-        self.badge = badge
-        self.url = url
+        self.customCollection = customCollection
+        self.package = package
     }
-
 }
