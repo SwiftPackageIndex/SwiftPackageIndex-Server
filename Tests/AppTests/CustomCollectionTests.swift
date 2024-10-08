@@ -106,4 +106,22 @@ class CustomCollectionTests: AppTestCase {
         }
     }
 
+    func test_CustomCollection_packages() async throws {
+        // setup
+        let p1 = Package(id: .id0, url: "1".asGithubUrl.url)
+        try await p1.save(on: app.db)
+        let p2 = Package(id: .id1, url: "2".asGithubUrl.url)
+        try await p2.save(on: app.db)
+        let collection = CustomCollection(id: .id2, name: "List", url: "https://github.com/foo/bar/list.json")
+        try await collection.save(on: app.db)
+        try await collection.$packages.attach([p1, p2], on: app.db)
+
+        do { // MUT
+            let collection = try await CustomCollection.find(.id2, on: app.db).unwrap()
+            try await collection.$packages.load(on: app.db)
+            let packages = collection.packages
+            XCTAssertEqual(Set(packages.map(\.id)) , Set([.id0, .id1]))
+        }
+    }
+
 }
