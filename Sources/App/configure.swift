@@ -342,6 +342,7 @@ public func configure(_ app: Application) async throws -> String {
     }
     do { // Migration 081 - Create `custom_collections`
         app.migrations.add(CreateCustomCollection())
+        app.migrations.add(CreateCustomCollectionPackage())
     }
 
     app.asyncCommands.use(Analyze.Command(), as: "analyze")
