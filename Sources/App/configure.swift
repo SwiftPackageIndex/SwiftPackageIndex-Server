@@ -340,6 +340,9 @@ public func configure(_ app: Application) async throws -> String {
     do { // Migration 080 - Set`forked_from` to NULL because of Fork model change in Repository
         app.migrations.add(UpdateRepositoryResetForkedFrom())
     }
+    do { // Migration 081 - Create `custom_collections`
+        app.migrations.add(CreateCustomCollection())
+    }
 
     app.asyncCommands.use(Analyze.Command(), as: "analyze")
     app.asyncCommands.use(CreateRestfileCommand(), as: "create-restfile")
