@@ -23,7 +23,7 @@ class CustomCollectionTests: AppTestCase {
 
     func test_CustomCollection_save() async throws {
         // MUT
-        try await CustomCollection(id: .id0, name: "List", url: "https://github.com/foo/bar/list.json")
+        try await CustomCollection(id: .id0, .init(name: "List", url: "https://github.com/foo/bar/list.json"))
             .save(on: app.db)
 
         do { // validate
@@ -33,7 +33,7 @@ class CustomCollectionTests: AppTestCase {
         }
 
         do { // ensure name is unique
-            try await CustomCollection(name: "List", url: "https://github.com/foo/bar/other-list.json")
+            try await CustomCollection(.init(name: "List", url: "https://github.com/foo/bar/other-list.json"))
                 .save(on: app.db)
             XCTFail("Expected failure")
         } catch {
@@ -43,7 +43,7 @@ class CustomCollectionTests: AppTestCase {
         }
 
         do { // ensure url is unique
-            try await CustomCollection(name: "List 2", url: "https://github.com/foo/bar/list.json")
+            try await CustomCollection(.init(name: "List 2", url: "https://github.com/foo/bar/list.json"))
                 .save(on: app.db)
             XCTFail("Expected failure")
         } catch {
@@ -87,7 +87,7 @@ class CustomCollectionTests: AppTestCase {
         // setup
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try await pkg.save(on: app.db)
-        let collection = CustomCollection(id: .id1, name: "List", url: "https://github.com/foo/bar/list.json")
+        let collection = CustomCollection(id: .id1, .init(name: "List", url: "https://github.com/foo/bar/list.json"))
         try await collection.save(on: app.db)
 
         // MUT
@@ -118,7 +118,7 @@ class CustomCollectionTests: AppTestCase {
         // setup
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try await pkg.save(on: app.db)
-        let collection = CustomCollection(id: .id1, name: "List", url: "https://github.com/foo/bar/list.json")
+        let collection = CustomCollection(id: .id1, .init(name: "List", url: "https://github.com/foo/bar/list.json"))
         try await collection.save(on: app.db)
         try await collection.$packages.attach(pkg, on: app.db)
 
@@ -142,7 +142,7 @@ class CustomCollectionTests: AppTestCase {
         try await p1.save(on: app.db)
         let p2 = Package(id: .id1, url: "2".asGithubUrl.url)
         try await p2.save(on: app.db)
-        let collection = CustomCollection(id: .id2, name: "List", url: "https://github.com/foo/bar/list.json")
+        let collection = CustomCollection(id: .id2, .init(name: "List", url: "https://github.com/foo/bar/list.json"))
         try await collection.save(on: app.db)
         try await collection.$packages.attach([p1, p2], on: app.db)
 
@@ -158,7 +158,7 @@ class CustomCollectionTests: AppTestCase {
         // setup
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try await pkg.save(on: app.db)
-        let collection = CustomCollection(id: .id1, name: "List", url: "https://github.com/foo/bar/list.json")
+        let collection = CustomCollection(id: .id1, .init(name: "List", url: "https://github.com/foo/bar/list.json"))
         try await collection.save(on: app.db)
         try await collection.$packages.attach(pkg, on: app.db)
         do {
@@ -196,7 +196,7 @@ class CustomCollectionTests: AppTestCase {
         // setup
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try await pkg.save(on: app.db)
-        let collection = CustomCollection(id: .id1, name: "List", url: "https://github.com/foo/bar/list.json")
+        let collection = CustomCollection(id: .id1, .init(name: "List", url: "https://github.com/foo/bar/list.json"))
         try await collection.save(on: app.db)
         try await collection.$packages.attach(pkg, on: app.db)
         do {
@@ -232,7 +232,7 @@ class CustomCollectionTests: AppTestCase {
 
     func test_CustomCollection_reconcile() async throws {
         // Test reconciliation of a custom collection against a list of package URLs
-        let collection = CustomCollection(id: .id0, name: "List", url: "https://github.com/foo/bar/list.json")
+        let collection = CustomCollection(id: .id0, .init(name: "List", url: "https://github.com/foo/bar/list.json"))
         try await collection.save(on: app.db)
         try await Package(id: .id1, url: URL("https://a")).save(on: app.db)
         try await Package(id: .id2, url: URL("https://b")).save(on: app.db)

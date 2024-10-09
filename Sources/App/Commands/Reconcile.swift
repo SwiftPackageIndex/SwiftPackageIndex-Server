@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
 import Vapor
 
@@ -48,16 +49,24 @@ struct ReconcileCommand: AsyncCommand {
 func reconcile(client: Client, database: Database) async throws {
     let start = DispatchTime.now().uptimeNanoseconds
     defer { AppMetrics.reconcileDurationSeconds?.time(since: start) }
-    async let sourcePackageList = try Current.fetchPackageList(client)
-    async let sourcePackageDenyList = try Current.fetchPackageDenyList(client)
-    async let currentList = try fetchCurrentPackageList(database)
 
-    let packageList = processPackageDenyList(packageList: try await sourcePackageList,
-                                             denyList: try await sourcePackageDenyList)
+    do { // reconcile main package list
+        async let sourcePackageList = try Current.fetchPackageList(client)
+        async let sourcePackageDenyList = try Current.fetchPackageDenyList(client)
+        async let currentList = try fetchCurrentPackageList(database)
 
-    try await reconcileLists(db: database,
-                             source: packageList,
-                             target: currentList)
+        let packageList = processPackageDenyList(packageList: try await sourcePackageList,
+                                                 denyList: try await sourcePackageDenyList)
+
+        try await reconcileLists(db: database,
+                                 source: packageList,
+                                 target: currentList)
+    }
+
+    do { // reconcile custom package collections
+        // - fetch custom-package-collections.json
+        // - for each entry: reconcileCustomCollection
+    }
 }
 
 
@@ -115,6 +124,7 @@ func reconcileLists(db: Database, source: [URL], target: [URL]) async throws {
     }
 }
 
+
 func processPackageDenyList(packageList: [URL], denyList: [URL]) -> [URL] {
     // Note: If the implementation of this function ever changes, the `RemoveDenyList`
     // command in the Validator will also need updating to match.
@@ -139,4 +149,16 @@ func processPackageDenyList(packageList: [URL], denyList: [URL]) -> [URL] {
         Set(packageList.map(CaseInsensitiveURL.init))
             .subtracting(Set(denyList.map(CaseInsensitiveURL.init)))
     ).map(\.url)
+}
+
+
+func reconcileCustomCollection(client: Client, database: Database, fullPackageList: [URL], _ dto: CustomCollection.DTO) async throws {
+    let collection = try await CustomCollection.findOrCreate(on: database, dto)
+
+    // Limit incoming URLs to 50 since this is input outside of our control
+    @Dependency(\.packageListRepository) var packageListRepository
+    let incomingURLs = try await packageListRepository.fetchCustomCollection(client: client, url: collection.url)
+        .prefix(50)
+
+    try await collection.reconcile(on: database, packageURLs: incomingURLs)
 }
