@@ -271,6 +271,10 @@ extension QueryBuilder where Model == Package {
     func filter(by url: URL) -> Self {
         filter(\.$url == url.absoluteString)
     }
+
+    func filter(by urls: some Collection<URL>) -> Self {
+        filter(\.$url ~~ urls.map(\.absoluteString))
+    }
 }
 
 

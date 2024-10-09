@@ -136,6 +136,14 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(res.map(\.url), ["https://foo.com/1"])
     }
 
+    func test_filter_by_urls() async throws {
+        for url in ["https://foo.com/1", "https://foo.com/2", "https://foo.com/a", "https://foo.com/A"] {
+            try await Package(url: url.url).save(on: app.db)
+        }
+        let res = try await Package.query(on: app.db).filter(by: ["https://foo.com/2", "https://foo.com/a"]).all()
+        XCTAssertEqual(res.map(\.url), ["https://foo.com/2", "https://foo.com/a"])
+    }
+
     func test_repository() async throws {
         let pkg = try await savePackage(on: app.db, "1")
         do {
