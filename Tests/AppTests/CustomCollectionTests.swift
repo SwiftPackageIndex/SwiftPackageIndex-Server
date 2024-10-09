@@ -200,4 +200,59 @@ class CustomCollectionTests: AppTestCase {
         }
     }
 
+    func test_CustomCollection_reconcile() async throws {
+        // Test reconciliation of a custom collection against a list of package URLs
+        let collection = CustomCollection(id: .id0, name: "List", url: "https://github.com/foo/bar/list.json")
+        try await collection.save(on: app.db)
+        try await Package(id: .id1, url: URL("https://a")).save(on: app.db)
+        try await Package(id: .id2, url: URL("https://b")).save(on: app.db)
+
+        do { // Initial set of URLs
+            // MUT
+            try await collection.reconcile(on: app.db, packageURLs: [URL("https://a")])
+
+            do { // validate
+                let count = try await CustomCollectionPackage.query(on: app.db).count()
+                XCTAssertEqual(count, 1)
+                let collection = try await CustomCollection.find(.id0, on: app.db).unwrap()
+                try await collection.$packages.load(on: app.db)
+                XCTAssertEqual(collection.packages.map(\.url), ["https://a"])
+            }
+        }
+
+        do { // Add more URLs
+            // MUT
+            try await collection.reconcile(on: app.db, packageURLs: [
+                URL("https://a"),
+                URL("https://b")
+            ])
+
+            do { // validate
+                let count = try await CustomCollectionPackage.query(on: app.db).count()
+                XCTAssertEqual(count, 2)
+                let collection = try await CustomCollection.find(.id0, on: app.db).unwrap()
+                try await collection.$packages.load(on: app.db)
+                XCTAssertEqual(collection.packages.map(\.url).sorted(), [
+                    "https://a",
+                    "https://b"
+                ])
+            }
+        }
+
+        do { // Remove URLs
+            // MUT
+            try await collection.reconcile(on: app.db, packageURLs: [
+                URL("https://b")
+            ])
+
+            do { // validate
+                let count = try await CustomCollectionPackage.query(on: app.db).count()
+                XCTAssertEqual(count, 1)
+                let collection = try await CustomCollection.find(.id0, on: app.db).unwrap()
+                try await collection.$packages.load(on: app.db)
+                XCTAssertEqual(collection.packages.map(\.url), ["https://b"])
+            }
+        }
+    }
+
 }

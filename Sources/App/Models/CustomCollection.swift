@@ -64,3 +64,34 @@ final class CustomCollection: @unchecked Sendable, Model, Content {
     }
 
 }
+
+
+extension CustomCollection {
+    func reconcile(on database: Database, packageURLs: [URL]) async throws {
+        let incoming: [Package.Id: Package] = .init(
+            packages: try await Package.query(on: database)
+                .filter(by: packageURLs)
+                .all()
+        )
+        try await $packages.load(on: database)
+        let existing: [Package.Id: Package] = .init(packages: packages)
+        let newIDs = Set(incoming.keys).subtracting(Set(existing.keys))
+        try await $packages.attach(incoming[newIDs], on: database)
+        let removedIDs = Set(existing.keys).subtracting(Set(incoming.keys))
+        try await $packages.detach(existing[removedIDs], on: database)
+    }
+}
+
+
+private extension [Package.Id: Package] {
+    init(packages: [Package]) {
+        self.init(
+            packages.compactMap({ pkg in pkg.id.map({ ($0, pkg) }) }),
+            uniquingKeysWith: { (first, second) in first }
+        )
+    }
+
+    subscript(ids: some Collection<Package.Id>) -> [Package] {
+        Array(ids.compactMap { self[$0] })
+    }
+}
