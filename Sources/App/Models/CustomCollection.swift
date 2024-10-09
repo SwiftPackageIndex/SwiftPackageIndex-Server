@@ -45,23 +45,13 @@ final class CustomCollection: @unchecked Sendable, Model, Content {
     var badge: String?
 
     @Field(key: "url")
-    var url: String
+    var url: URL
 
     // reference fields
     @Siblings(through: CustomCollectionPackage.self, from: \.$customCollection, to: \.$package)
     var packages: [Package]
 
     init() { }
-
-    init(id: Id? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, name: String, description: String? = nil, badge: String? = nil, url: String) {
-        self.id = id
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
-        self.name = name
-        self.description = description
-        self.badge = badge
-        self.url = url
-    }
 
     init(id: Id? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, _ dto: DTO) {
         self.id = id
@@ -80,7 +70,7 @@ extension CustomCollection {
         var name: String
         var description: String?
         var badge: String?
-        var url: String
+        var url: URL
     }
 
     static func findOrCreate(on database: Database, _ dto: DTO) async throws -> CustomCollection {

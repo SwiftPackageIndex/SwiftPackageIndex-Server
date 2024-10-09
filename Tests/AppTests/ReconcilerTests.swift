@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
+import Dependencies
 import Vapor
-import XCTest
 
 
 class ReconcilerTests: AppTestCase {
@@ -114,4 +116,68 @@ class ReconcilerTests: AppTestCase {
         let packages = try await Package.query(on: app.db).all()
         XCTAssertEqual(packages.map(\.url).sorted(), ["https://example.com/two/two"])
     }
+
+    func test_reconcileCustomCollections() async throws {
+        // Test single custom collection reconciliation
+        // setup
+        var fullPackageList = [URL("a"), URL("b"), URL("c")]
+        for url in fullPackageList { try await Package(url: url).save(on: app.db) }
+
+        // Initial run
+        try await withDependencies {
+            $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [URL("b")] }
+        } operation: {
+            // MUT
+            try await reconcileCustomCollection(client: app.client,
+                                                database: app.db,
+                                                fullPackageList: fullPackageList,
+                                                .init(name: "List", url: "url"))
+
+            // validate
+            let count = try await CustomCollection.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
+            let collection = try await CustomCollection.query(on: app.db).first().unwrap()
+            try await collection.$packages.load(on: app.db)
+            XCTAssertEqual(collection.packages.map(\.url), ["b"])
+        }
+
+        // Reconcile again with an updated list of packages in the collection
+        try await withDependencies {
+            $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [URL("c")] }
+        } operation: {
+            // MUT
+            try await reconcileCustomCollection(client: app.client,
+                                                database: app.db,
+                                                fullPackageList: fullPackageList,
+                                                .init(name: "List", url: "url"))
+
+            // validate
+            let count = try await CustomCollection.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
+            let collection = try await CustomCollection.query(on: app.db).first().unwrap()
+            try await collection.$packages.load(on: app.db)
+            XCTAssertEqual(collection.packages.map(\.url), ["c"])
+        }
+
+        // Re-run after the single package in the list has been deleted in the full package list
+        fullPackageList = [URL("a"), URL("b")]
+        try await Package.query(on: app.db).filter(by: URL("c")).first()?.delete(on: app.db)
+        try await withDependencies {
+            $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [URL("c")] }
+        } operation: {
+            // MUT
+            try await reconcileCustomCollection(client: app.client,
+                                                database: app.db,
+                                                fullPackageList: fullPackageList,
+                                                .init(name: "List", url: "url"))
+
+            // validate
+            let count = try await CustomCollection.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
+            let collection = try await CustomCollection.query(on: app.db).first().unwrap()
+            try await collection.$packages.load(on: app.db)
+            XCTAssertEqual(collection.packages.map(\.url), [])
+        }
+    }
+
 }
