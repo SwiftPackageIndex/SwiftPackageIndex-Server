@@ -53,6 +53,36 @@ class CustomCollectionTests: AppTestCase {
         }
     }
 
+    func test_CustomCollection_findOrCreate() async throws {
+        do { // initial call creates collection
+            // MUT
+            let res = try await CustomCollection.findOrCreate(on: app.db, .init(name: "List", url: "url"))
+
+            // validate
+            XCTAssertEqual(res.name, "List")
+            XCTAssertEqual(res.url, "url")
+
+            let c = try await CustomCollection.query(on: app.db).all()
+            XCTAssertEqual(c.count, 1)
+            XCTAssertEqual(c.first?.name, "List")
+            XCTAssertEqual(c.first?.url, "url")
+        }
+
+        do { // re-running is idempotent
+            // MUT
+            let res = try await CustomCollection.findOrCreate(on: app.db, .init(name: "List", url: "url"))
+
+            // validate
+            XCTAssertEqual(res.name, "List")
+            XCTAssertEqual(res.url, "url")
+
+            let c = try await CustomCollection.query(on: app.db).all()
+            XCTAssertEqual(c.count, 1)
+            XCTAssertEqual(c.first?.name, "List")
+            XCTAssertEqual(c.first?.url, "url")
+        }
+    }
+
     func test_CustomCollectionPackage_attach() async throws {
         // setup
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
