@@ -63,11 +63,39 @@ final class CustomCollection: @unchecked Sendable, Model, Content {
         self.url = url
     }
 
+    init(id: Id? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, _ dto: DTO) {
+        self.id = id
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.name = dto.name
+        self.description = dto.description
+        self.badge = dto.badge
+        self.url = dto.url
+    }
 }
 
 
 extension CustomCollection {
-    func reconcile(on database: Database, packageURLs: [URL]) async throws {
+    struct DTO: Codable {
+        var name: String
+        var description: String?
+        var badge: String?
+        var url: String
+    }
+
+    static func findOrCreate(on database: Database, _ dto: DTO) async throws -> CustomCollection {
+        if let collection = try await CustomCollection.query(on: database)
+            .filter(\.$url == dto.url)
+            .first() {
+            return collection
+        } else {
+            let collection = CustomCollection(dto)
+            try await collection.save(on: database)
+            return collection
+        }
+    }
+
+    func reconcile(on database: Database, packageURLs: some Collection<URL>) async throws {
         let incoming: [Package.Id: Package] = .init(
             packages: try await Package.query(on: database)
                 .filter(by: packageURLs)
