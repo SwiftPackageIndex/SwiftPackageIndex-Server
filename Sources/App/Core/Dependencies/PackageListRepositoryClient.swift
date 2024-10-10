@@ -20,6 +20,7 @@ import Vapor
 @DependencyClient
 struct PackageListRepositoryClient {
     var fetchCustomCollection: @Sendable (_ client: Client, _ url: URL) async throws -> [URL]
+    var fetchCustomCollections: @Sendable (_ client: Client) async throws -> [CustomCollection.DTO]
     // TODO: move other package list dependencies here
 }
 

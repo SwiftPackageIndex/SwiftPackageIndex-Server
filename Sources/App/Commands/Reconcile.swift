@@ -50,23 +50,32 @@ func reconcile(client: Client, database: Database) async throws {
     let start = DispatchTime.now().uptimeNanoseconds
     defer { AppMetrics.reconcileDurationSeconds?.time(since: start) }
 
-    do { // reconcile main package list
-        async let sourcePackageList = try Current.fetchPackageList(client)
-        async let sourcePackageDenyList = try Current.fetchPackageDenyList(client)
-        async let currentList = try fetchCurrentPackageList(database)
-
-        let packageList = processPackageDenyList(packageList: try await sourcePackageList,
-                                                 denyList: try await sourcePackageDenyList)
-
-        try await reconcileLists(db: database,
-                                 source: packageList,
-                                 target: currentList)
-    }
+    // reconcile main package list
+    let fullPackageList = try await reconcileMainPackageList(client: client, database: database)
 
     do { // reconcile custom package collections
-        // - fetch custom-package-collections.json
-        // - for each entry: reconcileCustomCollection
+        @Dependency(\.packageListRepository) var packageListRepository
+        let collections = try await packageListRepository.fetchCustomCollections(client: client)
+        for collection in collections {
+            try await reconcileCustomCollection(client: client, database: database, fullPackageList: fullPackageList, collection)
+        }
     }
+}
+
+
+func reconcileMainPackageList(client: Client, database: Database) async throws -> [URL] {
+    async let sourcePackageList = try Current.fetchPackageList(client)
+    async let sourcePackageDenyList = try Current.fetchPackageDenyList(client)
+    async let currentList = try fetchCurrentPackageList(database)
+
+    let packageList = processPackageDenyList(packageList: try await sourcePackageList,
+                                             denyList: try await sourcePackageDenyList)
+
+    try await reconcileLists(db: database,
+                             source: packageList,
+                             target: currentList)
+
+    return packageList
 }
 
 

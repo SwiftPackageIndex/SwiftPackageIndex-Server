@@ -35,13 +35,13 @@ class ReconcilerTests: AppTestCase {
         XCTAssertEqual(urls.map(\.absoluteString).sorted(), ["1", "2", "3"])
     }
 
-    func test_basic_reconciliation() async throws {
+    func test_reconcileMainPackageList() async throws {
         // setup
         let urls = ["1", "2", "3"]
         Current.fetchPackageList = { _ in urls.asURLs }
 
         // MUT
-        try await reconcile(client: app.client, database: app.db)
+        _ = try await reconcileMainPackageList(client: app.client, database: app.db)
 
         // validate
         let packages = try await Package.query(on: app.db).all()
@@ -55,7 +55,7 @@ class ReconcilerTests: AppTestCase {
         }
     }
 
-    func test_adds_and_deletes() async throws {
+    func test_reconcileMainPackageList_adds_and_deletes() async throws {
         // save intial set of packages 1, 2, 3
         for url in ["1", "2", "3"].asURLs {
             try await Package(url: url).save(on: app.db)
@@ -66,14 +66,14 @@ class ReconcilerTests: AppTestCase {
         Current.fetchPackageList = { _ in urls.asURLs }
 
         // MUT
-        try await reconcile(client: app.client, database: app.db)
+        _ = try await reconcileMainPackageList(client: app.client, database: app.db)
 
         // validate
         let packages = try await Package.query(on: app.db).all()
         XCTAssertEqual(packages.map(\.url).sorted(), urls.sorted())
     }
 
-    func test_packageDenyList() async throws {
+    func test_reconcileMainPackageList_packageDenyList() async throws {
         // Save the intial set of packages
         for url in ["1", "2", "3"].asURLs {
             try await Package(url: url).save(on: app.db)
@@ -88,14 +88,14 @@ class ReconcilerTests: AppTestCase {
         Current.fetchPackageDenyList = { _ in packageDenyList.asURLs }
 
         // MUT
-        try await reconcile(client: app.client, database: app.db)
+        _ = try await reconcileMainPackageList(client: app.client, database: app.db)
 
         // validate
         let packages = try await Package.query(on: app.db).all()
         XCTAssertEqual(packages.map(\.url).sorted(), ["1", "3", "5"])
     }
 
-    func test_packageDenyList_caseSensitivity() async throws {
+    func test_reconcileMainPackageList_packageDenyList_caseSensitivity() async throws {
         // Save the intial set of packages
         for url in ["https://example.com/one/one", "https://example.com/two/two"].asURLs {
             try await Package(url: url).save(on: app.db)
@@ -110,7 +110,7 @@ class ReconcilerTests: AppTestCase {
         Current.fetchPackageDenyList = { _ in packageDenyList.asURLs }
 
         // MUT
-        try await reconcile(client: app.client, database: app.db)
+        _ = try await reconcileMainPackageList(client: app.client, database: app.db)
 
         // validate
         let packages = try await Package.query(on: app.db).all()
@@ -204,6 +204,10 @@ class ReconcilerTests: AppTestCase {
             XCTAssertEqual(collection.packages.first?.url, "1")
             XCTAssertEqual(collection.packages.last?.url, "50")
         }
+    }
+
+    func test_reconcile() async throws {
+        XCTFail("Implement integration test for both parts, main list + custom collection")
     }
 
 }
