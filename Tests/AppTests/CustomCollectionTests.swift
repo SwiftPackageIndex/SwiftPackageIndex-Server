@@ -234,27 +234,27 @@ class CustomCollectionTests: AppTestCase {
         // Test reconciliation of a custom collection against a list of package URLs
         let collection = CustomCollection(id: .id0, .init(name: "List", url: "https://github.com/foo/bar/list.json"))
         try await collection.save(on: app.db)
-        try await Package(id: .id1, url: URL("https://a")).save(on: app.db)
-        try await Package(id: .id2, url: URL("https://b")).save(on: app.db)
+        try await Package(id: .id1, url: URL("a")).save(on: app.db)
+        try await Package(id: .id2, url: URL("b")).save(on: app.db)
 
         do { // Initial set of URLs
             // MUT
-            try await collection.reconcile(on: app.db, packageURLs: [URL("https://a")])
+            try await collection.reconcile(on: app.db, packageURLs: [URL("a")])
 
             do { // validate
                 let count = try await CustomCollectionPackage.query(on: app.db).count()
                 XCTAssertEqual(count, 1)
                 let collection = try await CustomCollection.find(.id0, on: app.db).unwrap()
                 try await collection.$packages.load(on: app.db)
-                XCTAssertEqual(collection.packages.map(\.url), ["https://a"])
+                XCTAssertEqual(collection.packages.map(\.url), ["a"])
             }
         }
 
         do { // Add more URLs
             // MUT
             try await collection.reconcile(on: app.db, packageURLs: [
-                URL("https://a"),
-                URL("https://b")
+                URL("a"),
+                URL("b")
             ])
 
             do { // validate
@@ -263,8 +263,8 @@ class CustomCollectionTests: AppTestCase {
                 let collection = try await CustomCollection.find(.id0, on: app.db).unwrap()
                 try await collection.$packages.load(on: app.db)
                 XCTAssertEqual(collection.packages.map(\.url).sorted(), [
-                    "https://a",
-                    "https://b"
+                    "a",
+                    "b"
                 ])
             }
         }
@@ -272,7 +272,7 @@ class CustomCollectionTests: AppTestCase {
         do { // Remove URLs
             // MUT
             try await collection.reconcile(on: app.db, packageURLs: [
-                URL("https://b")
+                URL("b")
             ])
 
             do { // validate
@@ -280,8 +280,30 @@ class CustomCollectionTests: AppTestCase {
                 XCTAssertEqual(count, 1)
                 let collection = try await CustomCollection.find(.id0, on: app.db).unwrap()
                 try await collection.$packages.load(on: app.db)
-                XCTAssertEqual(collection.packages.map(\.url), ["https://b"])
+                XCTAssertEqual(collection.packages.map(\.url), ["b"])
             }
+        }
+    }
+
+    func test_CustomCollection_reconcile_caseSensitive() async throws {
+        // Test reconciliation with a case-insensitive matching URL
+        let collection = CustomCollection(id: .id0, .init(name: "List", url: "https://github.com/foo/bar/list.json"))
+        try await collection.save(on: app.db)
+        try await Package(id: .id1, url: URL("a")).save(on: app.db)
+
+        // MUT
+        try await collection.reconcile(on: app.db, packageURLs: [URL("A")])
+
+        do { // validate
+            // The package is not added to the custom collection, because it is not an
+            // exact match for the package URL.
+            // This is currently a limiting of the Fluent ~~ operator in the query
+            //   filter(\.$url ~~ urls.map(\.absoluteString))
+            let count = try await CustomCollectionPackage.query(on: app.db).count()
+            XCTAssertEqual(count, 0)
+            let collection = try await CustomCollection.find(.id0, on: app.db).unwrap()
+            try await collection.$packages.load(on: app.db)
+            XCTAssertEqual(collection.packages.map(\.url), [])
         }
     }
 
