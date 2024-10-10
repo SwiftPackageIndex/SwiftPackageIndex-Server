@@ -180,4 +180,30 @@ class ReconcilerTests: AppTestCase {
         }
     }
 
+    func test_reconcileCustomCollections_limit() async throws {
+        // Test custom collection reconciliation size limit
+        // setup
+        let fullPackageList = (1...60).map { URL(string: "\($0)")! }
+        for url in fullPackageList { try await Package(url: url).save(on: app.db) }
+
+        try await withDependencies {
+            $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in
+                fullPackageList
+            }
+        } operation: {
+            // MUT
+            try await reconcileCustomCollection(client: app.client,
+                                                database: app.db,
+                                                fullPackageList: fullPackageList,
+                                                .init(name: "List", url: "url"))
+
+            // validate
+            let collection = try await CustomCollection.query(on: app.db).first().unwrap()
+            try await collection.$packages.load(on: app.db)
+            XCTAssertEqual(collection.packages.count, 50)
+            XCTAssertEqual(collection.packages.first?.url, "1")
+            XCTAssertEqual(collection.packages.last?.url, "50")
+        }
+    }
+
 }
