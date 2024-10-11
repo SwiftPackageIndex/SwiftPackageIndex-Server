@@ -207,7 +207,39 @@ class ReconcilerTests: AppTestCase {
     }
 
     func test_reconcile() async throws {
-        XCTFail("Implement integration test for both parts, main list + custom collection")
+        let fullPackageList = (1...3).map { URL(string: "\($0)")! }
+        struct TestError: Error { var message: String }
+
+        try await withDependencies {
+            $0.packageListRepository.fetchCustomCollection = { @Sendable _, url in
+                if url == "collectionURL" {
+                    return [URL("2")]
+                } else {
+                    throw TestError(message: "collection not found: \(url)")
+                }
+            }
+            $0.packageListRepository.fetchCustomCollections = { @Sendable _ in
+                [.init(name: "List", url: "collectionURL")]
+            }
+        } operation: {
+            // setup
+            Current.fetchPackageList = { _ in fullPackageList }
+
+            // MUT
+            _ = try await reconcile(client: app.client, database: app.db)
+
+            // validate
+            let packages = try await Package.query(on: app.db).all()
+            XCTAssertEqual(packages.map(\.url).sorted(),
+                           fullPackageList.map(\.absoluteString).sorted())
+            let count = try await CustomCollection.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
+            let collection = try await CustomCollection.query(on: app.db).first().unwrap()
+            XCTAssertEqual(collection.name, "List")
+            XCTAssertEqual(collection.url, "collectionURL")
+            try await collection.$packages.load(on: app.db)
+            XCTAssertEqual(collection.packages.map(\.url), ["2"])
+        }
     }
 
 }
