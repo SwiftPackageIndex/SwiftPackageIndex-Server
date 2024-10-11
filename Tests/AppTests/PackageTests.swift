@@ -297,6 +297,7 @@ final class PackageTests: AppTestCase {
     func test_isNew() async throws {
         try await withDependencies {
             $0.date.now = .now
+            $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
         } operation: {
             // setup
             let url = "1".asGithubUrl
