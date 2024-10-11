@@ -25,6 +25,26 @@ struct PackageListRepositoryClient {
 }
 
 
+extension PackageListRepositoryClient: DependencyKey {
+    static var liveValue: PackageListRepositoryClient {
+        .init(
+            fetchCustomCollection: { client, url in
+                try await client
+                    .get(URI(string: url.absoluteString))
+                    .content
+                    .decode([URL].self, using: JSONDecoder())
+            },
+            fetchCustomCollections: { client in
+                try await client
+                    .get(Constants.customCollectionsUri)
+                    .content
+                    .decode([CustomCollection.DTO].self, using: JSONDecoder())
+            }
+        )
+    }
+}
+
+
 extension PackageListRepositoryClient: Sendable, TestDependencyKey {
     static var testValue: Self { Self() }
 }
