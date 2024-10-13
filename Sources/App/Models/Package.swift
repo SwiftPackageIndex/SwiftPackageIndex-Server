@@ -273,6 +273,7 @@ extension QueryBuilder where Model == Package {
     }
 
     func filter(by urls: some Collection<URL>) -> Self {
+        // TODO: make case-insensitive and canonicalise incoming URLs
         filter(\.$url ~~ urls.map(\.absoluteString))
     }
 }
