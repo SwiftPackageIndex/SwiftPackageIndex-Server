@@ -28,6 +28,8 @@ enum Constants {
     static let packageDenyListUri = URI(string: "https://raw.githubusercontent.com/SwiftPackageIndex/PackageList/main/denylist.json")
     static let customCollectionsUri = URI(string: "https://raw.githubusercontent.com/SwiftPackageIndex/PackageList/main/custom-package-collections.json.json")
 
+    static let maxCustomPackageCollectionSize = 50
+
     // NB: the underlying materialised views also have a limit, this is just an additional
     // limit to ensure we don't spill too many rows onto the home page
     static let recentPackagesLimit = 7

@@ -167,7 +167,7 @@ func reconcileCustomCollection(client: Client, database: Database, fullPackageLi
     // Limit incoming URLs to 50 since this is input outside of our control
     @Dependency(\.packageListRepository) var packageListRepository
     let incomingURLs = try await packageListRepository.fetchCustomCollection(client: client, url: collection.url)
-        .prefix(50)
+        .prefix(Constants.maxCustomPackageCollectionSize)
 
     try await collection.reconcile(on: database, packageURLs: incomingURLs)
 }
