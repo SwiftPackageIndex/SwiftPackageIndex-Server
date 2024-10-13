@@ -25,7 +25,7 @@ struct ReconcileCommand: AsyncCommand {
     func run(using context: CommandContext, signature: Signature) async throws {
         Current.setLogger(Logger(component: "reconcile"))
 
-        Current.logger().info("Reconciling ...")
+        Current.logger().info("Reconciling...")
 
         do {
             try await reconcile(client: context.application.client,
@@ -51,12 +51,15 @@ func reconcile(client: Client, database: Database) async throws {
     defer { AppMetrics.reconcileDurationSeconds?.time(since: start) }
 
     // reconcile main package list
+    Current.logger().info("Reconciling main list...")
     let fullPackageList = try await reconcileMainPackageList(client: client, database: database)
 
     do { // reconcile custom package collections
+        Current.logger().info("Reconciling custom collections...")
         @Dependency(\.packageListRepository) var packageListRepository
         let collections = try await packageListRepository.fetchCustomCollections(client: client)
         for collection in collections {
+            Current.logger().info("Reconciling '\(collection.name)' collection...")
             try await reconcileCustomCollection(client: client, database: database, fullPackageList: fullPackageList, collection)
         }
     }
