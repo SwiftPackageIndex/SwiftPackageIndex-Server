@@ -31,7 +31,7 @@ struct ReconcileCommand: AsyncCommand {
             try await reconcile(client: context.application.client,
                                 database: context.application.db)
         } catch {
-            Current.logger().error("\(error.localizedDescription)")
+            Current.logger().error("\(error)")
         }
 
         Current.logger().info("done.")
@@ -40,7 +40,7 @@ struct ReconcileCommand: AsyncCommand {
             try await AppMetrics.push(client: context.application.client,
                                       jobName: "reconcile")
         } catch {
-            Current.logger().warning("\(error.localizedDescription)")
+            Current.logger().warning("\(error)")
         }
     }
 }

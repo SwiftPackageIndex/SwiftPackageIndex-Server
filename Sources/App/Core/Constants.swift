@@ -26,7 +26,7 @@ enum Constants {
 
     static let packageListUri = URI(string: "https://raw.githubusercontent.com/SwiftPackageIndex/PackageList/main/packages.json")
     static let packageDenyListUri = URI(string: "https://raw.githubusercontent.com/SwiftPackageIndex/PackageList/main/denylist.json")
-    static let customCollectionsUri = URI(string: "https://raw.githubusercontent.com/SwiftPackageIndex/PackageList/main/custom-package-collections.json.json")
+    static let customCollectionsUri = URI(string: "https://raw.githubusercontent.com/SwiftPackageIndex/PackageList/main/custom-package-collections.json")
 
     static let maxCustomPackageCollectionSize = 50
 
