@@ -67,7 +67,9 @@ func reconcile(client: Client, database: Database) async throws {
 
 
 func reconcileMainPackageList(client: Client, database: Database) async throws -> [URL] {
-    async let sourcePackageList = try Current.fetchPackageList(client)
+    @Dependency(\.packageListRepository) var packageListRepository
+
+    async let sourcePackageList = try packageListRepository.fetchPackageList(client: client)
     async let sourcePackageDenyList = try Current.fetchPackageDenyList(client)
     async let currentList = try fetchCurrentPackageList(database)
 
@@ -82,15 +84,7 @@ func reconcileMainPackageList(client: Client, database: Database) async throws -
 }
 
 
-func liveFetchPackageList(_ client: Client) async throws -> [URL] {
-   try await client
-        .get(Constants.packageListUri)
-        .content
-        .decode([String].self, using: JSONDecoder())
-        .compactMap(URL.init(string:))
-}
-
-
+@available(*, deprecated)
 func liveFetchPackageDenyList(_ client: Client) async throws -> [URL] {
     struct DeniedPackage: Decodable {
         var packageUrl: String

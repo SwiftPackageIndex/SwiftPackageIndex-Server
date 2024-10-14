@@ -295,14 +295,14 @@ final class PackageTests: AppTestCase {
     }
 
     func test_isNew() async throws {
+        let url = "1".asGithubUrl
         try await withDependencies {
             $0.date.now = .now
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
+            $0.packageListRepository.fetchPackageList = { @Sendable _ in [url.url] }
         } operation: {
             // setup
-            let url = "1".asGithubUrl
             Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
-            Current.fetchPackageList = { _ in [url.url] }
             Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.firstCommitDate = { @Sendable _ in Date(timeIntervalSince1970: 0) }
             Current.git.getTags = { @Sendable _ in [] }

@@ -21,6 +21,7 @@ import Vapor
 struct PackageListRepositoryClient {
     var fetchCustomCollection: @Sendable (_ client: Client, _ url: URL) async throws -> [URL]
     var fetchCustomCollections: @Sendable (_ client: Client) async throws -> [CustomCollection.DTO]
+    var fetchPackageList: @Sendable (_ client: Client) async throws -> [URL]
     // TODO: move other package list dependencies here
 }
 
@@ -39,6 +40,13 @@ extension PackageListRepositoryClient: DependencyKey {
                     .get(Constants.customCollectionsUri)
                     .content
                     .decode([CustomCollection.DTO].self, using: JSONDecoder())
+            },
+            fetchPackageList: { client in
+                try await client
+                     .get(Constants.packageListUri)
+                     .content
+                     .decode([String].self, using: JSONDecoder())
+                     .compactMap(URL.init(string:))
             }
         )
     }

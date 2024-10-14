@@ -42,10 +42,6 @@ extension AppEnvironment {
             environment: { .development },
             fetchDocumentation: { _, _ in .init(status: .ok) },
             fetchHTTPStatusCode: { _ in .ok },
-            fetchPackageList: { _ in
-                ["https://github.com/finestructure/Gala",
-                 "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"].asURLs
-            },
             fetchPackageDenyList: { _ in
                 ["https://github.com/daveverwer/LeftPad"].asURLs
             },
