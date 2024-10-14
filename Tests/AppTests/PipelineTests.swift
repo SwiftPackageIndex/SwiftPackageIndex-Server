@@ -160,6 +160,8 @@ class PipelineTests: AppTestCase {
     func test_processing_pipeline() async throws {
         try await withDependencies {
             $0.date.now = .now
+            $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
+            $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [] }
         } operation: {
             // Test pipeline pick-up end to end
             // setup

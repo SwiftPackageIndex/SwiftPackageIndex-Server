@@ -66,6 +66,7 @@ let package = Package(
                     .product(name: "CanonicalPackageURL", package: "CanonicalPackageURL"),
                     .product(name: "CustomDump", package: "swift-custom-dump"),
                     .product(name: "Dependencies", package: "swift-dependencies"),
+                    .product(name: "DependenciesMacros", package: "swift-dependencies"),
                     .product(name: "DependencyResolution", package: "DependencyResolution"),
                     .product(name: "Fluent", package: "fluent"),
                     .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),

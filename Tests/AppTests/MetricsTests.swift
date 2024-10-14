@@ -14,6 +14,7 @@
 
 @testable import App
 
+import Dependencies
 import Prometheus
 import XCTest
 
@@ -98,14 +99,18 @@ class MetricsTests: AppTestCase {
     }
 
     func test_reconcileDurationSeconds() async throws {
-        // setup
-        Current.fetchPackageList = { _ in ["1", "2", "3"].asURLs }
+        try await withDependencies {
+            $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
+        } operation: {
+            // setup
+            Current.fetchPackageList = { _ in ["1", "2", "3"].asURLs }
 
-        // MUT
-        try await reconcile(client: app.client, database: app.db)
+            // MUT
+            try await reconcile(client: app.client, database: app.db)
 
-        // validation
-        XCTAssert((AppMetrics.reconcileDurationSeconds?.get()) ?? 0 > 0)
+            // validation
+            XCTAssert((AppMetrics.reconcileDurationSeconds?.get()) ?? 0 > 0)
+        }
     }
 
     func test_ingestDurationSeconds() async throws {
