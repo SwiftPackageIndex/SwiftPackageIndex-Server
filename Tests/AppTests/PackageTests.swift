@@ -137,11 +137,24 @@ final class PackageTests: AppTestCase {
     }
 
     func test_filter_by_urls() async throws {
-        for url in ["https://foo.com/1", "https://foo.com/2", "https://foo.com/a", "https://foo.com/A"] {
+        for url in ["https://foo.com/1.git", "https://foo.com/2.git", "https://foo.com/a.git", "https://foo.com/A.git"] {
             try await Package(url: url.url).save(on: app.db)
         }
-        let res = try await Package.query(on: app.db).filter(by: ["https://foo.com/2", "https://foo.com/a"]).all()
-        XCTAssertEqual(res.map(\.url), ["https://foo.com/2", "https://foo.com/a"])
+        do { // single match
+            let res = try await Package.query(on: app.db).filter(by: ["https://foo.com/2.git"]).all()
+            XCTAssertEqual(res.map(\.url), ["https://foo.com/2.git"])
+        }
+        do { // case insensitive match
+            let res = try await Package.query(on: app.db).filter(by: ["https://foo.com/2.git", "https://foo.com/a.git"]).all()
+            XCTAssertEqual(
+                res.map(\.url),
+                ["https://foo.com/2.git", "https://foo.com/a.git", "https://foo.com/A.git"]
+            )
+        }
+        do { // input URLs are normalised
+            let res = try await Package.query(on: app.db).filter(by: ["http://foo.com/2"]).all()
+            XCTAssertEqual(res.map(\.url), ["https://foo.com/2.git"])
+        }
     }
 
     func test_repository() async throws {

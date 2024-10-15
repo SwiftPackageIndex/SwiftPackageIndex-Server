@@ -234,27 +234,27 @@ class CustomCollectionTests: AppTestCase {
         // Test reconciliation of a custom collection against a list of package URLs
         let collection = CustomCollection(id: .id0, .init(name: "List", url: "https://github.com/foo/bar/list.json"))
         try await collection.save(on: app.db)
-        try await Package(id: .id1, url: URL("a")).save(on: app.db)
-        try await Package(id: .id2, url: URL("b")).save(on: app.db)
+        try await Package(id: .id1, url: URL("https://github.com/a.git")).save(on: app.db)
+        try await Package(id: .id2, url: URL("https://github.com/b.git")).save(on: app.db)
 
         do { // Initial set of URLs
             // MUT
-            try await collection.reconcile(on: app.db, packageURLs: [URL("a")])
+            try await collection.reconcile(on: app.db, packageURLs: [URL("https://github.com/a.git")])
 
             do { // validate
                 let count = try await CustomCollectionPackage.query(on: app.db).count()
                 XCTAssertEqual(count, 1)
                 let collection = try await CustomCollection.find(.id0, on: app.db).unwrap()
                 try await collection.$packages.load(on: app.db)
-                XCTAssertEqual(collection.packages.map(\.url), ["a"])
+                XCTAssertEqual(collection.packages.map(\.url), ["https://github.com/a.git"])
             }
         }
 
         do { // Add more URLs
             // MUT
             try await collection.reconcile(on: app.db, packageURLs: [
-                URL("a"),
-                URL("b")
+                URL("https://github.com/a.git"),
+                URL("https://github.com/b.git")
             ])
 
             do { // validate
@@ -263,8 +263,8 @@ class CustomCollectionTests: AppTestCase {
                 let collection = try await CustomCollection.find(.id0, on: app.db).unwrap()
                 try await collection.$packages.load(on: app.db)
                 XCTAssertEqual(collection.packages.map(\.url).sorted(), [
-                    "a",
-                    "b"
+                    "https://github.com/a.git",
+                    "https://github.com/b.git"
                 ])
             }
         }
@@ -272,7 +272,7 @@ class CustomCollectionTests: AppTestCase {
         do { // Remove URLs
             // MUT
             try await collection.reconcile(on: app.db, packageURLs: [
-                URL("b")
+                URL("https://github.com/b.git")
             ])
 
             do { // validate
@@ -280,7 +280,7 @@ class CustomCollectionTests: AppTestCase {
                 XCTAssertEqual(count, 1)
                 let collection = try await CustomCollection.find(.id0, on: app.db).unwrap()
                 try await collection.$packages.load(on: app.db)
-                XCTAssertEqual(collection.packages.map(\.url), ["b"])
+                XCTAssertEqual(collection.packages.map(\.url), ["https://github.com/b.git"])
             }
         }
     }

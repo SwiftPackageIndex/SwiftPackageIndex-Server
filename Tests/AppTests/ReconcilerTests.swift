@@ -132,12 +132,12 @@ class ReconcilerTests: AppTestCase {
     func test_reconcileCustomCollections() async throws {
         // Test single custom collection reconciliation
         // setup
-        var fullPackageList = [URL("a"), URL("b"), URL("c")]
+        var fullPackageList = [URL("https://github.com/a.git"), URL("https://github.com/b.git"), URL("https://github.com/c.git")]
         for url in fullPackageList { try await Package(url: url).save(on: app.db) }
 
         // Initial run
         try await withDependencies {
-            $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [URL("b")] }
+            $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [URL("https://github.com/b.git")] }
         } operation: {
             // MUT
             try await reconcileCustomCollection(client: app.client,
@@ -150,12 +150,12 @@ class ReconcilerTests: AppTestCase {
             XCTAssertEqual(count, 1)
             let collection = try await CustomCollection.query(on: app.db).first().unwrap()
             try await collection.$packages.load(on: app.db)
-            XCTAssertEqual(collection.packages.map(\.url), ["b"])
+            XCTAssertEqual(collection.packages.map(\.url), ["https://github.com/b.git"])
         }
 
         // Reconcile again with an updated list of packages in the collection
         try await withDependencies {
-            $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [URL("c")] }
+            $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [URL("https://github.com/c.git")] }
         } operation: {
             // MUT
             try await reconcileCustomCollection(client: app.client,
@@ -168,14 +168,14 @@ class ReconcilerTests: AppTestCase {
             XCTAssertEqual(count, 1)
             let collection = try await CustomCollection.query(on: app.db).first().unwrap()
             try await collection.$packages.load(on: app.db)
-            XCTAssertEqual(collection.packages.map(\.url), ["c"])
+            XCTAssertEqual(collection.packages.map(\.url), ["https://github.com/c.git"])
         }
 
         // Re-run after the single package in the list has been deleted in the full package list
-        fullPackageList = [URL("a"), URL("b")]
-        try await Package.query(on: app.db).filter(by: URL("c")).first()?.delete(on: app.db)
+        fullPackageList = [URL("https://github.com/a.git"), URL("https://github.com/b.git")]
+        try await Package.query(on: app.db).filter(by: URL("https://github.com/c.git")).first()?.delete(on: app.db)
         try await withDependencies {
-            $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [URL("c")] }
+            $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [URL("https://github.com/c.git")] }
         } operation: {
             // MUT
             try await reconcileCustomCollection(client: app.client,
@@ -195,7 +195,7 @@ class ReconcilerTests: AppTestCase {
     func test_reconcileCustomCollections_limit() async throws {
         // Test custom collection reconciliation size limit
         // setup
-        let fullPackageList = (1...60).map { URL(string: "\($0)")! }
+        let fullPackageList = (1...60).map { URL(string: "https://github.com/\($0).git")! }
         for url in fullPackageList { try await Package(url: url).save(on: app.db) }
 
         try await withDependencies {
@@ -213,13 +213,13 @@ class ReconcilerTests: AppTestCase {
             let collection = try await CustomCollection.query(on: app.db).first().unwrap()
             try await collection.$packages.load(on: app.db)
             XCTAssertEqual(collection.packages.count, 50)
-            XCTAssertEqual(collection.packages.first?.url, "1")
-            XCTAssertEqual(collection.packages.last?.url, "50")
+            XCTAssertEqual(collection.packages.first?.url, "https://github.com/1.git")
+            XCTAssertEqual(collection.packages.last?.url, "https://github.com/50.git")
         }
     }
 
     func test_reconcile() async throws {
-        let fullPackageList = (1...3).map { URL(string: "\($0)")! }
+        let fullPackageList = (1...3).map { URL(string: "https://github.com/\($0).git")! }
         struct TestError: Error { var message: String }
 
         try await withDependencies {
@@ -227,7 +227,7 @@ class ReconcilerTests: AppTestCase {
             $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollection = { @Sendable _, url in
                 if url == "collectionURL" {
-                    return [URL("2")]
+                    return [URL("https://github.com/2.git")]
                 } else {
                     throw TestError(message: "collection not found: \(url)")
                 }
@@ -249,7 +249,7 @@ class ReconcilerTests: AppTestCase {
             XCTAssertEqual(collection.name, "List")
             XCTAssertEqual(collection.url, "collectionURL")
             try await collection.$packages.load(on: app.db)
-            XCTAssertEqual(collection.packages.map(\.url), ["2"])
+            XCTAssertEqual(collection.packages.map(\.url), ["https://github.com/2.git"])
         }
     }
 
