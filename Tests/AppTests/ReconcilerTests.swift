@@ -36,12 +36,14 @@ class ReconcilerTests: AppTestCase {
     }
 
     func test_reconcileMainPackageList() async throws {
-        // setup
         let urls = ["1", "2", "3"]
-        Current.fetchPackageList = { _ in urls.asURLs }
-
-        // MUT
-        _ = try await reconcileMainPackageList(client: app.client, database: app.db)
+        try await withDependencies {
+            $0.packageListRepository.fetchPackageList = { @Sendable _ in urls.asURLs }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
+        } operation: {
+            // MUT
+            _ = try await reconcileMainPackageList(client: app.client, database: app.db)
+        }
 
         // validate
         let packages = try await Package.query(on: app.db).all()
@@ -63,10 +65,14 @@ class ReconcilerTests: AppTestCase {
 
         // new package list drops 2, 3, adds 4, 5
         let urls = ["1", "4", "5"]
-        Current.fetchPackageList = { _ in urls.asURLs }
 
-        // MUT
-        _ = try await reconcileMainPackageList(client: app.client, database: app.db)
+        try await withDependencies {
+            $0.packageListRepository.fetchPackageList = { @Sendable _ in urls.asURLs }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
+        } operation: {
+            // MUT
+            _ = try await reconcileMainPackageList(client: app.client, database: app.db)
+        }
 
         // validate
         let packages = try await Package.query(on: app.db).all()
@@ -81,14 +87,17 @@ class ReconcilerTests: AppTestCase {
 
         // New list adds two new packages 4, 5
         let packageList = ["1", "2", "3", "4", "5"]
-        Current.fetchPackageList = { _ in packageList.asURLs }
 
         // Deny list denies 2 and 4 (one existing and one new)
         let packageDenyList = ["2", "4"]
-        Current.fetchPackageDenyList = { _ in packageDenyList.asURLs }
 
-        // MUT
-        _ = try await reconcileMainPackageList(client: app.client, database: app.db)
+        try await withDependencies {
+            $0.packageListRepository.fetchPackageList = { @Sendable _ in packageList.asURLs }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in packageDenyList.asURLs }
+        } operation: {
+            // MUT
+            _ = try await reconcileMainPackageList(client: app.client, database: app.db)
+        }
 
         // validate
         let packages = try await Package.query(on: app.db).all()
@@ -103,14 +112,17 @@ class ReconcilerTests: AppTestCase {
 
         // New list adds no new packages
         let packageList = ["https://example.com/one/one", "https://example.com/two/two"]
-        Current.fetchPackageList = { _ in packageList.asURLs }
 
         // Deny list denies one/one, but with incorrect casing.
         let packageDenyList = ["https://example.com/OnE/oNe"]
-        Current.fetchPackageDenyList = { _ in packageDenyList.asURLs }
 
-        // MUT
-        _ = try await reconcileMainPackageList(client: app.client, database: app.db)
+        try await withDependencies {
+            $0.packageListRepository.fetchPackageList = { @Sendable _ in packageList.asURLs }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in packageDenyList.asURLs }
+        } operation: {
+            // MUT
+            _ = try await reconcileMainPackageList(client: app.client, database: app.db)
+        }
 
         // validate
         let packages = try await Package.query(on: app.db).all()
@@ -211,6 +223,8 @@ class ReconcilerTests: AppTestCase {
         struct TestError: Error { var message: String }
 
         try await withDependencies {
+            $0.packageListRepository.fetchPackageList = { @Sendable _ in fullPackageList }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollection = { @Sendable _, url in
                 if url == "collectionURL" {
                     return [URL("2")]
@@ -222,9 +236,6 @@ class ReconcilerTests: AppTestCase {
                 [.init(name: "List", url: "collectionURL")]
             }
         } operation: {
-            // setup
-            Current.fetchPackageList = { _ in fullPackageList }
-
             // MUT
             _ = try await reconcile(client: app.client, database: app.db)
 

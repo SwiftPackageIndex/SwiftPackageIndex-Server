@@ -158,17 +158,17 @@ class PipelineTests: AppTestCase {
     }
 
     func test_processing_pipeline() async throws {
+        let urls = ["1", "2", "3"].asGithubUrls
         try await withDependencies {
             $0.date.now = .now
+            $0.packageListRepository.fetchPackageList = { @Sendable _ in urls.asURLs }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [] }
         } operation: {
             // Test pipeline pick-up end to end
             // setup
-            let urls = ["1", "2", "3"].asGithubUrls
             Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
-            Current.fetchPackageList = { _ in urls.asURLs }
-            
             Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.lastCommitDate = { @Sendable _ in .t1 }
@@ -224,76 +224,78 @@ class PipelineTests: AppTestCase {
                 XCTAssertEqual(packages.map(\.isNew), [false, false, false])
             }
             
-            // Now we've got a new package and a deletion
-            Current.fetchPackageList = { _ in ["1", "3", "4"].asGithubUrls.asURLs }
-            
-            // MUT - reconcile again
-            try await reconcile(client: app.client, database: app.db)
-            
-            do {  // validate - only new package moves to .reconciliation stage
-                let packages = try await Package.query(on: app.db).sort(\.$url).all()
-                XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
-                XCTAssertEqual(packages.map(\.status), [.ok, .ok, .new])
-                XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .reconciliation])
-                XCTAssertEqual(packages.map(\.isNew), [false, false, true])
-            }
-            
-            // MUT - ingest again
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
-            
-            do {  // validate - only new package moves to .ingestion stage
-                let packages = try await Package.query(on: app.db).sort(\.$url).all()
-                XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
-                XCTAssertEqual(packages.map(\.status), [.ok, .ok, .new])
-                XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .ingestion])
-                XCTAssertEqual(packages.map(\.isNew), [false, false, true])
-            }
-            
-            // MUT - analyze again
-            let lastAnalysis = Date.now
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(10))
-            
-            do {  // validate - only new package moves to .ingestion stage
-                let packages = try await Package.query(on: app.db).sort(\.$url).all()
-                XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
-                XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
-                XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
-                XCTAssertEqual(packages.map { $0.updatedAt! > lastAnalysis }, [false, false, true])
-                XCTAssertEqual(packages.map(\.isNew), [false, false, false])
-            }
-            
             try await withDependencies {
-                // fast forward our clock by the deadtime interval
-                $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
+                // Now we've got a new package and a deletion
+                $0.packageListRepository.fetchPackageList = { @Sendable _ in ["1", "3", "4"].asGithubUrls.asURLs }
             } operation: {
-                // MUT - ingest yet again
-                try await ingest(client: app.client, database: app.db, mode: .limit(10))
-                
-                do {  // validate - now all three packages should have been updated
+                // MUT - reconcile again
+                try await reconcile(client: app.client, database: app.db)
+
+                do {  // validate - only new package moves to .reconciliation stage
                     let packages = try await Package.query(on: app.db).sort(\.$url).all()
                     XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
-                    XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
-                    XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
-                    XCTAssertEqual(packages.map(\.isNew), [false, false, false])
+                    XCTAssertEqual(packages.map(\.status), [.ok, .ok, .new])
+                    XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .reconciliation])
+                    XCTAssertEqual(packages.map(\.isNew), [false, false, true])
                 }
-                
-                // MUT - re-run analysis to complete the sequence
+
+                // MUT - ingest again
+                try await ingest(client: app.client, database: app.db, mode: .limit(10))
+
+                do {  // validate - only new package moves to .ingestion stage
+                    let packages = try await Package.query(on: app.db).sort(\.$url).all()
+                    XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
+                    XCTAssertEqual(packages.map(\.status), [.ok, .ok, .new])
+                    XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .ingestion])
+                    XCTAssertEqual(packages.map(\.isNew), [false, false, true])
+                }
+
+                // MUT - analyze again
+                let lastAnalysis = Date.now
                 try await Analyze.analyze(client: app.client,
                                           database: app.db,
                                           mode: .limit(10))
-                
+
                 do {  // validate - only new package moves to .ingestion stage
                     let packages = try await Package.query(on: app.db).sort(\.$url).all()
                     XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
                     XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
                     XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
+                    XCTAssertEqual(packages.map { $0.updatedAt! > lastAnalysis }, [false, false, true])
                     XCTAssertEqual(packages.map(\.isNew), [false, false, false])
                 }
-                
-                // at this point we've ensured that retriggering ingestion after the deadtime will
-                // refresh analysis as expected
+
+                try await withDependencies {
+                    // fast forward our clock by the deadtime interval
+                    $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
+                } operation: {
+                    // MUT - ingest yet again
+                    try await ingest(client: app.client, database: app.db, mode: .limit(10))
+
+                    do {  // validate - now all three packages should have been updated
+                        let packages = try await Package.query(on: app.db).sort(\.$url).all()
+                        XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
+                        XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
+                        XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
+                        XCTAssertEqual(packages.map(\.isNew), [false, false, false])
+                    }
+
+                    // MUT - re-run analysis to complete the sequence
+                    try await Analyze.analyze(client: app.client,
+                                              database: app.db,
+                                              mode: .limit(10))
+
+                    do {  // validate - only new package moves to .ingestion stage
+                        let packages = try await Package.query(on: app.db).sort(\.$url).all()
+                        XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
+                        XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
+                        XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
+                        XCTAssertEqual(packages.map(\.isNew), [false, false, false])
+                    }
+
+                    // at this point we've ensured that retriggering ingestion after the deadtime will
+                    // refresh analysis as expected
+                }
             }
         }
     }

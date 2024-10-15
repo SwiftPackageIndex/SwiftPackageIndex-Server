@@ -19,15 +19,39 @@ import Vapor
 
 @DependencyClient
 struct PackageListRepositoryClient {
+    var fetchPackageList: @Sendable (_ client: Client) async throws -> [URL]
+    var fetchPackageDenyList: @Sendable (_ client: Client) async throws -> [URL]
     var fetchCustomCollection: @Sendable (_ client: Client, _ url: URL) async throws -> [URL]
     var fetchCustomCollections: @Sendable (_ client: Client) async throws -> [CustomCollection.DTO]
-    // TODO: move other package list dependencies here
 }
 
 
 extension PackageListRepositoryClient: DependencyKey {
     static var liveValue: PackageListRepositoryClient {
         .init(
+            fetchPackageList: { client in
+                try await client
+                    .get(Constants.packageListUri)
+                    .content
+                    .decode([String].self, using: JSONDecoder())
+                    .compactMap(URL.init(string:))
+            },
+            fetchPackageDenyList: { client in
+                struct DeniedPackage: Decodable {
+                    var packageUrl: String
+
+                    enum CodingKeys: String, CodingKey {
+                        case packageUrl = "package_url"
+                    }
+                }
+
+                return try await client
+                    .get(Constants.packageDenyListUri)
+                    .content
+                    .decode([DeniedPackage].self, using: JSONDecoder())
+                    .map(\.packageUrl)
+                    .compactMap(URL.init(string:))
+            },
             fetchCustomCollection: { client, url in
                 try await client
                     .get(URI(string: url.absoluteString))

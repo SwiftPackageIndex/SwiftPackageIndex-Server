@@ -42,13 +42,6 @@ extension AppEnvironment {
             environment: { .development },
             fetchDocumentation: { _, _ in .init(status: .ok) },
             fetchHTTPStatusCode: { _ in .ok },
-            fetchPackageList: { _ in
-                ["https://github.com/finestructure/Gala",
-                 "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"].asURLs
-            },
-            fetchPackageDenyList: { _ in
-                ["https://github.com/daveverwer/LeftPad"].asURLs
-            },
             fetchLicense: { _, _, _ in .init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE") },
             fetchMetadata: { _, _, _ in .mock },
             fetchReadme: { _,  _, _ in .init(html: "readme html", htmlUrl: "readme html url", imagesToCache: []) },

@@ -100,11 +100,10 @@ class MetricsTests: AppTestCase {
 
     func test_reconcileDurationSeconds() async throws {
         try await withDependencies {
+            $0.packageListRepository.fetchPackageList = { @Sendable _ in ["1", "2", "3"].asURLs }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
         } operation: {
-            // setup
-            Current.fetchPackageList = { _ in ["1", "2", "3"].asURLs }
-
             // MUT
             try await reconcile(client: app.client, database: app.db)
 
