@@ -39,6 +39,7 @@ class ReconcilerTests: AppTestCase {
         let urls = ["1", "2", "3"]
         try await withDependencies {
             $0.packageListRepository.fetchPackageList = { @Sendable _ in urls.asURLs }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
         } operation: {
             // MUT
             _ = try await reconcileMainPackageList(client: app.client, database: app.db)
@@ -67,6 +68,7 @@ class ReconcilerTests: AppTestCase {
 
         try await withDependencies {
             $0.packageListRepository.fetchPackageList = { @Sendable _ in urls.asURLs }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
         } operation: {
             // MUT
             _ = try await reconcileMainPackageList(client: app.client, database: app.db)
@@ -88,10 +90,10 @@ class ReconcilerTests: AppTestCase {
 
         // Deny list denies 2 and 4 (one existing and one new)
         let packageDenyList = ["2", "4"]
-        Current.fetchPackageDenyList = { _ in packageDenyList.asURLs }
 
         try await withDependencies {
             $0.packageListRepository.fetchPackageList = { @Sendable _ in packageList.asURLs }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in packageDenyList.asURLs }
         } operation: {
             // MUT
             _ = try await reconcileMainPackageList(client: app.client, database: app.db)
@@ -113,10 +115,10 @@ class ReconcilerTests: AppTestCase {
 
         // Deny list denies one/one, but with incorrect casing.
         let packageDenyList = ["https://example.com/OnE/oNe"]
-        Current.fetchPackageDenyList = { _ in packageDenyList.asURLs }
 
         try await withDependencies {
             $0.packageListRepository.fetchPackageList = { @Sendable _ in packageList.asURLs }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in packageDenyList.asURLs }
         } operation: {
             // MUT
             _ = try await reconcileMainPackageList(client: app.client, database: app.db)
@@ -221,6 +223,8 @@ class ReconcilerTests: AppTestCase {
         struct TestError: Error { var message: String }
 
         try await withDependencies {
+            $0.packageListRepository.fetchPackageList = { @Sendable _ in fullPackageList }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollection = { @Sendable _, url in
                 if url == "collectionURL" {
                     return [URL("2")]
@@ -231,7 +235,6 @@ class ReconcilerTests: AppTestCase {
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in
                 [.init(name: "List", url: "collectionURL")]
             }
-            $0.packageListRepository.fetchPackageList = { @Sendable _ in fullPackageList }
         } operation: {
             // MUT
             _ = try await reconcile(client: app.client, database: app.db)

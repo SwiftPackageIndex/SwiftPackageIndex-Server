@@ -57,9 +57,10 @@ final class MastodonTests: AppTestCase {
 
         try await withDependencies {
             $0.date.now = .now
+            $0.packageListRepository.fetchPackageList = { @Sendable _ in [url.url] }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [] }
-            $0.packageListRepository.fetchPackageList = { @Sendable _ in [url.url] }
         } operation: {
             // run first two processing steps
             try await reconcile(client: app.client, database: app.db)

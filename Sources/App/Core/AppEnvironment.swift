@@ -43,7 +43,6 @@ struct AppEnvironment: Sendable {
     var environment: @Sendable () -> Environment
     var fetchDocumentation: @Sendable (_ client: Client, _ url: URI) async throws -> ClientResponse
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
-    var fetchPackageDenyList: @Sendable (_ client: Client) async throws -> [URL]
     var fetchLicense: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.License?
     var fetchMetadata: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> Github.Metadata
     var fetchReadme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.Readme?
@@ -164,7 +163,6 @@ extension AppEnvironment {
         environment: { (try? Environment.detect()) ?? .development },
         fetchDocumentation: { client, url in try await client.get(url) },
         fetchHTTPStatusCode: { url in try await Networking.fetchHTTPStatusCode(url) },
-        fetchPackageDenyList: { client in try await liveFetchPackageDenyList(client) },
         fetchLicense: { client, owner, repo in await Github.fetchLicense(client:client, owner: owner, repository: repo) },
         fetchMetadata: { client, owner, repo in try await Github.fetchMetadata(client:client, owner: owner, repository: repo) },
         fetchReadme: { client, owner, repo in await Github.fetchReadme(client:client, owner: owner, repository: repo) },

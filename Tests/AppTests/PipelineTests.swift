@@ -161,9 +161,10 @@ class PipelineTests: AppTestCase {
         let urls = ["1", "2", "3"].asGithubUrls
         try await withDependencies {
             $0.date.now = .now
+            $0.packageListRepository.fetchPackageList = { @Sendable _ in urls.asURLs }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [] }
-            $0.packageListRepository.fetchPackageList = { @Sendable _ in urls.asURLs }
         } operation: {
             // Test pipeline pick-up end to end
             // setup
