@@ -398,6 +398,11 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/29466629?v=4"
         ),
         .init(
+            login: "davpea",
+            name: "David Pearson",
+            avatarUrl: "https://avatars.githubusercontent.com/u/31065987?u=8396ce1eba087bbbe46bfe8b791a977cab5dfe7b&v=4"
+        ),
+        .init(
             login: "alexandersandberg",
             name: "Alexander Sandberg",
             avatarUrl: "https://avatars.githubusercontent.com/u/35671299?u=2f44069a09e1088091ef0cef4d410fbdbd5ad663&v=4"
