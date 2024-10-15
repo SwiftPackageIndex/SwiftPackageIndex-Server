@@ -273,8 +273,13 @@ extension QueryBuilder where Model == Package {
     }
 
     func filter(by urls: some Collection<URL>) -> Self {
-        // TODO: make case-insensitive and canonicalise incoming URLs
-        filter(\.$url ~~ urls.map(\.absoluteString))
+        let urls = urls
+            .compactMap(\.normalized)
+            .map { $0.absoluteString.lowercased() }
+        // Fluent cannot chain `lowercased()` onto `\.$url but the following is essentially
+        //   filter(\.$url.lowercased() ~~ urls)
+        // by dropping down to SQLKit
+        return filter(.sql(embed: "LOWER(\(ident: Model.schemaOrAlias).\(ident: Model.path(for: \.$url)[0].description)) IN \(SQLBind.group(urls))"))
     }
 }
 
