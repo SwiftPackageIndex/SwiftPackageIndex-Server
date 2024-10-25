@@ -113,6 +113,7 @@ enum SiteURL: Resourceable, Sendable {
     case blogPost(_ slug: Parameter<String>)
     case buildMonitor
     case builds(_ id: Parameter<UUID>)
+    case collections(_ name: Parameter<String>)
     case docs(Docs)
     case faq
     case home
@@ -168,6 +169,12 @@ enum SiteURL: Resourceable, Sendable {
 
             case .buildMonitor:
                 return "build-monitor"
+
+            case let .collections(.value(name)):
+                return "collections/\(name)"
+
+            case .collections(.key):
+                fatalError("path must not be called with a name parameter")
 
             case let .docs(next):
                 return "docs/\(next.path)"
@@ -281,6 +288,12 @@ enum SiteURL: Resourceable, Sendable {
                 return ["builds", ":id"]
 
             case .builds(.value):
+                fatalError("pathComponents must not be called with a value parameter")
+
+            case .collections(.key):
+                return ["collections", ":name"]
+
+            case .collections(.value):
                 fatalError("pathComponents must not be called with a value parameter")
 
             case let .docs(next):
