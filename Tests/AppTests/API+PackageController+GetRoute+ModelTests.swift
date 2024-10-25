@@ -43,7 +43,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                      platformBuildInfo: nil,
                                                      weightedKeywords: [],
                                                      swift6Readiness: nil,
-                                                     forkedFromInfo: nil)
+                                                     forkedFromInfo: nil,
+                                                     customCollections: [])
 
         // validate
         XCTAssertNotNil(m)
@@ -66,7 +67,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        platformBuildInfo: nil,
                                                                        weightedKeywords: [],
                                                                        swift6Readiness: nil,
-                                                                       forkedFromInfo: nil))
+                                                                       forkedFromInfo: nil,
+                                                                       customCollections: []))
 
         // validate
         XCTAssertEqual(model.packageIdentity, "swift-bar")
@@ -89,7 +91,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        platformBuildInfo: nil,
                                                                        weightedKeywords: [],
                                                                        swift6Readiness: nil,
-                                                                       forkedFromInfo: nil))
+                                                                       forkedFromInfo: nil,
+                                                                       customCollections: []))
 
         // validate
         XCTAssertEqual(model.documentationTarget, .internal(docVersion: .reference("main"), archive: "archive1"))
@@ -116,7 +119,8 @@ class API_PackageController_GetRoute_ModelTests: SnapshotTestCase {
                                                                        platformBuildInfo: nil,
                                                                        weightedKeywords: [],
                                                                        swift6Readiness: nil,
-                                                                       forkedFromInfo: nil))
+                                                                       forkedFromInfo: nil,
+                                                                       customCollections: []))
 
         // validate
         XCTAssertEqual(model.documentationTarget, .external(url: "https://example.com/package/documentation"))

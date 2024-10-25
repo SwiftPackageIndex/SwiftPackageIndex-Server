@@ -67,7 +67,7 @@ final class CustomCollection: @unchecked Sendable, Model, Content {
 
 
 extension CustomCollection {
-    struct Details: Codable {
+    struct Details: Codable, Equatable {
         var name: String
         var description: String?
         var badge: String?
@@ -98,6 +98,10 @@ extension CustomCollection {
         try await $packages.attach(incoming[newIDs], on: database)
         let removedIDs = Set(existing.keys).subtracting(Set(incoming.keys))
         try await $packages.detach(existing[removedIDs], on: database)
+    }
+
+    var details: Details {
+        .init(name: name, description: description, badge: badge, url: url)
     }
 }
 

@@ -399,13 +399,10 @@ extension API.PackageController.GetRoute.Model {
     }
 
     func customCollectionsItem() -> Node<HTML.ListContext> {
-        let collections: [CustomCollection.Details] = [
-            .init(name: "Collection 1", url: URL(string: "https://github.com/foo/bar/list1.json")!),
-            .init(name: "Collection 2", url: URL(string: "https://github.com/foo/bar/list2.json")!)
-        ]
+        guard !customCollections.isEmpty else { return .empty }
         return .li(
             .class("custom-collections"),
-            .forEach(collections, { collection in
+            .forEach(customCollections, { collection in
                     .a(
                         .href(collection.url),  // FIXME: link to custom collection page
                         .text("\(collection.name)")

@@ -129,7 +129,8 @@ extension API.PackageController.GetRoute.Model {
             releaseReference: .tag(5, 2, 0),
             preReleaseReference: .tag(5, 3, 0, "beta.1"),
             swift6Readiness: nil,
-            forkedFromInfo: nil
+            forkedFromInfo: nil,
+            customCollections: []
         )
     }
 }
