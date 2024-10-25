@@ -22,7 +22,7 @@ struct PackageListRepositoryClient {
     var fetchPackageList: @Sendable (_ client: Client) async throws -> [URL]
     var fetchPackageDenyList: @Sendable (_ client: Client) async throws -> [URL]
     var fetchCustomCollection: @Sendable (_ client: Client, _ url: URL) async throws -> [URL]
-    var fetchCustomCollections: @Sendable (_ client: Client) async throws -> [CustomCollection.DTO]
+    var fetchCustomCollections: @Sendable (_ client: Client) async throws -> [CustomCollection.Details]
 }
 
 
@@ -62,7 +62,7 @@ extension PackageListRepositoryClient: DependencyKey {
                 try await client
                     .get(Constants.customCollectionsUri)
                     .content
-                    .decode([CustomCollection.DTO].self, using: JSONDecoder())
+                    .decode([CustomCollection.Details].self, using: JSONDecoder())
             }
         )
     }
