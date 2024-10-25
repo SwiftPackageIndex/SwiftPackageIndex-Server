@@ -47,6 +47,8 @@ extension API.PackageController {
                                                                         repository: repository)
             async let forkedFromInfo = forkedFromInfo(on: database, fork: packageResult.repository.forkedFrom)
 
+            async let customCollections = customCollections(on: database, package: packageResult.package)
+
             guard
                 let model = try await Self.Model(
                     result: packageResult,
@@ -57,7 +59,8 @@ extension API.PackageController {
                     platformBuildInfo: buildInfo.platform,
                     weightedKeywords: weightedKeywords,
                     swift6Readiness: buildInfo.swift6Readiness,
-                    forkedFromInfo: forkedFromInfo
+                    forkedFromInfo: forkedFromInfo,
+                    customCollections: customCollections
                 ),
                 let schema = API.PackageSchema(result: packageResult)
             else {
@@ -94,6 +97,16 @@ extension API.PackageController.GetRoute {
                 return await Model.ForkedFromInfo.query(on: database, packageId: id, fallbackURL: fallbackURL)
             case let .parentURL(url):
                 return .fromGitHub(url: url)
+        }
+    }
+
+    static func customCollections(on database: Database, package: Package) async -> [CustomCollection.Details] {
+        guard Current.environment() == .development else { return [] }
+        do {
+            try await package.$customCollections.load(on: database)
+            return package.customCollections.map(\.details)
+        } catch {
+            return []
         }
     }
 }

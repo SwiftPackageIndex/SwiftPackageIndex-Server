@@ -180,7 +180,8 @@ extension PackageShow {
                     model.productTypeListItem(.plugin),
                     model.targetTypeListItem(.macro),
                     model.dataRaceSafeListItem(),
-                    model.keywordsListItem()
+                    model.keywordsListItem(),
+                    model.customCollectionsItem()
                 )
             )
         }

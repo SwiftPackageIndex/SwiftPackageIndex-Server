@@ -138,8 +138,8 @@ func processPackageDenyList(packageList: [URL], denyList: [URL]) -> [URL] {
 }
 
 
-func reconcileCustomCollection(client: Client, database: Database, fullPackageList: [URL], _ dto: CustomCollection.DTO) async throws {
-    let collection = try await CustomCollection.findOrCreate(on: database, dto)
+func reconcileCustomCollection(client: Client, database: Database, fullPackageList: [URL], _ details: CustomCollection.Details) async throws {
+    let collection = try await CustomCollection.findOrCreate(on: database, details)
 
     // Limit incoming URLs to 50 since this is input outside of our control
     @Dependency(\.packageListRepository) var packageListRepository

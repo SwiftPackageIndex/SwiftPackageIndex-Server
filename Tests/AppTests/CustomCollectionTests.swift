@@ -137,6 +137,7 @@ class CustomCollectionTests: AppTestCase {
     }
 
     func test_CustomCollection_packages() async throws {
+        // Test CustomCollection.packages relation
         // setup
         let p1 = Package(id: .id0, url: "1".asGithubUrl.url)
         try await p1.save(on: app.db)
@@ -151,6 +152,29 @@ class CustomCollectionTests: AppTestCase {
             try await collection.$packages.load(on: app.db)
             let packages = collection.packages
             XCTAssertEqual(Set(packages.map(\.id)) , Set([.id0, .id1]))
+        }
+    }
+
+    func test_Package_customCollections() async throws {
+        // Test Package.customCollections relation
+        // setup
+        let p1 = Package(id: .id0, url: "1".asGithubUrl.url)
+        try await p1.save(on: app.db)
+        do {
+            let collection = CustomCollection(id: .id1, .init(name: "List 1", url: "https://github.com/foo/bar/list-1.json"))
+            try await collection.save(on: app.db)
+            try await collection.$packages.attach(p1, on: app.db)
+        }
+        do {
+            let collection = CustomCollection(id: .id2, .init(name: "List 2", url: "https://github.com/foo/bar/list-2.json"))
+            try await collection.save(on: app.db)
+            try await collection.$packages.attach(p1, on: app.db)
+        }
+
+        do { // MUT
+            let pkg = try await Package.find(.id0, on: app.db).unwrap()
+            try await pkg.$customCollections.load(on: app.db)
+            XCTAssertEqual(Set(pkg.customCollections.map(\.id)) , Set([.id1, .id2]))
         }
     }
 

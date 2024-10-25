@@ -47,39 +47,40 @@ final class CustomCollection: @unchecked Sendable, Model, Content {
     @Field(key: "url")
     var url: URL
 
-    // reference fields
+    // relationships
+
     @Siblings(through: CustomCollectionPackage.self, from: \.$customCollection, to: \.$package)
     var packages: [Package]
 
     init() { }
 
-    init(id: Id? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, _ dto: DTO) {
+    init(id: Id? = nil, createdAt: Date? = nil, updatedAt: Date? = nil, _ details: Details) {
         self.id = id
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.name = dto.name
-        self.description = dto.description
-        self.badge = dto.badge
-        self.url = dto.url
+        self.name = details.name
+        self.description = details.description
+        self.badge = details.badge
+        self.url = details.url
     }
 }
 
 
 extension CustomCollection {
-    struct DTO: Codable {
+    struct Details: Codable, Equatable {
         var name: String
         var description: String?
         var badge: String?
         var url: URL
     }
 
-    static func findOrCreate(on database: Database, _ dto: DTO) async throws -> CustomCollection {
+    static func findOrCreate(on database: Database, _ details: Details) async throws -> CustomCollection {
         if let collection = try await CustomCollection.query(on: database)
-            .filter(\.$url == dto.url)
+            .filter(\.$url == details.url)
             .first() {
             return collection
         } else {
-            let collection = CustomCollection(dto)
+            let collection = CustomCollection(details)
             try await collection.save(on: database)
             return collection
         }
@@ -97,6 +98,10 @@ extension CustomCollection {
         try await $packages.attach(incoming[newIDs], on: database)
         let removedIDs = Set(existing.keys).subtracting(Set(incoming.keys))
         try await $packages.detach(existing[removedIDs], on: database)
+    }
+
+    var details: Details {
+        .init(name: name, description: description, badge: badge, url: url)
     }
 }
 

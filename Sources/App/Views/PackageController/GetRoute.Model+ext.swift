@@ -398,6 +398,19 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
+    func customCollectionsItem() -> Node<HTML.ListContext> {
+        guard !customCollections.isEmpty else { return .empty }
+        return .li(
+            .class("custom-collections"),
+            .forEach(customCollections, { collection in
+                    .a(
+                        .href(collection.url),  // FIXME: link to custom collection page
+                        .text("\(collection.name)")
+                    )
+            })
+        )
+    }
+
     func latestReleaseMetadata() -> Node<HTML.ListContext> {
         guard let dateLink = releases.stable else { return .empty }
         return releaseMetadata(dateLink, title: "Latest Release", cssClass: "stable")
