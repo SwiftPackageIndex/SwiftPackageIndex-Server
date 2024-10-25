@@ -101,6 +101,7 @@ extension API.PackageController.GetRoute {
     }
 
     static func customCollections(on database: Database, package: Package) async -> [CustomCollection.Details] {
+        guard Current.environment() == .development else { return [] }
         do {
             try await package.$customCollections.load(on: database)
             return package.customCollections.map(\.details)
