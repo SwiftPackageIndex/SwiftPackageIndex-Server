@@ -156,6 +156,17 @@
                     align-items: center;
                 }
             }
+            
+            li.custom-collections {
+                grid-column-start: span 2;
+                background-image: var(--image-tags);
+
+                a {
+                    display: flex;
+                    gap: 5px;
+                    align-items: center;
+                }
+            }
         }
 
         section.sidebar-links {

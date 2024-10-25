@@ -398,6 +398,20 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
+    func customCollectionsItem() -> Node<HTML.ListContext> {
+        let collections: [CustomCollection] = [.init(.init(name: "Collection 1", url: URL(string: "https://github.com/foo/bar/list1.json")!)),
+                                               .init(.init(name: "Collection 2", url: URL(string: "https://github.com/foo/bar/list2.json")!))]
+        return .li(
+            .class("custom-collections"),
+            .forEach(collections, { collection in
+                    .a(
+                        .href(collection.url),  // FIXME: link to custom collection page
+                        .text("\(collection.name)")
+                    )
+            })
+        )
+    }
+
     func latestReleaseMetadata() -> Node<HTML.ListContext> {
         guard let dateLink = releases.stable else { return .empty }
         return releaseMetadata(dateLink, title: "Latest Release", cssClass: "stable")
