@@ -47,7 +47,7 @@ extension API.PackageController {
                                                                         repository: repository)
             async let forkedFromInfo = forkedFromInfo(on: database, fork: packageResult.repository.forkedFrom)
 
-            let customCollections = await customCollections(on: database, package: packageResult.package)
+            async let customCollections = customCollections(on: database, package: packageResult.package)
 
             guard
                 let model = try await Self.Model(
