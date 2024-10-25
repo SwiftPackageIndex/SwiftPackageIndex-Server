@@ -282,6 +282,15 @@ class WebpageSnapshotTests: SnapshotTestCase {
         assertSnapshot(of: page, as: .html)
     }
 
+    func test_PackageShowView_customCollection() throws {
+        var model = API.PackageController.GetRoute.Model.mock
+        model.homepageUrl = "https://swiftpackageindex.com/"
+        model.customCollections = [.init(name: "Custom Collection", url: "https://github.com/foo/bar/list.json")]
+        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
+
+        assertSnapshot(of: page, as: .html)
+    }
+
     func test_PackageReleasesView() throws {
         let model = PackageReleases.Model.mock
         let page = { PackageReleases.View(model: model).document() }
