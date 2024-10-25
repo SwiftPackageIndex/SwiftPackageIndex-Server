@@ -57,6 +57,9 @@ final class Package: @unchecked Sendable, Model, Content {
 
     // relationships
 
+    @Siblings(through: CustomCollectionPackage.self, from: \.$package, to: \.$customCollection)
+    var customCollections: [CustomCollection]
+
     @Children(for: \.$package)
     var repositories: [Repository]
 

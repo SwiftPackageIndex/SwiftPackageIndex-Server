@@ -47,7 +47,8 @@ final class CustomCollection: @unchecked Sendable, Model, Content {
     @Field(key: "url")
     var url: URL
 
-    // reference fields
+    // relationships
+
     @Siblings(through: CustomCollectionPackage.self, from: \.$customCollection, to: \.$package)
     var packages: [Package]
 
