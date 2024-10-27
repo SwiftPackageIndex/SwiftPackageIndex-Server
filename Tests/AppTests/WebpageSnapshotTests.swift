@@ -452,6 +452,12 @@ class WebpageSnapshotTests: SnapshotTestCase {
         assertSnapshot(of: page, as: .html)
     }
 
+    func test_CustomCollectionShow() throws {
+        let page = { CustomCollectionShow.View(path: "", model: .mock).document() }
+
+        assertSnapshot(of: page, as: .html)
+    }
+
     func test_DocCTemplate() throws {
         let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
         let doccHtml = try String(contentsOfFile: doccTemplatePath)
