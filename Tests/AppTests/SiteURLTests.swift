@@ -168,4 +168,9 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.keywords(.key).pathComponents.map(\.description), ["keywords", ":keyword"])
     }
 
+    func test_collections() throws {
+        XCTAssertEqual(SiteURL.collections(.value("foo")).path, "collections/foo")
+        XCTAssertEqual(SiteURL.collections(.key).pathComponents.map(\.description), ["collections", ":name"])
+    }
+
 }
