@@ -107,11 +107,15 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.buildMonitor.pathComponents, use: BuildMonitorController.index).excludeFromOpenAPI()
     }
 
-    do {  // build details page
+    do {  // Build details page
         app.get(SiteURL.builds(.key).pathComponents, use: BuildController.show).excludeFromOpenAPI()
     }
 
-    do {  // search page
+    do {  // Custom collections page
+        app.get(SiteURL.collections(.key).pathComponents, use: CustomCollectionsController.show).excludeFromOpenAPI()
+    }
+
+    do {  // Search page
         app.get(SiteURL.search.pathComponents, use: SearchController.show).excludeFromOpenAPI()
     }
 
