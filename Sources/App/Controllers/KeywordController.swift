@@ -22,6 +22,12 @@ enum KeywordController {
     static func query(on database: Database, keyword: String, page: Int, pageSize: Int) async throws -> Page<Joined3<Package, Repository, Version>> {
         try await Joined3<Package, Repository, Version>
             .query(on: database, version: .defaultBranch)
+            .field(Repository.self, \.$name)
+            .field(Repository.self, \.$owner)
+            .field(Repository.self, \.$lastActivityAt)
+            .field(Repository.self, \.$stars)
+            .field(Repository.self, \.$summary)
+            .field(Version.self, \.$packageName)
             .filter(Repository.self, \.$keywords, .custom("@>"), [keyword])
             .sort(\.$score, .descending)
             .sort(Repository.self, \.$name)
