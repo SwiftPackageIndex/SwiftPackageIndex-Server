@@ -24,6 +24,8 @@
     section {
         ul {
             display: grid;
+            gap: 20px;
+            row-gap: 40px;
             margin: 60px 0;
             padding: 0;
 
@@ -35,12 +37,13 @@
                     display: flex;
                     align-items: center;
                 }
-            }
 
-            @media screen and (max-width: $mobile-breakpoint) {
-                gap: 20px;
+                &:last-child:nth-child(odd) {
+                    grid-column: span 2;
+                    justify-self: center;
+                }
 
-                li {
+                @media screen and (max-width: $mobile-breakpoint) {
                     justify-content: center;
                 }
             }
