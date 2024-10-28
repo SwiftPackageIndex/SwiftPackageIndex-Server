@@ -30,6 +30,7 @@ struct FundingLink: Codable, Equatable {
         case patreon
         case polar
         case tidelift
+        case thanksDev
     }
 
     var platform: Platform
@@ -84,6 +85,8 @@ extension FundingLink.Platform {
                 self = .polar
             case .tidelift:
                 self = .tidelift
+            case .thanksDev:
+                self = .thanksDev
         }
     }
 }

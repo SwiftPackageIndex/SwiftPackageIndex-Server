@@ -196,7 +196,7 @@ extension Github {
         }
 
         guard response.status == .ok else {
-            Current.logger().warning("fetchResource request failed with status \(response.status)")
+            Current.logger().warning("fetchResource<\(T.self)> request failed with status \(response.status)")
             throw Error.requestFailed(response.status)
         }
 
@@ -390,6 +390,7 @@ extension Github {
                 case patreon = "PATREON"
                 case polar = "POLAR"
                 case tidelift = "TIDELIFT"
+                case thanksDev = "THANKS_DEV"
             }
 
             var platform: Platform

@@ -377,6 +377,7 @@ extension FundingLink {
             case .patreon: return "Patreon"
             case .polar: return "Polar"
             case .tidelift: return "Tidelift"
+            case .thanksDev: return "thanks.dev"
         }
     }
 }
