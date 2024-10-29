@@ -25,9 +25,9 @@
         ul {
             display: flex;
             flex-wrap: wrap;
-            gap: 30px 70px;
+            column-gap: 70px;
             justify-content: center;
-            margin: 60px 0;
+            margin: 30px 0;
             padding: 0;
 
             li {
