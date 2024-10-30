@@ -6,7 +6,7 @@ We obviously need a web server, or actually a few web servers, as we want redund
 
 Then there’s our “build system” that powers all the compatibility information. That system consists of 10 very powerful machines that crunch through more than 500,000 Swift builds during a busy month. Those machines also build all the documentation that we host for almost 1,000 packages.
 
-The build machines also generate hundreds of thousands of build logs per month and millions of documentation files that need hundreds of gigabytes of storage. We have been using [Amazon Web Services (AWS)](https://aws.amazon.com/) for this storage so far, but our costs were starting to rise as we host more and more documentation.
+The build machines also generate hundreds of thousands of build logs per month and millions of documentation files that need hundreds of gigabytes of storage. We have been using [Amazon Web Services (AWS)](https://aws.amazon.com/) for this storage so far, but our costs were starting to rise as we hosted more and more documentation.
 
 Which is why we’re delighted to announce today that AWS is [joining our set of infrastructure sponsors](/supporters) by donating credits to the project. We’ll use these credits to continue to host the logs documentation that you use every day.
 
