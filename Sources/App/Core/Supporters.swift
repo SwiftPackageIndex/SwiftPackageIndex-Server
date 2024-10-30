@@ -41,10 +41,10 @@ enum Supporters {
               logo: .init(lightModeUrl: "/images/sponsors/microsoft.png",
                           darkModeUrl: "/images/sponsors/microsoft~dark.png"),
               url: "https://azure.microsoft.com"),
-        .init(name: "Amazon AWS",
+        .init(name: "Amazon Web Services (AWS)",
               logo: .init(lightModeUrl: "/images/sponsors/aws.png",
                           darkModeUrl: "/images/sponsors/aws~dark.png"),
-              url: "https://aws.amazon.com")
+              url: "https://aws.amazon.com/")
     ]
 
     nonisolated(unsafe) static var community: [Community] = .gitHubSponsors
