@@ -1,4 +1,4 @@
-![The Swift Package Index logo next to the Amazon logo](/images/blog/swift-package-index-and-amazon-logos.png)
+![The Swift Package Index logo next to the Amazon logo](/images/blog/swift-package-index-and-aws-logos.png)
 
 It may surprise you to learn how much hosting infrastructure a site like the Swift Package Index needs.
 
