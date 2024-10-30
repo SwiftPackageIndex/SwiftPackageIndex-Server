@@ -53,7 +53,6 @@ enum SupportersShow {
                 .class("corporate"),
                 .h3("Corporate Supporters"),
                 .ul(
-                    .class("solo"),
                     Supporters.primary.listNode
                 ),
                 .ul(

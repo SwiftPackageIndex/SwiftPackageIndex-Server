@@ -23,25 +23,23 @@
 
     section {
         ul {
-            display: grid;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px 70px;
+            justify-content: center;
             margin: 60px 0;
             padding: 0;
 
             li {
-                display: flex;
                 list-style: none;
 
                 > a {
                     display: flex;
                     align-items: center;
                 }
-            }
 
-            @media screen and (max-width: $mobile-breakpoint) {
-                gap: 20px;
-
-                li {
-                    justify-content: center;
+                @media screen and (max-width: $mobile-breakpoint) {
+                    width: 100%;
                 }
             }
         }
@@ -57,32 +55,13 @@
             }
         }
 
-        &.corporate,
-        &.infrastructure {
-            ul {
-                grid-template-columns: 1fr 1fr;
-
-                li {
-                    justify-content: center;
-                }
-
-                &.solo {
-                    grid-template-columns: 1fr;
-                }
-            }
-
-            @media screen and (max-width: $mobile-breakpoint) {
-                ul {
-                    grid-template-columns: 1fr;
-                }
-            }
-        }
-
         &.community {
             ul {
-                grid-template-columns: 1fr 1fr 1fr;
+                justify-content: flex-start;
 
-                li {
+                > li {
+                    width: calc(100% / 3 - 70px);
+
                     a:not(:hover) {
                         color: var(--page-text);
                     }
@@ -100,6 +79,8 @@
                     }
 
                     @media screen and (max-width: $mobile-breakpoint) {
+                        width: 50%;
+
                         img {
                             margin: 0;
                         }
@@ -115,12 +96,6 @@
                             }
                         }
                     }
-                }
-            }
-
-            @media screen and (max-width: $mobile-breakpoint) {
-                ul {
-                    grid-template-columns: 1fr 1fr;
                 }
             }
         }

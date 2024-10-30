@@ -188,3 +188,8 @@
   summary: We recently transitioned our Mac build machines that power our compatibility and documentation build system from a manually configured and maintained collection of Mac mini machines to a new Orka cluster from MacStadium. It provides complete isolation for builds, and a more efficient use of our build machines.
   published_at: 2024-07-08
   published: true
+- slug: welcoming-amazon-as-an-infrastructure-supporter
+  title: Welcoming Amazon as an infrastructure supporter
+  summary: We are thrilled to announce that Amazon is joining Apple as a supporter of the Swift Package Index by providing infrastructure support.
+  published_at: 2024-10-28
+  published: true
