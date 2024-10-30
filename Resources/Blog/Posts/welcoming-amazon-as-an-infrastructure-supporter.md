@@ -8,7 +8,7 @@ Then there’s our “build system” that powers all the compatibility informat
 
 The build machines also generate hundreds of thousands of build logs per month and millions of documentation files that need hundreds of gigabytes of storage. We have been using [Amazon Web Services (AWS)](https://aws.amazon.com/) for this storage so far, but our costs were starting to rise as we hosted more and more documentation.
 
-Which is why we’re delighted to announce today that AWS is [joining our set of infrastructure sponsors](/supporters) by donating credits to the project. We’ll use these credits to continue to host the logs documentation that you use every day.
+Which is why we’re delighted to announce today that AWS is [joining our set of infrastructure sponsors](/supporters) by donating credits to the project. We’ll use these credits to continue to host the logs and documentation that you use every day.
 
 We want to say a huge thank you to every one of our infrastructure sponsors for keeping this site hosted and processing. We could not do what we do without their support.
 
