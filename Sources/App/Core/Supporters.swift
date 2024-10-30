@@ -59,7 +59,7 @@ enum Supporters {
             var lightModeUrl: String
             var darkModeUrl: String
             var width: Int = 300
-            var height: Int = 150
+            var height: Int = 100
         }
     }
 
