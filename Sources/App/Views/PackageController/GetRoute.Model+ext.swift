@@ -605,7 +605,7 @@ extension API.PackageController.GetRoute.Model {
             .group(
                 .p(
                     .text("This package currently has no compatibility information. "),
-                    .strong("We are currently processing a large build job backlog and it may take much longer than usual for build compatibility information to appear.")
+                    .strong("We are currently processing a large build job backlog and it may take much longer than usual for compatibility information to appear.")
                 ),
                 .p(
                     .text("You can see what builds the system is currently processing by checking the "),
