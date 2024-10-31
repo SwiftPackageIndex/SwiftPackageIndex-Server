@@ -84,8 +84,10 @@ func routes(_ app: Application) throws {
         }
     }
 
-    do {  // package collection page
-        app.get(SiteURL.packageCollection(.key).pathComponents,
+    do {  // package collection pages
+        app.get(SiteURL.packageCollectionAuthor(.key).pathComponents,
+                use: PackageCollectionController.generate).excludeFromOpenAPI()
+        app.get(SiteURL.packageCollectionCustom(.key).pathComponents,
                 use: PackageCollectionController.generate).excludeFromOpenAPI()
     }
 

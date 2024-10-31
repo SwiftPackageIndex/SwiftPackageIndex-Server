@@ -59,7 +59,7 @@ enum AuthorShow {
                 ),
                 .copyableInputForm(buttonName: "Copy Package Collection URL",
                                    eventName: "Copy Package Collection URL Button",
-                                   valueToCopy: SiteURL.packageCollection(.value(model.owner)).absoluteURL()),
+                                   valueToCopy: SiteURL.packageCollectionAuthor(.value(model.owner)).absoluteURL()),
                 .hr(.class("minor")),
                 .ul(
                     .id("package-list"),

@@ -20,16 +20,34 @@ enum PackageCollectionController {
     static func generate(req: Request) async throws -> SignedCollection {
         AppMetrics.packageCollectionGetTotal?.inc()
 
-        guard let owner = req.parameters.get("owner") else { throw Abort(.notFound) }
+        guard let collectionType = getCollectionType(req: req) else {
+            throw Abort(.notFound)
+        }
 
         do {
-            return try await SignedCollection.generate(
-                db: req.db,
-                filterBy: .author(owner),
-                authorName: "\(owner) via the Swift Package Index"
-            )
+            switch collectionType {
+                case let .author(owner):
+                    return try await SignedCollection.generate(
+                        db: req.db,
+                        filterBy: .author(owner),
+                        authorName: "\(owner) via the Swift Package Index"
+                    )
+                case let .custom(name):
+                    fatalError("FIXME")
+            }
         } catch PackageCollection.Error.noResults {
             throw Abort(.notFound)
         }
+    }
+
+    enum CollectionType {
+        case author(String)
+        case custom(String)
+    }
+
+    static func getCollectionType(req: Request) -> CollectionType? {
+        if let owner = req.parameters.get("owner") { return .author(owner) }
+        if let name = req.parameters.get("name") { return .custom(name) }
+        return nil
     }
 }

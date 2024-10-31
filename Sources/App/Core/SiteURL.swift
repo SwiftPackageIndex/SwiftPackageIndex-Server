@@ -121,7 +121,8 @@ enum SiteURL: Resourceable, Sendable {
     case javascripts(String)
     case keywords(_ keyword: Parameter<String>)
     case package(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagePathComponents?)
-    case packageCollection(_ owner: Parameter<String>)
+    case packageCollectionAuthor(_ owner: Parameter<String>)
+    case packageCollectionCustom(_ name: Parameter<String>)
     case packageCollections
     case privacy
     case readyForSwift6
@@ -171,7 +172,7 @@ enum SiteURL: Resourceable, Sendable {
                 return "build-monitor"
 
             case let .collections(.value(name)):
-                return "collections/\(name)"
+                return "collections/\(name.urlPathEncoded)"
 
             case .collections(.key):
                 fatalError("path must not be called with a name parameter")
@@ -208,10 +209,16 @@ enum SiteURL: Resourceable, Sendable {
             case .package:
                 fatalError("invalid path: \(self)")
 
-            case let .packageCollection(.value(owner)):
+            case let .packageCollectionAuthor(.value(owner)):
                 return "\(owner)/collection.json"
 
-            case .packageCollection(.key):
+            case .packageCollectionAuthor(.key):
+                fatalError("invalid path: \(self)")
+
+            case let .packageCollectionCustom(.value(name)):
+                return "collections/\(name.urlPathEncoded)/collection.json"
+
+            case .packageCollectionCustom(.key):
                 fatalError("invalid path: \(self)")
 
             case .packageCollections:
@@ -311,10 +318,16 @@ enum SiteURL: Resourceable, Sendable {
             case .package:
                 fatalError("pathComponents must not be called with a value parameter")
 
-            case .packageCollection(.key):
+            case .packageCollectionAuthor(.key):
                 return [":owner", "collection.json"]
 
-            case .packageCollection(.value):
+            case .packageCollectionAuthor(.value):
+                fatalError("pathComponents must not be called with a value parameter")
+
+            case .packageCollectionCustom(.key):
+                return ["collections", ":name", "collection.json"]
+
+            case .packageCollectionCustom(.value):
                 fatalError("pathComponents must not be called with a value parameter")
 
             case .images, .javascripts, .stylesheets:

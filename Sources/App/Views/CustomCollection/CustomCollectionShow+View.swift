@@ -48,6 +48,18 @@ enum CustomCollectionShow {
                     .class("trimmed"),
                     .text("Packages for collection “\(model.name)”")
                 ),
+                .p(
+                    .text("These packages are available as a package collection, "),
+                    .a(
+                        .href(SiteURL.packageCollections.relativeURL()),
+                        "usable in Xcode 13 or the Swift Package Manager 5.5"
+                    ),
+                    .text(".")
+                ),
+                .copyableInputForm(buttonName: "Copy Package Collection URL",
+                                   eventName: "Copy Package Collection URL Button",
+                                   valueToCopy: SiteURL.packageCollectionCustom(.value(model.name)).absoluteURL()),
+                .hr(.class("minor")),
                 .ul(
                     .id("package-list"),
                     .group(

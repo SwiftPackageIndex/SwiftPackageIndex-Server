@@ -140,9 +140,9 @@ class SiteURLTests: XCTestCase {
     }
 
     func test_packageCollectionURL() throws {
-        XCTAssertEqual(SiteURL.packageCollection(.value("foo")).path,
+        XCTAssertEqual(SiteURL.packageCollectionAuthor(.value("foo")).path,
                        "foo/collection.json")
-        XCTAssertEqual(SiteURL.packageCollection(.key).pathComponents
+        XCTAssertEqual(SiteURL.packageCollectionAuthor(.key).pathComponents
                         .map(\.description),
                        [":owner", "collection.json"])
     }
