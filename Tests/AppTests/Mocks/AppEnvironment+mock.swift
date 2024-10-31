@@ -63,6 +63,7 @@ extension AppEnvironment {
             metricsPushGatewayUrl: { "http://pushgateway:9091" },
             plausibleBackendReportingSiteID: { nil },
             postPlausibleEvent: { _, _, _, _ in },
+            processingBuildBacklog: { false },
             random: { range in Double.random(in: range) },
             runnerIds: { [] },
             setHTTPClient: { client in Self.httpClient = client },

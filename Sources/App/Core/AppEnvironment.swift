@@ -64,6 +64,7 @@ struct AppEnvironment: Sendable {
     var metricsPushGatewayUrl: @Sendable () -> String?
     var plausibleBackendReportingSiteID: @Sendable () -> String?
     var postPlausibleEvent: @Sendable (Client, Plausible.Event.Kind, Plausible.Path, User?) async throws -> Void
+    var processingBuildBacklog: @Sendable () -> Bool
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double
     var runnerIds: @Sendable () -> [String]
     var setHTTPClient: @Sendable (Client) -> Void
@@ -201,6 +202,9 @@ extension AppEnvironment {
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },
         postPlausibleEvent: { client, kind, path, user in try await Plausible.postEvent(client: client, kind: kind, path: path, user: user) },
+        processingBuildBacklog: {
+            Environment.get("PROCESSING_BUILD_BACKLOG").flatMap(\.asBool) ?? false
+        },
         random: { range in Double.random(in: range) },
         runnerIds: {
             Environment.get("RUNNER_IDS")

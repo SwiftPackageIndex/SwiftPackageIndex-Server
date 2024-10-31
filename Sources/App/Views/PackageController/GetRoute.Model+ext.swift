@@ -546,6 +546,14 @@ extension API.PackageController.GetRoute.Model {
 
     var hasBuildInfo: Bool { swiftVersionBuildInfo != nil || platformBuildInfo != nil }
 
+    func compatibilityInformation() -> Node<HTML.BodyContext> {
+        .div(
+            .class("matrices"),
+            swiftVersionCompatibilityList(),
+            platformCompatibilityList()
+        )
+    }
+
     func swiftVersionCompatibilityList() -> Node<HTML.BodyContext> {
         guard let buildInfo = swiftVersionBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
@@ -590,6 +598,35 @@ extension API.PackageController.GetRoute.Model {
                 .forEach(cells) { $0.cellNode }
             )
         )
+    }
+
+    func noCompatibilityInformationExplainer() -> Node<HTML.BodyContext> {
+        .if(Current.processingBuildBacklog(),
+            .group(
+                .p(
+                    .text("This package currently has no compatibility information. "),
+                    .strong("We are currently processing a large build job backlog and it may take much longer than usual for compatibility information to appear.")
+                ),
+                .p(
+                    .text("You can see what builds the system is currently processing by checking the "),
+                    .a(
+                        .href(SiteURL.buildMonitor.relativeURL()),
+                        .text("build system monitoring page")
+                    ),
+                    .text(".")
+                )
+            ),
+            else: .group(
+                .p("This package currently has no compatibility information. The build jobs that determine compatibility have been queued and compatibility information will appear when they complete."),
+                .p(
+                    .text("If this message persists for more than an hour, please "),
+                    .a(
+                        .href(ExternalURL.raiseNewIssue),
+                        .text("raise an issue")
+                    ),
+                    .text(".")
+                )
+            ))
     }
 }
 
