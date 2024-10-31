@@ -223,28 +223,8 @@ extension PackageShow {
                 ),
                 .div(
                     .class("matrices"),
-                    .if(model.hasBuildInfo,
-                        .group(
-                            model.swiftVersionCompatibilityList(),
-                            model.platformCompatibilityList()
-                        ),
-                        else: .group(
-                            .p(
-                                "This package currently has no compatibility information. Builds to determine package compatibility are starting, and compatibility information will appear soon.",
-                                .br(),
-                                Current.processingBuildBacklog()
-                                ? "We are currently processing a large build backlog and it may take much longer than usual for the first build compatibility information to appear."
-                                : .group(
-                                    "If this message persists for more than a few minutes, please ",
-                                    .a(
-                                        .href(ExternalURL.raiseNewIssue),
-                                        "raise an issue"
-                                    ),
-                                    "."
-                                )
-                            )
-                        )
-                    )
+                    .if(model.hasBuildInfo, model.compatibilityInformation(),
+                        else: model.noCompatibilityInformationExplainer())
                 )
             )
         }
