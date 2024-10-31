@@ -158,7 +158,7 @@ class IngestorTests: AppTestCase {
                                    metadata: md,
                                    licenseInfo: .init(htmlUrl: "license url"),
                                    readmeInfo: .init(etag: "etag",
-                                                     html: "readme html",
+                                                     html: "readme html https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com",
                                                      htmlUrl: "readme html url",
                                                      imagesToCache: []),
                                    s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"),
@@ -177,6 +177,7 @@ class IngestorTests: AppTestCase {
                 .init(platform: .customUrl, url: "https://example.com/username1"),
                 .init(platform: .customUrl, url: "https://example.com/username2")
             ])
+            XCTAssertEqual(repo.hasSPIBadge, true)
             XCTAssertEqual(repo.homepageUrl, "https://swiftpackageindex.com/Alamofire/Alamofire")
             XCTAssertEqual(repo.isInOrganization, true)
             XCTAssertEqual(repo.keywords, ["bar", "baz", "foo"])
