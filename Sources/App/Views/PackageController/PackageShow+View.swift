@@ -221,11 +221,8 @@ extension PackageShow {
                         .text("Full Build Results")
                     )
                 ),
-                .div(
-                    .class("matrices"),
-                    .if(model.hasBuildInfo, model.compatibilityInformation(),
-                        else: model.noCompatibilityInformationExplainer())
-                )
+                .if(model.hasBuildInfo, model.compatibilityInformation(),
+                    else: model.noCompatibilityInformationExplainer())
             )
         }
 
