@@ -344,6 +344,9 @@ public func configure(_ app: Application) async throws -> String {
         app.migrations.add(CreateCustomCollection())
         app.migrations.add(CreateCustomCollectionPackage())
     }
+    do { // Migration 082 - Add `has_spi_badge` to `repositories`
+        app.migrations.add(UpdateRepositoryAddHasSPIBadge())
+    }
 
     app.asyncCommands.use(Analyze.Command(), as: "analyze")
     app.asyncCommands.use(CreateRestfileCommand(), as: "create-restfile")
