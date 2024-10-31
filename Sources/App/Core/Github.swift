@@ -248,6 +248,10 @@ extension Github {
             var originalUrl: String
             var s3Key: S3Store.Key
         }
+
+        func containsSPIBadge() -> Bool {
+            html.contains("https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com")
+        }
     }
 
     struct Metadata: Decodable, Equatable {
