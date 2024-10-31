@@ -447,8 +447,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-ssl.git",
       "state" : {
-        "revision" : "d7ceaf0e4d8001cd35cdc12e42cdd281e9e564e8",
-        "version" : "2.28.0"
+        "revision" : "c7e95421334b1068490b5d41314a50e70bab23d1",
+        "version" : "2.29.0"
       }
     },
     {
