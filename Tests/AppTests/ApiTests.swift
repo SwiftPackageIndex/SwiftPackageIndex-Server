@@ -809,7 +809,6 @@ class ApiTests: AppTestCase {
             try await v.save(on: app.db)
             try await Product(version: v, type: .library(.automatic), name: "lib")
                 .save(on: app.db)
-            try await Search.refresh(on: app.db)
 
             let event = App.ActorIsolated<TestEvent?>(nil)
             Current.postPlausibleEvent = { @Sendable _, kind, path, _ in
@@ -897,7 +896,6 @@ class ApiTests: AppTestCase {
                 try await Product(version: v, type: .library(.automatic), name: "p2")
                     .save(on: app.db)
             }
-            try await Search.refresh(on: app.db)
             
             do {  // MUT
                 let body: ByteBuffer = .init(string: """

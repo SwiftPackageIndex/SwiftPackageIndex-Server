@@ -168,6 +168,46 @@ class PackageCollectionTests: AppTestCase {
                        ["package 0", "package 1"])
     }
 
+    func test_query_custom() async throws {
+        // Tests PackageResult.query with the custom collection filter option
+        // setup
+        let packages = try await (0..<3).mapAsync { index in
+            let pkg = try await savePackage(on: app.db, "url-\(index)".url)
+            do {
+                let v = try Version(package: pkg,
+                                    latest: .release,
+                                    packageName: "package \(index)",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.4")
+                try await v.save(on: app.db)
+                try await Build(version: v,
+                                buildCommand: "build \(index)",
+                                platform: .iOS,
+                                status: .ok,
+                                swiftVersion: .v1)
+                .save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "product \(index)")
+                    .save(on: app.db)
+                try await Target(version: v, name: "target \(index)")
+                    .save(on: app.db)
+            }
+            try await Repository(package: pkg, name: "repo \(index)", owner: "owner")
+                .save(on: app.db)
+            return pkg
+        }
+        let collection = CustomCollection(id: .id2, .init(name: "List", url: "https://github.com/foo/bar/list.json"))
+        try await collection.save(on: app.db)
+        try await collection.$packages.attach([packages[0], packages[1]], on: app.db)
+
+        // MUT
+        let res = try await VersionResult.query(on: self.app.db,
+                                                filterBy: .customCollection("List"))
+
+        // validate selection (relationship loading is tested in test_query_filter_urls)
+        XCTAssertEqual(res.map(\.version.packageName),
+                       ["package 0", "package 1"])
+    }
+
     func test_Version_init() async throws {
         // Tests PackageCollection.Version initialisation from App.Version
         // setup

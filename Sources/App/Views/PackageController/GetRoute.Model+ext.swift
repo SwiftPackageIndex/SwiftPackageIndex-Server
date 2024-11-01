@@ -404,7 +404,7 @@ extension API.PackageController.GetRoute.Model {
             .class("custom-collections"),
             .forEach(customCollections, { collection in
                     .a(
-                        .href(collection.url),  // FIXME: link to custom collection page
+                        .href(SiteURL.collections(.value(collection.name)).relativeURL()),
                         .text("\(collection.name)")
                     )
             })

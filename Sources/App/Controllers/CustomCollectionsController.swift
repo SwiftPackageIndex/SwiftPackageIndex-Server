@@ -17,19 +17,20 @@ import Plot
 import Vapor
 
 
-enum KeywordController {
+enum CustomCollectionsController {
 
-    static func query(on database: Database, keyword: String, page: Int, pageSize: Int) async throws -> Page<Joined3<Package, Repository, Version>> {
+    static func query(on database: Database, name: String, page: Int, pageSize: Int) async throws -> Page<Joined3<Package, Repository, Version>> {
         try await Joined3<Package, Repository, Version>
             .query(on: database, version: .defaultBranch)
+            .join(CustomCollectionPackage.self, on: \Package.$id == \CustomCollectionPackage.$package.$id)
+            .join(CustomCollection.self, on: \CustomCollection.$id == \CustomCollectionPackage.$customCollection.$id)
             .field(Repository.self, \.$name)
             .field(Repository.self, \.$owner)
             .field(Repository.self, \.$lastActivityAt)
             .field(Repository.self, \.$stars)
             .field(Repository.self, \.$summary)
             .field(Version.self, \.$packageName)
-            .filter(Repository.self, \.$keywords, .custom("@>"), [keyword])
-            .sort(\.$score, .descending)
+            .filter(CustomCollection.self, \.$name == name)
             .sort(Repository.self, \.$name)
             .page(page, size: pageSize)
     }
@@ -55,11 +56,11 @@ enum KeywordController {
 
     @Sendable
     static func show(req: Request) async throws -> HTML {
-        guard let keyword = req.parameters.get("keyword") else {
+        guard let name = req.parameters.get("name") else {
             throw Abort(.notFound)
         }
         let query = try req.query.decode(Query.self)
-        let page = try await Self.query(on: req.db, keyword: keyword, page: query.page, pageSize: query.pageSize)
+        let page = try await Self.query(on: req.db, name: name, page: query.page, pageSize: query.pageSize)
 
         guard !page.results.isEmpty else {
             throw Abort(.notFound)
@@ -67,14 +68,14 @@ enum KeywordController {
 
         let packageInfo = page.results.compactMap(PackageInfo.init(package:))
 
-        let model = KeywordShow.Model(
-            keyword: keyword,
+        let model = CustomCollectionShow.Model(
+            name: name,
             packages: packageInfo,
             page: query.page,
             hasMoreResults: page.hasMoreResults
         )
 
-        return KeywordShow.View(path: req.url.path, model: model).document()
+        return CustomCollectionShow.View(path: req.url.path, model: model).document()
     }
 
 }

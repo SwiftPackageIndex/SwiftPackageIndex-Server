@@ -34,6 +34,7 @@ extension PackageCollection {
     enum Filter {
         case urls([String])
         case author(String)
+        case customCollection(String)
     }
 
     enum Error: Swift.Error {
@@ -97,10 +98,14 @@ extension PackageCollection {
                 return owner
             case (.author, .some(let label)):
                 return label
-            case (.urls, .some(let label)):
+            case (.customCollection(let name), .none):
+                return name
+            case (.customCollection, .some(let label)):
                 return label
             case (.urls(let urls), .none):
                 return author(for: urls)
+            case (.urls, .some(let label)):
+                return label
         }
     }
 

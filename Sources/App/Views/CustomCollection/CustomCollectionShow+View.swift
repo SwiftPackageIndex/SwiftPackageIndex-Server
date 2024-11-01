@@ -13,10 +13,9 @@
 // limitations under the License.
 
 import Plot
-import Foundation
 
 
-enum AuthorShow {
+enum CustomCollectionShow {
 
     class View: PublicPage {
 
@@ -28,18 +27,18 @@ enum AuthorShow {
         }
 
         override func pageTitle() -> String? {
-            "Packages by \(model.ownerName)"
+            "Packages for collection \(model.name)"
         }
 
         override func pageDescription() -> String? {
             let packagesClause = model.packages.count > 1 ? "\(model.packages.count) packages" : "1 package"
-            return "The Swift Package Index is indexing \(packagesClause) authored by \(model.ownerName)."
+            return "The Swift Package Index is indexing \(packagesClause) for collection \(model.name)."
         }
 
         override func breadcrumbs() -> [Breadcrumb] {
             [
                 Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
-                Breadcrumb(title: model.ownerName)
+                Breadcrumb(title: model.name)
             ]
         }
 
@@ -47,7 +46,7 @@ enum AuthorShow {
             .group(
                 .h2(
                     .class("trimmed"),
-                    .text("Packages authored by \(model.ownerName)")
+                    .text("Packages for collection “\(model.name)”")
                 ),
                 .p(
                     .text("These packages are available as a package collection, "),
@@ -59,7 +58,7 @@ enum AuthorShow {
                 ),
                 .copyableInputForm(buttonName: "Copy Package Collection URL",
                                    eventName: "Copy Package Collection URL Button",
-                                   valueToCopy: SiteURL.packageCollectionAuthor(.value(model.owner)).absoluteURL()),
+                                   valueToCopy: SiteURL.packageCollectionCustom(.value(model.name)).absoluteURL()),
                 .hr(.class("minor")),
                 .ul(
                     .id("package-list"),
@@ -67,11 +66,49 @@ enum AuthorShow {
                         model.packages.map { .packageListItem(linkUrl: $0.url, packageName: $0.title, summary: $0.description, repositoryOwner: $0.repositoryOwner, repositoryName: $0.repositoryName, stars: $0.stars, lastActivityAt: $0.lastActivityAt, hasDocs: $0.hasDocs ?? false) }
                     )
                 ),
-                .p(
-                    .strong("\(model.packages.count) \("package".pluralized(for: model.packages.count)).")
+                .if(model.page == 1 && !model.hasMoreResults,
+                    .p(
+                        .strong("\(model.packages.count) \("package".pluralized(for: model.packages.count)).")
+                    )
+                   ),
+                .ul(
+                    .class("pagination"),
+                    .if(model.page > 1, .previousPage(model: model)),
+                    .if(model.hasMoreResults, .nextPage(model: model))
                 )
             )
         }
     }
 
+}
+
+
+fileprivate extension Node where Context == HTML.ListContext {
+    static func previousPage(model: CustomCollectionShow.Model) -> Node<HTML.ListContext> {
+        let parameters = [
+            QueryParameter(key: "page", value: model.page - 1)
+        ]
+        return .li(
+            .class("previous"),
+            .a(
+                .href(SiteURL.collections(.value(model.name))
+                        .relativeURL(parameters: parameters)),
+                "Previous Page"
+            )
+        )
+    }
+
+    static func nextPage(model: CustomCollectionShow.Model) -> Node<HTML.ListContext> {
+        let parameters = [
+            QueryParameter(key: "page", value: model.page + 1)
+        ]
+        return .li(
+            .class("next"),
+            .a(
+                .href(SiteURL.collections(.value(model.name))
+                        .relativeURL(parameters: parameters)),
+                "Next Page"
+            )
+        )
+    }
 }

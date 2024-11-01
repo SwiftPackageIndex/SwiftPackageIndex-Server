@@ -58,6 +58,10 @@ extension String {
     var pathEncoded: Self {
         replacingOccurrences(of: "/", with: "-")
     }
+
+    var urlPathEncoded: Self {
+        addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? self
+    }
 }
 
 

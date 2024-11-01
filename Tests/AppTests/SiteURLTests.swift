@@ -140,9 +140,9 @@ class SiteURLTests: XCTestCase {
     }
 
     func test_packageCollectionURL() throws {
-        XCTAssertEqual(SiteURL.packageCollection(.value("foo")).path,
+        XCTAssertEqual(SiteURL.packageCollectionAuthor(.value("foo")).path,
                        "foo/collection.json")
-        XCTAssertEqual(SiteURL.packageCollection(.key).pathComponents
+        XCTAssertEqual(SiteURL.packageCollectionAuthor(.key).pathComponents
                         .map(\.description),
                        [":owner", "collection.json"])
     }
@@ -166,6 +166,11 @@ class SiteURLTests: XCTestCase {
     func test_keywords() throws {
         XCTAssertEqual(SiteURL.keywords(.value("foo")).path, "keywords/foo")
         XCTAssertEqual(SiteURL.keywords(.key).pathComponents.map(\.description), ["keywords", ":keyword"])
+    }
+
+    func test_collections() throws {
+        XCTAssertEqual(SiteURL.collections(.value("foo")).path, "collections/foo")
+        XCTAssertEqual(SiteURL.collections(.key).pathComponents.map(\.description), ["collections", ":name"])
     }
 
 }
