@@ -55,6 +55,11 @@ extension PackageCollection.VersionResult {
         switch filter {
             case let .author(owner):
                 query.filter(Repository.self, \Repository.$owner, .custom("ilike"), owner)
+            case let .customCollection(name):
+                query
+                    .join(CustomCollectionPackage.self, on: \Package.$id == \CustomCollectionPackage.$package.$id)
+                    .join(CustomCollection.self, on: \CustomCollection.$id == \CustomCollectionPackage.$customCollection.$id)
+                    .filter(CustomCollection.self, \.$name == name)
             case let .urls(packageURLs):
                 query.filter(App.Package.self, \.$url ~~ packageURLs)
         }
