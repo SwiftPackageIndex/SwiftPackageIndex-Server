@@ -111,10 +111,6 @@ requests:
     url: ${base_url}/RevenueCat/purchases-ios/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /SwiftGraphs/Grape/documentation:
-    url: ${base_url}/SwiftGraphs/Grape/documentation
-    validation:
-      status: .regex((2|3)\d\d)
   /SwiftyLab/MetaCodable/documentation:
     url: ${base_url}/SwiftyLab/MetaCodable/documentation
     validation:
@@ -398,6 +394,10 @@ requests:
     url: ${base_url}/krzyzanowskim/CryptoSwift/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /li3zhen1/Grape/documentation:
+      url: ${base_url}/li3zhen1/Grape/documentation
+      validation:
+        status: .regex((2|3)\d\d)
   /liuliu/dflat/documentation:
     url: ${base_url}/liuliu/dflat/documentation
     validation:
