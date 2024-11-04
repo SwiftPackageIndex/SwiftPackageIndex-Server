@@ -13,9 +13,58 @@
 // limitations under the License.
 
 import { Controller } from '@hotwired/stimulus'
+import mermaid from 'mermaid'
 
 export class ReadmeController extends Controller {
+    notifyObservers(darkMode) {
+              console.log("dark mode is", darkMode)
+        if (darkMode == undefined) {
+            darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+            console.log("actually dark mode is", darkMode)
+        }
+        
+        // Get all mermaid diagrams
+    const mermaidDivs = document.querySelectorAll('pre[lang="mermaid"]');
+
+    console.log("mermaidDivs", mermaidDivs.length)
+    // Re-render each diagram
+    for (const div of Array.from(mermaidDivs)) {
+      const json = div.parentElement.parentElement.getAttribute('data-json');
+      if (!json) {
+        continue
+      }
+      const diagramContent = JSON.parse(json).data;
+      if (diagramContent) {
+        try {
+          // Clear the existing diagram
+          div.innerHTML = diagramContent;
+          div.removeAttribute('data-processed')
+        } catch (error) {
+          console.error('Error re-rendering mermaid diagram:', error);
+        }
+      }
+    }
+
+    mermaid.initialize({
+        theme: darkMode ? 'dark' : undefined,
+         'nodeSpacing': 50, 'rankSpacing': 50, 'curve': 'basis'
+    })
+        mermaid.run({
+            querySelector: 'pre[lang="mermaid"]',
+        });
+    }
     navigateToAnchorFromLocation() {
+        if (typeof window !== 'undefined') {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            // Add listener for system preference changes
+            mediaQuery.addEventListener('change', (e) => {
+                console.log("dark mode changed")
+              this.notifyObservers(e.matches);
+            });
+          }
+       this.notifyObservers();
+        console.log("Mermaid initialized")
         // If the browser has an anchor in the URL that may be inside the README then
         // we should attempt to scroll it into view once the README is loaded.
         const hash = window.location.hash
@@ -23,5 +72,6 @@ export class ReadmeController extends Controller {
 
         const hashElement = this.element.querySelector(hash)
         if (hashElement) hashElement.scrollIntoView()
+
     }
 }
