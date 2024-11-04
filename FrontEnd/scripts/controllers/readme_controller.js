@@ -16,55 +16,60 @@ import { Controller } from '@hotwired/stimulus'
 import mermaid from 'mermaid'
 
 export class ReadmeController extends Controller {
-    notifyObservers(darkMode) {
-              console.log("dark mode is", darkMode)
+    onThemeChange(darkMode) {
+        // If `darkMode` isn't passed, get the current value
         if (darkMode == undefined) {
             darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
-            console.log("actually dark mode is", darkMode)
+            console.log('actually dark mode is', darkMode)
         }
-        
+
         // Get all mermaid diagrams
-    const mermaidDivs = document.querySelectorAll('pre[lang="mermaid"]');
+        const mermaidDivs = document.querySelectorAll('pre[lang="mermaid"]')
 
-    console.log("mermaidDivs", mermaidDivs.length)
-    // Re-render each diagram
-    for (const div of Array.from(mermaidDivs)) {
-      const json = div.parentElement.parentElement.getAttribute('data-json');
-      if (!json) {
-        continue
-      }
-      const diagramContent = JSON.parse(json).data;
-      if (diagramContent) {
-        try {
-          // Clear the existing diagram
-          div.innerHTML = diagramContent;
-          div.removeAttribute('data-processed')
-        } catch (error) {
-          console.error('Error re-rendering mermaid diagram:', error);
+        for (const div of Array.from(mermaidDivs)) {
+            // Get the diagram code
+            const json = div.parentElement.parentElement.getAttribute('data-json')
+            if (!json) {
+                continue
+            }
+            const diagramCode = JSON.parse(json).data
+            if (diagramCode) {
+                try {
+                    // Clear the existing diagram
+                    div.innerHTML = diagramCode
+                    div.removeAttribute('data-processed')
+                } catch (error) {
+                    console.error('Error re-rendering mermaid diagram:', error)
+                }
+            }
         }
-      }
-    }
 
-    mermaid.initialize({
-        theme: darkMode ? 'dark' : undefined,
-         'nodeSpacing': 50, 'rankSpacing': 50, 'curve': 'basis'
-    })
+        mermaid.initialize({
+            theme: darkMode ? 'dark' : undefined,
+            nodeSpacing: 50,
+            rankSpacing: 50,
+            curve: 'basis',
+        })
+
+        // Rather then preprocess the HTML in Swift we just change the selector to use `lang` attribute instead of `class`
         mermaid.run({
             querySelector: 'pre[lang="mermaid"]',
-        });
+        })
     }
     navigateToAnchorFromLocation() {
+        // listen for changes to color scheme
         if (typeof window !== 'undefined') {
-            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+
             // Add listener for system preference changes
             mediaQuery.addEventListener('change', (e) => {
-                console.log("dark mode changed")
-              this.notifyObservers(e.matches);
-            });
-          }
-       this.notifyObservers();
-        console.log("Mermaid initialized")
+                this.onThemeChange(e.matches)
+            })
+        }
+
+        // setup mermaid diagrams
+        this.onThemeChange()
+
         // If the browser has an anchor in the URL that may be inside the README then
         // we should attempt to scroll it into view once the README is loaded.
         const hash = window.location.hash
@@ -72,6 +77,5 @@ export class ReadmeController extends Controller {
 
         const hashElement = this.element.querySelector(hash)
         if (hashElement) hashElement.scrollIntoView()
-
     }
 }
