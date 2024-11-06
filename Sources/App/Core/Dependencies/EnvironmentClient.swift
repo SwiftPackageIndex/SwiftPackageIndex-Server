@@ -21,7 +21,7 @@ import Vapor
 struct EnvironmentClient {
     // See https://swiftpackageindex.com/pointfreeco/swift-dependencies/main/documentation/dependenciesmacros/dependencyclient()#Restrictions
     // regarding the use of XCTFail here.
-    var allowBuildTriggers: @Sendable () -> Bool = { XCTFail(#function); return false }
+    var allowBuildTriggers: @Sendable () -> Bool = { XCTFail(#function); return true }
 }
 
 

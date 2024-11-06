@@ -16,8 +16,9 @@ import XCTest
 
 @testable import App
 
-import NIOConcurrencyHelpers
+import Dependencies
 import Fluent
+import NIOConcurrencyHelpers
 import SPIManifest
 import SQLKit
 import Vapor
@@ -535,83 +536,27 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_triggerBuilds_checked() async throws {
-        // Ensure we respect the pipeline limit when triggering builds
-        // setup
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
-        Current.gitlabPipelineLimit = { 300 }
-        // Use live dependency but replace actual client with a mock so we can
-        // assert on the details being sent without actually making a request
-        Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            try await Gitlab.Builder.triggerBuild(client: client,
-                                                  buildId: buildId,
-                                                  cloneURL: cloneURL,
-                                                  isDocBuild: isDocBuild,
-                                                  platform: platform,
-                                                  reference: ref,
-                                                  swiftVersion: swiftVersion,
-                                                  versionID: versionID)
-        }
-        var triggerCount = 0
-        let client = MockClient { _, res in
-            triggerCount += 1
-            try? res.content.encode(
-                Gitlab.Builder.Response.init(webUrl: "http://web_url")
-            )
-        }
-
-        do {  // fist run: we are at capacity and should not be triggering more builds
-            Current.getStatusCount = { _, _ in 300 }
-
-            let pkgId = UUID()
-            let versionId = UUID()
-            let p = Package(id: pkgId, url: "1")
-            try await p.save(on: app.db)
-            try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-                .save(on: app.db)
-
-            // MUT
-            try await triggerBuilds(on: app.db,
-                                    client: client,
-                                    mode: .packageId(pkgId, force: false))
-
-            // validate
-            XCTAssertEqual(triggerCount, 0)
-            // ensure no build stubs have been created either
-            let v = try await Version.find(versionId, on: app.db)
-            try await v?.$builds.load(on: app.db)
-            XCTAssertEqual(v?.builds.count, 0)
-        }
-
-        triggerCount = 0
-
-        do {  // second run: we are just below capacity and allow more builds to be triggered
-            Current.getStatusCount = { c, _ in 299 }
-
-            let pkgId = UUID()
-            let versionId = UUID()
-            let p = Package(id: pkgId, url: "2")
-            try await p.save(on: app.db)
-            try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-                .save(on: app.db)
-
-            // MUT
-            try await triggerBuilds(on: app.db,
-                                    client: client,
-                                    mode: .packageId(pkgId, force: false))
-
-            // validate
-            XCTAssertEqual(triggerCount, 27)
-            // ensure builds are now in progress
-            let v = try await Version.find(versionId, on: app.db)
-            try await v?.$builds.load(on: app.db)
-            XCTAssertEqual(v?.builds.count, 27)
-        }
-
-        do {  // third run: we are at capacity and using the `force` flag
-            Current.getStatusCount = { c, _ in 300 }
-
+        try await withDependencies {
+            $0.environment.allowBuildTriggers = { true }
+        } operation: {
+            // Ensure we respect the pipeline limit when triggering builds
+            // setup
+            Current.builderToken = { "builder token" }
+            Current.gitlabPipelineToken = { "pipeline token" }
+            Current.siteURL = { "http://example.com" }
+            Current.gitlabPipelineLimit = { 300 }
+            // Use live dependency but replace actual client with a mock so we can
+            // assert on the details being sent without actually making a request
+            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(client: client,
+                                                      buildId: buildId,
+                                                      cloneURL: cloneURL,
+                                                      isDocBuild: isDocBuild,
+                                                      platform: platform,
+                                                      reference: ref,
+                                                      swiftVersion: swiftVersion,
+                                                      versionID: versionID)
+            }
             var triggerCount = 0
             let client = MockClient { _, res in
                 triggerCount += 1
@@ -620,153 +565,224 @@ class BuildTriggerTests: AppTestCase {
                 )
             }
 
-            let pkgId = UUID()
-            let versionId = UUID()
-            let p = Package(id: pkgId, url: "3")
-            try await p.save(on: app.db)
-            try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-                .save(on: app.db)
+            do {  // fist run: we are at capacity and should not be triggering more builds
+                Current.getStatusCount = { _, _ in 300 }
+
+                let pkgId = UUID()
+                let versionId = UUID()
+                let p = Package(id: pkgId, url: "1")
+                try await p.save(on: app.db)
+                try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                    .save(on: app.db)
+
+                // MUT
+                try await triggerBuilds(on: app.db,
+                                        client: client,
+                                        mode: .packageId(pkgId, force: false))
+
+                // validate
+                XCTAssertEqual(triggerCount, 0)
+                // ensure no build stubs have been created either
+                let v = try await Version.find(versionId, on: app.db)
+                try await v?.$builds.load(on: app.db)
+                XCTAssertEqual(v?.builds.count, 0)
+            }
+
+            triggerCount = 0
+
+            do {  // second run: we are just below capacity and allow more builds to be triggered
+                Current.getStatusCount = { c, _ in 299 }
+
+                let pkgId = UUID()
+                let versionId = UUID()
+                let p = Package(id: pkgId, url: "2")
+                try await p.save(on: app.db)
+                try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                    .save(on: app.db)
+
+                // MUT
+                try await triggerBuilds(on: app.db,
+                                        client: client,
+                                        mode: .packageId(pkgId, force: false))
+
+                // validate
+                XCTAssertEqual(triggerCount, 27)
+                // ensure builds are now in progress
+                let v = try await Version.find(versionId, on: app.db)
+                try await v?.$builds.load(on: app.db)
+                XCTAssertEqual(v?.builds.count, 27)
+            }
+
+            do {  // third run: we are at capacity and using the `force` flag
+                Current.getStatusCount = { c, _ in 300 }
+
+                var triggerCount = 0
+                let client = MockClient { _, res in
+                    triggerCount += 1
+                    try? res.content.encode(
+                        Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                    )
+                }
+
+                let pkgId = UUID()
+                let versionId = UUID()
+                let p = Package(id: pkgId, url: "3")
+                try await p.save(on: app.db)
+                try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                    .save(on: app.db)
+
+                // MUT
+                try await triggerBuilds(on: app.db,
+                                        client: client,
+                                        mode: .packageId(pkgId, force: true))
+
+                // validate
+                XCTAssertEqual(triggerCount, 27)
+                // ensure builds are now in progress
+                let v = try await Version.find(versionId, on: app.db)
+                try await v?.$builds.load(on: app.db)
+                XCTAssertEqual(v?.builds.count, 27)
+            }
+        }
+    }
+
+    func test_triggerBuilds_multiplePackages() async throws {
+        try await withDependencies {
+            $0.environment.allowBuildTriggers = { true }
+        } operation: {
+            // Ensure we respect the pipeline limit when triggering builds for multiple package ids
+            // setup
+            Current.builderToken = { "builder token" }
+            Current.gitlabPipelineToken = { "pipeline token" }
+            Current.siteURL = { "http://example.com" }
+            Current.gitlabPipelineLimit = { 300 }
+            // Use live dependency but replace actual client with a mock so we can
+            // assert on the details being sent without actually making a request
+            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(client: client,
+                                                      buildId: buildId,
+                                                      cloneURL: cloneURL,
+                                                      isDocBuild: isDocBuild,
+                                                      platform: platform,
+                                                      reference: ref,
+                                                      swiftVersion: swiftVersion,
+                                                      versionID: versionID)
+            }
+            let triggerCount = NIOLockedValueBox<Int>(0)
+            let client = MockClient { _, res in
+                triggerCount.withLockedValue { $0 += 1 }
+                try? res.content.encode(
+                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                )
+            }
+            Current.getStatusCount = { c, _ in 299 + triggerCount.withLockedValue { $0 } }
+
+            let pkgIds = [UUID(), UUID()]
+            for id in pkgIds {
+                let p = Package(id: id, url: id.uuidString.url)
+                try await p.save(on: app.db)
+                try await Version(id: UUID(), package: p, latest: .defaultBranch, reference: .branch("main"))
+                    .save(on: app.db)
+            }
 
             // MUT
             try await triggerBuilds(on: app.db,
                                     client: client,
-                                    mode: .packageId(pkgId, force: true))
+                                    mode: .limit(4))
 
-            // validate
-            XCTAssertEqual(triggerCount, 27)
-            // ensure builds are now in progress
-            let v = try await Version.find(versionId, on: app.db)
-            try await v?.$builds.load(on: app.db)
-            XCTAssertEqual(v?.builds.count, 27)
+            // validate - only the first batch must be allowed to trigger
+            XCTAssertEqual(triggerCount.withLockedValue { $0 }, 27)
         }
-
-    }
-
-    func test_triggerBuilds_multiplePackages() async throws {
-        // Ensure we respect the pipeline limit when triggering builds for multiple package ids
-        // setup
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
-        Current.gitlabPipelineLimit = { 300 }
-        // Use live dependency but replace actual client with a mock so we can
-        // assert on the details being sent without actually making a request
-        Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            try await Gitlab.Builder.triggerBuild(client: client,
-                                                  buildId: buildId,
-                                                  cloneURL: cloneURL,
-                                                  isDocBuild: isDocBuild,
-                                                  platform: platform,
-                                                  reference: ref,
-                                                  swiftVersion: swiftVersion,
-                                                  versionID: versionID)
-        }
-        let triggerCount = NIOLockedValueBox<Int>(0)
-        let client = MockClient { _, res in
-            triggerCount.withLockedValue { $0 += 1 }
-            try? res.content.encode(
-                Gitlab.Builder.Response.init(webUrl: "http://web_url")
-            )
-        }
-        Current.getStatusCount = { c, _ in 299 + triggerCount.withLockedValue { $0 } }
-
-        let pkgIds = [UUID(), UUID()]
-        for id in pkgIds {
-            let p = Package(id: id, url: id.uuidString.url)
-            try await p.save(on: app.db)
-            try await Version(id: UUID(), package: p, latest: .defaultBranch, reference: .branch("main"))
-                .save(on: app.db)
-        }
-
-        // MUT
-        try await triggerBuilds(on: app.db,
-                                client: client,
-                                mode: .limit(4))
-
-        // validate - only the first batch must be allowed to trigger
-        XCTAssertEqual(triggerCount.withLockedValue { $0 }, 27)
     }
 
     func test_triggerBuilds_trimming() async throws {
-        // Ensure we trim builds as part of triggering
-        // setup
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
-        Current.gitlabPipelineLimit = { 300 }
+        try await withDependencies {
+            $0.environment.allowBuildTriggers = { true }
+        } operation: {
+            // Ensure we trim builds as part of triggering
+            // setup
+            Current.builderToken = { "builder token" }
+            Current.gitlabPipelineToken = { "pipeline token" }
+            Current.siteURL = { "http://example.com" }
+            Current.gitlabPipelineLimit = { 300 }
 
-        let client = MockClient { _, _ in }
+            let client = MockClient { _, _ in }
 
-        let p = Package(id: .id0, url: "2")
-        try await p.save(on: app.db)
-        let v = try Version(id: .id1, package: p, latest: nil, reference: .branch("main"))
-        try await v.save(on: app.db)
-        try await Build(id: .id2, version: v, platform: .iOS, status: .triggered, swiftVersion: .v2)
-            .save(on: app.db)
-        // shift createdAt back to make build eligible from trimming
-        try await updateBuildCreatedAt(id: .id2, addTimeInterval: -.hours(5), on: app.db)
-        let db = app.db
-        try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 1)
+            let p = Package(id: .id0, url: "2")
+            try await p.save(on: app.db)
+            let v = try Version(id: .id1, package: p, latest: nil, reference: .branch("main"))
+            try await v.save(on: app.db)
+            try await Build(id: .id2, version: v, platform: .iOS, status: .triggered, swiftVersion: .v2)
+                .save(on: app.db)
+            // shift createdAt back to make build eligible from trimming
+            try await updateBuildCreatedAt(id: .id2, addTimeInterval: -.hours(5), on: app.db)
+            let db = app.db
+            try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 1)
 
-        // MUT
-        try await triggerBuilds(on: app.db,
-                                client: client,
-                                mode: .packageId(p.id!, force: false))
+            // MUT
+            try await triggerBuilds(on: app.db,
+                                    client: client,
+                                    mode: .packageId(p.id!, force: false))
 
-        // validate
-        let count = try await Build.query(on: app.db).count()
-        XCTAssertEqual(count, 0)
+            // validate
+            let count = try await Build.query(on: app.db).count()
+            XCTAssertEqual(count, 0)
+        }
     }
 
     func test_triggerBuilds_error() async throws {
-        // Ensure we trim builds as part of triggering
-        // setup
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
-        Current.gitlabPipelineLimit = { 300 }
-        // Use live dependency but replace actual client with a mock so we can
-        // assert on the details being sent without actually making a request
-        Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            try await Gitlab.Builder.triggerBuild(client: client,
-                                                  buildId: buildId,
-                                                  cloneURL: cloneURL,
-                                                  isDocBuild: isDocBuild,
-                                                  platform: platform,
-                                                  reference: ref,
-                                                  swiftVersion: swiftVersion,
-                                                  versionID: versionID)
-        }
-        var triggerCount = 0
-        let client = MockClient { _, res in
-            // let the 5th trigger succeed to ensure we don't early out on errors
-            if triggerCount == 5 {
-                try? res.content.encode(
-                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
-                )
-            } else {
-                struct Response: Content {
-                    var message: String
-                }
-                try? res.content.encode(Response(message: "Too many pipelines created in the last minute. Try again later."))
-                res.status = .tooManyRequests
+        try await withDependencies {
+            $0.environment.allowBuildTriggers = { true }
+        } operation: {
+            // Ensure we trim builds as part of triggering
+            // setup
+            Current.builderToken = { "builder token" }
+            Current.gitlabPipelineToken = { "pipeline token" }
+            Current.siteURL = { "http://example.com" }
+            Current.gitlabPipelineLimit = { 300 }
+            // Use live dependency but replace actual client with a mock so we can
+            // assert on the details being sent without actually making a request
+            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(client: client,
+                                                      buildId: buildId,
+                                                      cloneURL: cloneURL,
+                                                      isDocBuild: isDocBuild,
+                                                      platform: platform,
+                                                      reference: ref,
+                                                      swiftVersion: swiftVersion,
+                                                      versionID: versionID)
             }
-            triggerCount += 1
+            var triggerCount = 0
+            let client = MockClient { _, res in
+                // let the 5th trigger succeed to ensure we don't early out on errors
+                if triggerCount == 5 {
+                    try? res.content.encode(
+                        Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                    )
+                } else {
+                    struct Response: Content {
+                        var message: String
+                    }
+                    try? res.content.encode(Response(message: "Too many pipelines created in the last minute. Try again later."))
+                    res.status = .tooManyRequests
+                }
+                triggerCount += 1
+            }
+
+            let p = Package(id: .id0, url: "1")
+            try await p.save(on: app.db)
+            let v = try Version(id: .id1, package: p, latest: .defaultBranch, reference: .branch("main"))
+            try await v.save(on: app.db)
+
+            // MUT
+            try await triggerBuilds(on: app.db,
+                                    client: client,
+                                    mode: .packageId(.id0, force: false))
+
+            // validate that one build record is saved, for the successful trigger
+            let count = try await Build.query(on: app.db).count()
+            XCTAssertEqual(count, 1)
         }
-
-        let p = Package(id: .id0, url: "1")
-        try await p.save(on: app.db)
-        let v = try Version(id: .id1, package: p, latest: .defaultBranch, reference: .branch("main"))
-        try await v.save(on: app.db)
-
-        // MUT
-        try await triggerBuilds(on: app.db,
-                                client: client,
-                                mode: .packageId(.id0, force: false))
-
-        // validate that one build record is saved, for the successful trigger
-        let count = try await Build.query(on: app.db).count()
-        XCTAssertEqual(count, 1)
     }
 
     func test_buildTriggerCandidatesSkipLatestSwiftVersion() throws {
@@ -836,10 +852,10 @@ class BuildTriggerTests: AppTestCase {
             )
         }
 
-        do {  // confirm that the off switch prevents triggers
-            Current.allowBuildTriggers = { false }
-
-
+        try await withDependencies {
+            // confirm that the off switch prevents triggers
+            $0.environment.allowBuildTriggers = { false }
+        } operation: {
             let pkgId = UUID()
             let versionId = UUID()
             let p = Package(id: pkgId, url: "1")
@@ -858,9 +874,10 @@ class BuildTriggerTests: AppTestCase {
 
         triggerCount = 0
 
-        do {  // flipping the switch to on should allow triggers to proceed
-            Current.allowBuildTriggers = { true }
-
+        try await withDependencies {
+            // flipping the switch to on should allow triggers to proceed
+            $0.environment.allowBuildTriggers = { true }
+        } operation: {
             let pkgId = UUID()
             let versionId = UUID()
             let p = Package(id: pkgId, url: "2")
@@ -879,119 +896,126 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_downscaling() async throws {
-        // Test build trigger downscaling behaviour
-        // setup
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
-        Current.buildTriggerDownscaling = { 0.05 }  // 5% downscaling rate
-        // Use live dependency but replace actual client with a mock so we can
-        // assert on the details being sent without actually making a request
-        Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            try await Gitlab.Builder.triggerBuild(client: client,
-                                                  buildId: buildId,
-                                                  cloneURL: cloneURL,
-                                                  isDocBuild: isDocBuild,
-                                                  platform: platform,
-                                                  reference: ref,
-                                                  swiftVersion: swiftVersion,
-                                                  versionID: versionID)
+        try await withDependencies {
+            $0.environment.allowBuildTriggers = { true }
+        } operation: {
+            // Test build trigger downscaling behaviour
+            // setup
+            Current.builderToken = { "builder token" }
+            Current.gitlabPipelineToken = { "pipeline token" }
+            Current.siteURL = { "http://example.com" }
+            Current.buildTriggerDownscaling = { 0.05 }  // 5% downscaling rate
+                                                        // Use live dependency but replace actual client with a mock so we can
+                                                        // assert on the details being sent without actually making a request
+            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(client: client,
+                                                      buildId: buildId,
+                                                      cloneURL: cloneURL,
+                                                      isDocBuild: isDocBuild,
+                                                      platform: platform,
+                                                      reference: ref,
+                                                      swiftVersion: swiftVersion,
+                                                      versionID: versionID)
+            }
+            var triggerCount = 0
+            let client = MockClient { _, res in
+                triggerCount += 1
+                try? res.content.encode(
+                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                )
+            }
+
+            do {  // confirm that bad luck prevents triggers
+                Current.random = { _ in 0.05 }  // rolling a 0.05 ... so close!
+
+                let pkgId = UUID()
+                let versionId = UUID()
+                let p = Package(id: pkgId, url: "1")
+                try await p.save(on: app.db)
+                try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                    .save(on: app.db)
+
+                // MUT
+                try await triggerBuilds(on: app.db,
+                                        client: client,
+                                        mode: .packageId(pkgId, force: false))
+
+                // validate
+                XCTAssertEqual(triggerCount, 0)
+            }
+
+            triggerCount = 0
+
+            do {  // if we get lucky however...
+                Current.random = { _ in 0.049 }  // rolling a 0.049 gets you in
+
+                let pkgId = UUID()
+                let versionId = UUID()
+                let p = Package(id: pkgId, url: "2")
+                try await p.save(on: app.db)
+                try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                    .save(on: app.db)
+
+                // MUT
+                try await triggerBuilds(on: app.db,
+                                        client: client,
+                                        mode: .packageId(pkgId, force: false))
+
+                // validate
+                XCTAssertEqual(triggerCount, 27)
+            }
         }
-        var triggerCount = 0
-        let client = MockClient { _, res in
-            triggerCount += 1
-            try? res.content.encode(
-                Gitlab.Builder.Response.init(webUrl: "http://web_url")
-            )
-        }
-
-        do {  // confirm that bad luck prevents triggers
-            Current.random = { _ in 0.05 }  // rolling a 0.05 ... so close!
-
-            let pkgId = UUID()
-            let versionId = UUID()
-            let p = Package(id: pkgId, url: "1")
-            try await p.save(on: app.db)
-            try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-                .save(on: app.db)
-
-            // MUT
-            try await triggerBuilds(on: app.db,
-                                    client: client,
-                                    mode: .packageId(pkgId, force: false))
-
-            // validate
-            XCTAssertEqual(triggerCount, 0)
-        }
-
-        triggerCount = 0
-
-        do {  // if we get lucky however...
-            Current.random = { _ in 0.049 }  // rolling a 0.049 gets you in
-
-            let pkgId = UUID()
-            let versionId = UUID()
-            let p = Package(id: pkgId, url: "2")
-            try await p.save(on: app.db)
-            try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-                .save(on: app.db)
-
-            // MUT
-            try await triggerBuilds(on: app.db,
-                                    client: client,
-                                    mode: .packageId(pkgId, force: false))
-
-            // validate
-            XCTAssertEqual(triggerCount, 27)
-        }
-
     }
 
     func test_downscaling_allow_list_override() async throws {
-        // Test build trigger downscaling behaviour for allow-listed packages
-        // setup
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
-        Current.buildTriggerDownscaling = { 0.05 }  // 5% downscaling rate
-        let pkgId = UUID()
-        Current.buildTriggerAllowList = { [pkgId] }
-        // Use live dependency but replace actual client with a mock so we can
-        // assert on the details being sent without actually making a request
-        Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            try await Gitlab.Builder.triggerBuild(client: client,
-                                                  buildId: buildId,
-                                                  cloneURL: cloneURL,
-                                                  isDocBuild: isDocBuild,
-                                                  platform: platform,
-                                                  reference: ref,
-                                                  swiftVersion: swiftVersion,
-                                                  versionID: versionID)
-        }
-        var triggerCount = 0
-        let client = MockClient { _, res in
-            triggerCount += 1
-            try? res.content.encode(
-                Gitlab.Builder.Response.init(webUrl: "http://web_url")
-            )
-        }
+        try await withDependencies {
+            $0.environment.allowBuildTriggers = { true }
+        } operation: {
+            // Test build trigger downscaling behaviour for allow-listed packages
+            // setup
+            Current.builderToken = { "builder token" }
+            Current.gitlabPipelineToken = { "pipeline token" }
+            Current.siteURL = { "http://example.com" }
+            Current.buildTriggerDownscaling = { 0.05 }  // 5% downscaling rate
+            let pkgId = UUID()
+            Current.buildTriggerAllowList = { [pkgId] }
+            // Use live dependency but replace actual client with a mock so we can
+            // assert on the details being sent without actually making a request
+            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(client: client,
+                                                      buildId: buildId,
+                                                      cloneURL: cloneURL,
+                                                      isDocBuild: isDocBuild,
+                                                      platform: platform,
+                                                      reference: ref,
+                                                      swiftVersion: swiftVersion,
+                                                      versionID: versionID)
+            }
+            var triggerCount = 0
+            let client = MockClient { _, res in
+                triggerCount += 1
+                try? res.content.encode(
+                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                )
+            }
 
-        do {  // confirm that we trigger even when rolling above the threshold
-            Current.random = { _ in 0.051 }
+            do {  // confirm that we trigger even when rolling above the threshold
+                Current.random = { _ in 0.051 }
 
-            let versionId = UUID()
-            let p = Package(id: pkgId, url: "https://github.com/foo/bar.git")
-            try await p.save(on: app.db)
-            try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-                .save(on: app.db)
+                let versionId = UUID()
+                let p = Package(id: pkgId, url: "https://github.com/foo/bar.git")
+                try await p.save(on: app.db)
+                try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                    .save(on: app.db)
 
-            // MUT
-            try await triggerBuilds(on: app.db,
-                                    client: client,
-                                    mode: .packageId(pkgId, force: false))
+                // MUT
+                try await triggerBuilds(on: app.db,
+                                        client: client,
+                                        mode: .packageId(pkgId, force: false))
 
-            // validate
-            XCTAssertEqual(triggerCount, 27)
+                // validate
+                XCTAssertEqual(triggerCount, 27)
+            }
         }
     }
 
