@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var allowBuildTriggers: @Sendable () -> Bool
     var allowTwitterPosts: @Sendable () -> Bool
     var apiSigningKey: @Sendable () -> String?
     var appVersion: @Sendable () -> String?
@@ -111,11 +110,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        allowBuildTriggers: {
-            Environment.get("ALLOW_BUILD_TRIGGERS")
-                .flatMap(\.asBool)
-                ?? Constants.defaultAllowBuildTriggering
-        },
         allowTwitterPosts: {
             Environment.get("ALLOW_TWITTER_POSTS")
                 .flatMap(\.asBool)

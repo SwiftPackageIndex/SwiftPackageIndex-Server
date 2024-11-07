@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
 import PostgresKit
 import SQLKit
@@ -175,7 +176,8 @@ func triggerBuilds(on database: Database,
                    client: Client,
                    packages: [Package.Id],
                    force: Bool = false) async throws {
-    guard Current.allowBuildTriggers() else {
+    @Dependency(\.environment) var environment
+    guard environment.allowBuildTriggers() else {
         Current.logger().info("Build trigger override switch OFF - no builds are being triggered")
         return
     }
