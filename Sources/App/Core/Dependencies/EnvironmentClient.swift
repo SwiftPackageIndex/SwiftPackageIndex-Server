@@ -22,6 +22,12 @@ struct EnvironmentClient {
     // See https://swiftpackageindex.com/pointfreeco/swift-dependencies/main/documentation/dependenciesmacros/dependencyclient()#Restrictions
     // regarding the use of XCTFail here.
     var allowBuildTriggers: @Sendable () -> Bool = { XCTFail(#function); return true }
+    // We're not defaulting current to XCTFail, because its use is too pervasive and would require the vast
+    // majority of tests to be wrapped with `withDependencies`.
+    // We can do so at a later time once more tests are transitioned over for other dependencies. This is
+    // the exact same default behaviour we have with the Current dependency injection: it defaults to
+    // .development and does not raise an error when not injected.
+    var current: @Sendable () -> Environment = { .development }
 }
 
 
@@ -30,7 +36,8 @@ extension EnvironmentClient: DependencyKey {
         .init(
             allowBuildTriggers: {
                 Environment.get("ALLOW_BUILD_TRIGGERS").flatMap(\.asBool) ?? Constants.defaultAllowBuildTriggering
-            }
+            },
+            current: { (try? Environment.detect()) ?? .development }
         )
     }
 }

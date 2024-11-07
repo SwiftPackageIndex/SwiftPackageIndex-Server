@@ -38,7 +38,6 @@ extension AppEnvironment {
             collectionSigningPrivateKey: AppEnvironment.live.collectionSigningPrivateKey,
             currentReferenceCache: { nil },
             dbId: { "db-id" },
-            environment: { .development },
             fetchDocumentation: { _, _ in .init(status: .ok) },
             fetchHTTPStatusCode: { _ in .ok },
             fetchLicense: { _, _, _ in .init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE") },

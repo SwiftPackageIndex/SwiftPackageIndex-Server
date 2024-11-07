@@ -15,6 +15,8 @@
 import Vapor
 import SwiftSoup
 import Plot
+import Dependencies
+
 
 struct DocumentationPageProcessor {
     let document: SwiftSoup.Document
@@ -104,7 +106,8 @@ struct DocumentationPageProcessor {
     }
 
     var metaNoIndex: String? {
-        guard Current.environment() != .production else { return nil }
+        @Dependency(\.environment) var environment
+        guard environment.current() != .production else { return nil }
         return Plot.Node.meta(
             .name("robots"),
             .content("noindex")
@@ -129,7 +132,8 @@ struct DocumentationPageProcessor {
     }
 
     var analyticsScript: String? {
-        guard Current.environment() == .production else { return nil }
+        @Dependency(\.environment) var environment
+        guard environment.current() == .production else { return nil }
         return PublicPage.analyticsScriptTags
     }
 
@@ -194,10 +198,11 @@ struct DocumentationPageProcessor {
             ]))
         }
 
+        @Dependency(\.environment) var environment
         return Plot.Node.group(
             .header(
                 .class("spi"),
-                .if(Current.environment() == .development, stagingBanner()),
+                .if(environment.current() == .development, stagingBanner()),
                 .div(
                     .class("inner breadcrumbs"),
                     .nav(
@@ -240,6 +245,7 @@ struct DocumentationPageProcessor {
     }
 
     var footer: String {
+        @Dependency(\.environment) var environment
         return Plot.Node.footer(
             .class("spi"),
             .div(
@@ -288,7 +294,7 @@ struct DocumentationPageProcessor {
                     .text(".")
                 )
             ),
-            .if(Current.environment() == .development, stagingBanner())
+            .if(environment.current() == .development, stagingBanner())
         ).render()
     }
 

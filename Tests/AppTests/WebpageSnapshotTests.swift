@@ -16,6 +16,7 @@ import XCTest
 
 @testable import App
 
+import Dependencies
 import Ink
 import Plot
 import SPIManifest
@@ -27,7 +28,14 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     override func setUpWithError() throws {
         try super.setUpWithError()
-        Current.environment = { .production }
+    }
+
+    override func invokeTest() {
+        withDependencies {
+            $0.environment.current = { .production }
+        } operation: {
+            super.invokeTest()
+        }
     }
 
     func test_HomeIndexView() throws {
@@ -40,12 +48,15 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_HomeIndexView_development() throws {
         // Test home page to ensure the dev environment is showing the dev banner and `noindex` for robots
-        Current.environment = { .development }
-        Supporters.mock()
+        withDependencies {
+            $0.environment.current = { .development }
+        } operation: {
+            Supporters.mock()
 
-        let page = { HomeIndex.View(path: "/", model: .mock).document() }
+            let page = { HomeIndex.View(path: "/", model: .mock).document() }
 
-        assertSnapshot(of: page, as: .html)
+            assertSnapshot(of: page, as: .html)
+        }
     }
 
     func test_MaintenanceMessageIndexView() throws {
@@ -246,10 +257,10 @@ class WebpageSnapshotTests: SnapshotTestCase {
         model.repositoryOwner = "owner"
         model.repositoryName = "repo"
         let page = { PackageShow.View(path: "/OWNER/Repo", model: model, packageSchema: .mock).document() }
-        
+
         assertSnapshot(of: page, as: .html)
     }
-    
+
     func test_PackageShowView_missingPackage() throws {
         let page = { MissingPackage.View(path: "", model: .mock).document() }
         assertSnapshot(of: page, as: .html)

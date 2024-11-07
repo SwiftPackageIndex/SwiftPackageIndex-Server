@@ -13,8 +13,11 @@
 // limitations under the License.
 
 import Foundation
-import Vapor
+
+import Dependencies
 import Plot
+import Vapor
+
 
 class PublicPage {
 
@@ -91,7 +94,8 @@ class PublicPage {
     /// For non-production environments, this will *always* return true.
     /// - Returns: Either nothing, or a <meta> element telling search engines not to index this content.
     final func metaNoIndex() -> Node<HTML.HeadContext> {
-        if Current.environment() == .production && allowIndexing() {
+        @Dependency(\.environment) var environment
+        if environment.current() == .production && allowIndexing() {
             return .empty
         } else {
             return .meta(
@@ -167,7 +171,8 @@ class PublicPage {
     /// The Plausible analytics code to be inserted into the <head> element.
     /// - Returns: A <script> containing the Plausible script tags.
     final func analyticsHead() -> Node<HTML.HeadContext> {
-        return .if(Current.environment() == .production, .raw(PublicPage.analyticsScriptTags))
+        @Dependency(\.environment) var environment
+        return .if(environment.current() == .production, .raw(PublicPage.analyticsScriptTags))
     }
 
     static var analyticsScriptTags: String {
@@ -273,7 +278,8 @@ class PublicPage {
     /// - Returns: Either a <div> element, or nothing.
     final func stagingBanner() -> Node<HTML.BodyContext> {
         guard !Current.hideStagingBanner() else { return .empty }
-        if Current.environment() == .development {
+        @Dependency(\.environment) var environment
+        if environment.current() == .development {
             return .div(
                 .class("staging"),
                 .text("This is a staging environment. For live and up-to-date package information, "),

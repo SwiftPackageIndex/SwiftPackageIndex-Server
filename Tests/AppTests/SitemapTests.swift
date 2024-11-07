@@ -14,9 +14,11 @@
 
 @testable import App
 
-@preconcurrency import Plot
+import Dependencies
 import SnapshotTesting
 import XCTVapor
+
+@preconcurrency import Plot
 
 
 class SitemapTests: SnapshotTestCase {
@@ -45,19 +47,21 @@ class SitemapTests: SnapshotTestCase {
 
     func test_siteMapIndex_prod() async throws {
         // Ensure sitemap routing is configured in prod
-        // Setup
-        Current.environment = { .production }
-        // We also need to set up a new app that's configured for production,
-        // because app.test is not affected by Current overrides.
-        let prodApp = try await setup(.production)
-        try await App.run {
-            // MUT
-            try await prodApp.test(.GET, "/sitemap.xml") { res async in
-                // Validation
-                XCTAssertEqual(res.status, .ok)
+        try await withDependencies {
+            $0.environment.current = { .production }
+        } operation: {
+            // We also need to set up a new app that's configured for production,
+            // because app.test is not affected by @Dependency overrides.
+            let prodApp = try await setup(.production)
+            try await App.run {
+                // MUT
+                try await prodApp.test(.GET, "/sitemap.xml") { res async in
+                    // Validation
+                    XCTAssertEqual(res.status, .ok)
+                }
+            } defer: {
+                try await prodApp.asyncShutdown()
             }
-        } defer: {
-            try await prodApp.asyncShutdown()
         }
     }
 
@@ -86,18 +90,21 @@ class SitemapTests: SnapshotTestCase {
 
     func test_siteMapStaticPages_prod() async throws {
         // Ensure sitemap routing is configured in prod
-        Current.environment = { .production }
-        // We also need to set up a new app that's configured for production,
-        // because app.test is not affected by Current overrides.
-        let prodApp = try await setup(.production)
-        try await App.run {
-            // MUT
-            try await prodApp.test(.GET, "/sitemap-static-pages.xml") { res async in
-                // Validation
-                XCTAssertEqual(res.status, .ok)
+        try await withDependencies {
+            $0.environment.current = { .production }
+        } operation: {
+            // We also need to set up a new app that's configured for production,
+            // because app.test is not affected by @Dependency overrides.
+            let prodApp = try await setup(.production)
+            try await App.run {
+                // MUT
+                try await prodApp.test(.GET, "/sitemap-static-pages.xml") { res async in
+                    // Validation
+                    XCTAssertEqual(res.status, .ok)
+                }
+            } defer: {
+                try await prodApp.asyncShutdown()
             }
-        } defer: {
-            try await prodApp.asyncShutdown()
         }
     }
 

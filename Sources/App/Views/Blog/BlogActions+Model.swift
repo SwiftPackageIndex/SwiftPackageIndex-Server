@@ -13,9 +13,12 @@
 // limitations under the License.
 
 import Foundation
+
+import Dependencies
+import Ink
 import Plot
 import Yams
-import Ink
+
 
 enum BlogActions {
 
@@ -38,7 +41,8 @@ enum BlogActions {
         init() throws {
             let allSummaries = try Self.allSummaries()
 
-            summaries = if Current.environment() == .production {
+            @Dependency(\.environment) var environment
+            summaries = if environment.current() == .production {
                 // Only "published" posts show in production.
                 allSummaries.filter { $0.published }
             } else {
@@ -67,7 +71,7 @@ enum BlogActions {
             return try YAMLDecoder().decode([PostSummary].self, from: String(decoding: data, as: UTF8.self))
                 .reversed()
         }
-        
+
     }
 }
 
