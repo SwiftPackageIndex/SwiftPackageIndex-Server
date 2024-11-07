@@ -69,6 +69,12 @@
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 (16A242d)",
         "value" : 78080
+      },
+      {
+        "date" : "2024-11-07",
+        "toolchainId" : "com.apple.dt.Xcode",
+        "toolchainLabel" : "Swift 6.0 Xcode 16.1 (16B40)",
+        "value" : 52731
       }
     ]
   },
@@ -142,6 +148,12 @@
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 (16A242d)",
         "value" : 1443
+      },
+      {
+        "date" : "2024-11-07",
+        "toolchainId" : "com.apple.dt.Xcode",
+        "toolchainLabel" : "Swift 6.0 Xcode 16.1 (16B40)",
+        "value" : 1467
       }
     ]
   },
@@ -215,6 +227,12 @@
         "toolchainId" : "com.apple.dt.Xcode",
         "toolchainLabel" : "Swift 6.0 Xcode 16.0 (16A242d)",
         "value" : 396
+      },
+      {
+        "date" : "2024-11-07",
+        "toolchainId" : "com.apple.dt.Xcode",
+        "toolchainLabel" : "Swift 6.0 Xcode 16.1 (16B40)",
+        "value" : 313
       }
     ]
   }
