@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
-import XCTest
+import Dependencies
+
 
 class BlogActionsModelTests: AppTestCase {
 
@@ -34,9 +37,9 @@ class BlogActionsModelTests: AppTestCase {
             """.data(using: .utf8)
         }
 
-        do { // Ensure dev shows all summaries
-            Current.environment = { .development }
-
+        try withDependencies {  // Ensure dev shows all summaries
+            $0.environment.current = { .development }
+        } operation: {
             // MUT
             let summaries = try BlogActions.Model().summaries
 
@@ -55,9 +58,9 @@ class BlogActionsModelTests: AppTestCase {
                                                                        published: false))
         }
 
-        do { // Ensure prod shows only published summaries
-            Current.environment = { .production }
-
+        try withDependencies {  // Ensure prod shows only published summaries
+            $0.environment.current = { .production }
+        } operation: {
             // MUT
             let summaries = try BlogActions.Model().summaries
 

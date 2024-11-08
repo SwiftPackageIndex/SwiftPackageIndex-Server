@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import DependencyResolution
 import Fluent
 import Vapor
@@ -101,7 +102,8 @@ extension API.PackageController.GetRoute {
     }
 
     static func customCollections(on database: Database, package: Package) async -> [CustomCollection.Details] {
-        guard Current.environment() == .development else { return [] }
+        @Dependency(\.environment) var environment
+        guard environment.current() == .development else { return [] }
         do {
             try await package.$customCollections.load(on: database)
             return package.customCollections.map(\.details)

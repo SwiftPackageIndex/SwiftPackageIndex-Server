@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
 import Metrics
 import Plot
@@ -21,6 +22,8 @@ import VaporToOpenAPI
 
 
 func routes(_ app: Application) throws {
+    @Dependency(\.environment) var environment
+
     do {  // home page
         app.get { req in
             if let maintenanceMessage = Current.maintenanceMessage() {
@@ -74,7 +77,7 @@ func routes(_ app: Application) throws {
                 use: PackageController.maintainerInfo).excludeFromOpenAPI()
 
         // Only serve sitemaps in production.
-        if Current.environment() == .production {
+        if environment.current() == .production {
             // Package specific site map, including all documentation URLs if available.
             // Backend reporting currently disabled to avoid reporting costs for metrics we don't need.
             app.group(BackendReportingMiddleware(path: .sitemapPackage, isActive: false)) {
@@ -149,7 +152,7 @@ func routes(_ app: Application) throws {
     }
 
     do {  // api
-        
+
         // public routes
         app.get(SiteURL.api(.version).pathComponents) { req in
             API.Version(version: appVersion ?? "Unknown")
@@ -252,21 +255,21 @@ func routes(_ app: Application) throws {
                 )
             }
         }
-        
+
     }
 
     do { // RSS
         app.group(BackendReportingMiddleware(path: .rss)) {
             $0.get(SiteURL.rssPackages.pathComponents, use: RSSFeed.showPackages)
                 .excludeFromOpenAPI()
-            
+
             $0.get(SiteURL.rssReleases.pathComponents, use: RSSFeed.showReleases)
                 .excludeFromOpenAPI()
         }
     }
 
     // Only serve sitemaps in production.
-    if Current.environment() == .production {
+    if environment.current() == .production {
         do { // Site map index and static page site map
             app.group(BackendReportingMiddleware(path: .sitemapIndex)) {
                 $0.get(SiteURL.siteMapIndex.pathComponents, use: SiteMapController.index)

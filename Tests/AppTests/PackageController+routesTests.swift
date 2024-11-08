@@ -1337,31 +1337,33 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_siteMap_prod() async throws {
         // Ensure sitemap routing is configured in prod
-        // Setup
-        Current.environment = { .production }
-        // We also need to set up a new app that's configured for production,
-        // because app.test is not affected by Current overrides.
-        let prodApp = try await setup(.production)
+        try await withDependencies {
+            $0.environment.current = { .production }
+        } operation: {
+            // We also need to set up a new app that's configured for production,
+            // because app.test is not affected by @Dependency overrides.
+            let prodApp = try await setup(.production)
 
-        do {
-            // setup
-            let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
-            try await package.save(on: app.db)
-            try await Repository(package: package, defaultBranch: "default",
-                                 lastCommitDate: Date.now,
-                                 name: "Repo0", owner: "Owner").save(on: app.db)
-            try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
-                              reference: .branch("default")).save(on: app.db)
+            do {
+                // setup
+                let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
+                try await package.save(on: app.db)
+                try await Repository(package: package, defaultBranch: "default",
+                                     lastCommitDate: Date.now,
+                                     name: "Repo0", owner: "Owner").save(on: app.db)
+                try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
+                                  reference: .branch("default")).save(on: app.db)
 
-            // MUT
-            try await prodApp.test(.GET, "/owner/repo0/sitemap.xml") { res async in
-                XCTAssertEqual(res.status, .ok)
+                // MUT
+                try await prodApp.test(.GET, "/owner/repo0/sitemap.xml") { res async in
+                    XCTAssertEqual(res.status, .ok)
+                }
+            } catch {
+                try? await prodApp.asyncShutdown()
+                throw error
             }
-        } catch {
-            try? await prodApp.asyncShutdown()
-            throw error
+            try await prodApp.asyncShutdown()
         }
-        try await prodApp.asyncShutdown()
     }
 
     func test_siteMap_dev() async throws {

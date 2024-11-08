@@ -39,7 +39,6 @@ struct AppEnvironment: Sendable {
     var collectionSigningPrivateKey: @Sendable () -> Data?
     var currentReferenceCache: @Sendable () -> CurrentReferenceCache?
     var dbId: @Sendable () -> String?
-    var environment: @Sendable () -> Environment
     var fetchDocumentation: @Sendable (_ client: Client, _ url: URI) async throws -> ClientResponse
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
     var fetchLicense: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.License?
@@ -155,7 +154,6 @@ extension AppEnvironment {
         },
         currentReferenceCache: { .live },
         dbId: { Environment.get("DATABASE_ID") },
-        environment: { (try? Environment.detect()) ?? .development },
         fetchDocumentation: { client, url in try await client.get(url) },
         fetchHTTPStatusCode: { url in try await Networking.fetchHTTPStatusCode(url) },
         fetchLicense: { client, owner, repo in await Github.fetchLicense(client:client, owner: owner, repository: repo) },
