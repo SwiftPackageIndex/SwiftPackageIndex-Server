@@ -14,6 +14,7 @@
 
 @testable import App
 
+import Dependencies
 import InlineSnapshotTesting
 import NIOConcurrencyHelpers
 import XCTVapor
@@ -194,10 +195,14 @@ class SocialTests: AppTestCase {
         let posted: NIOLockedValueBox<Int> = .init(0)
         Current.mastodonPost = { _, _ in posted.withLockedValue { $0 += 1 } }
 
-        // MUT
-        try await Social.postToFirehose(client: app.client,
-                                        package: jpr,
-                                        versions: versions)
+        try await withDependencies {
+            $0.environment.allowSocialPosts = { true }
+        } operation: {
+            // MUT
+            try await Social.postToFirehose(client: app.client,
+                                            package: jpr,
+                                            versions: versions)
+        }
 
         // validate
         try await XCTAssertEqualAsync(posted.withLockedValue { $0 }, 2)
@@ -225,11 +230,15 @@ class SocialTests: AppTestCase {
             posted.withLockedValue { $0 += 1 }
         }
 
-        // MUT
-        try await Social.postToFirehose(client: app.client,
-                                         package: jpr,
-                                         versions: versions)
-
+        try await withDependencies {
+            $0.environment.allowSocialPosts = { true }
+        } operation: {
+            // MUT
+            try await Social.postToFirehose(client: app.client,
+                                            package: jpr,
+                                            versions: versions)
+        }
+        
         // validate
         try await XCTAssertEqualAsync(posted.withLockedValue { $0 }, 1)
     }

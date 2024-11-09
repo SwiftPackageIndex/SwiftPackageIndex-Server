@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var allowTwitterPosts: @Sendable () -> Bool
     var apiSigningKey: @Sendable () -> String?
     var appVersion: @Sendable () -> String?
     var awsAccessKeyId: @Sendable () -> String?
@@ -109,11 +108,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        allowTwitterPosts: {
-            Environment.get("ALLOW_TWITTER_POSTS")
-                .flatMap(\.asBool)
-                ?? Constants.defaultAllowTwitterPosts
-        },
         apiSigningKey: { Environment.get("API_SIGNING_KEY") },
         appVersion: { App.appVersion },
         awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },

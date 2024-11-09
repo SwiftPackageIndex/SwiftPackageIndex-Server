@@ -28,6 +28,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
         // Basic end-to-end test
         try await withDependencies {
             $0.date.now = .t0
+            $0.environment.allowSocialPosts = { true }
         } operation: {
             // setup
             // - package dump does not include toolsVersion, targets to simulate an "old version"

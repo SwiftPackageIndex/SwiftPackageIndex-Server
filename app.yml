@@ -20,7 +20,7 @@ x-shared: &shared
     # set these variables via the environment or a `.env` file, which
     # docker-compose reads and uses to populate variables
     ALLOW_BUILD_TRIGGERS: ${ALLOW_BUILD_TRIGGERS}
-    ALLOW_TWITTER_POSTS: ${ALLOW_TWITTER_POSTS}
+    ALLOW_SOCIAL_POSTS: ${ALLOW_SOCIAL_POSTS}
     ANALYZE_LIMIT: ${ANALYZE_LIMIT}
     ANALYZE_SLEEP: ${ANALYZE_SLEEP}
     API_SIGNING_KEY: ${API_SIGNING_KEY}

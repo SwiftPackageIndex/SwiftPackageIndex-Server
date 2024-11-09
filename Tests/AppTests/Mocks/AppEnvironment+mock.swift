@@ -22,7 +22,6 @@ import Vapor
 extension AppEnvironment {
     static func mock(eventLoop: EventLoop) -> Self {
         .init(
-            allowTwitterPosts: { true },
             apiSigningKey: { nil },
             appVersion: { "test" },
             awsAccessKeyId: { nil },
