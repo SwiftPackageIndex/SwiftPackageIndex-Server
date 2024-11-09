@@ -56,7 +56,7 @@ struct AppEnvironment: Sendable {
     var httpClient: @Sendable () -> Client
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var logger: @Sendable () -> Logger
-    var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
+    // TODO: remove
     var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
     var metricsPushGatewayUrl: @Sendable () -> String?
     var plausibleBackendReportingSiteID: @Sendable () -> String?
@@ -180,10 +180,6 @@ extension AppEnvironment {
         httpClient: { httpClient },
         loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },
-        mastodonCredentials: {
-            Environment.get("MASTODON_ACCESS_TOKEN")
-                .map(Mastodon.Credentials.init(accessToken:))
-        },
         mastodonPost: { client, message in try await Mastodon.post(client: client, message: message) },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },

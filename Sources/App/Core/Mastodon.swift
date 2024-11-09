@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Vapor
 
 
@@ -27,7 +28,8 @@ enum Mastodon {
 
     // NB: _testEncodedURL is a callback that exists purely to be able to regression test the encoded value
     static func post(client: Client, message: String, _testEncodedURL: (String) -> Void = { _ in }) async throws {
-        guard let credentials = Current.mastodonCredentials() else {
+        @Dependency(\.environment) var environment
+        guard let credentials = environment.mastodonCredentials() else {
             throw Social.Error.missingCredentials
         }
 

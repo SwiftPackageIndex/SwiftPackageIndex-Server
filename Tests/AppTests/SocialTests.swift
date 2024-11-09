@@ -238,29 +238,32 @@ class SocialTests: AppTestCase {
                                             package: jpr,
                                             versions: versions)
         }
-        
+
         // validate
         try await XCTAssertEqualAsync(posted.withLockedValue { $0 }, 1)
     }
 
     func test_urlEncoding() async throws {
-        // setup
-        Current.mastodonCredentials = { .init(accessToken: "fakeToken") }
-        let message = Social.versionUpdateMessage(
-            packageName: "packageName",
-            repositoryOwnerName: "owner",
-            url: "http://localhost:8080/owner/SuperAwesomePackage",
-            version: .init(2, 6, 4),
-            summary: nil,
-            maxLength: Social.postMaxLength
-        )
+        await withDependencies {
+            $0.environment.mastodonCredentials = { .init(accessToken: "fakeToken") }
+        } operation: {
+            // setup
+            let message = Social.versionUpdateMessage(
+                packageName: "packageName",
+                repositoryOwnerName: "owner",
+                url: "http://localhost:8080/owner/SuperAwesomePackage",
+                version: .init(2, 6, 4),
+                summary: nil,
+                maxLength: Social.postMaxLength
+            )
 
-        // MUT
-        try? await Mastodon.post(client: app.client, message: message) { encoded in
-            assertInlineSnapshot(of: encoded, as: .lines) {
+            // MUT
+            try? await Mastodon.post(client: app.client, message: message) { encoded in
+                assertInlineSnapshot(of: encoded, as: .lines) {
                 """
                 https://mas.to/api/v1/statuses?status=%E2%AC%86%EF%B8%8F%20owner%20just%20released%20packageName%20v2.6.4%0A%0Ahttp%3A%2F%2Flocalhost%3A8080%2Fowner%2FSuperAwesomePackage%23releases
                 """
+                }
             }
         }
     }

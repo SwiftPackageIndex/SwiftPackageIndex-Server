@@ -29,6 +29,7 @@ struct EnvironmentClient {
     // the exact same default behaviour we have with the Current dependency injection: it defaults to
     // .development and does not raise an error when not injected.
     var current: @Sendable () -> Environment = { .development }
+    var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
 }
 
 
@@ -43,7 +44,11 @@ extension EnvironmentClient: DependencyKey {
                     .flatMap(\.asBool)
                     ?? Constants.defaultAllowSocialPosts
             },
-            current: { (try? Environment.detect()) ?? .development }
+            current: { (try? Environment.detect()) ?? .development },
+            mastodonCredentials: {
+                Environment.get("MASTODON_ACCESS_TOKEN")
+                    .map(Mastodon.Credentials.init(accessToken:))
+            }
         )
     }
 }
