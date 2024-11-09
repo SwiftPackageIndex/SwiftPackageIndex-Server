@@ -22,12 +22,15 @@ struct EnvironmentClient {
     // See https://swiftpackageindex.com/pointfreeco/swift-dependencies/main/documentation/dependenciesmacros/dependencyclient()#Restrictions
     // regarding the use of XCTFail here.
     var allowBuildTriggers: @Sendable () -> Bool = { XCTFail(#function); return true }
+    var allowSocialPosts: @Sendable () -> Bool = { XCTFail(#function); return true }
     // We're not defaulting current to XCTFail, because its use is too pervasive and would require the vast
     // majority of tests to be wrapped with `withDependencies`.
     // We can do so at a later time once more tests are transitioned over for other dependencies. This is
     // the exact same default behaviour we have with the Current dependency injection: it defaults to
     // .development and does not raise an error when not injected.
     var current: @Sendable () -> Environment = { .development }
+    var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
+    var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
 }
 
 
@@ -37,7 +40,17 @@ extension EnvironmentClient: DependencyKey {
             allowBuildTriggers: {
                 Environment.get("ALLOW_BUILD_TRIGGERS").flatMap(\.asBool) ?? Constants.defaultAllowBuildTriggering
             },
-            current: { (try? Environment.detect()) ?? .development }
+            allowSocialPosts: {
+                Environment.get("ALLOW_SOCIAL_POSTS")
+                    .flatMap(\.asBool)
+                    ?? Constants.defaultAllowSocialPosts
+            },
+            current: { (try? Environment.detect()) ?? .development },
+            mastodonCredentials: {
+                Environment.get("MASTODON_ACCESS_TOKEN")
+                    .map(Mastodon.Credentials.init(accessToken:))
+            },
+            mastodonPost: { client, message in try await Mastodon.post(client: client, message: message) }
         )
     }
 }

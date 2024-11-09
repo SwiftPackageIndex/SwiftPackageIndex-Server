@@ -35,6 +35,8 @@ class AnalyzerTests: AppTestCase {
         // expected shell commands for the happy path.)
         try await withDependencies {
             $0.date.now = .now
+            $0.environment.allowSocialPosts = { true }
+            $0.environment.mastodonPost = { @Sendable _, _ in }
         } operation: {
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -216,6 +218,8 @@ class AnalyzerTests: AppTestCase {
         // changing as well as a tag being moved to a different commit.
         try await withDependencies {
             $0.date.now = .now
+            $0.environment.allowSocialPosts = { true }
+            $0.environment.mastodonPost = { @Sendable _, _ in }
         } operation: {
             // setup
             let pkgId = UUID()
@@ -354,6 +358,7 @@ class AnalyzerTests: AppTestCase {
         // Ensure packages record success/error status
         try await withDependencies {
             $0.date.now = .now
+            $0.environment.allowSocialPosts = { true }
         } operation: {
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -404,6 +409,7 @@ class AnalyzerTests: AppTestCase {
         // Test to ensure exceptions don't interrupt processing
         try await withDependencies {
             $0.date.now = .now
+            $0.environment.allowSocialPosts = { true }
         } operation: {
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -881,6 +887,7 @@ class AnalyzerTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/29
         try await withDependencies {
             $0.date.now = .now
+            $0.environment.allowSocialPosts = { true }
         } operation: {
             // setup
             Current.git.commitCount = { @Sendable _ in 12 }

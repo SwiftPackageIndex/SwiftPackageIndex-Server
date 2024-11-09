@@ -14,6 +14,7 @@
 
 @testable import App
 
+import Dependencies
 import InlineSnapshotTesting
 import NIOConcurrencyHelpers
 import XCTVapor
@@ -192,12 +193,16 @@ class SocialTests: AppTestCase {
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         let posted: NIOLockedValueBox<Int> = .init(0)
-        Current.mastodonPost = { _, _ in posted.withLockedValue { $0 += 1 } }
 
-        // MUT
-        try await Social.postToFirehose(client: app.client,
-                                        package: jpr,
-                                        versions: versions)
+        try await withDependencies {
+            $0.environment.allowSocialPosts = { true }
+            $0.environment.mastodonPost = { @Sendable _, _ in posted.withLockedValue { $0 += 1 } }
+        } operation: {
+            // MUT
+            try await Social.postToFirehose(client: app.client,
+                                            package: jpr,
+                                            versions: versions)
+        }
 
         // validate
         try await XCTAssertEqualAsync(posted.withLockedValue { $0 }, 2)
@@ -220,38 +225,45 @@ class SocialTests: AppTestCase {
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         let posted: NIOLockedValueBox<Int> = .init(0)
-        Current.mastodonPost = { _, msg in
-            XCTAssertTrue(msg.contains("v2.0.0"))
-            posted.withLockedValue { $0 += 1 }
-        }
 
-        // MUT
-        try await Social.postToFirehose(client: app.client,
-                                         package: jpr,
-                                         versions: versions)
+        try await withDependencies {
+            $0.environment.allowSocialPosts = { true }
+            $0.environment.mastodonPost = { @Sendable _, msg in
+                XCTAssertTrue(msg.contains("v2.0.0"))
+                posted.withLockedValue { $0 += 1 }
+            }
+        } operation: {
+            // MUT
+            try await Social.postToFirehose(client: app.client,
+                                            package: jpr,
+                                            versions: versions)
+        }
 
         // validate
         try await XCTAssertEqualAsync(posted.withLockedValue { $0 }, 1)
     }
 
     func test_urlEncoding() async throws {
-        // setup
-        Current.mastodonCredentials = { .init(accessToken: "fakeToken") }
-        let message = Social.versionUpdateMessage(
-            packageName: "packageName",
-            repositoryOwnerName: "owner",
-            url: "http://localhost:8080/owner/SuperAwesomePackage",
-            version: .init(2, 6, 4),
-            summary: nil,
-            maxLength: Social.postMaxLength
-        )
+        await withDependencies {
+            $0.environment.mastodonCredentials = { .init(accessToken: "fakeToken") }
+        } operation: {
+            // setup
+            let message = Social.versionUpdateMessage(
+                packageName: "packageName",
+                repositoryOwnerName: "owner",
+                url: "http://localhost:8080/owner/SuperAwesomePackage",
+                version: .init(2, 6, 4),
+                summary: nil,
+                maxLength: Social.postMaxLength
+            )
 
-        // MUT
-        try? await Mastodon.post(client: app.client, message: message) { encoded in
-            assertInlineSnapshot(of: encoded, as: .lines) {
+            // MUT
+            try? await Mastodon.post(client: app.client, message: message) { encoded in
+                assertInlineSnapshot(of: encoded, as: .lines) {
                 """
                 https://mas.to/api/v1/statuses?status=%E2%AC%86%EF%B8%8F%20owner%20just%20released%20packageName%20v2.6.4%0A%0Ahttp%3A%2F%2Flocalhost%3A8080%2Fowner%2FSuperAwesomePackage%23releases
                 """
+                }
             }
         }
     }

@@ -22,7 +22,6 @@ import Vapor
 extension AppEnvironment {
     static func mock(eventLoop: EventLoop) -> Self {
         .init(
-            allowTwitterPosts: { true },
             apiSigningKey: { nil },
             appVersion: { "test" },
             awsAccessKeyId: { nil },
@@ -56,8 +55,6 @@ extension AppEnvironment {
             httpClient: { httpClient },
             loadSPIManifest: { _ in nil },
             logger: { logger },
-            mastodonCredentials: { nil },
-            mastodonPost: { _, _ in },
             metricsPushGatewayUrl: { "http://pushgateway:9091" },
             plausibleBackendReportingSiteID: { nil },
             postPlausibleEvent: { _, _, _, _ in },

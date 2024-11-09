@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var allowTwitterPosts: @Sendable () -> Bool
     var apiSigningKey: @Sendable () -> String?
     var appVersion: @Sendable () -> String?
     var awsAccessKeyId: @Sendable () -> String?
@@ -57,8 +56,6 @@ struct AppEnvironment: Sendable {
     var httpClient: @Sendable () -> Client
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var logger: @Sendable () -> Logger
-    var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
-    var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
     var metricsPushGatewayUrl: @Sendable () -> String?
     var plausibleBackendReportingSiteID: @Sendable () -> String?
     var postPlausibleEvent: @Sendable (Client, Plausible.Event.Kind, Plausible.Path, User?) async throws -> Void
@@ -109,11 +106,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        allowTwitterPosts: {
-            Environment.get("ALLOW_TWITTER_POSTS")
-                .flatMap(\.asBool)
-                ?? Constants.defaultAllowTwitterPosts
-        },
         apiSigningKey: { Environment.get("API_SIGNING_KEY") },
         appVersion: { App.appVersion },
         awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },
@@ -186,11 +178,6 @@ extension AppEnvironment {
         httpClient: { httpClient },
         loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },
-        mastodonCredentials: {
-            Environment.get("MASTODON_ACCESS_TOKEN")
-                .map(Mastodon.Credentials.init(accessToken:))
-        },
-        mastodonPost: { client, message in try await Mastodon.post(client: client, message: message) },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },
         postPlausibleEvent: { client, kind, path, user in try await Plausible.postEvent(client: client, kind: kind, path: path, user: user) },
