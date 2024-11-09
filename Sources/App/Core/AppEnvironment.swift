@@ -56,8 +56,6 @@ struct AppEnvironment: Sendable {
     var httpClient: @Sendable () -> Client
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var logger: @Sendable () -> Logger
-    // TODO: remove
-    var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
     var metricsPushGatewayUrl: @Sendable () -> String?
     var plausibleBackendReportingSiteID: @Sendable () -> String?
     var postPlausibleEvent: @Sendable (Client, Plausible.Event.Kind, Plausible.Path, User?) async throws -> Void
@@ -180,7 +178,6 @@ extension AppEnvironment {
         httpClient: { httpClient },
         loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },
-        mastodonPost: { client, message in try await Mastodon.post(client: client, message: message) },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },
         postPlausibleEvent: { client, kind, path, user in try await Plausible.postEvent(client: client, kind: kind, path: path, user: user) },

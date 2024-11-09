@@ -98,16 +98,15 @@ final class AnalyzeErrorTests: AppTestCase {
         }
 
         Current.shell.run = Self.defaultShellRun
-
-        Current.mastodonPost = { [socialPosts = self.socialPosts] _, message in
-            socialPosts.withValue { $0.append(message) }
-        }
     }
 
     func test_analyze_refreshCheckout_failed() async throws {
         try await withDependencies {
             $0.date.now = .t0
             $0.environment.allowSocialPosts = { true }
+            $0.environment.mastodonPost = { @Sendable [socialPosts = self.socialPosts] _, message in
+                socialPosts.withValue { $0.append(message) }
+            }
         } operation: {
             Current.shell.run = { @Sendable cmd, path in
                 switch cmd {
@@ -141,6 +140,9 @@ final class AnalyzeErrorTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .t0
             $0.environment.allowSocialPosts = { true }
+            $0.environment.mastodonPost = { @Sendable [socialPosts = self.socialPosts] _, message in
+                socialPosts.withValue { $0.append(message) }
+            }
         } operation: {
             // setup
             let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
@@ -169,6 +171,9 @@ final class AnalyzeErrorTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .t0
             $0.environment.allowSocialPosts = { true }
+            $0.environment.mastodonPost = { @Sendable [socialPosts = self.socialPosts] _, message in
+                socialPosts.withValue { $0.append(message) }
+            }
         } operation: {
             // setup
             Current.shell.run = { @Sendable cmd, path in
@@ -200,6 +205,9 @@ final class AnalyzeErrorTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .t0
             $0.environment.allowSocialPosts = { true }
+            $0.environment.mastodonPost = { @Sendable [socialPosts = self.socialPosts] _, message in
+                socialPosts.withValue { $0.append(message) }
+            }
         } operation: {
             // setup
             Current.fileManager.fileExists = { @Sendable path in

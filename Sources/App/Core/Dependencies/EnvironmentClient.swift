@@ -30,6 +30,7 @@ struct EnvironmentClient {
     // .development and does not raise an error when not injected.
     var current: @Sendable () -> Environment = { .development }
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
+    var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
 }
 
 
@@ -48,7 +49,8 @@ extension EnvironmentClient: DependencyKey {
             mastodonCredentials: {
                 Environment.get("MASTODON_ACCESS_TOKEN")
                     .map(Mastodon.Credentials.init(accessToken:))
-            }
+            },
+            mastodonPost: { client, message in try await Mastodon.post(client: client, message: message) }
         )
     }
 }

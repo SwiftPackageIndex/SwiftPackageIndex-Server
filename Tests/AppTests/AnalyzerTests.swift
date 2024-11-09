@@ -36,6 +36,7 @@ class AnalyzerTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
+            $0.environment.mastodonPost = { @Sendable _, _ in }
         } operation: {
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -218,6 +219,7 @@ class AnalyzerTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
+            $0.environment.mastodonPost = { @Sendable _, _ in }
         } operation: {
             // setup
             let pkgId = UUID()

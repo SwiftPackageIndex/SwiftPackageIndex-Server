@@ -193,10 +193,10 @@ class SocialTests: AppTestCase {
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         let posted: NIOLockedValueBox<Int> = .init(0)
-        Current.mastodonPost = { _, _ in posted.withLockedValue { $0 += 1 } }
 
         try await withDependencies {
             $0.environment.allowSocialPosts = { true }
+            $0.environment.mastodonPost = { @Sendable _, _ in posted.withLockedValue { $0 += 1 } }
         } operation: {
             // MUT
             try await Social.postToFirehose(client: app.client,
@@ -225,13 +225,13 @@ class SocialTests: AppTestCase {
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         let posted: NIOLockedValueBox<Int> = .init(0)
-        Current.mastodonPost = { _, msg in
-            XCTAssertTrue(msg.contains("v2.0.0"))
-            posted.withLockedValue { $0 += 1 }
-        }
 
         try await withDependencies {
             $0.environment.allowSocialPosts = { true }
+            $0.environment.mastodonPost = { @Sendable _, msg in
+                XCTAssertTrue(msg.contains("v2.0.0"))
+                posted.withLockedValue { $0 += 1 }
+            }
         } operation: {
             // MUT
             try await Social.postToFirehose(client: app.client,

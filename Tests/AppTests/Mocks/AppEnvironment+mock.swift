@@ -55,7 +55,6 @@ extension AppEnvironment {
             httpClient: { httpClient },
             loadSPIManifest: { _ in nil },
             logger: { logger },
-            mastodonPost: { _, _ in },
             metricsPushGatewayUrl: { "http://pushgateway:9091" },
             plausibleBackendReportingSiteID: { nil },
             postPlausibleEvent: { _, _, _, _ in },
