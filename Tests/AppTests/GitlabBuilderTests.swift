@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
+import Dependencies
 import Vapor
-import XCTest
 
 
 class GitlabBuilderTests: AppTestCase {
@@ -31,7 +33,7 @@ class GitlabBuilderTests: AppTestCase {
         // Ensure the POST variables are encoded correctly
         // setup
         let app = try await setup(.testing)
-        
+
         try await App.run {
             let req = Request(application: app, on: app.eventLoopGroup.next())
             let dto = Gitlab.Builder.PostDTO(token: "token",
@@ -52,78 +54,86 @@ class GitlabBuilderTests: AppTestCase {
     }
 
     func test_triggerBuild() async throws {
-        Current.awsDocsBucket = { "docs-bucket" }
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
-        let buildId = UUID()
-        let versionID = UUID()
+        try await withDependencies {
+            $0.environment.buildTimeout = { 10 }
+        } operation: {
+            Current.awsDocsBucket = { "docs-bucket" }
+            Current.builderToken = { "builder token" }
+            Current.gitlabPipelineToken = { "pipeline token" }
+            Current.siteURL = { "http://example.com" }
+            let buildId = UUID()
+            let versionID = UUID()
 
-        var called = false
-        let client = MockClient { req, res in
-            called = true
-            try? res.content.encode(
-                Gitlab.Builder.Response.init(webUrl: "http://web_url")
-            )
-            // validate
-            XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
-                           Gitlab.Builder.PostDTO(
-                            token: "pipeline token",
-                            ref: "main",
-                            variables: [
-                                "API_BASEURL": "http://example.com/api",
-                                "AWS_DOCS_BUCKET": "docs-bucket",
-                                "BUILD_ID": buildId.uuidString,
-                                "BUILD_PLATFORM": "macos-spm",
-                                "BUILDER_TOKEN": "builder token",
-                                "CLONE_URL": "https://github.com/daveverwer/LeftPad.git",
-                                "REFERENCE": "1.2.3",
-                                "SWIFT_VERSION": "5.2",
-                                "TIMEOUT": "10m",
-                                "VERSION_ID": versionID.uuidString,
-                            ]))
+            var called = false
+            let client = MockClient { req, res in
+                called = true
+                try? res.content.encode(
+                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                )
+                // validate
+                XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
+                               Gitlab.Builder.PostDTO(
+                                token: "pipeline token",
+                                ref: "main",
+                                variables: [
+                                    "API_BASEURL": "http://example.com/api",
+                                    "AWS_DOCS_BUCKET": "docs-bucket",
+                                    "BUILD_ID": buildId.uuidString,
+                                    "BUILD_PLATFORM": "macos-spm",
+                                    "BUILDER_TOKEN": "builder token",
+                                    "CLONE_URL": "https://github.com/daveverwer/LeftPad.git",
+                                    "REFERENCE": "1.2.3",
+                                    "SWIFT_VERSION": "5.2",
+                                    "TIMEOUT": "10m",
+                                    "VERSION_ID": versionID.uuidString,
+                                ]))
+            }
+
+            // MUT
+            _ = try await Gitlab.Builder.triggerBuild(client: client,
+                                                      buildId: buildId,
+                                                      cloneURL: "https://github.com/daveverwer/LeftPad.git",
+                                                      isDocBuild: false,
+                                                      platform: .macosSpm,
+                                                      reference: .tag(.init(1, 2, 3)),
+                                                      swiftVersion: .init(5, 2, 4),
+                                                      versionID: versionID)
+            XCTAssertTrue(called)
         }
-
-        // MUT
-        _ = try await Gitlab.Builder.triggerBuild(client: client,
-                                                  buildId: buildId,
-                                                  cloneURL: "https://github.com/daveverwer/LeftPad.git",
-                                                  isDocBuild: false,
-                                                  platform: .macosSpm,
-                                                  reference: .tag(.init(1, 2, 3)),
-                                                  swiftVersion: .init(5, 2, 4),
-                                                  versionID: versionID)
-        XCTAssertTrue(called)
     }
 
     func test_issue_588() async throws {
-        Current.awsDocsBucket = { "docs-bucket" }
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
-
-        var called = false
-        let client = MockClient { req, res in
-            called = true
-            try? res.content.encode(
-                Gitlab.Builder.Response.init(webUrl: "http://web_url")
-            )
-            // validate
-            let swiftVersion = (try? req.query.decode(Gitlab.Builder.PostDTO.self))
-                .flatMap { $0.variables["SWIFT_VERSION"] }
-            XCTAssertEqual(swiftVersion, "6.0")
+        try await withDependencies {
+            $0.environment.buildTimeout = { 10 }
+        } operation: {
+            Current.awsDocsBucket = { "docs-bucket" }
+            Current.builderToken = { "builder token" }
+            Current.gitlabPipelineToken = { "pipeline token" }
+            Current.siteURL = { "http://example.com" }
+            
+            var called = false
+            let client = MockClient { req, res in
+                called = true
+                try? res.content.encode(
+                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                )
+                // validate
+                let swiftVersion = (try? req.query.decode(Gitlab.Builder.PostDTO.self))
+                    .flatMap { $0.variables["SWIFT_VERSION"] }
+                XCTAssertEqual(swiftVersion, "6.0")
+            }
+            
+            // MUT
+            _ = try await Gitlab.Builder.triggerBuild(client: client,
+                                                      buildId: .id0,
+                                                      cloneURL: "https://github.com/daveverwer/LeftPad.git",
+                                                      isDocBuild: false,
+                                                      platform: .macosSpm,
+                                                      reference: .tag(.init(1, 2, 3)),
+                                                      swiftVersion: .v6_0,
+                                                      versionID: .id1)
+            XCTAssertTrue(called)
         }
-
-        // MUT
-        _ = try await Gitlab.Builder.triggerBuild(client: client,
-                                                  buildId: .id0,
-                                                  cloneURL: "https://github.com/daveverwer/LeftPad.git",
-                                                  isDocBuild: false,
-                                                  platform: .macosSpm,
-                                                  reference: .tag(.init(1, 2, 3)),
-                                                  swiftVersion: .v6_0,
-                                                  versionID: .id1)
-        XCTAssertTrue(called)
     }
 
     func test_getStatusCount() async throws {

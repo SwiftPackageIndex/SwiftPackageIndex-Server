@@ -29,7 +29,6 @@ struct AppEnvironment: Sendable {
     var awsDocsBucket: @Sendable () -> String?
     var awsReadmeBucket: @Sendable () -> String?
     var awsSecretAccessKey: @Sendable () -> String?
-    var buildTimeout: @Sendable () -> Int
     var builderToken: @Sendable () -> String?
     var buildTriggerAllowList: @Sendable () -> [Package.Id]
     var buildTriggerDownscaling: @Sendable () -> Double
@@ -112,7 +111,6 @@ extension AppEnvironment {
         awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
         awsReadmeBucket: { Environment.get("AWS_README_BUCKET") },
         awsSecretAccessKey: { Environment.get("AWS_SECRET_ACCESS_KEY") },
-        buildTimeout: { Environment.get("BUILD_TIMEOUT").flatMap(Int.init) ?? 10 },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerAllowList: {
             Environment.get("BUILD_TRIGGER_ALLOW_LIST")

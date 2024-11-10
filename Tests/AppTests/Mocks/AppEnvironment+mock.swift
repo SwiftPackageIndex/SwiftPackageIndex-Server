@@ -28,7 +28,6 @@ extension AppEnvironment {
             awsDocsBucket: { "awsDocsBucket" },
             awsReadmeBucket: { "awsReadmeBucket" },
             awsSecretAccessKey: { nil },
-            buildTimeout: { 10 },
             builderToken: { nil },
             buildTriggerAllowList: { [] },
             buildTriggerDownscaling: { 1.0 },

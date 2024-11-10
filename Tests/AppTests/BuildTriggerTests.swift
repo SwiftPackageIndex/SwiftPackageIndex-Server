@@ -328,216 +328,229 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_triggerBuildsUnchecked() async throws {
-        // setup
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
+        try await withDependencies {
+            $0.environment.buildTimeout = { 10 }
+        } operation: {
+            // setup
+            Current.builderToken = { "builder token" }
+            Current.gitlabPipelineToken = { "pipeline token" }
+            Current.siteURL = { "http://example.com" }
 
-        // Use live dependency but replace actual client with a mock so we can
-        // assert on the details being sent without actually making a request
-        Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            try await Gitlab.Builder.triggerBuild(client: client,
-                                                  buildId: buildId,
-                                                  cloneURL: cloneURL,
-                                                  isDocBuild: isDocBuild,
-                                                  platform: platform,
-                                                  reference: ref,
-                                                  swiftVersion: swiftVersion,
-                                                  versionID: versionID)
+            // Use live dependency but replace actual client with a mock so we can
+            // assert on the details being sent without actually making a request
+            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(client: client,
+                                                      buildId: buildId,
+                                                      cloneURL: cloneURL,
+                                                      isDocBuild: isDocBuild,
+                                                      platform: platform,
+                                                      reference: ref,
+                                                      swiftVersion: swiftVersion,
+                                                      versionID: versionID)
+            }
+            let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
+            let client = MockClient { req, res in
+                guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
+                queries.withValue { $0.append(query) }
+                try? res.content.encode(
+                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                )
+            }
+
+            let versionId = UUID()
+            do {  // save package with partially completed builds
+                let p = Package(id: UUID(), url: "2")
+                try await p.save(on: app.db)
+                let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                try await v.save(on: app.db)
+            }
+            let triggers = [BuildTriggerInfo(versionId: versionId,
+                                             buildPairs: [BuildPair(.iOS, .v1)])!]
+
+            // MUT
+            try await triggerBuildsUnchecked(on: app.db,
+                                             client: client,
+                                             triggers: triggers)
+
+            // validate
+            // ensure Gitlab requests go out
+            XCTAssertEqual(queries.count, 1)
+            XCTAssertEqual(queries.value.map { $0.variables["VERSION_ID"] }, [versionId.uuidString])
+            XCTAssertEqual(queries.value.map { $0.variables["BUILD_PLATFORM"] }, ["ios"])
+            XCTAssertEqual(queries.value.map { $0.variables["SWIFT_VERSION"] }, ["5.8"])
+
+            // ensure the Build stubs is created to prevent re-selection
+            let v = try await Version.find(versionId, on: app.db)
+            try await v?.$builds.load(on: app.db)
+            XCTAssertEqual(v?.builds.count, 1)
+            XCTAssertEqual(v?.builds.map(\.status), [.triggered])
+            XCTAssertEqual(v?.builds.map(\.jobUrl), ["http://web_url"])
         }
-        let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
-        let client = MockClient { req, res in
-            guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
-            queries.withValue { $0.append(query) }
-            try? res.content.encode(
-                Gitlab.Builder.Response.init(webUrl: "http://web_url")
-            )
-        }
-
-        let versionId = UUID()
-        do {  // save package with partially completed builds
-            let p = Package(id: UUID(), url: "2")
-            try await p.save(on: app.db)
-            let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-            try await v.save(on: app.db)
-        }
-        let triggers = [BuildTriggerInfo(versionId: versionId,
-                                         buildPairs: [BuildPair(.iOS, .v1)])!]
-
-        // MUT
-        try await triggerBuildsUnchecked(on: app.db,
-                                         client: client,
-                                         triggers: triggers)
-
-        // validate
-        // ensure Gitlab requests go out
-        XCTAssertEqual(queries.count, 1)
-        XCTAssertEqual(queries.value.map { $0.variables["VERSION_ID"] }, [versionId.uuidString])
-        XCTAssertEqual(queries.value.map { $0.variables["BUILD_PLATFORM"] }, ["ios"])
-        XCTAssertEqual(queries.value.map { $0.variables["SWIFT_VERSION"] }, ["5.8"])
-
-        // ensure the Build stubs is created to prevent re-selection
-        let v = try await Version.find(versionId, on: app.db)
-        try await v?.$builds.load(on: app.db)
-        XCTAssertEqual(v?.builds.count, 1)
-        XCTAssertEqual(v?.builds.map(\.status), [.triggered])
-        XCTAssertEqual(v?.builds.map(\.jobUrl), ["http://web_url"])
     }
 
     func test_triggerBuildsUnchecked_supported() async throws {
-        // Explicitly test the full range of all currently triggered platforms and swift versions
-        // setup
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
+        try await withDependencies {
+            $0.environment.buildTimeout = { 10 }
+        } operation: {
+            // Explicitly test the full range of all currently triggered platforms and swift versions
+            // setup
+            Current.builderToken = { "builder token" }
+            Current.gitlabPipelineToken = { "pipeline token" }
+            Current.siteURL = { "http://example.com" }
 
-        // Use live dependency but replace actual client with a mock so we can
-        // assert on the details being sent without actually making a request
-        Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            try await Gitlab.Builder.triggerBuild(client: client,
-                                                  buildId: buildId,
-                                                  cloneURL: cloneURL,
-                                                  isDocBuild: isDocBuild,
-                                                  platform: platform,
-                                                  reference: ref,
-                                                  swiftVersion: swiftVersion,
-                                                  versionID: versionID)
+            // Use live dependency but replace actual client with a mock so we can
+            // assert on the details being sent without actually making a request
+            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(client: client,
+                                                      buildId: buildId,
+                                                      cloneURL: cloneURL,
+                                                      isDocBuild: isDocBuild,
+                                                      platform: platform,
+                                                      reference: ref,
+                                                      swiftVersion: swiftVersion,
+                                                      versionID: versionID)
+            }
+            let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
+            let client = MockClient { req, res in
+                guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
+                queries.withValue { $0.append(query) }
+                try? res.content.encode(
+                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                )
+            }
+
+            let pkgId = UUID()
+            let versionId = UUID()
+            do {  // save package with partially completed builds
+                let p = Package(id: pkgId, url: "2")
+                try await p.save(on: app.db)
+                let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                try await v.save(on: app.db)
+            }
+            let triggers = try await findMissingBuilds(app.db, packageId: pkgId)
+
+            // MUT
+            try await triggerBuildsUnchecked(on: app.db,
+                                             client: client,
+                                             triggers: triggers)
+
+            // validate
+            // ensure Gitlab requests go out
+            XCTAssertEqual(queries.count, 27)
+            XCTAssertEqual(queries.value.map { $0.variables["VERSION_ID"] },
+                           Array(repeating: versionId.uuidString, count: 27))
+            let buildPlatforms = queries.value.compactMap { $0.variables["BUILD_PLATFORM"] }
+            XCTAssertEqual(Dictionary(grouping: buildPlatforms, by: { $0 })
+                .mapValues(\.count),
+                           ["ios": 4,
+                            "macos-spm": 4,
+                            "macos-xcodebuild": 4,
+                            "linux": 4,
+                            "watchos": 4,
+                            "visionos": 3,
+                            "tvos": 4])
+            let swiftVersions = queries.value.compactMap { $0.variables["SWIFT_VERSION"] }
+            XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
+                .mapValues(\.count),
+                           [SwiftVersion.v1.description(droppingZeroes: .patch): 6,
+                            SwiftVersion.v2.description(droppingZeroes: .patch): 7,
+                            SwiftVersion.v3.description(droppingZeroes: .patch): 7,
+                            SwiftVersion.v4.description(droppingZeroes: .patch): 7])
+
+            // ensure the Build stubs are created to prevent re-selection
+            let v = try await Version.find(versionId, on: app.db)
+            try await v?.$builds.load(on: app.db)
+            XCTAssertEqual(v?.builds.count, 27)
+
+            // ensure re-selection is empty
+            let candidates = try await fetchBuildCandidates(app.db)
+            XCTAssertEqual(candidates, [])
         }
-        let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
-        let client = MockClient { req, res in
-            guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
-            queries.withValue { $0.append(query) }
-            try? res.content.encode(
-                Gitlab.Builder.Response.init(webUrl: "http://web_url")
-            )
-        }
-
-        let pkgId = UUID()
-        let versionId = UUID()
-        do {  // save package with partially completed builds
-            let p = Package(id: pkgId, url: "2")
-            try await p.save(on: app.db)
-            let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-            try await v.save(on: app.db)
-        }
-        let triggers = try await findMissingBuilds(app.db, packageId: pkgId)
-
-        // MUT
-        try await triggerBuildsUnchecked(on: app.db,
-                                         client: client,
-                                         triggers: triggers)
-
-        // validate
-        // ensure Gitlab requests go out
-        XCTAssertEqual(queries.count, 27)
-        XCTAssertEqual(queries.value.map { $0.variables["VERSION_ID"] },
-                       Array(repeating: versionId.uuidString, count: 27))
-        let buildPlatforms = queries.value.compactMap { $0.variables["BUILD_PLATFORM"] }
-        XCTAssertEqual(Dictionary(grouping: buildPlatforms, by: { $0 })
-                        .mapValues(\.count),
-                       ["ios": 4,
-                        "macos-spm": 4,
-                        "macos-xcodebuild": 4,
-                        "linux": 4,
-                        "watchos": 4,
-                        "visionos": 3,
-                        "tvos": 4])
-        let swiftVersions = queries.value.compactMap { $0.variables["SWIFT_VERSION"] }
-        XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
-                        .mapValues(\.count),
-                       [SwiftVersion.v1.description(droppingZeroes: .patch): 6,
-                        SwiftVersion.v2.description(droppingZeroes: .patch): 7,
-                        SwiftVersion.v3.description(droppingZeroes: .patch): 7,
-                        SwiftVersion.v4.description(droppingZeroes: .patch): 7])
-
-        // ensure the Build stubs are created to prevent re-selection
-        let v = try await Version.find(versionId, on: app.db)
-        try await v?.$builds.load(on: app.db)
-        XCTAssertEqual(v?.builds.count, 27)
-
-        // ensure re-selection is empty
-        let candidates = try await fetchBuildCandidates(app.db)
-        XCTAssertEqual(candidates, [])
     }
 
     func test_triggerBuildsUnchecked_build_exists() async throws {
-        // Tests error handling when a build record already exists and `create` raises a
-        // uq:builds.version_id+builds.platform+builds.swift_version+v2
-        // unique key violation.
-        // The only way this can currently happen is by running a manual trigger command
-        // from a container in the dev or prod envs (docker exec ...), like so:
-        //   ./Run trigger-builds -v {version-id} -p macos-spm -s 5.7
-        // This is how we routinely manually trigger doc-related builds.
-        // This test ensures that the build record is updated in this case rather than
-        // being completely ignored because the command errors out.
-        // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2237
-        // setup
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
+        try await withDependencies {
+            $0.environment.buildTimeout = { 10 }
+        } operation: {
+            // Tests error handling when a build record already exists and `create` raises a
+            // uq:builds.version_id+builds.platform+builds.swift_version+v2
+            // unique key violation.
+            // The only way this can currently happen is by running a manual trigger command
+            // from a container in the dev or prod envs (docker exec ...), like so:
+            //   ./Run trigger-builds -v {version-id} -p macos-spm -s 5.7
+            // This is how we routinely manually trigger doc-related builds.
+            // This test ensures that the build record is updated in this case rather than
+            // being completely ignored because the command errors out.
+            // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2237
+            // setup
+            Current.builderToken = { "builder token" }
+            Current.gitlabPipelineToken = { "pipeline token" }
+            Current.siteURL = { "http://example.com" }
 
-        // Use live dependency but replace actual client with a mock so we can
-        // assert on the details being sent without actually making a request
-        Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            try await Gitlab.Builder.triggerBuild(client: client,
-                                                  buildId: buildId,
-                                                  cloneURL: cloneURL,
-                                                  isDocBuild: isDocBuild,
-                                                  platform: platform,
-                                                  reference: ref,
-                                                  swiftVersion: swiftVersion,
-                                                  versionID: versionID)
+            // Use live dependency but replace actual client with a mock so we can
+            // assert on the details being sent without actually making a request
+            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(client: client,
+                                                      buildId: buildId,
+                                                      cloneURL: cloneURL,
+                                                      isDocBuild: isDocBuild,
+                                                      platform: platform,
+                                                      reference: ref,
+                                                      swiftVersion: swiftVersion,
+                                                      versionID: versionID)
+            }
+            let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
+            let client = MockClient { req, res in
+                guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
+                queries.withValue { $0.append(query) }
+                try? res.content.encode(
+                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                )
+            }
+
+            let buildId = UUID()
+            let versionId = UUID()
+            do {  // save package with a build that we re-trigger
+                let p = Package(id: UUID(), url: "2")
+                try await p.save(on: app.db)
+                let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                try await v.save(on: app.db)
+                try await Build(id: buildId,
+                                version: v,
+                                platform: .macosSpm,
+                                status: .failed,
+                                swiftVersion: .v3).save(on: app.db)
+
+            }
+            let triggers = [BuildTriggerInfo(versionId: versionId,
+                                             buildPairs: [BuildPair(.macosSpm, .v3)])!]
+
+            // MUT
+            try await triggerBuildsUnchecked(on: app.db,
+                                             client: client,
+                                             triggers: triggers)
+
+            // validate
+            // triggerBuildsUnchecked always creates a new buildId,
+            // so the triggered id must be different from the existing one
+            let newBuildId = try XCTUnwrap(queries.value.first?.variables["BUILD_ID"]
+                .flatMap(UUID.init(uuidString:)))
+            XCTAssertNotEqual(newBuildId, buildId)
+
+            // ensure existing build record is updated
+            let v = try await Version.find(versionId, on: app.db)
+            try await v?.$builds.load(on: app.db)
+            XCTAssertEqual(v?.builds.count, 1)
+            XCTAssertEqual(v?.builds.map(\.id), [newBuildId])
+            XCTAssertEqual(v?.builds.map(\.status), [.triggered])
+            XCTAssertEqual(v?.builds.map(\.jobUrl), ["http://web_url"])
         }
-        let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
-        let client = MockClient { req, res in
-            guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
-            queries.withValue { $0.append(query) }
-            try? res.content.encode(
-                Gitlab.Builder.Response.init(webUrl: "http://web_url")
-            )
-        }
-
-        let buildId = UUID()
-        let versionId = UUID()
-        do {  // save package with a build that we re-trigger
-            let p = Package(id: UUID(), url: "2")
-            try await p.save(on: app.db)
-            let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-            try await v.save(on: app.db)
-            try await Build(id: buildId,
-                            version: v,
-                            platform: .macosSpm,
-                            status: .failed,
-                            swiftVersion: .v3).save(on: app.db)
-
-        }
-        let triggers = [BuildTriggerInfo(versionId: versionId,
-                                         buildPairs: [BuildPair(.macosSpm, .v3)])!]
-
-        // MUT
-        try await triggerBuildsUnchecked(on: app.db,
-                                         client: client,
-                                         triggers: triggers)
-
-        // validate
-        // triggerBuildsUnchecked always creates a new buildId,
-        // so the triggered id must be different from the existing one
-        let newBuildId = try XCTUnwrap(queries.value.first?.variables["BUILD_ID"]
-            .flatMap(UUID.init(uuidString:)))
-        XCTAssertNotEqual(newBuildId, buildId)
-
-        // ensure existing build record is updated
-        let v = try await Version.find(versionId, on: app.db)
-        try await v?.$builds.load(on: app.db)
-        XCTAssertEqual(v?.builds.count, 1)
-        XCTAssertEqual(v?.builds.map(\.id), [newBuildId])
-        XCTAssertEqual(v?.builds.map(\.status), [.triggered])
-        XCTAssertEqual(v?.builds.map(\.jobUrl), ["http://web_url"])
     }
 
     func test_triggerBuilds_checked() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.buildTimeout = { 10 }
         } operation: {
             // Ensure we respect the pipeline limit when triggering builds
             // setup
@@ -649,6 +662,7 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_multiplePackages() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.buildTimeout = { 10 }
         } operation: {
             // Ensure we respect the pipeline limit when triggering builds for multiple package ids
             // setup
@@ -733,6 +747,7 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_error() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.buildTimeout = { 10 }
         } operation: {
             // Ensure we trim builds as part of triggering
             // setup
@@ -827,77 +842,82 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_override_switch() async throws {
-        // Ensure don't trigger if the override is off
-        // setup
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
-        // Use live dependency but replace actual client with a mock so we can
-        // assert on the details being sent without actually making a request
-        Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            try await Gitlab.Builder.triggerBuild(client: client,
-                                                  buildId: buildId,
-                                                  cloneURL: cloneURL,
-                                                  isDocBuild: isDocBuild,
-                                                  platform: platform,
-                                                  reference: ref,
-                                                  swiftVersion: swiftVersion,
-                                                  versionID: versionID)
-        }
-        var triggerCount = 0
-        let client = MockClient { _, res in
-            triggerCount += 1
-            try? res.content.encode(
-                Gitlab.Builder.Response.init(webUrl: "http://web_url")
-            )
-        }
-
         try await withDependencies {
-            // confirm that the off switch prevents triggers
-            $0.environment.allowBuildTriggers = { false }
+            $0.environment.buildTimeout = { 10 }
         } operation: {
-            let pkgId = UUID()
-            let versionId = UUID()
-            let p = Package(id: pkgId, url: "1")
-            try await p.save(on: app.db)
-            try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-                .save(on: app.db)
+            // Ensure don't trigger if the override is off
+            // setup
+            Current.builderToken = { "builder token" }
+            Current.gitlabPipelineToken = { "pipeline token" }
+            Current.siteURL = { "http://example.com" }
+            // Use live dependency but replace actual client with a mock so we can
+            // assert on the details being sent without actually making a request
+            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(client: client,
+                                                      buildId: buildId,
+                                                      cloneURL: cloneURL,
+                                                      isDocBuild: isDocBuild,
+                                                      platform: platform,
+                                                      reference: ref,
+                                                      swiftVersion: swiftVersion,
+                                                      versionID: versionID)
+            }
+            var triggerCount = 0
+            let client = MockClient { _, res in
+                triggerCount += 1
+                try? res.content.encode(
+                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                )
+            }
 
-            // MUT
-            try await triggerBuilds(on: app.db,
-                                    client: client,
-                                    mode: .packageId(pkgId, force: false))
+            try await withDependencies {
+                // confirm that the off switch prevents triggers
+                $0.environment.allowBuildTriggers = { false }
+            } operation: {
+                let pkgId = UUID()
+                let versionId = UUID()
+                let p = Package(id: pkgId, url: "1")
+                try await p.save(on: app.db)
+                try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                    .save(on: app.db)
 
-            // validate
-            XCTAssertEqual(triggerCount, 0)
-        }
+                // MUT
+                try await triggerBuilds(on: app.db,
+                                        client: client,
+                                        mode: .packageId(pkgId, force: false))
 
-        triggerCount = 0
+                // validate
+                XCTAssertEqual(triggerCount, 0)
+            }
 
-        try await withDependencies {
-            // flipping the switch to on should allow triggers to proceed
-            $0.environment.allowBuildTriggers = { true }
-        } operation: {
-            let pkgId = UUID()
-            let versionId = UUID()
-            let p = Package(id: pkgId, url: "2")
-            try await p.save(on: app.db)
-            try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-                .save(on: app.db)
+            triggerCount = 0
 
-            // MUT
-            try await triggerBuilds(on: app.db,
-                                    client: client,
-                                    mode: .packageId(pkgId, force: false))
+            try await withDependencies {
+                // flipping the switch to on should allow triggers to proceed
+                $0.environment.allowBuildTriggers = { true }
+            } operation: {
+                let pkgId = UUID()
+                let versionId = UUID()
+                let p = Package(id: pkgId, url: "2")
+                try await p.save(on: app.db)
+                try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                    .save(on: app.db)
 
-            // validate
-            XCTAssertEqual(triggerCount, 27)
+                // MUT
+                try await triggerBuilds(on: app.db,
+                                        client: client,
+                                        mode: .packageId(pkgId, force: false))
+
+                // validate
+                XCTAssertEqual(triggerCount, 27)
+            }
         }
     }
 
     func test_downscaling() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.buildTimeout = { 10 }
         } operation: {
             // Test build trigger downscaling behaviour
             // setup
@@ -970,6 +990,7 @@ class BuildTriggerTests: AppTestCase {
     func test_downscaling_allow_list_override() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.buildTimeout = { 10 }
         } operation: {
             // Test build trigger downscaling behaviour for allow-listed packages
             // setup
