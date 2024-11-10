@@ -80,7 +80,7 @@ extension Gitlab.Builder {
         @Dependency(\.environment) var environment
 
         guard let pipelineToken = Current.gitlabPipelineToken(),
-              let builderToken = Current.builderToken()
+              let builderToken = environment.builderToken()
         else { throw Gitlab.Error.missingToken }
         guard let awsDocsBucket = Current.awsDocsBucket() else {
             throw Gitlab.Error.missingConfiguration("AWS_DOCS_BUCKET")

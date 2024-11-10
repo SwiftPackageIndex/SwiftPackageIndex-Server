@@ -130,9 +130,9 @@ class BuildTests: AppTestCase {
 
     func test_trigger() async throws {
         try await withDependencies {
+            $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
             // setup
@@ -197,11 +197,11 @@ class BuildTests: AppTestCase {
 
     func test_trigger_isDocBuild() async throws {
         try await withDependencies {
+            $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
             // Same test as test_trigger above, except we trigger with isDocBuild: true
             // and expect a 15m TIMEOUT instead of 10m
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
             // setup
@@ -210,7 +210,7 @@ class BuildTests: AppTestCase {
             try await v.save(on: app.db)
             let buildId = UUID()
             let versionID = try XCTUnwrap(v.id)
-            
+
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
             Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
@@ -235,7 +235,7 @@ class BuildTests: AppTestCase {
                 XCTAssertNotNil(response)
                 XCTAssertEqual(response?.variables["TIMEOUT"], "15m")
             }
-            
+
             // MUT
             let res = try await Build.trigger(database: app.db,
                                               client: client,
@@ -244,7 +244,7 @@ class BuildTests: AppTestCase {
                                               platform: .macosXcodebuild,
                                               swiftVersion: .init(5, 2, 4),
                                               versionId: versionID)
-            
+
             // validate
             XCTAssertTrue(called)
             XCTAssertEqual(res.status, .created)

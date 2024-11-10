@@ -329,10 +329,10 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuildsUnchecked() async throws {
         try await withDependencies {
+            $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
             // setup
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
 
@@ -390,11 +390,11 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuildsUnchecked_supported() async throws {
         try await withDependencies {
+            $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
             // Explicitly test the full range of all currently triggered platforms and swift versions
             // setup
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
 
@@ -470,6 +470,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuildsUnchecked_build_exists() async throws {
         try await withDependencies {
+            $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
             // Tests error handling when a build record already exists and `create` raises a
@@ -483,7 +484,6 @@ class BuildTriggerTests: AppTestCase {
             // being completely ignored because the command errors out.
             // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2237
             // setup
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
 
@@ -550,11 +550,11 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_checked() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
             // Ensure we respect the pipeline limit when triggering builds
             // setup
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
             Current.gitlabPipelineLimit = { 300 }
@@ -662,11 +662,11 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_multiplePackages() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
             // Ensure we respect the pipeline limit when triggering builds for multiple package ids
             // setup
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
             Current.gitlabPipelineLimit = { 300 }
@@ -712,10 +712,10 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_trimming() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.builderToken = { "builder token" }
         } operation: {
             // Ensure we trim builds as part of triggering
             // setup
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
             Current.gitlabPipelineLimit = { 300 }
@@ -747,11 +747,11 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_error() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
             // Ensure we trim builds as part of triggering
             // setup
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
             Current.gitlabPipelineLimit = { 300 }
@@ -843,11 +843,11 @@ class BuildTriggerTests: AppTestCase {
 
     func test_override_switch() async throws {
         try await withDependencies {
+            $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
             // Ensure don't trigger if the override is off
             // setup
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
             // Use live dependency but replace actual client with a mock so we can
@@ -917,11 +917,11 @@ class BuildTriggerTests: AppTestCase {
     func test_downscaling() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
             // Test build trigger downscaling behaviour
             // setup
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
             Current.buildTriggerDownscaling = { 0.05 }  // 5% downscaling rate
@@ -990,11 +990,11 @@ class BuildTriggerTests: AppTestCase {
     func test_downscaling_allow_list_override() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
             // Test build trigger downscaling behaviour for allow-listed packages
             // setup
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
             Current.buildTriggerDownscaling = { 0.05 }  // 5% downscaling rate

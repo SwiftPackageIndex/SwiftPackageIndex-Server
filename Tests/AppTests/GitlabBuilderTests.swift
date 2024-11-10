@@ -55,10 +55,10 @@ class GitlabBuilderTests: AppTestCase {
 
     func test_triggerBuild() async throws {
         try await withDependencies {
+            $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
             Current.awsDocsBucket = { "docs-bucket" }
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
             let buildId = UUID()
@@ -104,13 +104,13 @@ class GitlabBuilderTests: AppTestCase {
 
     func test_issue_588() async throws {
         try await withDependencies {
+            $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
             Current.awsDocsBucket = { "docs-bucket" }
-            Current.builderToken = { "builder token" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
-            
+
             var called = false
             let client = MockClient { req, res in
                 called = true
@@ -122,7 +122,7 @@ class GitlabBuilderTests: AppTestCase {
                     .flatMap { $0.variables["SWIFT_VERSION"] }
                 XCTAssertEqual(swiftVersion, "6.0")
             }
-            
+
             // MUT
             _ = try await Gitlab.Builder.triggerBuild(client: client,
                                                       buildId: .id0,
@@ -176,41 +176,44 @@ class LiveGitlabBuilderTests: AppTestCase {
             "This is a live trigger test for end-to-end testing of pre-release builder versions"
         )
 
-        // set build branch to trigger on
-        Gitlab.Builder.branch = "main"
+        try await withDependencies {
+            $0.environment.builderToken = {
+                // Set this to a valid value if you want to report build results back to the server
+                ProcessInfo.processInfo.environment["LIVE_BUILDER_TOKEN"]
+            }
+        } operation: {
+            // set build branch to trigger on
+            Gitlab.Builder.branch = "main"
 
-        // make sure environment variables are configured for live access
-        Current.awsDocsBucket = { "spi-dev-docs" }
-        Current.builderToken = {
-            // Set this to a valid value if you want to report build results back to the server
-            ProcessInfo.processInfo.environment["LIVE_BUILDER_TOKEN"]
+            // make sure environment variables are configured for live access
+            Current.awsDocsBucket = { "spi-dev-docs" }
+            Current.gitlabPipelineToken = {
+                // This Gitlab token is required in order to trigger the pipeline
+                ProcessInfo.processInfo.environment["LIVE_GITLAB_PIPELINE_TOKEN"]
+            }
+            Current.siteURL = { "https://staging.swiftpackageindex.com" }
+
+            let buildId = UUID()
+
+            // use a valid uuid from a live db if reporting back should succeed
+            // SemanticVersion 0.3.2 on staging
+            let versionID = UUID(uuidString: "93d8c545-15c4-43c2-946f-1b625e2596f9")!
+
+            // MUT
+            let res = try await Gitlab.Builder.triggerBuild(
+                client: app.client,
+                buildId: buildId,
+                cloneURL: "https://github.com/SwiftPackageIndex/SemanticVersion.git",
+                isDocBuild: false,
+                platform: .macosSpm,
+                reference: .tag(.init(0, 3, 2)),
+                swiftVersion: .v4,
+                versionID: versionID)
+
+            print("status: \(res.status)")
+            print("buildId: \(buildId)")
+            print("webUrl: \(res.webUrl)")
         }
-        Current.gitlabPipelineToken = {
-            // This Gitlab token is required in order to trigger the pipeline
-            ProcessInfo.processInfo.environment["LIVE_GITLAB_PIPELINE_TOKEN"]
-        }
-        Current.siteURL = { "https://staging.swiftpackageindex.com" }
-
-        let buildId = UUID()
-
-        // use a valid uuid from a live db if reporting back should succeed
-        // SemanticVersion 0.3.2 on staging
-        let versionID = UUID(uuidString: "93d8c545-15c4-43c2-946f-1b625e2596f9")!
-
-        // MUT
-        let res = try await Gitlab.Builder.triggerBuild(
-            client: app.client,
-            buildId: buildId,
-            cloneURL: "https://github.com/SwiftPackageIndex/SemanticVersion.git",
-            isDocBuild: false,
-            platform: .macosSpm,
-            reference: .tag(.init(0, 3, 2)),
-            swiftVersion: .v4,
-            versionID: versionID)
-
-        print("status: \(res.status)")
-        print("buildId: \(buildId)")
-        print("webUrl: \(res.webUrl)")
     }
 
 }

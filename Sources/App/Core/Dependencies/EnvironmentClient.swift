@@ -23,6 +23,7 @@ struct EnvironmentClient {
     // regarding the use of XCTFail here.
     var allowBuildTriggers: @Sendable () -> Bool = { XCTFail(#function); return true }
     var allowSocialPosts: @Sendable () -> Bool = { XCTFail(#function); return true }
+    var builderToken: @Sendable () -> String?
     var buildTimeout: @Sendable () -> Int = { XCTFail(#function); return 10 }
     // We're not defaulting current to XCTFail, because its use is too pervasive and would require the vast
     // majority of tests to be wrapped with `withDependencies`.
@@ -46,6 +47,7 @@ extension EnvironmentClient: DependencyKey {
                     .flatMap(\.asBool)
                     ?? Constants.defaultAllowSocialPosts
             },
+            builderToken: { Environment.get("BUILDER_TOKEN") },
             buildTimeout: { Environment.get("BUILD_TIMEOUT").flatMap(Int.init) ?? 10 },
             current: { (try? Environment.detect()) ?? .development },
             mastodonCredentials: {

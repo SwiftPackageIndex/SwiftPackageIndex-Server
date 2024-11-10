@@ -22,31 +22,34 @@ import XCTest
 class MetricsTests: AppTestCase {
 
     func test_basic() async throws {
-        // setup - trigger build to increment counter
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        let versionId = UUID()
-        do {  // save minimal package + version
-            let p = Package(id: UUID(), url: "1")
-            try await p.save(on: app.db)
-            try await Version(id: versionId, package: p, reference: .branch("main")).save(on: app.db)
+        try await withDependencies {
+            $0.environment.builderToken = { "builder token" }
+        } operation: {
+            // setup - trigger build to increment counter
+            Current.gitlabPipelineToken = { "pipeline token" }
+            let versionId = UUID()
+            do {  // save minimal package + version
+                let p = Package(id: UUID(), url: "1")
+                try await p.save(on: app.db)
+                try await Version(id: versionId, package: p, reference: .branch("main")).save(on: app.db)
+            }
+            try await triggerBuildsUnchecked(on: app.db,
+                                             client: app.client,
+                                             triggers: [
+                                                .init(versionId: versionId,
+                                                      buildPairs: [.init(.macosSpm, .v3)])!
+                                             ])
+            
+            // MUT
+            try await app.test(.GET, "metrics", afterResponse: { res async in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                let content = res.body.asString()
+                XCTAssertTrue(content.contains(
+                    #"spi_build_trigger_count{swiftVersion="\#(SwiftVersion.v3)", platform="macos-spm"}"#
+                ), "was:\n\(content)")
+            })
         }
-        try await triggerBuildsUnchecked(on: app.db,
-                                         client: app.client,
-                                         triggers: [
-                                            .init(versionId: versionId,
-                                                  buildPairs: [.init(.macosSpm, .v3)])!
-                                         ])
-
-        // MUT
-        try await app.test(.GET, "metrics", afterResponse: { res async in
-            // validation
-            XCTAssertEqual(res.status, .ok)
-            let content = res.body.asString()
-            XCTAssertTrue(content.contains(
-                #"spi_build_trigger_count{swiftVersion="\#(SwiftVersion.v3)", platform="macos-spm"}"#
-            ), "was:\n\(content)")
-        })
     }
 
     func test_versions_added() async throws {
