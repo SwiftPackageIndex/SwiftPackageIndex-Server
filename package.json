@@ -13,12 +13,12 @@
         "highlight.js": "^11.10.0",
         "normalize.css": "^8.0.1",
         "vega": "^5.30.0",
-        "vega-tooltip": "^0.34.0"
+        "vega-tooltip": "^0.35.1"
     },
     "devDependencies": {
         "esbuild": "^0.24.0",
         "esbuild-sass-plugin": "^3.3.1",
-        "postcss": "^8.4.47",
+        "postcss": "^8.4.48",
         "prettier": "^3.3.3",
         "stylelint": "^16.10.0",
         "stylelint-config-standard-scss": "^13.1.0",
