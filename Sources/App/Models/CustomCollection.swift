@@ -35,6 +35,9 @@ final class CustomCollection: @unchecked Sendable, Model, Content {
 
     // data fields
 
+    @Field(key: "key")
+    var key: String
+
     @Field(key: "name")
     var name: String
 
@@ -58,6 +61,7 @@ final class CustomCollection: @unchecked Sendable, Model, Content {
         self.id = id
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.key = details.key
         self.name = details.name
         self.description = details.description
         self.badge = details.badge
@@ -68,6 +72,7 @@ final class CustomCollection: @unchecked Sendable, Model, Content {
 
 extension CustomCollection {
     struct Details: Codable, Equatable {
+        var key: String
         var name: String
         var description: String?
         var badge: String?
@@ -76,7 +81,7 @@ extension CustomCollection {
 
     static func findOrCreate(on database: Database, _ details: Details) async throws -> CustomCollection {
         if let collection = try await CustomCollection.query(on: database)
-            .filter(\.$url == details.url)
+            .filter(\.$key == details.key)
             .first() {
             return collection
         } else {
@@ -101,7 +106,7 @@ extension CustomCollection {
     }
 
     var details: Details {
-        .init(name: name, description: description, badge: badge, url: url)
+        .init(key: key, name: name, description: description, badge: badge, url: url)
     }
 }
 
