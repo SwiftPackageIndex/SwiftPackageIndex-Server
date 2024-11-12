@@ -368,27 +368,24 @@ class CustomCollectionTests: AppTestCase {
         }
     }
 
-    func test_CustomCollection_reconcile_caseSensitive() async throws {
+    func test_CustomCollection_reconcile_caseInsensitive() async throws {
         // Test reconciliation with a case-insensitive matching URL
         let collection = CustomCollection(id: .id0, .init(key: "list",
                                                           name: "List",
                                                           url: "https://github.com/foo/bar/list.json"))
         try await collection.save(on: app.db)
-        try await Package(id: .id1, url: URL("a")).save(on: app.db)
+        try await Package(id: .id1, url: URL("https://github.com/a.git")).save(on: app.db)
 
         // MUT
-        try await collection.reconcile(on: app.db, packageURLs: [URL("A")])
+        try await collection.reconcile(on: app.db, packageURLs: [URL("https://github.com/A.git")])
 
         do { // validate
-            // The package is not added to the custom collection, because it is not an
-            // exact match for the package URL.
-            // This is currently a limitation of the Fluent ~~ operator in the query
-            //   filter(\.$url ~~ urls.map(\.absoluteString))
+            // The package is added to the custom collection via case-insensitive match
             let count = try await CustomCollectionPackage.query(on: app.db).count()
-            XCTAssertEqual(count, 0)
+            XCTAssertEqual(count, 1)
             let collection = try await CustomCollection.find(.id0, on: app.db).unwrap()
             try await collection.$packages.load(on: app.db)
-            XCTAssertEqual(collection.packages.map(\.url), [])
+            XCTAssertEqual(collection.packages.map(\.url), ["https://github.com/a.git"])
         }
     }
 
