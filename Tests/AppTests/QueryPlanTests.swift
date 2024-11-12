@@ -113,6 +113,7 @@ struct QueryPlan: Equatable {
         Skip {
             OneOf {
                 "Append"
+                "Gather"
                 "Limit"
                 "Nested Loop"
                 "Sort"
