@@ -83,6 +83,11 @@ extension CustomCollection {
         if let collection = try await CustomCollection.query(on: database)
             .filter(\.$key == details.key)
             .first() {
+            if collection.details != details {
+                // Update the collection if any of the details have changed
+                collection.details = details
+                try await collection.update(on: database)
+            }
             return collection
         } else {
             let collection = CustomCollection(details)
@@ -106,7 +111,20 @@ extension CustomCollection {
     }
 
     var details: Details {
-        .init(key: key, name: name, description: description, badge: badge, url: url)
+        get {
+            .init(key: key,
+                  name: name,
+                  description: description,
+                  badge: badge,
+                  url: url)
+        }
+        set {
+            key = newValue.key
+            name = newValue.name
+            description = newValue.description
+            badge = newValue.badge
+            url = newValue.url
+        }
     }
 }
 

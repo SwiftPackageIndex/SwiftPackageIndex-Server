@@ -107,6 +107,23 @@ class CustomCollectionTests: AppTestCase {
             XCTAssertEqual(c.first?.name, "List")
             XCTAssertEqual(c.first?.url, "url")
         }
+
+        do { // a record is updated if data has changed
+             // MUT
+             let res = try await CustomCollection.findOrCreate(on: app.db, .init(key: "list",
+                                                                                 name: "New name",
+                                                                                 url: "new-url"))
+            // validate
+            XCTAssertEqual(res.key, "list")
+            XCTAssertEqual(res.name, "New name")
+            XCTAssertEqual(res.url, "new-url")
+
+            let c = try await CustomCollection.query(on: app.db).all()
+            XCTAssertEqual(c.count, 1)
+            XCTAssertEqual(c.first?.key, "list")
+            XCTAssertEqual(c.first?.name, "New name")
+            XCTAssertEqual(c.first?.url, "new-url")
+        }
     }
 
     func test_CustomCollectionPackage_attach() async throws {
