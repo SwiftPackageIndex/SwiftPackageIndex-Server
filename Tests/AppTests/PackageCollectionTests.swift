@@ -195,7 +195,9 @@ class PackageCollectionTests: AppTestCase {
                 .save(on: app.db)
             return pkg
         }
-        let collection = CustomCollection(id: .id2, .init(name: "List", url: "https://github.com/foo/bar/list.json"))
+        let collection = CustomCollection(id: .id2, .init(key: "list",
+                                                          name: "List",
+                                                          url: "https://github.com/foo/bar/list.json"))
         try await collection.save(on: app.db)
         try await collection.$packages.attach([packages[0], packages[1]], on: app.db)
 
