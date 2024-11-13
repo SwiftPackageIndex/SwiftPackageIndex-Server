@@ -114,7 +114,11 @@ enum HomeIndex {
         }
 
         override func navMenuItems() -> [NavMenuItem] {
-            [.supporters, .addPackage, .blog, .faq]
+            if Current.environment() == .production {
+                [.supporters, .addPackage, .blog, .faq]
+            } else {
+                [.supporters, .addPackage, .blog, .faq, .portal]
+            }
         }
     }
 }

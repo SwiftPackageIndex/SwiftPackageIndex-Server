@@ -125,6 +125,60 @@ func routes(_ app: Application) throws {
         app.post(SiteURL.validateSPIManifest.pathComponents, use: ValidateSPIManifestController.validate)
             .excludeFromOpenAPI()
     }
+    
+    let auth = app.routes.grouped([app.sessions.middleware, UserSessionAuthenticator()])
+    let redirect = auth.grouped(AuthenticatedUser.redirectMiddleware(path: SiteURL.login.relativeURL()))
+    
+    if Current.environment() != .production {
+        do {
+            redirect.get(SiteURL.portal.pathComponents, use: PortalController.show)
+                .excludeFromOpenAPI()
+        }
+        
+        do {
+            auth.get(SiteURL.login.pathComponents, use: LoginController.show)
+            auth.post(SiteURL.login.pathComponents, use: LoginController.login)
+                .excludeFromOpenAPI()
+        }
+        
+        do {
+            auth.get(SiteURL.signup.pathComponents, use: SignupController.show)
+                .excludeFromOpenAPI()
+            auth.post(SiteURL.signup.pathComponents, use: SignupController.signup)
+                .excludeFromOpenAPI()
+        }
+        
+        do {
+            auth.get(SiteURL.verify.pathComponents, use: VerifyController.show)
+                .excludeFromOpenAPI()
+            auth.post(SiteURL.verify.pathComponents, use: VerifyController.verify)
+                .excludeFromOpenAPI()
+        }
+        
+        do {
+            auth.post(SiteURL.logout.pathComponents, use: LogoutController.logout)
+                .excludeFromOpenAPI()
+        }
+        
+        do {
+            auth.post(SiteURL.deleteAccount.pathComponents, use: DeleteAccountController.deleteAccount)
+                .excludeFromOpenAPI()
+        }
+        
+        do {
+            app.get(SiteURL.forgotPassword.pathComponents, use: ForgotPasswordController.show)
+                .excludeFromOpenAPI()
+            app.post(SiteURL.forgotPassword.pathComponents, use: ForgotPasswordController.forgotPasswordEmail)
+                .excludeFromOpenAPI()
+        }
+        
+        do {
+            app.get(SiteURL.resetPassword.pathComponents, use: ResetController.show)
+                .excludeFromOpenAPI()
+            app.post(SiteURL.resetPassword.pathComponents, use: ResetController.resetPassword)
+                .excludeFromOpenAPI()
+        }
+    }
 
     // Ready for Swift 6
     app.get(SiteURL.readyForSwift6.pathComponents, use: ReadyForSwift6Controller.show)

@@ -113,26 +113,34 @@ enum SiteURL: Resourceable, Sendable {
     case blogPost(_ slug: Parameter<String>)
     case buildMonitor
     case builds(_ id: Parameter<UUID>)
+    case deleteAccount
     case docs(Docs)
     case faq
+    case forgotPassword
     case home
     case images(String)
     case javascripts(String)
     case keywords(_ keyword: Parameter<String>)
+    case login
+    case logout
     case package(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagePathComponents?)
     case packageCollection(_ owner: Parameter<String>)
     case packageCollections
+    case portal
     case privacy
     case readyForSwift6
+    case resetPassword
     case rssPackages
     case rssReleases
     case search
+    case signup
     case siteMapIndex
     case siteMapStaticPages
     case stylesheets(String)
     case supporters
     case tryInPlayground
     case validateSPIManifest
+    case verify
 
     var path: String {
         switch self {
@@ -168,12 +176,18 @@ enum SiteURL: Resourceable, Sendable {
 
             case .buildMonitor:
                 return "build-monitor"
+            
+            case .deleteAccount:
+                return "delete"
 
             case let .docs(next):
                 return "docs/\(next.path)"
 
             case .faq:
                 return "faq"
+            
+            case .forgotPassword:
+                return "forgot-password"
 
             case .home:
                 return ""
@@ -189,6 +203,12 @@ enum SiteURL: Resourceable, Sendable {
 
             case .keywords:
                 fatalError("invalid path: \(self)")
+            
+            case .login:
+                return "login"
+            
+            case .logout:
+                return "logout"
 
             case let .package(.value(owner), .value(repo), .none):
                 let owner = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? owner
@@ -209,12 +229,18 @@ enum SiteURL: Resourceable, Sendable {
 
             case .packageCollections:
                 return "package-collections"
+            
+            case .portal:
+                return "portal"
 
             case .privacy:
                 return "privacy"
 
             case .readyForSwift6:
                 return "ready-for-swift-6"
+            
+            case .resetPassword:
+                return "reset"
 
             case .rssPackages:
                 return "packages.rss"
@@ -224,6 +250,9 @@ enum SiteURL: Resourceable, Sendable {
 
             case .search:
                 return "search"
+            
+            case .signup:
+                return "signup"
 
             case .siteMapIndex:
                 return "sitemap.xml"
@@ -242,6 +271,9 @@ enum SiteURL: Resourceable, Sendable {
 
             case .validateSPIManifest:
                 return "validate-spi-manifest"
+            
+            case .verify:
+                return "verify"
         }
     }
 
@@ -250,19 +282,27 @@ enum SiteURL: Resourceable, Sendable {
             case .addAPackage,
                     .blog,
                     .buildMonitor,
+                    .deleteAccount,
                     .faq,
+                    .forgotPassword,
                     .home,
+                    .login,
+                    .logout,
                     .packageCollections,
+                    .portal,
                     .privacy,
                     .readyForSwift6,
+                    .resetPassword,
                     .rssPackages,
                     .rssReleases,
                     .search,
+                    .signup,
                     .siteMapIndex,
                     .siteMapStaticPages,
                     .supporters,
                     .tryInPlayground,
-                    .validateSPIManifest:
+                    .validateSPIManifest,
+                    .verify:
                 return [.init(stringLiteral: path)]
 
             case let .api(next):

@@ -316,7 +316,11 @@ class PublicPage {
     /// The items to be rendered in the site navigation menu.
     /// - Returns: An array of `NavMenuItem` items used in `header`.
     func navMenuItems() -> [NavMenuItem] {
-        [.supporters, .addPackage, .blog, .faq, .search]
+        if Current.environment() == .production {
+            return [.supporters, .addPackage, .blog, .faq, .search]
+        } else {
+            return [.supporters, .addPackage, .blog, .faq, .search, .portal]
+        }
     }
 
     func announcementBanner() -> Node<HTML.BodyContext> {

@@ -64,7 +64,11 @@ extension SearchShow {
         }
 
         override func navMenuItems() -> [NavMenuItem] {
-            [.supporters, .addPackage, .blog, .faq]
+            if Current.environment() == .production {
+                return [.supporters, .addPackage, .blog, .faq]
+            } else {
+                return [.supporters, .addPackage, .blog, .faq, .portal]
+            }
         }
 
         func resultsSection() -> Node<HTML.BodyContext> {

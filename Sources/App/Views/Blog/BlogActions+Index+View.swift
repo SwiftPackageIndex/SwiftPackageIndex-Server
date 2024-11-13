@@ -108,7 +108,11 @@ extension BlogActions {
             }
 
             override func navMenuItems() -> [NavMenuItem] {
-                [.supporters, .searchLink, .addPackage, .faq]
+                if Current.environment() == .production {
+                    return [.supporters, .searchLink, .addPackage, .faq]
+                } else {
+                    return [.supporters, .searchLink, .addPackage, .faq, .portal]
+                }
             }
         }
 
