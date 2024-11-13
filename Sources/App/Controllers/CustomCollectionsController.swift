@@ -60,9 +60,7 @@ enum CustomCollectionsController {
             throw Abort(.notFound)
         }
         let query = try req.query.decode(Query.self)
-        let collection = try await CustomCollection.query(on: req.db)
-            .filter(\.$key == key)
-            .first()
+        let collection = try await CustomCollection.find(on: req.db, key: key)
             .unwrap(or: Abort(.notFound))
         let page = try await Self.query(on: req.db, key: key, page: query.page, pageSize: query.pageSize)
 

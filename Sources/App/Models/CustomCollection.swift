@@ -79,10 +79,14 @@ extension CustomCollection {
         var url: URL
     }
 
+    static func find(on database: Database, key: String) async throws -> CustomCollection? {
+        try await CustomCollection.query(on: database)
+            .filter(\.$key == key)
+            .first()
+    }
+
     static func findOrCreate(on database: Database, _ details: Details) async throws -> CustomCollection {
-        if let collection = try await CustomCollection.query(on: database)
-            .filter(\.$key == details.key)
-            .first() {
+        if let collection = try await CustomCollection.find(on: database, key: details.key) {
             if collection.details != details {
                 // Update the collection if any of the details have changed
                 collection.details = details

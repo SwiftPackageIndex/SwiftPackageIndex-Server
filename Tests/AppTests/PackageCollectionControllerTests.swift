@@ -122,7 +122,7 @@ class PackageCollectionControllerTests: AppTestCase {
             let encoder = self.encoder
             try await app.test(
                 .GET,
-                "collections/Custom%20Collection/collection.json",
+                "collections/custom-collection/collection.json",
                 afterResponse: { @MainActor res async throws in
                     // validation
                     XCTAssertEqual(res.status, .ok)
