@@ -404,7 +404,7 @@ extension API.PackageController.GetRoute.Model {
             .class("custom-collections"),
             .forEach(customCollections, { collection in
                     .a(
-                        .href(SiteURL.collections(.value(collection.name)).relativeURL()),
+                        .href(SiteURL.collections(.value(collection.key)).relativeURL()),
                         .text("\(collection.name)")
                     )
             })
