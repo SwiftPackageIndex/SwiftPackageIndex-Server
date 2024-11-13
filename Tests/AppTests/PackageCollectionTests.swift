@@ -203,7 +203,7 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         let res = try await VersionResult.query(on: self.app.db,
-                                                filterBy: .customCollection("List"))
+                                                filterBy: .customCollection("list"))
 
         // validate selection (relationship loading is tested in test_query_filter_urls)
         XCTAssertEqual(res.map(\.version.packageName),
