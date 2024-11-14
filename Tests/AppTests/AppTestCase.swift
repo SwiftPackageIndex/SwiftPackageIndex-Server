@@ -14,6 +14,7 @@
 
 @testable import App
 
+import Dependencies
 import NIOConcurrencyHelpers
 import PostgresNIO
 import SQLKit
@@ -35,8 +36,16 @@ class AppTestCase: XCTestCase {
     }
 
     func setup(_ environment: Environment) async throws -> Application {
-        try await Self.setupDb(environment)
-        return try await Self.setupApp(environment)
+        try await withDependencies {
+            // Setting builderToken here when it's also set in all tests may seem redundant but it's
+            // what allows test_post_buildReport_large to work.
+            // See https://github.com/pointfreeco/swift-dependencies/discussions/300#discussioncomment-11252906
+            // for details.
+            $0.environment.builderToken = { "secr3t" }
+        } operation: {
+            try await Self.setupDb(environment)
+            return try await Self.setupApp(environment)
+        }
     }
 
     override func tearDown() async throws {

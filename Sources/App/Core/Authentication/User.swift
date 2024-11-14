@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Authentication
+import Dependencies
 import JWTKit
 import Vapor
 import VaporToOpenAPI
@@ -54,9 +55,10 @@ extension User {
     static var builder: Self { .init(name: "builder", identifier: "builder") }
 
     struct BuilderAuthenticator: AsyncBearerAuthenticator {
+        @Dependency(\.environment) var environment
+
         func authenticate(bearer: BearerAuthorization, for request: Request) async throws {
-            if let builderToken = Current.builderToken(),
-               bearer.token == builderToken {
+            if let token = environment.builderToken(), bearer.token == token {
                 request.auth.login(User.builder)
             }
         }

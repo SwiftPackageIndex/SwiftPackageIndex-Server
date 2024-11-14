@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Vapor
 
 
@@ -76,13 +77,15 @@ extension Gitlab.Builder {
                              reference: Reference,
                              swiftVersion: SwiftVersion,
                              versionID: Version.Id) async throws -> Build.TriggerResponse {
+        @Dependency(\.environment) var environment
+
         guard let pipelineToken = Current.gitlabPipelineToken(),
-              let builderToken = Current.builderToken()
+              let builderToken = environment.builderToken()
         else { throw Gitlab.Error.missingToken }
         guard let awsDocsBucket = Current.awsDocsBucket() else {
             throw Gitlab.Error.missingConfiguration("AWS_DOCS_BUCKET")
         }
-        let timeout = Current.buildTimeout() + (isDocBuild ? 5 : 0)
+        let timeout = environment.buildTimeout() + (isDocBuild ? 5 : 0)
 
         let uri: URI = .init(string: "\(projectURL)/trigger/pipeline")
         let response = try await client
