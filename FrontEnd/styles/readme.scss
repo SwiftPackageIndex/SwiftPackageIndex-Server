@@ -138,6 +138,30 @@
     .markdown-alert-caution {
         color: var(--mid-red);
     }
+
+    .mermaid-chart {
+        display: flex;
+        justify-content: center;
+        padding: 30px 0;
+    }
+
+    section[data-type='mermaid'] {
+        pre {
+            display: none;
+        }
+
+        @media (prefers-color-scheme: light) {
+            [id^='mermaid-chart-dark'] {
+                display: none;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            [id^='mermaid-chart-light'] {
+                display: none;
+            }
+        }
+    }
 }
 
 g-emoji {

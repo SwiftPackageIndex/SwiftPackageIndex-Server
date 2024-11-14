@@ -16,60 +16,44 @@ import { Controller } from '@hotwired/stimulus'
 import mermaid from 'mermaid'
 
 export class ReadmeController extends Controller {
-    onThemeChange(darkMode) {
-        // If `darkMode` isn't passed, get the current value
-        if (darkMode == undefined) {
-            darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
-            console.log('actually dark mode is', darkMode)
-        }
-
-        // Get all mermaid diagrams
-        const mermaidDivs = document.querySelectorAll('pre[lang="mermaid"]')
-
-        for (const div of Array.from(mermaidDivs)) {
-            // Get the diagram code
-            const json = div.parentElement.parentElement.getAttribute('data-json')
-            if (!json) {
-                continue
-            }
-            const diagramCode = JSON.parse(json).data
-            if (diagramCode) {
-                try {
-                    // Clear the existing diagram
-                    div.innerHTML = diagramCode
-                    div.removeAttribute('data-processed')
-                } catch (error) {
-                    console.error('Error re-rendering mermaid diagram:', error)
-                }
-            }
-        }
-
-        mermaid.initialize({
-            theme: darkMode ? 'dark' : undefined,
-            nodeSpacing: 50,
-            rankSpacing: 50,
-            curve: 'basis',
-        })
-
-        // Rather then preprocess the HTML in Swift we just change the selector to use `lang` attribute instead of `class`
-        mermaid.run({
-            querySelector: 'pre[lang="mermaid"]',
-        })
+    frameLoaded() {
+        this.navigateToAnchorFromLocation()
+        this.renderMermaidDiagrams()
     }
-    navigateToAnchorFromLocation() {
-        // listen for changes to color scheme
-        if (typeof window !== 'undefined') {
-            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
-            // Add listener for system preference changes
-            mediaQuery.addEventListener('change', (e) => {
-                this.onThemeChange(e.matches)
-            })
+    async renderMermaidDiagrams() {
+        // Replace all Mermaid chart sources with rendered diagrams.
+        const mermaidSectionElements = document.querySelectorAll('section[data-type="mermaid"]')
+        for (const [index, mermaidSectionElement] of Array.from(mermaidSectionElements).entries()) {
+            // No need to parse the JSON, the chart source is in a `data-plain` attribute.
+            const mermaidDataElement = mermaidSectionElement.querySelector('[data-plain]')
+            if (!mermaidDataElement) continue
+            const chartDefinition = mermaidDataElement.getAttribute('data-plain')
+            if (!chartDefinition) continue
+
+            // Make a container with *both* light and dark charts.
+            const chartContainer = document.createElement('div')
+            chartContainer.classList.add('mermaid-chart')
+            mermaidDataElement.appendChild(chartContainer)
+
+            // The documentation says not to call `initialize` more than once, but it is the
+            // only way to switch themes and it's the only way to get this working.
+            mermaid.initialize({ theme: 'default', nodeSpacing: 50, rankSpacing: 50, curve: 'basis' })
+            const lightRenderResult = await mermaid.render(`mermaid-chart-light-${index}`, chartDefinition)
+            chartContainer.insertAdjacentHTML('beforeend', lightRenderResult.svg)
+
+            mermaid.initialize({ theme: 'dark', nodeSpacing: 50, rankSpacing: 50, curve: 'basis' })
+            const darkRenderResult = await mermaid.render(`mermaid-chart-dark-${index}`, chartDefinition)
+            chartContainer.insertAdjacentHTML('beforeend', darkRenderResult.svg)
+
+            // Clean up the superfluous loading element.
+            const loadingElement = mermaidSectionElement.querySelector('.js-render-enrichment-loader')
+            if (!loadingElement) continue
+            loadingElement.remove()
         }
+    }
 
-        // setup mermaid diagrams
-        this.onThemeChange()
-
+    navigateToAnchorFromLocation() {
         // If the browser has an anchor in the URL that may be inside the README then
         // we should attempt to scroll it into view once the README is loaded.
         const hash = window.location.hash
