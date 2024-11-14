@@ -112,7 +112,9 @@ class PackageCollectionControllerTests: AppTestCase {
                                  licenseUrl: "https://foo/mit",
                                  owner: "foo",
                                  summary: "summary 1").create(on: app.db)
-            let collection = CustomCollection(id: .id2, .init(name: "Custom Collection", url: "https://github.com/foo/bar/list.json"))
+            let collection = CustomCollection(id: .id2, .init(key: "custom-collection",
+                                                              name: "Custom Collection",
+                                                              url: "https://github.com/foo/bar/list.json"))
             try await collection.save(on: app.db)
             try await collection.$packages.attach(p, on: app.db)
 
@@ -120,7 +122,7 @@ class PackageCollectionControllerTests: AppTestCase {
             let encoder = self.encoder
             try await app.test(
                 .GET,
-                "collections/Custom%20Collection/collection.json",
+                "collections/custom-collection/collection.json",
                 afterResponse: { @MainActor res async throws in
                     // validation
                     XCTAssertEqual(res.status, .ok)

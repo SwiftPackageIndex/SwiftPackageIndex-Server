@@ -28,6 +28,9 @@ extension CustomCollectionShow.Model {
             stars: 4,
             lastActivityAt: .t0
         ) }
-        return .init(name: "Some Collection", packages: packages, page: 1, hasMoreResults: false)
+        return .init(key: "custom-collection",
+                     name: "Custom Collection",
+                     packages: packages, page: 1,
+                     hasMoreResults: false)
     }
 }

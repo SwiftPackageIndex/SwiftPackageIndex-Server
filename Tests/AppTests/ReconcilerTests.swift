@@ -143,7 +143,7 @@ class ReconcilerTests: AppTestCase {
             try await reconcileCustomCollection(client: app.client,
                                                 database: app.db,
                                                 fullPackageList: fullPackageList,
-                                                .init(name: "List", url: "url"))
+                                                .init(key: "list", name: "List", url: "url"))
 
             // validate
             let count = try await CustomCollection.query(on: app.db).count()
@@ -161,7 +161,7 @@ class ReconcilerTests: AppTestCase {
             try await reconcileCustomCollection(client: app.client,
                                                 database: app.db,
                                                 fullPackageList: fullPackageList,
-                                                .init(name: "List", url: "url"))
+                                                .init(key: "list", name: "List", url: "url"))
 
             // validate
             let count = try await CustomCollection.query(on: app.db).count()
@@ -181,7 +181,7 @@ class ReconcilerTests: AppTestCase {
             try await reconcileCustomCollection(client: app.client,
                                                 database: app.db,
                                                 fullPackageList: fullPackageList,
-                                                .init(name: "List", url: "url"))
+                                                .init(key: "list", name: "List", url: "url"))
 
             // validate
             let count = try await CustomCollection.query(on: app.db).count()
@@ -207,7 +207,7 @@ class ReconcilerTests: AppTestCase {
             try await reconcileCustomCollection(client: app.client,
                                                 database: app.db,
                                                 fullPackageList: fullPackageList,
-                                                .init(name: "List", url: "url"))
+                                                .init(key: "list", name: "List", url: "url"))
 
             // validate
             let collection = try await CustomCollection.query(on: app.db).first().unwrap()
@@ -233,7 +233,7 @@ class ReconcilerTests: AppTestCase {
                 }
             }
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in
-                [.init(name: "List", url: "collectionURL")]
+                [.init(key: "list", name: "List", url: "collectionURL")]
             }
         } operation: {
             // MUT

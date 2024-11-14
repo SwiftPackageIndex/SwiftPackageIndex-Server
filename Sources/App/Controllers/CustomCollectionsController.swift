@@ -19,7 +19,7 @@ import Vapor
 
 enum CustomCollectionsController {
 
-    static func query(on database: Database, name: String, page: Int, pageSize: Int) async throws -> Page<Joined3<Package, Repository, Version>> {
+    static func query(on database: Database, key: String, page: Int, pageSize: Int) async throws -> Page<Joined3<Package, Repository, Version>> {
         try await Joined3<Package, Repository, Version>
             .query(on: database, version: .defaultBranch)
             .join(CustomCollectionPackage.self, on: \Package.$id == \CustomCollectionPackage.$package.$id)
@@ -30,7 +30,7 @@ enum CustomCollectionsController {
             .field(Repository.self, \.$stars)
             .field(Repository.self, \.$summary)
             .field(Version.self, \.$packageName)
-            .filter(CustomCollection.self, \.$name == name)
+            .filter(CustomCollection.self, \.$key == key)
             .sort(Repository.self, \.$name)
             .page(page, size: pageSize)
     }
@@ -56,11 +56,13 @@ enum CustomCollectionsController {
 
     @Sendable
     static func show(req: Request) async throws -> HTML {
-        guard let name = req.parameters.get("name") else {
+        guard let key = req.parameters.get("key") else {
             throw Abort(.notFound)
         }
         let query = try req.query.decode(Query.self)
-        let page = try await Self.query(on: req.db, name: name, page: query.page, pageSize: query.pageSize)
+        let collection = try await CustomCollection.find(on: req.db, key: key)
+            .unwrap(or: Abort(.notFound))
+        let page = try await Self.query(on: req.db, key: key, page: query.page, pageSize: query.pageSize)
 
         guard !page.results.isEmpty else {
             throw Abort(.notFound)
@@ -69,7 +71,8 @@ enum CustomCollectionsController {
         let packageInfo = page.results.compactMap(PackageInfo.init(package:))
 
         let model = CustomCollectionShow.Model(
-            name: name,
+            key: collection.key,
+            name: collection.name,
             packages: packageInfo,
             page: query.page,
             hasMoreResults: page.hasMoreResults

@@ -35,6 +35,9 @@ final class CustomCollection: @unchecked Sendable, Model, Content {
 
     // data fields
 
+    @Field(key: "key")
+    var key: String
+
     @Field(key: "name")
     var name: String
 
@@ -58,6 +61,7 @@ final class CustomCollection: @unchecked Sendable, Model, Content {
         self.id = id
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.key = details.key
         self.name = details.name
         self.description = details.description
         self.badge = details.badge
@@ -68,16 +72,26 @@ final class CustomCollection: @unchecked Sendable, Model, Content {
 
 extension CustomCollection {
     struct Details: Codable, Equatable {
+        var key: String
         var name: String
         var description: String?
         var badge: String?
         var url: URL
     }
 
+    static func find(on database: Database, key: String) async throws -> CustomCollection? {
+        try await CustomCollection.query(on: database)
+            .filter(\.$key == key)
+            .first()
+    }
+
     static func findOrCreate(on database: Database, _ details: Details) async throws -> CustomCollection {
-        if let collection = try await CustomCollection.query(on: database)
-            .filter(\.$url == details.url)
-            .first() {
+        if let collection = try await CustomCollection.find(on: database, key: details.key) {
+            if collection.details != details {
+                // Update the collection if any of the details have changed
+                collection.details = details
+                try await collection.update(on: database)
+            }
             return collection
         } else {
             let collection = CustomCollection(details)
@@ -101,7 +115,20 @@ extension CustomCollection {
     }
 
     var details: Details {
-        .init(name: name, description: description, badge: badge, url: url)
+        get {
+            .init(key: key,
+                  name: name,
+                  description: description,
+                  badge: badge,
+                  url: url)
+        }
+        set {
+            key = newValue.key
+            name = newValue.name
+            description = newValue.description
+            badge = newValue.badge
+            url = newValue.url
+        }
     }
 }
 

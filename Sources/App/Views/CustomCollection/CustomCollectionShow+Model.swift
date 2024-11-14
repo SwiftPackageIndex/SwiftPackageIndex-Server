@@ -14,15 +14,18 @@
 
 extension CustomCollectionShow {
     struct Model {
+        var key: String
         var name: String
         var packages: [PackageInfo]
         var page: Int
         var hasMoreResults: Bool
 
-        internal init(name: String,
+        internal init(key: String,
+                      name: String,
                       packages: [PackageInfo],
                       page: Int,
                       hasMoreResults: Bool) {
+            self.key = key
             self.name = name
             self.packages = packages
             self.page = page

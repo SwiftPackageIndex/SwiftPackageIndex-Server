@@ -58,7 +58,7 @@ enum CustomCollectionShow {
                 ),
                 .copyableInputForm(buttonName: "Copy Package Collection URL",
                                    eventName: "Copy Package Collection URL Button",
-                                   valueToCopy: SiteURL.packageCollectionCustom(.value(model.name)).absoluteURL()),
+                                   valueToCopy: SiteURL.packageCollectionCustom(.value(model.key)).absoluteURL()),
                 .hr(.class("minor")),
                 .ul(
                     .id("package-list"),
