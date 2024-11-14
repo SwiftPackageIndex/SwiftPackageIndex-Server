@@ -27,7 +27,7 @@ enum CustomCollectionShow {
         }
 
         override func pageTitle() -> String? {
-            "Packages for collection \(model.name)"
+            "\(model.name) package collection"
         }
 
         override func pageDescription() -> String? {
@@ -46,7 +46,7 @@ enum CustomCollectionShow {
             .group(
                 .h2(
                     .class("trimmed"),
-                    .text("Packages for collection “\(model.name)”")
+                    .text("\(model.name) package collection")
                 ),
                 .p(
                     .text("These packages are available as a package collection, "),
