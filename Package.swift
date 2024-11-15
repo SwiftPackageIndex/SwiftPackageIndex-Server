@@ -39,9 +39,7 @@ let package = Package(
         .package(url: "https://github.com/swiftlang/swift-package-manager.git", branch: "release/5.10"),
         .package(url: "https://github.com/dankinsoid/VaporToOpenAPI.git", from: "4.4.4"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "1.0.0"),
-        // Pinned because 1.5.0 fails to build on Linux/Swift 6
-        // https://github.com/pointfreeco/swift-dependencies/issues/302
-        .package(url: "https://github.com/pointfreeco/swift-dependencies", exact: "1.5.2"),
+        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.5.2"),
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.11.1"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
