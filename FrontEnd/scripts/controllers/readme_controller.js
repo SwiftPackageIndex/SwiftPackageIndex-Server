@@ -36,8 +36,8 @@ export class ReadmeController extends Controller {
             chartContainer.classList.add('mermaid-chart')
             mermaidDataElement.appendChild(chartContainer)
 
-            // The documentation says not to call `initialize` more than once, but it is the
-            // only way to switch themes and it's the only way to get this working.
+            // The documentation says not to call `initialize` more than once. That said, it's
+            // the only way to switch themes and therefore the only way to get this working.
             mermaid.initialize({ theme: 'default', nodeSpacing: 50, rankSpacing: 50, curve: 'basis' })
             const lightRenderResult = await mermaid.render(`mermaid-chart-light-${index}`, chartDefinition)
             chartContainer.insertAdjacentHTML('beforeend', lightRenderResult.svg)
@@ -45,11 +45,6 @@ export class ReadmeController extends Controller {
             mermaid.initialize({ theme: 'dark', nodeSpacing: 50, rankSpacing: 50, curve: 'basis' })
             const darkRenderResult = await mermaid.render(`mermaid-chart-dark-${index}`, chartDefinition)
             chartContainer.insertAdjacentHTML('beforeend', darkRenderResult.svg)
-
-            // Clean up the superfluous loading element.
-            const loadingElement = mermaidSectionElement.querySelector('.js-render-enrichment-loader')
-            if (!loadingElement) continue
-            loadingElement.remove()
         }
     }
 

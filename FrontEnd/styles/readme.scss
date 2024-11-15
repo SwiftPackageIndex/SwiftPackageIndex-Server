@@ -146,7 +146,8 @@
     }
 
     section[data-type='mermaid'] {
-        pre {
+        pre,
+        .js-render-enrichment-loader {
             display: none;
         }
 
