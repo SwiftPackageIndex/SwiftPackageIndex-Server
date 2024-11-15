@@ -193,3 +193,8 @@
   summary: We are thrilled to announce that Amazon is joining Apple as a supporter of the Swift Package Index by providing infrastructure support.
   published_at: 2024-10-28
   published: true
+- slug: introducing-custom-package-collections
+  title: Introducing custom package collections
+  summary: We've added support for custom package collections to allow well-known community efforts to present package collections.
+  published_at: 2024-11-22
+  published: false
