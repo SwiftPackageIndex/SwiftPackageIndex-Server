@@ -8,7 +8,7 @@ import SotoCognitoIdentity
 enum ForgotPasswordController {
     @Sendable
     static func show(req: Request) async throws -> HTML {
-        return ForgotPassword.View(path: req.url.path).document()
+        return ForgotPassword.View(path: req.url.path, model: ForgotPassword.Model()).document()
     }
     
     @Sendable
@@ -21,8 +21,7 @@ enum ForgotPasswordController {
             try await req.application.cognito.authenticatable.forgotPassword(username: user.email)
             return Reset.View(path: SiteURL.resetPassword.relativeURL(), model: Reset.Model(email: user.email)).document()
         } catch {
-            // TODO: handle this
-            return Reset.View(path: SiteURL.resetPassword.relativeURL(), model: Reset.Model(email: user.email)).document()
+            return ForgotPassword.View(path: req.url.path, model: ForgotPassword.Model(errorMessage: "There was an error. Please try again.")).document()
         }
     }
 }
