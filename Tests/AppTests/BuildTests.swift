@@ -130,6 +130,7 @@ class BuildTests: AppTestCase {
 
     func test_trigger() async throws {
         try await withDependencies {
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
@@ -197,6 +198,7 @@ class BuildTests: AppTestCase {
 
     func test_trigger_isDocBuild() async throws {
         try await withDependencies {
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {

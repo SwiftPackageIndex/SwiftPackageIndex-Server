@@ -23,6 +23,10 @@ struct EnvironmentClient {
     // regarding the use of XCTFail here.
     var allowBuildTriggers: @Sendable () -> Bool = { XCTFail(#function); return true }
     var allowSocialPosts: @Sendable () -> Bool = { XCTFail(#function); return true }
+    var awsAccessKeyId: @Sendable () -> String?
+    var awsDocsBucket: @Sendable () -> String?
+    var awsReadmeBucket: @Sendable () -> String?
+    var awsSecretAccessKey: @Sendable () -> String?
     var builderToken: @Sendable () -> String?
     var buildTimeout: @Sendable () -> Int = { XCTFail(#function); return 10 }
     // We're not defaulting current to XCTFail, because its use is too pervasive and would require the vast
@@ -47,6 +51,10 @@ extension EnvironmentClient: DependencyKey {
                     .flatMap(\.asBool)
                     ?? Constants.defaultAllowSocialPosts
             },
+            awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },
+            awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
+            awsReadmeBucket: { Environment.get("AWS_README_BUCKET") },
+            awsSecretAccessKey: { Environment.get("AWS_SECRET_ACCESS_KEY") },
             builderToken: { Environment.get("BUILDER_TOKEN") },
             buildTimeout: { Environment.get("BUILD_TIMEOUT").flatMap(Int.init) ?? 10 },
             current: { (try? Environment.detect()) ?? .development },

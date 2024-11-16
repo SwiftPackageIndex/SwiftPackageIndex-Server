@@ -14,41 +14,50 @@
 
 @testable import App
 
+import Dependencies
 import XCTVapor
 
 
 final class RoutesTests: AppTestCase {
 
     func test_documentation_images() async throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: uri.path))
-        }
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                    .init(status: .ok, body: .init(string: uri.path))
+            }
 
-        // MUT
-        try await app.test(.GET, "foo/bar/1.2.3/images/baz.png") { res async in
-            // validation
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual(res.body.asString(), "/foo/bar/1.2.3/images/baz.png")
-        }
-        try await app.test(.GET, "foo/bar/1.2.3/images/BAZ.png") { res async in
-            // validation
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual(res.body.asString(), "/foo/bar/1.2.3/images/BAZ.png")
+            // MUT
+            try await app.test(.GET, "foo/bar/1.2.3/images/baz.png") { res async in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
+                XCTAssertEqual(res.body.asString(), "/foo/bar/1.2.3/images/baz.png")
+            }
+            try await app.test(.GET, "foo/bar/1.2.3/images/BAZ.png") { res async in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
+                XCTAssertEqual(res.body.asString(), "/foo/bar/1.2.3/images/BAZ.png")
+            }
         }
     }
 
     func test_documentation_img() async throws {
-        // setup
-        Current.fetchDocumentation = { _, _ in .init(status: .ok) }
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, _ in .init(status: .ok) }
 
-        // MUT
-        try await app.test(.GET, "foo/bar/1.2.3/img/baz.png") { res async in
-            // validation
-            XCTAssertEqual(res.status, .ok)
+            // MUT
+            try await app.test(.GET, "foo/bar/1.2.3/img/baz.png") { res async in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+            }
         }
     }
 

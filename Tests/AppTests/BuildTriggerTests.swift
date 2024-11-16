@@ -329,6 +329,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuildsUnchecked() async throws {
         try await withDependencies {
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
@@ -390,6 +391,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuildsUnchecked_supported() async throws {
         try await withDependencies {
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
@@ -470,6 +472,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuildsUnchecked_build_exists() async throws {
         try await withDependencies {
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
@@ -550,6 +553,7 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_checked() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
@@ -662,6 +666,7 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_multiplePackages() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
@@ -712,6 +717,7 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_trimming() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
         } operation: {
             // Ensure we trim builds as part of triggering
@@ -747,6 +753,7 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_error() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
@@ -843,6 +850,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_override_switch() async throws {
         try await withDependencies {
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
@@ -917,6 +925,7 @@ class BuildTriggerTests: AppTestCase {
     func test_downscaling() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
@@ -990,6 +999,7 @@ class BuildTriggerTests: AppTestCase {
     func test_downscaling_allow_list_override() async throws {
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
+            $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {

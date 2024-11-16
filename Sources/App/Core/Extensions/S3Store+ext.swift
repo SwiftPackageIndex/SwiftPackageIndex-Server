@@ -14,6 +14,7 @@
 
 import S3Store
 import Vapor
+import Dependencies
 
 
 extension S3Store {
@@ -27,8 +28,9 @@ extension S3Store {
     }
 
     static func storeReadme(owner: String, repository: String, readme: String) async throws -> String {
-        guard let accessKeyId = Current.awsAccessKeyId(),
-              let secretAccessKey = Current.awsSecretAccessKey()
+        @Dependency(\.environment) var environment
+        guard let accessKeyId = environment.awsAccessKeyId(),
+              let secretAccessKey = environment.awsSecretAccessKey()
         else {
             throw Error.genericError("missing AWS credentials")
         }
@@ -42,8 +44,9 @@ extension S3Store {
     }
 
     static func storeReadmeImages(client: Client, imagesToCache: [Github.Readme.ImageToCache]) async throws {
-        guard let accessKeyId = Current.awsAccessKeyId(),
-              let secretAccessKey = Current.awsSecretAccessKey()
+        @Dependency(\.environment) var environment
+        guard let accessKeyId = environment.awsAccessKeyId(),
+              let secretAccessKey = environment.awsSecretAccessKey()
         else {
             throw Error.genericError("missing AWS credentials")
         }
@@ -63,7 +66,8 @@ extension S3Store {
 
 extension S3Store.Key {
     static func readme(owner: String, repository: String, imageUrl: String? = nil) throws -> Self {
-        guard let bucket = Current.awsReadmeBucket() else {
+        @Dependency(\.environment) var environment
+        guard let bucket = environment.awsReadmeBucket() else {
             throw S3Store.Error.genericError("AWS_README_BUCKET not set")
         }
 

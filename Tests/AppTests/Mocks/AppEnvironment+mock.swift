@@ -24,10 +24,6 @@ extension AppEnvironment {
         .init(
             apiSigningKey: { nil },
             appVersion: { "test" },
-            awsAccessKeyId: { nil },
-            awsDocsBucket: { "awsDocsBucket" },
-            awsReadmeBucket: { "awsReadmeBucket" },
-            awsSecretAccessKey: { nil },
             buildTriggerAllowList: { [] },
             buildTriggerDownscaling: { 1.0 },
             buildTriggerLatestSwiftVersionDownscaling: { 1.0 },

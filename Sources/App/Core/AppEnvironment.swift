@@ -25,10 +25,6 @@ import FoundationNetworking
 struct AppEnvironment: Sendable {
     var apiSigningKey: @Sendable () -> String?
     var appVersion: @Sendable () -> String?
-    var awsAccessKeyId: @Sendable () -> String?
-    var awsDocsBucket: @Sendable () -> String?
-    var awsReadmeBucket: @Sendable () -> String?
-    var awsSecretAccessKey: @Sendable () -> String?
     var buildTriggerAllowList: @Sendable () -> [Package.Id]
     var buildTriggerDownscaling: @Sendable () -> Double
     var buildTriggerLatestSwiftVersionDownscaling: @Sendable () -> Double
@@ -106,10 +102,6 @@ extension AppEnvironment {
     static let live = AppEnvironment(
         apiSigningKey: { Environment.get("API_SIGNING_KEY") },
         appVersion: { App.appVersion },
-        awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },
-        awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
-        awsReadmeBucket: { Environment.get("AWS_README_BUCKET") },
-        awsSecretAccessKey: { Environment.get("AWS_SECRET_ACCESS_KEY") },
         buildTriggerAllowList: {
             Environment.get("BUILD_TRIGGER_ALLOW_LIST")
                 .map { Data($0.utf8) }
