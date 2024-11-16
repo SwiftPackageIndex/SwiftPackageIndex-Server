@@ -453,23 +453,27 @@ class PackageController_routesTests: SnapshotTestCase {
     }
 
     func test_documentation_routes_contentType() async throws {
-        try await app.test(.GET, "/owner/package/main/images/foo/bar.jpeg") { res async in
-            XCTAssertEqual(res.headers.contentType, .init(type: "application", subType: "octet-stream"))
-        }
-        try await app.test(.GET, "/owner/package/main/images/foo/bar.svg") { res async in
-            XCTAssertEqual(res.headers.contentType, .init(type: "image", subType: "svg+xml"))
-        }
-        try await app.test(.GET, "/owner/package/main/images/foo/bar.SVG") { res async in
-            XCTAssertEqual(res.headers.contentType, .init(type: "image", subType: "svg+xml"))
-        }
-        try await app.test(.GET, "/owner/package/main/img/foo/bar.jpeg") { res async in
-            XCTAssertEqual(res.headers.contentType, .init(type: "application", subType: "octet-stream"))
-        }
-        try await app.test(.GET, "/owner/package/main/img/foo/bar.svg") { res async in
-            XCTAssertEqual(res.headers.contentType, .init(type: "image", subType: "svg+xml"))
-        }
-        try await app.test(.GET, "/owner/package/main/img/foo/bar.SVG") { res async in
-            XCTAssertEqual(res.headers.contentType, .init(type: "image", subType: "svg+xml"))
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            try await app.test(.GET, "/owner/package/main/images/foo/bar.jpeg") { res async in
+                XCTAssertEqual(res.headers.contentType, .init(type: "application", subType: "octet-stream"))
+            }
+            try await app.test(.GET, "/owner/package/main/images/foo/bar.svg") { res async in
+                XCTAssertEqual(res.headers.contentType, .init(type: "image", subType: "svg+xml"))
+            }
+            try await app.test(.GET, "/owner/package/main/images/foo/bar.SVG") { res async in
+                XCTAssertEqual(res.headers.contentType, .init(type: "image", subType: "svg+xml"))
+            }
+            try await app.test(.GET, "/owner/package/main/img/foo/bar.jpeg") { res async in
+                XCTAssertEqual(res.headers.contentType, .init(type: "application", subType: "octet-stream"))
+            }
+            try await app.test(.GET, "/owner/package/main/img/foo/bar.svg") { res async in
+                XCTAssertEqual(res.headers.contentType, .init(type: "image", subType: "svg+xml"))
+            }
+            try await app.test(.GET, "/owner/package/main/img/foo/bar.SVG") { res async in
+                XCTAssertEqual(res.headers.contentType, .init(type: "image", subType: "svg+xml"))
+            }
         }
     }
 
@@ -532,263 +536,279 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_routes_current() async throws {
         // Test the current (~) documentation routes:
         //   /owner/package/documentation/~ + various path elements
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .defaultBranch,
+                              packageName: "pkg",
+                              reference: .branch("main"))
             .save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "0123456789",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .defaultBranch,
-                          packageName: "pkg",
-                          reference: .branch("main"))
+            try await Version(package: pkg,
+                              commit: "9876543210",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .release,
+                              packageName: "pkg",
+                              reference: .tag(1, 0, 0))
             .save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "9876543210",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .release,
-                          packageName: "pkg",
-                          reference: .tag(1, 0, 0))
-            .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
+            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
-        // MUT
+            // MUT
 
-        // test partially qualified route (no archive)
-        try await app.test(.GET, "/owner/package/~/documentation") { @Sendable res async in
-            XCTAssertEqual(res.status, .seeOther)
-            XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/target")
-        }
+            // test partially qualified route (no archive)
+            try await app.test(.GET, "/owner/package/~/documentation") { @Sendable res async in
+                XCTAssertEqual(res.status, .seeOther)
+                XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/target")
+            }
 
-        // test fully qualified route
-        try await app.test(.GET, "/owner/package/~/documentation/target") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "index")
-            // Call out a couple of specific snippets in the html
-            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
-            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
-        }
+            // test fully qualified route
+            try await app.test(.GET, "/owner/package/~/documentation/target") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "index")
+                // Call out a couple of specific snippets in the html
+                XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
+                XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+                XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+            }
 
-        // test catchall
-        try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "index")
-            // Call out a couple of specific snippets in the html
-            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
-            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-            XCTAssertFalse(body.contains(#"a/b#anchor"#))
-            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
-        }
+            // test catchall
+            try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "index")
+                // Call out a couple of specific snippets in the html
+                XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
+                XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+                XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+                XCTAssertFalse(body.contains(#"a/b#anchor"#))
+                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+            }
 
-        // Test case insensitive path.
-        try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "index-mixed-case")
-            // Call out a couple of specific snippets in the html
-            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
-            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-            XCTAssertFalse(body.contains(#"a/b#anchor"#))
-            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+            // Test case insensitive path.
+            try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "index-mixed-case")
+                // Call out a couple of specific snippets in the html
+                XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
+                XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+                XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+                XCTAssertFalse(body.contains(#"a/b#anchor"#))
+                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+            }
         }
     }
 
     func test_documentation_routes_current_rewrite() async throws {
         // Test the current (~) documentation routes with baseURL rewriting:
         //   /owner/package/documentation/~ + various path elements
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .defaultBranch,
+                              packageName: "pkg",
+                              reference: .branch("main"))
             .save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "0123456789",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .defaultBranch,
-                          packageName: "pkg",
-                          reference: .branch("main"))
+            try await Version(package: pkg,
+                              commit: "9876543210",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .release,
+                              packageName: "pkg",
+                              reference: .tag(1, 0, 0))
             .save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "9876543210",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .release,
-                          packageName: "pkg",
-                          reference: .tag(1, 0, 0))
-            .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
+            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
 
-        // MUT
+            // MUT
 
-        // test fully qualified route
-        try await app.test(.GET, "/owner/package/~/documentation/target") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "index")
-            // Call out a couple of specific snippets in the html
-            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
-            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
-        }
+            // test fully qualified route
+            try await app.test(.GET, "/owner/package/~/documentation/target") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "index")
+                // Call out a couple of specific snippets in the html
+                XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
+                XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+                XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+            }
 
-        // test catchall
-        try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "index")
-            // Call out a couple of specific snippets in the html
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
-            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-            XCTAssertFalse(body.contains(#"a/b#anchor"#))
-            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
-        }
+            // test catchall
+            try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "index")
+                // Call out a couple of specific snippets in the html
+                XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+                XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+                XCTAssertFalse(body.contains(#"a/b#anchor"#))
+                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+            }
 
-        // Test case insensitive path.
-        try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "index-mixed-case")
-            // Call out a couple of specific snippets in the html
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
-            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-            XCTAssertFalse(body.contains(#"a/b#anchor"#))
-            XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+            // Test case insensitive path.
+            try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "index-mixed-case")
+                // Call out a couple of specific snippets in the html
+                XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+                XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+                XCTAssertFalse(body.contains(#"a/b#anchor"#))
+                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+            }
         }
     }
 
     func test_documentation_routes_ref() async throws {
         // Test the documentation routes with a reference:
         //   /owner/package/documentation/{reference} + various path elements
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .defaultBranch,
+                              packageName: "pkg",
+                              reference: .branch("main"))
             .save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "0123456789",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .defaultBranch,
-                          packageName: "pkg",
-                          reference: .branch("main"))
+            try await Version(package: pkg,
+                              commit: "9876543210",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .release,
+                              packageName: "pkg",
+                              reference: .tag(1, 2, 3))
             .save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "9876543210",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .release,
-                          packageName: "pkg",
-                          reference: .tag(1, 2, 3))
-            .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
+            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
-        // MUT
+            // MUT
 
-        // test partially qualified route (no archive)
-        try await app.test(.GET, "/owner/package/1.2.3/documentation") { @Sendable res async in
-            XCTAssertEqual(res.status, .seeOther)
-            XCTAssertEqual(res.headers.location, "/owner/package/1.2.3/documentation/target")
-        }
+            // test partially qualified route (no archive)
+            try await app.test(.GET, "/owner/package/1.2.3/documentation") { @Sendable res async in
+                XCTAssertEqual(res.status, .seeOther)
+                XCTAssertEqual(res.headers.location, "/owner/package/1.2.3/documentation/target")
+            }
 
-        // test fully qualified route
-        try await app.test(.GET, "/owner/package/1.2.3/documentation/target") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "index-target")
-            // Call out a couple of specific snippets in the html
-            XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
-            XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target" />"#))
-            XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
-        }
+            // test fully qualified route
+            try await app.test(.GET, "/owner/package/1.2.3/documentation/target") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "index-target")
+                // Call out a couple of specific snippets in the html
+                XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
+                XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
+                XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target" />"#))
+                XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
+            }
 
-        // test catchall
-        try await app.test(.GET, "/owner/package/1.2.3/documentation/target/a/b#anchor") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "index-target-a-b")
-            // Call out a couple of specific snippets in the html
-            XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
-            XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/a/b#anchor" />"#))
-            XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
-        }
+            // test catchall
+            try await app.test(.GET, "/owner/package/1.2.3/documentation/target/a/b#anchor") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "index-target-a-b")
+                // Call out a couple of specific snippets in the html
+                XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
+                XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
+                XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/a/b#anchor" />"#))
+                XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
+            }
 
-        // Test case insensitive path.
-        try await app.test(.GET, "/Owner/Package/1.2.3/documentation/target/A/b#Anchor") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "index-target-a-b-mixed-case")
-            // Call out a couple of specific snippets in the html
-            XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
-            XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/A/b#Anchor" />"#))
-            XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
+            // Test case insensitive path.
+            try await app.test(.GET, "/Owner/Package/1.2.3/documentation/target/A/b#Anchor") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "index-target-a-b-mixed-case")
+                // Call out a couple of specific snippets in the html
+                XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
+                XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
+                XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/A/b#Anchor" />"#))
+                XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
+            }
         }
     }
 
     func test_documentation_routes_no_archive() async throws {
         // Test documentation routes when no archive is in the path
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .defaultBranch,
+                              packageName: "pkg",
+                              reference: .branch("main"))
             .save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "0123456789",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .defaultBranch,
-                          packageName: "pkg",
-                          reference: .branch("main"))
+            try await Version(package: pkg,
+                              commit: "9876543210",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .release,
+                              packageName: "pkg",
+                              reference: .tag(1, 0, 0))
             .save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "9876543210",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .release,
-                          packageName: "pkg",
-                          reference: .tag(1, 0, 0))
-            .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
+            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
-        // MUT
-        try await app.test(.GET, "/owner/package/main/documentation") { res async in
-            XCTAssertEqual(res.status, .seeOther)
-            XCTAssertEqual(res.headers.location, "/owner/package/main/documentation/target")
-        }
-        try await app.test(.GET, "/owner/package/1.0.0/documentation") { res async in
-            XCTAssertEqual(res.status, .seeOther)
-            XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/target")
-        }
-        try await app.test(.GET, "/owner/package/~/documentation") { res async in
-            XCTAssertEqual(res.status, .seeOther)
-            XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/target")
+            // MUT
+            try await app.test(.GET, "/owner/package/main/documentation") { res async in
+                XCTAssertEqual(res.status, .seeOther)
+                XCTAssertEqual(res.headers.location, "/owner/package/main/documentation/target")
+            }
+            try await app.test(.GET, "/owner/package/1.0.0/documentation") { res async in
+                XCTAssertEqual(res.status, .seeOther)
+                XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/target")
+            }
+            try await app.test(.GET, "/owner/package/~/documentation") { res async in
+                XCTAssertEqual(res.status, .seeOther)
+                XCTAssertEqual(res.headers.location, "/owner/package/1.0.0/documentation/target")
+            }
         }
     }
 
@@ -826,462 +846,522 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_documentation_404() async throws {
         // Test conversion of any doc fetching errors into 404s.
-        // setup
-        Current.fetchDocumentation = { _, uri in .init(status: .badRequest) }
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db)
-        try await Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
-            .save(on: app.db)
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, uri in .init(status: .badRequest) }
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
+                .save(on: app.db)
 
-        // MUT
-        // test base url
-        try await app.test(.GET, "/owner/package/1.2.3/documentation") { res async in
-            XCTAssertEqual(res.status, .notFound)
-        }
+            // MUT
+            // test base url
+            try await app.test(.GET, "/owner/package/1.2.3/documentation") { res async in
+                XCTAssertEqual(res.status, .notFound)
+            }
 
-        // test path a/b
-        try await app.test(.GET, "/owner/package/1.2.3/documentation/a/b") { res async in
-            XCTAssertEqual(res.status, .notFound)
+            // test path a/b
+            try await app.test(.GET, "/owner/package/1.2.3/documentation/a/b") { res async in
+                XCTAssertEqual(res.status, .notFound)
+            }
         }
     }
 
     func test_documentation_error() async throws {
         // Test behaviour when fetchDocumentation throws
-        struct SomeError: Error { }
-        Current.fetchDocumentation = { _, _ in throw SomeError() }
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            struct SomeError: Error { }
+            Current.fetchDocumentation = { _, _ in throw SomeError() }
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "123",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "foo", title: "Foo")],
+                              latest: .defaultBranch,
+                              packageName: "pkg",
+                              reference: .tag(1, 2, 3))
             .save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "123",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "foo", title: "Foo")],
-                          latest: .defaultBranch,
-                          packageName: "pkg",
-                          reference: .tag(1, 2, 3))
-        .save(on: app.db)
 
-        // MUT
-        try await app.test(.GET, "/owner/package/1.2.3/documentation") { res async in
-            XCTAssertEqual(res.status, .seeOther)
-            XCTAssertEqual(res.headers.location, "/owner/package/1.2.3/documentation/foo")
-        }
-        try await app.test(.GET, "/owner/package/1.2.3/documentation/foo") { res async in
-            // hits Current.fetchDocumentation which throws, converted to notFound
-            // Regression test for https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2015
-            XCTAssertEqual(res.status, .notFound)
+            // MUT
+            try await app.test(.GET, "/owner/package/1.2.3/documentation") { res async in
+                XCTAssertEqual(res.status, .seeOther)
+                XCTAssertEqual(res.headers.location, "/owner/package/1.2.3/documentation/foo")
+            }
+            try await app.test(.GET, "/owner/package/1.2.3/documentation/foo") { res async in
+                // hits Current.fetchDocumentation which throws, converted to notFound
+                // Regression test for https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2015
+                XCTAssertEqual(res.status, .notFound)
+            }
         }
     }
 
     func test_documentation_current_css() async throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: uri.path))
-        }
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db)
-        try await Version(package: pkg,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .defaultBranch,
-                          reference: .branch("main"))
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                    .init(status: .ok, body: .init(string: uri.path))
+            }
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .defaultBranch,
+                              reference: .branch("main"))
             .save(on: app.db)
 
-        // MUT
-        // test base url
-        try await app.test(.GET, "/owner/package/~/css/a") { res async in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "text/css")
-            XCTAssertEqual(res.body.asString(), "/owner/package/main/css/a")
-        }
+            // MUT
+            // test base url
+            try await app.test(.GET, "/owner/package/~/css/a") { res async in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "text/css")
+                XCTAssertEqual(res.body.asString(), "/owner/package/main/css/a")
+            }
 
-        // test path a/b
-        try await app.test(.GET, "/owner/package/~/css/a/b") { res async in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "text/css")
-            XCTAssertEqual(res.body.asString(), "/owner/package/main/css/a/b")
+            // test path a/b
+            try await app.test(.GET, "/owner/package/~/css/a/b") { res async in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "text/css")
+                XCTAssertEqual(res.body.asString(), "/owner/package/main/css/a/b")
+            }
         }
     }
 
     func test_documentation_ref_css() throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: uri.path))
-        }
+        try withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                    .init(status: .ok, body: .init(string: uri.path))
+            }
 
-        // MUT
-        // test base url
-        try app.test(.GET, "/owner/package/1.2.3/css/a") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "text/css")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/css/a")
-        }
+            // MUT
+            // test base url
+            try app.test(.GET, "/owner/package/1.2.3/css/a") {
+                XCTAssertEqual($0.status, .ok)
+                XCTAssertEqual($0.content.contentType?.description, "text/css")
+                XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/css/a")
+            }
 
-        // test path a/b
-        try app.test(.GET, "/owner/package/1.2.3/css/a/b") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "text/css")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/css/a/b")
+            // test path a/b
+            try app.test(.GET, "/owner/package/1.2.3/css/a/b") {
+                XCTAssertEqual($0.status, .ok)
+                XCTAssertEqual($0.content.contentType?.description, "text/css")
+                XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/css/a/b")
+            }
         }
     }
 
     func test_documentation_current_js() async throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: uri.path))
-        }
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db)
-        try await Version(package: pkg,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .defaultBranch,
-                          reference: .branch("main"))
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                    .init(status: .ok, body: .init(string: uri.path))
+            }
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .defaultBranch,
+                              reference: .branch("main"))
             .save(on: app.db)
 
-        // MUT
-        // test base url
-        try await app.test(.GET, "/owner/package/~/js/a") { res async in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "application/javascript")
-            XCTAssertEqual(res.body.asString(), "/owner/package/main/js/a")
-        }
+            // MUT
+            // test base url
+            try await app.test(.GET, "/owner/package/~/js/a") { res async in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "application/javascript")
+                XCTAssertEqual(res.body.asString(), "/owner/package/main/js/a")
+            }
 
-        // test path a/b
-        try await app.test(.GET, "/owner/package/~/js/a/b") { res async in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "application/javascript")
-            XCTAssertEqual(res.body.asString(), "/owner/package/main/js/a/b")
+            // test path a/b
+            try await app.test(.GET, "/owner/package/~/js/a/b") { res async in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "application/javascript")
+                XCTAssertEqual(res.body.asString(), "/owner/package/main/js/a/b")
+            }
         }
     }
 
     func test_documentation_ref_js() throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: uri.path))
-        }
+        try withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                    .init(status: .ok, body: .init(string: uri.path))
+            }
 
-        // MUT
-        // test base url
-        try app.test(.GET, "/owner/package/1.2.3/js/a") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/js/a")
-        }
+            // MUT
+            // test base url
+            try app.test(.GET, "/owner/package/1.2.3/js/a") {
+                XCTAssertEqual($0.status, .ok)
+                XCTAssertEqual($0.content.contentType?.description, "application/javascript")
+                XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/js/a")
+            }
 
-        // test path a/b
-        try app.test(.GET, "/owner/package/1.2.3/js/a/b") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/js/a/b")
+            // test path a/b
+            try app.test(.GET, "/owner/package/1.2.3/js/a/b") {
+                XCTAssertEqual($0.status, .ok)
+                XCTAssertEqual($0.content.contentType?.description, "application/javascript")
+                XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/js/a/b")
+            }
         }
     }
 
     func test_documentation_current_data() async throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: uri.path))
-        }
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                    .init(status: .ok, body: .init(string: uri.path))
+            }
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .defaultBranch,
+                              reference: .branch("main"))
             .save(on: app.db)
-        try await Version(package: pkg,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .defaultBranch,
-                          reference: .branch("main"))
-            .save(on: app.db)
 
-        // MUT
-        // test base url
-        try await app.test(.GET, "/owner/package/~/data/a") { res async in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual(res.body.asString(), "/owner/package/main/data/a")
-        }
+            // MUT
+            // test base url
+            try await app.test(.GET, "/owner/package/~/data/a") { res async in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
+                XCTAssertEqual(res.body.asString(), "/owner/package/main/data/a")
+            }
 
-        // test path a/b
-        try await app.test(.GET, "/owner/package/~/data/a/b") { res async in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual(res.body.asString(), "/owner/package/main/data/a/b")
-        }
+            // test path a/b
+            try await app.test(.GET, "/owner/package/~/data/a/b") { res async in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
+                XCTAssertEqual(res.body.asString(), "/owner/package/main/data/a/b")
+            }
 
-        // test case-insensitivity
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
-        try await app.test(.GET, "/owner/package/~/data/documentation/Foo.json") { res async in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual(res.body.asString(),
-                           "/owner/package/main/data/documentation/foo.json")
+            // test case-insensitivity
+            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
+            try await app.test(.GET, "/owner/package/~/data/documentation/Foo.json") { res async in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "application/octet-stream")
+                XCTAssertEqual(res.body.asString(),
+                               "/owner/package/main/data/documentation/foo.json")
+            }
         }
     }
 
     func test_documentation_ref_data() throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: uri.path))
-        }
+        try withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                    .init(status: .ok, body: .init(string: uri.path))
+            }
 
-        // MUT
-        // test base url
-        try app.test(.GET, "/owner/package/1.2.3/data/a") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/data/a")
-        }
+            // MUT
+            // test base url
+            try app.test(.GET, "/owner/package/1.2.3/data/a") {
+                XCTAssertEqual($0.status, .ok)
+                XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+                XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/data/a")
+            }
 
-        // test path a/b
-        try app.test(.GET, "/owner/package/1.2.3/data/a/b") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/data/a/b")
-        }
+            // test path a/b
+            try app.test(.GET, "/owner/package/1.2.3/data/a/b") {
+                XCTAssertEqual($0.status, .ok)
+                XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+                XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/data/a/b")
+            }
 
-        // test case-insensitivity
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
-        try app.test(.GET, "/apple/swift-nio/main/data/documentation/NIOCore.json") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(),
-                           "/apple/swift-nio/main/data/documentation/niocore.json")
+            // test case-insensitivity
+            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2168
+            try app.test(.GET, "/apple/swift-nio/main/data/documentation/NIOCore.json") {
+                XCTAssertEqual($0.status, .ok)
+                XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+                XCTAssertEqual($0.body.asString(),
+                               "/apple/swift-nio/main/data/documentation/niocore.json")
+            }
         }
     }
 
     func test_documentation_canonicalCapitalisation() async throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: uri.path))
-        }
-        
-        // The `packageName` property on the `Version` has been set to the lower-cased version so
-        // we can be sure the canonical URL is built from the properties on the `Repository` model.
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "Package", owner: "Owner")
-            .save(on: app.db)
-        try await Version(package: pkg,
-                    commit: "0123456789",
-                    commitDate: .t0,
-                    docArchives: [.init(name: "docs", title: "Docs")],
-                    latest: .defaultBranch,
-                    packageName: "package",
-                    reference: .tag(1, 2, 3))
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                    .init(status: .ok, body: .init(string: uri.path))
+            }
+
+            // The `packageName` property on the `Version` has been set to the lower-cased version so
+            // we can be sure the canonical URL is built from the properties on the `Repository` model.
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "Package", owner: "Owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "docs", title: "Docs")],
+                              latest: .defaultBranch,
+                              packageName: "package",
+                              reference: .tag(1, 2, 3))
             .save(on: app.db)
 
-        try await app.test(.GET, "/owner/package/1.2.3/documentation/a/b") { res async throws in
-            let document = try SwiftSoup.parse(res.body.string)
-            let linkElements = try document.select("link[rel='canonical']")
-            XCTAssertEqual(linkElements.count, 1)
+            try await app.test(.GET, "/owner/package/1.2.3/documentation/a/b") { res async throws in
+                let document = try SwiftSoup.parse(res.body.string)
+                let linkElements = try document.select("link[rel='canonical']")
+                XCTAssertEqual(linkElements.count, 1)
 
-            let href = try XCTUnwrap(linkElements.first()?.attr("href"))
-            XCTAssertEqual(href, "/Owner/Package/1.2.3/documentation/a/b")
+                let href = try XCTUnwrap(linkElements.first()?.attr("href"))
+                XCTAssertEqual(href, "/Owner/Package/1.2.3/documentation/a/b")
+            }
         }
     }
 
     func test_documentation_issue_2287() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2287
         // Ensure references are path encoded
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .defaultBranch,
+                              packageName: "pkg",
+                              reference: .branch("feature/1.2.3"))
             .save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "0123456789",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .defaultBranch,
-                          packageName: "pkg",
-                          reference: .branch("feature/1.2.3"))
-        .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
+            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
-        // MUT
+            // MUT
 
-        // test default path
-        try await app.test(.GET, "/owner/package/~/documentation/target") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "current-index")
-            // Call out a couple of specific snippets in the html
-            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
-            XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-            XCTAssert(body.contains(#"Documentation for <span class="branch">feature/1.2.3</span>"#))
-            XCTAssert(body.contains(#"<li class="current"><a href="/owner/package/feature-1.2.3/documentation/target"><span class="branch">feature/1.2.3</span></a></li>"#))
-        }
+            // test default path
+            try await app.test(.GET, "/owner/package/~/documentation/target") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "current-index")
+                // Call out a couple of specific snippets in the html
+                XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
+                XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
+                XCTAssertFalse(body.contains(#"<link rel="canonical""#))
+                XCTAssert(body.contains(#"Documentation for <span class="branch">feature/1.2.3</span>"#))
+                XCTAssert(body.contains(#"<li class="current"><a href="/owner/package/feature-1.2.3/documentation/target"><span class="branch">feature/1.2.3</span></a></li>"#))
+            }
 
-        // test reference root path
-        try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/target") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "ref-index")
-            // Call out a couple of specific snippets in the html
-            XCTAssert(body.contains(#"var baseUrl = "/owner/package/feature-1.2.3/""#))
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
-            XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/target" />"#))
-            XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
-        }
+            // test reference root path
+            try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/target") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "ref-index")
+                // Call out a couple of specific snippets in the html
+                XCTAssert(body.contains(#"var baseUrl = "/owner/package/feature-1.2.3/""#))
+                XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
+                XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/target" />"#))
+                XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
+            }
 
-        // test path a/b
-        try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/a/b") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "ref-index-path")
-            // Call out a couple of specific snippets in the html
-            XCTAssert(body.contains(#"var baseUrl = "/owner/package/feature-1.2.3/""#))
-            XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
-            XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/a/b" />"#))
-            XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
+            // test path a/b
+            try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/a/b") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "ref-index-path")
+                // Call out a couple of specific snippets in the html
+                XCTAssert(body.contains(#"var baseUrl = "/owner/package/feature-1.2.3/""#))
+                XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
+                XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/a/b" />"#))
+                XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
+            }
         }
     }
 
     func test_documentation_routes_tutorials() async throws {
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "docs", title: "Docs")],
+                              latest: .defaultBranch,
+                              packageName: "pkg",
+                              reference: .branch("main"))
             .save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "0123456789",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "docs", title: "Docs")],
-                          latest: .defaultBranch,
-                          packageName: "pkg",
-                          reference: .branch("main"))
+            try await Version(package: pkg,
+                              commit: "9876543210",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "docs", title: "Docs")],
+                              latest: .release,
+                              packageName: "pkg",
+                              reference: .tag(1, 0, 0))
             .save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "9876543210",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "docs", title: "Docs")],
-                          latest: .release,
-                          packageName: "pkg",
-                          reference: .tag(1, 0, 0))
-            .save(on: app.db)
-        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
+            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
-        // MUT
-        try await app.test(.GET, "/owner/package/~/tutorials") { res async in
-            XCTAssertEqual(res.status, .notFound)
-        }
-        try await app.test(.GET, "/owner/package/~/tutorials/foo") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "index")
-            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
-        }
-        try await app.test(.GET, "/owner/package/~/tutorials/foo#anchor") { @MainActor res in
-            await Task.yield() // essential to avoid deadlocking
-            XCTAssertEqual(res.status, .ok)
-            let body = String(buffer: res.body)
-            assertSnapshot(of: body, as: .html, named: "index")
-            XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
+            // MUT
+            try await app.test(.GET, "/owner/package/~/tutorials") { res async in
+                XCTAssertEqual(res.status, .notFound)
+            }
+            try await app.test(.GET, "/owner/package/~/tutorials/foo") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "index")
+                XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
+            }
+            try await app.test(.GET, "/owner/package/~/tutorials/foo#anchor") { @MainActor res in
+                await Task.yield() // essential to avoid deadlocking
+                XCTAssertEqual(res.status, .ok)
+                let body = String(buffer: res.body)
+                assertSnapshot(of: body, as: .html, named: "index")
+                XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
+            }
         }
     }
 
 
     func test_favicon() throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok,
-                  headers: ["content-type": "application/octet-stream"],
-                  body: .init(string: uri.path))
-        }
+        try withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                    .init(status: .ok,
+                          headers: ["content-type": "application/octet-stream"],
+                          body: .init(string: uri.path))
+            }
 
-        // MUT
-        try app.test(.GET, "/owner/package/1.2.3/favicon.ico") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/favicon.ico")
-        }
+            // MUT
+            try app.test(.GET, "/owner/package/1.2.3/favicon.ico") {
+                XCTAssertEqual($0.status, .ok)
+                XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+                XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/favicon.ico")
+            }
 
-        try app.test(.GET, "/owner/package/1.2.3/favicon.svg") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/favicon.svg")
+            try app.test(.GET, "/owner/package/1.2.3/favicon.svg") {
+                XCTAssertEqual($0.status, .ok)
+                XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+                XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/favicon.svg")
+            }
         }
     }
 
     func test_themeSettings() throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok,
-                  headers: ["content-type": "application/json"],
-                  body: .init(string: uri.path))
-        }
+        try withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                    .init(status: .ok,
+                          headers: ["content-type": "application/json"],
+                          body: .init(string: uri.path))
+            }
 
-        // MUT
-        try app.test(.GET, "/owner/package/1.2.3/theme-settings.json") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/json")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/theme-settings.json")
+            // MUT
+            try app.test(.GET, "/owner/package/1.2.3/theme-settings.json") {
+                XCTAssertEqual($0.status, .ok)
+                XCTAssertEqual($0.content.contentType?.description, "application/json")
+                XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/theme-settings.json")
+            }
         }
     }
 
     func test_linkablePaths() throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok,
-                  headers: ["content-type": "application/json"],
-                  body: .init(string: uri.path))
-        }
+        try withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                    .init(status: .ok,
+                          headers: ["content-type": "application/json"],
+                          body: .init(string: uri.path))
+            }
 
-        // MUT
-        try app.test(.GET, "/owner/package/1.2.3/linkable-paths.json") {
-            XCTAssertEqual($0.status, .ok)
-            XCTAssertEqual($0.content.contentType?.description, "application/json")
-            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/linkable-paths.json")
+            // MUT
+            try app.test(.GET, "/owner/package/1.2.3/linkable-paths.json") {
+                XCTAssertEqual($0.status, .ok)
+                XCTAssertEqual($0.content.contentType?.description, "application/json")
+                XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/linkable-paths.json")
+            }
         }
     }
 
     func test_tutorial() async throws {
-        // setup
-        Current.fetchDocumentation = { _, uri in
-            // embed uri.path in the body as a simple way to test the requested url
-            .init(status: .ok, body: .init(string: "<p>\(uri.path)</p>"))
-        }
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db)
-        try await Version(package: pkg,
-                    commit: "0123456789",
-                    commitDate: Date(timeIntervalSince1970: 0),
-                    docArchives: [.init(name: "docs", title: "Docs")],
-                    latest: .defaultBranch,
-                    packageName: "pkg",
-                    reference: .tag(.init(1, 2, 3)))
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                    .init(status: .ok, body: .init(string: "<p>\(uri.path)</p>"))
+            }
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: Date(timeIntervalSince1970: 0),
+                              docArchives: [.init(name: "docs", title: "Docs")],
+                              latest: .defaultBranch,
+                              packageName: "pkg",
+                              reference: .tag(.init(1, 2, 3)))
             .save(on: app.db)
 
-        // MUT
-        // test path a/b
-        try await app.test(.GET, "/owner/package/1.2.3/tutorials/a/b") { res async in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
-            XCTAssertTrue(
-                res.body.asString().contains("<p>/owner/package/1.2.3/tutorials/a/b</p>"),
-                "was: \(res.body.asString())"
-            )
-            // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
-            XCTAssertTrue(res.body.asString().contains(#"<link rel="stylesheet" href="/docc.css?test" />"#),
-                          "was: \(res.body.asString())")
-        }
+            // MUT
+            // test path a/b
+            try await app.test(.GET, "/owner/package/1.2.3/tutorials/a/b") { res async in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType?.description, "text/html; charset=utf-8")
+                XCTAssertTrue(
+                    res.body.asString().contains("<p>/owner/package/1.2.3/tutorials/a/b</p>"),
+                    "was: \(res.body.asString())"
+                )
+                // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
+                XCTAssertTrue(res.body.asString().contains(#"<link rel="stylesheet" href="/docc.css?test" />"#),
+                              "was: \(res.body.asString())")
+            }
 
-        // Test case insensitive path.
-        try await app.test(.GET, "/Owner/Package/1.2.3/tutorials/a/b") { res async in
-            XCTAssertEqual(res.status, .ok)
+            // Test case insensitive path.
+            try await app.test(.GET, "/Owner/Package/1.2.3/tutorials/a/b") { res async in
+                XCTAssertEqual(res.status, .ok)
+            }
         }
     }
 
@@ -1396,64 +1476,67 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_issue_2288() async throws {
         // Ensures default branch updates don't introduce a "documentation gap"
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
-
-        // setup
-        let pkg = try await savePackage(on: app.db, "https://github.com/foo/bar".url, processingStage: .ingestion)
-        try await Repository(package: pkg, defaultBranch: "main", name: "bar", owner: "foo")
-            .save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "0123456789",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "target", title: "Target")],
-                          latest: .defaultBranch,
-                          packageName: "bar",
-                          reference: .branch("main"))
-            .save(on: app.db)
-        Current.fileManager.fileExists = { @Sendable path in
-            if path.hasSuffix("Package.resolved") { return false }
-            return true
-        }
-        Current.git = .init(
-            commitCount: { _ in 2 },
-            firstCommitDate: { _ in .t0 },
-            lastCommitDate: { _ in .t1 },
-            getTags: { _ in [] },
-            hasBranch: { _, _ in true },
-            revisionInfo: { ref, _ in
-                if ref == .branch("main") { return .init(commit: "new-commit", date: .t1) }
-                fatalError("revisionInfo: \(ref)")
-            },
-            shortlog: { _ in "2\tauthor" }
-        )
-        Current.shell.run = { @Sendable cmd, _ in
-            if cmd.description == "swift package dump-package" { return .mockManifest }
-            return ""
-        }
-        // Make sure the new commit doesn't get throttled
         try await withDependencies {
-            $0.date.now = .t1 + Constants.branchVersionRefreshDelay + 1
+            $0.environment.awsDocsBucket = { "docs-bucket" }
         } operation: {
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
-
-            // Ensure documentation is resolved
-            try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
-                await Task.yield() // essential to avoid deadlocking
-                XCTAssertEqual(res.status, .ok)
-                assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
+            // setup
+            let pkg = try await savePackage(on: app.db, "https://github.com/foo/bar".url, processingStage: .ingestion)
+            try await Repository(package: pkg, defaultBranch: "main", name: "bar", owner: "foo")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "target", title: "Target")],
+                              latest: .defaultBranch,
+                              packageName: "bar",
+                              reference: .branch("main"))
+            .save(on: app.db)
+            Current.fileManager.fileExists = { @Sendable path in
+                if path.hasSuffix("Package.resolved") { return false }
+                return true
             }
+            Current.git = .init(
+                commitCount: { _ in 2 },
+                firstCommitDate: { _ in .t0 },
+                lastCommitDate: { _ in .t1 },
+                getTags: { _ in [] },
+                hasBranch: { _, _ in true },
+                revisionInfo: { ref, _ in
+                    if ref == .branch("main") { return .init(commit: "new-commit", date: .t1) }
+                    fatalError("revisionInfo: \(ref)")
+                },
+                shortlog: { _ in "2\tauthor" }
+            )
+            Current.shell.run = { @Sendable cmd, _ in
+                if cmd.description == "swift package dump-package" { return .mockManifest }
+                return ""
+            }
+            // Make sure the new commit doesn't get throttled
+            try await withDependencies {
+                $0.date.now = .t1 + Constants.branchVersionRefreshDelay + 1
+            } operation: {
+                Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
-            // Run analyze to detect a new default branch version
-            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(1))
+                // Ensure documentation is resolved
+                try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
+                    await Task.yield() // essential to avoid deadlocking
+                    XCTAssertEqual(res.status, .ok)
+                    assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
+                }
 
-            // Confirm that analysis has picked up the new version
-            let commit = try await Version.query(on: app.db).all().map(\.commit)
-            XCTAssertEqual(commit, ["new-commit"])
+                // Run analyze to detect a new default branch version
+                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(1))
 
-            // Ensure documentation is still being resolved
-            try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
-                await Task.yield() // essential to avoid deadlocking
-                XCTAssertEqual(res.status, .ok)
-                assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
+                // Confirm that analysis has picked up the new version
+                let commit = try await Version.query(on: app.db).all().map(\.commit)
+                XCTAssertEqual(commit, ["new-commit"])
+
+                // Ensure documentation is still being resolved
+                try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
+                    await Task.yield() // essential to avoid deadlocking
+                    XCTAssertEqual(res.status, .ok)
+                    assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
+                }
             }
         }
     }

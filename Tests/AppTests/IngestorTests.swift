@@ -419,8 +419,12 @@ class IngestorTests: AppTestCase {
     }
 
     func test_S3Store_Key_readme() throws {
-        XCTAssertEqual(try S3Store.Key.readme(owner: "foo", repository: "bar").path, "foo/bar/readme.html")
-        XCTAssertEqual(try S3Store.Key.readme(owner: "FOO", repository: "bar").path, "foo/bar/readme.html")
+        try withDependencies {
+            $0.environment.awsReadmeBucket = { "readme-bucket" }
+        } operation: {
+            XCTAssertEqual(try S3Store.Key.readme(owner: "foo", repository: "bar").path, "foo/bar/readme.html")
+            XCTAssertEqual(try S3Store.Key.readme(owner: "FOO", repository: "bar").path, "foo/bar/readme.html")
+        }
     }
 
     func test_ingest_storeS3Readme() async throws {
