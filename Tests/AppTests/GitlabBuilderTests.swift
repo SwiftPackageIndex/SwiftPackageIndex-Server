@@ -55,10 +55,10 @@ class GitlabBuilderTests: AppTestCase {
 
     func test_triggerBuild() async throws {
         try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
-            Current.awsDocsBucket = { "docs-bucket" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
             let buildId = UUID()
@@ -104,10 +104,10 @@ class GitlabBuilderTests: AppTestCase {
 
     func test_issue_588() async throws {
         try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
         } operation: {
-            Current.awsDocsBucket = { "docs-bucket" }
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
 
@@ -181,12 +181,13 @@ class LiveGitlabBuilderTests: AppTestCase {
                 // Set this to a valid value if you want to report build results back to the server
                 ProcessInfo.processInfo.environment["LIVE_BUILDER_TOKEN"]
             }
+            // make sure environment variables are configured for live access
+            $0.environment.awsDocsBucket = { "spi-dev-docs" }
         } operation: {
             // set build branch to trigger on
             Gitlab.Builder.branch = "main"
 
             // make sure environment variables are configured for live access
-            Current.awsDocsBucket = { "spi-dev-docs" }
             Current.gitlabPipelineToken = {
                 // This Gitlab token is required in order to trigger the pipeline
                 ProcessInfo.processInfo.environment["LIVE_GITLAB_PIPELINE_TOKEN"]

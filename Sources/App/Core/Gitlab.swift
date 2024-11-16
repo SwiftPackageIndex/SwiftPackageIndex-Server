@@ -82,7 +82,7 @@ extension Gitlab.Builder {
         guard let pipelineToken = Current.gitlabPipelineToken(),
               let builderToken = environment.builderToken()
         else { throw Gitlab.Error.missingToken }
-        guard let awsDocsBucket = Current.awsDocsBucket() else {
+        guard let awsDocsBucket = environment.awsDocsBucket() else {
             throw Gitlab.Error.missingConfiguration("AWS_DOCS_BUCKET")
         }
         let timeout = environment.buildTimeout() + (isDocBuild ? 5 : 0)

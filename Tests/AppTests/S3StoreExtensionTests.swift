@@ -16,19 +16,23 @@ import XCTest
 
 @testable import App
 
+import Dependencies
 import S3Store
+
 
 class S3StoreExtensionTests: XCTestCase {
 
     func test_Key_readme() throws {
-        Current.awsReadmeBucket = { "awsReadmeBucket" }
+        try withDependencies {
+            $0.environment.awsReadmeBucket = { "awsReadmeBucket" }
+        } operation: {
+            let imageKey = try S3Store.Key.readme(owner: "owner", repository: "repository",
+                                                  imageUrl: "https://example.com/image/example-image.png")
+            XCTAssertEqual(imageKey.s3Uri, "s3://awsReadmeBucket/owner/repository/example-image.png")
 
-        let imageKey = try S3Store.Key.readme(owner: "owner", repository: "repository",
-                                              imageUrl: "https://example.com/image/example-image.png")
-        XCTAssertEqual(imageKey.s3Uri, "s3://awsReadmeBucket/owner/repository/example-image.png")
-
-        let readmeKey = try S3Store.Key.readme(owner: "owner", repository: "repository")
-        XCTAssertEqual(readmeKey.s3Uri, "s3://awsReadmeBucket/owner/repository/readme.html")
+            let readmeKey = try S3Store.Key.readme(owner: "owner", repository: "repository")
+            XCTAssertEqual(readmeKey.s3Uri, "s3://awsReadmeBucket/owner/repository/readme.html")
+        }
     }
 
 }

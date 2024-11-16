@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
-import Vapor
-import SwiftSoup
+import Dependencies
 import S3Store
-import XCTest
+import SwiftSoup
+import Vapor
 
 
 class GithubTests: AppTestCase {
@@ -396,9 +398,10 @@ class GithubTests: AppTestCase {
     }
 
     func test_extractImagesRequiringCaching() async throws {
-        Current.awsReadmeBucket = { "awsReadmeBucket" }
-
-        var readme = """
+        try withDependencies {
+            $0.environment.awsReadmeBucket = { "awsReadmeBucket" }
+        } operation: {
+            var readme = """
         <html>
         <head></head>
         <body>
@@ -411,35 +414,37 @@ class GithubTests: AppTestCase {
         </html>
         """
 
-        // MUT
-        let images = Github.replaceImagesRequiringCaching(owner: "owner", repository: "repo", readme: &readme)
+            // MUT
+            let images = Github.replaceImagesRequiringCaching(owner: "owner", repository: "repo", readme: &readme)
 
-        XCTAssertEqual(images, [
-            .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt.jpg?jwt=some-jwt",
-                  s3Key: S3Store.Key.init(bucket: "awsReadmeBucket", path: "owner/repo/with-jwt.jpg"))
-        ])
+            XCTAssertEqual(images, [
+                .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt.jpg?jwt=some-jwt",
+                      s3Key: S3Store.Key.init(bucket: "awsReadmeBucket", path: "owner/repo/with-jwt.jpg"))
+            ])
 
-        let document = try SwiftSoup.parse(readme)
-        let imageElements = try document.select("img").array()
+            let document = try SwiftSoup.parse(readme)
+            let imageElements = try document.select("img").array()
 
-        XCTAssertEqual(try imageElements.map { try $0.attr("src") }, [
-            "https://awsReadmeBucket.s3.us-east-2.amazonaws.com/owner/repo/with-jwt.jpg",
-            "https://private-user-images.githubusercontent.com/without-jwt.jpg",
-            "https://raw.githubusercontent.com/raw-image.png",
-            "https://github.com/example/repo/branch/assets/example.png",
-            "https://example.com/other-domain.jpg"
-        ])
+            XCTAssertEqual(try imageElements.map { try $0.attr("src") }, [
+                "https://awsReadmeBucket.s3.us-east-2.amazonaws.com/owner/repo/with-jwt.jpg",
+                "https://private-user-images.githubusercontent.com/without-jwt.jpg",
+                "https://raw.githubusercontent.com/raw-image.png",
+                "https://github.com/example/repo/branch/assets/example.png",
+                "https://example.com/other-domain.jpg"
+            ])
 
-        XCTAssertEqual(try imageElements.map { try $0.attr("data-original-src") }, [
-            "https://private-user-images.githubusercontent.com/with-jwt.jpg?jwt=some-jwt",
-            "", "", "", "" // This attribute only gets added to images that will be cached.
-        ])
+            XCTAssertEqual(try imageElements.map { try $0.attr("data-original-src") }, [
+                "https://private-user-images.githubusercontent.com/with-jwt.jpg?jwt=some-jwt",
+                "", "", "", "" // This attribute only gets added to images that will be cached.
+            ])
+        }
     }
 
     func test_extractImagesRequiringCaching_noUnnecessaryChanges() async throws {
-        Current.awsReadmeBucket = { "awsReadmeBucket" }
-
-        var readme = """
+        try withDependencies {
+            $0.environment.awsReadmeBucket = { "awsReadmeBucket" }
+        } operation: {
+            var readme = """
         <html>
         <head></head>
         <body>
@@ -450,14 +455,15 @@ class GithubTests: AppTestCase {
         </html>
         """
 
-        let originalReadme = readme
+            let originalReadme = readme
 
-        // MUT
-        let images = Github.replaceImagesRequiringCaching(owner: "owner", repository: "repo", readme: &readme)
+            // MUT
+            let images = Github.replaceImagesRequiringCaching(owner: "owner", repository: "repo", readme: &readme)
 
-        // Checks
-        XCTAssertEqual(originalReadme, readme)
-        XCTAssertEqual(images, [])
+            // Checks
+            XCTAssertEqual(originalReadme, readme)
+            XCTAssertEqual(images, [])
+        }
     }
 
     func test_Readme_containsSPIBadge() throws {
