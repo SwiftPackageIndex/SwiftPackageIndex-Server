@@ -69,7 +69,15 @@ extension EnvironmentClient: DependencyKey {
 
 
 extension EnvironmentClient: TestDependencyKey {
-    static var testValue: Self { Self() }
+    static var testValue: Self {
+        var testValue = Self()
+        testValue.current = { .development }
+        testValue.awsAccessKeyId = { nil }
+        testValue.awsDocsBucket = { "awsDocsBucket" }
+        testValue.awsReadmeBucket = { "awsReadmeBucket" }
+        testValue.awsSecretAccessKey = { nil }
+        return testValue
+    }
 }
 
 
