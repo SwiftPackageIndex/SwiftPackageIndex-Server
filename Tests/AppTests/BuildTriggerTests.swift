@@ -32,40 +32,21 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_fetchBuildCandidates_missingBuilds() async throws {
-        // setup
-        let pkgIdComplete = UUID()
-        let pkgIdIncomplete1 = UUID()
-        let pkgIdIncomplete2 = UUID()
-        do {  // save package with all builds
-            let p = Package(id: pkgIdComplete, url: pkgIdComplete.uuidString.url)
-            try await p.save(on: app.db)
-            let v = try Version(package: p,
-                                latest: .defaultBranch,
-                                reference: .branch("main"))
-            try await v.save(on: app.db)
-            for pair in BuildPair.all {
-                try await Build(id: UUID(),
-                                version: v,
-                                platform: pair.platform,
-                                status: .ok,
-                                swiftVersion: pair.swiftVersion)
-                .save(on: app.db)
-            }
-        }
-        // save two packages with partially completed builds
-        for id in [pkgIdIncomplete1, pkgIdIncomplete2] {
-            let p = Package(id: id, url: id.uuidString.url)
-            try await p.save(on: app.db)
-            for kind in [Version.Kind.defaultBranch, .release] {
+        try await withDependencies {
+            $0.environment.buildTriggerAllowList = { [] }
+        } operation: {
+            // setup
+            let pkgIdComplete = UUID()
+            let pkgIdIncomplete1 = UUID()
+            let pkgIdIncomplete2 = UUID()
+            do {  // save package with all builds
+                let p = Package(id: pkgIdComplete, url: pkgIdComplete.uuidString.url)
+                try await p.save(on: app.db)
                 let v = try Version(package: p,
-                                    latest: kind,
-                                    reference: kind == .release
-                                    ? .tag(1, 2, 3)
-                                    : .branch("main"))
+                                    latest: .defaultBranch,
+                                    reference: .branch("main"))
                 try await v.save(on: app.db)
-                for pair in BuildPair.all
-                    .dropFirst() // skip one platform to create a build gap
-                {
+                for pair in BuildPair.all {
                     try await Build(id: UUID(),
                                     version: v,
                                     platform: pair.platform,
@@ -74,79 +55,110 @@ class BuildTriggerTests: AppTestCase {
                     .save(on: app.db)
                 }
             }
+            // save two packages with partially completed builds
+            for id in [pkgIdIncomplete1, pkgIdIncomplete2] {
+                let p = Package(id: id, url: id.uuidString.url)
+                try await p.save(on: app.db)
+                for kind in [Version.Kind.defaultBranch, .release] {
+                    let v = try Version(package: p,
+                                        latest: kind,
+                                        reference: kind == .release
+                                        ? .tag(1, 2, 3)
+                                        : .branch("main"))
+                    try await v.save(on: app.db)
+                    for pair in BuildPair.all
+                        .dropFirst() // skip one platform to create a build gap
+                    {
+                        try await Build(id: UUID(),
+                                        version: v,
+                                        platform: pair.platform,
+                                        status: .ok,
+                                        swiftVersion: pair.swiftVersion)
+                        .save(on: app.db)
+                    }
+                }
+            }
+
+            // MUT
+            let ids = try await fetchBuildCandidates(app.db)
+
+            // validate
+            XCTAssertEqual(ids, [pkgIdIncomplete1, pkgIdIncomplete2])
         }
-
-        // MUT
-        let ids = try await fetchBuildCandidates(app.db)
-
-        // validate
-        XCTAssertEqual(ids, [pkgIdIncomplete1, pkgIdIncomplete2])
     }
 
     func test_fetchBuildCandidates_noBuilds() async throws {
         // Test finding build candidate without any builds (essentially
         // testing the `LEFT` in `LEFT JOIN builds`)
-        // setup
-        // save package without any builds
-        let pkgId = UUID()
-        let p = Package(id: pkgId, url: pkgId.uuidString.url)
-        try await p.save(on: app.db)
-        for kind in [Version.Kind.defaultBranch, .release] {
-            let v = try Version(package: p,
-                                latest: kind,
-                                reference: kind == .release
-                                ? .tag(1, 2, 3)
-                                : .branch("main"))
-            try await v.save(on: app.db)
+        try await withDependencies {
+            $0.environment.buildTriggerAllowList = { [] }
+        } operation: {
+            // setup
+            // save package without any builds
+            let pkgId = UUID()
+            let p = Package(id: pkgId, url: pkgId.uuidString.url)
+            try await p.save(on: app.db)
+            for kind in [Version.Kind.defaultBranch, .release] {
+                let v = try Version(package: p,
+                                    latest: kind,
+                                    reference: kind == .release
+                                    ? .tag(1, 2, 3)
+                                    : .branch("main"))
+                try await v.save(on: app.db)
+            }
+
+            // MUT
+            let ids = try await fetchBuildCandidates(app.db)
+
+            // validate
+            XCTAssertEqual(ids, [pkgId])
         }
-
-        // MUT
-        let ids = try await fetchBuildCandidates(app.db)
-
-        // validate
-        XCTAssertEqual(ids, [pkgId])
     }
 
     func test_fetchBuildCandidates_exceptLatestSwiftVersion() async throws {
-        // setup
-        do {  // save package with just latest Swift version builds missing
-            let p = Package(id: .id1, url: "1")
-            try await p.save(on: app.db)
-            let v = try Version(id: .init(),
-                                package: p,
-                                latest: .release,
-                                reference: .tag(1, 2, 3))
-            try await v.save(on: app.db)
-            for platform in Build.Platform.allActive {
-                for swiftVersion in SwiftVersion
-                    .allActive
-                    // skip latest Swift version build
-                    .filter({ $0 != .latest }) {
-                    try await Build(id: .init(),
+        try await withDependencies {
+            $0.environment.buildTriggerAllowList = { [] }
+        } operation: {
+            // setup
+            do {  // save package with just latest Swift version builds missing
+                let p = Package(id: .id1, url: "1")
+                try await p.save(on: app.db)
+                let v = try Version(id: .init(),
+                                    package: p,
+                                    latest: .release,
+                                    reference: .tag(1, 2, 3))
+                try await v.save(on: app.db)
+                for platform in Build.Platform.allActive {
+                    for swiftVersion in SwiftVersion
+                        .allActive
+                            // skip latest Swift version build
+                        .filter({ $0 != .latest }) {
+                        try await Build(id: .init(),
                                         version: v,
                                         platform: platform,
                                         status: .ok,
                                         swiftVersion: swiftVersion)
                         .save(on: app.db)
+                    }
                 }
             }
-        }
-        do {  // save package without any builds
-            let p = Package(id: .id2, url: "2")
-            try await p.save(on: app.db)
-            let v = try Version(id: .id3,
-                                package: p,
-                                latest: .release,
-                                reference: .tag(1, 2, 3))
-            try await v.save(on: app.db)
-        }
+            do {  // save package without any builds
+                let p = Package(id: .id2, url: "2")
+                try await p.save(on: app.db)
+                let v = try Version(id: .id3,
+                                    package: p,
+                                    latest: .release,
+                                    reference: .tag(1, 2, 3))
+                try await v.save(on: app.db)
+            }
 
-        // MUT
-        let ids = try await fetchBuildCandidates(app.db, withLatestSwiftVersion: false)
+            // MUT
+            let ids = try await fetchBuildCandidates(app.db, withLatestSwiftVersion: false)
 
-        // validate
-        // Only package with missing non-latest Swift version builds (.id2) must be selected
-        XCTAssertEqual(ids, [.id2])
+            // validate
+            // Only package with missing non-latest Swift version builds (.id2) must be selected
+            XCTAssertEqual(ids, [.id2])
+        }
     }
 
     func test_fetchBuildCandidates_priorityIDs() async throws {
@@ -395,6 +407,7 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.buildTriggerAllowList = { [] }
         } operation: {
             // Explicitly test the full range of all currently triggered platforms and swift versions
             // setup
@@ -557,6 +570,9 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.buildTriggerAllowList = { [] }
+            $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.random = { @Sendable _ in 0 }
         } operation: {
             // Ensure we respect the pipeline limit when triggering builds
             // setup
@@ -670,6 +686,10 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.buildTriggerAllowList = { [] }
+            $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.buildTriggerLatestSwiftVersionDownscaling = { 1 }
+            $0.environment.random = { @Sendable _ in 0 }
         } operation: {
             // Ensure we respect the pipeline limit when triggering builds for multiple package ids
             // setup
@@ -720,6 +740,9 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
+            $0.environment.buildTriggerAllowList = { [] }
+            $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.random = { @Sendable _ in 0 }
         } operation: {
             // Ensure we trim builds as part of triggering
             // setup
@@ -757,6 +780,9 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.buildTriggerAllowList = { [] }
+            $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.random = { @Sendable _ in 0 }
         } operation: {
             // Ensure we trim builds as part of triggering
             // setup
@@ -882,6 +908,9 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.buildTriggerAllowList = { [] }
+            $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.random = { @Sendable _ in 0 }
         } operation: {
             // Ensure don't trigger if the override is off
             // setup
@@ -957,6 +986,7 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 0.05 } // 5% downscaling rate
         } operation: {
             // Test build trigger downscaling behaviour
