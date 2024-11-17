@@ -441,7 +441,7 @@ class GithubTests: AppTestCase {
     }
 
     func test_extractImagesRequiringCaching_noUnnecessaryChanges() async throws {
-        try withDependencies {
+        withDependencies {
             $0.environment.awsReadmeBucket = { "awsReadmeBucket" }
         } operation: {
             var readme = """
