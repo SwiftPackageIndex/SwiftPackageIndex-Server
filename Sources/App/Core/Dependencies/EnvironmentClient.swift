@@ -21,17 +21,17 @@ import Vapor
 struct EnvironmentClient {
     // See https://swiftpackageindex.com/pointfreeco/swift-dependencies/main/documentation/dependenciesmacros/dependencyclient()#Restrictions
     // regarding the use of XCTFail here.
-    var allowBuildTriggers: @Sendable () -> Bool = { XCTFail(#function); return true }
-    var allowSocialPosts: @Sendable () -> Bool = { XCTFail(#function); return true }
+    var allowBuildTriggers: @Sendable () -> Bool = { XCTFail("allowBuildTriggers"); return true }
+    var allowSocialPosts: @Sendable () -> Bool = { XCTFail("allowSocialPosts"); return true }
     var awsAccessKeyId: @Sendable () -> String?
     var awsDocsBucket: @Sendable () -> String?
     var awsReadmeBucket: @Sendable () -> String?
     var awsSecretAccessKey: @Sendable () -> String?
     var builderToken: @Sendable () -> String?
-    var buildTimeout: @Sendable () -> Int = { XCTFail(#function); return 10 }
-    var buildTriggerAllowList: @Sendable () -> [Package.Id] = { XCTFail(#function); return [] }
-    var buildTriggerDownscaling: @Sendable () -> Double = { XCTFail(#function); return 1 }
-    var buildTriggerLatestSwiftVersionDownscaling: @Sendable () -> Double = { XCTFail(#function); return 1 }
+    var buildTimeout: @Sendable () -> Int = { XCTFail("buildTimeout"); return 10 }
+    var buildTriggerAllowList: @Sendable () -> [Package.Id] = { XCTFail("buildTriggerAllowList"); return [] }
+    var buildTriggerDownscaling: @Sendable () -> Double = { XCTFail("buildTriggerDownscaling"); return 1 }
+    var buildTriggerLatestSwiftVersionDownscaling: @Sendable () -> Double = { XCTFail("buildTriggerLatestSwiftVersionDownscaling"); return 1 }
     // We're not defaulting current to XCTFail, because its use is too pervasive and would require the vast
     // majority of tests to be wrapped with `withDependencies`.
     // We can do so at a later time once more tests are transitioned over for other dependencies. This is
@@ -40,7 +40,7 @@ struct EnvironmentClient {
     var current: @Sendable () -> Environment = { .development }
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
     var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
-    var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail(#function); return Double.random(in: $0) }
+    var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
 }
 
 
