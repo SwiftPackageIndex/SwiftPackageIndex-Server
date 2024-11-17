@@ -154,38 +154,39 @@ class BuildTriggerTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2159
         // for details
         // setup
-        let pkgIdIncomplete1 = UUID()
-        let pkgIdIncomplete2 = UUID()
-        Current.buildTriggerAllowList = { [pkgIdIncomplete2] }
-        // save two packages with partially completed builds
-        for id in [pkgIdIncomplete1, pkgIdIncomplete2] {
-            let p = Package(id: id, url: id.uuidString.url)
-            try await p.save(on: app.db)
-            for kind in [Version.Kind.defaultBranch, .release] {
-                let v = try Version(package: p,
-                                    latest: kind,
-                                    reference: kind == .release
+        try await withDependencies {
+            $0.environment.buildTriggerAllowList = { [.id1] }
+        } operation: {
+            // save two packages with partially completed builds
+            for id in [UUID.id0, .id1] {
+                let p = Package(id: id, url: id.uuidString.url)
+                try await p.save(on: app.db)
+                for kind in [Version.Kind.defaultBranch, .release] {
+                    let v = try Version(package: p,
+                                        latest: kind,
+                                        reference: kind == .release
                                         ? .tag(1, 2, 3)
                                         : .branch("main"))
-                try await v.save(on: app.db)
-                for pair in BuildPair.all
-                    .dropFirst() // skip one platform to create a build gap
-                {
-                    try await Build(id: UUID(),
-                                    version: v,
-                                    platform: pair.platform,
-                                    status: .ok,
-                                    swiftVersion: pair.swiftVersion)
-                    .save(on: app.db)
+                    try await v.save(on: app.db)
+                    for pair in BuildPair.all
+                        .dropFirst() // skip one platform to create a build gap
+                    {
+                        try await Build(id: UUID(),
+                                        version: v,
+                                        platform: pair.platform,
+                                        status: .ok,
+                                        swiftVersion: pair.swiftVersion)
+                        .save(on: app.db)
+                    }
                 }
             }
+
+            // MUT
+            let ids = try await fetchBuildCandidates(app.db)
+
+            // validate
+            XCTAssertEqual(ids, [.id1, .id0])
         }
-
-        // MUT
-        let ids = try await fetchBuildCandidates(app.db)
-
-        // validate
-        XCTAssertEqual(ids, [pkgIdIncomplete2, pkgIdIncomplete1])
     }
 
     func test_missingPairs() throws {
@@ -808,43 +809,71 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_buildTriggerCandidatesSkipLatestSwiftVersion() throws {
-        do {
+        @Dependency(\.environment) var environment
+        withDependencies {
             // Test downscaling set to 10%
-            Current.buildTriggerLatestSwiftVersionDownscaling = { 0.1 }
-
+            $0.environment.buildTriggerLatestSwiftVersionDownscaling = { 0.1 }
+        } operation: {
             // Roll just below threshold should keep latest Swift version
-            Current.random = { _ in 0.09}
-            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, true)
+            withDependencies {
+                $0.environment.random = { @Sendable _ in 0.09 }
+            } operation: {
+                XCTAssertEqual(environment.buildTriggerCandidatesWithLatestSwiftVersion, true)
+            }
             // Roll on threshold should skip latest Swift version
-            Current.random = { _ in 0.1}
-            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            withDependencies {
+                $0.environment.random = { @Sendable _ in 0.1 }
+            } operation: {
+                XCTAssertEqual(environment.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            }
             // Roll just above threshold should skip latest Swift version
-            Current.random = { _ in 0.11}
-            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            withDependencies {
+                $0.environment.random = { @Sendable _ in 0.11 }
+            } operation: {
+                XCTAssertEqual(environment.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            }
         }
 
-        do {
+        withDependencies {
             // Set downscaling to 0 in order to fully skip latest Swift version based candidate selection
-            Current.buildTriggerLatestSwiftVersionDownscaling = { 0 }
-
-            Current.random = { _ in 0 }
-            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
-            Current.random = { _ in 0.5 }
-            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
-            Current.random = { _ in 1 }
-            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            $0.environment.buildTriggerLatestSwiftVersionDownscaling = { 0 }
+        } operation: {
+            withDependencies {
+                $0.environment.random = { @Sendable _ in 0 }
+            } operation: {
+                XCTAssertEqual(environment.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            }
+            withDependencies {
+                $0.environment.random = { @Sendable _ in 0.5 }
+            } operation: {
+                XCTAssertEqual(environment.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            }
+            withDependencies {
+                $0.environment.random = { @Sendable _ in 1 }
+            } operation: {
+                XCTAssertEqual(environment.buildTriggerCandidatesWithLatestSwiftVersion, false)
+            }
         }
 
-        do {
+        withDependencies {
             // Set downscaling to 1 in order to fully disable any downscaling
-            Current.buildTriggerLatestSwiftVersionDownscaling = { 1 }
-
-            Current.random = { _ in 0 }
-            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, true)
-            Current.random = { _ in 0.5 }
-            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, true)
-            Current.random = { _ in 1 }
-            XCTAssertEqual(Current.buildTriggerCandidatesWithLatestSwiftVersion, true)
+            $0.environment.buildTriggerLatestSwiftVersionDownscaling = { 1 }
+        } operation: {
+            withDependencies {
+                $0.environment.random = { @Sendable _ in 0 }
+            } operation: {
+                XCTAssertEqual(environment.buildTriggerCandidatesWithLatestSwiftVersion, true)
+            }
+            withDependencies {
+                $0.environment.random = { @Sendable _ in 0.5 }
+            } operation: {
+                XCTAssertEqual(environment.buildTriggerCandidatesWithLatestSwiftVersion, true)
+            }
+            withDependencies {
+                $0.environment.random = { @Sendable _ in 1 }
+            } operation: {
+                XCTAssertEqual(environment.buildTriggerCandidatesWithLatestSwiftVersion, true)
+            }
         }
     }
 
@@ -928,14 +957,14 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.buildTriggerDownscaling = { 0.05 } // 5% downscaling rate
         } operation: {
             // Test build trigger downscaling behaviour
             // setup
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
-            Current.buildTriggerDownscaling = { 0.05 }  // 5% downscaling rate
-                                                        // Use live dependency but replace actual client with a mock so we can
-                                                        // assert on the details being sent without actually making a request
+            // Use live dependency but replace actual client with a mock so we can
+            // assert on the details being sent without actually making a request
             Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
                 try await Gitlab.Builder.triggerBuild(client: client,
                                                       buildId: buildId,
@@ -954,9 +983,10 @@ class BuildTriggerTests: AppTestCase {
                 )
             }
 
-            do {  // confirm that bad luck prevents triggers
-                Current.random = { _ in 0.05 }  // rolling a 0.05 ... so close!
-
+            // confirm that bad luck prevents triggers
+            try await withDependencies {
+                $0.environment.random = { @Sendable _ in 0.05 } // rolling a 0.05 ... so close!
+            } operation: {
                 let pkgId = UUID()
                 let versionId = UUID()
                 let p = Package(id: pkgId, url: "1")
@@ -975,9 +1005,10 @@ class BuildTriggerTests: AppTestCase {
 
             triggerCount = 0
 
-            do {  // if we get lucky however...
-                Current.random = { _ in 0.049 }  // rolling a 0.049 gets you in
-
+            // if we get lucky however...
+            try await withDependencies {
+                $0.environment.random = { @Sendable _ in 0.049 } // rolling a 0.049 gets you in
+            } operation: {
                 let pkgId = UUID()
                 let versionId = UUID()
                 let p = Package(id: pkgId, url: "2")
@@ -1002,14 +1033,13 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.buildTriggerAllowList = { [.id0] }
+            $0.environment.buildTriggerDownscaling = { 0.05 } // 5% downscaling rate
         } operation: {
             // Test build trigger downscaling behaviour for allow-listed packages
             // setup
             Current.gitlabPipelineToken = { "pipeline token" }
             Current.siteURL = { "http://example.com" }
-            Current.buildTriggerDownscaling = { 0.05 }  // 5% downscaling rate
-            let pkgId = UUID()
-            Current.buildTriggerAllowList = { [pkgId] }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
             Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
@@ -1030,11 +1060,12 @@ class BuildTriggerTests: AppTestCase {
                 )
             }
 
-            do {  // confirm that we trigger even when rolling above the threshold
-                Current.random = { _ in 0.051 }
-
+            // confirm that we trigger even when rolling above the threshold
+            try await withDependencies {
+                $0.environment.random = { @Sendable _ in 0.051 }
+            } operation: {
                 let versionId = UUID()
-                let p = Package(id: pkgId, url: "https://github.com/foo/bar.git")
+                let p = Package(id: .id0, url: "https://github.com/foo/bar.git")
                 try await p.save(on: app.db)
                 try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
                     .save(on: app.db)
@@ -1042,7 +1073,7 @@ class BuildTriggerTests: AppTestCase {
                 // MUT
                 try await triggerBuilds(on: app.db,
                                         client: client,
-                                        mode: .packageId(pkgId, force: false))
+                                        mode: .packageId(.id0, force: false))
 
                 // validate
                 XCTAssertEqual(triggerCount, 27)

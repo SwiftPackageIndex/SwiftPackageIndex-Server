@@ -29,6 +29,9 @@ struct EnvironmentClient {
     var awsSecretAccessKey: @Sendable () -> String?
     var builderToken: @Sendable () -> String?
     var buildTimeout: @Sendable () -> Int = { XCTFail(#function); return 10 }
+    var buildTriggerAllowList: @Sendable () -> [Package.Id] = { XCTFail(#function); return [] }
+    var buildTriggerDownscaling: @Sendable () -> Double = { XCTFail(#function); return 1 }
+    var buildTriggerLatestSwiftVersionDownscaling: @Sendable () -> Double = { XCTFail(#function); return 1 }
     // We're not defaulting current to XCTFail, because its use is too pervasive and would require the vast
     // majority of tests to be wrapped with `withDependencies`.
     // We can do so at a later time once more tests are transitioned over for other dependencies. This is
@@ -37,6 +40,7 @@ struct EnvironmentClient {
     var current: @Sendable () -> Environment = { .development }
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
     var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
+    var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail(#function); return Double.random(in: $0) }
 }
 
 
@@ -57,13 +61,42 @@ extension EnvironmentClient: DependencyKey {
             awsSecretAccessKey: { Environment.get("AWS_SECRET_ACCESS_KEY") },
             builderToken: { Environment.get("BUILDER_TOKEN") },
             buildTimeout: { Environment.get("BUILD_TIMEOUT").flatMap(Int.init) ?? 10 },
+            buildTriggerAllowList: {
+                Environment.get("BUILD_TRIGGER_ALLOW_LIST")
+                    .map { Data($0.utf8) }
+                    .flatMap { try? JSONDecoder().decode([Package.Id].self, from: $0) }
+                ?? []
+            },
+            buildTriggerDownscaling: {
+                Environment.get("BUILD_TRIGGER_DOWNSCALING")
+                    .flatMap(Double.init)
+                    ?? 1.0
+            },
+            buildTriggerLatestSwiftVersionDownscaling: {
+                Environment.get("BUILD_TRIGGER_LATEST_SWIFT_VERSION_DOWNSCALING")
+                    .flatMap(Double.init)
+                    ?? 1.0
+            },
             current: { (try? Environment.detect()) ?? .development },
             mastodonCredentials: {
                 Environment.get("MASTODON_ACCESS_TOKEN")
                     .map(Mastodon.Credentials.init(accessToken:))
             },
-            mastodonPost: { client, message in try await Mastodon.post(client: client, message: message) }
+            mastodonPost: { client, message in try await Mastodon.post(client: client, message: message) },
+            random: { range in Double.random(in: range) }
         )
+    }
+}
+
+
+extension EnvironmentClient {
+    var buildTriggerCandidatesWithLatestSwiftVersion: Bool {
+        guard buildTriggerLatestSwiftVersionDownscaling() < 1 else { return true }
+        return random(0...1) < buildTriggerLatestSwiftVersionDownscaling()
+    }
+
+    var buildTriggerDownscalingAccepted: Bool {
+        random(0...1) < buildTriggerDownscaling()
     }
 }
 

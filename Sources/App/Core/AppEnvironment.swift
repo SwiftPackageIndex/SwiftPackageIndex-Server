@@ -25,9 +25,6 @@ import FoundationNetworking
 struct AppEnvironment: Sendable {
     var apiSigningKey: @Sendable () -> String?
     var appVersion: @Sendable () -> String?
-    var buildTriggerAllowList: @Sendable () -> [Package.Id]
-    var buildTriggerDownscaling: @Sendable () -> Double
-    var buildTriggerLatestSwiftVersionDownscaling: @Sendable () -> Double
     var collectionSigningCertificateChain: @Sendable () -> [URL]
     var collectionSigningPrivateKey: @Sendable () -> Data?
     var currentReferenceCache: @Sendable () -> CurrentReferenceCache?
@@ -54,7 +51,6 @@ struct AppEnvironment: Sendable {
     var plausibleBackendReportingSiteID: @Sendable () -> String?
     var postPlausibleEvent: @Sendable (Client, Plausible.Event.Kind, Plausible.Path, User?) async throws -> Void
     var processingBuildBacklog: @Sendable () -> Bool
-    var random: @Sendable (_ range: ClosedRange<Double>) -> Double
     var runnerIds: @Sendable () -> [String]
     var setHTTPClient: @Sendable (Client) -> Void
     var setLogger: @Sendable (Logger) -> Void
@@ -78,11 +74,6 @@ struct AppEnvironment: Sendable {
 
 
 extension AppEnvironment {
-    var buildTriggerCandidatesWithLatestSwiftVersion: Bool {
-        guard buildTriggerLatestSwiftVersionDownscaling() < 1 else { return true }
-        return random(0...1) < Current.buildTriggerLatestSwiftVersionDownscaling()
-    }
-
     func postPlausibleEvent(_ event: Plausible.Event.Kind, path: Plausible.Path, user: User?) {
         Task {
             do {
@@ -102,22 +93,6 @@ extension AppEnvironment {
     static let live = AppEnvironment(
         apiSigningKey: { Environment.get("API_SIGNING_KEY") },
         appVersion: { App.appVersion },
-        buildTriggerAllowList: {
-            Environment.get("BUILD_TRIGGER_ALLOW_LIST")
-                .map { Data($0.utf8) }
-                .flatMap { try? JSONDecoder().decode([Package.Id].self, from: $0) }
-            ?? []
-        },
-        buildTriggerDownscaling: {
-            Environment.get("BUILD_TRIGGER_DOWNSCALING")
-                .flatMap(Double.init)
-                ?? 1.0
-        },
-        buildTriggerLatestSwiftVersionDownscaling: {
-            Environment.get("BUILD_TRIGGER_LATEST_SWIFT_VERSION_DOWNSCALING")
-                .flatMap(Double.init)
-                ?? 1.0
-        },
         collectionSigningCertificateChain: {
             [
                 SignedCollection.certsDir
@@ -172,7 +147,6 @@ extension AppEnvironment {
         processingBuildBacklog: {
             Environment.get("PROCESSING_BUILD_BACKLOG").flatMap(\.asBool) ?? false
         },
-        random: { range in Double.random(in: range) },
         runnerIds: {
             Environment.get("RUNNER_IDS")
                 .map { Data($0.utf8) }

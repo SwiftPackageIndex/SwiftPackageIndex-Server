@@ -24,9 +24,6 @@ extension AppEnvironment {
         .init(
             apiSigningKey: { nil },
             appVersion: { "test" },
-            buildTriggerAllowList: { [] },
-            buildTriggerDownscaling: { 1.0 },
-            buildTriggerLatestSwiftVersionDownscaling: { 1.0 },
             collectionSigningCertificateChain: AppEnvironment.live.collectionSigningCertificateChain,
             collectionSigningPrivateKey: AppEnvironment.live.collectionSigningPrivateKey,
             currentReferenceCache: { nil },
@@ -53,7 +50,6 @@ extension AppEnvironment {
             plausibleBackendReportingSiteID: { nil },
             postPlausibleEvent: { _, _, _, _ in },
             processingBuildBacklog: { false },
-            random: { range in Double.random(in: range) },
             runnerIds: { [] },
             setHTTPClient: { client in Self.httpClient = client },
             setLogger: { logger in Self.logger = logger },
