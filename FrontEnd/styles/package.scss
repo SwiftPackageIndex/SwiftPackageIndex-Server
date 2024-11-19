@@ -175,6 +175,13 @@
                         background-color: var(--custom-collections-badge-background);
                         border-radius: 3px;
                     }
+
+                    &:hover {
+                        .badge {
+                            color: var(--white);
+                            background-color: var(--link-highlight);
+                        }
+                    }
                 }
             }
         }
