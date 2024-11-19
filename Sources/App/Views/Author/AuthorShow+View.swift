@@ -53,7 +53,7 @@ enum AuthorShow {
                     .text("These packages are available as a package collection, "),
                     .a(
                         .href(SiteURL.packageCollections.relativeURL()),
-                        "usable in Xcode 13 or the Swift Package Manager 5.5"
+                        "usable in Xcode or SwiftPM"
                     ),
                     .text(".")
                 ),
