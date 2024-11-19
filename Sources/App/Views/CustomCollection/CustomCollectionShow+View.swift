@@ -49,12 +49,19 @@ enum CustomCollectionShow {
                     .text("\(model.name) package collection")
                 ),
                 .p(
-                    .text("These packages are available as a package collection, "),
+                    .text("The packages in this collection are part of a custom package collection, "),
                     .a(
                         .href(SiteURL.packageCollections.relativeURL()),
-                        "usable in Xcode 13 or the Swift Package Manager 5.5"
+                        .text("usable in Xcode or SwiftPM")
+                    ),
+                    .text(". You can find out more about custom package collections and how to request one in the "),
+                    .a(
+                        .href(SiteURL.blogPost(.value("introducing-custom-package-collections")).relativeURL()),
+                        .text("launch blog post")
+
                     ),
                     .text(".")
+
                 ),
                 .copyableInputForm(buttonName: "Copy Package Collection URL",
                                    eventName: "Copy Package Collection URL Button",
