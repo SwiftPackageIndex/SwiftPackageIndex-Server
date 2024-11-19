@@ -174,6 +174,7 @@ extension PackageShow {
                     model.historyListItem(),
                     model.activityListItem(),
                     model.dependenciesListItem(),
+                    model.customCollectionsListItem(),
                     model.licenseListItem(),
                     model.starsListItem(),
                     model.productTypeListItem(.library),
