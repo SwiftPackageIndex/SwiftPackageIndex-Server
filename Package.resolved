@@ -1,5 +1,5 @@
 {
-  "originHash" : "8c45d70edc4510804b1c78bc9d73180ae295bed26df024a79b62b2211b36c577",
+  "originHash" : "7c6557f3276fcd3e4cd54be56159aef85ce0d48334720797d86290fca60a5009",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -488,6 +488,15 @@
       }
     },
     {
+      "identity" : "swift-prometheus",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swift-server/swift-prometheus.git",
+      "state" : {
+        "revision" : "0d4bb1b93f3f8e1025c6f149a06ede0a075f7916",
+        "version" : "1.0.2"
+      }
+    },
+    {
       "identity" : "swift-service-lifecycle",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server/swift-service-lifecycle.git",
@@ -539,15 +548,6 @@
       "state" : {
         "revision" : "44f9468f5ac0ce9e931062dcc667b4a8e2c498d0",
         "version" : "2.20.1"
-      }
-    },
-    {
-      "identity" : "swiftprometheus",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/MrLotU/SwiftPrometheus.git",
-      "state" : {
-        "revision" : "0d4bb1b93f3f8e1025c6f149a06ede0a075f7916",
-        "version" : "1.0.2"
       }
     },
     {
