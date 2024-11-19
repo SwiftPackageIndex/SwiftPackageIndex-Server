@@ -398,14 +398,26 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
-    func customCollectionsItem() -> Node<HTML.ListContext> {
-        guard !customCollections.isEmpty else { return .empty }
-        return .li(
+    func customCollectionBadges() -> Node<HTML.BodyContext> {
+        guard customCollections.isEmpty == false else { return .empty }
+
+        return .div(
             .class("custom-collections"),
             .forEach(customCollections, { collection in
                     .a(
                         .href(SiteURL.collections(.value(collection.key)).relativeURL()),
-                        .text("\(collection.name)")
+                        .div(
+                            .class("custom-collection-badge"),
+                            .unwrap(collection.badge, { badge in
+                                    .span(
+                                        .class("badge"),
+                                        .text(badge)
+                                    )
+                            }),
+                            .span(
+                                .text(collection.name)
+                            )
+                        )
                     )
             })
         )

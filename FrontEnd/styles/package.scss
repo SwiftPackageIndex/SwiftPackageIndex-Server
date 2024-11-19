@@ -32,7 +32,7 @@
             -webkit-line-clamp: 1;
         }
 
-        span {
+        small > span {
             margin: 0 2px;
         }
     }
@@ -156,7 +156,7 @@
                     align-items: center;
                 }
             }
-            
+
             li.custom-collections {
                 grid-column-start: span 2;
                 background-image: var(--image-tags);
@@ -194,6 +194,30 @@
                         background-repeat: no-repeat;
                         background-size: 18px;
                         background-image: var(--image-github);
+                    }
+                }
+            }
+        }
+
+        .custom-collections {
+            display: flex;
+            flex-direction: column;
+
+            .custom-collection-badge {
+                display: inline-flex;
+                overflow: hidden;
+                font-size: 13px;
+                border: 1px solid var(--mid-green);
+                border-radius: 3px;
+
+                span {
+                    padding: 0 5px;
+                    color: var(--black);
+                    background-color: var(--very-light-green);
+
+                    &.badge {
+                        color: var(--white);
+                        background-color: var(--light-green);
                     }
                 }
             }
