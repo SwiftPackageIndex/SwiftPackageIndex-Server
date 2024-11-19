@@ -153,6 +153,7 @@ extension PackageShow {
                     .hr(
                         .class("minor")
                     ),
+                    model.customCollectionBadges(),
                     sidebarVersions(),
                     .hr(
                         .class("minor")
@@ -180,8 +181,7 @@ extension PackageShow {
                     model.productTypeListItem(.plugin),
                     model.targetTypeListItem(.macro),
                     model.dataRaceSafeListItem(),
-                    model.keywordsListItem(),
-                    model.customCollectionsItem()
+                    model.keywordsListItem()
                 )
             )
         }
