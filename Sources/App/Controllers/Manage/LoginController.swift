@@ -42,8 +42,10 @@ enum LoginController {
                 break
             }
             return Login.View(path: req.url.path, model: model).document().encodeResponse(status: .unauthorized)
+        } catch let error as AWSClientError {
+            return Login.View(path: SiteURL.signup.relativeURL(), model: Login.Model(errorMessage: "An AWS client error occurred: \(error.errorCode)")).document().encodeResponse(status: .unauthorized)
         } catch {
-            return Login.View(path: SiteURL.signup.relativeURL(), model: Login.Model(errorMessage: "An unknown error occurred. Please try again.")).document().encodeResponse(status: .unauthorized)
+            return Login.View(path: SiteURL.signup.relativeURL(), model: Login.Model(errorMessage: "An unknown error occurred: \(error.localizedDescription)")).document().encodeResponse(status: .unauthorized)
         }
         
     }
