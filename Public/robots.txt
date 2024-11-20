@@ -1,12 +1,6 @@
 Sitemap: https://swiftpackageindex.com/sitemap.xml
 
-User-agent: Bytespider
-Disallow: /
-
-User-agent: GPTBot
-Disallow: /
-
-User-agent: ClaudeBot
+User-agent: Amazonbot
 Disallow: /
 
 User-agent: anthropic-ai
@@ -15,11 +9,47 @@ Disallow: /
 User-agent: Applebot
 Disallow: /
 
-User-agent: Google-Extended
+User-agent: Bytespider
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: ClaudeBot
 Disallow: /
 
 User-agent: Cohere-ai
 Disallow: /
 
+User-agent: Diffbot
+Disallow: /
+
+User-Agent: FacebookBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ImagesiftBot
+Disallow: /
+
+User-agent: Omgili
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
 User-agent: Seekr
+Disallow: /
+
+User-agent: YouBot
 Disallow: /
