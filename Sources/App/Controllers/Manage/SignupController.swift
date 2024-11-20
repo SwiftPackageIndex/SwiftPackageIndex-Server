@@ -25,7 +25,7 @@ enum SignupController {
             let model = Signup.Model(errorMessage: error.message ?? "There was an error.")
             return Signup.View(path: req.url.path, model: model).document()
         } catch { 
-            return Signup.View(path: SiteURL.signup.relativeURL(), model: Signup.Model(errorMessage: "An unknown error occurred.")).document()
+            return Signup.View(path: SiteURL.signup.relativeURL(), model: Signup.Model(errorMessage: "An unknown error occurred: \(error.localizedDescription)")).document()
         }
         
     }
