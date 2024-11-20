@@ -38,7 +38,8 @@ enum CustomCollectionShow {
         override func breadcrumbs() -> [Breadcrumb] {
             [
                 Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
-                Breadcrumb(title: model.name)
+                Breadcrumb(title: "Collections"),
+                Breadcrumb(title: model.fullName)
             ]
         }
 
@@ -46,7 +47,7 @@ enum CustomCollectionShow {
             .group(
                 .h2(
                     .class("trimmed"),
-                    .text("\(model.name) package collection")
+                    .text("\(model.fullName) package collection")
                 ),
                 .p(
                     .text("The packages in this collection are part of a custom package collection, "),
