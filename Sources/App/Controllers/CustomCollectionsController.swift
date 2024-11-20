@@ -73,6 +73,7 @@ enum CustomCollectionsController {
         let model = CustomCollectionShow.Model(
             key: collection.key,
             name: collection.name,
+            badge: collection.badge,
             packages: packageInfo,
             page: query.page,
             hasMoreResults: page.hasMoreResults
