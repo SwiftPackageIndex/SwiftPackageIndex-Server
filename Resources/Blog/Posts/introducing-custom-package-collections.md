@@ -25,16 +25,19 @@ The `key` field essentially determines the URL at which the package collection i
 
 The `name` is its display name on the collections page as well as on the package page where we show a package’s membership to package collections:
 
-TODO: update image with new badge icon
-
 <picture>
-  <source srcset="/images/blog/custom-collections-package-page.png" media="(prefers-color-scheme: dark)">
+  <source srcset="/images/blog/custom-collections-package-page-dark.png" media="(prefers-color-scheme: dark)">
   <img src="/images/blog/custom-collections-package-page-light.png" alt="Screenshot of the custom collection badge on a package page.">
 </picture>
 
 The `description` field brielfly explains the motivation for this custom collection. It serves informational purposes and is not displayed.
 
-TODO: describe `badge` attribute.
+The optional field `badge` can be used to style the representation of the collection on the package page. If present, it will be set apart with a different background as shown in the screenshot below.
+
+<picture>
+  <source srcset="/images/blog/custom-collection-badge-dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/custom-collection-badge-light.png" alt="Screenshot of the custom collection display with and without badge.">
+</picture>
 
 Finally, the `url` field points to a location where you maintain a list of package URLs that belong to the collection. There should be of the format `https://github.com/author/package.git`. In particular, make sure the URL scheme is `https` and the `.git` suffix is included.
 
