@@ -538,6 +538,7 @@ class PackageController_routesTests: SnapshotTestCase {
         //   /owner/package/documentation/~ + various path elements
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.currentReferenceCache = { nil }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -620,6 +621,7 @@ class PackageController_routesTests: SnapshotTestCase {
         //   /owner/package/documentation/~ + various path elements
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.currentReferenceCache = { nil }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -905,6 +907,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_current_css() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.currentReferenceCache = { nil }
         } operation: {
             // setup
             Current.fetchDocumentation = { _, uri in
@@ -967,6 +970,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_current_js() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.currentReferenceCache = { nil }
         } operation: {
             // setup
             Current.fetchDocumentation = { _, uri in
@@ -1029,6 +1033,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_current_data() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.currentReferenceCache = { nil }
         } operation: {
             // setup
             Current.fetchDocumentation = { _, uri in
@@ -1146,6 +1151,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // Ensure references are path encoded
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.currentReferenceCache = { nil }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -1209,6 +1215,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_routes_tutorials() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.currentReferenceCache = { nil  }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -1478,6 +1485,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.currentReferenceCache = { .live }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "https://github.com/foo/bar".url, processingStage: .ingestion)
@@ -1555,28 +1563,31 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_getDocRoute_documentation_current() async throws {
         nonisolated(unsafe) let cache = CurrentReferenceCache()
-        Current.currentReferenceCache = { cache }
-        // owner/repo/~/documentation/archive
-        let req = Request(application: app, url: "", on: app.eventLoopGroup.next())
-        req.parameters.set("owner", to: "owner")
-        req.parameters.set("repository", to: "repo")
-        req.parameters.set("reference", to: "~")
-        req.parameters.set("archive", to: "archive")
+        try await withDependencies {
+            $0.environment.currentReferenceCache = { cache }
+        } operation: {
+            // owner/repo/~/documentation/archive
+            let req = Request(application: app, url: "", on: app.eventLoopGroup.next())
+            req.parameters.set("owner", to: "owner")
+            req.parameters.set("repository", to: "repo")
+            req.parameters.set("reference", to: "~")
+            req.parameters.set("archive", to: "archive")
 
-        do { // No cache value available and we've not set up the db with a record to be found -> notFound must be raised
-            _ = try await req.getDocRoute(fragment: .documentation)
-            XCTFail("expected a .notFound error")
-        } catch let error as Abort where error.status == .notFound {
-            // expected error
-        } catch {
-            XCTFail("unexpected error: \(error)")
-        }
+            do { // No cache value available and we've not set up the db with a record to be found -> notFound must be raised
+                _ = try await req.getDocRoute(fragment: .documentation)
+                XCTFail("expected a .notFound error")
+            } catch let error as Abort where error.status == .notFound {
+                // expected error
+            } catch {
+                XCTFail("unexpected error: \(error)")
+            }
 
-        cache[owner: "owner", repository: "repo"] = "1.2.3"
+            cache[owner: "owner", repository: "repo"] = "1.2.3"
 
-        do { // Now with the cache in place this resolves
-            let route = try await req.getDocRoute(fragment: .documentation)
-            XCTAssertEqual(route, .init(owner: "owner", repository: "repo", docVersion: .current(referencing: "1.2.3"), fragment: .documentation, pathElements: ["archive"]))
+            do { // Now with the cache in place this resolves
+                let route = try await req.getDocRoute(fragment: .documentation)
+                XCTAssertEqual(route, .init(owner: "owner", repository: "repo", docVersion: .current(referencing: "1.2.3"), fragment: .documentation, pathElements: ["archive"]))
+            }
         }
     }
 
