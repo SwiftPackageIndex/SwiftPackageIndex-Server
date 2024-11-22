@@ -22,7 +22,6 @@ import Vapor
 extension AppEnvironment {
     static func mock(eventLoop: EventLoop) -> Self {
         .init(
-            apiSigningKey: { nil },
             appVersion: { "test" },
             collectionSigningCertificateChain: AppEnvironment.live.collectionSigningCertificateChain,
             collectionSigningPrivateKey: AppEnvironment.live.collectionSigningPrivateKey,

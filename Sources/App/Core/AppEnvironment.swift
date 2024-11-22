@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var apiSigningKey: @Sendable () -> String?
     var appVersion: @Sendable () -> String?
     var collectionSigningCertificateChain: @Sendable () -> [URL]
     var collectionSigningPrivateKey: @Sendable () -> Data?
@@ -91,7 +90,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        apiSigningKey: { Environment.get("API_SIGNING_KEY") },
         appVersion: { App.appVersion },
         collectionSigningCertificateChain: {
             [

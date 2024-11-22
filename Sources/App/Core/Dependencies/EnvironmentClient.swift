@@ -23,6 +23,7 @@ struct EnvironmentClient {
     // regarding the use of XCTFail here.
     var allowBuildTriggers: @Sendable () -> Bool = { XCTFail("allowBuildTriggers"); return true }
     var allowSocialPosts: @Sendable () -> Bool = { XCTFail("allowSocialPosts"); return true }
+    var apiSigningKey: @Sendable () -> String?
     var awsAccessKeyId: @Sendable () -> String?
     var awsDocsBucket: @Sendable () -> String?
     var awsReadmeBucket: @Sendable () -> String?
@@ -55,6 +56,7 @@ extension EnvironmentClient: DependencyKey {
                     .flatMap(\.asBool)
                     ?? Constants.defaultAllowSocialPosts
             },
+            apiSigningKey: { Environment.get("API_SIGNING_KEY") },
             awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },
             awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
             awsReadmeBucket: { Environment.get("AWS_README_BUCKET") },
