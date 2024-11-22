@@ -21,9 +21,12 @@ import Vapor
 struct EnvironmentClient {
     // See https://swiftpackageindex.com/pointfreeco/swift-dependencies/main/documentation/dependenciesmacros/dependencyclient()#Restrictions
     // regarding the use of XCTFail here.
+    // Closures returning optionals or Void don't need this, because they automatically get the default failing
+    // mechanism when they're not set up in a test.
     var allowBuildTriggers: @Sendable () -> Bool = { XCTFail("allowBuildTriggers"); return true }
     var allowSocialPosts: @Sendable () -> Bool = { XCTFail("allowSocialPosts"); return true }
     var apiSigningKey: @Sendable () -> String?
+    var appVersion: @Sendable () -> String?
     var awsAccessKeyId: @Sendable () -> String?
     var awsDocsBucket: @Sendable () -> String?
     var awsReadmeBucket: @Sendable () -> String?
@@ -33,12 +36,7 @@ struct EnvironmentClient {
     var buildTriggerAllowList: @Sendable () -> [Package.Id] = { XCTFail("buildTriggerAllowList"); return [] }
     var buildTriggerDownscaling: @Sendable () -> Double = { XCTFail("buildTriggerDownscaling"); return 1 }
     var buildTriggerLatestSwiftVersionDownscaling: @Sendable () -> Double = { XCTFail("buildTriggerLatestSwiftVersionDownscaling"); return 1 }
-    // We're not defaulting current to XCTFail, because its use is too pervasive and would require the vast
-    // majority of tests to be wrapped with `withDependencies`.
-    // We can do so at a later time once more tests are transitioned over for other dependencies. This is
-    // the exact same default behaviour we have with the Current dependency injection: it defaults to
-    // .development and does not raise an error when not injected.
-    var current: @Sendable () -> Environment = { .development }
+    var current: @Sendable () -> Environment = { XCTFail("current"); return .development }
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
     var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
@@ -57,6 +55,7 @@ extension EnvironmentClient: DependencyKey {
                     ?? Constants.defaultAllowSocialPosts
             },
             apiSigningKey: { Environment.get("API_SIGNING_KEY") },
+            appVersion: { App.appVersion },
             awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },
             awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
             awsReadmeBucket: { Environment.get("AWS_README_BUCKET") },
@@ -104,7 +103,19 @@ extension EnvironmentClient {
 
 
 extension EnvironmentClient: TestDependencyKey {
-    static var testValue: Self { Self() }
+    static var testValue: Self {
+        // sas 2024-11-22:
+        // For a few attributes we provide a default value overriding the XCTFail, because theis use is too
+        // pervasive and would require the vast majority of tests to be wrapped with `withDependencies`.
+        // We can do so at a later time once more tests are transitioned over for other dependencies. This is
+        // the exact same default behaviour we had with the Current dependency injection. It did not have
+        // a "fail if not set" mechanism and relied on default values only. We're simply preserving this
+        // mechanism for a few heavily used dependencies at the moment.
+        var mock = Self()
+        mock.appVersion = { "test" }
+        mock.current = { .development }
+        return mock
+    }
 }
 
 

@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var appVersion: @Sendable () -> String?
     var collectionSigningCertificateChain: @Sendable () -> [URL]
     var collectionSigningPrivateKey: @Sendable () -> Data?
     var currentReferenceCache: @Sendable () -> CurrentReferenceCache?
@@ -90,7 +89,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        appVersion: { App.appVersion },
         collectionSigningCertificateChain: {
             [
                 SignedCollection.certsDir

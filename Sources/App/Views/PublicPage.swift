@@ -30,9 +30,10 @@ class PublicPage {
     /// The page's full HTML document.
     /// - Returns: A fully formed page inside a <html> element.
     final func document() -> HTML {
-        HTML(
+        @Dependency(\.environment) var environment
+        return HTML(
             .lang(.english),
-            .comment("Version: \(Current.appVersion())"),
+            .comment("Version: \(environment.appVersion())"),
             .comment("DB Id: \(Current.dbId())"),
             head(),
             body()
