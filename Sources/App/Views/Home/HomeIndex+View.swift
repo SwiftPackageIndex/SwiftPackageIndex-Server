@@ -76,7 +76,7 @@ enum HomeIndex {
                                 .p(
                                     .strong("Are the packages you use safe from data races?"),
                                     .text(" "),
-                                    .text("We’re tracking progress towards data race safety this summer. Find out which packages are “Ready for Swift 6” and check for packages marked as “Safe from data races” when browsing the index.")
+                                    .text("We’re tracking progress towards data race safety with Swift 6. Find out which packages are “Ready for Swift 6” and check for packages marked as “Safe from data races” when browsing the index.")
                                 )
                              ),
                              cta: "Track Progress",
