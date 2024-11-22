@@ -830,27 +830,32 @@ class PackageCollectionTests: AppTestCase {
     }
 
     func test_sign_collection() async throws {
-        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
+        try XCTSkipIf(!isRunningInCI && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
 
-        // setup
-        let collection: PackageCollection = .mock
+        try await withDependencies {
+            $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
+            $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
+        } operation: {
+            // setup
+            let collection: PackageCollection = .mock
 
-        // MUT
-        let signedCollection = try await SignedCollection.sign(collection: collection)
+            // MUT
+            let signedCollection = try await SignedCollection.sign(collection: collection)
 
-        // validate signed collection content
-        XCTAssertFalse(signedCollection.signature.signature.isEmpty)
+            // validate signed collection content
+            XCTAssertFalse(signedCollection.signature.signature.isEmpty)
 #if compiler(<6)
-        await MainActor.run {
-            assertSnapshot(of: signedCollection, as: .json(encoder))
-        }
+            await MainActor.run {
+                assertSnapshot(of: signedCollection, as: .json(encoder))
+            }
 #else
-        assertSnapshot(of: signedCollection, as: .json(encoder))
+            assertSnapshot(of: signedCollection, as: .json(encoder))
 #endif
 
-        // validate signature
-        let validated = try await SignedCollection.validate(signedCollection: signedCollection)
-        XCTAssertTrue(validated)
+            // validate signature
+            let validated = try await SignedCollection.validate(signedCollection: signedCollection)
+            XCTAssertTrue(validated)
+        }
     }
 
     func test_sign_collection_revoked_key() async throws {
@@ -866,29 +871,29 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertTrue(Foundation.FileManager.default.fileExists(atPath: revokedUrl.path))
         let revokedKey = try XCTUnwrap(fixtureData(for: "revoked.pem"))
 
-        Current.collectionSigningCertificateChain = {
-            [
-                revokedUrl,
-                SignedCollection.certsDir
-                    .appendingPathComponent("AppleWWDRCAG3.cer"),
-                SignedCollection.certsDir
-                    .appendingPathComponent("AppleIncRootCertificate.cer")
-            ]
-        }
-        Current.collectionSigningPrivateKey = { revokedKey }
-
-        // MUT
-        do {
-            let signedCollection = try await SignedCollection.sign(collection: collection)
-            // NB: signing _can_ succeed in case of reachability issues to verify the cert
-            // in this case we need to check the signature
-            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1583#issuecomment-1048408400
-            let validated = try await SignedCollection.validate(signedCollection: signedCollection)
-            XCTAssertFalse(validated)
-        } catch PackageCollectionSigningError.invalidCertChain {
-            // ok
-        } catch {
-            XCTFail("unexpected signing error: \(error)")
+        await withDependencies {
+            $0.environment.collectionSigningCertificateChain = {
+                [
+                    revokedUrl,
+                    SignedCollection.certsDir.appendingPathComponent("AppleWWDRCAG3.cer"),
+                    SignedCollection.certsDir.appendingPathComponent("AppleIncRootCertificate.cer")
+                ]
+            }
+            $0.environment.collectionSigningPrivateKey = { revokedKey }
+        } operation: {
+            do {
+                // MUT
+                let signedCollection = try await SignedCollection.sign(collection: collection)
+                // NB: signing _can_ succeed in case of reachability issues to verify the cert
+                // in this case we need to check the signature
+                // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1583#issuecomment-1048408400
+                let validated = try await SignedCollection.validate(signedCollection: signedCollection)
+                XCTAssertFalse(validated)
+            } catch PackageCollectionSigningError.invalidCertChain {
+                // ok
+            } catch {
+                XCTFail("unexpected signing error: \(error)")
+            }
         }
     }
 

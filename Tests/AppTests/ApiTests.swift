@@ -30,92 +30,96 @@ class ApiTests: AppTestCase {
     }
 
     func test_search_noQuery() throws {
-        // setup
-        Current.apiSigningKey = { "secret" }
-
-        // MUT
-        try app.test(.GET, "api/search",
-                     headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier1)),
-                     afterResponse: { res in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(try res.content.decode(Search.Response.self),
-                           .init(hasMoreResults: false,
-                                 searchTerm: "",
-                                 searchFilters: [],
-                                 results: []))
-        })
+        try withDependencies {
+            $0.environment.apiSigningKey = { "secret" }
+        } operation: {
+            // MUT
+            try app.test(.GET, "api/search",
+                         headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier1)),
+                         afterResponse: { res in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(try res.content.decode(Search.Response.self),
+                               .init(hasMoreResults: false,
+                                     searchTerm: "",
+                                     searchFilters: [],
+                                     results: []))
+            })
+        }
     }
 
     func test_search_basic_param() async throws {
-        // setup
-        Current.apiSigningKey = { "secret" }
-        let p1 = Package(id: .id0, url: "1")
-        try await p1.save(on: app.db)
-        let p2 = Package(id: .id1, url: "2")
-        try await p2.save(on: app.db)
-        try await Repository(package: p1,
-                             defaultBranch: "main",
-                             summary: "some package").save(on: app.db)
-        try await Repository(package: p2,
-                             defaultBranch: "main",
-                             lastCommitDate: .t0,
-                             name: "name 2",
-                             owner: "owner 2",
-                             stars: 1234,
-                             summary: "foo bar package").save(on: app.db)
-        try await Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db)
-        try await Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db)
-        try await Search.refresh(on: app.db)
+        try await withDependencies {
+            $0.environment.apiSigningKey = { "secret" }
+        } operation: {
+            let p1 = Package(id: .id0, url: "1")
+            try await p1.save(on: app.db)
+            let p2 = Package(id: .id1, url: "2")
+            try await p2.save(on: app.db)
+            try await Repository(package: p1,
+                                 defaultBranch: "main",
+                                 summary: "some package").save(on: app.db)
+            try await Repository(package: p2,
+                                 defaultBranch: "main",
+                                 lastCommitDate: .t0,
+                                 name: "name 2",
+                                 owner: "owner 2",
+                                 stars: 1234,
+                                 summary: "foo bar package").save(on: app.db)
+            try await Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db)
+            try await Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db)
+            try await Search.refresh(on: app.db)
 
-        let event = App.ActorIsolated<TestEvent?>(nil)
-        Current.postPlausibleEvent = { @Sendable _, kind, path, _ in
-            await event.setValue(.init(kind: kind, path: path))
-        }
+            let event = App.ActorIsolated<TestEvent?>(nil)
+            Current.postPlausibleEvent = { @Sendable _, kind, path, _ in
+                await event.setValue(.init(kind: kind, path: path))
+            }
 
-        // MUT
-        try await app.test(.GET, "api/search?query=foo%20bar",
-                     headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier1)),
-                     afterResponse: { res async in
-            // validation
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(
-                try res.content.decode(Search.Response.self),
-                .init(hasMoreResults: false,
-                      searchTerm: "foo bar",
-                      searchFilters: [],
-                      results: [
-                        .package(
-                            .init(packageId: .id1,
-                                  packageName: "Bar",
-                                  packageURL: "/owner%202/name%202",
-                                  repositoryName: "name 2",
-                                  repositoryOwner: "owner 2",
-                                  stars: 1234,
-                                  lastActivityAt: .t0,
-                                  summary: "foo bar package",
-                                  keywords: [],
-                                  hasDocs: false)!
-                        )
-                      ])
-            )
-        })
+            // MUT
+            try await app.test(.GET, "api/search?query=foo%20bar",
+                               headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier1)),
+                               afterResponse: { res async in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(
+                    try res.content.decode(Search.Response.self),
+                    .init(hasMoreResults: false,
+                          searchTerm: "foo bar",
+                          searchFilters: [],
+                          results: [
+                            .package(
+                                .init(packageId: .id1,
+                                      packageName: "Bar",
+                                      packageURL: "/owner%202/name%202",
+                                      repositoryName: "name 2",
+                                      repositoryOwner: "owner 2",
+                                      stars: 1234,
+                                      lastActivityAt: .t0,
+                                      summary: "foo bar package",
+                                      keywords: [],
+                                      hasDocs: false)!
+                            )
+                          ])
+                )
+            })
 
-        // ensure API event has been reported
-        await event.withValue {
-            XCTAssertEqual($0, .some(.init(kind: .pageview, path: .search)))
+            // ensure API event has been reported
+            await event.withValue {
+                XCTAssertEqual($0, .some(.init(kind: .pageview, path: .search)))
+            }
         }
     }
 
     func test_search_unauthenticated() async throws {
-        // setup
-        Current.apiSigningKey = { "secret" }
-
-        // MUT
-        try await app.test(.GET, "api/search?query=test",
-                     afterResponse: { res async in
-            // validation
-            XCTAssertEqual(res.status, .unauthorized)
-        })
+        try await withDependencies {
+            $0.environment.apiSigningKey = { "secret" }
+        } operation: {
+            // MUT
+            try await app.test(.GET, "api/search?query=test",
+                               afterResponse: { res async in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+            })
+        }
     }
 
     func test_buildReportDecoder() throws {
@@ -823,12 +827,14 @@ class ApiTests: AppTestCase {
     }
 
     func test_package_collections_owner() async throws {
-        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
+        try XCTSkipIf(!isRunningInCI && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         try await withDependencies {
             $0.date.now = .t0
+            $0.environment.apiSigningKey = { "secret" }
+            $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
+            $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
         } operation: {
             // setup
-            Current.apiSigningKey = { "secret" }
             let p1 = Package(id: .id1, url: "1")
             try await p1.save(on: app.db)
             try await Repository(package: p1,
@@ -890,13 +896,15 @@ class ApiTests: AppTestCase {
     }
 
     func test_package_collections_packageURLs() async throws {
-        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
+        try XCTSkipIf(!isRunningInCI && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         let refDate = Date(timeIntervalSince1970: 0)
         try await withDependencies {
             $0.date.now = refDate
+            $0.environment.apiSigningKey = { "secret" }
+            $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
+            $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
         } operation: {
             // setup
-            Current.apiSigningKey = { "secret" }
             let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
                              url: "1")
             try await p1.save(on: app.db)
@@ -968,28 +976,31 @@ class ApiTests: AppTestCase {
     }
 
     func test_package_collections_packageURLs_limit() throws {
-        Current.apiSigningKey = { "secret" }
-        let dto = API.PostPackageCollectionDTO(
-            // request 21 urls - this should raise a 400
-            selection: .packageURLs((0...20).map(String.init))
-        )
-        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+        try withDependencies {
+            $0.environment.apiSigningKey = { "secret" }
+        } operation: {
+            let dto = API.PostPackageCollectionDTO(
+                // request 21 urls - this should raise a 400
+                selection: .packageURLs((0...20).map(String.init))
+            )
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
 
-        try app.test(.POST,
-                     "api/package-collections",
-                     headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
-                     body: body,
-                     afterResponse: { res in
-                        // validation
-                        XCTAssertEqual(res.status, .badRequest)
-                     })
+            try app.test(.POST,
+                         "api/package-collections",
+                         headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
+                         body: body,
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .badRequest)
+            })
+        }
     }
 
     func test_package_collections_unauthorized() throws {
-        // setup
-        Current.apiSigningKey = { "secret" }
-
-        do {  // MUT - happy path
+        try withDependencies {
+            $0.environment.apiSigningKey = { "secret" }
+        } operation: {
+            // MUT - happy path
             let body: ByteBuffer = .init(string: """
                 {
                   "revision": 3,
@@ -1029,91 +1040,94 @@ class ApiTests: AppTestCase {
     }
 
     func test_packages_get() async throws {
-        // setup
-        Current.apiSigningKey = { "secret" }
-        let owner = "owner"
-        let repo = "repo"
-        let p = try await savePackage(on: app.db, "1")
-        let v = try Version(package: p, latest: .defaultBranch, reference: .branch("main"))
-        try await v.save(on: app.db)
-        try await Repository(package: p,
-                             defaultBranch: "main",
-                             license: .mit,
-                             name: repo,
-                             owner: owner).save(on: app.db)
+        try await withDependencies {
+            $0.environment.apiSigningKey = { "secret" }
+        } operation: {
+            let owner = "owner"
+            let repo = "repo"
+            let p = try await savePackage(on: app.db, "1")
+            let v = try Version(package: p, latest: .defaultBranch, reference: .branch("main"))
+            try await v.save(on: app.db)
+            try await Repository(package: p,
+                                 defaultBranch: "main",
+                                 license: .mit,
+                                 name: repo,
+                                 owner: owner).save(on: app.db)
 
-        do {  // MUT - happy path
-            try await app.test(.GET, "api/packages/owner/repo",
-                         headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier3)),
-                         afterResponse: { res async throws in
-                // validation
-                XCTAssertEqual(res.status, .ok)
-                let model = try res.content.decode(API.PackageController.GetRoute.Model.self)
-                XCTAssertEqual(model.repositoryOwner, "owner")
-            })
-        }
+            do {  // MUT - happy path
+                try await app.test(.GET, "api/packages/owner/repo",
+                                   headers: .bearerApplicationJSON(try .apiToken(secretKey: "secret", tier: .tier3)),
+                                   afterResponse: { res async throws in
+                    // validation
+                    XCTAssertEqual(res.status, .ok)
+                    let model = try res.content.decode(API.PackageController.GetRoute.Model.self)
+                    XCTAssertEqual(model.repositoryOwner, "owner")
+                })
+            }
 
-        do {  // MUT - unauthorized (no token provided)
-            try await app.test(.GET, "api/packages/owner/repo",
-                         headers: .applicationJSON,
-                         afterResponse: { res async in
-                // validation
-                XCTAssertEqual(res.status, .unauthorized)
-            })
-        }
+            do {  // MUT - unauthorized (no token provided)
+                try await app.test(.GET, "api/packages/owner/repo",
+                                   headers: .applicationJSON,
+                                   afterResponse: { res async in
+                    // validation
+                    XCTAssertEqual(res.status, .unauthorized)
+                })
+            }
 
-        do {  // MUT - unauthorized (wrong token provided)
-            try await app.test(.GET, "api/packages/owner/repo",
-                         headers: .bearerApplicationJSON("bad token"),
-                         afterResponse: { res async in
-                // validation
-                XCTAssertEqual(res.status, .unauthorized)
-            })
-        }
+            do {  // MUT - unauthorized (wrong token provided)
+                try await app.test(.GET, "api/packages/owner/repo",
+                                   headers: .bearerApplicationJSON("bad token"),
+                                   afterResponse: { res async in
+                    // validation
+                    XCTAssertEqual(res.status, .unauthorized)
+                })
+            }
 
-        do {  // MUT - unauthorized (signed with wrong key)
-            try await app.test(.GET, "api/packages/unknown/package",
-                         headers: .bearerApplicationJSON((try .apiToken(secretKey: "wrong", tier: .tier3))),
-                         afterResponse: { res async in
-                // validation
-                XCTAssertEqual(res.status, .unauthorized)
-            })
-        }
-        do {  // MUT - package not found
-            try await app.test(.GET, "api/packages/unknown/package",
-                         headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
-                         afterResponse: { res async in
-                // validation
-                XCTAssertEqual(res.status, .notFound)
-            })
+            do {  // MUT - unauthorized (signed with wrong key)
+                try await app.test(.GET, "api/packages/unknown/package",
+                                   headers: .bearerApplicationJSON((try .apiToken(secretKey: "wrong", tier: .tier3))),
+                                   afterResponse: { res async in
+                    // validation
+                    XCTAssertEqual(res.status, .unauthorized)
+                })
+            }
+            do {  // MUT - package not found
+                try await app.test(.GET, "api/packages/unknown/package",
+                                   headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
+                                   afterResponse: { res async in
+                    // validation
+                    XCTAssertEqual(res.status, .notFound)
+                })
+            }
         }
     }
 
     func test_dependencies_get() async throws {
-        // setup
-        Current.apiSigningKey = { "secret" }
-        let pkg = try await savePackage(on: app.db, id: .id0, "http://github.com/foo/bar")
-        try await Repository(package: pkg,
-                             defaultBranch: "default",
-                             name: "bar",
-                             owner: "foo").save(on: app.db)
-        try await Version(package: pkg,
-                          commitDate: .t0,
-                          latest: .defaultBranch,
-                          reference: .branch("default"),
-                          resolvedDependencies: [])
+        try await withDependencies {
+            $0.environment.apiSigningKey = { "secret" }
+        } operation: {
+            let pkg = try await savePackage(on: app.db, id: .id0, "http://github.com/foo/bar")
+            try await Repository(package: pkg,
+                                 defaultBranch: "default",
+                                 name: "bar",
+                                 owner: "foo").save(on: app.db)
+            try await Version(package: pkg,
+                              commitDate: .t0,
+                              latest: .defaultBranch,
+                              reference: .branch("default"),
+                              resolvedDependencies: [])
             .save(on: app.db)
-
-        // MUT
-        try await app.test(.GET, "api/dependencies",
-                     headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
-                     afterResponse: { res async in
-            // validation
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertGreaterThan(res.body.asString().count, 0)
-        })
+            
+            // MUT
+            try await app.test(.GET, "api/dependencies",
+                               headers: .bearerApplicationJSON((try .apiToken(secretKey: "secret", tier: .tier3))),
+                               afterResponse: { res async in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertGreaterThan(res.body.asString().count, 0)
+            })
+        }
     }
-
 
 }
 

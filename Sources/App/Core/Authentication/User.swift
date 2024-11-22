@@ -35,8 +35,10 @@ extension User {
     struct APITierAuthenticator: AsyncBearerAuthenticator {
         var tier: Tier<V1>
 
+        @Dependency(\.environment) var environment
+
         func authenticate(bearer: BearerAuthorization, for request: Request) async throws {
-            guard let signingKey = Current.apiSigningKey() else { throw AppError.envVariableNotSet("API_SIGNING_KEY") }
+            guard let signingKey = environment.apiSigningKey() else { throw AppError.envVariableNotSet("API_SIGNING_KEY") }
             let signer = Signer(secretSigningKey: signingKey)
             do {
                 let key = try signer.verifyToken(bearer.token)

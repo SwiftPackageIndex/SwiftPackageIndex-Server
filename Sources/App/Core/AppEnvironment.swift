@@ -23,10 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var apiSigningKey: @Sendable () -> String?
-    var appVersion: @Sendable () -> String?
-    var collectionSigningCertificateChain: @Sendable () -> [URL]
-    var collectionSigningPrivateKey: @Sendable () -> Data?
     var currentReferenceCache: @Sendable () -> CurrentReferenceCache?
     var dbId: @Sendable () -> String?
     var fetchDocumentation: @Sendable (_ client: Client, _ url: URI) async throws -> ClientResponse
@@ -91,22 +87,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        apiSigningKey: { Environment.get("API_SIGNING_KEY") },
-        appVersion: { App.appVersion },
-        collectionSigningCertificateChain: {
-            [
-                SignedCollection.certsDir
-                    .appendingPathComponent("package_collections.cer"),
-                SignedCollection.certsDir
-                    .appendingPathComponent("AppleWWDRCAG3.cer"),
-                SignedCollection.certsDir
-                    .appendingPathComponent("AppleIncRootCertificate.cer")
-            ]
-        },
-        collectionSigningPrivateKey: {
-            Environment.get("COLLECTION_SIGNING_PRIVATE_KEY")
-                .map { Data($0.utf8) }
-        },
         currentReferenceCache: { .live },
         dbId: { Environment.get("DATABASE_ID") },
         fetchDocumentation: { client, url in try await client.get(url) },
