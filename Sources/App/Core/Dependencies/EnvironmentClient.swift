@@ -37,6 +37,7 @@ struct EnvironmentClient {
     var buildTriggerDownscaling: @Sendable () -> Double = { XCTFail("buildTriggerDownscaling"); return 1 }
     var buildTriggerLatestSwiftVersionDownscaling: @Sendable () -> Double = { XCTFail("buildTriggerLatestSwiftVersionDownscaling"); return 1 }
     var collectionSigningCertificateChain: @Sendable () -> [URL] = { XCTFail("collectionSigningCertificateChain"); return [] }
+    var collectionSigningPrivateKey: @Sendable () -> Data?
     var current: @Sendable () -> Environment = { XCTFail("current"); return .development }
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
     var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
@@ -85,6 +86,9 @@ extension EnvironmentClient: DependencyKey {
                     "AppleWWDRCAG3.cer",
                     "AppleIncRootCertificate.cer",
                 ].map { SignedCollection.certsDir.appendingPathComponent($0) }
+            },
+            collectionSigningPrivateKey: {
+                Environment.get("COLLECTION_SIGNING_PRIVATE_KEY").map { Data($0.utf8) }
             },
             current: { (try? Environment.detect()) ?? .development },
             mastodonCredentials: {

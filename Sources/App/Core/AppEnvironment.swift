@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var collectionSigningPrivateKey: @Sendable () -> Data?
     var currentReferenceCache: @Sendable () -> CurrentReferenceCache?
     var dbId: @Sendable () -> String?
     var fetchDocumentation: @Sendable (_ client: Client, _ url: URI) async throws -> ClientResponse
@@ -88,10 +87,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        collectionSigningPrivateKey: {
-            Environment.get("COLLECTION_SIGNING_PRIVATE_KEY")
-                .map { Data($0.utf8) }
-        },
         currentReferenceCache: { .live },
         dbId: { Environment.get("DATABASE_ID") },
         fetchDocumentation: { client, url in try await client.get(url) },

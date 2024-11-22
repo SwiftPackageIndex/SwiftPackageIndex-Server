@@ -43,11 +43,11 @@ extension SignedCollection {
     }
 
     static func sign(collection: PackageCollection) async throws -> SignedCollection {
-        guard let privateKey = Current.collectionSigningPrivateKey() else {
+        @Dependency(\.environment) var environment
+
+        guard let privateKey = environment.collectionSigningPrivateKey() else {
             throw AppError.envVariableNotSet("COLLECTION_SIGNING_PRIVATE_KEY")
         }
-
-        @Dependency(\.environment) var environment
 
         return try await signer.sign(collection: collection,
                                      certChainPaths: environment.collectionSigningCertificateChain(),

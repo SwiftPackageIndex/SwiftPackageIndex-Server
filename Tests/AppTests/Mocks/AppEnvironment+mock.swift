@@ -22,7 +22,6 @@ import Vapor
 extension AppEnvironment {
     static func mock(eventLoop: EventLoop) -> Self {
         .init(
-            collectionSigningPrivateKey: AppEnvironment.live.collectionSigningPrivateKey,
             currentReferenceCache: { nil },
             dbId: { "db-id" },
             fetchDocumentation: { _, _ in .init(status: .ok) },

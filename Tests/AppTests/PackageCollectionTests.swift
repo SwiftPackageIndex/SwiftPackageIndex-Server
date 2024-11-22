@@ -830,17 +830,18 @@ class PackageCollectionTests: AppTestCase {
     }
 
     func test_sign_collection() async throws {
-        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
-        
+        try XCTSkipIf(!isRunningInCI && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
+
         try await withDependencies {
             $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
+            $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
         } operation: {
             // setup
             let collection: PackageCollection = .mock
-            
+
             // MUT
             let signedCollection = try await SignedCollection.sign(collection: collection)
-            
+
             // validate signed collection content
             XCTAssertFalse(signedCollection.signature.signature.isEmpty)
 #if compiler(<6)
@@ -850,7 +851,7 @@ class PackageCollectionTests: AppTestCase {
 #else
             assertSnapshot(of: signedCollection, as: .json(encoder))
 #endif
-            
+
             // validate signature
             let validated = try await SignedCollection.validate(signedCollection: signedCollection)
             XCTAssertTrue(validated)
@@ -878,11 +879,10 @@ class PackageCollectionTests: AppTestCase {
                     SignedCollection.certsDir.appendingPathComponent("AppleIncRootCertificate.cer")
                 ]
             }
+            $0.environment.collectionSigningPrivateKey = { revokedKey }
         } operation: {
-            Current.collectionSigningPrivateKey = { revokedKey }
-
-            // MUT
             do {
+                // MUT
                 let signedCollection = try await SignedCollection.sign(collection: collection)
                 // NB: signing _can_ succeed in case of reachability issues to verify the cert
                 // in this case we need to check the signature

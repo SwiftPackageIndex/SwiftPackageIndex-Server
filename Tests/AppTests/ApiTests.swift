@@ -827,11 +827,12 @@ class ApiTests: AppTestCase {
     }
 
     func test_package_collections_owner() async throws {
-        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
+        try XCTSkipIf(!isRunningInCI && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         try await withDependencies {
             $0.date.now = .t0
             $0.environment.apiSigningKey = { "secret" }
             $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
+            $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
         } operation: {
             // setup
             let p1 = Package(id: .id1, url: "1")
@@ -895,12 +896,13 @@ class ApiTests: AppTestCase {
     }
 
     func test_package_collections_packageURLs() async throws {
-        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
+        try XCTSkipIf(!isRunningInCI && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         let refDate = Date(timeIntervalSince1970: 0)
         try await withDependencies {
             $0.date.now = refDate
             $0.environment.apiSigningKey = { "secret" }
             $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
+            $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
         } operation: {
             // setup
             let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
