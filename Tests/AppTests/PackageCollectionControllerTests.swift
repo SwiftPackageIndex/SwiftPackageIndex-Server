@@ -25,6 +25,7 @@ class PackageCollectionControllerTests: AppTestCase {
         try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         try await withDependencies {
             $0.date.now = .t0
+            $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
         } operation: {
             let p = try await savePackage(on: app.db, "https://github.com/foo/1")
             do {
@@ -78,6 +79,7 @@ class PackageCollectionControllerTests: AppTestCase {
         try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         try await withDependencies {
             $0.date.now = .t0
+            $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
         } operation: {
             let p = try await savePackage(on: app.db, "https://github.com/foo/1")
             do {

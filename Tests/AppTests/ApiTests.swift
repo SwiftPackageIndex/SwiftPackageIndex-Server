@@ -831,6 +831,7 @@ class ApiTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .t0
             $0.environment.apiSigningKey = { "secret" }
+            $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
         } operation: {
             // setup
             let p1 = Package(id: .id1, url: "1")
@@ -899,6 +900,7 @@ class ApiTests: AppTestCase {
         try await withDependencies {
             $0.date.now = refDate
             $0.environment.apiSigningKey = { "secret" }
+            $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
         } operation: {
             // setup
             let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,

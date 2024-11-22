@@ -13,10 +13,11 @@
 // limitations under the License.
 
 import Basics
+import Dependencies
 import Fluent
+import Vapor
 @preconcurrency import PackageCollectionsModel
 @preconcurrency import PackageCollectionsSigning
-import Vapor
 
 
 typealias SignedCollection = PackageCollectionSigning.Model.SignedCollection
@@ -46,8 +47,10 @@ extension SignedCollection {
             throw AppError.envVariableNotSet("COLLECTION_SIGNING_PRIVATE_KEY")
         }
 
+        @Dependency(\.environment) var environment
+
         return try await signer.sign(collection: collection,
-                                     certChainPaths: Current.collectionSigningCertificateChain(),
+                                     certChainPaths: environment.collectionSigningCertificateChain(),
                                      privateKeyPEM: privateKey)
     }
 

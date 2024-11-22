@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var collectionSigningCertificateChain: @Sendable () -> [URL]
     var collectionSigningPrivateKey: @Sendable () -> Data?
     var currentReferenceCache: @Sendable () -> CurrentReferenceCache?
     var dbId: @Sendable () -> String?
@@ -89,16 +88,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        collectionSigningCertificateChain: {
-            [
-                SignedCollection.certsDir
-                    .appendingPathComponent("package_collections.cer"),
-                SignedCollection.certsDir
-                    .appendingPathComponent("AppleWWDRCAG3.cer"),
-                SignedCollection.certsDir
-                    .appendingPathComponent("AppleIncRootCertificate.cer")
-            ]
-        },
         collectionSigningPrivateKey: {
             Environment.get("COLLECTION_SIGNING_PRIVATE_KEY")
                 .map { Data($0.utf8) }
