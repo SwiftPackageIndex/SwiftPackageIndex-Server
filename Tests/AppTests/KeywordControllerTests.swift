@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
+import Dependencies
 import Vapor
-import XCTest
+
 
 class KeywordControllerTests: AppTestCase {
 
@@ -102,25 +105,32 @@ class KeywordControllerTests: AppTestCase {
     }
 
     func test_show_keyword() async throws {
-        // setup
-        do {
-            let p = try await savePackage(on: app.db, "1")
-            try await Repository(package: p,
-                                 keywords: ["foo"],
-                                 name: "1",
-                                 owner: "owner").save(on: app.db)
-            try await Version(package: p, latest: .defaultBranch).save(on: app.db)
-        }
-        // MUT
-        try await app.test(.GET, "/keywords/foo") { req async in
-            // validate
-            XCTAssertEqual(req.status, .ok)
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            do {
+                let p = try await savePackage(on: app.db, "1")
+                try await Repository(package: p,
+                                     keywords: ["foo"],
+                                     name: "1",
+                                     owner: "owner").save(on: app.db)
+                try await Version(package: p, latest: .defaultBranch).save(on: app.db)
+            }
+            // MUT
+            try await app.test(.GET, "/keywords/foo") { req async in
+                // validate
+                XCTAssertEqual(req.status, .ok)
+            }
         }
     }
 
     func test_not_found() throws {
-        try app.test(.GET, "/keywords/baz") {
-            XCTAssertEqual($0.status, .notFound)
+        try withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            try app.test(.GET, "/keywords/baz") {
+                XCTAssertEqual($0.status, .notFound)
+            }
         }
     }
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
+import Dependencies
 import Vapor
 
 
@@ -124,7 +124,7 @@ private extension Parameters {
         }
     }
 }
- 
+
 
 struct DocRedirect {
     var owner: String
@@ -152,7 +152,7 @@ extension Request {
                     target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository,
                                                                  docVersion: .reference(ref))
                 }
-                
+
             case .none:
                 target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
         }
@@ -160,7 +160,7 @@ extension Request {
 
         return .init(owner: owner, repository: repository, target: target, path: path)
     }
-    
+
     func getDocRoute(fragment: DocRoute.Fragment) async throws -> DocRoute {
         guard let owner = parameters.get("owner"),
               let repository = parameters.get("repository"),
@@ -170,16 +170,18 @@ extension Request {
         if fragment.requiresArchive && archive == nil { throw Abort(.badRequest) }
         let pathElements = parameters.pathElements(for: fragment, archive: archive)
 
+        @Dependency(\.environment) var environment
+
         let docVersion = try await { () -> DocVersion in
             if reference == String.current {
-                if let ref = Current.currentReferenceCache()?[owner: owner, repository: repository] {
+                if let ref = environment.currentReferenceCache()?[owner: owner, repository: repository] {
                     return .current(referencing: ref)
                 }
 
                 guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
                 else { throw Abort(.notFound) }
 
-                Current.currentReferenceCache()?[owner: owner, repository: repository] = "\(params.docVersion)"
+                environment.currentReferenceCache()?[owner: owner, repository: repository] = "\(params.docVersion)"
                 return .current(referencing: "\(params.docVersion)")
             } else {
                 return .reference(reference)

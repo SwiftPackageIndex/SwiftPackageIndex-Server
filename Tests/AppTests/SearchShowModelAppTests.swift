@@ -14,22 +14,28 @@
 
 @testable import App
 
+import Dependencies
 import SwiftSoup
 import XCTVapor
 
+
 class SearchShowModelAppTests: AppTestCase {
-    
+
     func test_SearchShow_Model_canonicalURLAllowList() async throws {
-        let request = Vapor.Request(application: app,
-                                    url: "search?query=alamo&page=2&utm_campaign=test&utm_source=email",
-                                    on: app.eventLoopGroup.next())
-        let html = try await SearchController.show(req: request).render()
-        let document = try SwiftSoup.parse(html)
-        let linkElements = try document.select("link[rel='canonical']")
-        XCTAssertEqual(linkElements.count, 1)
-        
-        let href = try linkElements.first()!.attr("href")
-        XCTAssertEqual(href, "http://localhost:8080/search?query=alamo&page=2")
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            let request = Vapor.Request(application: app,
+                                        url: "search?query=alamo&page=2&utm_campaign=test&utm_source=email",
+                                        on: app.eventLoopGroup.next())
+            let html = try await SearchController.show(req: request).render()
+            let document = try SwiftSoup.parse(html)
+            let linkElements = try document.select("link[rel='canonical']")
+            XCTAssertEqual(linkElements.count, 1)
+
+            let href = try linkElements.first()!.attr("href")
+            XCTAssertEqual(href, "http://localhost:8080/search?query=alamo&page=2")
+        }
     }
-    
+
 }

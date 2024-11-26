@@ -67,12 +67,20 @@ class SitemapTests: SnapshotTestCase {
 
     func test_siteMapIndex_dev() async throws {
         // Ensure we don't serve sitemaps in dev
-        // app and Current.environment are configured for .development by default
-
-        // MUT
-        try await app.test(.GET, "/sitemap.xml") { res async in
-            // Validation
-            XCTAssertEqual(res.status, .notFound)
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            let devApp = try await setup(.development)
+            
+            try await App.run {
+                // MUT
+                try await devApp.test(.GET, "/sitemap.xml") { res async in
+                    // Validation
+                    XCTAssertEqual(res.status, .notFound)
+                }
+            } defer: {
+                try await devApp.asyncShutdown()
+            }
         }
     }
 
@@ -110,12 +118,20 @@ class SitemapTests: SnapshotTestCase {
 
     func test_siteMapStaticPages_dev() async throws {
         // Ensure we don't serve sitemaps in dev
-        // app and Current.environment are configured for .development by default
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            let devApp = try await setup(.development)
 
-        // MUT
-        try await app.test(.GET, "/sitemap-static-pages.xml") { res async in
-            // Validation
-            XCTAssertEqual(res.status, .notFound)
+            try await App.run {
+                // MUT
+                try await devApp.test(.GET, "/sitemap-static-pages.xml") { res async in
+                    // Validation
+                    XCTAssertEqual(res.status, .notFound)
+                }
+            } defer: {
+                try await devApp.asyncShutdown()
+            }
         }
     }
 

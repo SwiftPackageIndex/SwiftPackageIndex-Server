@@ -138,14 +138,18 @@ class PackageCollectionControllerTests: AppTestCase {
 
     func test_nonexisting_404() throws {
         // Ensure a request for a non-existing collection returns a 404
-        // MUT
-        try app.test(
-            .GET,
-            "foo/collection.json",
-            afterResponse: { res in
-                // validation
-                XCTAssertEqual(res.status, .notFound)
-            })
+        try withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            // MUT
+            try app.test(
+                .GET,
+                "foo/collection.json",
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .notFound)
+                })
+        }
     }
 
 }

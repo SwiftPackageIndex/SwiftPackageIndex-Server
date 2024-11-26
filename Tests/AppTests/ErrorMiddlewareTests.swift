@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
+import Dependencies
 import Vapor
-import XCTest
 
 
 class ErrorMiddlewareTests: AppTestCase {
@@ -39,24 +41,32 @@ class ErrorMiddlewareTests: AppTestCase {
 
     func test_html_error() throws {
         // Test to ensure errors are converted to html error pages via the ErrorMiddleware
-        try app.test(.GET, "404", afterResponse: { response in
-            XCTAssertEqual(response.content.contentType, .html)
-            XCTAssert(response.body.asString().contains("404 - Not Found"))
-        })
+        try withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            try app.test(.GET, "404", afterResponse: { response in
+                XCTAssertEqual(response.content.contentType, .html)
+                XCTAssert(response.body.asString().contains("404 - Not Found"))
+            })
+        }
     }
 
     func test_status_code() throws {
         // Ensure we're still reporting the actual status code even when serving html pages
         // (Status is important for Google ranking, see
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/323)
-        try app.test(.GET, "404", afterResponse: { response in
-            XCTAssertEqual(response.status, .notFound)
-            XCTAssertEqual(response.content.contentType, .html)
-        })
-        try app.test(.GET, "500", afterResponse: { response in
-            XCTAssertEqual(response.status, .internalServerError)
-            XCTAssertEqual(response.content.contentType, .html)
-        })
+        try withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            try app.test(.GET, "404", afterResponse: { response in
+                XCTAssertEqual(response.status, .notFound)
+                XCTAssertEqual(response.content.contentType, .html)
+            })
+            try app.test(.GET, "500", afterResponse: { response in
+                XCTAssertEqual(response.status, .internalServerError)
+                XCTAssertEqual(response.content.contentType, .html)
+            })
+        }
     }
 
 }

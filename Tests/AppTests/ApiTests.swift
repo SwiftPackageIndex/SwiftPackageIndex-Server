@@ -112,6 +112,7 @@ class ApiTests: AppTestCase {
     func test_search_unauthenticated() async throws {
         try await withDependencies {
             $0.environment.apiSigningKey = { "secret" }
+            $0.environment.dbId = { nil }
         } operation: {
             // MUT
             try await app.test(.GET, "api/search?query=test",
@@ -344,6 +345,7 @@ class ApiTests: AppTestCase {
         // Ensure unauthenticated access raises a 401
         try await withDependencies {
             $0.environment.builderToken = { "secr3t" }
+            $0.environment.dbId = { nil }
         } operation: {
             // setup
             let p = try await savePackage(on: app.db, "1")
@@ -640,6 +642,7 @@ class ApiTests: AppTestCase {
     func test_post_docReport_non_existing_build() async throws {
         try await withDependencies {
             $0.environment.builderToken = { "secr3t" }
+            $0.environment.dbId = { nil }
         } operation: {
             // setup
             let nonExistingBuildId = UUID()
@@ -665,6 +668,7 @@ class ApiTests: AppTestCase {
     func test_post_docReport_unauthenticated() async throws {
         try await withDependencies {
             $0.environment.builderToken = { "secr3t" }
+            $0.environment.dbId = { nil }
         } operation: {
             // setup
             let p = try await savePackage(on: app.db, "1")
@@ -978,6 +982,7 @@ class ApiTests: AppTestCase {
     func test_package_collections_packageURLs_limit() throws {
         try withDependencies {
             $0.environment.apiSigningKey = { "secret" }
+            $0.environment.dbId = { nil }
         } operation: {
             let dto = API.PostPackageCollectionDTO(
                 // request 21 urls - this should raise a 400
@@ -999,6 +1004,7 @@ class ApiTests: AppTestCase {
     func test_package_collections_unauthorized() throws {
         try withDependencies {
             $0.environment.apiSigningKey = { "secret" }
+            $0.environment.dbId = { nil }
         } operation: {
             // MUT - happy path
             let body: ByteBuffer = .init(string: """
@@ -1042,6 +1048,7 @@ class ApiTests: AppTestCase {
     func test_packages_get() async throws {
         try await withDependencies {
             $0.environment.apiSigningKey = { "secret" }
+            $0.environment.dbId = { nil }
         } operation: {
             let owner = "owner"
             let repo = "repo"
