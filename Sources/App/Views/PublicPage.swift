@@ -34,7 +34,7 @@ class PublicPage {
         return HTML(
             .lang(.english),
             .comment("Version: \(environment.appVersion())"),
-            .comment("DB Id: \(Current.dbId())"),
+            .comment("DB Id: \(environment.dbId())"),
             head(),
             body()
         )

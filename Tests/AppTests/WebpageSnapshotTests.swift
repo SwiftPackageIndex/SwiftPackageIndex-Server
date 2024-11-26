@@ -33,6 +33,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
     override func invokeTest() {
         withDependencies {
             $0.environment.current = { .production }
+            $0.environment.dbId = { "db-id" }
         } operation: {
             super.invokeTest()
         }

@@ -22,7 +22,6 @@ import Vapor
 extension AppEnvironment {
     static func mock(eventLoop: EventLoop) -> Self {
         .init(
-            dbId: { "db-id" },
             fetchDocumentation: { _, _ in .init(status: .ok) },
             fetchHTTPStatusCode: { _ in .ok },
             fetchLicense: { _, _, _ in .init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE") },

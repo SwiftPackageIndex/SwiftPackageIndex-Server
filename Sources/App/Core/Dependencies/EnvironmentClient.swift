@@ -40,6 +40,7 @@ struct EnvironmentClient {
     var collectionSigningPrivateKey: @Sendable () -> Data?
     var current: @Sendable () -> Environment = { XCTFail("current"); return .development }
     var currentReferenceCache: @Sendable () -> CurrentReferenceCache?
+    var dbId: @Sendable () -> String?
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
     var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
@@ -93,6 +94,7 @@ extension EnvironmentClient: DependencyKey {
             },
             current: { (try? Environment.detect()) ?? .development },
             currentReferenceCache: { .live },
+            dbId: { Environment.get("DATABASE_ID") },
             mastodonCredentials: {
                 Environment.get("MASTODON_ACCESS_TOKEN")
                     .map(Mastodon.Credentials.init(accessToken:))

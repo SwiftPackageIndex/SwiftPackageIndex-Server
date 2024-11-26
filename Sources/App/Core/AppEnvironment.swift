@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var dbId: @Sendable () -> String?
     var fetchDocumentation: @Sendable (_ client: Client, _ url: URI) async throws -> ClientResponse
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
     var fetchLicense: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.License?
@@ -86,7 +85,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        dbId: { Environment.get("DATABASE_ID") },
         fetchDocumentation: { client, url in try await client.get(url) },
         fetchHTTPStatusCode: { url in try await Networking.fetchHTTPStatusCode(url) },
         fetchLicense: { client, owner, repo in await Github.fetchLicense(client:client, owner: owner, repository: repo) },
