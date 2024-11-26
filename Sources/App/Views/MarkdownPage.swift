@@ -32,7 +32,7 @@ class MarkdownPage: PublicPage {
             .appending("Resources/Markdown/")
             .appending(markdownFilename)
 
-        let markdown = try? String(contentsOfFile: pathToMarkdownFile)
+        let markdown = try? String(contentsOfFile: pathToMarkdownFile, encoding: .utf8)
         let result = markdown.map(MarkdownParser().parse)
         metadata = result?.metadata ?? [:]
         html = result?.html
