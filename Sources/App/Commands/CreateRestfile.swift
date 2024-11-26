@@ -86,7 +86,7 @@ func createRestfile(on database: SQLDatabase, variant: Variant) async throws {
                 where
                 v.spi_manifest::text like '%documentation_targets%'
                 and v.latest is not null
-                and (stars >= 200 or owner in ('apple', 'swift-server', 'vapor', 'vapor-community', 'GetStream'))
+                and (stars >= 200 or owner in ('apple', 'swiftlang', 'swift-server', 'vapor', 'vapor-community', 'GetStream'))
                 order by url
                 """
     }

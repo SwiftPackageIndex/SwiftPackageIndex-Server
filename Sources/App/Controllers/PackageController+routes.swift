@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
 import Plot
-import Vapor
 import SemanticVersion
+import Vapor
 
 
 enum PackageController {
@@ -222,7 +223,7 @@ enum PackageController {
         //   r.owner,
         //   v.reference,
         //   d.linkable_paths_count
-	    //   '(owner: "' || r.owner || '", repository: "' || r.name || '"), // ' || d.linkable_paths_count || ' urls'
+        //   '(owner: "' || r.owner || '", repository: "' || r.name || '"), // ' || d.linkable_paths_count || ' urls'
         // FROM
         //   packages p
         //   INNER JOIN repositories r ON p.id = r.package_id
@@ -437,7 +438,8 @@ extension PackageController {
 
 extension PackageController {
     static func awsDocumentationURL(route: DocRoute) throws -> URI {
-        guard let bucket = Current.awsDocsBucket() else {
+        @Dependency(\.environment) var environment
+        guard let bucket = environment.awsDocsBucket() else {
             throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
         }
 

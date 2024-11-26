@@ -176,11 +176,10 @@
                 <h3>Compatibility</h3>
                 <a href="/Alamo/Alamofire/builds">Full Build Results</a>
               </div>
-              <div class="matrices">
-                <p>This package currently has no compatibility information. Builds to determine package compatibility are starting, and compatibility information will appear soon. If this message persists for more than a few minutes, please 
-                  <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose">raise an issue</a>.
-                </p>
-              </div>
+              <p>This package currently has no compatibility information. The build jobs that determine compatibility have been queued and compatibility information will appear when they complete.</p>
+              <p>If this message persists for more than an hour, please 
+                <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose">raise an issue</a>.
+              </p>
             </section>
           </section>
           <section>
@@ -243,7 +242,7 @@
             </ul>
           </nav>
           <section data-tab-bar-target="content">
-            <turbo-frame id="readme_content" src="/Alamo/Alamofire/readme" data-controller="readme" data-action="turbo:frame-load->readme#navigateToAnchorFromLocation">
+            <turbo-frame id="readme_content" src="/Alamo/Alamofire/readme" data-controller="readme" data-action="turbo:frame-load->readme#frameLoaded">
               <div>
                 <div class="spinner">
                   <div class="rect1"></div>

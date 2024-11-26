@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Authentication
+import Dependencies
 import JWTKit
 import Vapor
 import VaporToOpenAPI
@@ -34,8 +35,10 @@ extension User {
     struct APITierAuthenticator: AsyncBearerAuthenticator {
         var tier: Tier<V1>
 
+        @Dependency(\.environment) var environment
+
         func authenticate(bearer: BearerAuthorization, for request: Request) async throws {
-            guard let signingKey = Current.apiSigningKey() else { throw AppError.envVariableNotSet("API_SIGNING_KEY") }
+            guard let signingKey = environment.apiSigningKey() else { throw AppError.envVariableNotSet("API_SIGNING_KEY") }
             let signer = Signer(secretSigningKey: signingKey)
             do {
                 let key = try signer.verifyToken(bearer.token)
@@ -54,9 +57,10 @@ extension User {
     static var builder: Self { .init(name: "builder", identifier: "builder") }
 
     struct BuilderAuthenticator: AsyncBearerAuthenticator {
+        @Dependency(\.environment) var environment
+
         func authenticate(bearer: BearerAuthorization, for request: Request) async throws {
-            if let builderToken = Current.builderToken(),
-               bearer.token == builderToken {
+            if let token = environment.builderToken(), bearer.token == token {
                 request.auth.login(User.builder)
             }
         }

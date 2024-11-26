@@ -22,34 +22,10 @@ import Vapor
 extension AppEnvironment {
     static func mock(eventLoop: EventLoop) -> Self {
         .init(
-            allowBuildTriggers: { true },
-            allowTwitterPosts: { true },
-            apiSigningKey: { nil },
-            appVersion: { "test" },
-            awsAccessKeyId: { nil },
-            awsDocsBucket: { "awsDocsBucket" },
-            awsReadmeBucket: { "awsReadmeBucket" },
-            awsSecretAccessKey: { nil },
-            buildTimeout: { 10 },
-            builderToken: { nil },
-            buildTriggerAllowList: { [] },
-            buildTriggerDownscaling: { 1.0 },
-            buildTriggerLatestSwiftVersionDownscaling: { 1.0 },
-            collectionSigningCertificateChain: AppEnvironment.live.collectionSigningCertificateChain,
-            collectionSigningPrivateKey: AppEnvironment.live.collectionSigningPrivateKey,
             currentReferenceCache: { nil },
-            date: { .init() },
             dbId: { "db-id" },
-            environment: { .development },
             fetchDocumentation: { _, _ in .init(status: .ok) },
             fetchHTTPStatusCode: { _ in .ok },
-            fetchPackageList: { _ in
-                ["https://github.com/finestructure/Gala",
-                 "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"].asURLs
-            },
-            fetchPackageDenyList: { _ in
-                ["https://github.com/daveverwer/LeftPad"].asURLs
-            },
             fetchLicense: { _, _, _ in .init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE") },
             fetchMetadata: { _, _, _ in .mock },
             fetchReadme: { _,  _, _ in .init(html: "readme html", htmlUrl: "readme html url", imagesToCache: []) },
@@ -66,12 +42,10 @@ extension AppEnvironment {
             httpClient: { httpClient },
             loadSPIManifest: { _ in nil },
             logger: { logger },
-            mastodonCredentials: { nil },
-            mastodonPost: { _, _ in },
             metricsPushGatewayUrl: { "http://pushgateway:9091" },
             plausibleBackendReportingSiteID: { nil },
             postPlausibleEvent: { _, _, _, _ in },
-            random: { range in Double.random(in: range) },
+            processingBuildBacklog: { false },
             runnerIds: { [] },
             setHTTPClient: { client in Self.httpClient = client },
             setLogger: { logger in Self.logger = logger },

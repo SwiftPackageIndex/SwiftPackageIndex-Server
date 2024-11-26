@@ -14,6 +14,7 @@
 
 @testable import App
 
+import Dependencies
 import Prometheus
 import XCTest
 
@@ -21,31 +22,34 @@ import XCTest
 class MetricsTests: AppTestCase {
 
     func test_basic() async throws {
-        // setup - trigger build to increment counter
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        let versionId = UUID()
-        do {  // save minimal package + version
-            let p = Package(id: UUID(), url: "1")
-            try await p.save(on: app.db)
-            try await Version(id: versionId, package: p, reference: .branch("main")).save(on: app.db)
+        try await withDependencies {
+            $0.environment.builderToken = { "builder token" }
+        } operation: {
+            // setup - trigger build to increment counter
+            Current.gitlabPipelineToken = { "pipeline token" }
+            let versionId = UUID()
+            do {  // save minimal package + version
+                let p = Package(id: UUID(), url: "1")
+                try await p.save(on: app.db)
+                try await Version(id: versionId, package: p, reference: .branch("main")).save(on: app.db)
+            }
+            try await triggerBuildsUnchecked(on: app.db,
+                                             client: app.client,
+                                             triggers: [
+                                                .init(versionId: versionId,
+                                                      buildPairs: [.init(.macosSpm, .v3)])!
+                                             ])
+            
+            // MUT
+            try await app.test(.GET, "metrics", afterResponse: { res async in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                let content = res.body.asString()
+                XCTAssertTrue(content.contains(
+                    #"spi_build_trigger_count{swiftVersion="\#(SwiftVersion.v3)", platform="macos-spm"}"#
+                ), "was:\n\(content)")
+            })
         }
-        try await triggerBuildsUnchecked(on: app.db,
-                                         client: app.client,
-                                         triggers: [
-                                            .init(versionId: versionId,
-                                                  buildPairs: [.init(.macosSpm, .v3)])!
-                                         ])
-
-        // MUT
-        try await app.test(.GET, "metrics", afterResponse: { res async in
-            // validation
-            XCTAssertEqual(res.status, .ok)
-            let content = res.body.asString()
-            XCTAssertTrue(content.contains(
-                #"spi_build_trigger_count{swiftVersion="\#(SwiftVersion.v3)", platform="macos-spm"}"#
-            ), "was:\n\(content)")
-        })
     }
 
     func test_versions_added() async throws {
@@ -98,14 +102,17 @@ class MetricsTests: AppTestCase {
     }
 
     func test_reconcileDurationSeconds() async throws {
-        // setup
-        Current.fetchPackageList = { _ in ["1", "2", "3"].asURLs }
+        try await withDependencies {
+            $0.packageListRepository.fetchPackageList = { @Sendable _ in ["1", "2", "3"].asURLs }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
+            $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
+        } operation: {
+            // MUT
+            try await reconcile(client: app.client, database: app.db)
 
-        // MUT
-        try await reconcile(client: app.client, database: app.db)
-
-        // validation
-        XCTAssert((AppMetrics.reconcileDurationSeconds?.get()) ?? 0 > 0)
+            // validation
+            XCTAssert((AppMetrics.reconcileDurationSeconds?.get()) ?? 0 > 0)
+        }
     }
 
     func test_ingestDurationSeconds() async throws {
@@ -131,15 +138,19 @@ class MetricsTests: AppTestCase {
     }
 
     func test_triggerBuildsDurationSeconds() async throws {
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
-
-        // MUT
-        try await triggerBuilds(on: app.db, client: app.client, mode: .packageId(pkg.id!, force: true))
-
-        // validation
-        XCTAssert((AppMetrics.buildTriggerDurationSeconds?.get()) ?? 0 > 0)
-        print(AppMetrics.buildTriggerDurationSeconds!.get())
+        try await withDependencies {
+            $0.environment.allowBuildTriggers = { true }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            
+            // MUT
+            try await triggerBuilds(on: app.db, client: app.client, mode: .packageId(pkg.id!, force: true))
+            
+            // validation
+            XCTAssert((AppMetrics.buildTriggerDurationSeconds?.get()) ?? 0 > 0)
+            print(AppMetrics.buildTriggerDurationSeconds!.get())
+        }
     }
 
 }

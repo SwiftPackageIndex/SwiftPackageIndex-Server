@@ -19,6 +19,6 @@ extension URL {
         guard var components = URLComponents(url: self, resolvingAgainstBaseURL: false) else { return nil }
         if components.scheme == "http" { components.scheme = "https" }
         if !components.path.hasSuffix(".git") { components.path = components.path + ".git" }
-        return components.url!
+        return components.url
     }
 }

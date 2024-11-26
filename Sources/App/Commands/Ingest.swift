@@ -193,6 +193,7 @@ func updateRepository(on database: Database,
     repository.defaultBranch = repoMetadata.defaultBranch
     repository.forks = repoMetadata.forkCount
     repository.fundingLinks = repoMetadata.fundingLinks?.compactMap(FundingLink.init(from:)) ?? []
+    repository.hasSPIBadge = readmeInfo?.containsSPIBadge()
     repository.homepageUrl = repoMetadata.homepageUrl?.trimmed
     repository.isArchived = repoMetadata.isArchived
     repository.isInOrganization = repoMetadata.isInOrganization

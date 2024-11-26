@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
+import SQLKit
 import SemanticVersion
 import Vapor
-import SQLKit
 
 
 final class Package: @unchecked Sendable, Model, Content {
@@ -55,6 +56,9 @@ final class Package: @unchecked Sendable, Model, Content {
     var url: String
 
     // relationships
+
+    @Siblings(through: CustomCollectionPackage.self, from: \.$package, to: \.$customCollection)
+    var customCollections: [CustomCollection]
 
     @Children(for: \.$package)
     var repositories: [Repository]
@@ -270,6 +274,16 @@ extension QueryBuilder where Model == Package {
     func filter(by url: URL) -> Self {
         filter(\.$url == url.absoluteString)
     }
+
+    func filter(by urls: some Collection<URL>) -> Self {
+        let urls = urls
+            .compactMap(\.normalized)
+            .map { $0.absoluteString.lowercased() }
+        // Fluent cannot chain `lowercased()` onto `\.$url but the following is essentially
+        //   filter(\.$url.lowercased() ~~ urls)
+        // by dropping down to SQLKit
+        return filter(.sql(embed: "LOWER(\(ident: Model.schemaOrAlias).\(ident: Model.path(for: \.$url)[0].description)) IN \(SQLBind.group(urls))"))
+    }
 }
 
 
@@ -310,6 +324,7 @@ extension Package {
 
 private extension JoinedQueryBuilder where J == Joined<Package, Repository> {
     func filter(for stage: Package.ProcessingStage) -> Self {
+        @Dependency(\.date.now) var now
         switch stage {
             case .reconciliation:
                 fatalError("reconciliation stage does not select candidates")
@@ -320,7 +335,7 @@ private extension JoinedQueryBuilder where J == Joined<Package, Repository> {
                         .group(.and) {
                             $0
                                 .filter(\.$processingStage == .analysis)
-                                .filter(\.$updatedAt < Current.date().addingTimeInterval(-Constants.reIngestionDeadtime)
+                                .filter(\.$updatedAt < now.addingTimeInterval(-Constants.reIngestionDeadtime)
                                 )
                         }
                 }

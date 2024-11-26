@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
 import PostgresKit
 import SQLKit
@@ -124,12 +125,14 @@ extension TriggerBuildsCommand {
 func triggerBuilds(on database: Database,
                    client: Client,
                    mode: TriggerBuildsCommand.Mode) async throws {
+    @Dependency(\.environment) var environment
     let start = DispatchTime.now().uptimeNanoseconds
+
     switch mode {
         case .limit(let limit):
             Current.logger().info("Triggering builds (limit: \(limit)) ...")
 
-            let withLatestSwiftVersion = Current.buildTriggerCandidatesWithLatestSwiftVersion
+            let withLatestSwiftVersion = environment.buildTriggerCandidatesWithLatestSwiftVersion
             let candidates = try await fetchBuildCandidates(database,
                                                             withLatestSwiftVersion: withLatestSwiftVersion)
             AppMetrics.buildCandidatesCount?.set(candidates.count)
@@ -175,7 +178,9 @@ func triggerBuilds(on database: Database,
                    client: Client,
                    packages: [Package.Id],
                    force: Bool = false) async throws {
-    guard Current.allowBuildTriggers() else {
+    @Dependency(\.environment) var environment
+
+    guard environment.allowBuildTriggers() else {
         Current.logger().info("Build trigger override switch OFF - no builds are being triggered")
         return
     }
@@ -203,9 +208,8 @@ func triggerBuilds(on database: Database,
 
     await withThrowingTaskGroup(of: Void.self) { group in
         for pkgId in packages {
-            let allowListed = Current.buildTriggerAllowList().contains(pkgId)
-            let downscalingAccepted = Current.random(0...1) < Current.buildTriggerDownscaling()
-            guard allowListed || downscalingAccepted else {
+            let allowListed = environment.buildTriggerAllowList().contains(pkgId)
+            guard allowListed || environment.buildTriggerDownscalingAccepted else {
                 Current.logger().info("Build trigger downscaling in effect - skipping builds")
                 continue
             }
@@ -326,7 +330,9 @@ func fetchBuildCandidates(_ database: Database,
 
     let expectedBuildCount = BuildPair.all.count
     let expectedBuildCountWithoutLatestSwiftVersion = BuildPair.allExceptLatestSwiftVersion.count
-    let priorityIDs = Current.buildTriggerAllowList()
+
+    @Dependency(\.environment) var environment
+    let priorityIDs = environment.buildTriggerAllowList()
 
     let query: SQLQueryString = withLatestSwiftVersion
     ? """

@@ -17,7 +17,7 @@ import Vapor
 
 enum Constants {
     static let defaultAllowBuildTriggering = true
-    static let defaultAllowTwitterPosts = true
+    static let defaultAllowSocialPosts = true
     static let defaultGitlabPipelineLimit = 200
     static let defaultHideStagingBanner = false
 
@@ -26,6 +26,9 @@ enum Constants {
 
     static let packageListUri = URI(string: "https://raw.githubusercontent.com/SwiftPackageIndex/PackageList/main/packages.json")
     static let packageDenyListUri = URI(string: "https://raw.githubusercontent.com/SwiftPackageIndex/PackageList/main/denylist.json")
+    static let customCollectionsUri = URI(string: "https://raw.githubusercontent.com/SwiftPackageIndex/PackageList/main/custom-package-collections.json")
+
+    static let maxCustomPackageCollectionSize = 50
 
     // NB: the underlying materialised views also have a limit, this is just an additional
     // limit to ensure we don't spill too many rows onto the home page

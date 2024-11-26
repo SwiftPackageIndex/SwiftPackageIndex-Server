@@ -21,13 +21,13 @@ enum Supporters {
 
     nonisolated(unsafe) static var corporate: [Corporate] = [
         .init(name: "Emerge Tools",
-              logo: .init(lightModeUrl: "/images/sponsors/emerge-tools.png",
-                          darkModeUrl: "/images/sponsors/emerge-tools~dark.png"),
+              logo: .init(lightModeUrl: "/images/sponsors/emerge.png",
+                          darkModeUrl: "/images/sponsors/emerge~dark.png"),
               url: "https://www.emergetools.com/?utm_source=spi2&utm_medium=sponsor&utm_campaign=emerge",
               advertisingCopy: "Join the future of mobile development. Trusted by top companies like Duolingo, Square, DoorDash & more…"),
         .init(name: "ContextSDK",
-              logo: .init(lightModeUrl: "/images/sponsors/contextsdk.svg",
-                          darkModeUrl: "/images/sponsors/contextsdk~dark.svg"),
+              logo: .init(lightModeUrl: "/images/sponsors/contextsdk.png",
+                          darkModeUrl: "/images/sponsors/contextsdk~dark.png"),
               url: "https://contextsdk.com",
               advertisingCopy: "Intent detection with real-world context. Lean, lightweight and GDPR compliant out of the box."),
     ]
@@ -40,7 +40,15 @@ enum Supporters {
         .init(name: "Microsoft Azure",
               logo: .init(lightModeUrl: "/images/sponsors/microsoft.png",
                           darkModeUrl: "/images/sponsors/microsoft~dark.png"),
-              url: "https://azure.microsoft.com")
+              url: "https://azure.microsoft.com"),
+        .init(name: "Amazon Web Services (AWS)",
+              logo: .init(lightModeUrl: "/images/sponsors/aws.png",
+                          darkModeUrl: "/images/sponsors/aws~dark.png"),
+              url: "https://aws.amazon.com/"),
+        .init(name: "Cloudflare",
+              logo: .init(lightModeUrl: "/images/sponsors/cloudflare.png",
+                          darkModeUrl: "/images/sponsors/cloudflare~dark.png"),
+              url: "https://cloudflare.com/")
     ]
 
     nonisolated(unsafe) static var community: [Community] = .gitHubSponsors
@@ -55,7 +63,7 @@ enum Supporters {
             var lightModeUrl: String
             var darkModeUrl: String
             var width: Int = 300
-            var height: Int = 75
+            var height: Int = 100
         }
     }
 

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import SemanticVersion
 import Vapor
 
@@ -96,16 +97,15 @@ enum Social {
     static func postToFirehose(client: Client,
                                package: Joined<Package, Repository>,
                                version: Version) async throws {
-        guard Current.allowTwitterPosts() else {
-            throw Error.postingDisabled
-        }
+        @Dependency(\.environment) var environment
+        guard environment.allowSocialPosts() else { throw Error.postingDisabled }
         guard let message = firehoseMessage(package: package,
                                             version: version,
                                             maxLength: postMaxLength) else {
             throw Error.invalidMessage
         }
         // Ignore errors from here for now to keep concurrency simpler
-        async let _ = try? await Current.mastodonPost(client, message)
+        async let _ = try? await environment.mastodonPost(client, message)
     }
 
     static func postToFirehose(client: Client,

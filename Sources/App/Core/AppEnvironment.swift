@@ -23,29 +23,10 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var allowBuildTriggers: @Sendable () -> Bool
-    var allowTwitterPosts: @Sendable () -> Bool
-    var apiSigningKey: @Sendable () -> String?
-    var appVersion: @Sendable () -> String?
-    var awsAccessKeyId: @Sendable () -> String?
-    var awsDocsBucket: @Sendable () -> String?
-    var awsReadmeBucket: @Sendable () -> String?
-    var awsSecretAccessKey: @Sendable () -> String?
-    var buildTimeout: @Sendable () -> Int
-    var builderToken: @Sendable () -> String?
-    var buildTriggerAllowList: @Sendable () -> [Package.Id]
-    var buildTriggerDownscaling: @Sendable () -> Double
-    var buildTriggerLatestSwiftVersionDownscaling: @Sendable () -> Double
-    var collectionSigningCertificateChain: @Sendable () -> [URL]
-    var collectionSigningPrivateKey: @Sendable () -> Data?
     var currentReferenceCache: @Sendable () -> CurrentReferenceCache?
-    var date: @Sendable () -> Date
     var dbId: @Sendable () -> String?
-    var environment: @Sendable () -> Environment
     var fetchDocumentation: @Sendable (_ client: Client, _ url: URI) async throws -> ClientResponse
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
-    var fetchPackageList: @Sendable (_ client: Client) async throws -> [URL]
-    var fetchPackageDenyList: @Sendable (_ client: Client) async throws -> [URL]
     var fetchLicense: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.License?
     var fetchMetadata: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> Github.Metadata
     var fetchReadme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.Readme?
@@ -62,12 +43,10 @@ struct AppEnvironment: Sendable {
     var httpClient: @Sendable () -> Client
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var logger: @Sendable () -> Logger
-    var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
-    var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
     var metricsPushGatewayUrl: @Sendable () -> String?
     var plausibleBackendReportingSiteID: @Sendable () -> String?
     var postPlausibleEvent: @Sendable (Client, Plausible.Event.Kind, Plausible.Path, User?) async throws -> Void
-    var random: @Sendable (_ range: ClosedRange<Double>) -> Double
+    var processingBuildBacklog: @Sendable () -> Bool
     var runnerIds: @Sendable () -> [String]
     var setHTTPClient: @Sendable (Client) -> Void
     var setLogger: @Sendable (Logger) -> Void
@@ -91,11 +70,6 @@ struct AppEnvironment: Sendable {
 
 
 extension AppEnvironment {
-    var buildTriggerCandidatesWithLatestSwiftVersion: Bool {
-        guard buildTriggerLatestSwiftVersionDownscaling() < 1 else { return true }
-        return random(0...1) < Current.buildTriggerLatestSwiftVersionDownscaling()
-    }
-
     func postPlausibleEvent(_ event: Plausible.Event.Kind, path: Plausible.Path, user: User?) {
         Task {
             do {
@@ -113,62 +87,10 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        allowBuildTriggers: {
-            Environment.get("ALLOW_BUILD_TRIGGERS")
-                .flatMap(\.asBool)
-                ?? Constants.defaultAllowBuildTriggering
-        },
-        allowTwitterPosts: {
-            Environment.get("ALLOW_TWITTER_POSTS")
-                .flatMap(\.asBool)
-                ?? Constants.defaultAllowTwitterPosts
-        },
-        apiSigningKey: { Environment.get("API_SIGNING_KEY") },
-        appVersion: { App.appVersion },
-        awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },
-        awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
-        awsReadmeBucket: { Environment.get("AWS_README_BUCKET") },
-        awsSecretAccessKey: { Environment.get("AWS_SECRET_ACCESS_KEY") },
-        buildTimeout: { Environment.get("BUILD_TIMEOUT").flatMap(Int.init) ?? 10 },
-        builderToken: { Environment.get("BUILDER_TOKEN") },
-        buildTriggerAllowList: {
-            Environment.get("BUILD_TRIGGER_ALLOW_LIST")
-                .map { Data($0.utf8) }
-                .flatMap { try? JSONDecoder().decode([Package.Id].self, from: $0) }
-            ?? []
-        },
-        buildTriggerDownscaling: {
-            Environment.get("BUILD_TRIGGER_DOWNSCALING")
-                .flatMap(Double.init)
-                ?? 1.0
-        },
-        buildTriggerLatestSwiftVersionDownscaling: {
-            Environment.get("BUILD_TRIGGER_LATEST_SWIFT_VERSION_DOWNSCALING")
-                .flatMap(Double.init)
-                ?? 1.0
-        },
-        collectionSigningCertificateChain: {
-            [
-                SignedCollection.certsDir
-                    .appendingPathComponent("package_collections.cer"),
-                SignedCollection.certsDir
-                    .appendingPathComponent("AppleWWDRCAG3.cer"),
-                SignedCollection.certsDir
-                    .appendingPathComponent("AppleIncRootCertificate.cer")
-            ]
-        },
-        collectionSigningPrivateKey: {
-            Environment.get("COLLECTION_SIGNING_PRIVATE_KEY")
-                .map { Data($0.utf8) }
-        },
         currentReferenceCache: { .live },
-        date: { .init() },
         dbId: { Environment.get("DATABASE_ID") },
-        environment: { (try? Environment.detect()) ?? .development },
         fetchDocumentation: { client, url in try await client.get(url) },
         fetchHTTPStatusCode: { url in try await Networking.fetchHTTPStatusCode(url) },
-        fetchPackageList: { client in try await liveFetchPackageList(client) },
-        fetchPackageDenyList: { client in try await liveFetchPackageDenyList(client) },
         fetchLicense: { client, owner, repo in await Github.fetchLicense(client:client, owner: owner, repository: repo) },
         fetchMetadata: { client, owner, repo in try await Github.fetchMetadata(client:client, owner: owner, repository: repo) },
         fetchReadme: { client, owner, repo in await Github.fetchReadme(client:client, owner: owner, repository: repo) },
@@ -199,15 +121,12 @@ extension AppEnvironment {
         httpClient: { httpClient },
         loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },
-        mastodonCredentials: {
-            Environment.get("MASTODON_ACCESS_TOKEN")
-                .map(Mastodon.Credentials.init(accessToken:))
-        },
-        mastodonPost: { client, message in try await Mastodon.post(client: client, message: message) },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },
         postPlausibleEvent: { client, kind, path, user in try await Plausible.postEvent(client: client, kind: kind, path: path, user: user) },
-        random: { range in Double.random(in: range) },
+        processingBuildBacklog: {
+            Environment.get("PROCESSING_BUILD_BACKLOG").flatMap(\.asBool) ?? false
+        },
         runnerIds: {
             Environment.get("RUNNER_IDS")
                 .map { Data($0.utf8) }

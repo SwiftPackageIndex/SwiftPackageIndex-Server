@@ -13,10 +13,12 @@
 // limitations under the License.
 
 import Foundation
-import Plot
-import Vapor
+
+import Dependencies
 import DependencyResolution
+import Plot
 import SPIManifest
+import Vapor
 
 
 extension API.PackageController.GetRoute.Model {
@@ -182,6 +184,50 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
+    func forkedListItem() -> Node<HTML.ListContext> {
+        if let forkedFromInfo {
+            let item: Node<HTML.BodyContext> = {
+                switch forkedFromInfo {
+                case .fromGitHub(let url):
+                    var text = url.replacingOccurrences(of: "https://github.com/", with: "")
+                    text = text.removingSuffix(".git")
+                    let repoURLNode: Node<HTML.BodyContext> = .a(
+                        .href(url),
+                        .text(text)
+                    )
+                    return  .group(
+                        .text("Forked from "),
+                        repoURLNode,
+                        .text(".")
+                    )
+                case .fromSPI(_, let ownerName, _, let originalPackageName):
+                    let repoURLNode: Node<HTML.BodyContext> = .a(
+                        .href(forkedFromInfo.url),
+                        .text("\(originalPackageName)")
+                    )
+                    let ownerNode: Node<HTML.BodyContext> = .a(
+                        .href(forkedFromInfo.ownerURL ?? ""),
+                        .text("\(ownerName)")
+                    )
+                    return  .group(
+                        .text("Forked from "),
+                        repoURLNode,
+                        .text(" by "),
+                        ownerNode,
+                        .text(".")
+                    )
+                }
+            }()
+
+            return .li(
+                .class("forked"),
+                item
+            )
+        } else {
+            return .empty
+        }
+    }
+
     func binaryTargetsItem() -> Node<HTML.ListContext> {
         guard hasBinaryTargets else { return .empty }
 
@@ -228,8 +274,9 @@ extension API.PackageController.GetRoute.Model {
                 commitsLinkNode, " and ", releasesLinkNode, "."
             ])
         } else {
+            @Dependency(\.date.now) var now
             releasesSentenceFragments.append(contentsOf: [
-                "In development for \(inWords: Current.date().timeIntervalSince(history.createdAt)), with ",
+                "In development for \(inWords: now.timeIntervalSince(history.createdAt)), with ",
                 commitsLinkNode, " and ", releasesLinkNode,
                 "."
             ])
@@ -349,6 +396,19 @@ extension API.PackageController.GetRoute.Model {
         } else {
             return .empty
         }
+    }
+
+    func customCollectionsItem() -> Node<HTML.ListContext> {
+        guard !customCollections.isEmpty else { return .empty }
+        return .li(
+            .class("custom-collections"),
+            .forEach(customCollections, { collection in
+                    .a(
+                        .href(SiteURL.collections(.value(collection.key)).relativeURL()),
+                        .text("\(collection.name)")
+                    )
+            })
+        )
     }
 
     func latestReleaseMetadata() -> Node<HTML.ListContext> {
@@ -486,6 +546,14 @@ extension API.PackageController.GetRoute.Model {
 
     var hasBuildInfo: Bool { swiftVersionBuildInfo != nil || platformBuildInfo != nil }
 
+    func compatibilityInformation() -> Node<HTML.BodyContext> {
+        .div(
+            .class("matrices"),
+            swiftVersionCompatibilityList(),
+            platformCompatibilityList()
+        )
+    }
+
     func swiftVersionCompatibilityList() -> Node<HTML.BodyContext> {
         guard let buildInfo = swiftVersionBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
@@ -530,6 +598,35 @@ extension API.PackageController.GetRoute.Model {
                 .forEach(cells) { $0.cellNode }
             )
         )
+    }
+
+    func noCompatibilityInformationExplainer() -> Node<HTML.BodyContext> {
+        .if(Current.processingBuildBacklog(),
+            .group(
+                .p(
+                    .text("This package currently has no compatibility information. "),
+                    .strong("We are currently processing a large build job backlog and it may take much longer than usual for compatibility information to appear.")
+                ),
+                .p(
+                    .text("You can see what builds the system is currently processing by checking the "),
+                    .a(
+                        .href(SiteURL.buildMonitor.relativeURL()),
+                        .text("build system monitoring page")
+                    ),
+                    .text(".")
+                )
+            ),
+            else: .group(
+                .p("This package currently has no compatibility information. The build jobs that determine compatibility have been queued and compatibility information will appear when they complete."),
+                .p(
+                    .text("If this message persists for more than an hour, please "),
+                    .a(
+                        .href(ExternalURL.raiseNewIssue),
+                        .text("raise an issue")
+                    ),
+                    .text(".")
+                )
+            ))
     }
 }
 
@@ -665,5 +762,26 @@ extension API.PackageController.GetRoute.Model.Swift6Readiness {
             lines.append("\(platform.displayName): \(errorCounts[platform].map { "\($0)" } ?? "no data")")
         }
         return lines.joined(separator: "\n")
+    }
+}
+
+
+extension API.PackageController.GetRoute.Model.ForkedFromInfo {
+    var url: String {
+        switch self {
+        case .fromSPI(let originalOwner, _, let originalRepo, _):
+            return SiteURL.package(.value(originalOwner), .value(originalRepo), nil).relativeURL()
+        case .fromGitHub(let url):
+            return url
+        }
+    }
+
+    var ownerURL: String? {
+        switch self {
+        case .fromSPI(let owner, _, _, _):
+            return SiteURL.author(.value(owner)).relativeURL()
+        case .fromGitHub:
+            return nil
+        }
     }
 }

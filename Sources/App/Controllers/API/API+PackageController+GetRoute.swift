@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import DependencyResolution
 import Fluent
 import Vapor
@@ -45,6 +46,9 @@ extension API.PackageController {
             async let buildInfo = API.PackageController.BuildInfo.query(on: database,
                                                                         owner: owner,
                                                                         repository: repository)
+            async let forkedFromInfo = forkedFromInfo(on: database, fork: packageResult.repository.forkedFrom)
+
+            async let customCollections = customCollections(on: database, package: packageResult.package)
 
             guard
                 let model = try await Self.Model(
@@ -55,7 +59,9 @@ extension API.PackageController {
                     swiftVersionBuildInfo: buildInfo.swiftVersion,
                     platformBuildInfo: buildInfo.platform,
                     weightedKeywords: weightedKeywords,
-                    swift6Readiness: buildInfo.swift6Readiness
+                    swift6Readiness: buildInfo.swift6Readiness,
+                    forkedFromInfo: forkedFromInfo,
+                    customCollections: customCollections
                 ),
                 let schema = API.PackageSchema(result: packageResult)
             else {
@@ -83,5 +89,46 @@ extension API.PackageController.GetRoute {
         return .init(stable: links[0],
                      beta: links[1],
                      latest: links[2])
+    }
+
+    static func forkedFromInfo(on database: Database, fork: Fork?) async -> Model.ForkedFromInfo? {
+        guard let forkedFrom = fork else { return nil }
+        switch forkedFrom {
+            case .parentId(let id, let fallbackURL):
+                return await Model.ForkedFromInfo.query(on: database, packageId: id, fallbackURL: fallbackURL)
+            case let .parentURL(url):
+                return .fromGitHub(url: url)
+        }
+    }
+
+    static func customCollections(on database: Database, package: Package) async -> [CustomCollection.Details] {
+        @Dependency(\.environment) var environment
+        guard environment.current() == .development else { return [] }
+        do {
+            try await package.$customCollections.load(on: database)
+            return package.customCollections.map(\.details)
+        } catch {
+            return []
+        }
+    }
+}
+
+
+extension API.PackageController.GetRoute.Model.ForkedFromInfo {
+    static func query(on database: Database, packageId: Package.Id, fallbackURL: String) async -> Self? {
+        let model = try? await Joined3<Package, Repository, Version>
+            .query(on: database, packageId: packageId, version: .defaultBranch)
+            .first()
+
+        guard let repoName = model?.repository.name,
+              let ownerName = model?.repository.ownerName,
+              let owner = model?.repository.owner else {
+            return .fromGitHub(url: fallbackURL)
+        }
+
+        return .fromSPI(originalOwner: owner,
+                        originalOwnerName: ownerName,
+                        originalRepo: repoName,
+                        originalPackageName: model?.version.packageName ?? repoName)
     }
 }

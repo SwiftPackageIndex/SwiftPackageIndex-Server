@@ -14,6 +14,7 @@
 
 @testable import App
 
+import Dependencies
 import Fluent
 import SQLKit
 import Vapor
@@ -77,12 +78,16 @@ final class PackageTests: AppTestCase {
     }
 
     func test_save_scoreDetails() async throws {
-        let pkg = Package(url: "1")
-        let scoreDetails = Score.Details.mock
-        pkg.scoreDetails = scoreDetails
-        try await pkg.save(on: app.db)
-        let readBack = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-        XCTAssertEqual(readBack.scoreDetails, scoreDetails)
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            let pkg = Package(url: "1")
+            let scoreDetails = Score.Details.mock
+            pkg.scoreDetails = scoreDetails
+            try await pkg.save(on: app.db)
+            let readBack = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+            XCTAssertEqual(readBack.scoreDetails, scoreDetails)
+        }
     }
 
     func test_encode() throws {
@@ -131,6 +136,27 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(res.map(\.url), ["https://foo.com/1"])
     }
 
+    func test_filter_by_urls() async throws {
+        for url in ["https://foo.com/1.git", "https://foo.com/2.git", "https://foo.com/a.git", "https://foo.com/A.git"] {
+            try await Package(url: url.url).save(on: app.db)
+        }
+        do { // single match
+            let res = try await Package.query(on: app.db).filter(by: ["https://foo.com/2.git"]).all()
+            XCTAssertEqual(res.map(\.url), ["https://foo.com/2.git"])
+        }
+        do { // case insensitive match
+            let res = try await Package.query(on: app.db).filter(by: ["https://foo.com/2.git", "https://foo.com/a.git"]).all()
+            XCTAssertEqual(
+                res.map(\.url),
+                ["https://foo.com/2.git", "https://foo.com/a.git", "https://foo.com/A.git"]
+            )
+        }
+        do { // input URLs are normalised
+            let res = try await Package.query(on: app.db).filter(by: ["http://foo.com/2"]).all()
+            XCTAssertEqual(res.map(\.url), ["https://foo.com/2.git"])
+        }
+    }
+
     func test_repository() async throws {
         let pkg = try await savePackage(on: app.db, "1")
         do {
@@ -165,12 +191,12 @@ final class PackageTests: AppTestCase {
         try await Repository(package: pkg, defaultBranch: "default").create(on: app.db)
         let versions = [
             try Version(package: pkg, reference: .branch("branch")),
-            try Version(package: pkg, commitDate: Current.date().adding(days: -1),
+            try Version(package: pkg, commitDate: Date.now.adding(days: -1),
                         reference: .branch("default")),
             try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
-            try Version(package: pkg, commitDate: Current.date().adding(days: -3),
+            try Version(package: pkg, commitDate: Date.now.adding(days: -3),
                         reference: .tag(.init(2, 1, 0))),
-            try Version(package: pkg, commitDate: Current.date().adding(days: -2),
+            try Version(package: pkg, commitDate: Date.now.adding(days: -2),
                         reference: .tag(.init(3, 0, 0, "beta"))),
         ]
         try await versions.create(on: app.db)
@@ -282,83 +308,90 @@ final class PackageTests: AppTestCase {
     }
 
     func test_isNew() async throws {
-        // setup
         let url = "1".asGithubUrl
-        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
-        Current.fetchPackageList = { _ in [url.url] }
-        Current.git.commitCount = { @Sendable _ in 12 }
-        Current.git.firstCommitDate = { @Sendable _ in Date(timeIntervalSince1970: 0) }
-        Current.git.getTags = { @Sendable _ in [] }
-        Current.git.hasBranch = { @Sendable _, _ in true }
-        Current.git.lastCommitDate = { @Sendable _ in Date(timeIntervalSince1970: 1) }
-        Current.git.revisionInfo = { @Sendable _, _ in
-            .init(commit: "sha",
-                  date: Date(timeIntervalSince1970: 0))
-        }
-        Current.git.shortlog = { @Sendable _ in
+        try await withDependencies {
+            $0.date.now = .now
+            $0.packageListRepository.fetchPackageList = { @Sendable _ in [url.url] }
+            $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
+            $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
+        } operation: {
+            // setup
+            Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
+            Current.git.commitCount = { @Sendable _ in 12 }
+            Current.git.firstCommitDate = { @Sendable _ in Date(timeIntervalSince1970: 0) }
+            Current.git.getTags = { @Sendable _ in [] }
+            Current.git.hasBranch = { @Sendable _, _ in true }
+            Current.git.lastCommitDate = { @Sendable _ in Date(timeIntervalSince1970: 1) }
+            Current.git.revisionInfo = { @Sendable _, _ in
+                    .init(commit: "sha",
+                          date: Date(timeIntervalSince1970: 0))
+            }
+            Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
-        }
-        Current.shell.run = { @Sendable cmd, path in
-            if cmd.description.hasSuffix("swift package dump-package") {
-                return #"{ "name": "Mock", "products": [] }"#
             }
-            return ""
-        }
-        let db = app.db
-        // run reconcile to ingest package
-        try await reconcile(client: app.client, database: app.db)
-        try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 1)
+            Current.shell.run = { @Sendable cmd, path in
+                if cmd.description.hasSuffix("swift package dump-package") {
+                    return #"{ "name": "Mock", "products": [] }"#
+                }
+                return ""
+            }
+            let db = app.db
+            // run reconcile to ingest package
+            try await reconcile(client: app.client, database: app.db)
+            try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 1)
+            
+            // MUT & validate
+            do {
+                let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                XCTAssertTrue(pkg.isNew)
+            }
+            
+            // run ingestion to progress package through pipeline
+            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+            
+            // MUT & validate
+            do {
+                let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                XCTAssertTrue(pkg.isNew)
+            }
+            
+            // run analysis to progress package through pipeline
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+            
+            // MUT & validate
+            do {
+                let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                XCTAssertFalse(pkg.isNew)
+            }
+            
+            // run stages again to simulate the cycle...
+            
+            try await reconcile(client: app.client, database: app.db)
+            do {
+                let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                XCTAssertFalse(pkg.isNew)
+            }
+            
+            try await withDependencies {
+                $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
+            } operation: {
+                try await ingest(client: app.client, database: app.db, mode: .limit(10))
 
-        // MUT & validate
-        do {
-            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-            XCTAssertTrue(pkg.isNew)
-        }
+                do {
+                    let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                    XCTAssertFalse(pkg.isNew)
+                }
 
-        // run ingestion to progress package through pipeline
-        try await ingest(client: app.client, database: app.db, mode: .limit(10))
+                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
-        // MUT & validate
-        do {
-            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-            XCTAssertTrue(pkg.isNew)
-        }
-
-        // run analysis to progress package through pipeline
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
-
-        // MUT & validate
-        do {
-            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-            XCTAssertFalse(pkg.isNew)
-        }
-
-        // run stages again to simulate the cycle...
-
-        try await reconcile(client: app.client, database: app.db)
-        do {
-            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-            XCTAssertFalse(pkg.isNew)
-        }
-
-        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
-        try await ingest(client: app.client, database: app.db, mode: .limit(10))
-        do {
-            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-            XCTAssertFalse(pkg.isNew)
-        }
-
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
-        do {
-            let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
-            XCTAssertFalse(pkg.isNew)
+                do {
+                    let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                    XCTAssertFalse(pkg.isNew)
+                }
+            }
         }
     }
 

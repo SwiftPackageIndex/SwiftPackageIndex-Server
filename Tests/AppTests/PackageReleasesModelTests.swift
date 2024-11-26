@@ -15,6 +15,7 @@
 @testable import App
 
 import XCTVapor
+import Dependencies
 
 
 class PackageReleasesModelTests: AppTestCase {
@@ -32,33 +33,36 @@ class PackageReleasesModelTests: AppTestCase {
             NSTimeZone.default = oldDefault
         }
 
-        Current.date = { .spiBirthday }
-        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
-        try await pkg.save(on: app.db)
+        try await withDependencies {
+            $0.date.now = .spiBirthday
+        } operation: {
+            let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
+            try await pkg.save(on: app.db)
 
-        try await Repository(package: pkg, releases: [
-            .mock(description: "Release Notes", descriptionHTML: "Release Notes",
-                  publishedAt: 2, tagName: "1.0.0", url: "some url"),
+            try await Repository(package: pkg, releases: [
+                .mock(description: "Release Notes", descriptionHTML: "Release Notes",
+                      publishedAt: 2, tagName: "1.0.0", url: "some url"),
 
-            .mock(description: nil, descriptionHTML: nil,
-                  publishedAt: 1, tagName: "0.0.1", url: "some url"),
-        ]).save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
+                    .mock(description: nil, descriptionHTML: nil,
+                          publishedAt: 1, tagName: "0.0.1", url: "some url"),
+            ]).save(on: app.db)
+            let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
 
-        // MUT
-        let model = try XCTUnwrap(PackageReleases.Model(package: jpr))
+            // MUT
+            let model = try XCTUnwrap(PackageReleases.Model(package: jpr))
 
-        // Validate
-        XCTAssertEqual(model.releases, [
-            .init(title: "1.0.0", date: "Released 50 years ago on 1 January 1970",
-                  html: "Release Notes", link: "some url"),
+            // Validate
+            XCTAssertEqual(model.releases, [
+                .init(title: "1.0.0", date: "Released 50 years ago on 1 January 1970",
+                      html: "Release Notes", link: "some url"),
 
-            .init(title: "0.0.1", date: "Released 50 years ago on 1 January 1970",
-                  html: nil, link: "some url"),
-        ])
-        // NOTE(heckj): test is sensitive to local time zones, breaks when run at GMT-7
-        // resolves as `31 December 1969`
+                    .init(title: "0.0.1", date: "Released 50 years ago on 1 January 1970",
+                          html: nil, link: "some url"),
+            ])
+            // NOTE(heckj): test is sensitive to local time zones, breaks when run at GMT-7
+            // resolves as `31 December 1969`
+        }
     }
 
     func test_dateFormatting() throws {

@@ -26,10 +26,6 @@ export class SPIDebugPanel extends HTMLElement {
         }
     }
 
-    disconnectedCallback() {
-        console.log('SPIDebugPanel disconnectedCallback')
-    }
-
     reset() {
         const buttonsContainer = this.querySelector('.buttons')
         if (buttonsContainer) buttonsContainer.remove()

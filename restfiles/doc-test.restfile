@@ -33,12 +33,14 @@ requests:
     url: ${base_url}/CoreOffice/XMLCoder/documentation
     validation:
       status: .regex((2|3)\d\d)
-  # Build failure due to what looks like misconfiguration:
-  #   error: target 'Snapshotting' is not a Swift source module
-  # /EmergeTools/SnapshotPreviews-iOS/documentation:
-  #   url: ${base_url}/EmergeTools/SnapshotPreviews-iOS/documentation
-  #   validation:
-  #     status: .regex((2|3)\d\d)
+  /DataDog/dd-sdk-ios/documentation:
+    url: ${base_url}/DataDog/dd-sdk-ios/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /EmergeTools/SnapshotPreviews/documentation:
+    url: ${base_url}/EmergeTools/SnapshotPreviews/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /FabrizioBrancati/Queuer/documentation:
     url: ${base_url}/FabrizioBrancati/Queuer/documentation
     validation:
@@ -55,10 +57,11 @@ requests:
     url: ${base_url}/GetStream/stream-chat-swift/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /GetStream/stream-chat-swiftui/documentation:
-    url: ${base_url}/GetStream/stream-chat-swiftui/documentation
-    validation:
-      status: .regex((2|3)\d\d)
+  # Doc build is failing with a genuine error
+  # /GetStream/stream-chat-swiftui/documentation:
+  #   url: ${base_url}/GetStream/stream-chat-swiftui/documentation
+  #   validation:
+  #     status: .regex((2|3)\d\d)
   /GetStream/stream-chat-vapor-swift/documentation:
     url: ${base_url}/GetStream/stream-chat-vapor-swift/documentation
     validation:
@@ -106,10 +109,6 @@ requests:
       status: .regex((2|3)\d\d)
   /RevenueCat/purchases-ios/documentation:
     url: ${base_url}/RevenueCat/purchases-ios/documentation
-    validation:
-      status: .regex((2|3)\d\d)
-  /SwiftGraphs/Grape/documentation:
-    url: ${base_url}/SwiftGraphs/Grape/documentation
     validation:
       status: .regex((2|3)\d\d)
   /SwiftyLab/MetaCodable/documentation:
@@ -174,6 +173,10 @@ requests:
       status: .regex((2|3)\d\d)
   /apple/swift-collections/documentation:
     url: ${base_url}/apple/swift-collections/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /apple/swift-container-plugin/documentation:
+    url: ${base_url}/apple/swift-container-plugin/documentation
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-distributed-actors/documentation:
@@ -313,6 +316,10 @@ requests:
     url: ${base_url}/dagronf/QRCode/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /daprice/Variablur/documentation:
+    url: ${base_url}/daprice/Variablur/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /davdroman/swiftui-navigation-transitions/documentation:
     url: ${base_url}/davdroman/swiftui-navigation-transitions/documentation
     validation:
@@ -387,6 +394,10 @@ requests:
     url: ${base_url}/krzyzanowskim/CryptoSwift/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /li3zhen1/Grape/documentation:
+      url: ${base_url}/li3zhen1/Grape/documentation
+      validation:
+        status: .regex((2|3)\d\d)
   /liuliu/dflat/documentation:
     url: ${base_url}/liuliu/dflat/documentation
     validation:
@@ -503,11 +514,10 @@ requests:
     url: ${base_url}/richardtop/CalendarKit/documentation
     validation:
       status: .regex((2|3)\d\d)
-  # Fails due to --include-extended-types
-  # /sbooth/SFBAudioEngine/documentation:
-  #   url: ${base_url}/sbooth/SFBAudioEngine/documentation
-  #   validation:
-  #     status: .regex((2|3)\d\d)
+  /sbooth/SFBAudioEngine/documentation:
+    url: ${base_url}/sbooth/SFBAudioEngine/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /scenee/FloatingPanel/documentation:
     url: ${base_url}/scenee/FloatingPanel/documentation
     validation:
@@ -596,6 +606,10 @@ requests:
     url: ${base_url}/swiftlang/swift-docc/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /swiftlang/swift-evolution-metadata-extractor/documentation:
+    url: ${base_url}/swiftlang/swift-evolution-metadata-extractor/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /swiftlang/swift-markdown/documentation:
     url: ${base_url}/swiftlang/swift-markdown/documentation
     validation:
@@ -616,6 +630,10 @@ requests:
     url: ${base_url}/swiftwasm/JavaScriptKit/documentation
     validation:
       status: .regex((2|3)\d\d)
+  /swiftwasm/WasmKit/documentation:
+    url: ${base_url}/swiftwasm/WasmKit/documentation
+    validation:
+      status: .regex((2|3)\d\d)
   /swiftyfinch/Rugby/documentation:
     url: ${base_url}/swiftyfinch/Rugby/documentation
     validation:
@@ -626,6 +644,10 @@ requests:
       status: .regex((2|3)\d\d)
   /tgrapperon/swift-dependencies-additions/documentation:
     url: ${base_url}/tgrapperon/swift-dependencies-additions/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /tuist/XcodeProj/documentation:
+    url: ${base_url}/tuist/XcodeProj/documentation
     validation:
       status: .regex((2|3)\d\d)
   /vapor-community/HTMLKit/documentation:
@@ -642,6 +664,10 @@ requests:
       status: .regex((2|3)\d\d)
   /vapor-community/sendgrid-kit/documentation:
     url: ${base_url}/vapor-community/sendgrid-kit/documentation
+    validation:
+      status: .regex((2|3)\d\d)
+  /vapor-community/sendgrid/documentation:
+    url: ${base_url}/vapor-community/sendgrid/documentation
     validation:
       status: .regex((2|3)\d\d)
   /vtourraine/AcknowList/documentation:

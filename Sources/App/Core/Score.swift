@@ -14,6 +14,9 @@
 
 import Foundation
 
+import Dependencies
+
+
 enum Score {
     struct Details: Codable, Equatable {
         var licenseKind: License.Kind
@@ -99,7 +102,8 @@ enum Score {
         // Last maintenance activity
         // Note: This is not the most accurate method to calculate the number of days between
         // two dates, but is more than good enough for the purposes of this calculation.
-        let dateDifference = Calendar.current.dateComponents([.day], from: candidate.lastActivityAt, to: Current.date())
+        @Dependency(\.date.now) var now
+        let dateDifference = Calendar.current.dateComponents([.day], from: candidate.lastActivityAt, to: now)
         switch dateDifference.day {
             case .some(..<30):
                 scoreBreakdown[.maintenance] = 15

@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Fluent
 import Foundation
+
+import Dependencies
+import Fluent
 import PackageCollectionsModel
 
 
@@ -32,6 +34,7 @@ extension PackageCollection {
     enum Filter {
         case urls([String])
         case author(String)
+        case customCollection(String)
     }
 
     enum Error: Swift.Error {
@@ -58,6 +61,8 @@ extension PackageCollection {
 
         guard !packages.isEmpty else { throw Error.noResults }
 
+        @Dependency(\.date.now) var now
+
         return PackageCollection.init(
             name: collectionName,
             overview: overview,
@@ -65,7 +70,7 @@ extension PackageCollection {
             packages: packages,
             formatVersion: .v1_0,
             revision: revision,
-            generatedAt: Current.date(),
+            generatedAt: now,
             generatedBy: authorName.map(Author.init(name:))
         )
     }
@@ -93,10 +98,14 @@ extension PackageCollection {
                 return owner
             case (.author, .some(let label)):
                 return label
-            case (.urls, .some(let label)):
+            case (.customCollection(let name), .none):
+                return name
+            case (.customCollection, .some(let label)):
                 return label
             case (.urls(let urls), .none):
                 return author(for: urls)
+            case (.urls, .some(let label)):
+                return label
         }
     }
 

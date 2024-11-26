@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Vapor
+import Dependencies
 import Fluent
+import Vapor
 
 
 enum ReAnalyzeVersions {
@@ -48,13 +49,14 @@ enum ReAnalyzeVersions {
             let db = context.application.db
             Current.setLogger(Logger(component: "re-analyze-versions"))
 
+            @Dependency(\.date.now) var now
             if let id = signature.packageId {
                 Current.logger().info("Re-analyzing versions (id: \(id)) ...")
                 do {
                     try await reAnalyzeVersions(
                         client: client,
                         database: db,
-                        versionsLastUpdatedBefore: Current.date(),
+                        versionsLastUpdatedBefore: now,
                         refreshCheckouts: signature.refreshCheckouts,
                         packageId: id
                     )
@@ -174,38 +176,46 @@ enum ReAnalyzeVersions {
         for pkg in packages {
             Current.logger().info("Re-analyzing package \(pkg.model.url) ...")
 
-            try await database.transaction { tx in
-                guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: pkg.model) else { return }
-                if !Current.fileManager.fileExists(atPath: cacheDir) || refreshCheckouts {
-                    try await Analyze.refreshCheckout(package: pkg)
-                }
-
-                let versions = try await getExistingVersions(client: client,
-                                                             transaction: tx,
-                                                             package: pkg,
-                                                             before: cutoffDate)
-                Current.logger().info("Updating \(versions.count) versions (id: \(pkg.model.id)) ...")
-
-                try await setUpdatedAt(on: tx, versions: versions)
-
-                Analyze.mergeReleaseInfo(package: pkg, into: versions)
-
-                for version in versions {
-                    let pkgInfo: Analyze.PackageInfo
-                    do {
-                        pkgInfo = try await Analyze.getPackageInfo(package: pkg, version: version)
-                    } catch {
-                        Current.logger().report(error: error)
-                        continue
+            // 2024-10-05 sas: We need to explicitly weave dependencies into the `transaction` closure, because escaping closures strip them.
+            // https://github.com/pointfreeco/swift-dependencies/discussions/283#discussioncomment-10846172
+            // This might not be needed in Vapor 5 / FluentKit 2
+            // TODO: verify this is still needed once we upgrade to Vapor 5 / FluentKit 2
+            try await withEscapedDependencies { dependencies in
+                try await database.transaction { tx in
+                    try await dependencies.yield {
+                        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: pkg.model) else { return }
+                        if !Current.fileManager.fileExists(atPath: cacheDir) || refreshCheckouts {
+                            try await Analyze.refreshCheckout(package: pkg)
+                        }
+                        
+                        let versions = try await getExistingVersions(client: client,
+                                                                     transaction: tx,
+                                                                     package: pkg,
+                                                                     before: cutoffDate)
+                        Current.logger().info("Updating \(versions.count) versions (id: \(pkg.model.id)) ...")
+                        
+                        try await setUpdatedAt(on: tx, versions: versions)
+                        
+                        Analyze.mergeReleaseInfo(package: pkg, into: versions)
+                        
+                        for version in versions {
+                            let pkgInfo: Analyze.PackageInfo
+                            do {
+                                pkgInfo = try await Analyze.getPackageInfo(package: pkg, version: version)
+                            } catch {
+                                Current.logger().report(error: error)
+                                continue
+                            }
+                            
+                            try await Analyze.updateVersion(on: tx, version: version, packageInfo: pkgInfo)
+                            try await Analyze.recreateProducts(on: tx, version: version, manifest: pkgInfo.packageManifest)
+                            try await Analyze.recreateTargets(on: tx, version: version, manifest: pkgInfo.packageManifest)
+                        }
+                        
+                        // No need to run `updateLatestVersions` because we're only operating on existing versions,
+                        // not adding any new ones that could change the `latest` marker.
                     }
-
-                    try await Analyze.updateVersion(on: tx, version: version, packageInfo: pkgInfo)
-                    try await Analyze.recreateProducts(on: tx, version: version, manifest: pkgInfo.packageManifest)
-                    try await Analyze.recreateTargets(on: tx, version: version, manifest: pkgInfo.packageManifest)
                 }
-
-                // No need to run `updateLatestVersions` because we're only operating on existing versions,
-                // not adding any new ones that could change the `latest` marker.
             }
         }
     }
@@ -225,8 +235,9 @@ enum ReAnalyzeVersions {
 
 
     static func setUpdatedAt(on database: Database, versions: [Version]) async throws {
+        @Dependency(\.date.now) var now
         for version in versions {
-            version.updatedAt = Current.date()
+            version.updatedAt = now
         }
         try await versions.save(on: database)
     }

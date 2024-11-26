@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 @testable import App
 
-import Foundation
+import Dependencies
+
 
 extension MaintainerInfoIndex.Model {
     static var mock: MaintainerInfoIndex.Model {
@@ -30,13 +33,14 @@ extension MaintainerInfoIndex.Model {
 
 extension Score.Details {
     static var mock: Self {
-        .init(
+        @Dependency(\.date.now) var now
+        return .init(
             licenseKind: .compatibleWithAppStore,
             releaseCount: 10,
             likeCount: 300,
             isArchived: false,
             numberOfDependencies: 3,
-            lastActivityAt: Current.date().adding(days: -10),
+            lastActivityAt: now.adding(days: -10),
             hasDocumentation: true,
             hasReadme: true,
             numberOfContributors: 20,

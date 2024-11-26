@@ -24,6 +24,11 @@ requests:
         validation:
             status: 200
 
+    package-collection:
+        url: ${base_url}/apple/collection.json
+        validation:
+            status: 200
+
     search:
         url: ${base_url}/api/search
         query:

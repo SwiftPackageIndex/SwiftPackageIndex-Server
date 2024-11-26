@@ -75,6 +75,11 @@
                 background-image: var(--image-warning);
             }
 
+            li.forked {
+                grid-column-start: span 2;
+                background-image: var(--image-fork);
+            }
+
             li.authors {
                 grid-column-start: span 2;
                 background-image: var(--image-authors);
@@ -142,6 +147,17 @@
             }
 
             li.keywords {
+                grid-column-start: span 2;
+                background-image: var(--image-tags);
+
+                a {
+                    display: flex;
+                    gap: 5px;
+                    align-items: center;
+                }
+            }
+            
+            li.custom-collections {
                 grid-column-start: span 2;
                 background-image: var(--image-tags);
 

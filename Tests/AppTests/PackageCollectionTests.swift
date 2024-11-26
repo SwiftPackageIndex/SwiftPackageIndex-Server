@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-import SnapshotTesting
-import Vapor
 import XCTest
 
+@testable import App
+
 import Basics
+import Dependencies
 import PackageCollectionsSigning
+import SnapshotTesting
+import Vapor
 
 
 class PackageCollectionTests: AppTestCase {
@@ -160,6 +162,48 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         let res = try await VersionResult.query(on: self.app.db, filterBy: .author("foo"))
+
+        // validate selection (relationship loading is tested in test_query_filter_urls)
+        XCTAssertEqual(res.map(\.version.packageName),
+                       ["package 0", "package 1"])
+    }
+
+    func test_query_custom() async throws {
+        // Tests PackageResult.query with the custom collection filter option
+        // setup
+        let packages = try await (0..<3).mapAsync { index in
+            let pkg = try await savePackage(on: app.db, "url-\(index)".url)
+            do {
+                let v = try Version(package: pkg,
+                                    latest: .release,
+                                    packageName: "package \(index)",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.4")
+                try await v.save(on: app.db)
+                try await Build(version: v,
+                                buildCommand: "build \(index)",
+                                platform: .iOS,
+                                status: .ok,
+                                swiftVersion: .v1)
+                .save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "product \(index)")
+                    .save(on: app.db)
+                try await Target(version: v, name: "target \(index)")
+                    .save(on: app.db)
+            }
+            try await Repository(package: pkg, name: "repo \(index)", owner: "owner")
+                .save(on: app.db)
+            return pkg
+        }
+        let collection = CustomCollection(id: .id2, .init(key: "list",
+                                                          name: "List",
+                                                          url: "https://github.com/foo/bar/list.json"))
+        try await collection.save(on: app.db)
+        try await collection.$packages.attach([packages[0], packages[1]], on: app.db)
+
+        // MUT
+        let res = try await VersionResult.query(on: self.app.db,
+                                                filterBy: .customCollection("list"))
 
         // validate selection (relationship loading is tested in test_query_filter_urls)
         XCTAssertEqual(res.map(\.version.packageName),
@@ -344,39 +388,42 @@ class PackageCollectionTests: AppTestCase {
     }
 
     func test_generate_from_urls() async throws {
-        // setup
-        Current.date = { Date(timeIntervalSince1970: 1610112345) }
-        let pkg = try await savePackage(on: app.db, "1")
-        do {
-            let v = try Version(package: pkg,
-                                latest: .release,
-                                packageName: "package",
-                                reference: .tag(1, 2, 3),
-                                toolsVersion: "5.4")
-            try await v.save(on: app.db)
-            try await Product(version: v, type: .library(.automatic), name: "product")
-                .save(on: app.db)
-        }
-        try await Repository(package: pkg,
-                             license: .mit,
-                             licenseUrl: "https://foo/mit",
-                             summary: "summary").create(on: app.db)
+        try await withDependencies {
+            $0.date.now = .init(timeIntervalSince1970: 1610112345)
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            do {
+                let v = try Version(package: pkg,
+                                    latest: .release,
+                                    packageName: "package",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.4")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "product")
+                    .save(on: app.db)
+            }
+            try await Repository(package: pkg,
+                                 license: .mit,
+                                 licenseUrl: "https://foo/mit",
+                                 summary: "summary").create(on: app.db)
 
-        // MUT
-        let res = try await PackageCollection.generate(db: self.app.db,
-                                                       filterBy: .urls(["1"]),
-                                                       authorName: "Foo",
-                                                       collectionName: "Foo",
-                                                       keywords: ["key", "word"],
-                                                       overview: "overview")
+            // MUT
+            let res = try await PackageCollection.generate(db: self.app.db,
+                                                           filterBy: .urls(["1"]),
+                                                           authorName: "Foo",
+                                                           collectionName: "Foo",
+                                                           keywords: ["key", "word"],
+                                                           overview: "overview")
 
 #if compiler(<6)
-        await MainActor.run {  // validate
-            assertSnapshot(of: res, as: .json(encoder))
-        }
+            await MainActor.run {  // validate
+                assertSnapshot(of: res, as: .json(encoder))
+            }
 #else
-        assertSnapshot(of: res, as: .json(encoder))
+            assertSnapshot(of: res, as: .json(encoder))
 #endif
+        }
     }
 
     func test_generate_from_urls_noResults() async throws {
@@ -397,88 +444,91 @@ class PackageCollectionTests: AppTestCase {
     }
 
     func test_generate_for_owner() async throws {
-        // setup
-        Current.date = { Date(timeIntervalSince1970: 1610112345) }
-        // first package
-        let p1 = try await savePackage(on: app.db, "https://github.com/foo/1")
-        do {
-            let v = try Version(id: UUID(),
-                                package: p1,
-                                packageName: "P1-main",
-                                reference: .branch("main"),
-                                toolsVersion: "5.0")
-            try await v.save(on: app.db)
-            try await Product(version: v, type: .library(.automatic), name: "P1Lib")
-                .save(on: app.db)
-        }
-        do {
-            let v = try Version(id: UUID(),
-                                package: p1,
-                                latest: .release,
-                                packageName: "P1-tag",
-                                reference: .tag(2, 0, 0),
-                                toolsVersion: "5.2")
-            try await v.save(on: app.db)
-            try await Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
-                .save(on: app.db)
-            try await Build(version: v,
-                            platform: .iOS,
-                            status: .ok,
-                            swiftVersion: .init(5, 6, 0)).save(on: app.db)
-            try await Target(version: v, name: "t1").save(on: app.db)
-        }
-        // second package
-        let p2 = try await savePackage(on: app.db, "https://github.com/foo/2")
-        do {
-            let v = try Version(id: UUID(),
-                                package: p2,
-                                packageName: "P2-main",
-                                reference: .branch("main"),
-                                toolsVersion: "5.3")
-            try await v.save(on: app.db)
-            try await Product(version: v, type: .library(.automatic), name: "P1Lib")
-                .save(on: app.db)
-        }
-        do {
-            let v = try Version(id: UUID(),
-                                package: p2,
-                                latest: .release,
-                                packageName: "P2-tag",
-                                reference: .tag(1, 2, 3),
-                                toolsVersion: "5.3")
-            try await v.save(on: app.db)
-            try await Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t2"])
-                .save(on: app.db)
-            try await Target(version: v, name: "t2").save(on: app.db)
-        }
-        // unrelated package
-        _ = try await savePackage(on: app.db, "https://github.com/bar/1")
-        try await Repository(package: p1,
-                             defaultBranch: "main",
-                             license: .mit,
-                             licenseUrl: "https://foo/mit",
-                             owner: "foo",
-                             summary: "summary 1").create(on: app.db)
-        try await Repository(package: p2,
-                             defaultBranch: "main",
-                             license: .mit,
-                             licenseUrl: "https://foo/mit",
-                             owner: "foo",
-                             summary: "summary 2").create(on: app.db)
-
-        // MUT
-        let res = try await PackageCollection.generate(db: self.app.db,
-                                                       filterBy: .author("foo"),
-                                                       authorName: "Foo",
-                                                       keywords: ["key", "word"])
-
+        try await withDependencies {
+            $0.date.now = .init(timeIntervalSince1970: 1610112345)
+        } operation: {
+            // setup
+            // first package
+            let p1 = try await savePackage(on: app.db, "https://github.com/foo/1")
+            do {
+                let v = try Version(id: UUID(),
+                                    package: p1,
+                                    packageName: "P1-main",
+                                    reference: .branch("main"),
+                                    toolsVersion: "5.0")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "P1Lib")
+                    .save(on: app.db)
+            }
+            do {
+                let v = try Version(id: UUID(),
+                                    package: p1,
+                                    latest: .release,
+                                    packageName: "P1-tag",
+                                    reference: .tag(2, 0, 0),
+                                    toolsVersion: "5.2")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
+                    .save(on: app.db)
+                try await Build(version: v,
+                                platform: .iOS,
+                                status: .ok,
+                                swiftVersion: .init(5, 6, 0)).save(on: app.db)
+                try await Target(version: v, name: "t1").save(on: app.db)
+            }
+            // second package
+            let p2 = try await savePackage(on: app.db, "https://github.com/foo/2")
+            do {
+                let v = try Version(id: UUID(),
+                                    package: p2,
+                                    packageName: "P2-main",
+                                    reference: .branch("main"),
+                                    toolsVersion: "5.3")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "P1Lib")
+                    .save(on: app.db)
+            }
+            do {
+                let v = try Version(id: UUID(),
+                                    package: p2,
+                                    latest: .release,
+                                    packageName: "P2-tag",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.3")
+                try await v.save(on: app.db)
+                try await Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t2"])
+                    .save(on: app.db)
+                try await Target(version: v, name: "t2").save(on: app.db)
+            }
+            // unrelated package
+            _ = try await savePackage(on: app.db, "https://github.com/bar/1")
+            try await Repository(package: p1,
+                                 defaultBranch: "main",
+                                 license: .mit,
+                                 licenseUrl: "https://foo/mit",
+                                 owner: "foo",
+                                 summary: "summary 1").create(on: app.db)
+            try await Repository(package: p2,
+                                 defaultBranch: "main",
+                                 license: .mit,
+                                 licenseUrl: "https://foo/mit",
+                                 owner: "foo",
+                                 summary: "summary 2").create(on: app.db)
+            
+            // MUT
+            let res = try await PackageCollection.generate(db: self.app.db,
+                                                           filterBy: .author("foo"),
+                                                           authorName: "Foo",
+                                                           keywords: ["key", "word"])
+            
 #if compiler(<6)
-        await MainActor.run {  // validate
-            assertSnapshot(of: res, as: .json(encoder))
-        }
+            await MainActor.run {  // validate
+                assertSnapshot(of: res, as: .json(encoder))
+            }
 #else
-        assertSnapshot(of: res, as: .json(encoder))
+            assertSnapshot(of: res, as: .json(encoder))
 #endif
+        }
     }
 
     func test_generate_for_owner_noResults() async throws {
@@ -569,18 +619,22 @@ class PackageCollectionTests: AppTestCase {
             try await Target(version: v, name: "t1").save(on: app.db)
         }
 
-        // MUT
-        let res = try await PackageCollection.generate(db: self.app.db,
-                                                       filterBy: .author("foo"),
-                                                       authorName: "Foo",
-                                                       collectionName: "Foo",
-                                                       keywords: ["key", "word"],
-                                                       overview: "overview")
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // MUT
+            let res = try await PackageCollection.generate(db: self.app.db,
+                                                           filterBy: .author("foo"),
+                                                           authorName: "Foo",
+                                                           collectionName: "Foo",
+                                                           keywords: ["key", "word"],
+                                                           overview: "overview")
 
-        // validate
-        XCTAssertEqual(res.packages.count, 1)
-        XCTAssertEqual(res.packages.flatMap { $0.versions.map({$0.version}) },
-                       ["2.0.0-b1", "1.2.3"])
+            // validate
+            XCTAssertEqual(res.packages.count, 1)
+            XCTAssertEqual(res.packages.flatMap { $0.versions.map({$0.version}) },
+                           ["2.0.0-b1", "1.2.3"])
+        }
     }
 
     func test_require_products() async throws {
@@ -661,14 +715,18 @@ class PackageCollectionTests: AppTestCase {
                              owner: "Foo",
                              summary: "summary 1").create(on: app.db)
 
-        // MUT
-        let res = try await PackageCollection.generate(db: self.app.db,
-                                                       // looking for owner "foo"
-                                                       filterBy: .author("foo"),
-                                                       collectionName: "collection")
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // MUT
+            let res = try await PackageCollection.generate(db: self.app.db,
+                                                           // looking for owner "foo"
+                                                           filterBy: .author("foo"),
+                                                           collectionName: "collection")
 
-        // validate
-        XCTAssertEqual(res.packages.count, 1)
+            // validate
+            XCTAssertEqual(res.packages.count, 1)
+        }
     }
 
     func test_generate_ownerName() async throws {
@@ -701,15 +759,19 @@ class PackageCollectionTests: AppTestCase {
                              ownerName: "Foo Org",
                              summary: "summary 1").create(on: app.db)
 
-        // MUT
-        let res = try await PackageCollection.generate(db: self.app.db,
-                                                       filterBy: .author("foo"),
-                                                       authorName: "Foo",
-                                                       keywords: ["key", "word"])
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // MUT
+            let res = try await PackageCollection.generate(db: self.app.db,
+                                                           filterBy: .author("foo"),
+                                                           authorName: "Foo",
+                                                           keywords: ["key", "word"])
 
-        // validate
-        XCTAssertEqual(res.name, "Packages by Foo Org")
-        XCTAssertEqual(res.overview, "A collection of packages authored by Foo Org from the Swift Package Index")
+            // validate
+            XCTAssertEqual(res.name, "Packages by Foo Org")
+            XCTAssertEqual(res.overview, "A collection of packages authored by Foo Org from the Swift Package Index")
+        }
     }
 
     func test_Compatibility() throws {
@@ -768,27 +830,32 @@ class PackageCollectionTests: AppTestCase {
     }
 
     func test_sign_collection() async throws {
-        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
+        try XCTSkipIf(!isRunningInCI && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
 
-        // setup
-        let collection: PackageCollection = .mock
+        try await withDependencies {
+            $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
+            $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
+        } operation: {
+            // setup
+            let collection: PackageCollection = .mock
 
-        // MUT
-        let signedCollection = try await SignedCollection.sign(collection: collection)
+            // MUT
+            let signedCollection = try await SignedCollection.sign(collection: collection)
 
-        // validate signed collection content
-        XCTAssertFalse(signedCollection.signature.signature.isEmpty)
+            // validate signed collection content
+            XCTAssertFalse(signedCollection.signature.signature.isEmpty)
 #if compiler(<6)
-        await MainActor.run {
-            assertSnapshot(of: signedCollection, as: .json(encoder))
-        }
+            await MainActor.run {
+                assertSnapshot(of: signedCollection, as: .json(encoder))
+            }
 #else
-        assertSnapshot(of: signedCollection, as: .json(encoder))
+            assertSnapshot(of: signedCollection, as: .json(encoder))
 #endif
 
-        // validate signature
-        let validated = try await SignedCollection.validate(signedCollection: signedCollection)
-        XCTAssertTrue(validated)
+            // validate signature
+            let validated = try await SignedCollection.validate(signedCollection: signedCollection)
+            XCTAssertTrue(validated)
+        }
     }
 
     func test_sign_collection_revoked_key() async throws {
@@ -804,29 +871,29 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertTrue(Foundation.FileManager.default.fileExists(atPath: revokedUrl.path))
         let revokedKey = try XCTUnwrap(fixtureData(for: "revoked.pem"))
 
-        Current.collectionSigningCertificateChain = {
-            [
-                revokedUrl,
-                SignedCollection.certsDir
-                    .appendingPathComponent("AppleWWDRCAG3.cer"),
-                SignedCollection.certsDir
-                    .appendingPathComponent("AppleIncRootCertificate.cer")
-            ]
-        }
-        Current.collectionSigningPrivateKey = { revokedKey }
-
-        // MUT
-        do {
-            let signedCollection = try await SignedCollection.sign(collection: collection)
-            // NB: signing _can_ succeed in case of reachability issues to verify the cert
-            // in this case we need to check the signature
-            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1583#issuecomment-1048408400
-            let validated = try await SignedCollection.validate(signedCollection: signedCollection)
-            XCTAssertFalse(validated)
-        } catch PackageCollectionSigningError.invalidCertChain {
-            // ok
-        } catch {
-            XCTFail("unexpected signing error: \(error)")
+        await withDependencies {
+            $0.environment.collectionSigningCertificateChain = {
+                [
+                    revokedUrl,
+                    SignedCollection.certsDir.appendingPathComponent("AppleWWDRCAG3.cer"),
+                    SignedCollection.certsDir.appendingPathComponent("AppleIncRootCertificate.cer")
+                ]
+            }
+            $0.environment.collectionSigningPrivateKey = { revokedKey }
+        } operation: {
+            do {
+                // MUT
+                let signedCollection = try await SignedCollection.sign(collection: collection)
+                // NB: signing _can_ succeed in case of reachability issues to verify the cert
+                // in this case we need to check the signature
+                // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1583#issuecomment-1048408400
+                let validated = try await SignedCollection.validate(signedCollection: signedCollection)
+                XCTAssertFalse(validated)
+            } catch PackageCollectionSigningError.invalidCertChain {
+                // ok
+            } catch {
+                XCTFail("unexpected signing error: \(error)")
+            }
         }
     }
 

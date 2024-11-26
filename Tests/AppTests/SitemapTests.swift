@@ -14,9 +14,11 @@
 
 @testable import App
 
-@preconcurrency import Plot
+import Dependencies
 import SnapshotTesting
 import XCTVapor
+
+@preconcurrency import Plot
 
 
 class SitemapTests: SnapshotTestCase {
@@ -27,7 +29,7 @@ class SitemapTests: SnapshotTestCase {
         let packages = (0..<3).map { Package(url: "\($0)".url) }
         try await packages.save(on: app.db)
         try await packages.map { try Repository(package: $0, defaultBranch: "default",
-                                                lastCommitDate: Current.date(), name: $0.url,
+                                                lastCommitDate: .t0, name: $0.url,
                                                 owner: "foo") }.save(on: app.db)
         try await packages.map { try Version(package: $0, packageName: "foo",
                                              reference: .branch("default")) }.save(on: app.db)
@@ -45,19 +47,21 @@ class SitemapTests: SnapshotTestCase {
 
     func test_siteMapIndex_prod() async throws {
         // Ensure sitemap routing is configured in prod
-        // Setup
-        Current.environment = { .production }
-        // We also need to set up a new app that's configured for production,
-        // because app.test is not affected by Current overrides.
-        let prodApp = try await setup(.production)
-        try await App.run {
-            // MUT
-            try await prodApp.test(.GET, "/sitemap.xml") { res async in
-                // Validation
-                XCTAssertEqual(res.status, .ok)
+        try await withDependencies {
+            $0.environment.current = { .production }
+        } operation: {
+            // We also need to set up a new app that's configured for production,
+            // because app.test is not affected by @Dependency overrides.
+            let prodApp = try await setup(.production)
+            try await App.run {
+                // MUT
+                try await prodApp.test(.GET, "/sitemap.xml") { res async in
+                    // Validation
+                    XCTAssertEqual(res.status, .ok)
+                }
+            } defer: {
+                try await prodApp.asyncShutdown()
             }
-        } defer: {
-            try await prodApp.asyncShutdown()
         }
     }
 
@@ -86,18 +90,21 @@ class SitemapTests: SnapshotTestCase {
 
     func test_siteMapStaticPages_prod() async throws {
         // Ensure sitemap routing is configured in prod
-        Current.environment = { .production }
-        // We also need to set up a new app that's configured for production,
-        // because app.test is not affected by Current overrides.
-        let prodApp = try await setup(.production)
-        try await App.run {
-            // MUT
-            try await prodApp.test(.GET, "/sitemap-static-pages.xml") { res async in
-                // Validation
-                XCTAssertEqual(res.status, .ok)
+        try await withDependencies {
+            $0.environment.current = { .production }
+        } operation: {
+            // We also need to set up a new app that's configured for production,
+            // because app.test is not affected by @Dependency overrides.
+            let prodApp = try await setup(.production)
+            try await App.run {
+                // MUT
+                try await prodApp.test(.GET, "/sitemap-static-pages.xml") { res async in
+                    // Validation
+                    XCTAssertEqual(res.status, .ok)
+                }
+            } defer: {
+                try await prodApp.asyncShutdown()
             }
-        } defer: {
-            try await prodApp.asyncShutdown()
         }
     }
 
@@ -113,83 +120,91 @@ class SitemapTests: SnapshotTestCase {
     }
 
     func test_linkablePathUrls() async throws {
-        // setup
-        let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
-        try await package.save(on: app.db)
-        try await Repository(package: package, defaultBranch: "default",
-                             lastCommitDate: Current.date(),
-                             name: "Repo0", owner: "Owner").save(on: app.db)
-        try await Version(package: package,
-                          commit: "123456",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "t1", title: "T1")],
-                          latest: .defaultBranch,
-                          packageName: "SomePackage",
-                          reference: .branch("default"),
-                          spiManifest: .init(builder: .init(configs: [.init(documentationTargets: ["t1", "t2"])]))).save(on: app.db)
-        let packageResult = try await PackageController.PackageResult
-            .query(on: app.db, owner: "owner", repository: "repo0")
-        Current.siteURL = { "https://spi.com" }
-        Current.fetchDocumentation = { client, url in
-            guard url.path.hasSuffix("/owner/repo0/default/linkable-paths.json") else { throw Abort(.notFound) }
-            return .init(status: .ok,
-                         body: .init(string: """
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
+            try await package.save(on: app.db)
+            try await Repository(package: package, defaultBranch: "default",
+                                 lastCommitDate: Date.now,
+                                 name: "Repo0", owner: "Owner").save(on: app.db)
+            try await Version(package: package,
+                              commit: "123456",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "t1", title: "T1")],
+                              latest: .defaultBranch,
+                              packageName: "SomePackage",
+                              reference: .branch("default"),
+                              spiManifest: .init(builder: .init(configs: [.init(documentationTargets: ["t1", "t2"])]))).save(on: app.db)
+            let packageResult = try await PackageController.PackageResult
+                .query(on: app.db, owner: "owner", repository: "repo0")
+            Current.siteURL = { "https://spi.com" }
+            Current.fetchDocumentation = { client, url in
+                guard url.path.hasSuffix("/owner/repo0/default/linkable-paths.json") else { throw Abort(.notFound) }
+                return .init(status: .ok,
+                             body: .init(string: """
                             [
                                 "/documentation/foo/bar/1",
                                 "/documentation/foo/bar/2",
                             ]
                             """)
-            )
+                )
+            }
+
+            // MUT
+            let urls = await PackageController.linkablePathUrls(client: app.client, packageResult: packageResult)
+
+            XCTAssertEqual(urls, [
+                "https://spi.com/Owner/Repo0/default/documentation/foo/bar/1",
+                "https://spi.com/Owner/Repo0/default/documentation/foo/bar/2"
+            ])
         }
-
-        // MUT
-        let urls = await PackageController.linkablePathUrls(client: app.client, packageResult: packageResult)
-
-        XCTAssertEqual(urls, [
-            "https://spi.com/Owner/Repo0/default/documentation/foo/bar/1",
-            "https://spi.com/Owner/Repo0/default/documentation/foo/bar/2"
-        ])
     }
 
     func test_linkablePathUrls_reference_pathEncoded() async throws {
         // Ensure branch names with / are properly "path encoded"
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2462
-        // setup
-        let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
-        try await package.save(on: app.db)
-        try await Repository(package: package, defaultBranch: "a/b",
-                             lastCommitDate: Current.date(),
-                             name: "Repo0", owner: "Owner").save(on: app.db)
-        try await Version(package: package,
-                          commit: "123456",
-                          commitDate: .t0,
-                          docArchives: [.init(name: "t1", title: "T1")],
-                          latest: .defaultBranch,
-                          packageName: "SomePackage",
-                          reference: .branch("a/b"),
-                          spiManifest: .init(builder: .init(configs: [.init(documentationTargets: ["t1", "t2"])]))).save(on: app.db)
-        let packageResult = try await PackageController.PackageResult
-            .query(on: app.db, owner: "owner", repository: "repo0")
-        Current.siteURL = { "https://spi.com" }
-        Current.fetchDocumentation = { client, url in
-            guard url.path.hasSuffix("/owner/repo0/a-b/linkable-paths.json") else { throw Abort(.notFound) }
-            return .init(status: .ok,
-                         body: .init(string: """
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
+            try await package.save(on: app.db)
+            try await Repository(package: package, defaultBranch: "a/b",
+                                 lastCommitDate: Date.now,
+                                 name: "Repo0", owner: "Owner").save(on: app.db)
+            try await Version(package: package,
+                              commit: "123456",
+                              commitDate: .t0,
+                              docArchives: [.init(name: "t1", title: "T1")],
+                              latest: .defaultBranch,
+                              packageName: "SomePackage",
+                              reference: .branch("a/b"),
+                              spiManifest: .init(builder: .init(configs: [.init(documentationTargets: ["t1", "t2"])]))).save(on: app.db)
+            let packageResult = try await PackageController.PackageResult
+                .query(on: app.db, owner: "owner", repository: "repo0")
+            Current.siteURL = { "https://spi.com" }
+            Current.fetchDocumentation = { client, url in
+                guard url.path.hasSuffix("/owner/repo0/a-b/linkable-paths.json") else { throw Abort(.notFound) }
+                return .init(status: .ok,
+                             body: .init(string: """
                             [
                                 "/documentation/foo/bar/1",
                                 "/documentation/foo/bar/2",
                             ]
                             """)
-            )
+                )
+            }
+            
+            // MUT
+            let urls = await PackageController.linkablePathUrls(client: app.client, packageResult: packageResult)
+            
+            XCTAssertEqual(urls, [
+                "https://spi.com/Owner/Repo0/a-b/documentation/foo/bar/1",
+                "https://spi.com/Owner/Repo0/a-b/documentation/foo/bar/2"
+            ])
         }
-
-        // MUT
-        let urls = await PackageController.linkablePathUrls(client: app.client, packageResult: packageResult)
-
-        XCTAssertEqual(urls, [
-            "https://spi.com/Owner/Repo0/a-b/documentation/foo/bar/1",
-            "https://spi.com/Owner/Repo0/a-b/documentation/foo/bar/2"
-        ])
     }
 
     @MainActor
@@ -198,7 +213,7 @@ class SitemapTests: SnapshotTestCase {
         let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
         try await package.save(on: app.db)
         try await Repository(package: package, defaultBranch: "default",
-                             lastCommitDate: Current.date(),
+                             lastCommitDate: .t0,
                              name: "Repo0", owner: "Owner").save(on: app.db)
         try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
                           reference: .branch("default")).save(on: app.db)
@@ -222,7 +237,7 @@ class SitemapTests: SnapshotTestCase {
         let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
         try await package.save(on: app.db)
         try await Repository(package: package, defaultBranch: "default",
-                             lastCommitDate: Current.date(),
+                             lastCommitDate: .t0,
                              name: "Repo0", owner: "Owner").save(on: app.db)
         try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
                           reference: .branch("default")).save(on: app.db)

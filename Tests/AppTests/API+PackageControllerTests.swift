@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
+import Dependencies
 import Vapor
-import XCTest
 
 
 class API_PackageControllerTests: AppTestCase {
@@ -23,68 +25,68 @@ class API_PackageControllerTests: AppTestCase {
     typealias BuildDetails = (reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status)
 
     func test_History_query() async throws {
-        // setup
-        Current.date = {
-            Date.init(timeIntervalSince1970: 1608000588)  // Dec 15, 2020
-        }
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg,
-                             commitCount: 1433,
-                             defaultBranch: "default",
-                             firstCommitDate: .t0,
-                             name: "bar",
-                             owner: "foo").create(on: app.db)
-        for idx in (0..<10) {
-            try await Version(package: pkg,
-                              latest: .defaultBranch,
-                              reference: .branch("main")).create(on: app.db)
-            try await Version(package: pkg,
-                              latest: .release,
-                              reference: .tag(.init(idx, 0, 0))).create(on: app.db)
-        }
-        // add pre-release and default branch - these should *not* be counted as releases
-        try await Version(package: pkg, reference: .branch("main")).create(on: app.db)
-        try await Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db)
+        try await withDependencies {
+            $0.date.now = .init(timeIntervalSince1970: 1608000588)  // Dec 15, 2020
+        } operation: {
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg,
+                                 commitCount: 1433,
+                                 defaultBranch: "default",
+                                 firstCommitDate: .t0,
+                                 name: "bar",
+                                 owner: "foo").create(on: app.db)
+            for idx in (0..<10) {
+                try await Version(package: pkg,
+                                  latest: .defaultBranch,
+                                  reference: .branch("main")).create(on: app.db)
+                try await Version(package: pkg,
+                                  latest: .release,
+                                  reference: .tag(.init(idx, 0, 0))).create(on: app.db)
+            }
+            // add pre-release and default branch - these should *not* be counted as releases
+            try await Version(package: pkg, reference: .branch("main")).create(on: app.db)
+            try await Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db)
 
-        // MUT
-        let record = try await API.PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
+            // MUT
+            let record = try await API.PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
 
-        // validate
-        XCTAssertEqual(
-            record,
-            .init(url: "1",
-                  defaultBranch: "default",
-                  firstCommitDate: .t0,
-                  commitCount: 1433,
-                  releaseCount: 10)
-        )
+            // validate
+            XCTAssertEqual(
+                record,
+                .init(url: "1",
+                      defaultBranch: "default",
+                      firstCommitDate: .t0,
+                      commitCount: 1433,
+                      releaseCount: 10)
+            )
+        }
     }
 
     func test_History_query_no_releases() async throws {
-        // setup
-        Current.date = {
-            Date.init(timeIntervalSince1970: 1608000588)  // Dec 15, 2020
+        try await withDependencies {
+            $0.date.now = .init(timeIntervalSince1970: 1608000588)  // Dec 15, 2020
+        } operation: {
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg,
+                                 commitCount: 1433,
+                                 defaultBranch: "default",
+                                 firstCommitDate: .t0,
+                                 name: "bar",
+                                 owner: "foo").create(on: app.db)
+            
+            // MUT
+            let record = try await API.PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
+            
+            // validate
+            XCTAssertEqual(
+                record,
+                .init(url: "1",
+                      defaultBranch: "default",
+                      firstCommitDate: .t0,
+                      commitCount: 1433,
+                      releaseCount: 0)
+            )
         }
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg,
-                             commitCount: 1433,
-                             defaultBranch: "default",
-                             firstCommitDate: .t0,
-                             name: "bar",
-                             owner: "foo").create(on: app.db)
-
-        // MUT
-        let record = try await API.PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
-
-        // validate
-        XCTAssertEqual(
-            record,
-            .init(url: "1",
-                  defaultBranch: "default",
-                  firstCommitDate: .t0,
-                  commitCount: 1433,
-                  releaseCount: 0)
-        )
     }
 
     func test_History_Record_historyModel() throws {

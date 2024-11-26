@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 @testable import App
 
-import Foundation
+import Dependencies
 
 
 extension API.PackageController.GetRoute.Model {
     static var mock: Self {
-        .init(
+        @Dependency(\.date.now) var now
+        return .init(
             packageId: UUID("cafecafe-cafe-cafe-cafe-cafecafecafe")!,
             repositoryOwner: "Alamo",
             repositoryOwnerName: "Alamofire",
@@ -29,8 +32,8 @@ extension API.PackageController.GetRoute.Model {
                 openIssuesURL: "https://github.com/Alamofire/Alamofire/issues",
                 openPullRequestsCount: 5,
                 openPullRequestsURL: "https://github.com/Alamofire/Alamofire/pulls",
-                lastIssueClosedAt: Current.date().adding(days: -5),
-                lastPullRequestClosedAt: Current.date().adding(days: -6)
+                lastIssueClosedAt: now.adding(days: -5),
+                lastPullRequestClosedAt: now.adding(days: -6)
             ),
             authors: AuthorMetadata.fromGitRepository(.init(authors: [
                 .init(name: "Author One"),
@@ -84,7 +87,7 @@ extension API.PackageController.GetRoute.Model {
             history: .init(
                 createdAt: Calendar.current.date(byAdding: .day,
                                                  value: -70,
-                                                 to: Current.date())!,
+                                                 to: now)!,
                 commitCount: 1433,
                 commitCountURL: "https://github.com/Alamofire/Alamofire/commits/main",
                 releaseCount: 79,
@@ -96,13 +99,13 @@ extension API.PackageController.GetRoute.Model {
                        .init(name: "lib2", type: .library),
                        .init(name: "exe", type: .executable),
                        .init(name: "lib3", type: .library)],
-            releases: .init(stable: .init(date: Current.date().adding(days: -12),
+            releases: .init(stable: .init(date: now.adding(days: -12),
                                           link: .init(label: "5.2.0",
                                                       url: "https://github.com/Alamofire/Alamofire/releases/tag/5.2.0")),
-                            beta: .init(date: Current.date().adding(days: -4),
+                            beta: .init(date: now.adding(days: -4),
                                         link: .init(label: "5.3.0-beta.1",
                                                     url: "https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1")),
-                            latest: .init(date: Current.date().adding(minutes: -12),
+                            latest: .init(date: now.adding(minutes: -12),
                                           link: .init(label: "main",
                                                       url: "https://github.com/Alamofire/Alamofire"))),
             dependencies: [
@@ -125,7 +128,9 @@ extension API.PackageController.GetRoute.Model {
             defaultBranchReference: .branch("main"),
             releaseReference: .tag(5, 2, 0),
             preReleaseReference: .tag(5, 3, 0, "beta.1"),
-            swift6Readiness: nil
+            swift6Readiness: nil,
+            forkedFromInfo: nil,
+            customCollections: []
         )
     }
 }

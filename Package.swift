@@ -1,4 +1,4 @@
-// swift-tools-version:5.10
+// swift-tools-version:6.0
 
 // Copyright Dave Verwer, Sven A. Schmidt, and other contributors.
 //
@@ -29,8 +29,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/0xLeif/Cache.git", from: "2.1.0"),
         .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
+        .package(url: "https://github.com/swift-server/swift-prometheus.git", from: "1.0.0"),
         .package(url: "https://github.com/SwiftPackageIndex/Plot.git", branch: "main"),
-        .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
         .package(url: "https://github.com/SwiftPackageIndex/CanonicalPackageURL.git", from: "0.0.8"),
         .package(url: "https://github.com/SwiftPackageIndex/DependencyResolution.git", from: "1.1.2"),
         .package(url: "https://github.com/SwiftPackageIndex/SPIManifest.git", from: "1.2.0"),
@@ -39,6 +39,7 @@ let package = Package(
         .package(url: "https://github.com/swiftlang/swift-package-manager.git", branch: "release/5.10"),
         .package(url: "https://github.com/dankinsoid/VaporToOpenAPI.git", from: "4.4.4"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump.git", from: "1.0.0"),
+        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.5.2"),
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.12.0"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.11.1"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
@@ -54,16 +55,18 @@ let package = Package(
         .target(name: "App",
                 dependencies: [
                     .target(name: "Authentication"),
+                    .target(name: "S3Store"),
                     .product(name: "Ink", package: "Ink"),
                     .product(name: "Plot", package: "Plot"),
-                    .target(name: "S3Store"),
+                    .product(name: "SwiftPrometheus", package: "swift-prometheus"),
                     .product(name: "SPIManifest", package: "SPIManifest"),
                     .product(name: "SemanticVersion", package: "SemanticVersion"),
-                    .product(name: "SwiftPrometheus", package: "SwiftPrometheus"),
                     .product(name: "SwiftSoup", package: "SwiftSoup"),
                     .product(name: "Cache", package: "cache"),
                     .product(name: "CanonicalPackageURL", package: "CanonicalPackageURL"),
                     .product(name: "CustomDump", package: "swift-custom-dump"),
+                    .product(name: "Dependencies", package: "swift-dependencies"),
+                    .product(name: "DependenciesMacros", package: "swift-dependencies"),
                     .product(name: "DependencyResolution", package: "DependencyResolution"),
                     .product(name: "Fluent", package: "fluent"),
                     .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
@@ -109,10 +112,7 @@ let package = Package(
                     ],
                     swiftSettings: swiftSettings)
     ],
-    swiftLanguageVersions: [.v5]
+    swiftLanguageModes: [.v6]
 )
 
-var swiftSettings: [SwiftSetting] { [
-    .enableExperimentalFeature("StrictConcurrency"),
-    .enableUpcomingFeature("StrictConcurrency")
-] }
+var swiftSettings: [SwiftSetting] { [] }

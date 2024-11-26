@@ -54,7 +54,7 @@ class KeywordControllerTests: AppTestCase {
                                                      pageSize: 10)
 
         // validation
-        XCTAssertEqual(page.results.map(\.model.url), ["1"])
+        XCTAssertEqual(page.results.map(\.repository.name), ["1"])
         XCTAssertEqual(page.hasMoreResults, false)
     }
 
@@ -76,7 +76,7 @@ class KeywordControllerTests: AppTestCase {
                                                          page: 1,
                                                          pageSize: 3)
             // validate
-            XCTAssertEqual(page.results.map(\.model.url), ["0", "1", "2"])
+            XCTAssertEqual(page.results.map(\.repository.name), ["0", "1", "2"])
             XCTAssertEqual(page.hasMoreResults, true)
         }
         do {  // second page
@@ -86,7 +86,7 @@ class KeywordControllerTests: AppTestCase {
                                                          page: 2,
                                                          pageSize: 3)
             // validate
-            XCTAssertEqual(page.results.map(\.model.url), ["3", "4", "5"])
+            XCTAssertEqual(page.results.map(\.repository.name), ["3", "4", "5"])
             XCTAssertEqual(page.hasMoreResults, true)
         }
         do {  // last page
@@ -96,7 +96,7 @@ class KeywordControllerTests: AppTestCase {
                                                          page: 3,
                                                          pageSize: 3)
             // validate
-            XCTAssertEqual(page.results.map(\.model.url), ["6", "7", "8"])
+            XCTAssertEqual(page.results.map(\.repository.name), ["6", "7", "8"])
             XCTAssertEqual(page.hasMoreResults, false)
         }
     }

@@ -167,6 +167,7 @@ extension PackageShow {
                 .ul(
                     .class("main-metadata"),
                     model.archivedListItem(),
+                    model.forkedListItem(),
                     model.authorsListItem(),
                     model.binaryTargetsItem(),
                     model.historyListItem(),
@@ -179,7 +180,8 @@ extension PackageShow {
                     model.productTypeListItem(.plugin),
                     model.targetTypeListItem(.macro),
                     model.dataRaceSafeListItem(),
-                    model.keywordsListItem()
+                    model.keywordsListItem(),
+                    model.customCollectionsItem()
                 )
             )
         }
@@ -219,25 +221,8 @@ extension PackageShow {
                         .text("Full Build Results")
                     )
                 ),
-                .div(
-                    .class("matrices"),
-                    .if(model.hasBuildInfo,
-                        .group(
-                            model.swiftVersionCompatibilityList(),
-                            model.platformCompatibilityList()
-                        ),
-                        else: .group(
-                            .p(
-                                "This package currently has no compatibility information. Builds to determine package compatibility are starting, and compatibility information will appear soon. If this message persists for more than a few minutes, please ",
-                                .a(
-                                    .href(ExternalURL.raiseNewIssue),
-                                    "raise an issue"
-                                ),
-                                "."
-                            )
-                        )
-                    )
-                )
+                .if(model.hasBuildInfo, model.compatibilityInformation(),
+                    else: model.noCompatibilityInformationExplainer())
             )
         }
 
@@ -342,7 +327,7 @@ extension PackageShow {
                                         .value(model.repositoryName),
                                         .readme).relativeURL(),
                 .data(named: "controller", value: "readme"),
-                .data(named: "action", value: "turbo:frame-load->readme#navigateToAnchorFromLocation"),
+                .data(named: "action", value: "turbo:frame-load->readme#frameLoaded"),
                 .div(.spinner())
             )
         }
@@ -375,6 +360,7 @@ extension FundingLink {
             case .patreon: return "Patreon"
             case .polar: return "Polar"
             case .tidelift: return "Tidelift"
+            case .thanksDev: return "thanks.dev"
         }
     }
 }

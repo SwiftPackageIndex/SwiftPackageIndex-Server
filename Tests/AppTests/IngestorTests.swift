@@ -16,6 +16,7 @@ import XCTest
 
 @testable import App
 
+import Dependencies
 import Fluent
 import S3Store
 import Vapor
@@ -33,8 +34,12 @@ class IngestorTests: AppTestCase {
         try await packages.save(on: app.db)
         let lastUpdate = Date()
 
-        // MUT
-        try await ingest(client: app.client, database: app.db, mode: .limit(10))
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // MUT
+            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+        }
 
         // validate
         let repos = try await Repository.query(on: app.db).all()
@@ -125,7 +130,7 @@ class IngestorTests: AppTestCase {
                                             Date(timeIntervalSince1970: 1),
                                         ],
                                         license: .mit,
-                                        openIssues: 1, 
+                                        openIssues: 1,
                                         parentUrl: nil,
                                         openPullRequests: 2,
                                         owner: "foo",
@@ -153,7 +158,7 @@ class IngestorTests: AppTestCase {
                                    metadata: md,
                                    licenseInfo: .init(htmlUrl: "license url"),
                                    readmeInfo: .init(etag: "etag",
-                                                     html: "readme html",
+                                                     html: "readme html https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com",
                                                      htmlUrl: "readme html url",
                                                      imagesToCache: []),
                                    s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"),
@@ -172,6 +177,7 @@ class IngestorTests: AppTestCase {
                 .init(platform: .customUrl, url: "https://example.com/username1"),
                 .init(platform: .customUrl, url: "https://example.com/username2")
             ])
+            XCTAssertEqual(repo.hasSPIBadge, true)
             XCTAssertEqual(repo.homepageUrl, "https://swiftpackageindex.com/Alamofire/Alamofire")
             XCTAssertEqual(repo.isInOrganization, true)
             XCTAssertEqual(repo.keywords, ["bar", "baz", "foo"])
@@ -211,7 +217,7 @@ class IngestorTests: AppTestCase {
                                         issuesClosedAtDates: [],
                                         license: .mit,
                                         openIssues: 1,
-                                        parentUrl: nil, 
+                                        parentUrl: nil,
                                         openPullRequests: 2,
                                         owner: "foo",
                                         pullRequestsClosedAtDates: [],
@@ -294,8 +300,12 @@ class IngestorTests: AppTestCase {
         let packages = testUrls.map { Package(url: $0, processingStage: .reconciliation) }
         try await packages.save(on: app.db)
 
-        // MUT
-        try await ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // MUT
+            try await ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
+        }
 
         // validate
         let repos = try await Repository.query(on: app.db).all()
@@ -318,8 +328,12 @@ class IngestorTests: AppTestCase {
         }
         let lastUpdate = Date()
 
-        // MUT
-        try await ingest(client: app.client, database: app.db, mode: .limit(10))
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // MUT
+            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+        }
 
         // validate
         let repos = try await Repository.query(on: app.db).all()
@@ -357,7 +371,7 @@ class IngestorTests: AppTestCase {
                 issuesClosedAtDates: [],
                 license: .mit,
                 openIssues: 0,
-                parentUrl: nil, 
+                parentUrl: nil,
                 openPullRequests: 0,
                 owner: "owner",
                 pullRequestsClosedAtDates: [],
@@ -367,8 +381,12 @@ class IngestorTests: AppTestCase {
         }
         let lastUpdate = Date()
 
-        // MUT
-        try await ingest(client: app.client, database: app.db, mode: .limit(10))
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // MUT
+            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+        }
 
         // validate repositories (single element pointing to the ingested package)
         let repos = try await Repository.query(on: app.db).all()
@@ -401,87 +419,95 @@ class IngestorTests: AppTestCase {
     }
 
     func test_S3Store_Key_readme() throws {
-        XCTAssertEqual(try S3Store.Key.readme(owner: "foo", repository: "bar").path, "foo/bar/readme.html")
-        XCTAssertEqual(try S3Store.Key.readme(owner: "FOO", repository: "bar").path, "foo/bar/readme.html")
+        try withDependencies {
+            $0.environment.awsReadmeBucket = { "readme-bucket" }
+        } operation: {
+            XCTAssertEqual(try S3Store.Key.readme(owner: "foo", repository: "bar").path, "foo/bar/readme.html")
+            XCTAssertEqual(try S3Store.Key.readme(owner: "FOO", repository: "bar").path, "foo/bar/readme.html")
+        }
     }
 
     func test_ingest_storeS3Readme() async throws {
-        // setup
-        let app = self.app!
-        let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
-        try await pkg.save(on: app.db)
-        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
-        let fetchCalls = QueueIsolated(0)
-        Current.fetchReadme = { _, _, _ in
-            fetchCalls.increment()
-            if fetchCalls.value <= 2 {
-                return .init(etag: "etag1",
-                             html: "readme html 1",
-                             htmlUrl: "readme url",
-                             imagesToCache: [])
-            } else {
-                return .init(etag: "etag2",
-                             html: "readme html 2",
-                             htmlUrl: "readme url",
-                             imagesToCache: [])
-            }
-        }
-        let storeCalls = QueueIsolated(0)
-        Current.storeS3Readme = { owner, repo, html in
-            storeCalls.increment()
-            XCTAssertEqual(owner, "foo")
-            XCTAssertEqual(repo, "bar")
-            if fetchCalls.value <= 2 {
-                XCTAssertEqual(html, "readme html 1")
-            } else {
-                XCTAssertEqual(html, "readme html 2")
-            }
-            return "objectUrl"
-        }
-
-        do { // first ingestion, no readme has been saved
-            // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(1))
-
-            // validate
-            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
-            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
-            // Ensure fetch and store have been called, etag save to repository
-            XCTAssertEqual(fetchCalls.value, 1)
-            XCTAssertEqual(storeCalls.value, 1)
-            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag1"))
-        }
-
-        do { // second pass, readme has been saved, no new save should be issued
-            pkg.processingStage = .reconciliation
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // setup
+            let app = self.app!
+            let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
             try await pkg.save(on: app.db)
+            Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
+            let fetchCalls = QueueIsolated(0)
+            Current.fetchReadme = { _, _, _ in
+                fetchCalls.increment()
+                if fetchCalls.value <= 2 {
+                    return .init(etag: "etag1",
+                                 html: "readme html 1",
+                                 htmlUrl: "readme url",
+                                 imagesToCache: [])
+                } else {
+                    return .init(etag: "etag2",
+                                 html: "readme html 2",
+                                 htmlUrl: "readme url",
+                                 imagesToCache: [])
+                }
+            }
+            let storeCalls = QueueIsolated(0)
+            Current.storeS3Readme = { owner, repo, html in
+                storeCalls.increment()
+                XCTAssertEqual(owner, "foo")
+                XCTAssertEqual(repo, "bar")
+                if fetchCalls.value <= 2 {
+                    XCTAssertEqual(html, "readme html 1")
+                } else {
+                    XCTAssertEqual(html, "readme html 2")
+                }
+                return "objectUrl"
+            }
 
-            // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(1))
+            do { // first ingestion, no readme has been saved
+                 // MUT
+                try await ingest(client: app.client, database: app.db, mode: .limit(1))
 
-            // validate
-            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
-            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
-            // Ensure fetch and store have been called, etag save to repository
-            XCTAssertEqual(fetchCalls.value, 2)
-            XCTAssertEqual(storeCalls.value, 1)
-            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag1"))
-        }
+                // validate
+                try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+                let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+                // Ensure fetch and store have been called, etag save to repository
+                XCTAssertEqual(fetchCalls.value, 1)
+                XCTAssertEqual(storeCalls.value, 1)
+                XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag1"))
+            }
 
-        do { // third pass, readme has changed upstream, save should be issues
-            pkg.processingStage = .reconciliation
-            try await pkg.save(on: app.db)
+            do { // second pass, readme has been saved, no new save should be issued
+                pkg.processingStage = .reconciliation
+                try await pkg.save(on: app.db)
 
-            // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(1))
+                // MUT
+                try await ingest(client: app.client, database: app.db, mode: .limit(1))
 
-            // validate
-            try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
-            let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
-            // Ensure fetch and store have been called, etag save to repository
-            XCTAssertEqual(fetchCalls.value, 3)
-            XCTAssertEqual(storeCalls.value, 2)
-            XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag2"))
+                // validate
+                try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+                let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+                // Ensure fetch and store have been called, etag save to repository
+                XCTAssertEqual(fetchCalls.value, 2)
+                XCTAssertEqual(storeCalls.value, 1)
+                XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag1"))
+            }
+
+            do { // third pass, readme has changed upstream, save should be issues
+                pkg.processingStage = .reconciliation
+                try await pkg.save(on: app.db)
+
+                // MUT
+                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+
+                // validate
+                try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+                let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+                // Ensure fetch and store have been called, etag save to repository
+                XCTAssertEqual(fetchCalls.value, 3)
+                XCTAssertEqual(storeCalls.value, 2)
+                XCTAssertEqual(repo.s3Readme, .cached(s3ObjectUrl: "objectUrl", githubEtag: "etag2"))
+            }
         }
     }
 
@@ -519,8 +545,12 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(imagesToCache.count, 2)
         }
 
-        // MUT
-        try await ingest(client: app.client, database: app.db, mode: .limit(1))
+        try await withDependencies {
+            $0.date.now = .now
+        } operation: {
+            // MUT
+            try await ingest(client: app.client, database: app.db, mode: .limit(1))
+        }
 
         // There should only be one call as `storeS3ReadmeImages` takes the array of images.
         XCTAssertEqual(storeS3ReadmeImagesCalls.value, 1)
@@ -546,8 +576,13 @@ class IngestorTests: AppTestCase {
         }
 
         do { // first ingestion, no readme has been saved
-            // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(1))
+            try await withDependencies {
+                $0.date.now = .now
+            } operation: {
+                // MUT
+                let app = self.app!
+                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+            }
 
             // validate
             let app = self.app!
@@ -599,7 +634,7 @@ class IngestorTests: AppTestCase {
         let postMigrationFetchedRepo = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
         XCTAssertEqual(postMigrationFetchedRepo.s3Readme, .cached(s3ObjectUrl: "object-url", githubEtag: ""))
     }
-    
+
     func test_getFork() async throws {
         try await Package(id: .id0, url: "https://github.com/foo/parent.git".url, processingStage: .analysis).save(on: app.db)
         try await Package(url: "https://github.com/bar/forked.git", processingStage: .analysis).save(on: app.db)
@@ -619,7 +654,7 @@ class IngestorTests: AppTestCase {
         // test lookup when package is not in the index
         let fork4 = await getFork(on: app.db, parent: .init(url: "https://github.com/some/other.git"))
         XCTAssertEqual(fork4, .parentURL("https://github.com/some/other.git"))
-        
+
         // test lookup when parent url is nil
         let fork5 = await getFork(on: app.db, parent: nil)
         XCTAssertEqual(fork5, nil)

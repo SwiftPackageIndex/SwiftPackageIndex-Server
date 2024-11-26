@@ -33,16 +33,10 @@ build:
 run:
 	swift run
 
-# sas 2024-09-07: temporarily disable TSAN, it's triggering on Linux again (not on macOS).
-# Probably related to the Swift 6 nightly image we're currently using.
 test: xcbeautify
 	set -o pipefail \
-	&& swift test --disable-automatic-resolution \
+	&& swift test --disable-automatic-resolution --sanitize=thread \
 	2>&1 | ./xcbeautify --renderer github-actions
-#test: xcbeautify
-#	set -o pipefail \
-#	&& swift test --disable-automatic-resolution --sanitize=thread \
-#	2>&1 | ./xcbeautify --renderer github-actions
 
 test-query-performance: xcbeautify
 	set -o pipefail \
@@ -74,7 +68,7 @@ test-docker:
 	@# run tests inside a docker container
 	docker run --rm -v "$(PWD)":/host -w /host \
 	  --add-host=host.docker.internal:host-gateway \
-	  registry.gitlab.com/finestructure/spi-base:1.0.3 \
+	  registry.gitlab.com/finestructure/spi-base:1.1.0 \
 	  make test
 
 test-e2e: db-reset reconcile ingest analyze

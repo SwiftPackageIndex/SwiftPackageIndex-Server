@@ -52,7 +52,7 @@ struct Badge: Content, Equatable {
                   label: label,
                   message: message,
                   isError: !success,
-                  color: success ? "F05138" : "inactive",
+                  color: success ? "blue" : "inactive",
                   cacheSeconds: cacheSeconds,
                   logoSvg: Self.loadSVGLogo())
     }
@@ -71,7 +71,7 @@ extension Badge {
         let pathToFile = Current.fileManager.workingDirectory()
             .appending("Public/images/logo-tiny.svg")
 
-        return try? String(contentsOfFile: pathToFile)
+        return try? String(contentsOfFile: pathToFile, encoding: .utf8)
     }
 
     static func badgeMessage(significantBuilds: SignificantBuilds, badgeType: BadgeType) -> (message: String, success: Bool) {

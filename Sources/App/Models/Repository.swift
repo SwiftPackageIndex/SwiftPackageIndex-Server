@@ -69,6 +69,9 @@ final class Repository: @unchecked Sendable, Model, Content {
     @Field(key: "is_in_organization")
     var isInOrganization: Bool
 
+    @Field(key: "has_spi_badge")
+    var hasSPIBadge: Bool?
+
     @Field(key: "keywords")
     var keywords: [String]
 
@@ -224,6 +227,7 @@ final class Repository: @unchecked Sendable, Model, Content {
             .filter(\.$package.$id == pkgId)
             .first() ?? Repository(packageId: pkgId)
     }
+    
 }
 
 
