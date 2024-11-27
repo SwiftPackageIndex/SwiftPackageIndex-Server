@@ -18,21 +18,12 @@ enum LoginController {
             var email: String
             var password: String
         }
-        let user = try req.content.decode(UserCreds.self)
-        
         do {
-            let response = try await req.application.cognito.authenticatable.authenticate(username: user.email, password: user.password, context: req)
-            switch response {
-            case .authenticated(let authenticatedResponse):
-                let user = AuthenticatedUser(accessToken: authenticatedResponse.accessToken!, refreshToken: authenticatedResponse.refreshToken!)
-                req.auth.login(user)
-            case .challenged(let challengedResponse): // TODO: handle challenge
-                break
-            }
+            let user = try req.content.decode(UserCreds.self)
+            try await Cognito.authenticate(req: req, username: user.email, password: user.password)
             return req.redirect(to: SiteURL.portal.relativeURL(), redirectType: .normal)
         } catch let error as SotoCognitoError {
             var model = Login.Model(errorMessage: "There was an error. Please try again.")
-            
             switch error {
             case .unauthorized(let reason):
                 model = Login.Model(errorMessage: reason ?? "There was an error. Please try again.")
