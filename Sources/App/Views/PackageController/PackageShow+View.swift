@@ -261,6 +261,7 @@ extension PackageShow {
                         .li(
                             .a(
                                 .href(homepageUrl),
+                                .data(named: "turbo", value: String(false)),
                                 "Package Homepage"
                             )
                         )
