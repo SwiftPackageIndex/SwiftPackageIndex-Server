@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Plot
+import Dependencies
 
 
 extension SearchShow {
@@ -64,7 +65,8 @@ extension SearchShow {
         }
 
         override func navMenuItems() -> [NavMenuItem] {
-            if Current.environment() == .production {
+            @Dependency(\.environment) var environment
+            if environment.current() == .production {
                 return [.supporters, .addPackage, .blog, .faq]
             } else {
                 return [.supporters, .addPackage, .blog, .faq, .portal]

@@ -138,7 +138,7 @@ func routes(_ app: Application) throws {
     let auth = app.routes.grouped([app.sessions.middleware, UserSessionAuthenticator()])
     let redirect = auth.grouped(AuthenticatedUser.redirectMiddleware(path: SiteURL.login.relativeURL()))
     
-    if Current.environment() != .production {
+    if environment.current() != .production {
         do {
             redirect.get(SiteURL.portal.pathComponents, use: PortalController.show)
                 .excludeFromOpenAPI()

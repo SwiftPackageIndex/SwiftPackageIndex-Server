@@ -14,6 +14,7 @@
 
 import Foundation
 import Plot
+import Dependencies
 
 extension BlogActions {
 
@@ -108,7 +109,8 @@ extension BlogActions {
             }
 
             override func navMenuItems() -> [NavMenuItem] {
-                if Current.environment() == .production {
+                @Dependency(\.environment) var environment
+                if environment.current() == .production {
                     return [.supporters, .searchLink, .addPackage, .faq]
                 } else {
                     return [.supporters, .searchLink, .addPackage, .faq, .portal]

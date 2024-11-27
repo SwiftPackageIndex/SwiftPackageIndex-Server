@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Plot
+import Dependencies
 
 
 enum HomeIndex {
@@ -114,10 +115,11 @@ enum HomeIndex {
         }
 
         override func navMenuItems() -> [NavMenuItem] {
-            if Current.environment() == .production {
-                [.supporters, .addPackage, .blog, .faq]
+            @Dependency(\.environment) var environment
+            if environment.current() == .production {
+                return [.supporters, .addPackage, .blog, .faq]
             } else {
-                [.supporters, .addPackage, .blog, .faq, .portal]
+                return [.supporters, .addPackage, .blog, .faq, .portal]
             }
         }
     }
