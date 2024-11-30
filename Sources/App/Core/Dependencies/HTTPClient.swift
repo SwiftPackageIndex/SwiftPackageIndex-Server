@@ -49,7 +49,17 @@ extension DependencyValues {
 
 
 #if DEBUG
-// Convenience initialiser to make testing easier
+// Convenience initialisers to make testing easier
+
+extension HTTPClient {
+    static func echoURL(headers: HTTPHeaders = .init()) -> @Sendable (_ url: URI) async throws -> Response {
+        { url in
+            // echo url.path in the body as a simple way to test the requested url
+                .init(status: .ok, headers: headers, body: .init(string: url.path))
+        }
+    }
+}
+
 extension HTTPClient.Response {
     init(status: HTTPResponseStatus,
          version: HTTPVersion = .http1_1,
@@ -57,5 +67,9 @@ extension HTTPClient.Response {
          body: ByteBuffer? = nil) {
         self.init(host: "host", status: status, version: version, headers: headers, body: body)
     }
+
+    static var ok: Self { .init(status: .ok) }
+    static var notFound: Self { .init(status: .notFound) }
+    static var badRequest: Self { .init(status: .badRequest) }
 }
 #endif

@@ -23,8 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    @available(*, deprecated)
-    var fetchDocumentation: @Sendable (_ client: Client, _ url: URI) async throws -> ClientResponse
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
     var fetchLicense: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.License?
     var fetchMetadata: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> Github.Metadata
@@ -86,7 +84,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        fetchDocumentation: { client, url in try await client.get(url) },
         fetchHTTPStatusCode: { url in try await Networking.fetchHTTPStatusCode(url) },
         fetchLicense: { client, owner, repo in await Github.fetchLicense(client:client, owner: owner, repository: repo) },
         fetchMetadata: { client, owner, repo in try await Github.fetchMetadata(client:client, owner: owner, repository: repo) },
