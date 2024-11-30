@@ -567,6 +567,9 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.currentReferenceCache = { nil }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in
+                    .init(host: "", status: .ok, version: .http2, headers: .init(), body: .mockIndexHTML())
+            }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -588,7 +591,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "pkg",
                               reference: .tag(1, 0, 0))
             .save(on: app.db)
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
             // MUT
 

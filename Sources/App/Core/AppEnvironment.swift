@@ -23,6 +23,7 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
+    @available(*, deprecated)
     var fetchDocumentation: @Sendable (_ client: Client, _ url: URI) async throws -> ClientResponse
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
     var fetchLicense: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.License?

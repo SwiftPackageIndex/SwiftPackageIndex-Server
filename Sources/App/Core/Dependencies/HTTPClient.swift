@@ -12,26 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import AsyncHTTPClient
 import Dependencies
 import DependenciesMacros
+import Vapor
 
 
 @DependencyClient
 struct HTTPClient {
-    typealias Response = AsyncHTTPClient.HTTPClient.Response
+    typealias Response = Vapor.HTTPClient.Response
 
-    var fetchDocumentation: @Sendable (_ url: String) async throws -> Response
+    var fetchDocumentation: @Sendable (_ url: URI) async throws -> Response
 }
 
 extension HTTPClient: DependencyKey {
     static var liveValue: HTTPClient {
         .init(
             fetchDocumentation: { url in
-                try await AsyncHTTPClient.HTTPClient.shared.get(url: url).get()
+                try await Vapor.HTTPClient.shared.get(url: url.string).get()
             }
         )
     }
 }
 
 
+extension HTTPClient: TestDependencyKey {
+    static var testValue: Self { Self() }
+}
+
+
+extension DependencyValues {
+    var httpClient: HTTPClient {
+        get { self[HTTPClient.self] }
+        set { self[HTTPClient.self] = newValue }
+    }
+}
