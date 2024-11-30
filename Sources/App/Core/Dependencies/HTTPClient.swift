@@ -46,3 +46,16 @@ extension DependencyValues {
         set { self[HTTPClient.self] = newValue }
     }
 }
+
+
+#if DEBUG
+// Convenience initialiser to make testing easier
+extension HTTPClient.Response {
+    init(status: HTTPResponseStatus,
+         version: HTTPVersion = .http1_1,
+         headers: HTTPHeaders = .init(),
+         body: ByteBuffer? = nil) {
+        self.init(host: "host", status: status, version: version, headers: headers, body: body)
+    }
+}
+#endif
