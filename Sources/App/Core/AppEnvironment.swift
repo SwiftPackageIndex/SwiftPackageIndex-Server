@@ -152,11 +152,11 @@ extension AppEnvironment {
 
 private enum Networking {
     static func fetchHTTPStatusCode(_ url: String) async throws -> HTTPStatus {
-        var config = HTTPClient.Configuration()
+        var config = Vapor.HTTPClient.Configuration()
         // We're forcing HTTP/1 due to a bug in Github's HEAD request handling
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1676
         config.httpVersion = .http1Only
-        let client = HTTPClient(eventLoopGroupProvider: .singleton, configuration: config)
+        let client = Vapor.HTTPClient(eventLoopGroupProvider: .singleton, configuration: config)
         return try await run {
             var req = HTTPClientRequest(url: url)
             req.method = .HEAD
