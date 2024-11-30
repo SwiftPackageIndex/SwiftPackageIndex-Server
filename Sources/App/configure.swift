@@ -81,16 +81,6 @@ public func configure(_ app: Application) async throws -> String {
     
     app.sessions.use(.memory)
     
-    let awsClient = AWSClient(httpClientProvider: .shared(app.http.client.shared))
-    let awsCognitoConfiguration = CognitoConfiguration(
-        userPoolId: Environment.get("POOL_ID")!,
-        clientId: Environment.get("CLIENT_ID")!,
-        clientSecret: Environment.get("CLIENT_SECRET")!,
-        cognitoIDP: CognitoIdentityProvider(client: awsClient, region: .useast2),
-        adminClient: true
-    )
-    app.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
-    
     
     // Configures cookie value creation.
     app.sessions.configuration.cookieFactory = { sessionID in
