@@ -17,9 +17,9 @@ enum SignupController {
             var email: String
             var password: String
         }
-        let user = try req.content.decode(UserCreds.self)
         do {
-            let _ = try await req.application.cognito.authenticatable.signUp(username: user.email, password: user.password, attributes: [:], on:req.eventLoop)
+            let user = try req.content.decode(UserCreds.self)
+            try await Cognito.signup(req: req, username: user.email, password: user.password)
             return Verify.View(path: SiteURL.verify.relativeURL(), model: Verify.Model(email: user.email)).document()
         } catch let error as AWSErrorType {
             let model = Signup.Model(errorMessage: error.message ?? "There was an error.")

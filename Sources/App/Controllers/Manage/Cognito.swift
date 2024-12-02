@@ -25,4 +25,19 @@ struct Cognito {
         }
         try awsClient.syncShutdown()
     }
+    
+    @Sendable
+    static func signup(req: Request, username: String, password: String) async throws {
+        let awsClient = AWSClient(httpClientProvider: .shared(req.application.http.client.shared))
+        let awsCognitoConfiguration = CognitoConfiguration(
+            userPoolId: Environment.get("POOL_ID")!,
+            clientId: Environment.get("CLIENT_ID")!,
+            clientSecret: Environment.get("CLIENT_SECRET")!,
+            cognitoIDP: CognitoIdentityProvider(client: awsClient, region: .useast2),
+            adminClient: true
+        )
+        req.application.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
+        try await req.application.cognito.authenticatable.signUp(username: username, password: password, attributes: [:], on:req.eventLoop)
+        try awsClient.syncShutdown()
+    }
 }
