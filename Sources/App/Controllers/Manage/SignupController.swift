@@ -1,4 +1,5 @@
 import Fluent
+import Dependencies
 import Plot
 import Vapor
 import SotoCognitoAuthentication
@@ -13,13 +14,14 @@ enum SignupController {
     
     @Sendable
     static func signup(req: Request) async throws -> HTML {
+        @Dependency(\.cognito) var cognito
         struct UserCreds: Content {
             var email: String
             var password: String
         }
         do {
             let user = try req.content.decode(UserCreds.self)
-            try await Cognito.signup(req: req, username: user.email, password: user.password)
+            try await cognito.signup(req: req, username: user.email, password: user.password)
             return Verify.View(path: SiteURL.verify.relativeURL(), model: Verify.Model(email: user.email)).document()
         } catch let error as AWSErrorType {
             let model = Signup.Model(errorMessage: error.message ?? "There was an error.")

@@ -19,12 +19,14 @@ import Vapor
 @DependencyClient
 struct CognitoClient {
     var authenticate: @Sendable (_ req: Request, _ username: String, _ password: String) async throws -> Void
+    var signup: @Sendable (_ req: Request, _ username: String, _ password: String) async throws -> Void
 }
 
 extension CognitoClient: DependencyKey {
     static var liveValue: CognitoClient {
         .init(
-            authenticate: { req, username, password in try await Cognito.authenticate(req: req, username: username, password: password) }
+            authenticate: { req, username, password in try await Cognito.authenticate(req: req, username: username, password: password) },
+            signup : { req, username, password in try await Cognito.signup(req: req, username: username, password: password) }
         )
     }
 }
