@@ -3,7 +3,18 @@ import Foundation
 
 enum Portal {
     
+    struct Model {
+        var errorMessage: String = ""
+    }
+    
     class View: PublicPage {
+        
+        let model: Model
+        
+        init(path: String, model: Model) {
+            self.model = model
+            super.init(path: path)
+        }
         
         override func pageTitle() -> String? {
             "Portal"
@@ -13,7 +24,8 @@ enum Portal {
             .div(
                 .h2("Portal"),
                 .logoutButton(),
-                .deleteButton()
+                .deleteButton(),
+                .text(model.errorMessage)
             )
         }
     }
