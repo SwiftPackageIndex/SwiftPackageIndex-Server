@@ -8,9 +8,9 @@ struct Cognito {
     static func authenticate(req: Request, username: String, password: String) async throws {
         let awsClient = AWSClient(httpClientProvider: .shared(req.application.http.client.shared))
         let awsCognitoConfiguration = CognitoConfiguration(
-            userPoolId: Environment.get("POOL_ID")!,
-            clientId: Environment.get("CLIENT_ID")!,
-            clientSecret: Environment.get("CLIENT_SECRET")!,
+            userPoolId: Environment.get("AWS_COGNITO_POOL_ID")!,
+            clientId: Environment.get("AWS_COGNITO_CLIENT_ID")!,
+            clientSecret: Environment.get("AWS_COGNITO_CLIENT_SECRET")!,
             cognitoIDP: CognitoIdentityProvider(client: awsClient, region: .useast2),
             adminClient: true
         )
@@ -30,9 +30,9 @@ struct Cognito {
     static func signup(req: Request, username: String, password: String) async throws {
         let awsClient = AWSClient(httpClientProvider: .shared(req.application.http.client.shared))
         let awsCognitoConfiguration = CognitoConfiguration(
-            userPoolId: Environment.get("POOL_ID")!,
-            clientId: Environment.get("CLIENT_ID")!,
-            clientSecret: Environment.get("CLIENT_SECRET")!,
+            userPoolId: Environment.get("AWS_COGNITO_POOL_ID")!,
+            clientId: Environment.get("AWS_COGNITO_CLIENT_ID")!,
+            clientSecret: Environment.get("AWS_COGNITO_CLIENT_SECRET")!,
             cognitoIDP: CognitoIdentityProvider(client: awsClient, region: .useast2),
             adminClient: true
         )
