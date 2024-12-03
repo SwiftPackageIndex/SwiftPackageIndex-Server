@@ -27,7 +27,7 @@ enum VerifyController {
             let model = Verify.Model(email: info.email, errorMessage: error.message ?? "There was an error.")
             return Verify.View(path: req.url.path, model: model).document()
         } catch {
-            let model = Verify.Model(email: info.email, errorMessage: "An unknown error occurred.")
+            let model = Verify.Model(email: info.email, errorMessage: "An unknown error occurred: \(error.localizedDescription)")
             return Verify.View(path: req.url.path, model: model).document()
         }
     }

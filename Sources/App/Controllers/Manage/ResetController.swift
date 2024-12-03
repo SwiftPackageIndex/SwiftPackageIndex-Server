@@ -27,7 +27,7 @@ enum ResetController {
             let model = Reset.Model(errorMessage: error.message ?? "There was an error.")
             return Reset.View(path: req.url.path, model: model).document()
         } catch {
-            let model = Reset.Model(errorMessage: "An unknown error occurred.")
+            let model = Reset.Model(errorMessage: "An unknown error occurred: \(error.localizedDescription)")
             return Reset.View(path: req.url.path, model: model).document()
         }
     }
