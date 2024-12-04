@@ -61,6 +61,21 @@ final class RoutesTests: AppTestCase {
         }
     }
 
+    func test_documentation_videos() async throws {
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+        } operation: {
+            // setup
+            Current.fetchDocumentation = { _, _ in .init(status: .ok) }
+
+            // MUT
+            try await app.test(.GET, "foo/bar/1.2.3/videos/baz.mov") { res async in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+            }
+        }
+    }
+
     func test_openapi() async throws {
         try await app.test(.GET, "openapi/openapi.json") { res async in
             XCTAssertEqual(res.status, .ok)

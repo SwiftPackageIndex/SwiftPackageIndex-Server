@@ -88,6 +88,10 @@ func docRoutes(_ app: Application) throws {
         let route = try await $0.getDocRoute(fragment: .tutorials)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "videos", "**") {
+        let route = try await $0.getDocRoute(fragment: .videos)
+        return try await PackageController.documentation(req: $0, route: route)
+    }.excludeFromOpenAPI()
 }
 
 
@@ -111,7 +115,7 @@ private extension Parameters {
                 // AND THE FIX
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/3039
                 return ([archive].compactMap { $0 } + getCatchall()).map { $0.lowercased() }
-            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .svgImages, .svgImg:
+            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .svgImages, .svgImg, .videos:
                 return getCatchall()
         }
     }
