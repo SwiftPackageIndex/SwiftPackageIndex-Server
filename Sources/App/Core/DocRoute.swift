@@ -37,12 +37,13 @@ struct DocRoute: Equatable {
         case tutorials
         case svgImages
         case svgImg
+        case videos
 
         var contentType: String {
             switch self {
                 case .css:
                     return "text/css"
-                case .data, .faviconIco, .faviconSvg, .images, .img, .index:
+                case .data, .faviconIco, .faviconSvg, .images, .img, .index, .videos:
                     return "application/octet-stream"
                 case .linkablePaths, .themeSettings:
                     return "application/json"
@@ -57,7 +58,7 @@ struct DocRoute: Equatable {
 
         var requiresArchive: Bool {
             switch self {
-                case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .tutorials, .svgImages, .svgImg:
+                case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .tutorials, .svgImages, .svgImg, .videos:
                     return false
                 case .documentation:
                     return true
@@ -66,7 +67,7 @@ struct DocRoute: Equatable {
 
         var urlFragment: String {
             switch self {
-                case .css, .data, .documentation, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .tutorials:
+                case .css, .data, .documentation, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .tutorials, .videos:
                     return rawValue
                 case .svgImages:
                     return "images"
