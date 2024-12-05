@@ -398,16 +398,29 @@ extension API.PackageController.GetRoute.Model {
         }
     }
 
-    func customCollectionsItem() -> Node<HTML.ListContext> {
-        guard !customCollections.isEmpty else { return .empty }
+    func customCollectionsListItem() -> Node<HTML.ListContext> {
+        guard customCollections.isEmpty == false
+        else { return .empty }
+
+        let closing = if customCollections.count > 1 { " collections." } else { " collection." }
+
         return .li(
             .class("custom-collections"),
-            .forEach(customCollections, { collection in
-                    .a(
-                        .href(SiteURL.collections(.value(collection.key)).relativeURL()),
-                        .text("\(collection.name)")
-                    )
-            })
+            .group(listPhrase(opening: .text("Member of the "),
+                              nodes: customCollections.map({ collection in
+                                      .a(
+                                        .href(SiteURL.collections(.value(collection.key)).relativeURL()),
+                                        .unwrap(collection.badge, { badge in
+                                                .span(
+                                                    .class("badge"),
+                                                    .text(badge)
+                                                )
+                                        }),
+                                        .text(collection.name)
+                                      )
+                              }),
+                              closing: .text(closing))
+            )
         )
     }
 

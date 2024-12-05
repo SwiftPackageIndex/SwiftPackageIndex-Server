@@ -32,7 +32,7 @@
             -webkit-line-clamp: 1;
         }
 
-        span {
+        small > span {
             margin: 0 2px;
         }
     }
@@ -156,15 +156,32 @@
                     align-items: center;
                 }
             }
-            
+
             li.custom-collections {
                 grid-column-start: span 2;
-                background-image: var(--image-tags);
+                background-image: var(--image-custom-collections);
 
                 a {
-                    display: flex;
-                    gap: 5px;
-                    align-items: center;
+                    vertical-align: baseline;
+
+                    .badge {
+                        position: relative;
+                        top: -1px;
+                        margin-right: 3px;
+                        padding: 1px 5px;
+                        font-size: 12px;
+                        font-weight: 600;
+                        color: var(--custom-collections-badge-text);
+                        background-color: var(--custom-collections-badge-background);
+                        border-radius: 3px;
+                    }
+
+                    &:hover {
+                        .badge {
+                            color: var(--white);
+                            background-color: var(--link-highlight);
+                        }
+                    }
                 }
             }
         }
