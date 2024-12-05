@@ -153,7 +153,6 @@ extension PackageShow {
                     .hr(
                         .class("minor")
                     ),
-                    model.customCollectionBadges(),
                     sidebarVersions(),
                     .hr(
                         .class("minor")

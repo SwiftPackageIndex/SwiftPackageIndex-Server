@@ -216,30 +216,6 @@
             }
         }
 
-        .custom-collections-sidebar {
-            display: flex;
-            flex-direction: column;
-
-            .custom-collection-badge {
-                display: inline-flex;
-                overflow: hidden;
-                font-size: 13px;
-                border: 1px solid var(--mid-green);
-                border-radius: 3px;
-
-                span {
-                    padding: 0 5px;
-                    color: var(--black);
-                    background-color: var(--very-light-green);
-
-                    &.badge {
-                        color: var(--white);
-                        background-color: var(--light-green);
-                    }
-                }
-            }
-        }
-
         section.main-compatibility .title {
             display: flex;
             align-items: baseline;

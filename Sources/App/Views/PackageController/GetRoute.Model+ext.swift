@@ -424,32 +424,6 @@ extension API.PackageController.GetRoute.Model {
         )
     }
 
-    func customCollectionBadges() -> Node<HTML.BodyContext> {
-        guard customCollections.isEmpty == false
-        else { return .empty }
-
-        return .div(
-            .class("custom-collections-sidebar"),
-            .forEach(customCollections, { collection in
-                    .a(
-                        .href(SiteURL.collections(.value(collection.key)).relativeURL()),
-                        .div(
-                            .class("custom-collection-badge"),
-                            .unwrap(collection.badge, { badge in
-                                    .span(
-                                        .class("badge"),
-                                        .text(badge)
-                                    )
-                            }),
-                            .span(
-                                .text(collection.name)
-                            )
-                        )
-                    )
-            })
-        )
-    }
-
     func latestReleaseMetadata() -> Node<HTML.ListContext> {
         guard let dateLink = releases.stable else { return .empty }
         return releaseMetadata(dateLink, title: "Latest Release", cssClass: "stable")
