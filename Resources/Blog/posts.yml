@@ -196,5 +196,5 @@
 - slug: introducing-custom-package-collections
   title: Introducing custom package collections
   summary: We've added support for custom package collections to allow well-known community efforts to present package collections.
-  published_at: 2024-11-22
-  published: false
+  published_at: 2024-12-09
+  published: true
