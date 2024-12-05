@@ -1,14 +1,14 @@
-We first launched support for package collections ahead of WWDC 2021 and they are a convenient way to add packages to an Xcode project.
+We first launched support for package collections ahead of WWDC 2021 as a convenient way to add packages to an Xcode project.
 
-We generate a package collection for all packages by an author or organisation. For example, you can copy a link for the package collection for all of Apple’s packages via [Apple’s author page](https://swiftpackageindex.com/apple) and add it to Xcode's package collections.
+The first release of this feature generated a package collection for all an author or organisation’s packages. For example, you can copy a link for the package collection for Apple’s packages via [their author page](https://swiftpackageindex.com/apple) and [add it to Xcode](https://swiftpackageindex.com/package-collections).
 
-Since launching the feature we have been asked if we could support more curated collections that span multiple authors or organisations and today we are adding the ability to create package collections for key community efforts.
+Human-curated collections are a logical next step, and we received a request to implement this from the SSWG. Today, we are adding the ability to create package collections for key community efforts.
 
 ### How does it work?
 
-The way this works is quite similar to adding packages to the Swift Package Index. Instead of adding a package to [packages.json](), you add a whole package list (whose contents _you_ maintain) to [custom-package-collections.json]().
+Custom collections work in a similar way to our package list. However, instead of adding a package to [packages.json](https://github.com/SwiftPackageIndex/PackageList/blob/main/packages.json), you add the location of a collection index file (whose contents _you_ maintain) to [custom-package-collections.json](https://github.com/SwiftPackageIndex/PackageList/blob/main/custom-package-collections.json).
 
-Here’s what this looks like, taking the Swift Server Workgroup Graduated packages as an example:
+[Here’s what this looks like](https://github.com/SwiftPackageIndex/PackageList/blob/6bc193c42d7b523a9159632b8fbe89e0c172316f/custom-package-collections.json#L2-L8), taking the Swift Server Workgroup Graduated packages as an example:
 
 ```
 {
@@ -20,31 +20,31 @@ Here’s what this looks like, taking the Swift Server Workgroup Graduated packa
 }
 ```
 
-The `key` field essentially determines the URL at which the package collection is available on the Swift Package Index:
+The fields in that JSON determine how we find and display the custom package collection.
 
-    [https://swiftpackageindex.com/collections/sswg-graduated](https://swiftpackageindex.com/collections/sswg-graduated)
+The `key` field specifies the URL where the package collection will available on the Swift Package Index website:
+
+<picture>
+  <source srcset="/images/blog/custom-package-collection-url~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/custom-package-collection-url~light.png" alt="Safari's Address Bar with the package collection URL in it highlighting the part of the URL related to the key field.">
+</picture>
 
 The `name` is its display name on the collections page as well as on the package page where we show a package’s membership to package collections:
 
 <picture>
-  <source srcset="/images/blog/custom-collections-package-page-dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/blog/custom-collections-package-page-light.png" alt="Screenshot of the custom collection badge on a package page.">
+  <source srcset="/images/blog/custom-package-collections-package-page~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/custom-package-collections-package-page~light.png" alt="The custom package collection badge highlighted on a package page.">
 </picture>
 
 The `description` field brielfly explains the motivation for this custom collection. It serves informational purposes and is not displayed.
 
-The optional field `badge` can be used to style the representation of the collection on the package page. If present, it will be set apart with a different background as shown in the screenshot below.
-
-<picture>
-  <source srcset="/images/blog/custom-collection-badge-dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/blog/custom-collection-badge-light.png" alt="Screenshot of the custom collection display with and without badge.">
-</picture>
+The optional `badge` field is used to style the small badge next to the collection name on the package page. If omitted, the collection will have no badge.
 
 Finally, the `url` field points to a location where you maintain a list of package URLs that belong to the collection. There should be of the format `https://github.com/author/package.git`. In particular, make sure the URL scheme is `https` and the `.git` suffix is included.
 
 We match the listed packages against the list of all packages in the Swift Package Index and include only the ones we are able to match. Note that the matching is case-insensitive.
 
-For example, here is what the SSWG Graduated package collection’s content looks like:
+For example, here is the SSWG Graduated package collection’s list of packages:
 
 ```
 [
