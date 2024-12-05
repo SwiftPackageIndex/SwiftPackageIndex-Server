@@ -73,7 +73,7 @@ enum PackageController {
                     documentationMetadata: documentationMetadata
                 )
 
-            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .svgImages, .svgImg:
+            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .svgImages, .svgImg, .videos:
                 return try await res.encodeResponse(
                     status: .ok,
                     headers: req.headers
@@ -448,7 +448,7 @@ extension PackageController {
         let path = route.path
 
         switch route.fragment {
-            case .css, .data, .documentation, .images, .img, .index, .js, .tutorials, .svgImages, .svgImg:
+            case .css, .data, .documentation, .images, .img, .index, .js, .tutorials, .svgImages, .svgImg, .videos:
                 return URI(string: "\(baseURL)/\(route.fragment.urlFragment)/\(path)")
             case .faviconIco, .faviconSvg, .themeSettings:
                 return path.isEmpty
