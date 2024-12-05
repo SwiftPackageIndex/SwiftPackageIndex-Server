@@ -13,9 +13,10 @@ Here’s what this looks like, taking the Swift Server Workgroup Graduated packa
 ```
 {
     "key": "sswg-graduated",
-    "name": "SSWG Graduated",
+    "name": "Graduated",
     "description": "SSWG packages that are in 'graduated' state",
-    "url": "https://raw.githubusercontent.com/finestructure/sswg-package-lists/refs/heads/main/graduated.json"
+    "badge": "SSWG",
+    "url": "https://swift.org/api/v1/sswg/incubation/graduated.json"
 }
 ```
 
