@@ -399,6 +399,10 @@ extension API.PackageController.GetRoute.Model {
     }
 
     func customCollectionsListItem() -> Node<HTML.ListContext> {
+        @Dependency(\.environment) var environment
+        guard environment.current() == .development
+        else { return .empty }
+
         guard customCollections.isEmpty == false
         else { return .empty }
 
