@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var fetchDocumentation: @Sendable (_ client: Client, _ url: URI) async throws -> ClientResponse
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
     var fetchLicense: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.License?
     var fetchMetadata: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> Github.Metadata
@@ -85,7 +84,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        fetchDocumentation: { client, url in try await client.get(url) },
         fetchHTTPStatusCode: { url in try await Networking.fetchHTTPStatusCode(url) },
         fetchLicense: { client, owner, repo in await Github.fetchLicense(client:client, owner: owner, repository: repo) },
         fetchMetadata: { client, owner, repo in try await Github.fetchMetadata(client:client, owner: owner, repository: repo) },
@@ -152,11 +150,11 @@ extension AppEnvironment {
 
 private enum Networking {
     static func fetchHTTPStatusCode(_ url: String) async throws -> HTTPStatus {
-        var config = HTTPClient.Configuration()
+        var config = Vapor.HTTPClient.Configuration()
         // We're forcing HTTP/1 due to a bug in Github's HEAD request handling
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1676
         config.httpVersion = .http1Only
-        let client = HTTPClient(eventLoopGroupProvider: .singleton, configuration: config)
+        let client = Vapor.HTTPClient(eventLoopGroupProvider: .singleton, configuration: config)
         return try await run {
             var req = HTTPClientRequest(url: url)
             req.method = .HEAD

@@ -138,6 +138,17 @@ class SitemapTests: SnapshotTestCase {
     func test_linkablePathUrls() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable url in
+                guard url.path.hasSuffix("/owner/repo0/default/linkable-paths.json") else { throw Abort(.notFound) }
+                return .init(status: .ok,
+                             body: .init(string: """
+                            [
+                                "/documentation/foo/bar/1",
+                                "/documentation/foo/bar/2",
+                            ]
+                            """)
+                )
+            }
         } operation: {
             // setup
             let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
@@ -156,17 +167,6 @@ class SitemapTests: SnapshotTestCase {
             let packageResult = try await PackageController.PackageResult
                 .query(on: app.db, owner: "owner", repository: "repo0")
             Current.siteURL = { "https://spi.com" }
-            Current.fetchDocumentation = { client, url in
-                guard url.path.hasSuffix("/owner/repo0/default/linkable-paths.json") else { throw Abort(.notFound) }
-                return .init(status: .ok,
-                             body: .init(string: """
-                            [
-                                "/documentation/foo/bar/1",
-                                "/documentation/foo/bar/2",
-                            ]
-                            """)
-                )
-            }
 
             // MUT
             let urls = await PackageController.linkablePathUrls(client: app.client, packageResult: packageResult)
@@ -183,6 +183,17 @@ class SitemapTests: SnapshotTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2462
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable url in
+                guard url.path.hasSuffix("/owner/repo0/a-b/linkable-paths.json") else { throw Abort(.notFound) }
+                return .init(status: .ok,
+                             body: .init(string: """
+                            [
+                                "/documentation/foo/bar/1",
+                                "/documentation/foo/bar/2",
+                            ]
+                            """)
+                )
+            }
         } operation: {
             // setup
             let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
@@ -201,17 +212,6 @@ class SitemapTests: SnapshotTestCase {
             let packageResult = try await PackageController.PackageResult
                 .query(on: app.db, owner: "owner", repository: "repo0")
             Current.siteURL = { "https://spi.com" }
-            Current.fetchDocumentation = { client, url in
-                guard url.path.hasSuffix("/owner/repo0/a-b/linkable-paths.json") else { throw Abort(.notFound) }
-                return .init(status: .ok,
-                             body: .init(string: """
-                            [
-                                "/documentation/foo/bar/1",
-                                "/documentation/foo/bar/2",
-                            ]
-                            """)
-                )
-            }
             
             // MUT
             let urls = await PackageController.linkablePathUrls(client: app.client, packageResult: packageResult)

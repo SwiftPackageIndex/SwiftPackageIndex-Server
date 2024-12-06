@@ -74,19 +74,19 @@ enum PackageController {
                 )
 
             case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .svgImages, .svgImg, .videos:
-                return try await res.encodeResponse(
+                return try await ClientResponse(
                     status: .ok,
                     headers: req.headers
                         .replacingOrAdding(name: .contentType, value: route.fragment.contentType)
                         .replacingOrAdding(name: .cacheControl, value: "no-transform"),
-                    for: req
-                )
+                    body: res.body
+                ).encodeResponse(for: req)
         }
     }
 
     static func documentationResponse(req: Request,
                                       route: DocRoute,
-                                      awsResponse: ClientResponse,
+                                      awsResponse: HTTPClient.Response,
                                       documentationMetadata: DocumentationMetadata) async throws -> Response {
         guard let documentation = documentationMetadata.versions[reference: route.docVersion.reference]
         else {
@@ -146,12 +146,12 @@ enum PackageController {
                                                          updatedAt: documentation.updatedAt,
                                                          rawHtml: body.asString())
         else {
-            return try await awsResponse.encodeResponse(
+            return try await ClientResponse(
                 status: .ok,
                 headers: req.headers.replacingOrAdding(name: .contentType,
                                                        value: route.contentType),
-                for: req
-            )
+                body: awsResponse.body
+            ).encodeResponse(for: req)
         }
 
         return try await processor.processedPage.encodeResponse(
@@ -162,9 +162,11 @@ enum PackageController {
         )
     }
 
-    static func awsResponse(client: Client, route: DocRoute) async throws -> ClientResponse {
+    static func awsResponse(client: Client, route: DocRoute) async throws -> HTTPClient.Response {
+        @Dependency(\.httpClient) var httpClient
+
         let url = try Self.awsDocumentationURL(route: route)
-        guard let response = try? await Current.fetchDocumentation(client, url) else {
+        guard let response = try? await httpClient.fetchDocumentation(url) else {
             throw Abort(.notFound)
         }
         guard (200..<399).contains(response.status.code) else {

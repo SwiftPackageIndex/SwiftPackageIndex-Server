@@ -483,6 +483,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_routes_contentType() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok }
         } operation: {
             try await app.test(.GET, "/owner/package/main/images/foo/bar.jpeg") { res async in
                 XCTAssertEqual(res.headers.contentType, .init(type: "application", subType: "octet-stream"))
@@ -567,6 +568,7 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.currentReferenceCache = { nil }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -588,7 +590,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "pkg",
                               reference: .tag(1, 0, 0))
             .save(on: app.db)
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
             // MUT
 
@@ -650,6 +651,7 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.currentReferenceCache = { nil }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -671,7 +673,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "pkg",
                               reference: .tag(1, 0, 0))
             .save(on: app.db)
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
 
             // MUT
 
@@ -724,6 +725,7 @@ class PackageController_routesTests: SnapshotTestCase {
         //   /owner/package/documentation/{reference} + various path elements
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -745,7 +747,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "pkg",
                               reference: .tag(1, 2, 3))
             .save(on: app.db)
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
             // MUT
 
@@ -803,6 +804,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // Test documentation routes when no archive is in the path
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -824,7 +826,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "pkg",
                               reference: .tag(1, 0, 0))
             .save(on: app.db)
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
             // MUT
             try await app.test(.GET, "/owner/package/main/documentation") { res async in
@@ -845,9 +846,9 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentationRoot_notFound() async throws {
         try await withDependencies {
             $0.environment.dbId = { nil }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .notFound }
         } operation: {
             // setup
-            Current.fetchDocumentation = { _, _ in .init(status: .notFound) }
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
                 .save(on: app.db)
@@ -883,9 +884,9 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.dbId = { nil }
+            $0.httpClient.fetchDocumentation = { @Sendable uri in .badRequest }
         } operation: {
             // setup
-            Current.fetchDocumentation = { _, uri in .init(status: .badRequest) }
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
                 .save(on: app.db)
@@ -907,12 +908,12 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_documentation_error() async throws {
         // Test behaviour when fetchDocumentation throws
+        struct SomeError: Error { }
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.dbId = { nil }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in throw SomeError() }
         } operation: {
-            struct SomeError: Error { }
-            Current.fetchDocumentation = { _, _ in throw SomeError() }
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
                 .save(on: app.db)
@@ -942,12 +943,9 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.currentReferenceCache = { nil }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
             // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
                 .save(on: app.db)
@@ -977,13 +975,8 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_ref_css() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
-
             // MUT
             // test base url
             try app.test(.GET, "/owner/package/1.2.3/css/a") {
@@ -1005,12 +998,9 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.currentReferenceCache = { nil }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
             // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
                 .save(on: app.db)
@@ -1040,13 +1030,8 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_ref_js() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
-
             // MUT
             // test base url
             try app.test(.GET, "/owner/package/1.2.3/js/a") {
@@ -1068,12 +1053,9 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.currentReferenceCache = { nil }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
             // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
                 .save(on: app.db)
@@ -1112,13 +1094,8 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_ref_data() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
-
             // MUT
             // test base url
             try app.test(.GET, "/owner/package/1.2.3/data/a") {
@@ -1148,13 +1125,8 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_canonicalCapitalisation() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
-
             // The `packageName` property on the `Version` has been set to the lower-cased version so
             // we can be sure the canonical URL is built from the properties on the `Repository` model.
             let pkg = try await savePackage(on: app.db, "1")
@@ -1186,6 +1158,7 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.currentReferenceCache = { nil }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -1199,7 +1172,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "pkg",
                               reference: .branch("feature/1.2.3"))
             .save(on: app.db)
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
             // MUT
 
@@ -1251,6 +1223,7 @@ class PackageController_routesTests: SnapshotTestCase {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.currentReferenceCache = { nil  }
             $0.environment.dbId = { nil }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -1272,7 +1245,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "pkg",
                               reference: .tag(1, 0, 0))
             .save(on: app.db)
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
             // MUT
             try await app.test(.GET, "/owner/package/~/tutorials") { res async in
@@ -1299,15 +1271,9 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_favicon() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient
+                .echoURL(headers: ["content-type": "application/octet-stream"])
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok,
-                          headers: ["content-type": "application/octet-stream"],
-                          body: .init(string: uri.path))
-            }
-
             // MUT
             try app.test(.GET, "/owner/package/1.2.3/favicon.ico") {
                 XCTAssertEqual($0.status, .ok)
@@ -1326,15 +1292,9 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_themeSettings() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient
+                .echoURL(headers: ["content-type": "application/json"])
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok,
-                          headers: ["content-type": "application/json"],
-                          body: .init(string: uri.path))
-            }
-
             // MUT
             try app.test(.GET, "/owner/package/1.2.3/theme-settings.json") {
                 XCTAssertEqual($0.status, .ok)
@@ -1347,15 +1307,9 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_linkablePaths() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient
+                .echoURL(headers: ["content-type": "application/json"])
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok,
-                          headers: ["content-type": "application/json"],
-                          body: .init(string: uri.path))
-            }
-
             // MUT
             try app.test(.GET, "/owner/package/1.2.3/linkable-paths.json") {
                 XCTAssertEqual($0.status, .ok)
@@ -1368,12 +1322,12 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_tutorial() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
-        } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
+            $0.httpClient.fetchDocumentation = { @Sendable uri in
                 // embed uri.path in the body as a simple way to test the requested url
                     .init(status: .ok, body: .init(string: "<p>\(uri.path)</p>"))
             }
+        } operation: {
+            // setup
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
                 .save(on: app.db)
@@ -1527,6 +1481,7 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.currentReferenceCache = { .live }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "https://github.com/foo/bar".url, processingStage: .ingestion)
@@ -1564,8 +1519,6 @@ class PackageController_routesTests: SnapshotTestCase {
             try await withDependencies {
                 $0.date.now = .t1 + Constants.branchVersionRefreshDelay + 1
             } operation: {
-                Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
-
                 // Ensure documentation is resolved
                 try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
                     await Task.yield() // essential to avoid deadlocking
