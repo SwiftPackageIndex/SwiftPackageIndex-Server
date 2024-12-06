@@ -78,7 +78,8 @@ enum PackageController {
                     status: .ok,
                     headers: req.headers
                         .replacingOrAdding(name: .contentType, value: route.fragment.contentType)
-                        .replacingOrAdding(name: .cacheControl, value: "no-transform")
+                        .replacingOrAdding(name: .cacheControl, value: "no-transform"),
+                    body: res.body
                 ).encodeResponse(for: req)
         }
     }
@@ -148,7 +149,8 @@ enum PackageController {
             return try await ClientResponse(
                 status: .ok,
                 headers: req.headers.replacingOrAdding(name: .contentType,
-                                                       value: route.contentType)
+                                                       value: route.contentType),
+                body: awsResponse.body
             ).encodeResponse(for: req)
         }
 
