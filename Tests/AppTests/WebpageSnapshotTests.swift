@@ -474,7 +474,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_DocCTemplate() throws {
         let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
-        let doccHtml = try String(contentsOfFile: doccTemplatePath)
+        let doccHtml = try String(contentsOfFile: doccTemplatePath, encoding: .utf8)
         let archive = DocArchive(name: "archive1", title: "Archive1")
         let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
                                                                  repositoryOwnerName: "Owner Name",
@@ -501,7 +501,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_DocCTemplate_outdatedStableVersion() throws {
         let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
-        let doccHtml = try String(contentsOfFile: doccTemplatePath)
+        let doccHtml = try String(contentsOfFile: doccTemplatePath, encoding: .utf8)
         let archive = DocArchive(name: "archive1", title: "Archive1")
         let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
                                                                  repositoryOwnerName: "Owner Name",
@@ -532,7 +532,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_DocCTemplate_multipleVersions() throws {
         let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
-        let doccHtml = try String(contentsOfFile: doccTemplatePath)
+        let doccHtml = try String(contentsOfFile: doccTemplatePath, encoding: .utf8)
         let archive1 = DocArchive(name: "archive1", title: "Archive1")
         let archive2 = DocArchive(name: "archive2", title: "Archive2")
         let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
