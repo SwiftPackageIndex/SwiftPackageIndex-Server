@@ -190,7 +190,9 @@ extension Ingestion {
                 s3Readme = .error("\(error)")
             }
 
-            try await updateRepository(on: database, for: repo, metadata: metadata, licenseInfo: license, readmeInfo: readme, s3Readme: s3Readme)
+            let fork = await getFork(on: database, parent: metadata.repository?.parent)
+
+            try await updateRepository(on: database, for: repo, metadata: metadata, licenseInfo: license, readmeInfo: readme, s3Readme: s3Readme, fork: fork)
             return package
         }
 
