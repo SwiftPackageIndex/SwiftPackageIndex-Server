@@ -16,6 +16,7 @@ import S3Store
 import Vapor
 import Dependencies
 
+#warning("Make this S3Store.Error")
 enum S3ReadmeError: Swift.Error {
     case envVariableNotSet(String)
     case invalidURL(String)
