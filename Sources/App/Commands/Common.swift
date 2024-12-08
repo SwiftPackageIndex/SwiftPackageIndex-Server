@@ -53,10 +53,10 @@ func updatePackages(client: Client,
 }
 
 
-func updatePackage(client: Client,
-                   database: Database,
-                   result: Result<Joined<Package, Repository>, Error>,
-                   stage: Package.ProcessingStage) async throws {
+func updatePackage<E: Error>(client: Client,
+                             database: Database,
+                             result: Result<Joined<Package, Repository>, E>,
+                             stage: Package.ProcessingStage) async throws {
     switch result {
         case .success(let res):
             let pkg = res.package
@@ -123,5 +123,36 @@ func recordError(database: Database,
             try await setStatus(id: id, status: .analysisFailed)
         case let .noValidVersions(id, _):
             try await setStatus(id: id, status: .noValidVersions)
+    }
+}
+
+
+func recordError(database: Database,
+                 error: Ingestion.Error,
+                 stage: Package.ProcessingStage) async throws {
+    let status: Package.Status
+    switch error.underlyingError {
+        case .fetchMetadataFailed, .findOrCreateRepositoryFailed, .noRepositoryMetadata, .repositorySaveFailed:
+            status = .ingestionFailed
+        case .invalidURL:
+            status = .invalidUrl
+    }
+
+#warning("drop stage as a parameter")
+    try await Package.update(for: error.packageId, on: database, status: status, stage: stage)
+}
+
+
+extension Package {
+#warning("Move")
+    static func update(for id: Package.Id,
+                       on database: Database,
+                       status: Status,
+                       stage: ProcessingStage) async throws {
+        try await Package.query(on: database)
+            .filter(\.$id == id)
+            .set(\.$processingStage, to: stage)
+            .set(\.$status, to: status)
+            .update()
     }
 }

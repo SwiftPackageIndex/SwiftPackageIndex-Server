@@ -17,12 +17,16 @@ import Fluent
 
 
 enum Ingestion {
-    enum Error: Swift.Error {
-        case fetchMetadataFailed(owner: String, name: String, error: Swift.Error)
-        case findOrCreateRepositoryFailed(url: String, error: Swift.Error)
-        case invalidURL(String)
-        case noRepositoryMetadata(owner: String?, name: String?)
-        case repositorySaveFailed(owner: String?, name: String?, error: Swift.Error)
+    struct Error: Swift.Error {
+        var packageId: Package.Id
+        var underlyingError: UnderlyingError
+        enum UnderlyingError: Swift.Error {
+            case fetchMetadataFailed(owner: String, name: String, details: Swift.Error)
+            case findOrCreateRepositoryFailed(url: String, details: Swift.Error)
+            case invalidURL(String)
+            case noRepositoryMetadata(owner: String?, name: String?)
+            case repositorySaveFailed(owner: String?, name: String?, details: Swift.Error)
+        }
     }
 }
 
@@ -178,7 +182,10 @@ extension Ingestion {
             let repo = try await Result {
                 try await Repository.findOrCreate(on: database, for: package.model)
             }.mapError {
-                Ingestion.Error.findOrCreateRepositoryFailed(url: package.package.url, error: $0)
+                Ingestion.Error(
+                    packageId: package.model.id!,
+                    underlyingError: .findOrCreateRepositoryFailed(url: package.package.url, details: $0)
+                )
             }.get()
 
             let s3Readme: S3Readme?
@@ -235,7 +242,8 @@ func fetchMetadata(client: Client, package: Joined<Package, Repository>) async t
     let (owner, repository) = try Result {
         try Github.parseOwnerName(url: package.model.url)
     }.mapError { _ in
-        Ingestion.Error.invalidURL(package.model.url)
+        Ingestion.Error(packageId: package.model.id!,
+                        underlyingError: .invalidURL(package.model.url))
     }.get()
 
     async let license = await Current.fetchLicense(client, owner, repository)
@@ -244,7 +252,10 @@ func fetchMetadata(client: Client, package: Joined<Package, Repository>) async t
     // First one should be an `async let` as well but it doesn't compile right now. Reported as
     // https://github.com/swiftlang/swift/issues/76169
     return (try await Result { try await Current.fetchMetadata(client, owner, repository) }
-        .mapError { Ingestion.Error.fetchMetadataFailed(owner: owner, name: repository, error: $0) }
+        .mapError {
+            Ingestion.Error(packageId: package.model.id!,
+                            underlyingError: .fetchMetadataFailed(owner: owner, name: repository, details: $0))
+        }
         .get(),
             await license,
             await readme)
@@ -265,7 +276,8 @@ func updateRepository(on database: Database,
                       s3Readme: S3Readme?,
                       fork: Fork? = nil) async throws(Ingestion.Error) {
     guard let repoMetadata = metadata.repository else {
-        throw .noRepositoryMetadata(owner: repository.owner, name: repository.name)
+        throw .init(packageId: repository.package.id!,
+                    underlyingError: .noRepositoryMetadata(owner: repository.owner, name: repository.name))
     }
 
     repository.defaultBranch = repoMetadata.defaultBranch
@@ -296,7 +308,10 @@ func updateRepository(on database: Database,
     try await Result {
         try await repository.save(on: database)
     }.mapError {
-        Ingestion.Error.repositorySaveFailed(owner: repository.owner, name: repository.name, error: $0)
+        Ingestion.Error(
+            packageId: repository.package.id!,
+            underlyingError: .repositorySaveFailed(owner: repository.owner, name: repository.name, details: $0)
+        )
     }.get()
 }
 
