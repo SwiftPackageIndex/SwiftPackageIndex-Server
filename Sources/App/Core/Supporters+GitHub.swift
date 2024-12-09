@@ -98,11 +98,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/157243?v=4"
         ),
         .init(
-            login: "donaldww",
-            name: "Donald Wilson",
-            avatarUrl: "https://avatars.githubusercontent.com/u/221379?v=4"
-        ),
-        .init(
             login: "jabruder",
             name: "Jason Bruder",
             avatarUrl: "https://avatars.githubusercontent.com/u/222564?u=00277f32dd48021c85b093b7172f613c5c94b31e&v=4"
@@ -141,11 +136,6 @@ extension Array<Supporters.Community> {
             login: "tuparev",
             name: "Georg Tuparev",
             avatarUrl: "https://avatars.githubusercontent.com/u/693171?u=219818bce486228f3a7099db56ed078241b597c5&v=4"
-        ),
-        .init(
-            login: "bitwit",
-            name: "Kyle Newsome",
-            avatarUrl: "https://avatars.githubusercontent.com/u/707507?u=085dd32577d7f1639a39e3f6b553e5d8b77cbfad&v=4"
         ),
         .init(
             login: "Timac",
@@ -204,7 +194,7 @@ extension Array<Supporters.Community> {
         ),
         .init(
             login: "PSPDFKit",
-            name: "PSPDFKit GmbH",
+            name: "Nutrient (formerly PSPDFKit)",
             avatarUrl: "https://avatars.githubusercontent.com/u/1527679?v=4"
         ),
         .init(
