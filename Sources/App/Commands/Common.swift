@@ -97,39 +97,41 @@ func updatePackage<E: Error>(client: Client,
 func recordError(database: Database,
                  error: Error,
                  stage: Package.ProcessingStage) async throws {
-    func setStatus(id: Package.Id?, status: Package.Status) async throws {
-        guard let id = id else { return }
-        try await Package.query(on: database)
-            .filter(\.$id == id)
-            .set(\.$processingStage, to: stage)
-            .set(\.$status, to: status)
-            .update()
-    }
+    if let error = error as? Ingestion.Error {
+        try await recordIngestionError(database: database, error: error)
+    } else {
+        func setStatus(id: Package.Id?, status: Package.Status) async throws {
+            guard let id = id else { return }
+            try await Package.query(on: database)
+                .filter(\.$id == id)
+                .set(\.$processingStage, to: stage)
+                .set(\.$status, to: status)
+                .update()
+        }
 
-    guard let error = error as? AppError else { return }
+        guard let error = error as? AppError else { return }
 
-    switch error {
-        case let .analysisError(id, _):
-            try await setStatus(id: id, status: .analysisFailed)
-        case .envVariableNotSet, .shellCommandFailed:
-            break
-        case let .genericError(id, _):
-            try await setStatus(id: id, status: .ingestionFailed)
-        case let .invalidPackageCachePath(id, _):
-            try await setStatus(id: id, status: .invalidCachePath)
-        case let .cacheDirectoryDoesNotExist(id, _):
-            try await setStatus(id: id, status: .cacheDirectoryDoesNotExist)
-        case let .invalidRevision(id, _):
-            try await setStatus(id: id, status: .analysisFailed)
-        case let .noValidVersions(id, _):
-            try await setStatus(id: id, status: .noValidVersions)
+        switch error {
+            case let .analysisError(id, _):
+                try await setStatus(id: id, status: .analysisFailed)
+            case .envVariableNotSet, .shellCommandFailed:
+                break
+            case let .genericError(id, _):
+                try await setStatus(id: id, status: .ingestionFailed)
+            case let .invalidPackageCachePath(id, _):
+                try await setStatus(id: id, status: .invalidCachePath)
+            case let .cacheDirectoryDoesNotExist(id, _):
+                try await setStatus(id: id, status: .cacheDirectoryDoesNotExist)
+            case let .invalidRevision(id, _):
+                try await setStatus(id: id, status: .analysisFailed)
+            case let .noValidVersions(id, _):
+                try await setStatus(id: id, status: .noValidVersions)
+        }
     }
 }
 
 
-func recordError(database: Database,
-                 error: Ingestion.Error,
-                 stage: Package.ProcessingStage) async throws {
+func recordIngestionError(database: Database, error: Ingestion.Error) async throws {
     let status: Package.Status
     switch error.underlyingError {
         case .fetchMetadataFailed, .findOrCreateRepositoryFailed, .noRepositoryMetadata, .repositorySaveFailed:
@@ -137,9 +139,7 @@ func recordError(database: Database,
         case .invalidURL:
             status = .invalidUrl
     }
-
-#warning("drop stage as a parameter")
-    try await Package.update(for: error.packageId, on: database, status: status, stage: stage)
+    try await Package.update(for: error.packageId, on: database, status: status, stage: .ingestion)
 }
 
 
