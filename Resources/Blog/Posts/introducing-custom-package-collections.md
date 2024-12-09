@@ -40,7 +40,7 @@ The `description` field brielfly explains the motivation for this custom collect
 
 The optional `badge` field is used to style the small badge next to the collection name on the package page. If omitted, the collection will have no badge.
 
-Finally, the `url` field points to a location where you maintain a list of package URLs that belong to the collection. There should be of the format `https://github.com/author/package.git`. In particular, make sure the URL scheme is `https` and the `.git` suffix is included.
+Finally, the `url` field points to a location where you maintain a list of package URLs that belong to the collection. These should be of the format `https://github.com/author/package.git`. In particular, make sure the URL scheme is `https` and the `.git` suffix is included.
 
 We match the listed packages against the list of all packages in the Swift Package Index and include only the ones we are able to match. Note that the matching is case-insensitive.
 
