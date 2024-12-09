@@ -17,15 +17,35 @@ import Fluent
 
 
 enum Ingestion {
-    struct Error: Swift.Error {
+    struct Error: Swift.Error, CustomStringConvertible {
         var packageId: Package.Id
         var underlyingError: UnderlyingError
-        enum UnderlyingError: Swift.Error {
+
+        var description: String {
+            "Ingestion.Error(\(packageId), \(underlyingError)"
+        }
+
+        enum UnderlyingError: Swift.Error, CustomStringConvertible {
             case fetchMetadataFailed(owner: String, name: String, details: Swift.Error)
             case findOrCreateRepositoryFailed(url: String, details: Swift.Error)
             case invalidURL(String)
             case noRepositoryMetadata(owner: String?, name: String?)
             case repositorySaveFailed(owner: String?, name: String?, details: Swift.Error)
+
+            var description: String {
+                switch self {
+                    case let .fetchMetadataFailed(_, _, details):
+                        "fetchMetadataFailed(\(details))"
+                    case .findOrCreateRepositoryFailed:
+                        "findOrCreateRepositoryFailed"
+                    case let .invalidURL(url):
+                        "invalidURL(\(url))"
+                    case .noRepositoryMetadata:
+                        "noRepositoryMetadata"
+                    case let .repositorySaveFailed(_, _, details):
+                        "repositorySaveFailed(\(details)"
+                }
+            }
         }
     }
 }
@@ -114,7 +134,7 @@ func ingest(client: Client,
     await withTaskGroup(of: Void.self) { group in
         for pkg in packages {
             group.addTask  {
-                await ingestOriginal(client: client, database: database, package: pkg)
+                await Ingestion.ingestNew(client: client, database: database, package: pkg)
             }
         }
     }
@@ -199,7 +219,11 @@ extension Ingestion {
 
             let fork = await getFork(on: database, parent: metadata.repository?.parent)
 
-            try await updateRepository(on: database, for: repo, metadata: metadata, licenseInfo: license, readmeInfo: readme, s3Readme: s3Readme, fork: fork)
+            try await Result { () async throws(Ingestion.Error.UnderlyingError) in
+                try await updateRepository(on: database, for: repo, metadata: metadata, licenseInfo: license, readmeInfo: readme, s3Readme: s3Readme, fork: fork)
+            }.mapError {
+                Error.init(packageId: package.model.id!, underlyingError: $0)
+            }.get()
             return package
         }
 
@@ -274,10 +298,9 @@ func updateRepository(on database: Database,
                       licenseInfo: Github.License?,
                       readmeInfo: Github.Readme?,
                       s3Readme: S3Readme?,
-                      fork: Fork? = nil) async throws(Ingestion.Error) {
+                      fork: Fork? = nil) async throws(Ingestion.Error.UnderlyingError) {
     guard let repoMetadata = metadata.repository else {
-        throw .init(packageId: repository.package.id!,
-                    underlyingError: .noRepositoryMetadata(owner: repository.owner, name: repository.name))
+        throw .noRepositoryMetadata(owner: repository.owner, name: repository.name)
     }
 
     repository.defaultBranch = repoMetadata.defaultBranch
@@ -308,10 +331,7 @@ func updateRepository(on database: Database,
     try await Result {
         try await repository.save(on: database)
     }.mapError {
-        Ingestion.Error(
-            packageId: repository.package.id!,
-            underlyingError: .repositorySaveFailed(owner: repository.owner, name: repository.name, details: $0)
-        )
+        Ingestion.Error.UnderlyingError.repositorySaveFailed(owner: repository.owner, name: repository.name, details: $0)
     }.get()
 }
 
