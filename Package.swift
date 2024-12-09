@@ -49,6 +49,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.13.0"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.102.0"),
+        .package(url: "https://github.com/finestructure/swift-concurrency-extras.git", branch: "support-typed-throws"),
     ],
     targets: [
         .executableTarget(name: "Run", dependencies: ["App"]),

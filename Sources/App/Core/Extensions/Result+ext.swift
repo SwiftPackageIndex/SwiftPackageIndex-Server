@@ -25,3 +25,6 @@ extension Result where Failure == Error {
 
     var isError: Bool { return !isSucess }
 }
+
+
+#warning("Add an extension `Result.mapError`")
