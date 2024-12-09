@@ -53,10 +53,10 @@ func updatePackages(client: Client,
 }
 
 
-func updatePackage<E: Error>(client: Client,
-                             database: Database,
-                             result: Result<Joined<Package, Repository>, E>,
-                             stage: Package.ProcessingStage) async throws {
+func updatePackage(client: Client,
+                   database: Database,
+                   result: Result<Joined<Package, Repository>, Error>,
+                   stage: Package.ProcessingStage) async throws {
     switch result {
         case .success(let res):
             let pkg = res.package
@@ -90,6 +90,51 @@ func updatePackage<E: Error>(client: Client,
         case let .failure(error):
             Current.logger().report(error: error)
             try await recordError(database: database, error: error, stage: stage)
+    }
+}
+
+
+func updatePackage(client: Client,
+                   database: Database,
+                   result: Result<Joined<Package, Repository>, Ingestion.Error>,
+                   stage: Package.ProcessingStage) async throws {
+    switch result {
+        case .success(let res):
+            try await updatePackage(database: database, package: res.package, stage: stage)
+        case .failure(let failure):
+            switch failure.underlyingError {
+                case .fetchMetadataFailed:
+                    Current.logger().warning("\(failure)")
+
+                case .findOrCreateRepositoryFailed:
+                    Current.logger().critical("\(failure)")
+
+                case .invalidURL, .noRepositoryMetadata:
+                    Current.logger().warning("\(failure)")
+
+                case .repositorySaveFailed, .repositorySaveUniqueViolation:
+                    Current.logger().critical("\(failure)")
+            }
+
+            try await recordIngestionError(database: database, error: failure)
+    }
+}
+
+
+func updatePackage(database: Database,
+                   package: Package,
+                   stage: Package.ProcessingStage) async throws {
+    if stage == .ingestion && package.status == .new {
+        // newly ingested package: leave status == .new for fast-track
+        // analysis
+    } else {
+        package.status = .ok
+    }
+    package.processingStage = stage
+    do {
+        try await package.update(on: database)
+    } catch {
+        Current.logger().report(error: error)
     }
 }
 
@@ -132,14 +177,18 @@ func recordError(database: Database,
 
 
 func recordIngestionError(database: Database, error: Ingestion.Error) async throws {
-    let status: Package.Status
     switch error.underlyingError {
         case .fetchMetadataFailed, .findOrCreateRepositoryFailed, .noRepositoryMetadata, .repositorySaveFailed:
-            status = .ingestionFailed
+            try await Package
+                .update(for: error.packageId, on: database, status: .ingestionFailed, stage: .ingestion)
         case .invalidURL:
-            status = .invalidUrl
+            try await Package
+                .update(for: error.packageId, on: database, status: .invalidUrl, stage: .ingestion)
+        case .repositorySaveUniqueViolation:
+            // Speficically do _not_ update package at all - this is what test_ingest_unique_owner_name_violation expects
+#warning("check what are the consequences if we do? Does this break ingestion somehow?")
+            break
     }
-    try await Package.update(for: error.packageId, on: database, status: status, stage: .ingestion)
 }
 
 

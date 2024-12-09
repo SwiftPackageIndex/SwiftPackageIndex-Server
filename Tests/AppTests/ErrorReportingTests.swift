@@ -47,7 +47,7 @@ class ErrorReportingTests: AppTestCase {
         // validation
         logger.logs.withValue {
             XCTAssertEqual($0, [.init(level: .warning,
-                                      message: #"Ingestion.Error(\#(UUID.id0), invalidURL(1)"#)])
+                                      message: #"Ingestion.Error(\#(UUID.id0), invalidURL(1))"#)])
         }
     }
 

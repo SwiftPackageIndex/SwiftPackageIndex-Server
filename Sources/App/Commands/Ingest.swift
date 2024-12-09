@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Vapor
 import Fluent
+import PostgresKit
+import Vapor
 
 
 enum Ingestion {
@@ -22,15 +23,16 @@ enum Ingestion {
         var underlyingError: UnderlyingError
 
         var description: String {
-            "Ingestion.Error(\(packageId), \(underlyingError)"
+            "Ingestion.Error(\(packageId), \(underlyingError))"
         }
 
         enum UnderlyingError: Swift.Error, CustomStringConvertible {
-            case fetchMetadataFailed(owner: String, name: String, details: Swift.Error)
+            case fetchMetadataFailed(owner: String, name: String, details: String)
             case findOrCreateRepositoryFailed(url: String, details: Swift.Error)
             case invalidURL(String)
             case noRepositoryMetadata(owner: String?, name: String?)
-            case repositorySaveFailed(owner: String?, name: String?, details: Swift.Error)
+            case repositorySaveFailed(owner: String?, name: String?, details: String)
+            case repositorySaveUniqueViolation(owner: String?, name: String?, details: String)
 
             var description: String {
                 switch self {
@@ -43,7 +45,9 @@ enum Ingestion {
                     case .noRepositoryMetadata:
                         "noRepositoryMetadata"
                     case let .repositorySaveFailed(_, _, details):
-                        "repositorySaveFailed(\(details)"
+                        "repositorySaveFailed(\(String(reflecting: details)))"
+                    case let .repositorySaveUniqueViolation(_, _, details):
+                        "repositorySaveUniqueViolation(\(details))"
                 }
             }
         }
@@ -278,7 +282,7 @@ func fetchMetadata(client: Client, package: Joined<Package, Repository>) async t
     return (try await Result { try await Current.fetchMetadata(client, owner, repository) }
         .mapError {
             Ingestion.Error(packageId: package.model.id!,
-                            underlyingError: .fetchMetadataFailed(owner: owner, name: repository, details: $0))
+                            underlyingError: .fetchMetadataFailed(owner: owner, name: repository, details: "\($0)"))
         }
         .get(),
             await license,
@@ -328,11 +332,23 @@ func updateRepository(on database: Database,
     repository.summary = repoMetadata.description
     repository.forkedFrom = fork
 
-    try await Result {
+    do {
         try await repository.save(on: database)
-    }.mapError {
-        Ingestion.Error.UnderlyingError.repositorySaveFailed(owner: repository.owner, name: repository.name, details: $0)
-    }.get()
+    } catch let error as PSQLError where error.isUniqueViolation {
+        let details = error.serverInfo?[.message] ?? ""
+        throw Ingestion.Error.UnderlyingError.repositorySaveUniqueViolation(owner: repository.owner,
+                                                                            name: repository.name,
+                                                                            details: details)
+    } catch let error as PSQLError {
+        let details = error.serverInfo?[.message] ?? ""
+        throw Ingestion.Error.UnderlyingError.repositorySaveFailed(owner: repository.owner,
+                                                                   name: repository.name,
+                                                                   details: details)
+    } catch {
+        throw Ingestion.Error.UnderlyingError.repositorySaveFailed(owner: repository.owner,
+                                                                   name: repository.name,
+                                                                   details: "\(error)")
+    }
 }
 
 func getFork(on database: Database, parent: Github.Metadata.Parent?) async -> Fork? {
