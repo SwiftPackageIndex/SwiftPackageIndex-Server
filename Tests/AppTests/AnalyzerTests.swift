@@ -869,10 +869,7 @@ class AnalyzerTests: AppTestCase {
         ]
 
         // MUT
-        try await Analyze.updatePackages(client: app.client,
-                                         database: app.db,
-                                         results: results,
-                                         stage: .analysis)
+        try await Analyze.updatePackages(client: app.client, database: app.db, results: results)
 
         // validate
         do {
