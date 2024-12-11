@@ -152,10 +152,11 @@ extension Analyze {
             }
         }
 
-        try await updatePackages(client: client,
-                                 database: database,
-                                 results: packageResults,
-                                 stage: .analysis)
+#warning("drop prefix")
+        try await Analyze.updatePackages(client: client,
+                                         database: database,
+                                         results: packageResults,
+                                         stage: .analysis)
 
         try await RecentPackage.refresh(on: database)
         try await RecentRelease.refresh(on: database)

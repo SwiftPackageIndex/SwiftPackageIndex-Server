@@ -144,59 +144,6 @@ func ingest(client: Client,
     }
 }
 
-func ingestOriginal(client: Client, database: Database, package: Joined<Package, Repository>) async {
-    let result = await Result {
-        Current.logger().info("Ingesting \(package.package.url)")
-        let (metadata, license, readme) = try await fetchMetadata(client: client, package: package)
-        let repo = try await Repository.findOrCreate(on: database, for: package.model)
-
-        let s3Readme: S3Readme?
-        do {
-            if let upstreamEtag = readme?.etag,
-               repo.s3Readme?.needsUpdate(upstreamEtag: upstreamEtag) ?? true,
-               let owner = metadata.repositoryOwner,
-               let repository = metadata.repositoryName,
-               let html = readme?.html {
-                let objectUrl = try await Current.storeS3Readme(owner, repository, html)
-                if let imagesToCache = readme?.imagesToCache, imagesToCache.isEmpty == false {
-                    try await Current.storeS3ReadmeImages(client, imagesToCache)
-                }
-                s3Readme = .cached(s3ObjectUrl: objectUrl, githubEtag: upstreamEtag)
-            } else {
-                s3Readme = repo.s3Readme
-            }
-        } catch {
-            // We don't want to fail ingestion in case storing the readme fails - warn and continue.
-            Current.logger().warning("storeS3Readme failed")
-            s3Readme = .error("\(error)")
-        }
-
-        let fork = await getFork(on: database, parent: metadata.repository?.parent)
-
-        try await updateRepository(on: database,
-                                   for: repo,
-                                   metadata: metadata,
-                                   licenseInfo: license,
-                                   readmeInfo: readme,
-                                   s3Readme: s3Readme,
-                                   fork: fork)
-        return package
-    }
-
-    switch result {
-        case .success:
-            AppMetrics.ingestMetadataSuccessCount?.inc()
-        case .failure:
-            AppMetrics.ingestMetadataFailureCount?.inc()
-    }
-
-    do {
-        try await updatePackage(client: client, database: database, result: result, stage: .ingestion)
-    } catch {
-        Current.logger().report(error: error)
-    }
-}
-
 
 extension Ingestion {
     static func ingestNew(client: Client, database: Database, package: Joined<Package, Repository>) async {
