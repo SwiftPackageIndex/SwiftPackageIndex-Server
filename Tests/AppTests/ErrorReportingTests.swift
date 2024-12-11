@@ -20,15 +20,14 @@ import XCTVapor
 
 class ErrorReportingTests: AppTestCase {
 
-    func test_recordError() async throws {
+    func test_Analyze_recordError() async throws {
         let pkg = try await savePackage(on: app.db, "1")
         try await Analyze.recordError(database: app.db,
-                                      error: AppError.cacheDirectoryDoesNotExist(pkg.id, "path"),
-                                      stage: .ingestion)
+                                      error: AppError.cacheDirectoryDoesNotExist(pkg.id, "path"))
         do {
             let pkg = try await XCTUnwrapAsync(try await Package.find(pkg.id, on: app.db))
             XCTAssertEqual(pkg.status, .cacheDirectoryDoesNotExist)
-            XCTAssertEqual(pkg.processingStage, .ingestion)
+            XCTAssertEqual(pkg.processingStage, .analysis)
         }
     }
 

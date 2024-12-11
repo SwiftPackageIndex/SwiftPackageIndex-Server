@@ -17,9 +17,6 @@ import PostgresKit
 import Vapor
 
 
-enum Common { }
-
-
 #warning("move")
 extension Analyze {
     /// Update packages (in the `[Result<Joined<Package, Repository>, Error>]` array).
@@ -29,27 +26,25 @@ extension Analyze {
     ///   - database: `Database` object
     ///   - results: `Joined<Package, Repository>` results to update
     ///   - stage: Processing stage
-#warning("drop stage parameter")
     static func updatePackages(client: Client,
                                database: Database,
-                               results: [Result<Joined<Package, Repository>, Error>],
-                               stage: Package.ProcessingStage) async throws {
+                               results: [Result<Joined<Package, Repository>, Error>]) async throws {
         do {
             let total = results.count
             let errors = results.filter(\.isError).count
             let errorRate = total > 0 ? 100.0 * Double(errors) / Double(total) : 0.0
             switch errorRate {
                 case 0:
-                    Current.logger().info("Updating \(total) packages for stage '\(stage)'")
+                    Current.logger().info("Updating \(total) packages for stage 'analysis'")
                 case 0..<20:
-                    Current.logger().info("Updating \(total) packages for stage '\(stage)' (errors: \(errors))")
+                    Current.logger().info("Updating \(total) packages for stage 'analysis' (errors: \(errors))")
                 default:
                     Current.logger().critical("updatePackages: unusually high error rate: \(errors)/\(total) = \(errorRate)%")
             }
         }
         for result in results {
             do {
-                try await updatePackage(client: client, database: database, result: result, stage: stage)
+                try await updatePackage(client: client, database: database, result: result)
             } catch {
                 Current.logger().critical("updatePackage failed: \(error)")
             }
@@ -58,26 +53,12 @@ extension Analyze {
         Current.logger().debug("updateStatus ops: \(results.count)")
     }
 
-#warning("drop stage parameter")
     static func updatePackage(client: Client,
                               database: Database,
-                              result: Result<Joined<Package, Repository>, Error>,
-                              stage: Package.ProcessingStage) async throws {
+                              result: Result<Joined<Package, Repository>, Error>) async throws {
         switch result {
             case .success(let res):
-                let pkg = res.package
-                if stage == .ingestion && pkg.status == .new {
-                    // newly ingested package: leave status == .new for fast-track
-                    // analysis
-                } else {
-                    pkg.status = .ok
-                }
-                pkg.processingStage = stage
-                do {
-                    try await pkg.update(on: database)
-                } catch {
-                    Current.logger().report(error: error)
-                }
+                try await res.package.update(on: database, status: .ok, stage: .analysis)
 
                 // PSQLError also conforms to DatabaseError but we want to intercept it specifically,
                 // because it allows us to log more concise error messages via serverInfo[.message]
@@ -86,16 +67,16 @@ extension Analyze {
                 let error = error as! PSQLError
                 let msg = error.serverInfo?[.message] ?? String(reflecting: error)
                 Current.logger().critical("\(msg)")
-                try await recordError(database: database, error: error, stage: stage)
+                try await recordError(database: database, error: error)
 
             case let .failure(error) where error is DatabaseError:
                 // Escalate database errors to critical
                 Current.logger().critical("\(String(reflecting: error))")
-                try await recordError(database: database, error: error, stage: stage)
+                try await recordError(database: database, error: error)
 
             case let .failure(error):
                 Current.logger().report(error: error)
-                try await recordError(database: database, error: error, stage: stage)
+                try await recordError(database: database, error: error)
         }
     }
 }
@@ -108,7 +89,9 @@ extension Ingestion {
                               stage: Package.ProcessingStage) async throws {
         switch result {
             case .success(let res):
-                try await Common.updatePackage(database: database, package: res.package, stage: stage)
+                // for newly ingested package leave status == .new in order to fast-track analysis
+                let updatedStatus: Package.Status = res.package.status == .new ? .new : .ok
+                try await res.package.update(on: database, status: updatedStatus, stage: stage)
             case .failure(let failure):
                 switch failure.underlyingError {
                     case .fetchMetadataFailed:
@@ -130,61 +113,34 @@ extension Ingestion {
 }
 
 
-extension Common {
-    @available(*, deprecated)
-    static func updatePackage(database: Database,
-                              package: Package,
-                              stage: Package.ProcessingStage) async throws {
-        if stage == .ingestion && package.status == .new {
-            // newly ingested package: leave status == .new for fast-track
-            // analysis
-        } else {
-            package.status = .ok
-        }
-        package.processingStage = stage
-        do {
-            try await package.update(on: database)
-        } catch {
-            Current.logger().report(error: error)
-        }
-    }
-}
-
-
 extension Analyze {
-    static func recordError(database: Database,
-                            error: Error,
-                            stage: Package.ProcessingStage) async throws {
-        if let error = error as? Ingestion.Error {
-            try await Ingestion.recordError(database: database, error: error)
-        } else {
-            func setStatus(id: Package.Id?, status: Package.Status) async throws {
-                guard let id = id else { return }
-                try await Package.query(on: database)
-                    .filter(\.$id == id)
-                    .set(\.$processingStage, to: stage)
-                    .set(\.$status, to: status)
-                    .update()
-            }
+    static func recordError(database: Database, error: Error) async throws {
+        func setStatus(id: Package.Id?, status: Package.Status) async throws {
+            guard let id = id else { return }
+            try await Package.query(on: database)
+                .filter(\.$id == id)
+                .set(\.$processingStage, to: .analysis)
+                .set(\.$status, to: status)
+                .update()
+        }
 
-            guard let error = error as? AppError else { return }
+        guard let error = error as? AppError else { return }
 
-            switch error {
-                case let .analysisError(id, _):
-                    try await setStatus(id: id, status: .analysisFailed)
-                case .envVariableNotSet, .shellCommandFailed:
-                    break
-                case let .genericError(id, _):
-                    try await setStatus(id: id, status: .ingestionFailed)
-                case let .invalidPackageCachePath(id, _):
-                    try await setStatus(id: id, status: .invalidCachePath)
-                case let .cacheDirectoryDoesNotExist(id, _):
-                    try await setStatus(id: id, status: .cacheDirectoryDoesNotExist)
-                case let .invalidRevision(id, _):
-                    try await setStatus(id: id, status: .analysisFailed)
-                case let .noValidVersions(id, _):
-                    try await setStatus(id: id, status: .noValidVersions)
-            }
+        switch error {
+            case let .analysisError(id, _):
+                try await setStatus(id: id, status: .analysisFailed)
+            case .envVariableNotSet, .shellCommandFailed:
+                break
+            case let .genericError(id, _):
+                try await setStatus(id: id, status: .ingestionFailed)
+            case let .invalidPackageCachePath(id, _):
+                try await setStatus(id: id, status: .invalidCachePath)
+            case let .cacheDirectoryDoesNotExist(id, _):
+                try await setStatus(id: id, status: .cacheDirectoryDoesNotExist)
+            case let .invalidRevision(id, _):
+                try await setStatus(id: id, status: .analysisFailed)
+            case let .noValidVersions(id, _):
+                try await setStatus(id: id, status: .noValidVersions)
         }
     }
 }
@@ -218,5 +174,11 @@ extension Package {
             .set(\.$processingStage, to: stage)
             .set(\.$status, to: status)
             .update()
+    }
+
+    func update(on database: Database, status: Status, stage: ProcessingStage) async throws {
+        self.status = status
+        self.processingStage = stage
+        try await update(on: database)
     }
 }
