@@ -22,9 +22,9 @@ class ErrorReportingTests: AppTestCase {
 
     func test_recordError() async throws {
         let pkg = try await savePackage(on: app.db, "1")
-        try await recordError(database: app.db,
-                              error: AppError.cacheDirectoryDoesNotExist(pkg.id, "path"),
-                              stage: .ingestion)
+        try await Analyze.recordError(database: app.db,
+                                      error: AppError.cacheDirectoryDoesNotExist(pkg.id, "path"),
+                                      stage: .ingestion)
         do {
             let pkg = try await XCTUnwrapAsync(try await Package.find(pkg.id, on: app.db))
             XCTAssertEqual(pkg.status, .cacheDirectoryDoesNotExist)
