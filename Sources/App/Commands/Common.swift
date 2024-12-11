@@ -185,9 +185,8 @@ func recordIngestionError(database: Database, error: Ingestion.Error) async thro
             try await Package
                 .update(for: error.packageId, on: database, status: .invalidUrl, stage: .ingestion)
         case .repositorySaveUniqueViolation:
-            // Speficically do _not_ update package at all - this is what test_ingest_unique_owner_name_violation expects
-#warning("check what are the consequences if we do? Does this break ingestion somehow?")
-            break
+            try await Package
+                .update(for: error.packageId, on: database, status: .ingestionFailed, stage: .ingestion)
     }
 }
 

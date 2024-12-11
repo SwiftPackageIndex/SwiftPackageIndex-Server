@@ -363,9 +363,10 @@ class IngestorTests: AppTestCase {
         //   - don't update package
         //   - don't create repository records
         // setup
-        for url in ["https://github.com/foo/1", "https://github.com/foo/2"].asURLs {
-            try await Package(url: url, processingStage: .reconciliation).save(on: app.db)
-        }
+        try await Package(id: .id0, url: "https://github.com/foo/0", status: .ok, processingStage: .reconciliation)
+            .save(on: app.db)
+        try await Package(id: .id1, url: "https://github.com/foo/1", status: .ok, processingStage: .reconciliation)
+            .save(on: app.db)
         // Return identical metadata for both packages, same as a for instance a redirected
         // package would after a rename / ownership change
         Current.fetchMetadata = { _, _, _ in
@@ -385,7 +386,6 @@ class IngestorTests: AppTestCase {
                 stars: 0,
                 summary: "desc")
         }
-        let lastUpdate = Date()
 
         try await withDependencies {
             $0.date.now = .now
@@ -396,31 +396,48 @@ class IngestorTests: AppTestCase {
 
         // validate repositories (single element pointing to the ingested package)
         let repos = try await Repository.query(on: app.db).all()
-        let ingested = try await Package.query(on: app.db)
-            .filter(\.$processingStage == .ingestion)
-            .first()
-            .unwrap()
-        XCTAssertEqual(repos.map(\.$package.id), [try ingested.requireID()])
+        XCTAssertEqual(repos.count, 1)
 
-        // validate packages
-        let reconciled = try await Package.query(on: app.db)
-            .filter(\.$processingStage == .reconciliation)
+        // validate packages - one should have succeeded, one should have failed
+        let succeeded = try await Package.query(on: app.db)
+            .filter(\.$status == .ok)
             .first()
             .unwrap()
-        // the ingested package has the update ...
-        XCTAssertEqual(ingested.status, .new)
-        XCTAssertEqual(ingested.processingStage, .ingestion)
-        XCTAssert(ingested.updatedAt! > lastUpdate)
-        // ... while the reconciled package remains unchanged ...
-        XCTAssertEqual(reconciled.status, .new)
-        XCTAssertEqual(reconciled.processingStage, .reconciliation)
-        XCTAssert(reconciled.updatedAt! < lastUpdate)
-        // ... and an error has been logged
+        let failed = try await Package.query(on: app.db)
+            .filter(\.$status == .ingestionFailed)
+            .first()
+            .unwrap()
+        XCTAssertEqual(succeeded.processingStage, .ingestion)
+        XCTAssertEqual(failed.processingStage, .ingestion)
+        // an error must have been logged
         try logger.logs.withValue { logs in
             XCTAssertEqual(logs.count, 1)
             let log = try XCTUnwrap(logs.first)
             XCTAssertEqual(log.level, .critical)
-            XCTAssertEqual(log.message, #"Ingestion.Error(\#(try reconciled.requireID()), repositorySaveUniqueViolation(duplicate key value violates unique constraint "idx_repositories_owner_name"))"#)
+            XCTAssertEqual(log.message, #"Ingestion.Error(\#(try failed.requireID()), repositorySaveUniqueViolation(duplicate key value violates unique constraint "idx_repositories_owner_name"))"#)
+        }
+
+        // ensure analysis can process these packages
+        try await withDependencies {
+            $0.date.now = .now
+            $0.environment.allowSocialPosts = { false }
+        } operation: {
+            Current.fileManager.fileExists = { @Sendable _ in true }
+            Current.git.commitCount = { @Sendable _ in 1 }
+            Current.git.firstCommitDate = { @Sendable _ in .t0 }
+            Current.git.lastCommitDate = { @Sendable _ in .t0 }
+            Current.git.getTags = { @Sendable _ in [] }
+            Current.git.hasBranch = { @Sendable _, _ in true }
+            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha0", date: .t0) }
+            Current.git.shortlog = { @Sendable _ in "" }
+            Current.shell.run = { @Sendable cmd, _ in
+                if cmd.description.hasSuffix("package dump-package") {
+                    return .packageDump(name: "foo")
+                }
+                return ""
+            }
+
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
         }
     }
 
@@ -663,5 +680,26 @@ class IngestorTests: AppTestCase {
         // test lookup when parent url is nil
         let fork5 = await getFork(on: app.db, parent: nil)
         XCTAssertEqual(fork5, nil)
+    }
+}
+
+
+private extension String {
+    static func packageDump(name: String) -> Self {
+        #"""
+            {
+              "name": "\#(name)",
+              "products": [
+                {
+                  "name": "p1",
+                  "targets": [],
+                  "type": {
+                    "executable": null
+                  }
+                }
+              ],
+              "targets": []
+            }
+            """#
     }
 }
