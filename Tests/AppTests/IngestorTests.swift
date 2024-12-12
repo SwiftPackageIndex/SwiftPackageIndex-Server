@@ -596,7 +596,7 @@ class IngestorTests: AppTestCase {
                          imagesToCache: [])
         }
         let storeCalls = QueueIsolated(0)
-        Current.storeS3Readme = { owner, repo, html throws(S3ReadmeError) in
+        Current.storeS3Readme = { owner, repo, html throws(S3Readme.Error) in
             storeCalls.increment()
             throw .storeReadmeFailed
         }

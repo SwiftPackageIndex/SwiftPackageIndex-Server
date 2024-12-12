@@ -180,7 +180,7 @@ extension Ingestion {
             }.get()
 
             let s3Readme: S3Readme?
-            do throws(S3ReadmeError) {
+            do throws(S3Readme.Error) {
                 s3Readme = try await storeS3Readme(client: client, repository: repo, metadata: metadata, readme: readme)
             } catch {
                 // We don't want to fail ingestion in case storing the readme fails - warn and continue.
@@ -213,7 +213,7 @@ extension Ingestion {
     }
 
 
-    static func storeS3Readme(client: Client, repository: Repository, metadata: Github.Metadata, readme: Github.Readme?) async throws(S3ReadmeError) -> S3Readme? {
+    static func storeS3Readme(client: Client, repository: Repository, metadata: Github.Metadata, readme: Github.Readme?) async throws(S3Readme.Error) -> S3Readme? {
         if let upstreamEtag = readme?.etag,
            repository.s3Readme?.needsUpdate(upstreamEtag: upstreamEtag) ?? true,
            let owner = metadata.repositoryOwner,

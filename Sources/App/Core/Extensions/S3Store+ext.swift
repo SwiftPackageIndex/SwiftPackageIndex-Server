@@ -16,36 +16,35 @@ import S3Store
 import Vapor
 import Dependencies
 
-#warning("Make this S3Store.Error")
-enum S3ReadmeError: Swift.Error {
-    case envVariableNotSet(String)
-    case invalidURL(String)
-    case missingBody
-    case requestFailed(key: S3Store.Key, error: Swift.Error)
-    case storeReadmeFailed
-    case storeImagesFailed
-}
 
-extension S3Store {
+extension S3Readme {
+    enum Error: Swift.Error {
+        case envVariableNotSet(String)
+        case invalidURL(String)
+        case missingBody
+        case requestFailed(key: S3Store.Key, error: Swift.Error)
+        case storeReadmeFailed
+        case storeImagesFailed
+    }
 
-    static func fetchReadme(client: Client, owner: String, repository: String) async throws(S3ReadmeError) -> String {
-        let key = try Key.readme(owner: owner, repository: repository)
+    static func fetchReadme(client: Client, owner: String, repository: String) async throws(S3Readme.Error) -> String {
+        let key = try S3Store.Key.readme(owner: owner, repository: repository)
         let response: ClientResponse
         do {
             response = try await client.get(URI(string: key.objectUrl))
         } catch {
             throw .requestFailed(key: key, error: error)
         }
-        guard let body = response.body else { throw S3ReadmeError.missingBody }
+        guard let body = response.body else { throw .missingBody }
         return body.asString()
     }
 
-    static func storeReadme(owner: String, repository: String, readme: String) async throws(S3ReadmeError) -> String {
+    static func storeReadme(owner: String, repository: String, readme: String) async throws(S3Readme.Error) -> String {
         @Dependency(\.environment) var environment
         guard let accessKeyId = environment.awsAccessKeyId() else { throw .envVariableNotSet("AWS_ACCESS_KEY_ID") }
         guard let secretAccessKey = environment.awsSecretAccessKey() else { throw .envVariableNotSet("AWS_SECRET_ACCESS_KEY")}
         let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
-        let key = try Key.readme(owner: owner, repository: repository)
+        let key = try S3Store.Key.readme(owner: owner, repository: repository)
 
         Current.logger().debug("Copying readme to \(key.s3Uri) ...")
         do {
@@ -57,7 +56,7 @@ extension S3Store {
         return key.objectUrl
     }
 
-    static func storeReadmeImages(client: Client, imagesToCache: [Github.Readme.ImageToCache]) async throws(S3ReadmeError) {
+    static func storeReadmeImages(client: Client, imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) {
         @Dependency(\.environment) var environment
         guard let accessKeyId = environment.awsAccessKeyId() else { throw .envVariableNotSet("AWS_ACCESS_KEY_ID") }
         guard let secretAccessKey = environment.awsSecretAccessKey() else { throw .envVariableNotSet("AWS_SECRET_ACCESS_KEY")}
@@ -80,7 +79,7 @@ extension S3Store {
 
 
 extension S3Store.Key {
-    static func readme(owner: String, repository: String, imageUrl: String? = nil) throws(S3ReadmeError) -> Self {
+    static func readme(owner: String, repository: String, imageUrl: String? = nil) throws(S3Readme.Error) -> Self {
         @Dependency(\.environment) var environment
         guard let bucket = environment.awsReadmeBucket() else { throw .envVariableNotSet("AWS_README_BUCKET") }
 
