@@ -17,7 +17,7 @@ import PostgresKit
 import Vapor
 
 
-#warning("move")
+#warning("Move")
 extension Analyze {
     /// Update packages (in the `[Result<Joined<Package, Repository>, Error>]` array).
     ///
@@ -79,41 +79,7 @@ extension Analyze {
                 try await recordError(database: database, error: error)
         }
     }
-}
 
-
-extension Ingestion {
-    static func updatePackage(client: Client,
-                              database: Database,
-                              result: Result<Joined<Package, Repository>, Ingestion.Error>,
-                              stage: Package.ProcessingStage) async throws {
-        switch result {
-            case .success(let res):
-                // for newly ingested package leave status == .new in order to fast-track analysis
-                let updatedStatus: Package.Status = res.package.status == .new ? .new : .ok
-                try await res.package.update(on: database, status: updatedStatus, stage: stage)
-            case .failure(let failure):
-                switch failure.underlyingError {
-                    case .fetchMetadataFailed:
-                        Current.logger().warning("\(failure)")
-
-                    case .findOrCreateRepositoryFailed:
-                        Current.logger().critical("\(failure)")
-
-                    case .invalidURL, .noRepositoryMetadata:
-                        Current.logger().warning("\(failure)")
-
-                    case .repositorySaveFailed, .repositorySaveUniqueViolation:
-                        Current.logger().critical("\(failure)")
-                }
-
-                try await Ingestion.recordError(database: database, error: failure)
-        }
-    }
-}
-
-
-extension Analyze {
     static func recordError(database: Database, error: Error) async throws {
         func setStatus(id: Package.Id?, status: Package.Status) async throws {
             guard let id = id else { return }
@@ -146,7 +112,36 @@ extension Analyze {
 }
 
 
+#warning("Move")
 extension Ingestion {
+    static func updatePackage(client: Client,
+                              database: Database,
+                              result: Result<Joined<Package, Repository>, Ingestion.Error>,
+                              stage: Package.ProcessingStage) async throws {
+        switch result {
+            case .success(let res):
+                // for newly ingested package leave status == .new in order to fast-track analysis
+                let updatedStatus: Package.Status = res.package.status == .new ? .new : .ok
+                try await res.package.update(on: database, status: updatedStatus, stage: stage)
+            case .failure(let failure):
+                switch failure.underlyingError {
+                    case .fetchMetadataFailed:
+                        Current.logger().warning("\(failure)")
+
+                    case .findOrCreateRepositoryFailed:
+                        Current.logger().critical("\(failure)")
+
+                    case .invalidURL, .noRepositoryMetadata:
+                        Current.logger().warning("\(failure)")
+
+                    case .repositorySaveFailed, .repositorySaveUniqueViolation:
+                        Current.logger().critical("\(failure)")
+                }
+
+                try await Ingestion.recordError(database: database, error: failure)
+        }
+    }
+
     static func recordError(database: Database, error: Ingestion.Error) async throws {
         switch error.underlyingError {
             case .fetchMetadataFailed, .findOrCreateRepositoryFailed, .noRepositoryMetadata, .repositorySaveFailed:
