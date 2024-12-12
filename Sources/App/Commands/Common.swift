@@ -124,42 +124,40 @@ extension Ingestion {
                 let updatedStatus: Package.Status = res.package.status == .new ? .new : .ok
                 try await res.package.update(on: database, status: updatedStatus, stage: stage)
             case .failure(let failure):
-                switch failure.underlyingError {
-                    case .fetchMetadataFailed:
-                        Current.logger().warning("\(failure)")
-
-                    case .findOrCreateRepositoryFailed:
-                        Current.logger().critical("\(failure)")
-
-                    case .invalidURL, .noRepositoryMetadata:
-                        Current.logger().warning("\(failure)")
-
-                    case .repositorySaveFailed, .repositorySaveUniqueViolation:
-                        Current.logger().critical("\(failure)")
-                }
-
-                try await Ingestion.recordError(database: database, error: failure)
-        }
-    }
-
-    static func recordError(database: Database, error: Ingestion.Error) async throws {
-        switch error.underlyingError {
-            case .fetchMetadataFailed, .findOrCreateRepositoryFailed, .noRepositoryMetadata, .repositorySaveFailed:
-                try await Package
-                    .update(for: error.packageId, on: database, status: .ingestionFailed, stage: .ingestion)
-            case .invalidURL:
-                try await Package
-                    .update(for: error.packageId, on: database, status: .invalidUrl, stage: .ingestion)
-            case .repositorySaveUniqueViolation:
-                try await Package
-                    .update(for: error.packageId, on: database, status: .ingestionFailed, stage: .ingestion)
+                Current.logger().log(level: failure.level, "\(failure)")
+                try await Package.update(for: failure.packageId, on: database, status: failure.status, stage: stage)
         }
     }
 }
 
 
-extension Package {
+#warning("Turn these into error protocol requirements")
+// Doing so should allow us to turn these extensions on Ingestions and Analysis back into Common functions that just used the typed errors to do the specific things.
+extension Ingestion.Error {
+    var level: Logger.Level {
+        switch underlyingError {
+            case .fetchMetadataFailed, .invalidURL, .noRepositoryMetadata:
+                return .warning
+            case .findOrCreateRepositoryFailed, .repositorySaveFailed, .repositorySaveUniqueViolation:
+                return .critical
+        }
+    }
+
+    var status: Package.Status {
+        switch underlyingError {
+            case .fetchMetadataFailed, .findOrCreateRepositoryFailed, .noRepositoryMetadata, .repositorySaveFailed:
+                return .ingestionFailed
+            case .invalidURL:
+                return .invalidUrl
+            case .repositorySaveUniqueViolation:
+                return .ingestionFailed
+        }
+    }
+}
+
+
 #warning("Move")
+extension Package {
     static func update(for id: Package.Id,
                        on database: Database,
                        status: Status,
