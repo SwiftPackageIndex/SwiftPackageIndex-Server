@@ -90,9 +90,8 @@ class IngestorTests: AppTestCase {
                 .first()
                 .unwrap()
             XCTAssertEqual(repo.licenseUrl, "license")
-            for _ in try await Package.query(on: app.db).all() {
-#warning("Re-enable this check")
-                //                XCTAssertEqual(pkg.processingStage, .ingestion, "\(pkg.url) must be in ingestion")
+            for pkg in try await Package.query(on: app.db).all() {
+                XCTAssertEqual(pkg.processingStage, .ingestion, "\(pkg.url) must be in ingestion")
             }
         }
     }
