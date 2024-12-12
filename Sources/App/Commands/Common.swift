@@ -17,6 +17,13 @@ import PostgresKit
 import Vapor
 
 
+// TODO: Adopt ProcessingError also in Analysis and then factor out generic parts back into Common
+protocol ProcessingError: Swift.Error, CustomStringConvertible {
+    var level: Logger.Level { get }
+    var status: Package.Status { get }
+}
+
+
 #warning("Move")
 extension Analyze {
     /// Update packages (in the `[Result<Joined<Package, Repository>, Error>]` array).
@@ -127,51 +134,5 @@ extension Ingestion {
                 Current.logger().log(level: failure.level, "\(failure)")
                 try await Package.update(for: failure.packageId, on: database, status: failure.status, stage: stage)
         }
-    }
-}
-
-
-#warning("Turn these into error protocol requirements")
-// Doing so should allow us to turn these extensions on Ingestions and Analysis back into Common functions that just used the typed errors to do the specific things.
-extension Ingestion.Error {
-    var level: Logger.Level {
-        switch underlyingError {
-            case .fetchMetadataFailed, .invalidURL, .noRepositoryMetadata:
-                return .warning
-            case .findOrCreateRepositoryFailed, .repositorySaveFailed, .repositorySaveUniqueViolation:
-                return .critical
-        }
-    }
-
-    var status: Package.Status {
-        switch underlyingError {
-            case .fetchMetadataFailed, .findOrCreateRepositoryFailed, .noRepositoryMetadata, .repositorySaveFailed:
-                return .ingestionFailed
-            case .invalidURL:
-                return .invalidUrl
-            case .repositorySaveUniqueViolation:
-                return .ingestionFailed
-        }
-    }
-}
-
-
-#warning("Move")
-extension Package {
-    static func update(for id: Package.Id,
-                       on database: Database,
-                       status: Status,
-                       stage: ProcessingStage) async throws {
-        try await Package.query(on: database)
-            .filter(\.$id == id)
-            .set(\.$processingStage, to: stage)
-            .set(\.$status, to: status)
-            .update()
-    }
-
-    func update(on database: Database, status: Status, stage: ProcessingStage) async throws {
-        self.status = status
-        self.processingStage = stage
-        try await update(on: database)
     }
 }

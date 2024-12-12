@@ -18,7 +18,7 @@ import Vapor
 
 
 enum Ingestion {
-    struct Error: Swift.Error, CustomStringConvertible {
+    struct Error: ProcessingError {
         var packageId: Package.Id
         var underlyingError: UnderlyingError
 
@@ -49,6 +49,26 @@ enum Ingestion {
                     case let .repositorySaveUniqueViolation(_, _, details):
                         "repositorySaveUniqueViolation(\(details))"
                 }
+            }
+        }
+
+        var level: Logger.Level {
+            switch underlyingError {
+                case .fetchMetadataFailed, .invalidURL, .noRepositoryMetadata:
+                    return .warning
+                case .findOrCreateRepositoryFailed, .repositorySaveFailed, .repositorySaveUniqueViolation:
+                    return .critical
+            }
+        }
+
+        var status: Package.Status {
+            switch underlyingError {
+                case .fetchMetadataFailed, .findOrCreateRepositoryFailed, .noRepositoryMetadata, .repositorySaveFailed:
+                    return .ingestionFailed
+                case .invalidURL:
+                    return .invalidUrl
+                case .repositorySaveUniqueViolation:
+                    return .ingestionFailed
             }
         }
     }
