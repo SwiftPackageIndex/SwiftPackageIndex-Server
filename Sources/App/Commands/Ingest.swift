@@ -170,14 +170,7 @@ extension Ingestion {
         let result = await Result { () async throws(Ingestion.Error) -> Joined<Package, Repository> in
             Current.logger().info("Ingesting \(package.package.url)")
             let (metadata, license, readme) = try await fetchMetadata(client: client, package: package)
-            let repo = try await Result {
-                try await Repository.findOrCreate(on: database, for: package.model)
-            }.mapError {
-                Ingestion.Error(
-                    packageId: package.model.id!,
-                    underlyingError: .findOrCreateRepositoryFailed(url: package.package.url, details: $0)
-                )
-            }.get()
+            let repo = try await findOrCreateRepository(on: database, for: package)
 
             let s3Readme: S3Readme?
             do throws(S3Readme.Error) {
@@ -190,11 +183,11 @@ extension Ingestion {
 
             let fork = await getFork(on: database, parent: metadata.repository?.parent)
 
-            try await Result { () async throws(Ingestion.Error.UnderlyingError) in
+            try await run { () async throws(Ingestion.Error.UnderlyingError) in
                 try await updateRepository(on: database, for: repo, metadata: metadata, licenseInfo: license, readmeInfo: readme, s3Readme: s3Readme, fork: fork)
-            }.mapError {
-                Error.init(packageId: package.model.id!, underlyingError: $0)
-            }.get()
+            } throwing: {
+                Ingestion.Error(packageId: package.model.id!, underlyingError: $0)
+            }
             return package
         }
 
@@ -209,6 +202,18 @@ extension Ingestion {
             try await updatePackage(client: client, database: database, result: result, stage: .ingestion)
         } catch {
             Current.logger().report(error: error)
+        }
+    }
+
+
+    static func findOrCreateRepository(on database: Database, for package: Joined<Package, Repository>) async throws(Ingestion.Error) -> Repository {
+        try await run {
+            try await Repository.findOrCreate(on: database, for: package.model)
+        } throwing: {
+            Ingestion.Error(
+                packageId: package.model.id!,
+                underlyingError: .findOrCreateRepositoryFailed(url: package.model.url, details: $0)
+            )
         }
     }
 
@@ -234,12 +239,11 @@ func fetchMetadata(client: Client, package: Joined<Package, Repository>) async t
     // Even though we get through a `Joined<Package, Repository>` as a parameter, it's
     // we must not rely on `repository` as it will be nil when a package is first ingested.
     // The only way to get `owner` and `repository` here is by parsing them from the URL.
-    let (owner, repository) = try Result {
+    let (owner, repository) = try await run {
         try Github.parseOwnerName(url: package.model.url)
-    }.mapError { _ in
-        Ingestion.Error(packageId: package.model.id!,
-                        underlyingError: .invalidURL(package.model.url))
-    }.get()
+    } throwing: { _ in
+        Ingestion.Error.invalidURL(packageId: package.model.id!, url: package.model.url)
+    }
 
     async let license = await Current.fetchLicense(client, owner, repository)
     async let readme = await Current.fetchReadme(client, owner, repository)
@@ -350,5 +354,11 @@ private extension Github.Metadata.Parent {
             return nil
         }
         return normalizedURL
+    }
+}
+
+private extension Ingestion.Error {
+    static func invalidURL(packageId: Package.Id, url: String) -> Self {
+        Ingestion.Error(packageId: packageId, underlyingError: .invalidURL(url))
     }
 }

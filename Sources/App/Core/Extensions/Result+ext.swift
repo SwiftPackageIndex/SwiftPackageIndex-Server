@@ -27,4 +27,15 @@ extension Result where Failure == Error {
 }
 
 
-#warning("Add an extension `Result.mapError`")
+// Not really a part of the Result type but closely enough related to put here
+// Perhaps put this in AsyncDefer.swift and rename the file?
+@discardableResult
+func run<T, E1: Error, E2: Error>(_ operation: () async throws(E1) -> T,
+                                  throwing transform: (E1) -> E2) async throws(E2) -> T {
+    do {
+        let result = try await operation()
+        return result
+    } catch {
+        throw transform(error)
+    }
+}
