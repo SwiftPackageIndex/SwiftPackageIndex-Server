@@ -18,13 +18,16 @@ import Vapor
 
 
 // TODO: Adopt ProcessingError also in Analysis and then factor out generic parts back into Common
-protocol ProcessingError: Swift.Error, CustomStringConvertible {
+protocol ProcessingError: Error, CustomStringConvertible {
+    associatedtype UnderlyingError: Error & CustomStringConvertible
+    var packageId: Package.Id { get }
+    var underlyingError: UnderlyingError { get }
     var level: Logger.Level { get }
     var status: Package.Status { get }
 }
 
 
-#warning("Move")
+// TODO: Leaving this extension here for now in order to group the updating/error reporting in one place for both Ingestion and Analysis. Eventually these should either go to their respective files or move common parts into a Common namespace.
 extension Analyze {
     /// Update packages (in the `[Result<Joined<Package, Repository>, Error>]` array).
     ///
@@ -119,7 +122,7 @@ extension Analyze {
 }
 
 
-#warning("Move")
+// TODO: Leaving this extension here for now in order to group the updating/error reporting in one place for both Ingestion and Analysis. Eventually these should either go to their respective files or move common parts into a Common namespace.
 extension Ingestion {
     static func updatePackage(client: Client,
                               database: Database,
