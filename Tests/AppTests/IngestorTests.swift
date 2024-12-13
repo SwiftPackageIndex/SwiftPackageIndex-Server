@@ -623,11 +623,8 @@ class IngestorTests: AppTestCase {
     func test_issue_761_no_license() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup
-        let pkg = try await {
-            let p = Package(url: "https://github.com/foo/1")
-            try await p.save(on: app.db)
-            return Joined<Package, Repository>(model: p)
-        }()
+        let pkg = Package(url: "https://github.com/foo/1")
+        try await pkg.save(on: app.db)
         // use mock for metadata request which we're not interested in ...
         Current.fetchMetadata = { _, _, _ in Github.Metadata() }
         // and live fetch request for fetchLicense, whose behaviour we want to test ...
@@ -637,7 +634,7 @@ class IngestorTests: AppTestCase {
         let client = MockClient { _, resp in resp.status = .notFound }
 
         // MUT
-        let (_, license, _) = try await fetchMetadata(client: client, package: pkg)
+        let (_, license, _) = try await Ingestion.fetchMetadata(client: client, package: pkg, owner: "foo", repository: "1")
 
         // validate
         XCTAssertEqual(license, nil)

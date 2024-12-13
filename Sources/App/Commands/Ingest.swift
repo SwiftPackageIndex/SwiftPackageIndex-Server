@@ -169,7 +169,22 @@ extension Ingestion {
     static func ingest(client: Client, database: Database, package: Joined<Package, Repository>) async {
         let result = await Result { () async throws(Ingestion.Error) -> Joined<Package, Repository> in
             Current.logger().info("Ingesting \(package.package.url)")
-            let (metadata, license, readme) = try await fetchMetadata(client: client, package: package)
+
+            // Even though we have a `Joined<Package, Repository>` as a parameter, we must not rely
+            // on `repository` for owner/name as it will be nil when a package is first ingested.
+            // The only way to get `owner` and `repository` here is by parsing them from the URL.
+            let (owner, repository) = try await run {
+                try Github.parseOwnerName(url: package.model.url)
+            } rethrowing: { _ in
+                Ingestion.Error.invalidURL(packageId: package.model.id!, url: package.model.url)
+            }
+
+            let (metadata, license, readme) = try await run {
+                try await fetchMetadata(client: client, package: package.model, owner: owner, repository: repository)
+            } rethrowing: {
+                Ingestion.Error(packageId: package.model.id!,
+                                underlyingError: .fetchMetadataFailed(owner: owner, name: repository, details: "\($0)"))
+            }
             let repo = try await findOrCreateRepository(on: database, for: package)
 
             let s3Readme: S3Readme?
@@ -233,32 +248,15 @@ extension Ingestion {
             return repository.s3Readme
         }
     }
-}
 
-func fetchMetadata(client: Client, package: Joined<Package, Repository>) async throws(Ingestion.Error) -> (Github.Metadata, Github.License?, Github.Readme?) {
-    // Even though we get through a `Joined<Package, Repository>` as a parameter, it's
-    // we must not rely on `repository` as it will be nil when a package is first ingested.
-    // The only way to get `owner` and `repository` here is by parsing them from the URL.
-    let (owner, repository) = try await run {
-        try Github.parseOwnerName(url: package.model.url)
-    } rethrowing: { _ in
-        Ingestion.Error.invalidURL(packageId: package.model.id!, url: package.model.url)
+
+    static func fetchMetadata(client: Client, package: Package, owner: String, repository: String) async throws -> (Github.Metadata, Github.License?, Github.Readme?) {
+        async let metadata = try await Current.fetchMetadata(client, owner, repository)
+        async let license = await Current.fetchLicense(client, owner, repository)
+        async let readme = await Current.fetchReadme(client, owner, repository)
+
+        return try await (metadata, license, readme)
     }
-
-    // sas 2024-12-13: This should be an `async let` as well but it doesn't compile right now with the
-    // typed throw. Reported as
-    // https://github.com/swiftlang/swift/issues/76169
-    //  async let metadata = try await Current.fetchMetadata(client, owner, repository)
-    let metadata = try await run {
-        try await Current.fetchMetadata(client, owner, repository)
-    } rethrowing: {
-        Ingestion.Error(packageId: package.model.id!,
-                        underlyingError: .fetchMetadataFailed(owner: owner, name: repository, details: "\($0)"))
-    }
-    async let license = await Current.fetchLicense(client, owner, repository)
-    async let readme = await Current.fetchReadme(client, owner, repository)
-
-    return (metadata, await license, await readme)
 }
 
 
