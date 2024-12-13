@@ -424,7 +424,7 @@ class IngestorTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { false }
-        } operation: {
+        } operation: { [db = app.db] in
             Current.fileManager.fileExists = { @Sendable _ in true }
             Current.git.commitCount = { @Sendable _ in 1 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
@@ -440,7 +440,10 @@ class IngestorTests: AppTestCase {
                 return ""
             }
 
-            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+            try await Analyze.analyze(client: app.client, database: db, mode: .id(.id0))
+            try await Analyze.analyze(client: app.client, database: db, mode: .id(.id1))
+            try await XCTAssertEqualAsync(try await Package.find(.id0, on: db)?.processingStage, .analysis)
+            try await XCTAssertEqualAsync(try await Package.find(.id1, on: db)?.processingStage, .analysis)
         }
     }
 
