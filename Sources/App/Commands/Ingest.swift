@@ -158,7 +158,7 @@ func ingest(client: Client,
     await withTaskGroup(of: Void.self) { group in
         for pkg in packages {
             group.addTask  {
-                await Ingestion.ingestNew(client: client, database: database, package: pkg)
+                await Ingestion.ingest(client: client, database: database, package: pkg)
             }
         }
     }
@@ -166,7 +166,7 @@ func ingest(client: Client,
 
 
 extension Ingestion {
-    static func ingestNew(client: Client, database: Database, package: Joined<Package, Repository>) async {
+    static func ingest(client: Client, database: Database, package: Joined<Package, Repository>) async {
         let result = await Result { () async throws(Ingestion.Error) -> Joined<Package, Repository> in
             Current.logger().info("Ingesting \(package.package.url)")
             let (metadata, license, readme) = try await fetchMetadata(client: client, package: package)
