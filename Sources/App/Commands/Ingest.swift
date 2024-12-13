@@ -185,7 +185,7 @@ extension Ingestion {
 
             try await run { () async throws(Ingestion.Error.UnderlyingError) in
                 try await updateRepository(on: database, for: repo, metadata: metadata, licenseInfo: license, readmeInfo: readme, s3Readme: s3Readme, fork: fork)
-            } throwing: {
+            } rethrowing: {
                 Ingestion.Error(packageId: package.model.id!, underlyingError: $0)
             }
             return package
@@ -209,7 +209,7 @@ extension Ingestion {
     static func findOrCreateRepository(on database: Database, for package: Joined<Package, Repository>) async throws(Ingestion.Error) -> Repository {
         try await run {
             try await Repository.findOrCreate(on: database, for: package.model)
-        } throwing: {
+        } rethrowing: {
             Ingestion.Error(
                 packageId: package.model.id!,
                 underlyingError: .findOrCreateRepositoryFailed(url: package.model.url, details: $0)
@@ -241,7 +241,7 @@ func fetchMetadata(client: Client, package: Joined<Package, Repository>) async t
     // The only way to get `owner` and `repository` here is by parsing them from the URL.
     let (owner, repository) = try await run {
         try Github.parseOwnerName(url: package.model.url)
-    } throwing: { _ in
+    } rethrowing: { _ in
         Ingestion.Error.invalidURL(packageId: package.model.id!, url: package.model.url)
     }
 
