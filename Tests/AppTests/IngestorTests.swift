@@ -362,9 +362,8 @@ class IngestorTests: AppTestCase {
         }
     }
 
-    func _test_ingest_unique_owner_name_violation() async throws {
+    func test_ingest_unique_owner_name_violation() async throws {
         // Test error behaviour when two packages resolving to the same owner/name are ingested:
-        //   - don't update package
         //   - don't create repository records
         // setup
         try await Package(id: .id0, url: "https://github.com/foo/0", status: .ok, processingStage: .reconciliation)
