@@ -245,19 +245,20 @@ func fetchMetadata(client: Client, package: Joined<Package, Repository>) async t
         Ingestion.Error.invalidURL(packageId: package.model.id!, url: package.model.url)
     }
 
+    // sas 2024-12-13: This should be an `async let` as well but it doesn't compile right now with the
+    // typed throw. Reported as
+    // https://github.com/swiftlang/swift/issues/76169
+    //  async let metadata = try await Current.fetchMetadata(client, owner, repository)
+    let metadata = try await run {
+        try await Current.fetchMetadata(client, owner, repository)
+    } rethrowing: {
+        Ingestion.Error(packageId: package.model.id!,
+                        underlyingError: .fetchMetadataFailed(owner: owner, name: repository, details: "\($0)"))
+    }
     async let license = await Current.fetchLicense(client, owner, repository)
     async let readme = await Current.fetchReadme(client, owner, repository)
 
-    // First one should be an `async let` as well but it doesn't compile right now. Reported as
-    // https://github.com/swiftlang/swift/issues/76169
-    return (try await Result { try await Current.fetchMetadata(client, owner, repository) }
-        .mapError {
-            Ingestion.Error(packageId: package.model.id!,
-                            underlyingError: .fetchMetadataFailed(owner: owner, name: repository, details: "\($0)"))
-        }
-        .get(),
-            await license,
-            await readme)
+    return (metadata, await license, await readme)
 }
 
 
