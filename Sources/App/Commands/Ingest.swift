@@ -37,18 +37,18 @@ enum Ingestion {
 
             var description: String {
                 switch self {
-                    case let .fetchMetadataFailed(_, _, details):
-                        "fetchMetadataFailed(\(details))"
-                    case .findOrCreateRepositoryFailed:
-                        "findOrCreateRepositoryFailed"
+                    case let .fetchMetadataFailed(owner, name, details):
+                        "fetchMetadataFailed(\(owner), \(name), \(details))"
+                    case let .findOrCreateRepositoryFailed(url, details):
+                        "findOrCreateRepositoryFailed(\(url), \(details))"
                     case let .invalidURL(url):
                         "invalidURL(\(url))"
-                    case .noRepositoryMetadata:
-                        "noRepositoryMetadata"
-                    case let .repositorySaveFailed(_, _, details):
-                        "repositorySaveFailed(\(String(reflecting: details)))"
-                    case let .repositorySaveUniqueViolation(_, _, details):
-                        "repositorySaveUniqueViolation(\(details))"
+                    case let .noRepositoryMetadata(owner, name):
+                        "noRepositoryMetadata(\(owner), \(name))"
+                    case let .repositorySaveFailed(owner, name, details):
+                        "repositorySaveFailed(\(owner), \(name), \(details))"
+                    case let .repositorySaveUniqueViolation(owner, name, details):
+                        "repositorySaveUniqueViolation(\(owner), \(name), \(details))"
                 }
             }
         }
