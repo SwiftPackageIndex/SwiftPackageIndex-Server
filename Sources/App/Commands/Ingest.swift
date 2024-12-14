@@ -250,12 +250,25 @@ extension Ingestion {
     }
 
 
-    static func fetchMetadata(client: Client, package: Package, owner: String, repository: String) async throws -> (Github.Metadata, Github.License?, Github.Readme?) {
+    static func fetchMetadata(client: Client, package: Package, owner: String, repository: String) async throws(Github.Error) -> (Github.Metadata, Github.License?, Github.Readme?) {
         async let metadata = try await Current.fetchMetadata(client, owner, repository)
         async let license = await Current.fetchLicense(client, owner, repository)
         async let readme = await Current.fetchReadme(client, owner, repository)
 
-        return try await (metadata, license, readme)
+        do {
+            return try await (metadata, license, readme)
+        } catch let error as Github.Error {
+            throw error
+        } catch {
+            // This whole do { ... } catch { ... } should be unnecessary - it's a workaround for
+            // https://github.com/swiftlang/swift/issues/76169
+            assert(false, "Unexpected error type: \(type(of: error))")
+            // We need to throw _something_ here (we should never hit this codepath though)
+            throw Github.Error.requestFailed(.internalServerError)
+            // We could theoretically avoid this whole second catch and just do
+            //   error as! GithubError
+            // but let's play it safe and not risk a server crash, unlikely as it may be.
+        }
     }
 }
 

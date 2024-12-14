@@ -65,16 +65,12 @@ class IngestorTests: AppTestCase {
     func test_ingest_continue_on_error() async throws {
         // Test completion of ingestion despite early error
         // setup
-        enum TestError: Error, Equatable {
-            case badRequest
-        }
-
         let packages = try await savePackages(on: app.db, ["https://github.com/foo/1",
                                                            "https://github.com/foo/2"], processingStage: .reconciliation)
             .map(Joined<Package, Repository>.init(model:))
-        Current.fetchMetadata = { _, owner, repository in
+        Current.fetchMetadata = { _, owner, repository throws(Github.Error) in
             if owner == "foo" && repository == "1" {
-                throw TestError.badRequest
+                throw Github.Error.requestFailed(.badRequest)
             }
             return .mock(owner: owner, repository: repository)
         }
@@ -328,11 +324,10 @@ class IngestorTests: AppTestCase {
         let urls = ["https://github.com/foo/1",
                     "https://github.com/foo/2",
                     "https://github.com/foo/3"]
-        let packages = try await savePackages(on: app.db, urls.asURLs,
-                                              processingStage: .reconciliation)
-        Current.fetchMetadata = { _, owner, repository in
+        try await savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
+        Current.fetchMetadata = { _, owner, repository throws(Github.Error) in
             if owner == "foo" && repository == "2" {
-                throw AppError.genericError(packages[1].id, "error 2")
+                throw Github.Error.requestFailed(.badRequest)
             }
             return .mock(owner: owner, repository: repository)
         }
