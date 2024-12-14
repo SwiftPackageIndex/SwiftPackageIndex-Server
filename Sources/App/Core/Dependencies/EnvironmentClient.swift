@@ -44,6 +44,16 @@ struct EnvironmentClient {
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
     var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
+
+    enum FailureMode: String {
+        case fetchMetadataFailed
+        case findOrCreateRepositoryFailed
+        case invalidURL
+        case noRepositoryMetadata
+        case repositorySaveFailed
+        case repositorySaveUniqueViolation
+    }
+    var shouldFail: @Sendable (_ failureMode: FailureMode) -> Bool = { _ in false }
 }
 
 
@@ -100,7 +110,14 @@ extension EnvironmentClient: DependencyKey {
                     .map(Mastodon.Credentials.init(accessToken:))
             },
             mastodonPost: { client, message in try await Mastodon.post(client: client, message: message) },
-            random: { range in Double.random(in: range) }
+            random: { range in Double.random(in: range) },
+            shouldFail: { failureMode in
+                let shouldFail = Environment.get("FAILURE_MODE")
+                    .map { Data($0.utf8) }
+                    .flatMap { try? JSONDecoder().decode([String: Double].self, from: $0) } ?? [:]
+                guard let rate = shouldFail[failureMode.rawValue] else { return false }
+                return Double.random(in: 0...1) <= rate
+            }
         )
     }
 }

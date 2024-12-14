@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
 import PostgresKit
 import Vapor
@@ -168,13 +169,17 @@ func ingest(client: Client,
 extension Ingestion {
     static func ingest(client: Client, database: Database, package: Joined<Package, Repository>) async {
         let result = await Result { () async throws(Ingestion.Error) -> Joined<Package, Repository> in
+            @Dependency(\.environment) var environment
             Current.logger().info("Ingesting \(package.package.url)")
 
             // Even though we have a `Joined<Package, Repository>` as a parameter, we must not rely
             // on `repository` for owner/name as it will be nil when a package is first ingested.
             // The only way to get `owner` and `repository` here is by parsing them from the URL.
             let (owner, repository) = try await run {
-                try Github.parseOwnerName(url: package.model.url)
+                if environment.shouldFail(failureMode: .invalidURL) {
+                    throw Github.Error.invalidURL(package.model.url)
+                }
+                return try Github.parseOwnerName(url: package.model.url)
             } rethrowing: { _ in
                 Ingestion.Error.invalidURL(packageId: package.model.id!, url: package.model.url)
             }
@@ -223,7 +228,12 @@ extension Ingestion {
 
     static func findOrCreateRepository(on database: Database, for package: Joined<Package, Repository>) async throws(Ingestion.Error) -> Repository {
         try await run {
-            try await Repository.findOrCreate(on: database, for: package.model)
+            @Dependency(\.environment) var environment
+            if environment.shouldFail(failureMode: .findOrCreateRepositoryFailed) {
+                throw Abort(.internalServerError)
+            }
+
+            return try await Repository.findOrCreate(on: database, for: package.model)
         } rethrowing: {
             Ingestion.Error(
                 packageId: package.model.id!,
@@ -251,6 +261,11 @@ extension Ingestion {
 
 
     static func fetchMetadata(client: Client, package: Package, owner: String, repository: String) async throws(Github.Error) -> (Github.Metadata, Github.License?, Github.Readme?) {
+        @Dependency(\.environment) var environment
+        if environment.shouldFail(failureMode: .fetchMetadataFailed) {
+            throw Github.Error.requestFailed(.internalServerError)
+        }
+
         async let metadata = try await Current.fetchMetadata(client, owner, repository)
         async let license = await Current.fetchLicense(client, owner, repository)
         async let readme = await Current.fetchReadme(client, owner, repository)
@@ -286,6 +301,20 @@ func updateRepository(on database: Database,
                       readmeInfo: Github.Readme?,
                       s3Readme: S3Readme?,
                       fork: Fork? = nil) async throws(Ingestion.Error.UnderlyingError) {
+    @Dependency(\.environment) var environment
+    if environment.shouldFail(failureMode: .noRepositoryMetadata) {
+        throw .noRepositoryMetadata(owner: repository.owner, name: repository.name)
+    }
+    if environment.shouldFail(failureMode: .repositorySaveFailed) {
+        throw .repositorySaveFailed(owner: repository.owner,
+                                    name: repository.name,
+                                    details: "TestError")
+    }
+    if environment.shouldFail(failureMode: .repositorySaveUniqueViolation) {
+        throw .repositorySaveUniqueViolation(owner: repository.owner,
+                                             name: repository.name,
+                                             details: "TestError")
+    }
     guard let repoMetadata = metadata.repository else {
         throw .noRepositoryMetadata(owner: repository.owner, name: repository.name)
     }
