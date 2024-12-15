@@ -412,7 +412,7 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(logs.count, 1)
             let log = try XCTUnwrap(logs.first)
             XCTAssertEqual(log.level, .critical)
-            XCTAssertEqual(log.message, #"Ingestion.Error(\#(try failed.requireID()), repositorySaveUniqueViolation(duplicate key value violates unique constraint "idx_repositories_owner_name"))"#)
+            XCTAssertEqual(log.message, #"Ingestion.Error(\#(try failed.requireID()), repositorySaveUniqueViolation(owner, name, duplicate key value violates unique constraint "idx_repositories_owner_name"))"#)
         }
 
         // ensure analysis can process these packages
