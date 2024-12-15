@@ -81,7 +81,7 @@ struct IngestCommand: AsyncCommand {
 
     var help: String { "Run package ingestion (fetching repository metadata)" }
 
-    func run(using context: CommandContext, signature: SPICommand.Signature) async throws {
+    func run(using context: CommandContext, signature: SPICommand.Signature) async {
         let client = context.application.client
         let db = context.application.db
         Current.setLogger(Logger(component: "ingest"))
