@@ -201,8 +201,8 @@ class PipelineTests: AppTestCase {
             }
             
             // MUT - second stage
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
-            
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
+
             do { // validate
                 let packages = try await Package.query(on: app.db).sort(\.$url).all()
                 XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
@@ -240,7 +240,7 @@ class PipelineTests: AppTestCase {
                 }
 
                 // MUT - ingest again
-                try await ingest(client: app.client, database: app.db, mode: .limit(10))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
 
                 do {  // validate - only new package moves to .ingestion stage
                     let packages = try await Package.query(on: app.db).sort(\.$url).all()
@@ -270,7 +270,7 @@ class PipelineTests: AppTestCase {
                     $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
                 } operation: {
                     // MUT - ingest yet again
-                    try await ingest(client: app.client, database: app.db, mode: .limit(10))
+                    try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
 
                     do {  // validate - now all three packages should have been updated
                         let packages = try await Package.query(on: app.db).sort(\.$url).all()

@@ -354,7 +354,7 @@ public func configure(_ app: Application) async throws -> String {
     app.asyncCommands.use(Analyze.Command(), as: "analyze")
     app.asyncCommands.use(CreateRestfileCommand(), as: "create-restfile")
     app.asyncCommands.use(DeleteBuildsCommand(), as: "delete-builds")
-    app.asyncCommands.use(IngestCommand(), as: "ingest")
+    app.asyncCommands.use(Ingestion.Command(), as: "ingest")
     app.asyncCommands.use(ReconcileCommand(), as: "reconcile")
     app.asyncCommands.use(TriggerBuildsCommand(), as: "trigger-builds")
     app.asyncCommands.use(ReAnalyzeVersions.Command(), as: "re-analyze-versions")

@@ -22,7 +22,7 @@ import S3Store
 import Vapor
 
 
-class IngestorTests: AppTestCase {
+class IngestionTests: AppTestCase {
 
     func test_ingest_basic() async throws {
         // setup
@@ -38,7 +38,7 @@ class IngestorTests: AppTestCase {
             $0.date.now = .now
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
         }
 
         // validate
@@ -77,7 +77,7 @@ class IngestorTests: AppTestCase {
         Current.fetchLicense = { _, _, _ in Github.License(htmlUrl: "license") }
 
         // MUT
-        await ingest(client: app.client, database: app.db, packages: packages)
+        await Ingestion.ingest(client: app.client, database: app.db, packages: packages)
 
         do {
             // validate the second package's license is updated
@@ -310,7 +310,7 @@ class IngestorTests: AppTestCase {
             $0.date.now = .now
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
         }
 
         // validate
@@ -337,7 +337,7 @@ class IngestorTests: AppTestCase {
             $0.date.now = .now
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
         }
 
         // validate
@@ -389,7 +389,7 @@ class IngestorTests: AppTestCase {
             $0.date.now = .now
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
         }
 
         // validate repositories (single element pointing to the ingested package)
@@ -490,7 +490,7 @@ class IngestorTests: AppTestCase {
 
             do { // first ingestion, no readme has been saved
                  // MUT
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
 
                 // validate
                 try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
@@ -506,7 +506,7 @@ class IngestorTests: AppTestCase {
                 try await pkg.save(on: app.db)
 
                 // MUT
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
 
                 // validate
                 try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
@@ -522,7 +522,7 @@ class IngestorTests: AppTestCase {
                 try await pkg.save(on: app.db)
 
                 // MUT
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
 
                 // validate
                 try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
@@ -573,7 +573,7 @@ class IngestorTests: AppTestCase {
             $0.date.now = .now
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(1))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
         }
 
         // There should only be one call as `storeS3ReadmeImages` takes the array of images.
@@ -604,7 +604,7 @@ class IngestorTests: AppTestCase {
             } operation: {
                 // MUT
                 let app = self.app!
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
             }
 
             // validate

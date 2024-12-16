@@ -66,7 +66,7 @@ final class MastodonTests: AppTestCase {
             } operation: {
                 // run first two processing steps
                 try await reconcile(client: app.client, database: app.db)
-                try await ingest(client: app.client, database: app.db, mode: .limit(10))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
 
                 // MUT - analyze, triggering the post
                 try await Analyze.analyze(client: app.client,
@@ -86,7 +86,7 @@ final class MastodonTests: AppTestCase {
             try await withDependencies {
                 $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
             } operation: {
-                try await ingest(client: app.client, database: app.db, mode: .limit(10))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
 
                 // MUT - analyze, triggering posts if any
                 try await Analyze.analyze(client: app.client,
@@ -104,7 +104,7 @@ final class MastodonTests: AppTestCase {
                 // fast forward our clock by the deadtime interval again (*2) and re-ingest
                 $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime * 2)
             } operation: {
-                try await ingest(client: app.client, database: app.db, mode: .limit(10))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
                 // MUT - analyze again
                 try await Analyze.analyze(client: app.client,
                                           database: app.db,

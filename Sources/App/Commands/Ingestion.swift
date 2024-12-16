@@ -19,6 +19,7 @@ import Vapor
 
 
 enum Ingestion {
+
     struct Error: ProcessingError {
         var packageId: Package.Id
         var underlyingError: UnderlyingError
@@ -73,100 +74,95 @@ enum Ingestion {
             }
         }
     }
-}
 
 
-struct IngestCommand: AsyncCommand {
-    typealias Signature = SPICommand.Signature
+    struct Command: AsyncCommand {
+        typealias Signature = SPICommand.Signature
 
-    var help: String { "Run package ingestion (fetching repository metadata)" }
+        var help: String { "Run package ingestion (fetching repository metadata)" }
 
-    func run(using context: CommandContext, signature: SPICommand.Signature) async {
-        let client = context.application.client
-        let db = context.application.db
-        Current.setLogger(Logger(component: "ingest"))
+        func run(using context: CommandContext, signature: SPICommand.Signature) async {
+            let client = context.application.client
+            let db = context.application.db
+            Current.setLogger(Logger(component: "ingest"))
 
-        Self.resetMetrics()
+            Self.resetMetrics()
 
-        do {
-            try await ingest(client: client, database: db, mode: .init(signature: signature))
-        } catch {
-            Current.logger().error("\(error.localizedDescription)")
+            do {
+                try await ingest(client: client, database: db, mode: .init(signature: signature))
+            } catch {
+                Current.logger().error("\(error.localizedDescription)")
+            }
+
+            do {
+                try await AppMetrics.push(client: client,
+                                          jobName: "ingest")
+            } catch {
+                Current.logger().warning("\(error.localizedDescription)")
+            }
         }
 
-        do {
-            try await AppMetrics.push(client: client,
-                                      jobName: "ingest")
-        } catch {
-            Current.logger().warning("\(error.localizedDescription)")
+        static func resetMetrics() {
+            AppMetrics.ingestMetadataSuccessCount?.set(0)
+            AppMetrics.ingestMetadataFailureCount?.set(0)
         }
     }
-}
 
 
-extension IngestCommand {
-    static func resetMetrics() {
-        AppMetrics.ingestMetadataSuccessCount?.set(0)
-        AppMetrics.ingestMetadataFailureCount?.set(0)
+    /// Ingest via a given mode: either one `Package` identified by its `Id` or a limited number of `Package`s.
+    /// - Parameters:
+    ///   - client: `Client` object
+    ///   - database: `Database` object
+    ///   - mode: process a single `Package.Id` or a `limit` number of packages
+    /// - Returns: future
+    static func ingest(client: Client,
+                database: Database,
+                mode: SPICommand.Mode) async throws {
+        let start = DispatchTime.now().uptimeNanoseconds
+        defer { AppMetrics.ingestDurationSeconds?.time(since: start) }
+
+        switch mode {
+            case .id(let id):
+                Current.logger().info("Ingesting (id: \(id)) ...")
+                let pkg = try await Package.fetchCandidate(database, id: id)
+                await ingest(client: client, database: database, packages: [pkg])
+
+            case .limit(let limit):
+                Current.logger().info("Ingesting (limit: \(limit)) ...")
+                let packages = try await Package.fetchCandidates(database, for: .ingestion, limit: limit)
+                Current.logger().info("Candidate count: \(packages.count)")
+                await ingest(client: client, database: database, packages: packages)
+
+            case .url(let url):
+                Current.logger().info("Ingesting (url: \(url)) ...")
+                let pkg = try await Package.fetchCandidate(database, url: url)
+                await ingest(client: client, database: database, packages: [pkg])
+        }
     }
-}
 
 
-/// Ingest via a given mode: either one `Package` identified by its `Id` or a limited number of `Package`s.
-/// - Parameters:
-///   - client: `Client` object
-///   - database: `Database` object
-///   - mode: process a single `Package.Id` or a `limit` number of packages
-/// - Returns: future
-func ingest(client: Client,
-            database: Database,
-            mode: SPICommand.Mode) async throws {
-    let start = DispatchTime.now().uptimeNanoseconds
-    defer { AppMetrics.ingestDurationSeconds?.time(since: start) }
+    /// Main ingestion function. Fetched package metadata from hosting provider and updates `Repositoy` and `Package`s.
+    /// - Parameters:
+    ///   - client: `Client` object
+    ///   - database: `Database` object
+    ///   - packages: packages to be ingested
+    /// - Returns: future
+    static func ingest(client: Client,
+                       database: Database,
+                       packages: [Joined<Package, Repository>]) async {
+        Current.logger().debug("Ingesting \(packages.compactMap {$0.model.id})")
+        AppMetrics.ingestCandidatesCount?.set(packages.count)
 
-    switch mode {
-        case .id(let id):
-            Current.logger().info("Ingesting (id: \(id)) ...")
-            let pkg = try await Package.fetchCandidate(database, id: id)
-            await ingest(client: client, database: database, packages: [pkg])
-
-        case .limit(let limit):
-            Current.logger().info("Ingesting (limit: \(limit)) ...")
-            let packages = try await Package.fetchCandidates(database, for: .ingestion, limit: limit)
-            Current.logger().info("Candidate count: \(packages.count)")
-            await ingest(client: client, database: database, packages: packages)
-
-        case .url(let url):
-            Current.logger().info("Ingesting (url: \(url)) ...")
-            let pkg = try await Package.fetchCandidate(database, url: url)
-            await ingest(client: client, database: database, packages: [pkg])
-    }
-}
-
-
-/// Main ingestion function. Fetched package metadata from hosting provider and updates `Repositoy` and `Package`s.
-/// - Parameters:
-///   - client: `Client` object
-///   - database: `Database` object
-///   - packages: packages to be ingested
-/// - Returns: future
-func ingest(client: Client,
-            database: Database,
-            packages: [Joined<Package, Repository>]) async {
-    Current.logger().debug("Ingesting \(packages.compactMap {$0.model.id})")
-    AppMetrics.ingestCandidatesCount?.set(packages.count)
-
-    await withTaskGroup(of: Void.self) { group in
-        for pkg in packages {
-            group.addTask  {
-                await Ingestion.ingest(client: client, database: database, package: pkg)
+        await withTaskGroup(of: Void.self) { group in
+            for pkg in packages {
+                group.addTask  {
+                    await ingest(client: client, database: database, package: pkg)
+                }
             }
         }
     }
-}
 
 
-extension Ingestion {
     static func ingest(client: Client, database: Database, package: Joined<Package, Repository>) async {
         let result = await Result { () async throws(Ingestion.Error) -> Joined<Package, Repository> in
             @Dependency(\.environment) var environment
