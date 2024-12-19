@@ -20,22 +20,21 @@ import XCTVapor
 
 class ErrorReportingTests: AppTestCase {
 
-    func test_recordError() async throws {
+    func test_Analyze_recordError() async throws {
         let pkg = try await savePackage(on: app.db, "1")
-        try await recordError(database: app.db,
-                              error: AppError.cacheDirectoryDoesNotExist(pkg.id, "path"),
-                              stage: .ingestion)
+        try await Analyze.recordError(database: app.db,
+                                      error: AppError.cacheDirectoryDoesNotExist(pkg.id, "path"))
         do {
             let pkg = try await XCTUnwrapAsync(try await Package.find(pkg.id, on: app.db))
             XCTAssertEqual(pkg.status, .cacheDirectoryDoesNotExist)
-            XCTAssertEqual(pkg.processingStage, .ingestion)
+            XCTAssertEqual(pkg.processingStage, .analysis)
         }
     }
 
     func test_Ingestor_error_reporting() async throws {
         // setup
-        try await Package(url: "1", processingStage: .reconciliation).save(on: app.db)
-        Current.fetchMetadata = { _, _, _ in throw Github.Error.invalidURI(nil, "1") }
+        try await Package(id: .id0, url: "1", processingStage: .reconciliation).save(on: app.db)
+        Current.fetchMetadata = { _, _, _ throws(Github.Error) in throw Github.Error.invalidURL("1") }
 
         try await withDependencies {
             $0.date.now = .now
@@ -47,7 +46,7 @@ class ErrorReportingTests: AppTestCase {
         // validation
         logger.logs.withValue {
             XCTAssertEqual($0, [.init(level: .warning,
-                                      message: #"App.Github.Error.invalidURI(nil, "1")"#)])
+                                      message: #"Ingestion.Error(\#(UUID.id0), invalidURL(1))"#)])
         }
     }
 

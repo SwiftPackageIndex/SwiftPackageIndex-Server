@@ -152,10 +152,7 @@ extension Analyze {
             }
         }
 
-        try await updatePackages(client: client,
-                                 database: database,
-                                 results: packageResults,
-                                 stage: .analysis)
+        try await updatePackages(client: client, database: database, results: packageResults)
 
         try await RecentPackage.refresh(on: database)
         try await RecentRelease.refresh(on: database)

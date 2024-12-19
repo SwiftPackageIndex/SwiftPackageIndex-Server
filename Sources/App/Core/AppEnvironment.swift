@@ -25,7 +25,7 @@ import FoundationNetworking
 struct AppEnvironment: Sendable {
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
     var fetchLicense: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.License?
-    var fetchMetadata: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> Github.Metadata
+    var fetchMetadata: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws(Github.Error) -> Github.Metadata
     var fetchReadme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.Readme?
     var fetchS3Readme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> String
     var fileManager: FileManager
@@ -51,9 +51,9 @@ struct AppEnvironment: Sendable {
     var siteURL: @Sendable () -> String
     var storeS3Readme: @Sendable (_ owner: String,
                                   _ repository: String,
-                                  _ readme: String) async throws -> String
+                                  _ readme: String) async throws(S3Readme.Error) -> String
     var storeS3ReadmeImages: @Sendable (_ client: Client,
-                                        _ imagesToCache: [Github.Readme.ImageToCache]) async throws -> Void
+                                        _ imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) -> Void
     var timeZone: @Sendable () -> TimeZone
     var triggerBuild: @Sendable (_ client: Client,
                                  _ buildId: Build.Id,
@@ -86,9 +86,9 @@ extension AppEnvironment {
     static let live = AppEnvironment(
         fetchHTTPStatusCode: { url in try await Networking.fetchHTTPStatusCode(url) },
         fetchLicense: { client, owner, repo in await Github.fetchLicense(client:client, owner: owner, repository: repo) },
-        fetchMetadata: { client, owner, repo in try await Github.fetchMetadata(client:client, owner: owner, repository: repo) },
+        fetchMetadata: { client, owner, repo throws(Github.Error) in try await Github.fetchMetadata(client:client, owner: owner, repository: repo) },
         fetchReadme: { client, owner, repo in await Github.fetchReadme(client:client, owner: owner, repository: repo) },
-        fetchS3Readme: { client, owner, repo in try await S3Store.fetchReadme(client:client, owner: owner, repository: repo) },
+        fetchS3Readme: { client, owner, repo in try await S3Readme.fetchReadme(client:client, owner: owner, repository: repo) },
         fileManager: .live,
         getStatusCount: { client, status in
             try await Gitlab.Builder.getStatusCount(client: client,
@@ -131,8 +131,12 @@ extension AppEnvironment {
         setLogger: { logger in Self.logger = logger },
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
-        storeS3Readme: { owner, repo, readme in try await S3Store.storeReadme(owner: owner, repository: repo, readme: readme) },
-        storeS3ReadmeImages: { client, images in try await S3Store.storeReadmeImages(client: client, imagesToCache: images) },
+        storeS3Readme: { owner, repo, readme throws(S3Readme.Error) in
+            try await S3Readme.storeReadme(owner: owner, repository: repo, readme: readme)
+        },
+        storeS3ReadmeImages: { client, images throws(S3Readme.Error) in
+            try await S3Readme.storeReadmeImages(client: client, imagesToCache: images)
+        },
         timeZone: { .current },
         triggerBuild: { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
             try await Gitlab.Builder.triggerBuild(client: client,

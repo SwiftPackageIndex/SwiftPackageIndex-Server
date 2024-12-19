@@ -12,8 +12,68 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Vapor
+import Dependencies
 import Fluent
+import PostgresKit
+import Vapor
+
+
+enum Ingestion {
+    struct Error: ProcessingError {
+        var packageId: Package.Id
+        var underlyingError: UnderlyingError
+
+        var description: String {
+            "Ingestion.Error(\(packageId), \(underlyingError))"
+        }
+
+        enum UnderlyingError: Swift.Error, CustomStringConvertible {
+            case fetchMetadataFailed(owner: String, name: String, details: String)
+            case findOrCreateRepositoryFailed(url: String, details: Swift.Error)
+            case invalidURL(String)
+            case noRepositoryMetadata(owner: String?, name: String?)
+            case repositorySaveFailed(owner: String?, name: String?, details: String)
+            case repositorySaveUniqueViolation(owner: String?, name: String?, details: String)
+
+            var description: String {
+                switch self {
+                    case let .fetchMetadataFailed(owner, name, details):
+                        "fetchMetadataFailed(\(owner), \(name), \(details))"
+                    case let .findOrCreateRepositoryFailed(url, details):
+                        "findOrCreateRepositoryFailed(\(url), \(details))"
+                    case let .invalidURL(url):
+                        "invalidURL(\(url))"
+                    case let .noRepositoryMetadata(owner, name):
+                        "noRepositoryMetadata(\(owner), \(name))"
+                    case let .repositorySaveFailed(owner, name, details):
+                        "repositorySaveFailed(\(owner), \(name), \(details))"
+                    case let .repositorySaveUniqueViolation(owner, name, details):
+                        "repositorySaveUniqueViolation(\(owner), \(name), \(details))"
+                }
+            }
+        }
+
+        var level: Logger.Level {
+            switch underlyingError {
+                case .fetchMetadataFailed, .invalidURL, .noRepositoryMetadata:
+                    return .warning
+                case .findOrCreateRepositoryFailed, .repositorySaveFailed, .repositorySaveUniqueViolation:
+                    return .critical
+            }
+        }
+
+        var status: Package.Status {
+            switch underlyingError {
+                case .fetchMetadataFailed, .findOrCreateRepositoryFailed, .noRepositoryMetadata, .repositorySaveFailed:
+                    return .ingestionFailed
+                case .invalidURL:
+                    return .invalidUrl
+                case .repositorySaveUniqueViolation:
+                    return .ingestionFailed
+            }
+        }
+    }
+}
 
 
 struct IngestCommand: AsyncCommand {
@@ -21,7 +81,7 @@ struct IngestCommand: AsyncCommand {
 
     var help: String { "Run package ingestion (fetching repository metadata)" }
 
-    func run(using context: CommandContext, signature: SPICommand.Signature) async throws {
+    func run(using context: CommandContext, signature: SPICommand.Signature) async {
         let client = context.application.client
         let db = context.application.db
         Current.setLogger(Logger(component: "ingest"))
@@ -98,74 +158,133 @@ func ingest(client: Client,
 
     await withTaskGroup(of: Void.self) { group in
         for pkg in packages {
-            group.addTask {
-                let result = await Result {
-                    Current.logger().info("Ingesting \(pkg.package.url)")
-                    let (metadata, license, readme) = try await fetchMetadata(client: client, package: pkg)
-                    let repo = try await Repository.findOrCreate(on: database, for: pkg.model)
-
-                    let s3Readme: S3Readme?
-                    do {
-                        if let upstreamEtag = readme?.etag,
-                           repo.s3Readme?.needsUpdate(upstreamEtag: upstreamEtag) ?? true,
-                           let owner = metadata.repositoryOwner,
-                           let repository = metadata.repositoryName,
-                           let html = readme?.html {
-                            let objectUrl = try await Current.storeS3Readme(owner, repository, html)
-                            if let imagesToCache = readme?.imagesToCache, imagesToCache.isEmpty == false {
-                                try await Current.storeS3ReadmeImages(client, imagesToCache)
-                            }
-                            s3Readme = .cached(s3ObjectUrl: objectUrl, githubEtag: upstreamEtag)
-                        } else {
-                            s3Readme = repo.s3Readme
-                        }
-                    } catch {
-                        // We don't want to fail ingestion in case storing the readme fails - warn and continue.
-                        Current.logger().warning("storeS3Readme failed")
-                        s3Readme = .error("\(error)")
-                    }
-                    
-                    let fork = await getFork(on: database, parent: metadata.repository?.parent)
-
-                    try await updateRepository(on: database,
-                                               for: repo,
-                                               metadata: metadata,
-                                               licenseInfo: license,
-                                               readmeInfo: readme,
-                                               s3Readme: s3Readme,
-                                               fork: fork)
-                    return pkg
-                }
-
-                switch result {
-                    case .success:
-                        AppMetrics.ingestMetadataSuccessCount?.inc()
-                    case .failure:
-                        AppMetrics.ingestMetadataFailureCount?.inc()
-                }
-
-                do {
-                    try await updatePackage(client: client, database: database, result: result, stage: .ingestion)
-                } catch {
-                    Current.logger().report(error: error)
-                }
+            group.addTask  {
+                await Ingestion.ingest(client: client, database: database, package: pkg)
             }
         }
     }
 }
 
 
-func fetchMetadata(client: Client, package: Joined<Package, Repository>) async throws -> (Github.Metadata, Github.License?, Github.Readme?) {
-    // Even though we get through a `Joined<Package, Repository>` as a parameter, it's
-    // we must not rely on `repository` as it will be nil when a package is first ingested.
-    // The only way to get `owner` and `repository` here is by parsing them from the URL.
-    let (owner, repository) = try Github.parseOwnerName(url: package.model.url)
+extension Ingestion {
+    static func ingest(client: Client, database: Database, package: Joined<Package, Repository>) async {
+        let result = await Result { () async throws(Ingestion.Error) -> Joined<Package, Repository> in
+            @Dependency(\.environment) var environment
+            Current.logger().info("Ingesting \(package.package.url)")
 
-    async let metadata = try await Current.fetchMetadata(client, owner, repository)
-    async let license = await Current.fetchLicense(client, owner, repository)
-    async let readme = await Current.fetchReadme(client, owner, repository)
+            // Even though we have a `Joined<Package, Repository>` as a parameter, we must not rely
+            // on `repository` for owner/name as it will be nil when a package is first ingested.
+            // The only way to get `owner` and `repository` here is by parsing them from the URL.
+            let (owner, repository) = try await run {
+                if environment.shouldFail(failureMode: .invalidURL) {
+                    throw Github.Error.invalidURL(package.model.url)
+                }
+                return try Github.parseOwnerName(url: package.model.url)
+            } rethrowing: { _ in
+                Ingestion.Error.invalidURL(packageId: package.model.id!, url: package.model.url)
+            }
 
-    return try await (metadata, license, readme)
+            let (metadata, license, readme) = try await run {
+                try await fetchMetadata(client: client, package: package.model, owner: owner, repository: repository)
+            } rethrowing: {
+                Ingestion.Error(packageId: package.model.id!,
+                                underlyingError: .fetchMetadataFailed(owner: owner, name: repository, details: "\($0)"))
+            }
+            let repo = try await findOrCreateRepository(on: database, for: package)
+
+            let s3Readme: S3Readme?
+            do throws(S3Readme.Error) {
+                s3Readme = try await storeS3Readme(client: client, repository: repo, metadata: metadata, readme: readme)
+            } catch {
+                // We don't want to fail ingestion in case storing the readme fails - warn and continue.
+                Current.logger().warning("storeS3Readme failed: \(error)")
+                s3Readme = .error("\(error)")
+            }
+
+            let fork = await getFork(on: database, parent: metadata.repository?.parent)
+
+            try await run { () async throws(Ingestion.Error.UnderlyingError) in
+                try await updateRepository(on: database, for: repo, metadata: metadata, licenseInfo: license, readmeInfo: readme, s3Readme: s3Readme, fork: fork)
+            } rethrowing: {
+                Ingestion.Error(packageId: package.model.id!, underlyingError: $0)
+            }
+            return package
+        }
+
+        switch result {
+            case .success:
+                AppMetrics.ingestMetadataSuccessCount?.inc()
+            case .failure:
+                AppMetrics.ingestMetadataFailureCount?.inc()
+        }
+
+        do {
+            try await updatePackage(client: client, database: database, result: result, stage: .ingestion)
+        } catch {
+            Current.logger().report(error: error)
+        }
+    }
+
+
+    static func findOrCreateRepository(on database: Database, for package: Joined<Package, Repository>) async throws(Ingestion.Error) -> Repository {
+        try await run {
+            @Dependency(\.environment) var environment
+            if environment.shouldFail(failureMode: .findOrCreateRepositoryFailed) {
+                throw Abort(.internalServerError)
+            }
+
+            return try await Repository.findOrCreate(on: database, for: package.model)
+        } rethrowing: {
+            Ingestion.Error(
+                packageId: package.model.id!,
+                underlyingError: .findOrCreateRepositoryFailed(url: package.model.url, details: $0)
+            )
+        }
+    }
+
+
+    static func storeS3Readme(client: Client, repository: Repository, metadata: Github.Metadata, readme: Github.Readme?) async throws(S3Readme.Error) -> S3Readme? {
+        if let upstreamEtag = readme?.etag,
+           repository.s3Readme?.needsUpdate(upstreamEtag: upstreamEtag) ?? true,
+           let owner = metadata.repositoryOwner,
+           let repository = metadata.repositoryName,
+           let html = readme?.html {
+            let objectUrl = try await Current.storeS3Readme(owner, repository, html)
+            if let imagesToCache = readme?.imagesToCache, imagesToCache.isEmpty == false {
+                try await Current.storeS3ReadmeImages(client, imagesToCache)
+            }
+            return .cached(s3ObjectUrl: objectUrl, githubEtag: upstreamEtag)
+        } else {
+            return repository.s3Readme
+        }
+    }
+
+
+    static func fetchMetadata(client: Client, package: Package, owner: String, repository: String) async throws(Github.Error) -> (Github.Metadata, Github.License?, Github.Readme?) {
+        @Dependency(\.environment) var environment
+        if environment.shouldFail(failureMode: .fetchMetadataFailed) {
+            throw Github.Error.requestFailed(.internalServerError)
+        }
+
+        async let metadata = try await Current.fetchMetadata(client, owner, repository)
+        async let license = await Current.fetchLicense(client, owner, repository)
+        async let readme = await Current.fetchReadme(client, owner, repository)
+
+        do {
+            return try await (metadata, license, readme)
+        } catch let error as Github.Error {
+            throw error
+        } catch {
+            // This whole do { ... } catch { ... } should be unnecessary - it's a workaround for
+            // https://github.com/swiftlang/swift/issues/76169
+            assert(false, "Unexpected error type: \(type(of: error))")
+            // We need to throw _something_ here (we should never hit this codepath though)
+            throw Github.Error.requestFailed(.internalServerError)
+            // We could theoretically avoid this whole second catch and just do
+            //   error as! GithubError
+            // but let's play it safe and not risk a server crash, unlikely as it may be.
+        }
+    }
 }
 
 
@@ -181,13 +300,23 @@ func updateRepository(on database: Database,
                       licenseInfo: Github.License?,
                       readmeInfo: Github.Readme?,
                       s3Readme: S3Readme?,
-                      fork: Fork? = nil) async throws {
+                      fork: Fork? = nil) async throws(Ingestion.Error.UnderlyingError) {
+    @Dependency(\.environment) var environment
+    if environment.shouldFail(failureMode: .noRepositoryMetadata) {
+        throw .noRepositoryMetadata(owner: repository.owner, name: repository.name)
+    }
+    if environment.shouldFail(failureMode: .repositorySaveFailed) {
+        throw .repositorySaveFailed(owner: repository.owner,
+                                    name: repository.name,
+                                    details: "TestError")
+    }
+    if environment.shouldFail(failureMode: .repositorySaveUniqueViolation) {
+        throw .repositorySaveUniqueViolation(owner: repository.owner,
+                                             name: repository.name,
+                                             details: "TestError")
+    }
     guard let repoMetadata = metadata.repository else {
-        if repository.$package.value == nil {
-            try await repository.$package.load(on: database)
-        }
-        throw AppError.genericError(repository.package.id,
-                                    "repository metadata is nil for package \(repository.name ?? "unknown")")
+        throw .noRepositoryMetadata(owner: repository.owner, name: repository.name)
     }
 
     repository.defaultBranch = repoMetadata.defaultBranch
@@ -215,7 +344,23 @@ func updateRepository(on database: Database,
     repository.summary = repoMetadata.description
     repository.forkedFrom = fork
 
-    try await repository.save(on: database)
+    do {
+        try await repository.save(on: database)
+    } catch let error as PSQLError where error.isUniqueViolation {
+        let details = error.serverInfo?[.message] ?? ""
+        throw Ingestion.Error.UnderlyingError.repositorySaveUniqueViolation(owner: repository.owner,
+                                                                            name: repository.name,
+                                                                            details: details)
+    } catch let error as PSQLError {
+        let details = error.serverInfo?[.message] ?? ""
+        throw Ingestion.Error.UnderlyingError.repositorySaveFailed(owner: repository.owner,
+                                                                   name: repository.name,
+                                                                   details: details)
+    } catch {
+        throw Ingestion.Error.UnderlyingError.repositorySaveFailed(owner: repository.owner,
+                                                                   name: repository.name,
+                                                                   details: "\(error)")
+    }
 }
 
 func getFork(on database: Database, parent: Github.Metadata.Parent?) async -> Fork? {
@@ -250,5 +395,11 @@ private extension Github.Metadata.Parent {
             return nil
         }
         return normalizedURL
+    }
+}
+
+private extension Ingestion.Error {
+    static func invalidURL(packageId: Package.Id, url: String) -> Self {
+        Ingestion.Error(packageId: packageId, underlyingError: .invalidURL(url))
     }
 }
