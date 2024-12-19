@@ -22,7 +22,7 @@ import S3Store
 import Vapor
 
 
-class IngestorTests: AppTestCase {
+class IngestionTests: AppTestCase {
 
     func test_ingest_basic() async throws {
         // setup
@@ -38,7 +38,7 @@ class IngestorTests: AppTestCase {
             $0.date.now = .now
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
         }
 
         // validate
@@ -77,7 +77,7 @@ class IngestorTests: AppTestCase {
         Current.fetchLicense = { _, _, _ in Github.License(htmlUrl: "license") }
 
         // MUT
-        await ingest(client: app.client, database: app.db, packages: packages)
+        await Ingestion.ingest(client: app.client, database: app.db, packages: packages)
 
         do {
             // validate the second package's license is updated
@@ -97,12 +97,12 @@ class IngestorTests: AppTestCase {
         let repo = Repository(packageId: try pkg.requireID())
 
         // MUT
-        try await updateRepository(on: app.db,
-                                   for: repo,
-                                   metadata: .mock(owner: "foo", repository: "bar"),
-                                   licenseInfo: .init(htmlUrl: ""),
-                                   readmeInfo: .init(html: "", htmlUrl: "", imagesToCache: []),
-                                   s3Readme: nil)
+        try await Ingestion.updateRepository(on: app.db,
+                                             for: repo,
+                                             metadata: .mock(owner: "foo", repository: "bar"),
+                                             licenseInfo: .init(htmlUrl: ""),
+                                             readmeInfo: .init(html: "", htmlUrl: "", imagesToCache: []),
+                                             s3Readme: nil)
 
         // validate
         do {
@@ -154,16 +154,16 @@ class IngestorTests: AppTestCase {
                                         summary: "package desc")
 
         // MUT
-        try await updateRepository(on: app.db,
-                                   for: repo,
-                                   metadata: md,
-                                   licenseInfo: .init(htmlUrl: "license url"),
-                                   readmeInfo: .init(etag: "etag",
-                                                     html: "readme html https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com",
-                                                     htmlUrl: "readme html url",
-                                                     imagesToCache: []),
-                                   s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"),
-                                   fork: .parentURL("https://github.com/foo/bar.git"))
+        try await Ingestion.updateRepository(on: app.db,
+                                             for: repo,
+                                             metadata: md,
+                                             licenseInfo: .init(htmlUrl: "license url"),
+                                             readmeInfo: .init(etag: "etag",
+                                                               html: "readme html https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com",
+                                                               htmlUrl: "readme html url",
+                                                               imagesToCache: []),
+                                             s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"),
+                                             fork: .parentURL("https://github.com/foo/bar.git"))
 
         // validate
         do {
@@ -229,14 +229,14 @@ class IngestorTests: AppTestCase {
                                         summary: "package desc")
 
         // MUT
-        try await updateRepository(on: app.db,
-                                   for: repo,
-                                   metadata: md,
-                                   licenseInfo: .init(htmlUrl: "license url"),
-                                   readmeInfo: .init(html: "readme html",
-                                                     htmlUrl: "readme html url",
-                                                     imagesToCache: []),
-                                   s3Readme: nil)
+        try await Ingestion.updateRepository(on: app.db,
+                                             for: repo,
+                                             metadata: md,
+                                             licenseInfo: .init(htmlUrl: "license url"),
+                                             readmeInfo: .init(html: "readme html",
+                                                               htmlUrl: "readme html url",
+                                                               imagesToCache: []),
+                                             s3Readme: nil)
 
         // validate
         do {
@@ -310,7 +310,7 @@ class IngestorTests: AppTestCase {
             $0.date.now = .now
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
         }
 
         // validate
@@ -337,7 +337,7 @@ class IngestorTests: AppTestCase {
             $0.date.now = .now
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
         }
 
         // validate
@@ -389,7 +389,7 @@ class IngestorTests: AppTestCase {
             $0.date.now = .now
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
         }
 
         // validate repositories (single element pointing to the ingested package)
@@ -490,7 +490,7 @@ class IngestorTests: AppTestCase {
 
             do { // first ingestion, no readme has been saved
                  // MUT
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
 
                 // validate
                 try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
@@ -506,7 +506,7 @@ class IngestorTests: AppTestCase {
                 try await pkg.save(on: app.db)
 
                 // MUT
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
 
                 // validate
                 try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
@@ -522,7 +522,7 @@ class IngestorTests: AppTestCase {
                 try await pkg.save(on: app.db)
 
                 // MUT
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
 
                 // validate
                 try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
@@ -573,7 +573,7 @@ class IngestorTests: AppTestCase {
             $0.date.now = .now
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(1))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
         }
 
         // There should only be one call as `storeS3ReadmeImages` takes the array of images.
@@ -604,7 +604,7 @@ class IngestorTests: AppTestCase {
             } operation: {
                 // MUT
                 let app = self.app!
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
             }
 
             // validate
@@ -660,23 +660,23 @@ class IngestorTests: AppTestCase {
         try await Package(url: "https://github.com/bar/forked.git", processingStage: .analysis).save(on: app.db)
 
         // test lookup when package is in the index
-        let fork = await getFork(on: app.db, parent: .init(url: "https://github.com/foo/parent.git"))
+        let fork = await Ingestion.getFork(on: app.db, parent: .init(url: "https://github.com/foo/parent.git"))
         XCTAssertEqual(fork, .parentId(id: .id0, fallbackURL: "https://github.com/foo/parent.git"))
 
         // test lookup when package is in the index but with different case in URL
-        let fork2 = await getFork(on: app.db, parent: .init(url: "https://github.com/Foo/Parent.git"))
+        let fork2 = await Ingestion.getFork(on: app.db, parent: .init(url: "https://github.com/Foo/Parent.git"))
         XCTAssertEqual(fork2, .parentId(id: .id0, fallbackURL: "https://github.com/Foo/Parent.git"))
 
         // test whem metadata repo url doesn't have `.git` at end
-        let fork3 = await getFork(on: app.db, parent: .init(url: "https://github.com/Foo/Parent"))
+        let fork3 = await Ingestion.getFork(on: app.db, parent: .init(url: "https://github.com/Foo/Parent"))
         XCTAssertEqual(fork3, .parentId(id: .id0, fallbackURL: "https://github.com/Foo/Parent.git"))
 
         // test lookup when package is not in the index
-        let fork4 = await getFork(on: app.db, parent: .init(url: "https://github.com/some/other.git"))
+        let fork4 = await Ingestion.getFork(on: app.db, parent: .init(url: "https://github.com/some/other.git"))
         XCTAssertEqual(fork4, .parentURL("https://github.com/some/other.git"))
 
         // test lookup when parent url is nil
-        let fork5 = await getFork(on: app.db, parent: nil)
+        let fork5 = await Ingestion.getFork(on: app.db, parent: nil)
         XCTAssertEqual(fork5, nil)
     }
 }

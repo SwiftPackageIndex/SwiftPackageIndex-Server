@@ -120,7 +120,7 @@ class MetricsTests: AppTestCase {
         let pkg = try await savePackage(on: app.db, "1")
 
         // MUT
-        try await ingest(client: app.client, database: app.db, mode: .id(pkg.id!))
+        try await Ingestion.ingest(client: app.client, database: app.db, mode: .id(pkg.id!))
 
         // validation
         XCTAssert((AppMetrics.ingestDurationSeconds?.get()) ?? 0 > 0)

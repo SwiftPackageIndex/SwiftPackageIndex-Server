@@ -19,6 +19,7 @@ import Vapor
 
 
 enum Ingestion {
+
     struct Error: ProcessingError {
         var packageId: Package.Id
         var underlyingError: UnderlyingError
@@ -73,100 +74,95 @@ enum Ingestion {
             }
         }
     }
-}
 
 
-struct IngestCommand: AsyncCommand {
-    typealias Signature = SPICommand.Signature
+    struct Command: AsyncCommand {
+        typealias Signature = SPICommand.Signature
 
-    var help: String { "Run package ingestion (fetching repository metadata)" }
+        var help: String { "Run package ingestion (fetching repository metadata)" }
 
-    func run(using context: CommandContext, signature: SPICommand.Signature) async {
-        let client = context.application.client
-        let db = context.application.db
-        Current.setLogger(Logger(component: "ingest"))
+        func run(using context: CommandContext, signature: SPICommand.Signature) async {
+            let client = context.application.client
+            let db = context.application.db
+            Current.setLogger(Logger(component: "ingest"))
 
-        Self.resetMetrics()
+            Self.resetMetrics()
 
-        do {
-            try await ingest(client: client, database: db, mode: .init(signature: signature))
-        } catch {
-            Current.logger().error("\(error.localizedDescription)")
+            do {
+                try await ingest(client: client, database: db, mode: .init(signature: signature))
+            } catch {
+                Current.logger().error("\(error.localizedDescription)")
+            }
+
+            do {
+                try await AppMetrics.push(client: client,
+                                          jobName: "ingest")
+            } catch {
+                Current.logger().warning("\(error.localizedDescription)")
+            }
         }
 
-        do {
-            try await AppMetrics.push(client: client,
-                                      jobName: "ingest")
-        } catch {
-            Current.logger().warning("\(error.localizedDescription)")
+        static func resetMetrics() {
+            AppMetrics.ingestMetadataSuccessCount?.set(0)
+            AppMetrics.ingestMetadataFailureCount?.set(0)
         }
     }
-}
 
 
-extension IngestCommand {
-    static func resetMetrics() {
-        AppMetrics.ingestMetadataSuccessCount?.set(0)
-        AppMetrics.ingestMetadataFailureCount?.set(0)
+    /// Ingest via a given mode: either one `Package` identified by its `Id` or a limited number of `Package`s.
+    /// - Parameters:
+    ///   - client: `Client` object
+    ///   - database: `Database` object
+    ///   - mode: process a single `Package.Id` or a `limit` number of packages
+    /// - Returns: future
+    static func ingest(client: Client,
+                       database: Database,
+                       mode: SPICommand.Mode) async throws {
+        let start = DispatchTime.now().uptimeNanoseconds
+        defer { AppMetrics.ingestDurationSeconds?.time(since: start) }
+
+        switch mode {
+            case .id(let id):
+                Current.logger().info("Ingesting (id: \(id)) ...")
+                let pkg = try await Package.fetchCandidate(database, id: id)
+                await ingest(client: client, database: database, packages: [pkg])
+
+            case .limit(let limit):
+                Current.logger().info("Ingesting (limit: \(limit)) ...")
+                let packages = try await Package.fetchCandidates(database, for: .ingestion, limit: limit)
+                Current.logger().info("Candidate count: \(packages.count)")
+                await ingest(client: client, database: database, packages: packages)
+
+            case .url(let url):
+                Current.logger().info("Ingesting (url: \(url)) ...")
+                let pkg = try await Package.fetchCandidate(database, url: url)
+                await ingest(client: client, database: database, packages: [pkg])
+        }
     }
-}
 
 
-/// Ingest via a given mode: either one `Package` identified by its `Id` or a limited number of `Package`s.
-/// - Parameters:
-///   - client: `Client` object
-///   - database: `Database` object
-///   - mode: process a single `Package.Id` or a `limit` number of packages
-/// - Returns: future
-func ingest(client: Client,
-            database: Database,
-            mode: SPICommand.Mode) async throws {
-    let start = DispatchTime.now().uptimeNanoseconds
-    defer { AppMetrics.ingestDurationSeconds?.time(since: start) }
+    /// Main ingestion function. Fetched package metadata from hosting provider and updates `Repositoy` and `Package`s.
+    /// - Parameters:
+    ///   - client: `Client` object
+    ///   - database: `Database` object
+    ///   - packages: packages to be ingested
+    /// - Returns: future
+    static func ingest(client: Client,
+                       database: Database,
+                       packages: [Joined<Package, Repository>]) async {
+        Current.logger().debug("Ingesting \(packages.compactMap {$0.model.id})")
+        AppMetrics.ingestCandidatesCount?.set(packages.count)
 
-    switch mode {
-        case .id(let id):
-            Current.logger().info("Ingesting (id: \(id)) ...")
-            let pkg = try await Package.fetchCandidate(database, id: id)
-            await ingest(client: client, database: database, packages: [pkg])
-
-        case .limit(let limit):
-            Current.logger().info("Ingesting (limit: \(limit)) ...")
-            let packages = try await Package.fetchCandidates(database, for: .ingestion, limit: limit)
-            Current.logger().info("Candidate count: \(packages.count)")
-            await ingest(client: client, database: database, packages: packages)
-
-        case .url(let url):
-            Current.logger().info("Ingesting (url: \(url)) ...")
-            let pkg = try await Package.fetchCandidate(database, url: url)
-            await ingest(client: client, database: database, packages: [pkg])
-    }
-}
-
-
-/// Main ingestion function. Fetched package metadata from hosting provider and updates `Repositoy` and `Package`s.
-/// - Parameters:
-///   - client: `Client` object
-///   - database: `Database` object
-///   - packages: packages to be ingested
-/// - Returns: future
-func ingest(client: Client,
-            database: Database,
-            packages: [Joined<Package, Repository>]) async {
-    Current.logger().debug("Ingesting \(packages.compactMap {$0.model.id})")
-    AppMetrics.ingestCandidatesCount?.set(packages.count)
-
-    await withTaskGroup(of: Void.self) { group in
-        for pkg in packages {
-            group.addTask  {
-                await Ingestion.ingest(client: client, database: database, package: pkg)
+        await withTaskGroup(of: Void.self) { group in
+            for pkg in packages {
+                group.addTask  {
+                    await ingest(client: client, database: database, package: pkg)
+                }
             }
         }
     }
-}
 
 
-extension Ingestion {
     static func ingest(client: Client, database: Database, package: Joined<Package, Repository>) async {
         let result = await Result { () async throws(Ingestion.Error) -> Joined<Package, Repository> in
             @Dependency(\.environment) var environment
@@ -201,10 +197,10 @@ extension Ingestion {
                 s3Readme = .error("\(error)")
             }
 
-            let fork = await getFork(on: database, parent: metadata.repository?.parent)
+            let fork = await Ingestion.getFork(on: database, parent: metadata.repository?.parent)
 
             try await run { () async throws(Ingestion.Error.UnderlyingError) in
-                try await updateRepository(on: database, for: repo, metadata: metadata, licenseInfo: license, readmeInfo: readme, s3Readme: s3Readme, fork: fork)
+                try await Ingestion.updateRepository(on: database, for: repo, metadata: metadata, licenseInfo: license, readmeInfo: readme, s3Readme: s3Readme, fork: fork)
             } rethrowing: {
                 Ingestion.Error(packageId: package.model.id!, underlyingError: $0)
             }
@@ -285,95 +281,96 @@ extension Ingestion {
             // but let's play it safe and not risk a server crash, unlikely as it may be.
         }
     }
+
+
+    /// Insert or update `Repository` of given `Package` with given `Github.Metadata`.
+    /// - Parameters:
+    ///   - database: `Database` object
+    ///   - package: package to update
+    ///   - metadata: `Github.Metadata` with data for update
+    /// - Returns: future
+    static func updateRepository(on database: Database,
+                                 for repository: Repository,
+                                 metadata: Github.Metadata,
+                                 licenseInfo: Github.License?,
+                                 readmeInfo: Github.Readme?,
+                                 s3Readme: S3Readme?,
+                                 fork: Fork? = nil) async throws(Ingestion.Error.UnderlyingError) {
+        @Dependency(\.environment) var environment
+        if environment.shouldFail(failureMode: .noRepositoryMetadata) {
+            throw .noRepositoryMetadata(owner: repository.owner, name: repository.name)
+        }
+        if environment.shouldFail(failureMode: .repositorySaveFailed) {
+            throw .repositorySaveFailed(owner: repository.owner,
+                                        name: repository.name,
+                                        details: "TestError")
+        }
+        if environment.shouldFail(failureMode: .repositorySaveUniqueViolation) {
+            throw .repositorySaveUniqueViolation(owner: repository.owner,
+                                                 name: repository.name,
+                                                 details: "TestError")
+        }
+        guard let repoMetadata = metadata.repository else {
+            throw .noRepositoryMetadata(owner: repository.owner, name: repository.name)
+        }
+
+        repository.defaultBranch = repoMetadata.defaultBranch
+        repository.forks = repoMetadata.forkCount
+        repository.fundingLinks = repoMetadata.fundingLinks?.compactMap(FundingLink.init(from:)) ?? []
+        repository.hasSPIBadge = readmeInfo?.containsSPIBadge()
+        repository.homepageUrl = repoMetadata.homepageUrl?.trimmed
+        repository.isArchived = repoMetadata.isArchived
+        repository.isInOrganization = repoMetadata.isInOrganization
+        repository.keywords = Set(repoMetadata.topics.map { $0.lowercased() }).sorted()
+        repository.lastIssueClosedAt = repoMetadata.lastIssueClosedAt
+        repository.lastPullRequestClosedAt = repoMetadata.lastPullRequestClosedAt
+        repository.license = .init(from: repoMetadata.licenseInfo)
+        repository.licenseUrl = licenseInfo?.htmlUrl
+        repository.name = repoMetadata.repositoryName
+        repository.openIssues = repoMetadata.openIssues.totalCount
+        repository.openPullRequests = repoMetadata.openPullRequests.totalCount
+        repository.owner = repoMetadata.repositoryOwner
+        repository.ownerName = repoMetadata.owner.name
+        repository.ownerAvatarUrl = repoMetadata.owner.avatarUrl
+        repository.s3Readme = s3Readme
+        repository.readmeHtmlUrl = readmeInfo?.htmlUrl
+        repository.releases = repoMetadata.releases.nodes.map(Release.init(from:))
+        repository.stars = repoMetadata.stargazerCount
+        repository.summary = repoMetadata.description
+        repository.forkedFrom = fork
+
+        do {
+            try await repository.save(on: database)
+        } catch let error as PSQLError where error.isUniqueViolation {
+            let details = error.serverInfo?[.message] ?? ""
+            throw Ingestion.Error.UnderlyingError.repositorySaveUniqueViolation(owner: repository.owner,
+                                                                                name: repository.name,
+                                                                                details: details)
+        } catch let error as PSQLError {
+            let details = error.serverInfo?[.message] ?? ""
+            throw Ingestion.Error.UnderlyingError.repositorySaveFailed(owner: repository.owner,
+                                                                       name: repository.name,
+                                                                       details: details)
+        } catch {
+            throw Ingestion.Error.UnderlyingError.repositorySaveFailed(owner: repository.owner,
+                                                                       name: repository.name,
+                                                                       details: "\(error)")
+        }
+    }
+
+    static func getFork(on database: Database, parent: Github.Metadata.Parent?) async -> Fork? {
+        guard let parentUrl = parent?.normalizedURL else { return nil }
+
+        if let packageId = try? await Package.query(on: database)
+            .filter(\.$url, .custom("ilike"), parentUrl)
+            .first()?.id {
+            return .parentId(id: packageId, fallbackURL: parentUrl)
+        } else {
+            return .parentURL(parentUrl)
+        }
+    }
 }
 
-
-/// Insert or update `Repository` of given `Package` with given `Github.Metadata`.
-/// - Parameters:
-///   - database: `Database` object
-///   - package: package to update
-///   - metadata: `Github.Metadata` with data for update
-/// - Returns: future
-func updateRepository(on database: Database,
-                      for repository: Repository,
-                      metadata: Github.Metadata,
-                      licenseInfo: Github.License?,
-                      readmeInfo: Github.Readme?,
-                      s3Readme: S3Readme?,
-                      fork: Fork? = nil) async throws(Ingestion.Error.UnderlyingError) {
-    @Dependency(\.environment) var environment
-    if environment.shouldFail(failureMode: .noRepositoryMetadata) {
-        throw .noRepositoryMetadata(owner: repository.owner, name: repository.name)
-    }
-    if environment.shouldFail(failureMode: .repositorySaveFailed) {
-        throw .repositorySaveFailed(owner: repository.owner,
-                                    name: repository.name,
-                                    details: "TestError")
-    }
-    if environment.shouldFail(failureMode: .repositorySaveUniqueViolation) {
-        throw .repositorySaveUniqueViolation(owner: repository.owner,
-                                             name: repository.name,
-                                             details: "TestError")
-    }
-    guard let repoMetadata = metadata.repository else {
-        throw .noRepositoryMetadata(owner: repository.owner, name: repository.name)
-    }
-
-    repository.defaultBranch = repoMetadata.defaultBranch
-    repository.forks = repoMetadata.forkCount
-    repository.fundingLinks = repoMetadata.fundingLinks?.compactMap(FundingLink.init(from:)) ?? []
-    repository.hasSPIBadge = readmeInfo?.containsSPIBadge()
-    repository.homepageUrl = repoMetadata.homepageUrl?.trimmed
-    repository.isArchived = repoMetadata.isArchived
-    repository.isInOrganization = repoMetadata.isInOrganization
-    repository.keywords = Set(repoMetadata.topics.map { $0.lowercased() }).sorted()
-    repository.lastIssueClosedAt = repoMetadata.lastIssueClosedAt
-    repository.lastPullRequestClosedAt = repoMetadata.lastPullRequestClosedAt
-    repository.license = .init(from: repoMetadata.licenseInfo)
-    repository.licenseUrl = licenseInfo?.htmlUrl
-    repository.name = repoMetadata.repositoryName
-    repository.openIssues = repoMetadata.openIssues.totalCount
-    repository.openPullRequests = repoMetadata.openPullRequests.totalCount
-    repository.owner = repoMetadata.repositoryOwner
-    repository.ownerName = repoMetadata.owner.name
-    repository.ownerAvatarUrl = repoMetadata.owner.avatarUrl
-    repository.s3Readme = s3Readme
-    repository.readmeHtmlUrl = readmeInfo?.htmlUrl
-    repository.releases = repoMetadata.releases.nodes.map(Release.init(from:))
-    repository.stars = repoMetadata.stargazerCount
-    repository.summary = repoMetadata.description
-    repository.forkedFrom = fork
-
-    do {
-        try await repository.save(on: database)
-    } catch let error as PSQLError where error.isUniqueViolation {
-        let details = error.serverInfo?[.message] ?? ""
-        throw Ingestion.Error.UnderlyingError.repositorySaveUniqueViolation(owner: repository.owner,
-                                                                            name: repository.name,
-                                                                            details: details)
-    } catch let error as PSQLError {
-        let details = error.serverInfo?[.message] ?? ""
-        throw Ingestion.Error.UnderlyingError.repositorySaveFailed(owner: repository.owner,
-                                                                   name: repository.name,
-                                                                   details: details)
-    } catch {
-        throw Ingestion.Error.UnderlyingError.repositorySaveFailed(owner: repository.owner,
-                                                                   name: repository.name,
-                                                                   details: "\(error)")
-    }
-}
-
-func getFork(on database: Database, parent: Github.Metadata.Parent?) async -> Fork? {
-    guard let parentUrl = parent?.normalizedURL else { return nil }
-
-    if let packageId = try? await Package.query(on: database)
-        .filter(\.$url, .custom("ilike"), parentUrl)
-        .first()?.id {
-        return .parentId(id: packageId, fallbackURL: parentUrl)
-    } else {
-        return .parentURL(parentUrl)
-    }
-}
 
 // Helper to ensure the canonical source for these critical fields is the same in all the places where we need them
 private extension Github.Metadata {
@@ -381,11 +378,13 @@ private extension Github.Metadata {
     var repositoryName: String? { repository?.repositoryName }
 }
 
+
 // Helper to ensure the canonical source for these critical fields is the same in all the places where we need them
 private extension Github.Metadata.Repository {
     var repositoryOwner: String? { owner.login }
     var repositoryName: String? { name }
 }
+
 
 private extension Github.Metadata.Parent {
     // Returns a normalized version of the URL. Adding a `.git` if not present.
@@ -397,6 +396,7 @@ private extension Github.Metadata.Parent {
         return normalizedURL
     }
 }
+
 
 private extension Ingestion.Error {
     static func invalidURL(packageId: Package.Id, url: String) -> Self {

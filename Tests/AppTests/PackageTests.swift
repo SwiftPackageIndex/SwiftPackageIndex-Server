@@ -350,8 +350,8 @@ final class PackageTests: AppTestCase {
             }
             
             // run ingestion to progress package through pipeline
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
-            
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
+
             // MUT & validate
             do {
                 let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
@@ -378,7 +378,7 @@ final class PackageTests: AppTestCase {
             try await withDependencies {
                 $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
             } operation: {
-                try await ingest(client: app.client, database: app.db, mode: .limit(10))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
 
                 do {
                     let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())

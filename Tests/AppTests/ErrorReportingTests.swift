@@ -31,7 +31,7 @@ class ErrorReportingTests: AppTestCase {
         }
     }
 
-    func test_Ingestor_error_reporting() async throws {
+    func test_Ingestion_error_reporting() async throws {
         // setup
         try await Package(id: .id0, url: "1", processingStage: .reconciliation).save(on: app.db)
         Current.fetchMetadata = { _, _, _ throws(Github.Error) in throw Github.Error.invalidURL("1") }
@@ -40,7 +40,7 @@ class ErrorReportingTests: AppTestCase {
             $0.date.now = .now
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
         }
 
         // validation
