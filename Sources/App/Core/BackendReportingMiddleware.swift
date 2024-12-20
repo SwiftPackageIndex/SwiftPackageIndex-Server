@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Vapor
 
 
@@ -23,7 +24,8 @@ struct BackendReportingMiddleware: AsyncMiddleware {
         let response = try await next.respond(to: request)
         guard isActive else { return response }
         let user = try? request.auth.require(User.self)
-        Current.postPlausibleEvent(.pageview, path: path, user: user)
+        @Dependency(\.httpClient) var httpClient
+        try await httpClient.postPlausibleEvent(kind: .pageview, path: path, user: user)
         return response
     }
 }

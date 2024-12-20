@@ -43,7 +43,7 @@ final class PlausibleTests: XCTestCase {
         }
 
         // MUT
-        _ = try await Plausible.postEvent(client: client, kind: .pageview, path: .search, user: nil)
+        _ = try await Plausible.postEvent(kind: .pageview, path: .search, user: nil)
 
         XCTAssertTrue(called)
     }
@@ -64,7 +64,7 @@ final class PlausibleTests: XCTestCase {
         }
 
         // MUT
-        _ = try await Plausible.postEvent(client: client, kind: .pageview, path: .package, user: user)
+        _ = try await Plausible.postEvent(kind: .pageview, path: .package, user: user)
 
         XCTAssertTrue(called)
     }

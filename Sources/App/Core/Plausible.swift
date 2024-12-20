@@ -43,18 +43,22 @@ enum Plausible {
         var message: String
     }
 
-    static let postEventURI = URI(string: "https://plausible.io/api/event")
+    static let postEventURL = "https://plausible.io/api/event"
 
-    static func postEvent(client: Client, kind: Event.Kind, path: Path, user: User?) async throws {
+    static func postEvent(kind: Event.Kind, path: Path, user: User?) async throws {
+#warning("FIXME: need to inject a http client here to so we can test this in PlausibleTests")
         guard let siteID = Current.plausibleBackendReportingSiteID() else {
             throw Error(message: "PLAUSIBLE_BACKEND_REPORTING_SITE_ID not set")
         }
-        let res = try await client.post(postEventURI, headers: .applicationJSON) { req in
-            try req.content.encode(Event(name: .pageview,
-                                         url: "https://\(siteID)\(path.rawValue)",
-                                         domain: siteID,
-                                         props: user.props))
-        }
+        let data = try JSONEncoder().encode(Event(name: .pageview,
+                                                  url: "https://\(siteID)\(path.rawValue)",
+                                                  domain: siteID,
+                                                  props: user.props))
+        let req = try Vapor.HTTPClient.Request(url: postEventURL,
+                                               method: .POST,
+                                               headers: .applicationJSON,
+                                               body: .data(data))
+        let res = try await Vapor.HTTPClient.shared.execute(request: req).get()
         guard res.status.succeeded else {
             throw Error(message: "Request failed with status code: \(res.status)")
         }

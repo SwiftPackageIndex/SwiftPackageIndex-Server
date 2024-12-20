@@ -32,6 +32,7 @@ class ApiTests: AppTestCase {
     func test_search_noQuery() throws {
         try withDependencies {
             $0.environment.apiSigningKey = { "secret" }
+            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
             // MUT
             try app.test(.GET, "api/search",
@@ -48,8 +49,12 @@ class ApiTests: AppTestCase {
     }
 
     func test_search_basic_param() async throws {
+        let event = App.ActorIsolated<TestEvent?>(nil)
         try await withDependencies {
             $0.environment.apiSigningKey = { "secret" }
+            $0.httpClient.postPlausibleEvent = { @Sendable kind, path, _ in
+                await event.setValue(.init(kind: kind, path: path))
+            }
         } operation: {
             let p1 = Package(id: .id0, url: "1")
             try await p1.save(on: app.db)
@@ -68,11 +73,6 @@ class ApiTests: AppTestCase {
             try await Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db)
             try await Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db)
             try await Search.refresh(on: app.db)
-
-            let event = App.ActorIsolated<TestEvent?>(nil)
-            Current.postPlausibleEvent = { @Sendable _, kind, path, _ in
-                await event.setValue(.init(kind: kind, path: path))
-            }
 
             // MUT
             try await app.test(.GET, "api/search?query=foo%20bar",
@@ -765,6 +765,7 @@ class ApiTests: AppTestCase {
     }
 
     func test_get_badge() async throws {
+        // sas 2024-12-20: Badges are not reporting plausbile events, because they triggered way too many events. (This is an old changes, just adding this comment today as I'm removing the old, commented out test remnants we still had in place.)
         // setup
         let owner = "owner"
         let repo = "repo"
@@ -781,11 +782,6 @@ class ApiTests: AppTestCase {
             .save(on: app.db)
         try await Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .v1)
             .save(on: app.db)
-
-        let event = App.ActorIsolated<TestEvent?>(nil)
-        Current.postPlausibleEvent = { @Sendable _, kind, path, _ in
-            await event.setValue(.init(kind: kind, path: path))
-        }
 
         // MUT - swift versions
         try await app.test(
@@ -822,21 +818,20 @@ class ApiTests: AppTestCase {
                 XCTAssertEqual(badge.cacheSeconds, 6*3600)
                 XCTAssertNotNil(badge.logoSvg)
             })
-
-        // ensure API event has been reported
-        // API reporting for badges is currently disabled, because it is very noisy
-        //        await event.withValue {
-        //            XCTAssertEqual($0, .some(.init(kind: .pageview, path: .badge)))
-        //        }
     }
 
     func test_package_collections_owner() async throws {
         try XCTSkipIf(!isRunningInCI && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
+
+        let event = App.ActorIsolated<TestEvent?>(nil)
         try await withDependencies {
             $0.date.now = .t0
             $0.environment.apiSigningKey = { "secret" }
             $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
             $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
+            $0.httpClient.postPlausibleEvent = { @Sendable kind, path, _ in
+                await event.setValue(.init(kind: kind, path: path))
+            }
         } operation: {
             // setup
             let p1 = Package(id: .id1, url: "1")
@@ -854,11 +849,6 @@ class ApiTests: AppTestCase {
             try await v.save(on: app.db)
             try await Product(version: v, type: .library(.automatic), name: "lib")
                 .save(on: app.db)
-
-            let event = App.ActorIsolated<TestEvent?>(nil)
-            Current.postPlausibleEvent = { @Sendable _, kind, path, _ in
-                await event.setValue(.init(kind: kind, path: path))
-            }
 
             do {  // MUT
                 let body: ByteBuffer = .init(string: """
@@ -901,12 +891,14 @@ class ApiTests: AppTestCase {
 
     func test_package_collections_packageURLs() async throws {
         try XCTSkipIf(!isRunningInCI && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
+
         let refDate = Date(timeIntervalSince1970: 0)
         try await withDependencies {
             $0.date.now = refDate
             $0.environment.apiSigningKey = { "secret" }
             $0.environment.collectionSigningCertificateChain = EnvironmentClient.liveValue.collectionSigningCertificateChain
             $0.environment.collectionSigningPrivateKey = EnvironmentClient.liveValue.collectionSigningPrivateKey
+            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
             // setup
             let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
@@ -1049,6 +1041,7 @@ class ApiTests: AppTestCase {
         try await withDependencies {
             $0.environment.apiSigningKey = { "secret" }
             $0.environment.dbId = { nil }
+            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
             let owner = "owner"
             let repo = "repo"
@@ -1112,6 +1105,7 @@ class ApiTests: AppTestCase {
     func test_dependencies_get() async throws {
         try await withDependencies {
             $0.environment.apiSigningKey = { "secret" }
+            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
             let pkg = try await savePackage(on: app.db, id: .id0, "http://github.com/foo/bar")
             try await Repository(package: pkg,

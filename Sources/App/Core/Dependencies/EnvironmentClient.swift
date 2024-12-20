@@ -21,7 +21,7 @@ import Vapor
 struct EnvironmentClient {
     // See https://swiftpackageindex.com/pointfreeco/swift-dependencies/main/documentation/dependenciesmacros/dependencyclient()#Restrictions
     // regarding the use of XCTFail here.
-    // Closures returning optionals or Void don't need this, because they automatically get the default failing
+    // Closures that are throwing or return Void don't need this, because they automatically get the default failing
     // mechanism when they're not set up in a test.
     var allowBuildTriggers: @Sendable () -> Bool = { XCTFail("allowBuildTriggers"); return true }
     var allowSocialPosts: @Sendable () -> Bool = { XCTFail("allowSocialPosts"); return true }
