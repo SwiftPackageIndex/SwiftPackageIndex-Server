@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import AsyncHTTPClient
 import Dependencies
 import DependenciesMacros
 import Vapor
@@ -21,7 +22,8 @@ import Vapor
 struct HTTPClient {
     typealias Response = Vapor.HTTPClient.Response
 
-    var fetchDocumentation: @Sendable (_ url: URI) async throws -> Response
+    var fetchDocumentation: @Sendable (_ url: URI) async throws -> Response = { _ in XCTFail("fetchDocumentation"); return .ok }
+    var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus = { _ in XCTFail("fetchHTTPStatusCode"); return .ok }
 }
 
 extension HTTPClient: DependencyKey {
@@ -29,6 +31,20 @@ extension HTTPClient: DependencyKey {
         .init(
             fetchDocumentation: { url in
                 try await Vapor.HTTPClient.shared.get(url: url.string).get()
+            },
+            fetchHTTPStatusCode: { url in
+                var config = Vapor.HTTPClient.Configuration()
+                // We're forcing HTTP/1 due to a bug in Github's HEAD request handling
+                // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1676
+                config.httpVersion = .http1Only
+                let client = Vapor.HTTPClient(eventLoopGroupProvider: .singleton, configuration: config)
+                return try await run {
+                    var req = HTTPClientRequest(url: url)
+                    req.method = .HEAD
+                    return try await client.execute(req, timeout: .seconds(2)).status
+                } defer: {
+                    try await client.shutdown()
+                }
             }
         )
     }

@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
     var fetchLicense: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.License?
     var fetchMetadata: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws(Github.Error) -> Github.Metadata
     var fetchReadme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.Readme?
@@ -84,7 +83,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        fetchHTTPStatusCode: { url in try await Networking.fetchHTTPStatusCode(url) },
         fetchLicense: { client, owner, repo in await Github.fetchLicense(client:client, owner: owner, repository: repo) },
         fetchMetadata: { client, owner, repo throws(Github.Error) in try await Github.fetchMetadata(client:client, owner: owner, repository: repo) },
         fetchReadme: { client, owner, repo in await Github.fetchReadme(client:client, owner: owner, repository: repo) },
@@ -149,24 +147,6 @@ extension AppEnvironment {
                                                   versionID: versionID)
         }
     )
-}
-
-
-private enum Networking {
-    static func fetchHTTPStatusCode(_ url: String) async throws -> HTTPStatus {
-        var config = Vapor.HTTPClient.Configuration()
-        // We're forcing HTTP/1 due to a bug in Github's HEAD request handling
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1676
-        config.httpVersion = .http1Only
-        let client = Vapor.HTTPClient(eventLoopGroupProvider: .singleton, configuration: config)
-        return try await run {
-            var req = HTTPClientRequest(url: url)
-            req.method = .HEAD
-            return try await client.execute(req, timeout: .seconds(2)).status
-        } defer: {
-            try await client.shutdown()
-        }
-    }
 }
 
 

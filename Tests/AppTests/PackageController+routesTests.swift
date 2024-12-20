@@ -44,9 +44,8 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_show_checkingGitHubRepository_notFound() throws {
         try withDependencies {
             $0.environment.dbId = { nil }
+            $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in .notFound }
         } operation: {
-            Current.fetchHTTPStatusCode = { _ in .notFound }
-
             // MUT
             try app.test(.GET, "/unknown/package") {
                 XCTAssertEqual($0.status, .notFound)
@@ -57,9 +56,8 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_show_checkingGitHubRepository_found() throws {
         try withDependencies {
             $0.environment.dbId = { nil }
+            $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in .ok }
         } operation: {
-            Current.fetchHTTPStatusCode = { _ in .ok }
-
             // MUT
             try app.test(.GET, "/unknown/package") {
                 XCTAssertEqual($0.status, .notFound)
@@ -72,9 +70,8 @@ class PackageController_routesTests: SnapshotTestCase {
         // fetchHTTPStatusCode fails
         try withDependencies {
             $0.environment.dbId = { nil }
+            $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in throw FetchError() }
         } operation: {
-            Current.fetchHTTPStatusCode = { _ in throw FetchError() }
-
             // MUT
             try app.test(.GET, "/unknown/package") {
                 XCTAssertEqual($0.status, .notFound)
@@ -103,50 +100,53 @@ class PackageController_routesTests: SnapshotTestCase {
     }
 
     func test_ShowModel_packageMissing() async throws {
-        // setup
-        Current.fetchHTTPStatusCode = { _ in .ok }
+        try await withDependencies {
+            $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in .ok }
+        } operation: {
+            // MUT
+            let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
 
-        // MUT
-        let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
-
-        // validate
-        switch model {
-            case .packageAvailable, .packageDoesNotExist:
-                XCTFail("expected package to be missing")
-            case .packageMissing:
-                break
+            // validate
+            switch model {
+                case .packageAvailable, .packageDoesNotExist:
+                    XCTFail("expected package to be missing")
+                case .packageMissing:
+                    break
+            }
         }
     }
 
     func test_ShowModel_packageDoesNotExist() async throws {
-        // setup
-        Current.fetchHTTPStatusCode = { _ in .notFound }
+        try await withDependencies {
+            $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in .notFound }
+        } operation: {
+            // MUT
+            let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
 
-        // MUT
-        let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
-
-        // validate
-        switch model {
-            case .packageAvailable, .packageMissing:
-                XCTFail("expected package not to exist")
-            case .packageDoesNotExist:
-                break
+            // validate
+            switch model {
+                case .packageAvailable, .packageMissing:
+                    XCTFail("expected package not to exist")
+                case .packageDoesNotExist:
+                    break
+            }
         }
     }
 
     func test_ShowModel_fetchHTTPStatusCode_error() async throws {
-        // setup
-        Current.fetchHTTPStatusCode = { _ in throw FetchError() }
+        try await withDependencies {
+            $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in throw FetchError() }
+        } operation: {
+            // MUT
+            let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
 
-        // MUT
-        let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
-
-        // validate
-        switch model {
-            case .packageAvailable, .packageMissing:
-                XCTFail("expected package not to exist")
-            case .packageDoesNotExist:
-                break
+            // validate
+            switch model {
+                case .packageAvailable, .packageMissing:
+                    XCTFail("expected package not to exist")
+                case .packageDoesNotExist:
+                    break
+            }
         }
     }
 

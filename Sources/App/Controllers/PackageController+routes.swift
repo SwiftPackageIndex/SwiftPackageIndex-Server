@@ -407,10 +407,11 @@ extension PackageController {
                     .query(on: db, owner: owner, repository: repository)
                 self = .packageAvailable(model, schema)
             } catch let error as AbortError where error.status == .notFound {
+                @Dependency(\.httpClient) var httpClient
                 // When the package is not in the index, we check if it's available on GitHub.
                 // We use try? to avoid raising internel server errors from exceptions raised
                 // from this call.
-                let status = try? await Current.fetchHTTPStatusCode("https://github.com/\(owner)/\(repository)")
+                let status = try? await httpClient.fetchHTTPStatusCode("https://github.com/\(owner)/\(repository)")
                 switch status {
                     case .some(.notFound):
                         // GitHub does not have the package
