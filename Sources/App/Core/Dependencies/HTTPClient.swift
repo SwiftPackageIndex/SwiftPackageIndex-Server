@@ -22,13 +22,16 @@ import Vapor
 struct HTTPClient {
     typealias Response = Vapor.HTTPClient.Response
 
+    var client: @Sendable () -> Vapor.HTTPClient = { XCTFail("client"); return .shared }
     var fetchDocumentation: @Sendable (_ url: URI) async throws -> Response
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
+    var postPlausibleEvent: @Sendable (_ kind: Plausible.Event.Kind, _ path: Plausible.Path, _ user: User?) async throws -> Void
 }
 
 extension HTTPClient: DependencyKey {
     static var liveValue: HTTPClient {
         .init(
+            client: { .shared },
             fetchDocumentation: { url in
                 try await Vapor.HTTPClient.shared.get(url: url.string).get()
             },
@@ -45,6 +48,9 @@ extension HTTPClient: DependencyKey {
                 } defer: {
                     try await client.shutdown()
                 }
+            },
+            postPlausibleEvent: { kind, path, user in
+                try await Plausible.postEvent(kind: kind, path: path, user: user)
             }
         )
     }
@@ -73,6 +79,10 @@ extension HTTPClient {
             // echo url.path in the body as a simple way to test the requested url
                 .init(status: .ok, headers: headers, body: .init(string: url.path))
         }
+    }
+
+    static var noop: @Sendable (_ kind: Plausible.Event.Kind, _ path: Plausible.Path, _ user: User?) async throws -> Void {
+        { _, _, _ in }
     }
 }
 
