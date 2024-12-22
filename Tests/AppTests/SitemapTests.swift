@@ -49,6 +49,7 @@ class SitemapTests: SnapshotTestCase {
         // Ensure sitemap routing is configured in prod
         try await withDependencies {
             $0.environment.current = { .production }
+            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
             // We also need to set up a new app that's configured for production,
             // because app.test is not affected by @Dependency overrides.
@@ -100,6 +101,7 @@ class SitemapTests: SnapshotTestCase {
         // Ensure sitemap routing is configured in prod
         try await withDependencies {
             $0.environment.current = { .production }
+            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
         } operation: {
             // We also need to set up a new app that's configured for production,
             // because app.test is not affected by @Dependency overrides.
