@@ -42,7 +42,8 @@ struct EnvironmentClient {
     var currentReferenceCache: @Sendable () -> CurrentReferenceCache?
     var dbId: @Sendable () -> String?
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
-    var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
+    #warning("drop client parameter and move this to httpClient")
+    var mastodonPost: @Sendable (_ client: Client, _ message: String) async throws -> Void
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
 
     enum FailureMode: String {

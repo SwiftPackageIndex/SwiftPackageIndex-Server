@@ -105,7 +105,7 @@ enum Social {
             throw Error.invalidMessage
         }
         // Ignore errors from here for now to keep concurrency simpler
-        async let _ = try? await environment.mastodonPost(client, message)
+        async let _ = try? await environment.mastodonPost(client: client, message: message)
     }
 
     static func postToFirehose(client: Client,
