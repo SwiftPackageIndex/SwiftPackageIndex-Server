@@ -20,9 +20,10 @@ import Vapor
 
 @DependencyClient
 struct HTTPClient {
+    typealias Request = Vapor.HTTPClient.Request
     typealias Response = Vapor.HTTPClient.Response
 
-    var client: @Sendable () -> Vapor.HTTPClient = { XCTFail("client"); return .shared }
+    var post: @Sendable (_ url: String, _ headers: HTTPHeaders, _ body: Data) async throws -> Response
     var fetchDocumentation: @Sendable (_ url: URI) async throws -> Response
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
     var postPlausibleEvent: @Sendable (_ kind: Plausible.Event.Kind, _ path: Plausible.Path, _ user: User?) async throws -> Void
@@ -31,7 +32,10 @@ struct HTTPClient {
 extension HTTPClient: DependencyKey {
     static var liveValue: HTTPClient {
         .init(
-            client: { .shared },
+            post: { url, headers, body in
+                let req = try Request(url: url, method: .POST, headers: headers, body: .data(body))
+                return try await Vapor.HTTPClient.shared.execute(request: req).get()
+            },
             fetchDocumentation: { url in
                 try await Vapor.HTTPClient.shared.get(url: url.string).get()
             },
