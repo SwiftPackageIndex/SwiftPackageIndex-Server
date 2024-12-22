@@ -14,6 +14,7 @@
 
 @testable import App
 
+import Dependencies
 import SnapshotTesting
 import XCTVapor
 
@@ -132,157 +133,177 @@ class RSSTests: SnapshotTestCase {
     }
 
     func test_recentPackages_route() throws {
-        // Test request handler
-        try app.test(.GET, "packages.rss", afterResponse: { res in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType,
-                           .some(.init(type: "application", subType: "rss+xml")))
-        })
+        try withDependencies {
+            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
+        } operation: {
+            // Test request handler
+            try app.test(.GET, "packages.rss", afterResponse: { res in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType,
+                               .some(.init(type: "application", subType: "rss+xml")))
+            })
+        }
     }
 
     func test_recentReleases_route_all() async throws {
-        // Test request handler - without parameters (all)
-        // setup
-        // see RecentViewsTests.test_recentReleases_filter for filter results
-        for idx in 1...10 {
-            let major = idx / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
-            let minor = idx % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
-            let patch = idx % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
-            let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
-            try await pkg.save(on: app.db)
-            try await Repository(package: pkg,
-                                 name: "pkg-\(idx)",
-                                 owner: "owner-\(idx)",
-                                 summary: "Summary")
-            .create(on: app.db)
-            try await Version(package: pkg,
-                              commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
-                              packageName: "pkg-\(idx)",
-                              reference: .tag(.init(major, minor, patch)),
-                              url: "https://example.com/release-url")
-            .save(on: app.db)
-        }
-        // make sure to refresh the materialized view
-        try await RecentRelease.refresh(on: app.db)
+        try await withDependencies {
+            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
+        } operation: {
+            // Test request handler - without parameters (all)
+            // setup
+            // see RecentViewsTests.test_recentReleases_filter for filter results
+            for idx in 1...10 {
+                let major = idx / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
+                let minor = idx % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
+                let patch = idx % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
+                let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
+                try await pkg.save(on: app.db)
+                try await Repository(package: pkg,
+                                     name: "pkg-\(idx)",
+                                     owner: "owner-\(idx)",
+                                     summary: "Summary")
+                .create(on: app.db)
+                try await Version(package: pkg,
+                                  commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
+                                  packageName: "pkg-\(idx)",
+                                  reference: .tag(.init(major, minor, patch)),
+                                  url: "https://example.com/release-url")
+                .save(on: app.db)
+            }
+            // make sure to refresh the materialized view
+            try await RecentRelease.refresh(on: app.db)
 
-        // MUT
-        try await app.test(.GET, "releases.rss", afterResponse:  { @MainActor res async in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType,
-                           .some(.init(type: "application", subType: "rss+xml")))
-            // validation
-            assertSnapshot(of: String(decoding: res.body.readableBytesView, as: UTF8.self),
-                           as: .init(pathExtension: "xml", diffing: .lines))
-        })
+            // MUT
+            try await app.test(.GET, "releases.rss", afterResponse:  { @MainActor res async in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType,
+                               .some(.init(type: "application", subType: "rss+xml")))
+                // validation
+                assertSnapshot(of: String(decoding: res.body.readableBytesView, as: UTF8.self),
+                               as: .init(pathExtension: "xml", diffing: .lines))
+            })
+        }
     }
 
     func test_recentReleases_route_major() async throws {
-        // Test request handler - major releases only
-        // setup
-        // see RecentViewsTests.test_recentReleases_filter for filter results
-        for idx in 1...10 {
-            let major = idx / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
-            let minor = idx % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
-            let patch = idx % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
-            let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
-            try await pkg.save(on: app.db)
-            try await Repository(package: pkg,
-                                 name: "pkg-\(idx)",
-                                 owner: "owner-\(idx)",
-                                 summary: "Summary")
-            .create(on: app.db)
-            try await Version(package: pkg,
-                              commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
-                              packageName: "pkg-\(idx)",
-                              reference: .tag(.init(major, minor, patch)),
-                              url: "https://example.com/release-url")
-            .save(on: app.db)
-        }
-        // make sure to refresh the materialized view
-        try await RecentRelease.refresh(on: app.db)
+        try await withDependencies {
+            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
+        } operation: {
+            // Test request handler - major releases only
+            // setup
+            // see RecentViewsTests.test_recentReleases_filter for filter results
+            for idx in 1...10 {
+                let major = idx / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
+                let minor = idx % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
+                let patch = idx % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
+                let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
+                try await pkg.save(on: app.db)
+                try await Repository(package: pkg,
+                                     name: "pkg-\(idx)",
+                                     owner: "owner-\(idx)",
+                                     summary: "Summary")
+                .create(on: app.db)
+                try await Version(package: pkg,
+                                  commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
+                                  packageName: "pkg-\(idx)",
+                                  reference: .tag(.init(major, minor, patch)),
+                                  url: "https://example.com/release-url")
+                .save(on: app.db)
+            }
+            // make sure to refresh the materialized view
+            try await RecentRelease.refresh(on: app.db)
 
-        // MUT
-        try await app.test(.GET, "releases.rss?major=true", afterResponse: { @MainActor res async in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType,
-                           .some(.init(type: "application", subType: "rss+xml")))
-            // validation
-            assertSnapshot(of: String(decoding: res.body.readableBytesView, as: UTF8.self),
-                           as: .init(pathExtension: "xml", diffing: .lines))
-        })
+            // MUT
+            try await app.test(.GET, "releases.rss?major=true", afterResponse: { @MainActor res async in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType,
+                               .some(.init(type: "application", subType: "rss+xml")))
+                // validation
+                assertSnapshot(of: String(decoding: res.body.readableBytesView, as: UTF8.self),
+                               as: .init(pathExtension: "xml", diffing: .lines))
+            })
+        }
     }
 
     func test_recentReleases_route_majorMinor() async throws {
-        // Test request handler - major & minor releases only
-        // setup
-        // see RecentViewsTests.test_recentReleases_filter for filter results
-        for idx in 1...10 {
-            let major = idx / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
-            let minor = idx % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
-            let patch = idx % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
-            let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
-            try await pkg.save(on: app.db)
-            try await Repository(package: pkg,
-                           name: "pkg-\(idx)",
-                           owner: "owner-\(idx)",
-                           summary: "Summary")
+        try await withDependencies {
+            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
+        } operation: {
+            // Test request handler - major & minor releases only
+            // setup
+            // see RecentViewsTests.test_recentReleases_filter for filter results
+            for idx in 1...10 {
+                let major = idx / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
+                let minor = idx % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
+                let patch = idx % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
+                let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
+                try await pkg.save(on: app.db)
+                try await Repository(package: pkg,
+                                     name: "pkg-\(idx)",
+                                     owner: "owner-\(idx)",
+                                     summary: "Summary")
                 .create(on: app.db)
-            try await Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
-                        packageName: "pkg-\(idx)",
-                        reference: .tag(.init(major, minor, patch)),
-                        url: "https://example.com/release-url")
+                try await Version(package: pkg,
+                                  commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
+                                  packageName: "pkg-\(idx)",
+                                  reference: .tag(.init(major, minor, patch)),
+                                  url: "https://example.com/release-url")
                 .save(on: app.db)
-        }
-        // make sure to refresh the materialized view
-        try await RecentRelease.refresh(on: app.db)
+            }
+            // make sure to refresh the materialized view
+            try await RecentRelease.refresh(on: app.db)
 
-        // MUT
-        try await app.test(.GET, "releases.rss?major=true&minor=true", afterResponse: { @MainActor res async in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType,
-                           .some(.init(type: "application", subType: "rss+xml")))
-            // validation
-            assertSnapshot(of: String(decoding: res.body.readableBytesView, as: UTF8.self),
-                           as: .init(pathExtension: "xml", diffing: .lines))
-        })
+            // MUT
+            try await app.test(.GET, "releases.rss?major=true&minor=true", afterResponse: { @MainActor res async in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType,
+                               .some(.init(type: "application", subType: "rss+xml")))
+                // validation
+                assertSnapshot(of: String(decoding: res.body.readableBytesView, as: UTF8.self),
+                               as: .init(pathExtension: "xml", diffing: .lines))
+            })
+        }
     }
 
     func test_recentReleases_route_preRelease() async throws {
-        // Test request handler - pre-releases only
-        // setup
-        // see RecentViewsTests.test_recentReleases_filter for filter results
-        for idx in 1...12 {
-            let major = idx / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4
-            let minor = idx % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0
-            let patch = idx % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
-            let pre = idx <= 10 ? "" : "b1"
-            let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
-            try await pkg.save(on: app.db)
-            try await Repository(package: pkg,
-                           name: "pkg-\(idx)",
-                           owner: "owner-\(idx)",
-                           summary: "Summary")
+        try await withDependencies {
+            $0.httpClient.postPlausibleEvent = App.HTTPClient.noop
+        } operation: {
+            // Test request handler - pre-releases only
+            // setup
+            // see RecentViewsTests.test_recentReleases_filter for filter results
+            for idx in 1...12 {
+                let major = idx / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4
+                let minor = idx % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0
+                let patch = idx % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
+                let pre = idx <= 10 ? "" : "b1"
+                let pkg = Package(id: UUID(), url: "\(idx)".asGithubUrl.url)
+                try await pkg.save(on: app.db)
+                try await Repository(package: pkg,
+                                     name: "pkg-\(idx)",
+                                     owner: "owner-\(idx)",
+                                     summary: "Summary")
                 .create(on: app.db)
-            try await Version(package: pkg,
-                        commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
-                        packageName: "pkg-\(idx)",
-                        reference: .tag(.init(major, minor, patch, pre)),
-                        url: "https://example.com/release-url")
+                try await Version(package: pkg,
+                                  commitDate: Date(timeIntervalSince1970: TimeInterval(idx)),
+                                  packageName: "pkg-\(idx)",
+                                  reference: .tag(.init(major, minor, patch, pre)),
+                                  url: "https://example.com/release-url")
                 .save(on: app.db)
+            }
+            // make sure to refresh the materialized view
+            try await RecentRelease.refresh(on: app.db)
+            
+            // MUT
+            try await app.test(.GET, "releases.rss?pre=true", afterResponse: { @MainActor res async in
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(res.content.contentType,
+                               .some(.init(type: "application", subType: "rss+xml")))
+                // validation
+                assertSnapshot(of: String(decoding: res.body.readableBytesView, as: UTF8.self),
+                               as: .init(pathExtension: "xml", diffing: .lines))
+            })
         }
-        // make sure to refresh the materialized view
-        try await RecentRelease.refresh(on: app.db)
-
-        // MUT
-        try await app.test(.GET, "releases.rss?pre=true", afterResponse: { @MainActor res async in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.content.contentType,
-                           .some(.init(type: "application", subType: "rss+xml")))
-            // validation
-            assertSnapshot(of: String(decoding: res.body.readableBytesView, as: UTF8.self),
-                           as: .init(pathExtension: "xml", diffing: .lines))
-        })
     }
 
 }
