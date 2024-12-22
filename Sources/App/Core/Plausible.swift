@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Vapor
+import Dependencies
 
 
 enum Plausible {
@@ -46,19 +47,15 @@ enum Plausible {
     static let postEventURL = "https://plausible.io/api/event"
 
     static func postEvent(kind: Event.Kind, path: Path, user: User?) async throws {
-#warning("FIXME: need to inject a http client here to so we can test this in PlausibleTests")
         guard let siteID = Current.plausibleBackendReportingSiteID() else {
             throw Error(message: "PLAUSIBLE_BACKEND_REPORTING_SITE_ID not set")
         }
-        let data = try JSONEncoder().encode(Event(name: .pageview,
+        let body = try JSONEncoder().encode(Event(name: .pageview,
                                                   url: "https://\(siteID)\(path.rawValue)",
                                                   domain: siteID,
                                                   props: user.props))
-        let req = try Vapor.HTTPClient.Request(url: postEventURL,
-                                               method: .POST,
-                                               headers: .applicationJSON,
-                                               body: .data(data))
-        let res = try await Vapor.HTTPClient.shared.execute(request: req).get()
+        @Dependency(\.httpClient) var httpClient
+        let res = try await httpClient.post(url: postEventURL, headers: .applicationJSON, body: body)
         guard res.status.succeeded else {
             throw Error(message: "Request failed with status code: \(res.status)")
         }
