@@ -36,14 +36,12 @@ struct AppEnvironment: Sendable {
     var gitlabPipelineLimit: @Sendable () -> Int
     var hideStagingBanner: @Sendable () -> Bool
     var maintenanceMessage: @Sendable () -> String?
-    var httpClient: @Sendable () -> Client
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var logger: @Sendable () -> Logger
     var metricsPushGatewayUrl: @Sendable () -> String?
     var plausibleBackendReportingSiteID: @Sendable () -> String?
     var processingBuildBacklog: @Sendable () -> Bool
     var runnerIds: @Sendable () -> [String]
-    var setHTTPClient: @Sendable (Client) -> Void
     var setLogger: @Sendable (Logger) -> Void
     var shell: Shell
     var siteURL: @Sendable () -> String
@@ -65,7 +63,6 @@ struct AppEnvironment: Sendable {
 
 
 extension AppEnvironment {
-    nonisolated(unsafe) static var httpClient: Client!
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
@@ -96,7 +93,6 @@ extension AppEnvironment {
         maintenanceMessage: {
             Environment.get("MAINTENANCE_MESSAGE").flatMap(\.trimmed)
         },
-        httpClient: { httpClient },
         loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
@@ -110,7 +106,6 @@ extension AppEnvironment {
                 .flatMap { try? JSONDecoder().decode([String].self, from: $0) }
             ?? []
         },
-        setHTTPClient: { client in Self.httpClient = client },
         setLogger: { logger in Self.logger = logger },
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },

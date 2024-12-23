@@ -27,7 +27,6 @@ public func configure(_ app: Application) async throws -> String {
 
     app.logger.component = "server"
     Current.setLogger(app.logger)
-    Current.setHTTPClient(app.client)
 
     // It will be tempting to uncomment/re-add these lines in the future. We should not enable
     // server-side compression as long as we pass requests through Cloudflare, which compresses
