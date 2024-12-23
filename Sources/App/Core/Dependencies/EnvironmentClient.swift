@@ -21,7 +21,7 @@ import Vapor
 struct EnvironmentClient {
     // See https://swiftpackageindex.com/pointfreeco/swift-dependencies/main/documentation/dependenciesmacros/dependencyclient()#Restrictions
     // regarding the use of XCTFail here.
-    // Closures returning optionals or Void don't need this, because they automatically get the default failing
+    // Closures that are throwing or return Void don't need this, because they automatically get the default failing
     // mechanism when they're not set up in a test.
     var allowBuildTriggers: @Sendable () -> Bool = { XCTFail("allowBuildTriggers"); return true }
     var allowSocialPosts: @Sendable () -> Bool = { XCTFail("allowSocialPosts"); return true }
@@ -42,7 +42,8 @@ struct EnvironmentClient {
     var currentReferenceCache: @Sendable () -> CurrentReferenceCache?
     var dbId: @Sendable () -> String?
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
-    var mastodonPost: @Sendable (_ client: Client, _ post: String) async throws -> Void
+    #warning("drop client parameter and move this to httpClient")
+    var mastodonPost: @Sendable (_ client: Client, _ message: String) async throws -> Void
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
 
     enum FailureMode: String {

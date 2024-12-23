@@ -20,15 +20,22 @@ import Vapor
 
 @DependencyClient
 struct HTTPClient {
+    typealias Request = Vapor.HTTPClient.Request
     typealias Response = Vapor.HTTPClient.Response
 
+    var post: @Sendable (_ url: String, _ headers: HTTPHeaders, _ body: Data) async throws -> Response
     var fetchDocumentation: @Sendable (_ url: URI) async throws -> Response
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
+    var postPlausibleEvent: @Sendable (_ kind: Plausible.Event.Kind, _ path: Plausible.Path, _ user: User?) async throws -> Void
 }
 
 extension HTTPClient: DependencyKey {
     static var liveValue: HTTPClient {
         .init(
+            post: { url, headers, body in
+                let req = try Request(url: url, method: .POST, headers: headers, body: .data(body))
+                return try await Vapor.HTTPClient.shared.execute(request: req).get()
+            },
             fetchDocumentation: { url in
                 try await Vapor.HTTPClient.shared.get(url: url.string).get()
             },
@@ -45,6 +52,9 @@ extension HTTPClient: DependencyKey {
                 } defer: {
                     try await client.shutdown()
                 }
+            },
+            postPlausibleEvent: { kind, path, user in
+                try await Plausible.postEvent(kind: kind, path: path, user: user)
             }
         )
     }
@@ -73,6 +83,10 @@ extension HTTPClient {
             // echo url.path in the body as a simple way to test the requested url
                 .init(status: .ok, headers: headers, body: .init(string: url.path))
         }
+    }
+
+    static var noop: @Sendable (_ kind: Plausible.Event.Kind, _ path: Plausible.Path, _ user: User?) async throws -> Void {
+        { _, _, _ in }
     }
 }
 

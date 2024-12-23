@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Vapor
+import Dependencies
 
 
 enum Plausible {
@@ -43,18 +44,18 @@ enum Plausible {
         var message: String
     }
 
-    static let postEventURI = URI(string: "https://plausible.io/api/event")
+    static let postEventURL = "https://plausible.io/api/event"
 
-    static func postEvent(client: Client, kind: Event.Kind, path: Path, user: User?) async throws {
+    static func postEvent(kind: Event.Kind, path: Path, user: User?) async throws {
         guard let siteID = Current.plausibleBackendReportingSiteID() else {
             throw Error(message: "PLAUSIBLE_BACKEND_REPORTING_SITE_ID not set")
         }
-        let res = try await client.post(postEventURI, headers: .applicationJSON) { req in
-            try req.content.encode(Event(name: .pageview,
-                                         url: "https://\(siteID)\(path.rawValue)",
-                                         domain: siteID,
-                                         props: user.props))
-        }
+        let body = try JSONEncoder().encode(Event(name: .pageview,
+                                                  url: "https://\(siteID)\(path.rawValue)",
+                                                  domain: siteID,
+                                                  props: user.props))
+        @Dependency(\.httpClient) var httpClient
+        let res = try await httpClient.post(url: postEventURL, headers: .applicationJSON, body: body)
         guard res.status.succeeded else {
             throw Error(message: "Request failed with status code: \(res.status)")
         }
