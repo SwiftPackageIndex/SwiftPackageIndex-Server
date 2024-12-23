@@ -22,8 +22,8 @@ import Vapor
 struct HTTPClient {
     typealias Response = Vapor.HTTPClient.Response
 
-    var fetchDocumentation: @Sendable (_ url: URI) async throws -> Response = { _ in XCTFail("fetchDocumentation"); return .ok }
-    var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus = { _ in XCTFail("fetchHTTPStatusCode"); return .ok }
+    var fetchDocumentation: @Sendable (_ url: URI) async throws -> Response
+    var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
 }
 
 extension HTTPClient: DependencyKey {
