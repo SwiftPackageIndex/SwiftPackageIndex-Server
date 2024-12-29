@@ -18,34 +18,45 @@ import Vapor
 
 enum Mastodon {
 
-    private static let instance = "mas.to"
-    private static let apiURL = "https://\(instance)/api/v1/statuses"
+    private static let apiHost = "mas.to"
+    private static let apiPath = "/api/v1/statuses"
     static let postMaxLength = 490  // 500, leaving some buffer for unicode accounting oddities
 
     struct Credentials {
         var accessToken: String
     }
 
-    // NB: _testEncodedURL is a callback that exists purely to be able to regression test the encoded value
-    static func post(client: Client, message: String, _testEncodedURL: (String) -> Void = { _ in }) async throws {
+    static func apiURL(with message: String) throws -> String {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = apiHost
+        components.path = apiPath
+        components.queryItems = [URLQueryItem(name: "status", value: message)]
+        guard let url = components.string else {
+            throw Social.Error.invalidURL
+        }
+        return url
+    }
+
+    static func post(message: String) async throws {
         @Dependency(\.environment) var environment
+        @Dependency(\.httpClient) var httpClient
+        @Dependency(\.uuid) var uuid
         guard let credentials = environment.mastodonCredentials() else {
             throw Social.Error.missingCredentials
         }
 
         let headers = HTTPHeaders([
             ("Authorization", "Bearer \(credentials.accessToken)"),
-            ("Idempotency-Key", UUID().uuidString),
+            ("Idempotency-Key", uuid().uuidString),
         ])
 
         struct Query: Encodable {
             var status: String
         }
 
-        let res = try await client.post(URI(string: apiURL), headers: headers) { req in
-            try req.query.encode(Query(status: message))
-            _testEncodedURL(req.url.string)
-        }
+        let res = try await httpClient.post(url: apiURL(with: message), headers: headers, body: nil)
+
         guard res.status == .ok else {
             throw Social.Error.requestFailed(res.status, res.body?.asString() ?? "")
         }

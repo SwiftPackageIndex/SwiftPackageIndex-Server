@@ -25,7 +25,7 @@ final class MastodonTests: AppTestCase {
         let message = QueueIsolated<String?>(nil)
         try await withDependencies {
             $0.environment.allowSocialPosts = { true }
-            $0.environment.mastodonPost = { @Sendable _, msg in
+            $0.httpClient.mastodonPost = { @Sendable msg in
                 if message.value == nil {
                     message.setValue(msg)
                 } else {

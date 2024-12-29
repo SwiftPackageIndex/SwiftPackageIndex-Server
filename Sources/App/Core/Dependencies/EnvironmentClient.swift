@@ -42,8 +42,6 @@ struct EnvironmentClient {
     var currentReferenceCache: @Sendable () -> CurrentReferenceCache?
     var dbId: @Sendable () -> String?
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
-    #warning("drop client parameter and move this to httpClient")
-    var mastodonPost: @Sendable (_ client: Client, _ message: String) async throws -> Void
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
 
     enum FailureMode: String {
@@ -110,7 +108,6 @@ extension EnvironmentClient: DependencyKey {
                 Environment.get("MASTODON_ACCESS_TOKEN")
                     .map(Mastodon.Credentials.init(accessToken:))
             },
-            mastodonPost: { client, message in try await Mastodon.post(client: client, message: message) },
             random: { range in Double.random(in: range) },
             shouldFail: { failureMode in
                 let shouldFail = Environment.get("FAILURE_MODE")

@@ -36,6 +36,7 @@ final class PlausibleTests: XCTestCase {
             $0.httpClient.post = { @Sendable _, _, body in
                 await called.withValue { $0 = true }
                 // validate
+                let body = try XCTUnwrap(body)
                 XCTAssertEqual(try? JSONDecoder().decode(Plausible.Event.self, from: body),
                                .init(name: .pageview,
                                      url: "https://foo.bar/api/search",
@@ -59,6 +60,7 @@ final class PlausibleTests: XCTestCase {
             $0.httpClient.post = { @Sendable _, _, body in
                 await called.withValue { $0 = true }
                 // validate
+                let body = try XCTUnwrap(body)
                 XCTAssertEqual(try? JSONDecoder().decode(Plausible.Event.self, from: body),
                                .init(name: .pageview,
                                      url: "https://foo.bar/api/packages/{owner}/{repository}",
