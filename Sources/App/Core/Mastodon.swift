@@ -18,12 +18,24 @@ import Vapor
 
 enum Mastodon {
 
-    private static let instance = "mas.to"
-    private static let apiURL = "https://\(instance)/api/v1/statuses"
+    private static let apiHost = "mas.to"
+    private static let apiPath = "/api/v1/statuses"
     static let postMaxLength = 490  // 500, leaving some buffer for unicode accounting oddities
 
     struct Credentials {
         var accessToken: String
+    }
+
+    static func apiURL(with message: String) throws -> String {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = apiHost
+        components.path = apiPath
+        components.queryItems = [URLQueryItem(name: "status", value: message)]
+        guard let url = components.string else {
+            throw Social.Error.invalidURL
+        }
+        return url
     }
 
     static func post(message: String) async throws {
@@ -43,15 +55,7 @@ enum Mastodon {
             var status: String
         }
 
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = Mastodon.instance
-        components.path = "/api/v1/statuses"
-        components.queryItems = [URLQueryItem(name: "status", value: message)]
-        guard let url = components.string else {
-            throw Social.Error.invalidURL
-        }
-        let res = try await httpClient.post(url: url, headers: headers, body: nil)
+        let res = try await httpClient.post(url: apiURL(with: message), headers: headers, body: nil)
 
         guard res.status == .ok else {
             throw Social.Error.requestFailed(res.status, res.body?.asString() ?? "")
