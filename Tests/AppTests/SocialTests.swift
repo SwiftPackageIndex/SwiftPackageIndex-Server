@@ -196,7 +196,7 @@ class SocialTests: AppTestCase {
 
         try await withDependencies {
             $0.environment.allowSocialPosts = { true }
-            $0.environment.mastodonPost = { @Sendable _, _ in posted.withLockedValue { $0 += 1 } }
+            $0.httpClient.mastodonPost = { @Sendable _ in posted.withLockedValue { $0 += 1 } }
         } operation: {
             // MUT
             try await Social.postToFirehose(client: app.client,
@@ -228,7 +228,7 @@ class SocialTests: AppTestCase {
 
         try await withDependencies {
             $0.environment.allowSocialPosts = { true }
-            $0.environment.mastodonPost = { @Sendable _, msg in
+            $0.httpClient.mastodonPost = { @Sendable msg in
                 XCTAssertTrue(msg.contains("v2.0.0"))
                 posted.withLockedValue { $0 += 1 }
             }
@@ -244,8 +244,24 @@ class SocialTests: AppTestCase {
     }
 
     func test_urlEncoding() async throws {
-        await withDependencies {
+        let called = ActorIsolated(false)
+        try await withDependencies {
             $0.environment.mastodonCredentials = { .init(accessToken: "fakeToken") }
+            $0.httpClient.post = { @Sendable url, headers, _ in
+                // validate
+                assertInlineSnapshot(of: url, as: .lines) {
+                """
+                https://mas.to/api/v1/statuses?status=%E2%AC%86%EF%B8%8F%20owner%20just%20released%20packageName%20v2.6.4%0A%0Ahttp%3A%2F%2Flocalhost%3A8080%2Fowner%2FSuperAwesomePackage%23releases
+                """
+                }
+                XCTAssertEqual(headers, HTTPHeaders([
+                    ("Authorization", "Bearer fakeToken"),
+                    ("Idempotency-Key", UUID.id0.uuidString),
+                ]))
+                await called.withValue{ $0 = true }
+                return .ok
+            }
+            $0.uuid = .constant(.id0)
         } operation: {
             // setup
             let message = Social.versionUpdateMessage(
@@ -258,13 +274,10 @@ class SocialTests: AppTestCase {
             )
 
             // MUT
-            try? await Mastodon.post(client: app.client, message: message) { encoded in
-                assertInlineSnapshot(of: encoded, as: .lines) {
-                """
-                https://mas.to/api/v1/statuses?status=%E2%AC%86%EF%B8%8F%20owner%20just%20released%20packageName%20v2.6.4%0A%0Ahttp%3A%2F%2Flocalhost%3A8080%2Fowner%2FSuperAwesomePackage%23releases
-                """
-                }
-            }
+            try await Mastodon.post(message: message)
+
+            // validate
+            try await XCTAssertEqualAsync(await called.value, true)
         }
     }
 

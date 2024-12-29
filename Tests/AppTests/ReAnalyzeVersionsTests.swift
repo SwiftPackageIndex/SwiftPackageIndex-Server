@@ -29,7 +29,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .t0
             $0.environment.allowSocialPosts = { true }
-            $0.environment.mastodonPost = { @Sendable _, _ in }
+            $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
             // setup
             // - package dump does not include toolsVersion, targets to simulate an "old version"

@@ -26,26 +26,33 @@ enum Mastodon {
         var accessToken: String
     }
 
-    // NB: _testEncodedURL is a callback that exists purely to be able to regression test the encoded value
-    static func post(client: Client, message: String, _testEncodedURL: (String) -> Void = { _ in }) async throws {
+    static func post(message: String) async throws {
         @Dependency(\.environment) var environment
+        @Dependency(\.httpClient) var httpClient
+        @Dependency(\.uuid) var uuid
         guard let credentials = environment.mastodonCredentials() else {
             throw Social.Error.missingCredentials
         }
 
         let headers = HTTPHeaders([
             ("Authorization", "Bearer \(credentials.accessToken)"),
-            ("Idempotency-Key", UUID().uuidString),
+            ("Idempotency-Key", uuid().uuidString),
         ])
 
         struct Query: Encodable {
             var status: String
         }
 
-        let res = try await client.post(URI(string: apiURL), headers: headers) { req in
-            try req.query.encode(Query(status: message))
-            _testEncodedURL(req.url.string)
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = Mastodon.instance
+        components.path = "/api/v1/statuses"
+        components.queryItems = [URLQueryItem(name: "status", value: message)]
+        guard let url = components.string else {
+            throw Social.Error.invalidURL
         }
+        let res = try await httpClient.post(url: url, headers: headers, body: nil)
+
         guard res.status == .ok else {
             throw Social.Error.requestFailed(res.status, res.body?.asString() ?? "")
         }

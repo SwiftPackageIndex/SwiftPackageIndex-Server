@@ -22,6 +22,7 @@ enum Social {
 
     enum Error: LocalizedError {
         case invalidMessage
+        case invalidURL
         case missingCredentials
         case postingDisabled
         case requestFailed(HTTPStatus, String)
@@ -98,6 +99,7 @@ enum Social {
                                package: Joined<Package, Repository>,
                                version: Version) async throws {
         @Dependency(\.environment) var environment
+        @Dependency(\.httpClient) var httpClient
         guard environment.allowSocialPosts() else { throw Error.postingDisabled }
         guard let message = firehoseMessage(package: package,
                                             version: version,
@@ -105,7 +107,7 @@ enum Social {
             throw Error.invalidMessage
         }
         // Ignore errors from here for now to keep concurrency simpler
-        async let _ = try? await environment.mastodonPost(client: client, message: message)
+        async let _ = try? await httpClient.mastodonPost(message: message)
     }
 
     static func postToFirehose(client: Client,
