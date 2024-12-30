@@ -258,12 +258,13 @@ enum Ingestion {
 
     static func fetchMetadata(client: Client, package: Package, owner: String, repository: String) async throws(Github.Error) -> (Github.Metadata, Github.License?, Github.Readme?) {
         @Dependency(\.environment) var environment
+        @Dependency(\.github) var github
         if environment.shouldFail(failureMode: .fetchMetadataFailed) {
             throw Github.Error.requestFailed(.internalServerError)
         }
 
         async let metadata = try await Current.fetchMetadata(client, owner, repository)
-        async let license = await Current.fetchLicense(client, owner, repository)
+        async let license = await github.fetchLicense(client, owner, repository)
         async let readme = await Current.fetchReadme(client, owner, repository)
 
         do {

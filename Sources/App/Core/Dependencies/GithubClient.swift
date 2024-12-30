@@ -15,17 +15,22 @@
 
 import Dependencies
 import DependenciesMacros
+#warning("temporary, until we drop Client")
+import protocol Vapor.Client
 
 
 @DependencyClient
 struct GithubClient {
-
+#warning("drop Client parameter")
+    var fetchLicense: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.License?
 }
 
 
 extension GithubClient: DependencyKey {
     static var liveValue: Self {
-        .init()
+        .init(
+            fetchLicense: { client, owner, repo in await Github.fetchLicense(client:client, owner: owner, repository: repo) }
+        )
     }
 }
 

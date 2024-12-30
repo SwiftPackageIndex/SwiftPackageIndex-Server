@@ -64,30 +64,33 @@ class IngestionTests: AppTestCase {
 
     func test_ingest_continue_on_error() async throws {
         // Test completion of ingestion despite early error
-        // setup
-        let packages = try await savePackages(on: app.db, ["https://github.com/foo/1",
-                                                           "https://github.com/foo/2"], processingStage: .reconciliation)
-            .map(Joined<Package, Repository>.init(model:))
-        Current.fetchMetadata = { _, owner, repository throws(Github.Error) in
-            if owner == "foo" && repository == "1" {
-                throw Github.Error.requestFailed(.badRequest)
+        try await withDependencies {
+            $0.github.fetchLicense = { @Sendable _, _, _ in Github.License(htmlUrl: "license") }
+        } operation: {
+            // setup
+            let packages = try await savePackages(on: app.db, ["https://github.com/foo/1",
+                                                               "https://github.com/foo/2"], processingStage: .reconciliation)
+                .map(Joined<Package, Repository>.init(model:))
+            Current.fetchMetadata = { _, owner, repository throws(Github.Error) in
+                if owner == "foo" && repository == "1" {
+                    throw Github.Error.requestFailed(.badRequest)
+                }
+                return .mock(owner: owner, repository: repository)
             }
-            return .mock(owner: owner, repository: repository)
-        }
-        Current.fetchLicense = { _, _, _ in Github.License(htmlUrl: "license") }
 
-        // MUT
-        await Ingestion.ingest(client: app.client, database: app.db, packages: packages)
+            // MUT
+            await Ingestion.ingest(client: app.client, database: app.db, packages: packages)
 
-        do {
-            // validate the second package's license is updated
-            let repo = try await Repository.query(on: app.db)
-                .filter(\.$name == "2")
-                .first()
-                .unwrap()
-            XCTAssertEqual(repo.licenseUrl, "license")
-            for pkg in try await Package.query(on: app.db).all() {
-                XCTAssertEqual(pkg.processingStage, .ingestion, "\(pkg.url) must be in ingestion")
+            do {
+                // validate the second package's license is updated
+                let repo = try await Repository.query(on: app.db)
+                    .filter(\.$name == "2")
+                    .first()
+                    .unwrap()
+                XCTAssertEqual(repo.licenseUrl, "license")
+                for pkg in try await Package.query(on: app.db).all() {
+                    XCTAssertEqual(pkg.processingStage, .ingestion, "\(pkg.url) must be in ingestion")
+                }
             }
         }
     }
@@ -619,22 +622,25 @@ class IngestionTests: AppTestCase {
 
     func test_issue_761_no_license() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
-        // setup
-        let pkg = Package(url: "https://github.com/foo/1")
-        try await pkg.save(on: app.db)
-        // use mock for metadata request which we're not interested in ...
-        Current.fetchMetadata = { _, _, _ in Github.Metadata() }
-        // and live fetch request for fetchLicense, whose behaviour we want to test ...
-        Current.fetchLicense = { client, owner, repo in await Github.fetchLicense(client: client, owner: owner, repository: repo) }
-        // and simulate its underlying request returning a 404 (by making all requests
-        // return a 404, but it's the only one we're sending)
-        let client = MockClient { _, resp in resp.status = .notFound }
+        try await withDependencies {
+            // use live fetch request for fetchLicense, whose behaviour we want to test ...
+            $0.github.fetchLicense = { @Sendable client, owner, repo in await Github.fetchLicense(client: client, owner: owner, repository: repo) }
+        } operation: {
+            // setup
+            let pkg = Package(url: "https://github.com/foo/1")
+            try await pkg.save(on: app.db)
+            // use mock for metadata request which we're not interested in ...
+            Current.fetchMetadata = { _, _, _ in Github.Metadata() }
+            // and simulate its underlying request returning a 404 (by making all requests
+            // return a 404, but it's the only one we're sending)
+            let client = MockClient { _, resp in resp.status = .notFound }
 
-        // MUT
-        let (_, license, _) = try await Ingestion.fetchMetadata(client: client, package: pkg, owner: "foo", repository: "1")
+            // MUT
+            let (_, license, _) = try await Ingestion.fetchMetadata(client: client, package: pkg, owner: "foo", repository: "1")
 
-        // validate
-        XCTAssertEqual(license, nil)
+            // validate
+            XCTAssertEqual(license, nil)
+        }
     }
 
     func test_migration076_updateRepositoryResetReadmes() async throws {
