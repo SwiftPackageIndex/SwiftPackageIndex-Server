@@ -23,7 +23,9 @@ struct HTTPClient {
     typealias Request = Vapor.HTTPClient.Request
     typealias Response = Vapor.HTTPClient.Response
 
+    var get: @Sendable (_ url: String, _ headers: HTTPHeaders) async throws -> Response
     var post: @Sendable (_ url: String, _ headers: HTTPHeaders, _ body: Data?) async throws -> Response
+
     var fetchDocumentation: @Sendable (_ url: URI) async throws -> Response
     var fetchHTTPStatusCode: @Sendable (_ url: String) async throws -> HTTPStatus
     var mastodonPost: @Sendable (_ message: String) async throws -> Void
@@ -33,6 +35,10 @@ struct HTTPClient {
 extension HTTPClient: DependencyKey {
     static var liveValue: HTTPClient {
         .init(
+            get: { url, headers in
+                let req = try Request(url: url, method: .GET, headers: headers)
+                return try await Vapor.HTTPClient.shared.execute(request: req).get()
+            },
             post: { url, headers, body in
                 let req = try Request(url: url, method: .POST, headers: headers, body: body.map({.data($0)}))
                 return try await Vapor.HTTPClient.shared.execute(request: req).get()
