@@ -37,3 +37,15 @@ func run<T, E1: Error, E2: Error>(_ operation: () async throws(E1) -> T,
         throw transform(error)
     }
 }
+
+
+@discardableResult
+func run<T, E1: Error, E2: Error>(_ operation: () throws(E1) -> T,
+                                  rethrowing transform: (E1) -> E2) throws(E2) -> T {
+    do {
+        let result = try operation()
+        return result
+    } catch {
+        throw transform(error)
+    }
+}
