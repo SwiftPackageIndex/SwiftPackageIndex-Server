@@ -108,7 +108,8 @@ extension Github {
                 return "https://api.github.com/repos/\(owner)/\(repository)/\(resource.rawValue)"
         }
     }
-
+    
+    @available(*, deprecated)
     static func fetch(client: Client, uri: URI, headers: [(String, String)] = []) async throws -> (content: String, etag: String?) {
         guard let token = Current.githubToken() else {
             throw Error.missingToken
@@ -170,7 +171,7 @@ extension Github {
 
         guard response.status == .ok else { throw Error.requestFailed(response.status) }
         guard let body = response.body else { throw Github.Error.noBody }
-        
+
         return try decoder.decode(T.self, from: body)
     }
 
