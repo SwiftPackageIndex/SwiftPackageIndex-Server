@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Vapor
-import SwiftSoup
+import Dependencies
 import S3Store
+import SwiftSoup
+import Vapor
 
 
 enum Github {
@@ -35,6 +36,7 @@ enum Github {
         return decoder
     }
 
+    @available(*, deprecated)
     static func rateLimit(response: ClientResponse) -> Int? {
         guard
             let header = response.headers.first(name: "X-RateLimit-Remaining"),
@@ -43,7 +45,22 @@ enum Github {
         return limit
     }
 
+    static func rateLimit(response: HTTPClient.Response) -> Int? {
+        guard
+            let header = response.headers.first(name: "X-RateLimit-Remaining"),
+            let limit = Int(header)
+        else { return nil }
+        return limit
+    }
+
+    @available(*, deprecated)
     static func isRateLimited(_ response: ClientResponse) -> Bool {
+        guard let limit = rateLimit(response: response) else { return false }
+        AppMetrics.githubRateLimitRemainingCount?.set(limit)
+        return response.status == .forbidden && limit == 0
+    }
+
+    static func isRateLimited(_ response: HTTPClient.Response) -> Bool {
         guard let limit = rateLimit(response: response) else { return false }
         AppMetrics.githubRateLimitRemainingCount?.set(limit)
         return response.status == .forbidden && limit == 0
@@ -77,10 +94,18 @@ extension Github {
         case readme
     }
 
+    @available(*, deprecated)
     static func apiUri(owner: String, repository: String, resource: Resource)  -> URI {
         switch resource {
             case .license, .readme:
                 return URI(string: "https://api.github.com/repos/\(owner)/\(repository)/\(resource.rawValue)")
+        }
+    }
+
+    static func apiURL(owner: String, repository: String, resource: Resource)  -> String {
+        switch resource {
+            case .license, .readme:
+                return "https://api.github.com/repos/\(owner)/\(repository)/\(resource.rawValue)"
         }
     }
 
@@ -109,6 +134,7 @@ extension Github {
         return (body.asString(), response.headers.first(name: .eTag))
     }
 
+    @available(*, deprecated)
     static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, uri: URI) async throws -> T {
         guard let token = Current.githubToken() else {
             throw Error.missingToken
@@ -128,9 +154,35 @@ extension Github {
         return try response.content.decode(T.self, using: decoder)
     }
 
+    static func fetchResource<T: Decodable>(_ type: T.Type, url: String) async throws -> T {
+        guard let token = Current.githubToken() else {
+            throw Error.missingToken
+        }
+
+        @Dependency(\.httpClient) var httpClient
+
+        let response = try await httpClient.get(url: url, headers: defaultHeaders(with: token))
+
+        guard !isRateLimited(response) else {
+            Current.logger().critical("rate limited while fetching resource \(url)")
+            throw Error.requestFailed(.tooManyRequests)
+        }
+
+        guard response.status == .ok else { throw Error.requestFailed(response.status) }
+        guard let body = response.body else { throw Github.Error.noBody }
+        
+        return try decoder.decode(T.self, from: body)
+    }
+
+    @available(*, deprecated)
     static func fetchLicense(client: Client, owner: String, repository: String) async -> License? {
         let uri = Github.apiUri(owner: owner, repository: repository, resource: .license)
         return try? await Github.fetchResource(Github.License.self, client: client, uri: uri)
+    }
+
+    static func fetchLicense(owner: String, repository: String) async -> License? {
+        let url = Github.apiURL(owner: owner, repository: repository, resource: .license)
+        return try? await Github.fetchResource(Github.License.self, url: url)
     }
 
     static func fetchReadme(client: Client, owner: String, repository: String) async -> Readme? {
@@ -466,7 +518,7 @@ extension Github {
                 }
             }
         }
-        
+
         struct Parent: Decodable, Equatable {
             var url: String?
         }
