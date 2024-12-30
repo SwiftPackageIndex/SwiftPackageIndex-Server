@@ -171,7 +171,7 @@ enum Ingestion {
             // Even though we have a `Joined<Package, Repository>` as a parameter, we must not rely
             // on `repository` for owner/name as it will be nil when a package is first ingested.
             // The only way to get `owner` and `repository` here is by parsing them from the URL.
-            let (owner, repository) = try await run {
+            let (owner, repository) = try run {
                 if environment.shouldFail(failureMode: .invalidURL) {
                     throw Github.Error.invalidURL(package.model.url)
                 }
