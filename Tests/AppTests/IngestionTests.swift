@@ -36,7 +36,7 @@ class IngestionTests: AppTestCase {
 
         try await withDependencies {
             $0.date.now = .now
-            $0.github.fetchLicense = { @Sendable _, _, _ in nil }
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
@@ -66,7 +66,7 @@ class IngestionTests: AppTestCase {
     func test_ingest_continue_on_error() async throws {
         // Test completion of ingestion despite early error
         try await withDependencies {
-            $0.github.fetchLicense = { @Sendable _, _, _ in Github.License(htmlUrl: "license") }
+            $0.github.fetchLicense = { @Sendable _, _ in Github.License(htmlUrl: "license") }
         } operation: {
             // setup
             let packages = try await savePackages(on: app.db, ["https://github.com/foo/1",
@@ -312,7 +312,7 @@ class IngestionTests: AppTestCase {
 
         try await withDependencies {
             $0.date.now = .now
-            $0.github.fetchLicense = { @Sendable _, _, _ in nil }
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
@@ -340,7 +340,7 @@ class IngestionTests: AppTestCase {
 
         try await withDependencies {
             $0.date.now = .now
-            $0.github.fetchLicense = { @Sendable _, _, _ in nil }
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
@@ -393,7 +393,7 @@ class IngestionTests: AppTestCase {
 
         try await withDependencies {
             $0.date.now = .now
-            $0.github.fetchLicense = { @Sendable _, _, _ in nil }
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
@@ -461,7 +461,7 @@ class IngestionTests: AppTestCase {
     func test_ingest_storeS3Readme() async throws {
         try await withDependencies {
             $0.date.now = .now
-            $0.github.fetchLicense = { @Sendable _, _, _ in nil }
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
         } operation: {
             // setup
             let app = self.app!
@@ -579,7 +579,7 @@ class IngestionTests: AppTestCase {
 
         try await withDependencies {
             $0.date.now = .now
-            $0.github.fetchLicense = { @Sendable _, _, _ in nil }
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
@@ -610,7 +610,7 @@ class IngestionTests: AppTestCase {
         do { // first ingestion, no readme has been saved
             try await withDependencies {
                 $0.date.now = .now
-                $0.github.fetchLicense = { @Sendable _, _, _ in nil }
+                $0.github.fetchLicense = { @Sendable _, _ in nil }
             } operation: {
                 // MUT
                 let app = self.app!
@@ -631,7 +631,7 @@ class IngestionTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         try await withDependencies {
             // use live fetch request for fetchLicense, whose behaviour we want to test ...
-            $0.github.fetchLicense = { @Sendable client, owner, repo in await Github.fetchLicense(client: client, owner: owner, repository: repo) }
+            $0.github.fetchLicense = { @Sendable owner, repo in await Github.fetchLicense(owner: owner, repository: repo) }
         } operation: {
             // setup
             let pkg = Package(url: "https://github.com/foo/1")

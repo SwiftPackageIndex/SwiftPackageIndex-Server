@@ -264,7 +264,7 @@ enum Ingestion {
         }
 
         async let metadata = try await Current.fetchMetadata(client, owner, repository)
-        async let license = await github.fetchLicense(client, owner, repository)
+        async let license = await github.fetchLicense(owner, repository)
         async let readme = await Current.fetchReadme(client, owner, repository)
 
         do {
