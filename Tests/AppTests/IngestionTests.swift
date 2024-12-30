@@ -36,6 +36,7 @@ class IngestionTests: AppTestCase {
 
         try await withDependencies {
             $0.date.now = .now
+            $0.github.fetchLicense = { @Sendable _, _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
@@ -311,6 +312,7 @@ class IngestionTests: AppTestCase {
 
         try await withDependencies {
             $0.date.now = .now
+            $0.github.fetchLicense = { @Sendable _, _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
@@ -338,6 +340,7 @@ class IngestionTests: AppTestCase {
 
         try await withDependencies {
             $0.date.now = .now
+            $0.github.fetchLicense = { @Sendable _, _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
@@ -390,6 +393,7 @@ class IngestionTests: AppTestCase {
 
         try await withDependencies {
             $0.date.now = .now
+            $0.github.fetchLicense = { @Sendable _, _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
@@ -457,6 +461,7 @@ class IngestionTests: AppTestCase {
     func test_ingest_storeS3Readme() async throws {
         try await withDependencies {
             $0.date.now = .now
+            $0.github.fetchLicense = { @Sendable _, _, _ in nil }
         } operation: {
             // setup
             let app = self.app!
@@ -574,6 +579,7 @@ class IngestionTests: AppTestCase {
 
         try await withDependencies {
             $0.date.now = .now
+            $0.github.fetchLicense = { @Sendable _, _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
@@ -604,6 +610,7 @@ class IngestionTests: AppTestCase {
         do { // first ingestion, no readme has been saved
             try await withDependencies {
                 $0.date.now = .now
+                $0.github.fetchLicense = { @Sendable _, _, _ in nil }
             } operation: {
                 // MUT
                 let app = self.app!
