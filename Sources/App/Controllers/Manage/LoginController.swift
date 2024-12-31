@@ -22,7 +22,14 @@ enum LoginController {
         }
         do {
             let user = try req.content.decode(UserCreds.self)
-            try await cognito.authenticate(req: req, username: user.email, password: user.password)
+            let response = try await cognito.authenticate(req: req, username: user.email, password: user.password)
+            switch response {
+            case .authenticated(let authenticatedResponse):
+                let user = AuthenticatedUser(accessToken: authenticatedResponse.accessToken!, refreshToken: authenticatedResponse.refreshToken!)
+                req.auth.login(user)
+            case .challenged(let challengedResponse): // with the current pool configuration, a challenge response is not expected
+                break
+            }
             return req.redirect(to: SiteURL.portal.relativeURL(), redirectType: .normal)
         } catch let error as SotoCognitoError {
             var model = Login.Model(errorMessage: "There was an error. Please try again.")

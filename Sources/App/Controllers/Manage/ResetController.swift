@@ -18,9 +18,9 @@ enum ResetController {
             var password: String
             var confirmationCode: String
         }
-        let user = try req.content.decode(UserInfo.self)
         do {
-            try await req.application.cognito.authenticatable.confirmForgotPassword(username: user.email, newPassword: user.password, confirmationCode: user.confirmationCode)
+            let user = try req.content.decode(UserInfo.self)
+            try await Cognito.resetPassword(req: req, username: user.email, password: user.password, confirmationCode: user.confirmationCode)
             let model = SuccessfulChange.Model(successMessage: "Successfully changed password")
             return SuccessfulChange.View(path: req.url.path, model: model).document()
         } catch let error as AWSErrorType {
