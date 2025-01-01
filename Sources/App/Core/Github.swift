@@ -212,6 +212,7 @@ extension Github {
 
 extension Github {
 
+    @available(*, deprecated)
     static let graphQLApiUri = URI(string: "https://api.github.com/graphql")
     static let graphQLApiURL = "https://api.github.com/graphql"
 
