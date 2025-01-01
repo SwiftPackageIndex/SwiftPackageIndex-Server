@@ -262,22 +262,14 @@ enum Ingestion {
             throw Github.Error.requestFailed(.internalServerError)
         }
 
-        // Work-around for
-        // Sending 'github' into async let risks causing data races between async let uses and local uses
-        // if we declare
-        //   @Dependency(\.github) var github
-        // up front. It needs to be local to each task instead.
-        func _fetchMetadata() async throws(Github.Error) -> Github.Metadata {
-            @Dependency(\.github) var github
-            return try await github.fetchMetadata(owner, repository)
-        }
-        func _fetchLicense() async -> Github.License? {
-            @Dependency(\.github) var github
-            return await github.fetchLicense(owner, repository)
-        }
+        // Need to pull in github functions individually, because otherwise the `async let` will trigger a
+        // concurrency error if github gets used more than once:
+        //   Sending 'github' into async let risks causing data races between async let uses and local uses
+        @Dependency(\.github.fetchMetadata) var fetchMetadata
+        @Dependency(\.github.fetchLicense) var fetchLicense
 
-        async let metadata = try await _fetchMetadata()
-        async let license = await _fetchLicense()
+        async let metadata = try await fetchMetadata(owner, repository)
+        async let license = await fetchLicense(owner, repository)
         async let readme = await Current.fetchReadme(client, owner, repository)
 
         do {

@@ -19,7 +19,7 @@ import PackageDescription
 let package = Package(
     name: "SPI-Server",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v15)
     ],
     products: [
         .executable(name: "Run", targets: ["Run"]),
