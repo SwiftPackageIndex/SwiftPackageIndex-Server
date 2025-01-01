@@ -258,13 +258,26 @@ enum Ingestion {
 
     static func fetchMetadata(client: Client, package: Package, owner: String, repository: String) async throws(Github.Error) -> (Github.Metadata, Github.License?, Github.Readme?) {
         @Dependency(\.environment) var environment
-        @Dependency(\.github) var github
         if environment.shouldFail(failureMode: .fetchMetadataFailed) {
             throw Github.Error.requestFailed(.internalServerError)
         }
 
-        async let metadata = try await Current.fetchMetadata(client, owner, repository)
-        async let license = await github.fetchLicense(owner, repository)
+        // Work-around for
+        // Sending 'github' into async let risks causing data races between async let uses and local uses
+        // if we declare
+        //   @Dependency(\.github) var github
+        // up front. It needs to be local to each task instead.
+        func _fetchMetadata() async throws(Github.Error) -> Github.Metadata {
+            @Dependency(\.github) var github
+            return try await github.fetchMetadata(owner, repository)
+        }
+        func _fetchLicense() async -> Github.License? {
+            @Dependency(\.github) var github
+            return await github.fetchLicense(owner, repository)
+        }
+
+        async let metadata = try await _fetchMetadata()
+        async let license = await _fetchLicense()
         async let readme = await Current.fetchReadme(client, owner, repository)
 
         do {

@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var fetchMetadata: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws(Github.Error) -> Github.Metadata
     var fetchReadme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async -> Github.Readme?
     var fetchS3Readme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> String
     var fileManager: FileManager
@@ -65,7 +64,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        fetchMetadata: { client, owner, repo throws(Github.Error) in try await Github.fetchMetadata(client:client, owner: owner, repository: repo) },
         fetchReadme: { client, owner, repo in await Github.fetchReadme(client:client, owner: owner, repository: repo) },
         fetchS3Readme: { client, owner, repo in try await S3Readme.fetchReadme(client:client, owner: owner, repository: repo) },
         fileManager: .live,
