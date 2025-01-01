@@ -318,7 +318,7 @@ class GithubTests: AppTestCase {
 
         await withDependencies {
             $0.httpClient.get = { @Sendable _, _ in
-                try .init(status: .ok, body: .fixture(named: "github-license-response.json"))
+                try .ok(fixture: "github-license-response.json")
             }
         } operation: {
             // MUT
@@ -478,17 +478,6 @@ class GithubTests: AppTestCase {
         }
     }
 
-}
-
-
-private extension ByteBuffer {
-    static func fixture(named filename: String) throws -> Self {
-        .init(data: try fixtureData(for: filename))
-    }
-
-    static func string(_ string: String) -> Self {
-        .init(string: string)
-    }
 }
 
 
