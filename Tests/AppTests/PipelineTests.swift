@@ -162,6 +162,7 @@ class PipelineTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
             $0.packageListRepository.fetchPackageList = { @Sendable _ in urls.asURLs }
             $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
@@ -169,7 +170,6 @@ class PipelineTests: AppTestCase {
         } operation: {
             // Test pipeline pick-up end to end
             // setup
-            Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
             Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.lastCommitDate = { @Sendable _ in .t1 }

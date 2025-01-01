@@ -34,10 +34,10 @@ class ErrorReportingTests: AppTestCase {
     func test_Ingestion_error_reporting() async throws {
         // setup
         try await Package(id: .id0, url: "1", processingStage: .reconciliation).save(on: app.db)
-        Current.fetchMetadata = { _, _, _ throws(Github.Error) in throw Github.Error.invalidURL("1") }
 
         try await withDependencies {
             $0.date.now = .now
+            $0.github.fetchMetadata = { @Sendable _, _ throws(Github.Error) in throw Github.Error.invalidURL("1") }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))

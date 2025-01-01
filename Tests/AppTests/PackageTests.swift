@@ -312,12 +312,12 @@ final class PackageTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
             $0.packageListRepository.fetchPackageList = { @Sendable _ in [url.url] }
             $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
         } operation: {
             // setup
-            Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
             Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.firstCommitDate = { @Sendable _ in Date(timeIntervalSince1970: 0) }
             Current.git.getTags = { @Sendable _ in [] }

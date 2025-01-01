@@ -26,6 +26,7 @@ final class MastodonTests: AppTestCase {
         try await withDependencies {
             $0.environment.allowSocialPosts = { true }
             $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
             $0.httpClient.mastodonPost = { @Sendable msg in
                 if message.value == nil {
                     message.setValue(msg)
@@ -36,8 +37,6 @@ final class MastodonTests: AppTestCase {
         } operation: {
             // setup
             let url = "https://github.com/foo/bar"
-            Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
-
             Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.lastCommitDate = { @Sendable _ in .t2 }
