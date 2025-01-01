@@ -261,28 +261,28 @@ class GithubTests: AppTestCase {
 
     func test_isRateLimited() throws {
         do {
-            let res = ClientResponse(status: .forbidden,
-                                     headers: .init([("X-RateLimit-Remaining", "0")]))
+            let res = HTTPClient.Response(status: .forbidden,
+                                          headers: .init([("X-RateLimit-Remaining", "0")]))
             XCTAssertTrue(Github.isRateLimited(res))
         }
         do {
-            let res = ClientResponse(status: .forbidden,
-                                     headers: .init([("x-ratelimit-remaining", "0")]))
+            let res = HTTPClient.Response(status: .forbidden,
+                                          headers: .init([("x-ratelimit-remaining", "0")]))
             XCTAssertTrue(Github.isRateLimited(res))
         }
         do {
-            let res = ClientResponse(status: .forbidden,
-                                     headers: .init([("X-RateLimit-Remaining", "1")]))
+            let res = HTTPClient.Response(status: .forbidden,
+                                          headers: .init([("X-RateLimit-Remaining", "1")]))
             XCTAssertFalse(Github.isRateLimited(res))
         }
         do {
-            let res = ClientResponse(status: .forbidden,
-                                     headers: .init([("unrelated", "0")]))
+            let res = HTTPClient.Response(status: .forbidden,
+                                          headers: .init([("unrelated", "0")]))
             XCTAssertFalse(Github.isRateLimited(res))
         }
         do {
-            let res = ClientResponse(status: .ok,
-                                     headers: .init([("X-RateLimit-Remaining", "0")]))
+            let res = HTTPClient.Response(status: .ok,
+                                          headers: .init([("X-RateLimit-Remaining", "0")]))
             XCTAssertFalse(Github.isRateLimited(res))
         }
     }
@@ -318,40 +318,44 @@ class GithubTests: AppTestCase {
         }
     }
 
-    func test_apiUri() throws {
-        XCTAssertEqual(Github.apiUri(owner: "foo", repository: "bar", resource: .license).string,
+    func test_apiURL() throws {
+        XCTAssertEqual(Github.apiURL(owner: "foo", repository: "bar", resource: .license),
                        "https://api.github.com/repos/foo/bar/license")
-        XCTAssertEqual(Github.apiUri(owner: "foo", repository: "bar", resource: .readme).string,
+        XCTAssertEqual(Github.apiURL(owner: "foo", repository: "bar", resource: .readme),
                        "https://api.github.com/repos/foo/bar/readme")
     }
 
     func test_fetchLicense() async throws {
         // setup
         Current.githubToken = { "secr3t" }
-        let data = try XCTUnwrap(try fixtureData(for: "github-license-response.json"))
-        let client = MockClient { _, resp in
-            resp.status = .ok
-            resp.body = makeBody(data)
+
+        await withDependencies {
+            $0.httpClient.get = { @Sendable _, _ in
+                try .init(status: .ok, body: .fixture(named: "github-license-response.json"))
+            }
+        } operation: {
+            // MUT
+            let res = await Github.fetchLicense(owner: "PSPDFKit", repository: "PSPDFKit-SP")
+
+            // validate
+            XCTAssertEqual(res?.htmlUrl, "https://github.com/PSPDFKit/PSPDFKit-SP/blob/master/LICENSE")
         }
-
-        // MUT
-        let res = await Github.fetchLicense(client: client, owner: "PSPDFKit", repository: "PSPDFKit-SP")
-
-        // validate
-        XCTAssertEqual(res?.htmlUrl, "https://github.com/PSPDFKit/PSPDFKit-SP/blob/master/LICENSE")
     }
 
     func test_fetchLicense_notFound() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup
         Current.githubToken = { "secr3t" }
-        let client = MockClient { _, resp in resp.status = .notFound }
 
-        // MUT
-        let res = await Github.fetchLicense(client: client, owner: "foo", repository: "bar")
+        await withDependencies {
+            $0.httpClient.get = { @Sendable _, _ in .notFound }
+        } operation: {
+            // MUT
+            let res = await Github.fetchLicense(owner: "foo", repository: "bar")
 
-        // validate
-        XCTAssertEqual(res, nil)
+            // validate
+            XCTAssertEqual(res, nil)
+        }
     }
 
     func test_fetchReadme() async throws {
@@ -487,4 +491,11 @@ class GithubTests: AppTestCase {
         }
     }
 
+}
+
+
+private extension ByteBuffer {
+    static func fixture(named filename: String) throws -> Self {
+        .init(data: try fixtureData(for: filename))
+    }
 }

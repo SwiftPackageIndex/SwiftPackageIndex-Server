@@ -175,12 +175,6 @@ extension Github {
         return try decoder.decode(T.self, from: body)
     }
 
-    @available(*, deprecated)
-    static func fetchLicense(client: Client, owner: String, repository: String) async -> License? {
-        let uri = Github.apiUri(owner: owner, repository: repository, resource: .license)
-        return try? await Github.fetchResource(Github.License.self, client: client, uri: uri)
-    }
-
     static func fetchLicense(owner: String, repository: String) async -> License? {
         let url = Github.apiURL(owner: owner, repository: repository, resource: .license)
         return try? await Github.fetchResource(Github.License.self, url: url)
