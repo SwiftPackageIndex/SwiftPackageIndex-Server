@@ -79,4 +79,34 @@ struct Cognito {
         try await req.application.cognito.authenticatable.confirmForgotPassword(username: username, newPassword: password, confirmationCode: confirmationCode)
         try awsClient.syncShutdown()
     }
+    
+    @Sendable
+    static func confirmSignUp(req: Request, username: String, confirmationCode: String) async throws {
+        let awsClient = AWSClient(httpClientProvider: .shared(req.application.http.client.shared))
+        let awsCognitoConfiguration = CognitoConfiguration(
+            userPoolId: Environment.get("AWS_COGNITO_POOL_ID")!,
+            clientId: Environment.get("AWS_COGNITO_CLIENT_ID")!,
+            clientSecret: Environment.get("AWS_COGNITO_CLIENT_SECRET")!,
+            cognitoIDP: CognitoIdentityProvider(client: awsClient, region: .useast2),
+            adminClient: true
+        )
+        req.application.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
+        try await req.application.cognito.authenticatable.confirmSignUp(username: username, confirmationCode: confirmationCode)
+    }
+    
+    @Sendable
+    static func deleteUser(req: Request, accessToken: String) async throws {
+        let awsClient = AWSClient(httpClientProvider: .shared(req.application.http.client.shared))
+        let awsCognitoConfiguration = CognitoConfiguration(
+            userPoolId: Environment.get("AWS_COGNITO_POOL_ID")!,
+            clientId: Environment.get("AWS_COGNITO_CLIENT_ID")!,
+            clientSecret: Environment.get("AWS_COGNITO_CLIENT_SECRET")!,
+            cognitoIDP: CognitoIdentityProvider(client: awsClient, region: .useast2),
+            adminClient: true
+        )
+        req.application.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
+        let request = CognitoIdentityProvider.DeleteUserRequest(accessToken: accessToken)
+        try await req.application.cognito.authenticatable.configuration.cognitoIDP.deleteUser(request)
+        try awsClient.syncShutdown()
+    }
 }

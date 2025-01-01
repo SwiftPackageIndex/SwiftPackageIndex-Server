@@ -18,15 +18,17 @@ enum VerifyController {
             var email: String
             var confirmationCode: String
         }
-        let info = try req.content.decode(VerifyInformation.self)
         do {
-            try await req.application.cognito.authenticatable.confirmSignUp(username: info.email, confirmationCode: info.confirmationCode)
+            let info = try req.content.decode(VerifyInformation.self)
+            try await Cognito.confirmSignUp(req: req, username: info.email, confirmationCode: info.confirmationCode)
             let model = SuccessfulChange.Model(successMessage: "Successfully confirmed signup")
             return SuccessfulChange.View(path: req.url.path, model: model).document()
         } catch let error as AWSErrorType {
+            let info = try req.content.decode(VerifyInformation.self)
             let model = Verify.Model(email: info.email, errorMessage: error.message ?? "There was an error.")
             return Verify.View(path: req.url.path, model: model).document()
         } catch {
+            let info = try req.content.decode(VerifyInformation.self)
             let model = Verify.Model(email: info.email, errorMessage: "An unknown error occurred: \(error.localizedDescription)")
             return Verify.View(path: req.url.path, model: model).document()
         }

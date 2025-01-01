@@ -10,8 +10,7 @@ enum DeleteAccountController {
     @Sendable
     static func deleteAccount(req: Request) async throws -> Response {
         do {
-            let request = try CognitoIdentityProvider.DeleteUserRequest(accessToken: req.auth.require(AuthenticatedUser.self).sessionID)
-            try await req.application.cognito.authenticatable.configuration.cognitoIDP.deleteUser(request)
+            try await Cognito.deleteUser(req: req, accessToken: req.auth.require(AuthenticatedUser.self).sessionID)
             req.auth.logout(AuthenticatedUser.self)
             req.session.unauthenticate(AuthenticatedUser.self)
             req.session.destroy()
