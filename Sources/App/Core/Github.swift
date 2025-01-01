@@ -289,17 +289,6 @@ extension Github {
         }
     }
 
-    @available(*, deprecated)
-    static func fetchMetadata(client: Client, owner: String, repository: String) async throws(Github.Error) -> Metadata {
-        struct Response<T: Decodable & Equatable>: Decodable, Equatable {
-            var data: T
-        }
-        return try await fetchResource(Response<Metadata>.self,
-                                       client: client,
-                                       query: Metadata.query(owner: owner, repository: repository))
-        .data
-    }
-
     static func fetchMetadata(owner: String, repository: String) async throws(Github.Error) -> Metadata {
         struct Response<T: Decodable & Equatable>: Decodable, Equatable {
             var data: T
@@ -307,11 +296,6 @@ extension Github {
         return try await fetchResource(Response<Metadata>.self,
                                        query: Metadata.query(owner: owner, repository: repository))
         .data
-    }
-
-    static func fetchMetadata(client: Client, packageUrl: String) async throws -> Metadata {
-        let (owner, name) = try parseOwnerName(url: packageUrl)
-        return try await fetchMetadata(client: client, owner: owner, repository: name)
     }
 
 }

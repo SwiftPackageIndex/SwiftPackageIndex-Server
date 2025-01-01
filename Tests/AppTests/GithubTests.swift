@@ -199,44 +199,27 @@ class GithubTests: AppTestCase {
         }
     }
 
-    func test_fetchMetadata_badUrl() async throws {
-        let pkg = Package(url: "https://foo/bar")
-        let client = MockClient { _, resp in
-            resp.status = .ok
-        }
-        do {
-            _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
-            XCTFail("expected error to be thrown")
-        } catch {
-            guard case Github.Error.invalidURL = error else {
-                XCTFail("unexpected error: \(error.localizedDescription)")
-                return
-            }
-        }
-    }
-
     func test_fetchMetadata_badData() async throws {
         // setup
         Current.githubToken = { "secr3t" }
-        let pkg = Package(url: "https://github.com/foo/bar")
-        let client = MockClient { _, resp in
-            resp.status = .ok
-            resp.body = makeBody("bad data")
-        }
 
-        // MUT
-        do {
-            _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
-            XCTFail("expected error to be thrown")
-        } catch let Github.Error.decodeContentFailed(uri, error) {
-            // validation
-            XCTAssertEqual(uri, "https://api.github.com/graphql")
-            guard case DecodingError.dataCorrupted = error else {
-                XCTFail("unexpected error: \(error.localizedDescription)")
-                return
+        await withDependencies {
+            $0.httpClient.post = { @Sendable _, _, _ in .ok(body: "bad data") }
+        } operation: {
+            // MUT
+            do {
+                _ = try await Github.fetchMetadata(owner: "foo", repository: "bar")
+                XCTFail("expected error to be thrown")
+            } catch let Github.Error.decodeContentFailed(uri, error) {
+                // validation
+                XCTAssertEqual(uri, "https://api.github.com/graphql")
+                guard case DecodingError.dataCorrupted = error else {
+                    XCTFail("unexpected error: \(error.localizedDescription)")
+                    return
+                }
+            } catch {
+                XCTFail("Unexpected error: \(error)")
             }
-        } catch {
-            XCTFail("Unexpected error: \(error)")
         }
     }
 
@@ -244,20 +227,20 @@ class GithubTests: AppTestCase {
         // Github doesn't actually send a 429 when you hit the rate limit
         // setup
         Current.githubToken = { "secr3t" }
-        let pkg = Package(url: "https://github.com/foo/bar")
-        let client = MockClient { _, resp in
-            resp.status = .tooManyRequests
-        }
 
-        // MUT
-        do {
-            _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
-            XCTFail("expected error to be thrown")
-        } catch {
-            // validation
-            guard case Github.Error.requestFailed(.tooManyRequests) = error else {
-                XCTFail("unexpected error: \(error.localizedDescription)")
-                return
+        await withDependencies {
+            $0.httpClient.post = { @Sendable _, _, _ in .tooManyRequests }
+        } operation: {
+            // MUT
+            do {
+                _ = try await Github.fetchMetadata(owner: "foo", repository: "bar")
+                XCTFail("expected error to be thrown")
+            } catch {
+                // validation
+                guard case Github.Error.requestFailed(.tooManyRequests) = error else {
+                    XCTFail("unexpected error: \(error.localizedDescription)")
+                    return
+                }
             }
         }
     }
@@ -297,26 +280,27 @@ class GithubTests: AppTestCase {
         // Ensure we record it as a rate limit error and raise a Rollbar item
         // setup
         Current.githubToken = { "secr3t" }
-        let pkg = Package(url: "https://github.com/foo/bar")
-        let client = MockClient { _, resp in
-            resp.status = .forbidden
-            resp.headers.add(name: "X-RateLimit-Remaining", value: "0")
-        }
 
-        // MUT
-        do {
-            _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
-            XCTFail("expected error to be thrown")
-        } catch {
-            // validation
-            logger.logs.withValue { logs in
-                XCTAssertEqual(logs, [
-                    .init(level: .critical, message: "rate limited while fetching resource Response<Metadata>")
-                ])
+        await withDependencies {
+            $0.httpClient.post = { @Sendable _, _, _ in
+                    .init(status: .forbidden, headers: ["X-RateLimit-Remaining": "0"])
             }
-            guard case Github.Error.requestFailed(.tooManyRequests) = error else {
-                XCTFail("unexpected error: \(error.localizedDescription)")
-                return
+        } operation: {
+            // MUT
+            do {
+                _ = try await Github.fetchMetadata(owner: "foo", repository: "bar")
+                XCTFail("expected error to be thrown")
+            } catch {
+                // validation
+                logger.logs.withValue { logs in
+                    XCTAssertEqual(logs, [
+                        .init(level: .critical, message: "rate limited while fetching resource Response<Metadata>")
+                    ])
+                }
+                guard case Github.Error.requestFailed(.tooManyRequests) = error else {
+                    XCTFail("unexpected error: \(error.localizedDescription)")
+                    return
+                }
             }
         }
     }

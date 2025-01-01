@@ -106,8 +106,9 @@ extension HTTPClient.Response {
         self.init(host: "host", status: status, version: version, headers: headers, body: body)
     }
 
-    static var ok: Self { .init(status: .ok) }
-    static var notFound: Self { .init(status: .notFound) }
     static var badRequest: Self { .init(status: .badRequest) }
+    static var notFound: Self { .init(status: .notFound) }
+    static var tooManyRequests: Self { .init(status: .tooManyRequests) }
+    static var ok: Self { .init(status: .ok) }
 }
 #endif
