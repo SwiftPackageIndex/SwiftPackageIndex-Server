@@ -191,6 +191,8 @@ services:
       resources:
         limits:
           memory: 4.2GB
+    networks:
+      - backend
 
   migrate:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
