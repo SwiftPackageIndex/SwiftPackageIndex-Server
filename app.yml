@@ -74,6 +74,7 @@ services:
     <<: *shared
     depends_on:
       - migrate
+      - redis
     ports:
       - '80:80'
     command: ["serve", "--env", "${ENV}", "--hostname", "0.0.0.0", "--port", "80"]
