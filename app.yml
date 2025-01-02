@@ -161,22 +161,22 @@ services:
       - backend
 
   alerting:
-      image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
-      <<: *shared
-      depends_on:
-        - migrate
-      entrypoint: ["/bin/bash"]
-      command: ["-c", "--",
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    depends_on:
+      - migrate
+    entrypoint: ["/bin/bash"]
+    command: ["-c", "--",
         "trap : TERM INT; while true; do ./Run alerting --env ${ENV} --time-period ${ALERTING_TIME_PERIOD:-4} --limit ${ALERTING_LIMIT:-2000}; sleep ${ALERTING_SLEEP:-300}; done"
-      ]
-      deploy:
-        resources:
-          limits:
-            memory: 0.5GB
-        restart_policy:
+    ]
+    deploy:
+      resources:
+        limits:
+          memory: 0.5GB
+      restart_policy:
           max_attempts: 5
-      networks:
-        - backend
+    networks:
+      - backend
 
   redis:
     # Eventually we'll probably want to use redis/redis-stack-server:7.4.0-v1 here,
