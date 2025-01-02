@@ -178,6 +178,19 @@ services:
       networks:
         - backend
 
+  redis:
+    # Eventually we'll probably want to use redis/redis-stack-server:7.4.0-v1 here,
+    # which excludes the RedisInsight GUI front-end.
+    image: redis/redis-stack:7.4.0-v1
+    environment:
+      REDIS_ARGS: '--maxmemory 4GB --maxmemory-policy allkeys-lru'
+    ports:
+      - '6379:6379'
+      - '8001:8001'
+    deploy:
+      resources:
+        limits:
+          memory: 4.2GB
 
   migrate:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
