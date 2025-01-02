@@ -9,7 +9,9 @@ public final class CFRayRouteLoggingMiddleware: Middleware {
     }
     
     public func respond(to request: Request, chainingTo next: Responder) -> EventLoopFuture<Response> {
-        let cfray = request.headers.first(name: "cf-ray") ?? "--nil--"
+        guard let cfray = request.headers.first(name: "cf-ray") else {
+            return next.respond(to: request)
+        }
         request.logger[metadataKey: "cf-ray"] = .string(cfray)
         request.logger.log(level: self.logLevel, "\(request.method) \(request.url.path.removingPercentEncoding ?? request.url.path)")
         return next.respond(to: request)
