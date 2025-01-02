@@ -48,6 +48,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.13.0"),
+        .package(url: "https://github.com/vapor/redis.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.102.0"),
     ],
     targets: [
@@ -71,6 +72,7 @@ let package = Package(
                     .product(name: "Fluent", package: "fluent"),
                     .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
                     .product(name: "Parsing", package: "swift-parsing"),
+                    .product(name: "Redis", package: "redis"),
                     .product(name: "ShellOut", package: "ShellOut"),
                     .product(name: "SwiftPMDataModel-auto", package: "swift-package-manager"),
                     .product(name: "SwiftPMPackageCollections", package: "swift-package-manager"),
