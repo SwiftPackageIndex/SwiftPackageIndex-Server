@@ -81,6 +81,13 @@ public func configure(_ app: Application) async throws -> String {
     // Setup Redis connection
     do {
         app.redis.configuration = try RedisConfiguration(hostname: "redis")
+        do { // write-read test across nodes
+            let key = "startup-time-\(app.http.server.configuration.hostname)"
+            try await app.redis.set(.init(key), to: "\(Date.now)").get()
+            if let value = try await app.redis.get(.init(key), as: String.self).get() {
+                app.logger.info("Redis set/get result: \(value)")
+            }
+        }
     } catch {
         app.logger.warning("Failed to configure Redis, caching disabled. Error: \(error)")
     }
