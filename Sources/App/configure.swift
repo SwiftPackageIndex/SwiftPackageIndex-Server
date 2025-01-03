@@ -81,7 +81,8 @@ public func configure(_ app: Application) async throws -> String {
     // Setup Redis connection
     do {
         app.redis.configuration = try RedisConfiguration(hostname: "redis")
-        do { // write-read test across nodes
+        Task { // write-read test across nodes
+            try await Task.sleep(for: .seconds(5))  // give redis some spin-up time
             let key = "startup-time-\(app.http.server.configuration.hostname)"
             try await app.redis.set(.init(key), to: "\(Date.now)").get()
             if let value = try await app.redis.get(.init(key), as: String.self).get() {
