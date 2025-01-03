@@ -1,5 +1,5 @@
 {
-  "originHash" : "866e94bc132edee83eaa6b275b7a8b0a6d085f2a48ddb7a68b2c1132b864abb6",
+  "originHash" : "192dccdf148d5caa938e0fe6f73a430a5348c38ffd64a906ae36e2d45449805b",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -161,6 +161,24 @@
       "state" : {
         "revision" : "fd0e415a705c490499f983639b04f491a2ed9d99",
         "version" : "1.23.0"
+      }
+    },
+    {
+      "identity" : "redis",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/vapor/redis.git",
+      "state" : {
+        "revision" : "383ed57e5b5acd4dd447c2967aa665dc3bbe5be9",
+        "version" : "4.11.0"
+      }
+    },
+    {
+      "identity" : "redistack",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swift-server/RediStack.git",
+      "state" : {
+        "revision" : "622ce440f90d79b58e45f3a3efdd64c51d1dfd17",
+        "version" : "1.6.2"
       }
     },
     {
