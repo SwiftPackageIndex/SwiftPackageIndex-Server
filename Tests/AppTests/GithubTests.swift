@@ -104,10 +104,6 @@ class GithubTests: AppTestCase {
 
     func test_fetchResource() async throws {
         Current.githubToken = { "secr3t" }
-        let client = MockClient { _, resp in
-            resp.status = .ok
-            resp.body = makeBody("{\"data\":{\"viewer\":{\"login\":\"finestructure\"}}}")
-        }
         struct Response: Decodable, Equatable {
             var data: Data
             struct Data: Decodable, Equatable {
@@ -118,96 +114,87 @@ class GithubTests: AppTestCase {
             }
         }
         let q = Github.GraphQLQuery(query: "query { viewer { login } }")
-        let res = try await Github.fetchResource(Response.self, client: client, query: q)
-        XCTAssertEqual(res, Response(data: .init(viewer: .init(login: "finestructure"))))
+
+        try await withDependencies {
+            $0.httpClient.post = { @Sendable _, _, _ in
+                .ok(body: #"{"data":{"viewer":{"login":"finestructure"}}}"#)
+            }
+        } operation: {
+            let res = try await Github.fetchResource(Response.self, query: q)
+            XCTAssertEqual(res, Response(data: .init(viewer: .init(login: "finestructure"))))
+        }
     }
 
     func test_fetchMetadata() async throws {
         Current.githubToken = { "secr3t" }
-        let data = try XCTUnwrap(try fixtureData(for: "github-graphql-resource.json"))
-        let client = MockClient { _, resp in
-            resp.status = .ok
-            resp.body = makeBody(data)
-        }
         let iso8601 = ISO8601DateFormatter()
 
-        // MUT
-        let res = try await Github.fetchMetadata(client: client,
-                                                 owner: "alamofire",
-                                                 repository: "alamofire")
+        try await withDependencies {
+            $0.httpClient.post = { @Sendable _, _, _ in
+                try .ok(fixture: "github-graphql-resource.json")
+            }
+        } operation: {
+            // MUT
+            let res = try await Github.fetchMetadata(owner: "alamofire",
+                                                     repository: "alamofire")
 
-        // validation
-        XCTAssertEqual(res.repository?.closedIssues.nodes.first!.closedAt,
-                       iso8601.date(from: "2020-07-17T16:27:10Z"))
-        XCTAssertEqual(res.repository?.closedPullRequests.nodes.first!.closedAt,
-                       iso8601.date(from: "2021-05-28T15:50:17Z"))
-        XCTAssertEqual(res.repository?.forkCount, 6727)
-        XCTAssertEqual(res.repository?.fundingLinks, [
-            .init(platform: .gitHub, url: "https://github.com/Alamofire"),
-            .init(platform: .lfxCrowdfunding, url: "https://crowdfunding.lfx.linuxfoundation.org/projects/alamofire"),
-        ])
-        XCTAssertEqual(res.repository?.mergedPullRequests.nodes.first!.closedAt,
-                       iso8601.date(from: "2021-06-07T22:47:01Z"))
-        XCTAssertEqual(res.repository?.name, "Alamofire")
-        XCTAssertEqual(res.repository?.owner.name, "Alamofire")
-        XCTAssertEqual(res.repository?.owner.login, "Alamofire")
-        XCTAssertEqual(res.repository?.owner.avatarUrl, "https://avatars.githubusercontent.com/u/7774181?v=4")
-        XCTAssertEqual(res.repository?.openIssues.totalCount, 30)
-        XCTAssertEqual(res.repository?.openPullRequests.totalCount, 6)
-        XCTAssertEqual(res.repository?.releases.nodes.count, 20)
-        XCTAssertEqual(res.repository?.releases.nodes.first, .some(
-            .init(description: "Released on 2020-04-21. All issues associated with this milestone can be found using this [filter](https://github.com/Alamofire/Alamofire/milestone/77?closed=1).\r\n\r\n#### Fixed\r\n- Change in multipart upload creation order.\r\n  - Fixed by [Christian Noon](https://github.com/cnoon) in Pull Request [#3438](https://github.com/Alamofire/Alamofire/pull/3438).\r\n- Typo in Alamofire 5 migration guide.\r\n  - Fixed by [DevYeom](https://github.com/DevYeom) in Pull Request [#3431](https://github.com/Alamofire/Alamofire/pull/3431).",
-                  descriptionHTML: "<p>mock descriptionHTML</>",
-                  isDraft: false,
-                  publishedAt: iso8601.date(from: "2021-04-22T02:50:05Z")!,
-                  tagName: "5.4.3",
-                  url: "https://github.com/Alamofire/Alamofire/releases/tag/5.4.3")
-        ))
-        XCTAssertEqual(res.repository?.repositoryTopics.totalCount, 15)
-        XCTAssertEqual(res.repository?.repositoryTopics.nodes.first?.topic.name,
-                       "networking")
-        XCTAssertEqual(res.repository?.stargazerCount, 35831)
-        XCTAssertEqual(res.repository?.isInOrganization, true)
-        XCTAssertEqual(res.repository?.homepageUrl, "https://swiftpackageindex.com/Alamofire/Alamofire")
-        // derived properties
-        XCTAssertEqual(res.repository?.lastIssueClosedAt,
-                       iso8601.date(from: "2021-06-09T00:59:39Z"))
-        // merged date is latest - expect that one to be reported back
-        XCTAssertEqual(res.repository?.lastPullRequestClosedAt,
-                       iso8601.date(from: "2021-06-07T22:47:01Z"))
+            // validation
+            XCTAssertEqual(res.repository?.closedIssues.nodes.first!.closedAt,
+                           iso8601.date(from: "2020-07-17T16:27:10Z"))
+            XCTAssertEqual(res.repository?.closedPullRequests.nodes.first!.closedAt,
+                           iso8601.date(from: "2021-05-28T15:50:17Z"))
+            XCTAssertEqual(res.repository?.forkCount, 6727)
+            XCTAssertEqual(res.repository?.fundingLinks, [
+                .init(platform: .gitHub, url: "https://github.com/Alamofire"),
+                .init(platform: .lfxCrowdfunding, url: "https://crowdfunding.lfx.linuxfoundation.org/projects/alamofire"),
+            ])
+            XCTAssertEqual(res.repository?.mergedPullRequests.nodes.first!.closedAt,
+                           iso8601.date(from: "2021-06-07T22:47:01Z"))
+            XCTAssertEqual(res.repository?.name, "Alamofire")
+            XCTAssertEqual(res.repository?.owner.name, "Alamofire")
+            XCTAssertEqual(res.repository?.owner.login, "Alamofire")
+            XCTAssertEqual(res.repository?.owner.avatarUrl, "https://avatars.githubusercontent.com/u/7774181?v=4")
+            XCTAssertEqual(res.repository?.openIssues.totalCount, 30)
+            XCTAssertEqual(res.repository?.openPullRequests.totalCount, 6)
+            XCTAssertEqual(res.repository?.releases.nodes.count, 20)
+            XCTAssertEqual(res.repository?.releases.nodes.first, .some(
+                .init(description: "Released on 2020-04-21. All issues associated with this milestone can be found using this [filter](https://github.com/Alamofire/Alamofire/milestone/77?closed=1).\r\n\r\n#### Fixed\r\n- Change in multipart upload creation order.\r\n  - Fixed by [Christian Noon](https://github.com/cnoon) in Pull Request [#3438](https://github.com/Alamofire/Alamofire/pull/3438).\r\n- Typo in Alamofire 5 migration guide.\r\n  - Fixed by [DevYeom](https://github.com/DevYeom) in Pull Request [#3431](https://github.com/Alamofire/Alamofire/pull/3431).",
+                      descriptionHTML: "<p>mock descriptionHTML</>",
+                      isDraft: false,
+                      publishedAt: iso8601.date(from: "2021-04-22T02:50:05Z")!,
+                      tagName: "5.4.3",
+                      url: "https://github.com/Alamofire/Alamofire/releases/tag/5.4.3")
+            ))
+            XCTAssertEqual(res.repository?.repositoryTopics.totalCount, 15)
+            XCTAssertEqual(res.repository?.repositoryTopics.nodes.first?.topic.name,
+                           "networking")
+            XCTAssertEqual(res.repository?.stargazerCount, 35831)
+            XCTAssertEqual(res.repository?.isInOrganization, true)
+            XCTAssertEqual(res.repository?.homepageUrl, "https://swiftpackageindex.com/Alamofire/Alamofire")
+            // derived properties
+            XCTAssertEqual(res.repository?.lastIssueClosedAt,
+                           iso8601.date(from: "2021-06-09T00:59:39Z"))
+            // merged date is latest - expect that one to be reported back
+            XCTAssertEqual(res.repository?.lastPullRequestClosedAt,
+                           iso8601.date(from: "2021-06-07T22:47:01Z"))
+        }
     }
 
     func test_fetchMetadata_badRequest() async throws {
         Current.githubToken = { "secr3t" }
-        let client = MockClient { _, resp in
-            resp.status = .badRequest
-        }
 
-        do {
-            _ = try await Github.fetchMetadata(client: client,
-                                               owner: "alamofire",
-                                               repository: "alamofire")
-            XCTFail("expected error to be thrown")
-        } catch {
-            guard case Github.Error.requestFailed(.badRequest) = error else {
-                XCTFail("unexpected error: \(error.localizedDescription)")
-                return
-            }
-        }
-    }
-
-    func test_fetchMetadata_badUrl() async throws {
-        let pkg = Package(url: "https://foo/bar")
-        let client = MockClient { _, resp in
-            resp.status = .ok
-        }
-        do {
-            _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
-            XCTFail("expected error to be thrown")
-        } catch {
-            guard case Github.Error.invalidURL = error else {
-                XCTFail("unexpected error: \(error.localizedDescription)")
-                return
+        await withDependencies {
+            $0.httpClient.post = { @Sendable _, _, _ in .badRequest }
+        } operation: {
+            do {
+                _ = try await Github.fetchMetadata(owner: "alamofire",
+                                                   repository: "alamofire")
+                XCTFail("expected error to be thrown")
+            } catch {
+                guard case Github.Error.requestFailed(.badRequest) = error else {
+                    XCTFail("unexpected error: \(error.localizedDescription)")
+                    return
+                }
             }
         }
     }
@@ -215,25 +202,24 @@ class GithubTests: AppTestCase {
     func test_fetchMetadata_badData() async throws {
         // setup
         Current.githubToken = { "secr3t" }
-        let pkg = Package(url: "https://github.com/foo/bar")
-        let client = MockClient { _, resp in
-            resp.status = .ok
-            resp.body = makeBody("bad data")
-        }
 
-        // MUT
-        do {
-            _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
-            XCTFail("expected error to be thrown")
-        } catch let Github.Error.decodeContentFailed(uri, error) {
-            // validation
-            XCTAssertEqual(uri, "https://api.github.com/graphql")
-            guard case DecodingError.dataCorrupted = error else {
-                XCTFail("unexpected error: \(error.localizedDescription)")
-                return
+        await withDependencies {
+            $0.httpClient.post = { @Sendable _, _, _ in .ok(body: "bad data") }
+        } operation: {
+            // MUT
+            do {
+                _ = try await Github.fetchMetadata(owner: "foo", repository: "bar")
+                XCTFail("expected error to be thrown")
+            } catch let Github.Error.decodeContentFailed(uri, error) {
+                // validation
+                XCTAssertEqual(uri, "https://api.github.com/graphql")
+                guard case DecodingError.dataCorrupted = error else {
+                    XCTFail("unexpected error: \(error.localizedDescription)")
+                    return
+                }
+            } catch {
+                XCTFail("Unexpected error: \(error)")
             }
-        } catch {
-            XCTFail("Unexpected error: \(error)")
         }
     }
 
@@ -241,20 +227,20 @@ class GithubTests: AppTestCase {
         // Github doesn't actually send a 429 when you hit the rate limit
         // setup
         Current.githubToken = { "secr3t" }
-        let pkg = Package(url: "https://github.com/foo/bar")
-        let client = MockClient { _, resp in
-            resp.status = .tooManyRequests
-        }
 
-        // MUT
-        do {
-            _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
-            XCTFail("expected error to be thrown")
-        } catch {
-            // validation
-            guard case Github.Error.requestFailed(.tooManyRequests) = error else {
-                XCTFail("unexpected error: \(error.localizedDescription)")
-                return
+        await withDependencies {
+            $0.httpClient.post = { @Sendable _, _, _ in .tooManyRequests }
+        } operation: {
+            // MUT
+            do {
+                _ = try await Github.fetchMetadata(owner: "foo", repository: "bar")
+                XCTFail("expected error to be thrown")
+            } catch {
+                // validation
+                guard case Github.Error.requestFailed(.tooManyRequests) = error else {
+                    XCTFail("unexpected error: \(error.localizedDescription)")
+                    return
+                }
             }
         }
     }
@@ -294,26 +280,27 @@ class GithubTests: AppTestCase {
         // Ensure we record it as a rate limit error and raise a Rollbar item
         // setup
         Current.githubToken = { "secr3t" }
-        let pkg = Package(url: "https://github.com/foo/bar")
-        let client = MockClient { _, resp in
-            resp.status = .forbidden
-            resp.headers.add(name: "X-RateLimit-Remaining", value: "0")
-        }
 
-        // MUT
-        do {
-            _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
-            XCTFail("expected error to be thrown")
-        } catch {
-            // validation
-            logger.logs.withValue { logs in
-                XCTAssertEqual(logs, [
-                    .init(level: .critical, message: "rate limited while fetching resource Response<Metadata>")
-                ])
+        await withDependencies {
+            $0.httpClient.post = { @Sendable _, _, _ in
+                    .init(status: .forbidden, headers: ["X-RateLimit-Remaining": "0"])
             }
-            guard case Github.Error.requestFailed(.tooManyRequests) = error else {
-                XCTFail("unexpected error: \(error.localizedDescription)")
-                return
+        } operation: {
+            // MUT
+            do {
+                _ = try await Github.fetchMetadata(owner: "foo", repository: "bar")
+                XCTFail("expected error to be thrown")
+            } catch {
+                // validation
+                logger.logs.withValue { logs in
+                    XCTAssertEqual(logs, [
+                        .init(level: .critical, message: "rate limited while fetching resource Response<Metadata>")
+                    ])
+                }
+                guard case Github.Error.requestFailed(.tooManyRequests) = error else {
+                    XCTFail("unexpected error: \(error.localizedDescription)")
+                    return
+                }
             }
         }
     }
@@ -331,7 +318,7 @@ class GithubTests: AppTestCase {
 
         await withDependencies {
             $0.httpClient.get = { @Sendable _, _ in
-                try .init(status: .ok, body: .fixture(named: "github-license-response.json"))
+                try .ok(fixture: "github-license-response.json")
             }
         } operation: {
             // MUT
@@ -494,8 +481,12 @@ class GithubTests: AppTestCase {
 }
 
 
-private extension ByteBuffer {
-    static func fixture(named filename: String) throws -> Self {
-        .init(data: try fixtureData(for: filename))
+private extension HTTPClient.Response {
+    static func ok(body: String) -> Self {
+        .init(status: .ok, body: .init(string: body))
+    }
+
+    static func ok(fixture: String) throws -> Self {
+        try .init(status: .ok, body: .init(data: fixtureData(for: fixture)))
     }
 }

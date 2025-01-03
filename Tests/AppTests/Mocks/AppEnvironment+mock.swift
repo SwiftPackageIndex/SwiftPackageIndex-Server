@@ -22,7 +22,6 @@ import Vapor
 extension AppEnvironment {
     static func mock(eventLoop: EventLoop) -> Self {
         .init(
-            fetchMetadata: { _, _, _ in .mock },
             fetchReadme: { _,  _, _ in .init(html: "readme html", htmlUrl: "readme html url", imagesToCache: []) },
             fetchS3Readme: { _, _, _ in "" },
             fileManager: .mock,

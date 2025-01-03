@@ -171,7 +171,7 @@ enum Ingestion {
             // Even though we have a `Joined<Package, Repository>` as a parameter, we must not rely
             // on `repository` for owner/name as it will be nil when a package is first ingested.
             // The only way to get `owner` and `repository` here is by parsing them from the URL.
-            let (owner, repository) = try await run {
+            let (owner, repository) = try run {
                 if environment.shouldFail(failureMode: .invalidURL) {
                     throw Github.Error.invalidURL(package.model.url)
                 }
@@ -258,13 +258,18 @@ enum Ingestion {
 
     static func fetchMetadata(client: Client, package: Package, owner: String, repository: String) async throws(Github.Error) -> (Github.Metadata, Github.License?, Github.Readme?) {
         @Dependency(\.environment) var environment
-        @Dependency(\.github) var github
         if environment.shouldFail(failureMode: .fetchMetadataFailed) {
             throw Github.Error.requestFailed(.internalServerError)
         }
 
-        async let metadata = try await Current.fetchMetadata(client, owner, repository)
-        async let license = await github.fetchLicense(owner, repository)
+        // Need to pull in github functions individually, because otherwise the `async let` will trigger a
+        // concurrency error if github gets used more than once:
+        //   Sending 'github' into async let risks causing data races between async let uses and local uses
+        @Dependency(\.github.fetchMetadata) var fetchMetadata
+        @Dependency(\.github.fetchLicense) var fetchLicense
+
+        async let metadata = try await fetchMetadata(owner, repository)
+        async let license = await fetchLicense(owner, repository)
         async let readme = await Current.fetchReadme(client, owner, repository)
 
         do {

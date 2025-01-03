@@ -26,7 +26,6 @@ class IngestionTests: AppTestCase {
 
     func test_ingest_basic() async throws {
         // setup
-        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         let packages = ["https://github.com/finestructure/Gala",
                         "https://github.com/finestructure/Rester",
                         "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"]
@@ -37,6 +36,7 @@ class IngestionTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
@@ -67,17 +67,17 @@ class IngestionTests: AppTestCase {
         // Test completion of ingestion despite early error
         try await withDependencies {
             $0.github.fetchLicense = { @Sendable _, _ in Github.License(htmlUrl: "license") }
-        } operation: {
-            // setup
-            let packages = try await savePackages(on: app.db, ["https://github.com/foo/1",
-                                                               "https://github.com/foo/2"], processingStage: .reconciliation)
-                .map(Joined<Package, Repository>.init(model:))
-            Current.fetchMetadata = { _, owner, repository throws(Github.Error) in
+            $0.github.fetchMetadata = { @Sendable owner, repository throws(Github.Error) in
                 if owner == "foo" && repository == "1" {
                     throw Github.Error.requestFailed(.badRequest)
                 }
                 return .mock(owner: owner, repository: repository)
             }
+        } operation: {
+            // setup
+            let packages = try await savePackages(on: app.db, ["https://github.com/foo/1",
+                                                               "https://github.com/foo/2"], processingStage: .reconciliation)
+                .map(Joined<Package, Repository>.init(model:))
 
             // MUT
             await Ingestion.ingest(client: app.client, database: app.db, packages: packages)
@@ -306,13 +306,13 @@ class IngestionTests: AppTestCase {
     func test_partial_save_issue() async throws {
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
-        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         let packages = testUrls.map { Package(url: $0, processingStage: .reconciliation) }
         try await packages.save(on: app.db)
 
         try await withDependencies {
             $0.date.now = .now
             $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
@@ -330,17 +330,17 @@ class IngestionTests: AppTestCase {
                     "https://github.com/foo/2",
                     "https://github.com/foo/3"]
         try await savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
-        Current.fetchMetadata = { _, owner, repository throws(Github.Error) in
-            if owner == "foo" && repository == "2" {
-                throw Github.Error.requestFailed(.badRequest)
-            }
-            return .mock(owner: owner, repository: repository)
-        }
         let lastUpdate = Date()
 
         try await withDependencies {
             $0.date.now = .now
             $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository throws(Github.Error) in
+                if owner == "foo" && repository == "2" {
+                    throw Github.Error.requestFailed(.badRequest)
+                }
+                return .mock(owner: owner, repository: repository)
+            }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
@@ -371,29 +371,29 @@ class IngestionTests: AppTestCase {
             .save(on: app.db)
         try await Package(id: .id1, url: "https://github.com/foo/1", status: .ok, processingStage: .reconciliation)
             .save(on: app.db)
-        // Return identical metadata for both packages, same as a for instance a redirected
-        // package would after a rename / ownership change
-        Current.fetchMetadata = { _, _, _ in
-            Github.Metadata.init(
-                defaultBranch: "main",
-                forks: 0,
-                homepageUrl: nil,
-                isInOrganization: false,
-                issuesClosedAtDates: [],
-                license: .mit,
-                openIssues: 0,
-                parentUrl: nil,
-                openPullRequests: 0,
-                owner: "owner",
-                pullRequestsClosedAtDates: [],
-                name: "name",
-                stars: 0,
-                summary: "desc")
-        }
 
         try await withDependencies {
             $0.date.now = .now
             $0.github.fetchLicense = { @Sendable _, _ in nil }
+            // Return identical metadata for both packages, same as a for instance a redirected
+            // package would after a rename / ownership change
+            $0.github.fetchMetadata = { @Sendable _, _ in
+                Github.Metadata.init(
+                    defaultBranch: "main",
+                    forks: 0,
+                    homepageUrl: nil,
+                    isInOrganization: false,
+                    issuesClosedAtDates: [],
+                    license: .mit,
+                    openIssues: 0,
+                    parentUrl: nil,
+                    openPullRequests: 0,
+                    owner: "owner",
+                    pullRequestsClosedAtDates: [],
+                    name: "name",
+                    stars: 0,
+                    summary: "desc")
+            }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
@@ -462,12 +462,12 @@ class IngestionTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
         } operation: {
             // setup
             let app = self.app!
             let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
             try await pkg.save(on: app.db)
-            Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
             let fetchCalls = QueueIsolated(0)
             Current.fetchReadme = { _, _, _ in
                 fetchCalls.increment()
@@ -547,7 +547,6 @@ class IngestionTests: AppTestCase {
         let pkg = Package(url: "https://github.com/foo/bar".url,
                           processingStage: .reconciliation)
         try await pkg.save(on: app.db)
-        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         Current.storeS3Readme = { _, _, _ in "objectUrl" }
         Current.fetchReadme = { _, _, _ in
             return .init(etag: "etag",
@@ -580,6 +579,7 @@ class IngestionTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
@@ -594,7 +594,6 @@ class IngestionTests: AppTestCase {
         // setup
         let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
         try await pkg.save(on: app.db)
-        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         Current.fetchReadme = { _, _, _ in
             return .init(etag: "etag1",
                          html: "readme html 1",
@@ -611,6 +610,7 @@ class IngestionTests: AppTestCase {
             try await withDependencies {
                 $0.date.now = .now
                 $0.github.fetchLicense = { @Sendable _, _ in nil }
+                $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
             } operation: {
                 // MUT
                 let app = self.app!
@@ -632,12 +632,12 @@ class IngestionTests: AppTestCase {
         try await withDependencies {
             // use live fetch request for fetchLicense, whose behaviour we want to test ...
             $0.github.fetchLicense = { @Sendable owner, repo in await Github.fetchLicense(owner: owner, repository: repo) }
+            // use mock for metadata request which we're not interested in ...
+            $0.github.fetchMetadata = { @Sendable _, _ in .init() }
         } operation: {
             // setup
             let pkg = Package(url: "https://github.com/foo/1")
             try await pkg.save(on: app.db)
-            // use mock for metadata request which we're not interested in ...
-            Current.fetchMetadata = { _, _, _ in Github.Metadata() }
             // and simulate its underlying request returning a 404 (by making all requests
             // return a 404, but it's the only one we're sending)
             let client = MockClient { _, resp in resp.status = .notFound }

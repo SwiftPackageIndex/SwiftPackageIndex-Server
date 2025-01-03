@@ -21,11 +21,12 @@ import Vapor
 enum Github {
 
     enum Error: Swift.Error {
-        case decodeContentFailed(URI, Swift.Error)
+        case decodeContentFailed(_ url: String, Swift.Error)
+        case encodeContentFailed(_ url: String, Swift.Error)
         case missingToken
         case noBody
         case invalidURL(String)
-        case postRequestFailed(URI, Swift.Error)
+        case postRequestFailed(_ url: String, Swift.Error)
         case requestFailed(HTTPStatus)
     }
 
@@ -108,7 +109,7 @@ extension Github {
                 return "https://api.github.com/repos/\(owner)/\(repository)/\(resource.rawValue)"
         }
     }
-    
+
     @available(*, deprecated)
     static func fetch(client: Client, uri: URI, headers: [(String, String)] = []) async throws -> (content: String, etag: String?) {
         guard let token = Current.githubToken() else {
@@ -211,12 +212,15 @@ extension Github {
 
 extension Github {
 
+    @available(*, deprecated)
     static let graphQLApiUri = URI(string: "https://api.github.com/graphql")
+    static let graphQLApiURL = "https://api.github.com/graphql"
 
     struct GraphQLQuery: Content {
         var query: String
     }
 
+    @available(*, deprecated)
     static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, query: GraphQLQuery) async throws(Github.Error) -> T {
         guard let token = Current.githubToken() else {
             throw Error.missingToken
@@ -228,7 +232,7 @@ extension Github {
                 try $0.content.encode(query)
             }
         } catch {
-            throw .postRequestFailed(Self.graphQLApiUri, error)
+            throw .postRequestFailed(graphQLApiUri.string, error)
         }
 
         guard !isRateLimited(response) else {
@@ -244,23 +248,55 @@ extension Github {
         do {
             return try response.content.decode(T.self, using: decoder)
         } catch {
-            throw .decodeContentFailed(Self.graphQLApiUri, error)
+            throw .decodeContentFailed(graphQLApiUri.string, error)
         }
     }
 
-    static func fetchMetadata(client: Client, owner: String, repository: String) async throws(Github.Error) -> Metadata {
+    static func fetchResource<T: Decodable>(_ type: T.Type, query: GraphQLQuery) async throws(Github.Error) -> T {
+        guard let token = Current.githubToken() else {
+            throw Error.missingToken
+        }
+
+        @Dependency(\.httpClient) var httpClient
+
+        let body = try run {
+            try JSONEncoder().encode(query)
+        } rethrowing: {
+            Error.encodeContentFailed(graphQLApiURL, $0)
+        }
+
+        let response = try await run {
+            try await httpClient.post(url: graphQLApiURL, headers: defaultHeaders(with: token), body: body)
+        } rethrowing: {
+            Error.postRequestFailed(graphQLApiURL, $0)
+        }
+
+        guard !isRateLimited(response) else {
+            Current.logger().critical("rate limited while fetching resource \(T.self)")
+            throw Error.requestFailed(.tooManyRequests)
+        }
+
+        guard response.status == .ok else {
+            Current.logger().warning("fetchResource<\(T.self)> request failed with status \(response.status)")
+            throw Error.requestFailed(response.status)
+        }
+
+        guard let body = response.body else { throw Github.Error.noBody }
+
+        return try run {
+            try decoder.decode(T.self, from: body)
+        } rethrowing: {
+            Error.decodeContentFailed(graphQLApiURL, $0)
+        }
+    }
+
+    static func fetchMetadata(owner: String, repository: String) async throws(Github.Error) -> Metadata {
         struct Response<T: Decodable & Equatable>: Decodable, Equatable {
             var data: T
         }
         return try await fetchResource(Response<Metadata>.self,
-                                       client: client,
                                        query: Metadata.query(owner: owner, repository: repository))
         .data
-    }
-
-    static func fetchMetadata(client: Client, packageUrl: String) async throws -> Metadata {
-        let (owner, name) = try parseOwnerName(url: packageUrl)
-        return try await fetchMetadata(client: client, owner: owner, repository: name)
     }
 
 }
