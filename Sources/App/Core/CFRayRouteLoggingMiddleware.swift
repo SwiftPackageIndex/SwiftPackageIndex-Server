@@ -25,11 +25,6 @@ public final class CFRayRouteLoggingMiddleware: Middleware {
     }
 
     public func respond(to request: Request, chainingTo next: Responder) -> EventLoopFuture<Response> {
-        @Dependency(\.environment) var environment
-
-        guard environment.enableCFRayLogging() else {
-            return next.respond(to: request)
-        }
         guard let cfray = request.headers.first(name: "cf-ray") else {
             return next.respond(to: request)
         }
