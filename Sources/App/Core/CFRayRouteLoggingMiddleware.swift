@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Dependencies
 import Vapor
 
 
@@ -23,12 +22,11 @@ public final class CFRayRouteLoggingMiddleware: Middleware {
     public init(logLevel: Logger.Level = .info) {
         self.logLevel = logLevel
     }
-
+    
     public func respond(to request: Request, chainingTo next: Responder) -> EventLoopFuture<Response> {
         guard let cfray = request.headers.first(name: "cf-ray") else {
             return next.respond(to: request)
         }
-
         request.logger[metadataKey: "cf-ray"] = .string(cfray)
         request.logger.log(level: self.logLevel, "\(request.method) \(request.url.path.removingPercentEncoding ?? request.url.path)")
         return next.respond(to: request)
