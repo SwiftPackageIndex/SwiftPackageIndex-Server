@@ -39,6 +39,19 @@ extension CurrentReferenceCacheClient: DependencyKey {
 }
 
 
+extension CurrentReferenceCacheClient: TestDependencyKey {
+    static var testValue: Self { Self() }
+}
+
+
+extension DependencyValues {
+    var currentReferenceCache: CurrentReferenceCacheClient {
+        get { self[CurrentReferenceCacheClient.self] }
+        set { self[CurrentReferenceCacheClient.self] = newValue }
+    }
+}
+
+
 extension CurrentReferenceCacheClient {
     actor Redis {
         var client: RedisClient
