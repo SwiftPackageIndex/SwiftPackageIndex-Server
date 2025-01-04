@@ -13,20 +13,23 @@
 // limitations under the License.
 
 @preconcurrency import Cache
+import Dependencies
+
 
 typealias CurrentReferenceCache = ExpiringCache<String, String>
 
 extension CurrentReferenceCache {
     static let live = CurrentReferenceCache(duration: .minutes(5))
 
-    subscript(owner owner: String, repository repository: String) -> String? {
-        get {
-            let key = "\(owner)/\(repository)".lowercased()
-            return self[key]
-        }
-        set {
-            let key = "\(owner)/\(repository)".lowercased()
-            self[key] = newValue
-        }
+    func get(owner: String, repository: String) -> String? {
+        let key = "\(owner)/\(repository)".lowercased()
+        return self[key]
+    }
+
+    func set(owner: String, repository: String, reference: String?) async {
+        let key = "\(owner)/\(repository)".lowercased()
+        self[key] = reference
+        @Dependency(\.currentReferenceCache) var currentReferenceCache
+        await currentReferenceCache.set(owner: owner, repository: repository, reference: reference)
     }
 }

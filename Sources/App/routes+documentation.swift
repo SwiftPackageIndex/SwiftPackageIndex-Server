@@ -178,14 +178,14 @@ extension Request {
 
         let docVersion = try await { () -> DocVersion in
             if reference == String.current {
-                if let ref = environment.currentReferenceCache()?[owner: owner, repository: repository] {
+                if let ref = environment.currentReferenceCache()?.get(owner: owner, repository: repository) {
                     return .current(referencing: ref)
                 }
 
                 guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
                 else { throw Abort(.notFound) }
 
-                environment.currentReferenceCache()?[owner: owner, repository: repository] = "\(params.docVersion)"
+                await environment.currentReferenceCache()?.set(owner: owner, repository: repository, reference: "\(params.docVersion)")
                 return .current(referencing: "\(params.docVersion)")
             } else {
                 return .reference(reference)

@@ -1576,7 +1576,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTFail("unexpected error: \(error)")
             }
 
-            cache[owner: "owner", repository: "repo"] = "1.2.3"
+            await cache.set(owner: "owner", repository: "repo", reference: "1.2.3")
 
             do { // Now with the cache in place this resolves
                 let route = try await req.getDocRoute(fragment: .documentation)
