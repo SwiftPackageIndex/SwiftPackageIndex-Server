@@ -20,7 +20,7 @@ import NIOCore
 
 @DependencyClient
 struct CurrentReferenceCacheClient {
-    var set: @Sendable (_ owner: String, _ repository: String, _ reference: String) async -> Void
+    var set: @Sendable (_ owner: String, _ repository: String, _ reference: String?) async -> Void
     var get: @Sendable (_ owner: String, _ repository: String) async -> String?
 }
 
@@ -92,12 +92,16 @@ extension CurrentReferenceCacheClient {
         static let hostname = "redis"
         static let maxConnectionAttempts = 3
 
-        func set(owner: String, repository: String, reference: String) async -> Void {
+        func set(owner: String, repository: String, reference: String?) async -> Void {
             let key = "\(owner)/\(repository)".lowercased()
-            let buffer = ByteBuffer(string: reference)
-            try? await client.setex(.init(key),
-                                    to: RESPValue.bulkString(buffer),
-                                    expirationInSeconds: Self.expirationInSeconds).get()
+            if let reference {
+                let buffer = ByteBuffer(string: reference)
+                try? await client.setex(.init(key),
+                                        to: RESPValue.bulkString(buffer),
+                                        expirationInSeconds: Self.expirationInSeconds).get()
+            } else {
+                _ = try? await client.delete([.init(key)]).get()
+            }
         }
 
         func get(owner: String, repository: String) async -> String? {
