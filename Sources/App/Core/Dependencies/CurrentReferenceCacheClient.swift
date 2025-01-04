@@ -39,17 +39,28 @@ extension CurrentReferenceCacheClient: DependencyKey {
 }
 
 
+@preconcurrency import RediStack
+
+
 extension CurrentReferenceCacheClient {
     @MainActor
     static var redis: Redis?
 
     @MainActor
-    static func setRedis(_ client: sending RedisClient) { redis = .init(client: client) }
+    static func bootstrap(hostname: String) async throws {
+#warning("Add retry")
+        redis = try await Redis(hostname: hostname)
+    }
 
     actor Redis {
         var client: RedisClient
-        init(client: RedisClient) {
-            self.client = client
+
+        init(hostname: String) async throws {
+            let connection = RedisConnection.make(
+                configuration: try .init(hostname: hostname),
+                boundEventLoop: NIOSingletons.posixEventLoopGroup.any()
+            )
+            self.client = try await connection.get()
         }
 
         static let expirationInSeconds = 5*60
