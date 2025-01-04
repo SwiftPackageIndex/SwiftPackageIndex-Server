@@ -29,10 +29,10 @@ extension CurrentReferenceCacheClient: DependencyKey {
     static var liveValue: CurrentReferenceCacheClient {
         .init(
             set: { owner, repository, reference async in
-                await Redis.shared.set(owner: owner, repository: repository, reference: reference)
+                await Redis.shared?.set(owner: owner, repository: repository, reference: reference)
             },
             get: { owner, repository in
-                await Redis.shared.get(owner: owner, repository: repository)
+                await Redis.shared?.get(owner: owner, repository: repository)
             }
         )
     }
@@ -42,16 +42,25 @@ extension CurrentReferenceCacheClient: DependencyKey {
 extension CurrentReferenceCacheClient {
     actor Redis {
         var client: RedisClient
-        static private var task: Task<Redis, Never>?
+        static private var task: Task<Redis?, Never>?
 
-        static var shared: Redis {
+        static var shared: Redis? {
             get async {
                 if let task {
                     return await task.value
                 }
-                let task = Task {
-#warning("Add retry")
-                    return try! await Redis()
+                let task = Task<Redis?, Never> {
+                    var attemptsLeft = maxConnectionAttempts
+                    while attemptsLeft > 0 {
+                        do {
+                            return try await Redis()
+                        } catch {
+                            attemptsLeft -= 1
+                            print("Redis connection failed, \(attemptsLeft) attempts left. Error: \(error)")
+                            try? await Task.sleep(for: .milliseconds(500))
+                        }
+                    }
+                    return nil
                 }
                 self.task = task
                 return await task.value
@@ -68,6 +77,7 @@ extension CurrentReferenceCacheClient {
 
         static let expirationInSeconds = 5*60
         static let hostname = "redis"
+        static let maxConnectionAttempts = 3
 
         func set(owner: String, repository: String, reference: String) async -> Void {
             let key = "\(owner)/\(repository)".lowercased()
