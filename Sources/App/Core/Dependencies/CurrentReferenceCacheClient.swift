@@ -15,7 +15,7 @@
 import Dependencies
 import DependenciesMacros
 import NIOCore
-import Redis
+@preconcurrency import RediStack
 
 
 @DependencyClient
@@ -29,41 +29,45 @@ extension CurrentReferenceCacheClient: DependencyKey {
     static var liveValue: CurrentReferenceCacheClient {
         .init(
             set: { owner, repository, reference async in
-                await Self.redis?.set(owner: owner, repository: repository, reference: reference)
+                await Redis.shared.set(owner: owner, repository: repository, reference: reference)
             },
             get: { owner, repository in
-                await Self.redis?.get(owner: owner, repository: repository)
+                await Redis.shared.get(owner: owner, repository: repository)
             }
         )
     }
 }
 
 
-@preconcurrency import RediStack
-
-
 extension CurrentReferenceCacheClient {
-    @MainActor
-    static var redis: Redis?
-
-    @MainActor
-    static func bootstrap(hostname: String) async throws {
-#warning("Add retry")
-        redis = try await Redis(hostname: hostname)
-    }
-
     actor Redis {
         var client: RedisClient
+        static private var task: Task<Redis, Never>?
 
-        init(hostname: String) async throws {
+        static var shared: Redis {
+            get async {
+                if let task {
+                    return await task.value
+                }
+                let task = Task {
+#warning("Add retry")
+                    return try! await Redis()
+                }
+                self.task = task
+                return await task.value
+            }
+        }
+
+        private init() async throws {
             let connection = RedisConnection.make(
-                configuration: try .init(hostname: hostname),
+                configuration: try .init(hostname: Redis.hostname),
                 boundEventLoop: NIOSingletons.posixEventLoopGroup.any()
             )
             self.client = try await connection.get()
         }
 
         static let expirationInSeconds = 5*60
+        static let hostname = "redis"
 
         func set(owner: String, repository: String, reference: String) async -> Void {
             let key = "\(owner)/\(repository)".lowercased()
