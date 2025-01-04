@@ -56,7 +56,7 @@ extension CurrentReferenceCacheClient {
                             return try await Redis()
                         } catch {
                             attemptsLeft -= 1
-                            print("Redis connection failed, \(attemptsLeft) attempts left. Error: \(error)")
+                            Current.logger().warning("Redis connection failed, \(attemptsLeft) attempts left. Error: \(error)")
                             try? await Task.sleep(for: .milliseconds(500))
                         }
                     }
