@@ -1479,6 +1479,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // Ensures default branch updates don't introduce a "documentation gap"
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.currentReferenceCache = { .live }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
@@ -1558,6 +1559,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_getDocRoute_documentation_current() async throws {
         nonisolated(unsafe) let cache = CurrentReferenceCache()
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.currentReferenceCache = { cache }
         } operation: {
             // owner/repo/~/documentation/archive

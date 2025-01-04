@@ -110,3 +110,12 @@ extension CurrentReferenceCacheClient {
         }
     }
 }
+
+
+#if DEBUG
+extension CurrentReferenceCacheClient {
+    static var disabled: Self {
+        .init(set: { _, _, _ in }, get: { _, _ in nil })
+    }
+}
+#endif
