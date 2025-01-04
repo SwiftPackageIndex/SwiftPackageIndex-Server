@@ -92,6 +92,7 @@ struct Cognito {
         )
         req.application.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
         try await req.application.cognito.authenticatable.confirmSignUp(username: username, confirmationCode: confirmationCode)
+        try awsClient.syncShutdown()
     }
     
     @Sendable

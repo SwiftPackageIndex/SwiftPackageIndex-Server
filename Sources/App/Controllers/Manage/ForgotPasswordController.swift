@@ -1,4 +1,5 @@
 import Fluent
+import Dependencies
 import Plot
 import Vapor
 import SotoCognitoAuthentication
@@ -13,12 +14,13 @@ enum ForgotPasswordController {
     
     @Sendable
     static func forgotPasswordEmail(req: Request) async throws ->  HTML {
+        @Dependency(\.cognito) var cognito
         struct Credentials: Content {
             var email: String
         }
         do {
             let user = try req.content.decode(Credentials.self)
-            try await Cognito.forgotPassword(req: req, username: user.email)
+            try await cognito.forgotPassword(req: req, username: user.email)
             return Reset.View(path: SiteURL.resetPassword.relativeURL(), model: Reset.Model(email: user.email)).document()
         } catch {
             return ForgotPassword.View(path: req.url.path, model: ForgotPassword.Model(errorMessage: "An error occurred: \(error.localizedDescription)")).document()

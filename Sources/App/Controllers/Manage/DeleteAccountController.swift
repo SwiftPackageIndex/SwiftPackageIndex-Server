@@ -1,4 +1,5 @@
 import Foundation
+import Dependencies
 import Fluent
 import Plot
 import Vapor
@@ -9,8 +10,9 @@ import SotoCognitoIdentity
 enum DeleteAccountController {
     @Sendable
     static func deleteAccount(req: Request) async throws -> Response {
+        @Dependency(\.cognito) var cognito
         do {
-            try await Cognito.deleteUser(req: req, accessToken: req.auth.require(AuthenticatedUser.self).sessionID)
+            try await cognito.deleteUser(req: req, accessToken: req.auth.require(AuthenticatedUser.self).sessionID)
             req.auth.logout(AuthenticatedUser.self)
             req.session.unauthenticate(AuthenticatedUser.self)
             req.session.destroy()

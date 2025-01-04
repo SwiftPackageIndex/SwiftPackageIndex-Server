@@ -1,4 +1,5 @@
 import Vapor
+import Dependencies
 import SotoCognitoAuthentication
 import SotoCognitoIdentityProvider
 import SotoCognitoIdentity
@@ -16,11 +17,12 @@ extension AuthenticatedUser: SessionAuthenticatable {
 
 struct UserSessionAuthenticator: AsyncSessionAuthenticator {
     func authenticate(sessionID: String, for request: Vapor.Request) async throws {
+        @Dependency(\.cognito) var cognito
         do {
             // TODO: handle response, refresh token
-            let response = try await request.application.cognito.authenticatable.authenticate(accessToken: sessionID, on: request.eventLoop)
+            try await cognito.authenticateToken(req: request, sessionID: sessionID, accessToken: sessionID, eventLoop: request.eventLoop)
             request.auth.login(User(accessToken: sessionID))
-        } catch let error as SotoCognitoError { // TODO: handle error 
+        } catch let error as SotoCognitoError { // TODO: handle error
             return
         }
     }
