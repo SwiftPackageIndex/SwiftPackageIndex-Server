@@ -14,10 +14,42 @@
 
 import NIOCore
 @preconcurrency import RediStack
+import Dependencies
+import DependenciesMacros
 
 
-actor Redis {
-    var client: RedisClient
+@DependencyClient
+struct RedisClient {
+    var set: @Sendable (_ key: String, _ value: String?) async -> Void
+    var get: @Sendable (_ key: String) async -> String?
+}
+
+
+extension RedisClient: DependencyKey {
+    static var liveValue: RedisClient {
+        .init(
+            set: { key, value in await Redis.shared?.set(key: key, value: value) },
+            get: { key in await Redis.shared?.get(key: key) }
+        )
+    }
+}
+
+
+extension RedisClient: TestDependencyKey {
+    static var testValue: Self { Self() }
+}
+
+
+extension DependencyValues {
+    var redis: RedisClient {
+        get { self[RedisClient.self] }
+        set { self[RedisClient.self] = newValue }
+    }
+}
+
+
+private actor Redis {
+    var client: RediStack.RedisClient
     static private var task: Task<Redis?, Never>?
 
     static var shared: Redis? {
@@ -51,14 +83,14 @@ actor Redis {
         self.client = try await connection.get()
     }
 
+#warning("move expiry to interface")
     static let expirationInSeconds = 5*60
     static let hostname = "redis"
     static let maxConnectionAttempts = 3
 
-    func set(owner: String, repository: String, reference: String?) async -> Void {
-        let key = "\(owner)/\(repository)".lowercased()
-        if let reference {
-            let buffer = ByteBuffer(string: reference)
+    func set(key: String, value: String?) async -> Void {
+        if let value {
+            let buffer = ByteBuffer(string: value)
             try? await client.setex(.init(key),
                                     to: RESPValue.bulkString(buffer),
                                     expirationInSeconds: Self.expirationInSeconds).get()
@@ -67,8 +99,7 @@ actor Redis {
         }
     }
 
-    func get(owner: String, repository: String) async -> String? {
-        let key = "\(owner)/\(repository)".lowercased()
+    func get(key: String) async -> String? {
         return try? await client.get(.init(key)).map(\.string).get()
     }
 }

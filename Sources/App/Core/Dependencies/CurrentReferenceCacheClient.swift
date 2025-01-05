@@ -27,12 +27,18 @@ extension CurrentReferenceCacheClient: DependencyKey {
     static var liveValue: CurrentReferenceCacheClient {
         .init(
             set: { owner, repository, reference async in
-                await Redis.shared?.set(owner: owner, repository: repository, reference: reference)
+                @Dependency(\.redis) var redis
+                await redis.set(key: getKey(owner: owner, repository: repository), value: reference)
             },
             get: { owner, repository in
-                await Redis.shared?.get(owner: owner, repository: repository)
+                @Dependency(\.redis) var redis
+                return await redis.get(key: getKey(owner: owner, repository: repository))
             }
         )
+    }
+
+    static func getKey(owner: String, repository: String) -> String {
+        "\(owner)/\(repository)".lowercased()
     }
 }
 
