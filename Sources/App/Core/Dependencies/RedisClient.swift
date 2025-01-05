@@ -48,6 +48,15 @@ extension DependencyValues {
 }
 
 
+#if DEBUG
+extension RedisClient {
+    static var disabled: Self {
+        .init(set: { _, _ in }, get: { _ in nil })
+    }
+}
+#endif
+
+
 private actor Redis {
     var client: RediStack.RedisClient
     static private var task: Task<Redis?, Never>?
