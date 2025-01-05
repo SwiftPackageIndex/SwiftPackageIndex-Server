@@ -101,6 +101,7 @@ private actor Redis {
         self.client = try await connection.get()
     }
 
+    // This hostname has to match the redir service name in app.yml.
     static let hostname = "redis"
     static let maxConnectionAttempts = 3
 
