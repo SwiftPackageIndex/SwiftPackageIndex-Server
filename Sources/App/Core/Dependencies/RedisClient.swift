@@ -20,15 +20,24 @@ import DependenciesMacros
 
 @DependencyClient
 struct RedisClient {
-    var set: @Sendable (_ key: String, _ value: String?) async -> Void
+    var set: @Sendable (_ key: String, _ value: String?, Duration?) async -> Void
     var get: @Sendable (_ key: String) async -> String?
+}
+
+
+extension RedisClient {
+    func set(key: String, value: String?, expiresIn: Duration? = nil) async {
+        await set(key: key, value: value, expiresIn)
+    }
 }
 
 
 extension RedisClient: DependencyKey {
     static var liveValue: RedisClient {
         .init(
-            set: { key, value in await Redis.shared?.set(key: key, value: value) },
+            set: { key, value, expiresIn in
+                await Redis.shared?.set(key: key, value: value, expiresIn: expiresIn)
+            },
             get: { key in await Redis.shared?.get(key: key) }
         )
     }
@@ -51,7 +60,7 @@ extension DependencyValues {
 #if DEBUG
 extension RedisClient {
     static var disabled: Self {
-        .init(set: { _, _ in }, get: { _ in nil })
+        .init(set: { _, _, _ in }, get: { _ in nil })
     }
 }
 #endif
@@ -92,17 +101,19 @@ private actor Redis {
         self.client = try await connection.get()
     }
 
-#warning("move expiry to interface")
-    static let expirationInSeconds = 5*60
     static let hostname = "redis"
     static let maxConnectionAttempts = 3
 
-    func set(key: String, value: String?) async -> Void {
+    func set(key: String, value: String?, expiresIn: Duration?) async -> Void {
         if let value {
             let buffer = ByteBuffer(string: value)
-            try? await client.setex(.init(key),
-                                    to: RESPValue.bulkString(buffer),
-                                    expirationInSeconds: Self.expirationInSeconds).get()
+            let value = RESPValue.bulkString(buffer)
+            if let expiresIn {
+                let ttl = Int(expiresIn.components.seconds)
+                try? await client.setex(.init(key), to: value, expirationInSeconds: ttl).get()
+            } else {
+                try? await client.set(.init(key), to: value).get()
+            }
         } else {
             _ = try? await client.delete([.init(key)]).get()
         }

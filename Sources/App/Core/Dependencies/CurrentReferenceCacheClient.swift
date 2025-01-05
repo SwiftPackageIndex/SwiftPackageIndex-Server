@@ -24,11 +24,15 @@ struct CurrentReferenceCacheClient {
 
 
 extension CurrentReferenceCacheClient: DependencyKey {
+    static let timeToLive: Duration = .seconds(5*60)
+
     static var liveValue: CurrentReferenceCacheClient {
         .init(
             set: { owner, repository, reference async in
                 @Dependency(\.redis) var redis
-                await redis.set(key: getKey(owner: owner, repository: repository), value: reference)
+                await redis.set(key: getKey(owner: owner, repository: repository),
+                                value: reference,
+                                expiresIn: timeToLive)
             },
             get: { owner, repository in
                 @Dependency(\.redis) var redis
