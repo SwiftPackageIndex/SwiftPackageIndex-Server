@@ -14,7 +14,6 @@
 
 import Fluent
 import FluentPostgresDriver
-import Redis
 import Vapor
 
 
