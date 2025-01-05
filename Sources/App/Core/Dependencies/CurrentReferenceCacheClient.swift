@@ -61,5 +61,22 @@ extension CurrentReferenceCacheClient {
     static var disabled: Self {
         .init(set: { _, _, _ in }, get: { _, _ in nil })
     }
+
+    static var inMemory: Self {
+        .init(
+            set: { owner, repository, reference in
+                _cache.withValue {
+                    $0[getKey(owner: owner, repository: repository)] = reference
+                }
+            },
+            get: { owner, repository in
+                _cache.withValue {
+                    $0[getKey(owner: owner, repository: repository)]
+                }
+            }
+        )
+    }
+
+    nonisolated(unsafe) static var _cache = LockIsolated<[String: String]>([:])
 }
 #endif
