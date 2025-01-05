@@ -78,13 +78,6 @@ public func configure(_ app: Application) async throws -> String {
                                 sqlLogLevel: .debug),
                       as: .psql)
 
-    // Setup Redis connection
-    do {
-        app.redis.configuration = try RedisConfiguration(hostname: "redis")
-    } catch {
-        app.logger.warning("Failed to configure Redis, caching disabled. Error: \(error)")
-    }
-
     do {  // Migration 001 - schema 1.0
         app.migrations.add(CreatePackage())
         app.migrations.add(CreateRepository())
