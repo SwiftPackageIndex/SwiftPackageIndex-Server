@@ -12,7 +12,7 @@ enum DeleteAccountController {
     static func deleteAccount(req: Request) async throws -> Response {
         @Dependency(\.cognito) var cognito
         do {
-            try await cognito.deleteUser(req: req, accessToken: req.auth.require(AuthenticatedUser.self).sessionID)
+            try await cognito.deleteUser(req: req)
             req.auth.logout(AuthenticatedUser.self)
             req.session.unauthenticate(AuthenticatedUser.self)
             req.session.destroy()

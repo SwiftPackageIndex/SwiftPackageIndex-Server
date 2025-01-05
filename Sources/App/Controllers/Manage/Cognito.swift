@@ -96,7 +96,7 @@ struct Cognito {
     }
     
     @Sendable
-    static func deleteUser(req: Request, accessToken: String) async throws {
+    static func deleteUser(req: Request) async throws {
         let awsClient = AWSClient(httpClientProvider: .shared(req.application.http.client.shared))
         let awsCognitoConfiguration = CognitoConfiguration(
             userPoolId: Environment.get("AWS_COGNITO_POOL_ID")!,
@@ -106,7 +106,7 @@ struct Cognito {
             adminClient: true
         )
         req.application.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
-        let request = CognitoIdentityProvider.DeleteUserRequest(accessToken: accessToken)
+        let request = try CognitoIdentityProvider.DeleteUserRequest(accessToken: req.auth.require(AuthenticatedUser.self).sessionID)
         try await req.application.cognito.authenticatable.configuration.cognitoIDP.deleteUser(request)
         try awsClient.syncShutdown()
     }

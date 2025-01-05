@@ -25,7 +25,7 @@ struct CognitoClient {
     var resetPassword: @Sendable (_ req: Request, _ username: String, _ password: String, _ confirmationCode: String) async throws -> Void
     var forgotPassword: @Sendable (_ req: Request, _ username: String) async throws -> Void
     var confirmSignUp: @Sendable (_ req: Request, _ username: String, _ confirmationCode: String) async throws -> Void
-    var deleteUser: @Sendable (_ req: Request, _ accessToken: String) async throws -> Void
+    var deleteUser: @Sendable (_ req: Request) async throws -> Void
 }
 
 extension CognitoClient: DependencyKey {
@@ -37,7 +37,7 @@ extension CognitoClient: DependencyKey {
             resetPassword : { req, username, password, confirmationCode in try await Cognito.resetPassword(req: req, username: username, password: password, confirmationCode: confirmationCode) },
             forgotPassword: { req, username in try await Cognito.forgotPassword(req: req, username: username) },
             confirmSignUp: { req, username, confirmationCode in try await Cognito.confirmSignUp(req: req, username: username, confirmationCode: confirmationCode) },
-            deleteUser: { req, accessToken in try await Cognito.deleteUser(req: req, accessToken: accessToken) }
+            deleteUser: { req in try await Cognito.deleteUser(req: req) }
         )
     }
 }
