@@ -26,10 +26,12 @@ final class RateCatcherMiddleware: AsyncMiddleware {
         let seconds: Int = Int(Date().timeIntervalSince1970)
         let combinedKey: RedisKey = "\(cfray):\(seconds)"
         
-        let countOverWindow: Int = try await request.redis.increment(combinedKey)
+        var countOverWindow: Int = try await request.redis.increment(combinedKey).get()
         for i in seconds - windowSize ..< seconds {
             let key: RedisKey = "\(cfray):\(i)"
-            countOverWindow += try await request.redis.get(key, as: Int.self)
+            if let value = try await request.redis.get(key, as: Int.self).get() {
+                countOverWindow += value
+            }
         }
             
         if countOverWindow > 999 {
