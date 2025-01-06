@@ -37,28 +37,12 @@ enum Github {
         return decoder
     }
 
-    @available(*, deprecated)
-    static func rateLimit(response: ClientResponse) -> Int? {
-        guard
-            let header = response.headers.first(name: "X-RateLimit-Remaining"),
-            let limit = Int(header)
-        else { return nil }
-        return limit
-    }
-
     static func rateLimit(response: HTTPClient.Response) -> Int? {
         guard
             let header = response.headers.first(name: "X-RateLimit-Remaining"),
             let limit = Int(header)
         else { return nil }
         return limit
-    }
-
-    @available(*, deprecated)
-    static func isRateLimited(_ response: ClientResponse) -> Bool {
-        guard let limit = rateLimit(response: response) else { return false }
-        AppMetrics.githubRateLimitRemainingCount?.set(limit)
-        return response.status == .forbidden && limit == 0
     }
 
     static func isRateLimited(_ response: HTTPClient.Response) -> Bool {
@@ -95,45 +79,11 @@ extension Github {
         case readme
     }
 
-    @available(*, deprecated)
-    static func apiUri(owner: String, repository: String, resource: Resource)  -> URI {
-        switch resource {
-            case .license, .readme:
-                return URI(string: "https://api.github.com/repos/\(owner)/\(repository)/\(resource.rawValue)")
-        }
-    }
-
     static func apiURL(owner: String, repository: String, resource: Resource)  -> String {
         switch resource {
             case .license, .readme:
                 return "https://api.github.com/repos/\(owner)/\(repository)/\(resource.rawValue)"
         }
-    }
-
-    @available(*, deprecated)
-    static func fetch(client: Client, uri: URI, headers: [(String, String)] = []) async throws -> (content: String, etag: String?) {
-        guard let token = Current.githubToken() else {
-            throw Error.missingToken
-        }
-
-        let response = try await client.get(uri, headers: defaultHeaders(with: token).adding(contentsOf: headers))
-
-        guard !isRateLimited(response) else {
-            Current.logger().critical("rate limited while fetching uri \(uri)")
-            throw Error.requestFailed(.tooManyRequests)
-        }
-
-        guard response.status == .ok else {
-            Current.logger().warning("Github.fetch of '\(uri.path)' failed with status \(response.status)")
-            throw Error.requestFailed(response.status)
-        }
-
-        guard let body = response.body else {
-            Current.logger().warning("Github.fetch has no body")
-            throw Error.noBody
-        }
-
-        return (body.asString(), response.headers.first(name: .eTag))
     }
 
     static func fetch(url: String, headers: [(String, String)] = []) async throws -> (content: String, etag: String?) {
@@ -161,26 +111,6 @@ extension Github {
         }
 
         return (body.asString(), response.headers.first(name: .eTag))
-    }
-
-    @available(*, deprecated)
-    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, uri: URI) async throws -> T {
-        guard let token = Current.githubToken() else {
-            throw Error.missingToken
-        }
-
-        let response = try await client.get(uri, headers: defaultHeaders(with: token))
-
-        guard !isRateLimited(response) else {
-            Current.logger().critical("rate limited while fetching resource \(uri)")
-            throw Error.requestFailed(.tooManyRequests)
-        }
-
-        guard response.status == .ok else {
-            throw Error.requestFailed(response.status)
-        }
-
-        return try response.content.decode(T.self, using: decoder)
     }
 
     static func fetchResource<T: Decodable>(_ type: T.Type, url: String) async throws -> T {
@@ -239,44 +169,10 @@ extension Github {
 
 extension Github {
 
-    @available(*, deprecated)
-    static let graphQLApiUri = URI(string: "https://api.github.com/graphql")
     static let graphQLApiURL = "https://api.github.com/graphql"
 
     struct GraphQLQuery: Content {
         var query: String
-    }
-
-    @available(*, deprecated)
-    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, query: GraphQLQuery) async throws(Github.Error) -> T {
-        guard let token = Current.githubToken() else {
-            throw Error.missingToken
-        }
-
-        let response: ClientResponse
-        do {
-            response = try await client.post(Self.graphQLApiUri, headers: defaultHeaders(with: token)) {
-                try $0.content.encode(query)
-            }
-        } catch {
-            throw .postRequestFailed(graphQLApiUri.string, error)
-        }
-
-        guard !isRateLimited(response) else {
-            Current.logger().critical("rate limited while fetching resource \(T.self)")
-            throw Error.requestFailed(.tooManyRequests)
-        }
-
-        guard response.status == .ok else {
-            Current.logger().warning("fetchResource<\(T.self)> request failed with status \(response.status)")
-            throw Error.requestFailed(response.status)
-        }
-
-        do {
-            return try response.content.decode(T.self, using: decoder)
-        } catch {
-            throw .decodeContentFailed(graphQLApiUri.string, error)
-        }
     }
 
     static func fetchResource<T: Decodable>(_ type: T.Type, query: GraphQLQuery) async throws(Github.Error) -> T {
