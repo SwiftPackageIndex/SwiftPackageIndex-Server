@@ -208,31 +208,6 @@ extension Github {
         return try? await Github.fetchResource(Github.License.self, url: url)
     }
 
-    @available(*, deprecated)
-    static func fetchReadme(client: Client, owner: String, repository: String) async -> Readme? {
-        let uri = Github.apiUri(owner: owner, repository: repository, resource: .readme)
-
-        // Fetch readme html content
-        let readme = try? await Github.fetch(client: client, uri: uri, headers: [
-            ("Accept", "application/vnd.github.html+json")
-        ])
-        guard var html = readme?.content else { return nil }
-
-        // Fetch readme html url
-        let htmlUrl: String? = await {
-            struct Response: Decodable {
-                var htmlUrl: String
-            }
-            return try? await Github.fetchResource(Response.self, client: client, uri: uri).htmlUrl
-        }()
-        guard let htmlUrl else { return nil }
-
-        // Extract and replace images that need caching
-        let imagesToCache = replaceImagesRequiringCaching(owner: owner, repository: repository, readme: &html)
-
-        return .init(etag: readme?.etag, html: html, htmlUrl: htmlUrl, imagesToCache: imagesToCache)
-    }
-
     static func fetchReadme(owner: String, repository: String) async -> Readme? {
         let url = Github.apiURL(owner: owner, repository: repository, resource: .readme)
 
