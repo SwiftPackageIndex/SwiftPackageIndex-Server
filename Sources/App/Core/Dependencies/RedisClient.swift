@@ -22,12 +22,17 @@ import DependenciesMacros
 struct RedisClient {
     var set: @Sendable (_ key: String, _ value: String?, Duration?) async -> Void
     var get: @Sendable (_ key: String) async -> String?
+    var increment: @Sendable (_ key: String, _ by: Int) async -> Int?
 }
 
 
 extension RedisClient {
     func set(key: String, value: String?, expiresIn: Duration? = nil) async {
         await set(key: key, value: value, expiresIn)
+    }
+
+    func increment(key: String) async -> Int? {
+        await increment(key: key, by: 1)
     }
 }
 
@@ -38,7 +43,8 @@ extension RedisClient: DependencyKey {
             set: { key, value, expiresIn in
                 await Redis.shared?.set(key: key, value: value, expiresIn: expiresIn)
             },
-            get: { key in await Redis.shared?.get(key: key) }
+            get: { key in await Redis.shared?.get(key: key) },
+            increment: { key, value in try? await Redis.shared?.increment(key: key, by: value) }
         )
     }
 }
@@ -60,7 +66,7 @@ extension DependencyValues {
 #if DEBUG
 extension RedisClient {
     static var disabled: Self {
-        .init(set: { _, _, _ in }, get: { _ in nil })
+        .init(set: { _, _, _ in }, get: { _ in nil }, increment: { _, _ in nil})
     }
 }
 #endif
@@ -105,7 +111,7 @@ private actor Redis {
     static let hostname = "redis"
     static let maxConnectionAttempts = 3
 
-    func set(key: String, value: String?, expiresIn: Duration?) async -> Void {
+    func set(key: String, value: String?, expiresIn: Duration?) async {
         if let value {
             let buffer = ByteBuffer(string: value)
             let value = RESPValue.bulkString(buffer)
@@ -122,6 +128,14 @@ private actor Redis {
 
     func get(key: String) async -> String? {
         return try? await client.get(.init(key)).map(\.string).get()
+    }
+
+    func increment(key: String) async throws -> Int {
+        try await client.increment(.init(key)).get()
+    }
+
+    func increment(key: String, by value: Int) async throws -> Int {
+        try await client.increment(.init(key), by: value).get()
     }
 }
 
