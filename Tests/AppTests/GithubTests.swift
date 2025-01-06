@@ -349,48 +349,52 @@ class GithubTests: AppTestCase {
         // setup
         Current.githubToken = { "secr3t" }
         let requestCount = QueueIsolated(0)
-        let client = MockClient { req, resp in
-            requestCount.increment()
-            switch req.headers[.accept] {
-                case ["application/vnd.github.html+json"]:
-                    resp.status = .ok
-                    resp.body = makeBody("readme html")
-                    resp.headers.add(name: .eTag, value: "etag")
-                case []:
-                    resp.status = .ok
-                    struct Response: Encodable {
-                        var htmlUrl: String
-                    }
-                    resp.body = makeBody(try! JSONEncoder().encode(Response(htmlUrl: "readme url")))
-                default:
-                    XCTFail("unexpected accept header")
+        await withDependencies {
+            $0.httpClient.get = { @Sendable _, headers in
+                requestCount.increment()
+                switch headers[.accept] {
+                    case ["application/vnd.github.html+json"]:
+                        return .ok(body: "readme html", headers: ["ETag": "etag"])
+                    case []:
+                        struct Response: Encodable {
+                            var htmlUrl: String
+                        }
+                        return try .ok(jsonEncode: Response(htmlUrl: "readme url"))
+                    default:
+                        XCTFail("unexpected accept header")
+                }
+                enum Error: Swift.Error { case unexpectedCodePath }
+                throw Error.unexpectedCodePath
             }
+        } operation: {
+            // MUT
+            let res = await Github.fetchReadme(owner: "foo", repository: "bar")
+
+            // validate
+            XCTAssertEqual(requestCount.value, 2)
+            XCTAssertEqual(
+                res,
+                .init(etag: "etag",
+                      html: "readme html",
+                      htmlUrl: "readme url",
+                      imagesToCache: [])
+            )
         }
-
-        // MUT
-        let res = await Github.fetchReadme(client: client, owner: "foo", repository: "bar")
-
-        // validate
-        XCTAssertEqual(requestCount.value, 2)
-        XCTAssertEqual(
-            res,
-            .init(etag: "etag",
-                  html: "readme html",
-                  htmlUrl: "readme url",
-                  imagesToCache: [])
-        )
     }
 
     func test_fetchReadme_notFound() async throws {
         // setup
         Current.githubToken = { "secr3t" }
-        let client = MockClient { _, resp in resp.status = .notFound }
 
-        // MUT
-        let res = await Github.fetchReadme(client: client, owner: "foo", repository: "bar")
+        await withDependencies {
+            $0.httpClient.get = { @Sendable _, headers in .notFound }
+        } operation: {
+            // MUT
+            let res = await Github.fetchReadme(owner: "foo", repository: "bar")
 
-        // validate
-        XCTAssertEqual(res, nil)
+            // validate
+            XCTAssertEqual(res, nil)
+        }
     }
 
     func test_extractImagesRequiringCaching() async throws {
@@ -482,11 +486,16 @@ class GithubTests: AppTestCase {
 
 
 private extension HTTPClient.Response {
-    static func ok(body: String) -> Self {
-        .init(status: .ok, body: .init(string: body))
+    static func ok(body: String, headers: HTTPHeaders = .init()) -> Self {
+        .init(status: .ok, headers: headers, body: .init(string: body))
     }
 
     static func ok(fixture: String) throws -> Self {
         try .init(status: .ok, body: .init(data: fixtureData(for: fixture)))
+    }
+
+    static func ok<T: Encodable>(jsonEncode value: T) throws -> Self {
+        let data = try JSONEncoder().encode(value)
+        return .init(status: .ok, body: .init(data: data))
     }
 }

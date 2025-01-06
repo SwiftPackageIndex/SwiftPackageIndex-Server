@@ -27,6 +27,7 @@ final class MastodonTests: AppTestCase {
             $0.environment.allowSocialPosts = { true }
             $0.github.fetchLicense = { @Sendable _, _ in nil }
             $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
             $0.httpClient.mastodonPost = { @Sendable msg in
                 if message.value == nil {
                     message.setValue(msg)
