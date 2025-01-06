@@ -566,8 +566,8 @@ class PackageController_routesTests: SnapshotTestCase {
         // Test the current (~) documentation routes:
         //   /owner/package/documentation/~ + various path elements
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.environment.currentReferenceCache = { nil }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
         } operation: {
             // setup
@@ -649,8 +649,8 @@ class PackageController_routesTests: SnapshotTestCase {
         // Test the current (~) documentation routes with baseURL rewriting:
         //   /owner/package/documentation/~ + various path elements
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.environment.currentReferenceCache = { nil }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
         } operation: {
             // setup
@@ -941,8 +941,8 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_documentation_current_css() async throws {
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.environment.currentReferenceCache = { nil }
             $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
             // setup
@@ -996,8 +996,8 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_documentation_current_js() async throws {
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.environment.currentReferenceCache = { nil }
             $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
             // setup
@@ -1051,8 +1051,8 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_documentation_current_data() async throws {
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.environment.currentReferenceCache = { nil }
             $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
             // setup
@@ -1156,8 +1156,8 @@ class PackageController_routesTests: SnapshotTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2287
         // Ensure references are path encoded
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.environment.currentReferenceCache = { nil }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
         } operation: {
             // setup
@@ -1220,8 +1220,8 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_documentation_routes_tutorials() async throws {
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.environment.currentReferenceCache = { nil  }
             $0.environment.dbId = { nil }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
         } operation: {
@@ -1479,8 +1479,8 @@ class PackageController_routesTests: SnapshotTestCase {
         // Ensures default branch updates don't introduce a "documentation gap"
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.environment.currentReferenceCache = { .live }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
         } operation: {
             // setup
@@ -1556,9 +1556,8 @@ class PackageController_routesTests: SnapshotTestCase {
     }
 
     func test_getDocRoute_documentation_current() async throws {
-        nonisolated(unsafe) let cache = CurrentReferenceCache()
         try await withDependencies {
-            $0.environment.currentReferenceCache = { cache }
+            $0.currentReferenceCache = .inMemory
         } operation: {
             // owner/repo/~/documentation/archive
             let req = Request(application: app, url: "", on: app.eventLoopGroup.next())
@@ -1576,7 +1575,8 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTFail("unexpected error: \(error)")
             }
 
-            cache[owner: "owner", repository: "repo"] = "1.2.3"
+            @Dependency(\.currentReferenceCache) var cache
+            await cache.set(owner: "owner", repository: "repo", reference: "1.2.3")
 
             do { // Now with the cache in place this resolves
                 let route = try await req.getDocRoute(fragment: .documentation)

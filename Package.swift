@@ -27,7 +27,6 @@ let package = Package(
         .library(name: "S3Store", targets: ["S3Store"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/0xLeif/Cache.git", from: "2.1.0"),
         .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
         .package(url: "https://github.com/swift-server/swift-prometheus.git", from: "1.0.0"),
         .package(url: "https://github.com/SwiftPackageIndex/Plot.git", branch: "main"),
@@ -63,7 +62,6 @@ let package = Package(
                     .product(name: "SPIManifest", package: "SPIManifest"),
                     .product(name: "SemanticVersion", package: "SemanticVersion"),
                     .product(name: "SwiftSoup", package: "SwiftSoup"),
-                    .product(name: "Cache", package: "cache"),
                     .product(name: "CanonicalPackageURL", package: "CanonicalPackageURL"),
                     .product(name: "CustomDump", package: "swift-custom-dump"),
                     .product(name: "Dependencies", package: "swift-dependencies"),

@@ -14,7 +14,6 @@
 
 import Fluent
 import FluentPostgresDriver
-import Redis
 import Vapor
 
 
@@ -77,13 +76,6 @@ public func configure(_ app: Application) async throws -> String {
                                 // Set sqlLogLevel to .info to log SQL queries with the default log level.
                                 sqlLogLevel: .debug),
                       as: .psql)
-
-    // Setup Redis connection
-    do {
-        app.redis.configuration = try RedisConfiguration(hostname: "redis")
-    } catch {
-        app.logger.warning("Failed to configure Redis, caching disabled. Error: \(error)")
-    }
 
     do {  // Migration 001 - schema 1.0
         app.migrations.add(CreatePackage())
