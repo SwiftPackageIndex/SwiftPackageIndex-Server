@@ -37,6 +37,7 @@ class IngestionTests: AppTestCase {
             $0.date.now = .now
             $0.github.fetchLicense = { @Sendable _, _ in nil }
             $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
@@ -73,6 +74,7 @@ class IngestionTests: AppTestCase {
                 }
                 return .mock(owner: owner, repository: repository)
             }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
         } operation: {
             // setup
             let packages = try await savePackages(on: app.db, ["https://github.com/foo/1",
@@ -313,6 +315,7 @@ class IngestionTests: AppTestCase {
             $0.date.now = .now
             $0.github.fetchLicense = { @Sendable _, _ in nil }
             $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
@@ -341,6 +344,7 @@ class IngestionTests: AppTestCase {
                 }
                 return .mock(owner: owner, repository: repository)
             }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
@@ -394,6 +398,7 @@ class IngestionTests: AppTestCase {
                     stars: 0,
                     summary: "desc")
             }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
@@ -459,17 +464,12 @@ class IngestionTests: AppTestCase {
     }
 
     func test_ingest_storeS3Readme() async throws {
+        let fetchCalls = QueueIsolated(0)
         try await withDependencies {
             $0.date.now = .now
             $0.github.fetchLicense = { @Sendable _, _ in nil }
             $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
-        } operation: {
-            // setup
-            let app = self.app!
-            let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
-            try await pkg.save(on: app.db)
-            let fetchCalls = QueueIsolated(0)
-            Current.fetchReadme = { _, _, _ in
+            $0.github.fetchReadme = { @Sendable _, _ in
                 fetchCalls.increment()
                 if fetchCalls.value <= 2 {
                     return .init(etag: "etag1",
@@ -483,6 +483,11 @@ class IngestionTests: AppTestCase {
                                  imagesToCache: [])
                 }
             }
+        } operation: {
+            // setup
+            let app = self.app!
+            let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
+            try await pkg.save(on: app.db)
             let storeCalls = QueueIsolated(0)
             Current.storeS3Readme = { owner, repo, html in
                 storeCalls.increment()
@@ -548,27 +553,6 @@ class IngestionTests: AppTestCase {
                           processingStage: .reconciliation)
         try await pkg.save(on: app.db)
         Current.storeS3Readme = { _, _, _ in "objectUrl" }
-        Current.fetchReadme = { _, _, _ in
-            return .init(etag: "etag",
-                         html: """
-                         <html>
-                         <body>
-                             <img src="https://private-user-images.githubusercontent.com/with-jwt-1.jpg?jwt=some-jwt" />
-                             <img src="https://private-user-images.githubusercontent.com/with-jwt-2.jpg?jwt=some-jwt" />
-                             <img src="https://private-user-images.githubusercontent.com/without-jwt.jpg" />
-                         </body>
-                         </html>
-                         """,
-                         htmlUrl: "readme url",
-                         imagesToCache: [
-                            .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt-1.jpg?jwt=some-jwt",
-                                  s3Key: .init(bucket: "awsReadmeBucket",
-                                               path: "/foo/bar/with-jwt-1.jpg")),
-                            .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt-2.jpg?jwt=some-jwt",
-                                  s3Key: .init(bucket: "awsReadmeBucket",
-                                               path: "/foo/bar/with-jwt-2.jpg"))
-                         ])
-        }
         let storeS3ReadmeImagesCalls = QueueIsolated(0)
         Current.storeS3ReadmeImages = { _, imagesToCache in
             storeS3ReadmeImagesCalls.increment()
@@ -580,6 +564,27 @@ class IngestionTests: AppTestCase {
             $0.date.now = .now
             $0.github.fetchLicense = { @Sendable _, _ in nil }
             $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
+            $0.github.fetchReadme = { @Sendable _, _ in
+                return .init(etag: "etag",
+                             html: """
+                         <html>
+                         <body>
+                             <img src="https://private-user-images.githubusercontent.com/with-jwt-1.jpg?jwt=some-jwt" />
+                             <img src="https://private-user-images.githubusercontent.com/with-jwt-2.jpg?jwt=some-jwt" />
+                             <img src="https://private-user-images.githubusercontent.com/without-jwt.jpg" />
+                         </body>
+                         </html>
+                         """,
+                             htmlUrl: "readme url",
+                             imagesToCache: [
+                                .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt-1.jpg?jwt=some-jwt",
+                                      s3Key: .init(bucket: "awsReadmeBucket",
+                                                   path: "/foo/bar/with-jwt-1.jpg")),
+                                .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt-2.jpg?jwt=some-jwt",
+                                      s3Key: .init(bucket: "awsReadmeBucket",
+                                                   path: "/foo/bar/with-jwt-2.jpg"))
+                             ])
+            }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
@@ -594,12 +599,6 @@ class IngestionTests: AppTestCase {
         // setup
         let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
         try await pkg.save(on: app.db)
-        Current.fetchReadme = { _, _, _ in
-            return .init(etag: "etag1",
-                         html: "readme html 1",
-                         htmlUrl: "readme url",
-                         imagesToCache: [])
-        }
         let storeCalls = QueueIsolated(0)
         Current.storeS3Readme = { owner, repo, html throws(S3Readme.Error) in
             storeCalls.increment()
@@ -611,6 +610,12 @@ class IngestionTests: AppTestCase {
                 $0.date.now = .now
                 $0.github.fetchLicense = { @Sendable _, _ in nil }
                 $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
+                $0.github.fetchReadme = { @Sendable _, _ in
+                    return .init(etag: "etag1",
+                                 html: "readme html 1",
+                                 htmlUrl: "readme url",
+                                 imagesToCache: [])
+                }
             } operation: {
                 // MUT
                 let app = self.app!
@@ -634,6 +639,7 @@ class IngestionTests: AppTestCase {
             $0.github.fetchLicense = { @Sendable owner, repo in await Github.fetchLicense(owner: owner, repository: repo) }
             // use mock for metadata request which we're not interested in ...
             $0.github.fetchMetadata = { @Sendable _, _ in .init() }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
         } operation: {
             // setup
             let pkg = Package(url: "https://github.com/foo/1")

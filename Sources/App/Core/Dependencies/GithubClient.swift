@@ -23,6 +23,7 @@ import IssueReporting
 struct GithubClient {
     var fetchLicense: @Sendable (_ owner: String, _ repository: String) async -> Github.License?
     var fetchMetadata: @Sendable (_ owner: String, _ repository: String) async throws(Github.Error) -> Github.Metadata = { _,_ in reportIssue("fetchMetadata"); return .init() }
+    var fetchReadme: @Sendable (_ owner: String, _ repository: String) async -> Github.Readme?
 }
 
 
@@ -30,7 +31,8 @@ extension GithubClient: DependencyKey {
     static var liveValue: Self {
         .init(
             fetchLicense: { owner, repo in await Github.fetchLicense(owner: owner, repository: repo) },
-            fetchMetadata: { owner, repo throws(Github.Error) in try await Github.fetchMetadata(owner: owner, repository: repo) }
+            fetchMetadata: { owner, repo throws(Github.Error) in try await Github.fetchMetadata(owner: owner, repository: repo) },
+            fetchReadme: { owner, repo in await Github.fetchReadme(owner: owner, repository: repo) }
         )
     }
 }
@@ -40,7 +42,8 @@ extension GithubClient: TestDependencyKey {
     static var testValue: Self {
         .init(
             fetchLicense: { _, _ in unimplemented("fetchLicense"); return nil },
-            fetchMetadata: { _, _ in unimplemented("fetchMetadata"); return .init() }
+            fetchMetadata: { _, _ in unimplemented("fetchMetadata"); return .init() },
+            fetchReadme: { _, _ in unimplemented("fetchReadme"); return nil }
         )
     }
 }

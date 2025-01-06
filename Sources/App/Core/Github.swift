@@ -136,6 +136,33 @@ extension Github {
         return (body.asString(), response.headers.first(name: .eTag))
     }
 
+    static func fetch(url: String, headers: [(String, String)] = []) async throws -> (content: String, etag: String?) {
+        guard let token = Current.githubToken() else {
+            throw Error.missingToken
+        }
+
+        @Dependency(\.httpClient) var httpClient
+
+        let response = try await httpClient.get(url: url, headers: defaultHeaders(with: token).adding(contentsOf: headers))
+
+        guard !isRateLimited(response) else {
+            Current.logger().critical("rate limited while fetching \(url)")
+            throw Error.requestFailed(.tooManyRequests)
+        }
+
+        guard response.status == .ok else {
+            Current.logger().warning("Github.fetch of '\(url)' failed with status \(response.status)")
+            throw Error.requestFailed(response.status)
+        }
+
+        guard let body = response.body else {
+            Current.logger().warning("Github.fetch has no body")
+            throw Error.noBody
+        }
+
+        return (body.asString(), response.headers.first(name: .eTag))
+    }
+
     @available(*, deprecated)
     static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, uri: URI) async throws -> T {
         guard let token = Current.githubToken() else {
@@ -181,6 +208,7 @@ extension Github {
         return try? await Github.fetchResource(Github.License.self, url: url)
     }
 
+    @available(*, deprecated)
     static func fetchReadme(client: Client, owner: String, repository: String) async -> Readme? {
         let uri = Github.apiUri(owner: owner, repository: repository, resource: .readme)
 
@@ -196,6 +224,30 @@ extension Github {
                 var htmlUrl: String
             }
             return try? await Github.fetchResource(Response.self, client: client, uri: uri).htmlUrl
+        }()
+        guard let htmlUrl else { return nil }
+
+        // Extract and replace images that need caching
+        let imagesToCache = replaceImagesRequiringCaching(owner: owner, repository: repository, readme: &html)
+
+        return .init(etag: readme?.etag, html: html, htmlUrl: htmlUrl, imagesToCache: imagesToCache)
+    }
+
+    static func fetchReadme(owner: String, repository: String) async -> Readme? {
+        let url = Github.apiURL(owner: owner, repository: repository, resource: .readme)
+
+        // Fetch readme html content
+        let readme = try? await Github.fetch(url: url, headers: [
+            ("Accept", "application/vnd.github.html+json")
+        ])
+        guard var html = readme?.content else { return nil }
+
+        // Fetch readme html url
+        let htmlUrl: String? = await {
+            struct Response: Decodable {
+                var htmlUrl: String
+            }
+            return try? await Github.fetchResource(Response.self, url: url).htmlUrl
         }()
         guard let htmlUrl else { return nil }
 

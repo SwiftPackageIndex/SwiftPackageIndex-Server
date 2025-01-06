@@ -267,10 +267,11 @@ enum Ingestion {
         //   Sending 'github' into async let risks causing data races between async let uses and local uses
         @Dependency(\.github.fetchMetadata) var fetchMetadata
         @Dependency(\.github.fetchLicense) var fetchLicense
+        @Dependency(\.github.fetchReadme) var fetchReadme
 
         async let metadata = try await fetchMetadata(owner, repository)
         async let license = await fetchLicense(owner, repository)
-        async let readme = await Current.fetchReadme(client, owner, repository)
+        async let readme = await fetchReadme(owner, repository)
 
         do {
             return try await (metadata, license, readme)
