@@ -83,10 +83,7 @@ extension EnvironmentClient: DependencyKey {
             builderToken: { Environment.get("BUILDER_TOKEN") },
             buildTimeout: { Environment.get("BUILD_TIMEOUT").flatMap(Int.init) ?? 10 },
             buildTriggerAllowList: {
-                Environment.get("BUILD_TRIGGER_ALLOW_LIST")
-                    .map { Data($0.utf8) }
-                    .flatMap { try? JSONDecoder().decode([Package.Id].self, from: $0) }
-                ?? []
+                Environment.decode("BUILD_TRIGGER_ALLOW_LIST", as: [Package.Id].self) ?? []
             },
             buildTriggerDownscaling: {
                 Environment.get("BUILD_TRIGGER_DOWNSCALING")
@@ -135,9 +132,7 @@ extension EnvironmentClient: DependencyKey {
                 ?? []
             },
             shouldFail: { failureMode in
-                let shouldFail = Environment.get("FAILURE_MODE")
-                    .map { Data($0.utf8) }
-                    .flatMap { try? JSONDecoder().decode([String: Double].self, from: $0) } ?? [:]
+                let shouldFail = Environment.decode("FAILURE_MODE", as: [String: Double].self) ?? [:]
                 guard let rate = shouldFail[failureMode.rawValue] else { return false }
                 return Double.random(in: 0...1) <= rate
             }
@@ -180,5 +175,14 @@ extension DependencyValues {
     var environment: EnvironmentClient {
         get { self[EnvironmentClient.self] }
         set { self[EnvironmentClient.self] = newValue }
+    }
+}
+
+
+private extension Environment {
+    static func decode<T: Decodable>(_ key: String, as type: T.Type) -> T? {
+        Environment.get(key)
+            .map { Data($0.utf8) }
+            .flatMap { try? JSONDecoder().decode(type, from: $0) }
     }
 }
