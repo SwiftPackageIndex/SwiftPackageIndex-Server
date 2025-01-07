@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
 import FluentPostgresDriver
 import Vapor
@@ -37,6 +38,11 @@ public func configure(_ app: Application) async throws -> String {
     // app.http.server.configuration.responseCompression = .enabled
     // app.http.server.configuration.requestDecompression = .enabled
 
+    @Dependency(\.environment) var environment
+    if let config = environment.backpressureConfiguration() {
+        print(config)
+        app.middleware.use(BackpressureMiddleware(configuration: config))
+    }
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     app.middleware.use(ErrorMiddleware())
 

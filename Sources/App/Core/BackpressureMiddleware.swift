@@ -18,9 +18,7 @@ import Vapor
 
 
 final class BackpressureMiddleware: AsyncMiddleware {
-
-    let slidingWindow: Duration
-    let countLimit: Int
+    let configuration: Configuration
 
     public func respond(to request: Request, chainingTo next: AsyncResponder) async throws -> Response {
         guard let cfray = request.headers.first(name: "cf-ray") else {
@@ -29,7 +27,7 @@ final class BackpressureMiddleware: AsyncMiddleware {
         let epochSeconds = Int(Date().timeIntervalSince1970)
         let combinedKey = "\(cfray):\(epochSeconds)"
 
-        let slidingWindow = Int(slidingWindow.components.seconds)
+        let slidingWindow = configuration.slidingWindow
 
         @Dependency(\.redis) var redis
 
@@ -48,16 +46,41 @@ final class BackpressureMiddleware: AsyncMiddleware {
             }
         }
 
-        if countOverWindow >= countLimit {
+
+        if countOverWindow >= configuration.requestLimit {
             request.logger.log(level: .warning, "BackpressureMiddleware acting on request with cf-ray '\(cfray)' due to \(countOverWindow) requests in the last \(slidingWindow) seconds.")
-            throw Abort(.tooManyRequests)
+
+            switch configuration.mode {
+                case .block:
+                    throw Abort(.tooManyRequests)
+                case .delay(let duration):
+                    try await Task.sleep(for: .init(seconds: duration))
+                    return try await next.respond(to: request)
+            }
         } else {
             return try await next.respond(to: request)
         }
     }
 
-    init(slidingWindow: Duration, countLimit: Int) {
-        self.slidingWindow = slidingWindow
-        self.countLimit = countLimit
+    init(configuration: Configuration) {
+        self.configuration = configuration
+    }
+
+    struct Configuration: Codable {
+        var mode: Mode
+        var requestLimit: Int
+        var slidingWindow: Int  // in seconds
+
+        enum Mode: Codable {
+            case block
+            case delay(seconds: Double)
+        }
+    }
+}
+
+
+extension Duration {
+    init(seconds: Double) {
+        self = .microseconds(seconds/1e-6)
     }
 }
