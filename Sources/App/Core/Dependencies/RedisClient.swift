@@ -20,14 +20,20 @@ import DependenciesMacros
 
 @DependencyClient
 struct RedisClient {
-    var set: @Sendable (_ key: String, _ value: String?, Duration?) async -> Void
-    var get: @Sendable (_ key: String) async -> String?
+    var set: @Sendable (_ key: String, _ value: String?, Duration?) async throws -> Void
+    var get: @Sendable (_ key: String) async throws -> String?
+    var expire: @Sendable (_ key: String, _ after: Duration) async throws -> Bool
+    var increment: @Sendable (_ key: String, _ by: Int) async throws -> Int
 }
 
 
 extension RedisClient {
-    func set(key: String, value: String?, expiresIn: Duration? = nil) async {
-        await set(key: key, value: value, expiresIn)
+    func set(key: String, value: String?, expiresIn: Duration? = nil) async throws {
+        try await set(key: key, value: value, expiresIn)
+    }
+
+    func increment(key: String) async throws -> Int {
+        try await increment(key: key, by: 1)
     }
 }
 
@@ -36,9 +42,11 @@ extension RedisClient: DependencyKey {
     static var liveValue: RedisClient {
         .init(
             set: { key, value, expiresIn in
-                await Redis.shared?.set(key: key, value: value, expiresIn: expiresIn)
+                try await Redis.shared.set(key: key, value: value, expiresIn: expiresIn)
             },
-            get: { key in await Redis.shared?.get(key: key) }
+            get: { key in try await Redis.shared.get(key: key) },
+            expire: { key, ttl in try await Redis.shared.expire(key: key, after: ttl) },
+            increment: { key, value in try await Redis.shared.increment(key: key, by: value) }
         )
     }
 }
@@ -60,7 +68,10 @@ extension DependencyValues {
 #if DEBUG
 extension RedisClient {
     static var disabled: Self {
-        .init(set: { _, _, _ in }, get: { _ in nil })
+        .init(set: { _, _, _ in },
+              get: { _ in nil },
+              expire: { _, _ in true },
+              increment: { _, value in value })
     }
 }
 #endif
@@ -68,14 +79,14 @@ extension RedisClient {
 
 private actor Redis {
     var client: RediStack.RedisClient
-    static private var task: Task<Redis?, Never>?
+    static private var task: Task<Redis, Swift.Error>?
 
-    static var shared: Redis? {
-        get async {
+    static var shared: Redis {
+        get async throws {
             if let task {
-                return await task.value
+                return try await task.value
             }
-            let task = Task<Redis?, Never> {
+            let task = Task<Redis, Swift.Error> {
                 var attemptsLeft = maxConnectionAttempts
                 while attemptsLeft > 0 {
                     do {
@@ -86,11 +97,15 @@ private actor Redis {
                         try? await Task.sleep(for: .milliseconds(500))
                     }
                 }
-                return nil
+                throw Error.unavailable
             }
             self.task = task
-            return await task.value
+            return try await task.value
         }
+    }
+
+    enum Error: Swift.Error {
+        case unavailable
     }
 
     private init() async throws {
@@ -105,7 +120,7 @@ private actor Redis {
     static let hostname = "redis"
     static let maxConnectionAttempts = 3
 
-    func set(key: String, value: String?, expiresIn: Duration?) async -> Void {
+    func set(key: String, value: String?, expiresIn: Duration?) async {
         if let value {
             let buffer = ByteBuffer(string: value)
             let value = RESPValue.bulkString(buffer)
@@ -122,6 +137,18 @@ private actor Redis {
 
     func get(key: String) async -> String? {
         return try? await client.get(.init(key)).map(\.string).get()
+    }
+
+    func expire(key: String, after ttl: Duration) async throws -> Bool {
+        try await client.expire(.init(key), after: .init(ttl)).get()
+    }
+
+    func increment(key: String) async throws -> Int {
+        try await client.increment(.init(key)).get()
+    }
+
+    func increment(key: String, by value: Int) async throws -> Int {
+        try await client.increment(.init(key), by: value).get()
     }
 }
 

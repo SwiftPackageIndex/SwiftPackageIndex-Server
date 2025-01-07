@@ -30,13 +30,13 @@ extension CurrentReferenceCacheClient: DependencyKey {
         .init(
             set: { owner, repository, reference async in
                 @Dependency(\.redis) var redis
-                await redis.set(key: getKey(owner: owner, repository: repository),
-                                value: reference,
-                                expiresIn: timeToLive)
+                try? await redis.set(key: getKey(owner: owner, repository: repository),
+                                     value: reference,
+                                     expiresIn: timeToLive)
             },
             get: { owner, repository in
                 @Dependency(\.redis) var redis
-                return await redis.get(key: getKey(owner: owner, repository: repository))
+                return try? await redis.get(key: getKey(owner: owner, repository: repository))
             }
         )
     }
