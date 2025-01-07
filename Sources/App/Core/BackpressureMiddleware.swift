@@ -37,6 +37,9 @@ final class BackpressureMiddleware: AsyncMiddleware {
             request.logger.log(level: .warning, "BackpressureMiddleware failed to increment key '\(combinedKey)'.")
             return try await next.respond(to: request)
         }
+        if countOverWindow == 1 {
+            _ = try? await redis.expire(key: combinedKey, after: .seconds(3600))
+        }
 
         for i in epochSeconds - slidingWindow ..< epochSeconds {
             let key = "\(cfray):\(i)"
