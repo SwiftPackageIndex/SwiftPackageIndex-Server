@@ -109,15 +109,14 @@ private actor Redis {
     }
 
     private init() async throws {
+        @Dependency(\.environment) var environment
         let connection = RedisConnection.make(
-            configuration: try .init(hostname: Redis.hostname),
+            configuration: try .init(hostname: environment.redisHostname()),
             boundEventLoop: NIOSingletons.posixEventLoopGroup.any()
         )
         self.client = try await connection.get()
     }
 
-    // This hostname has to match the redir service name in app.yml.
-    static let hostname = "redis"
     static let maxConnectionAttempts = 3
 
     func set(key: String, value: String?, expiresIn: Duration?) async {
