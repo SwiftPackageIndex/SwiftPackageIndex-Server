@@ -29,7 +29,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.1.0
+      image: registry.gitlab.com/finestructure/spi-base:1.1.1
       options: --privileged
     services:
       postgres:
@@ -64,7 +64,7 @@ jobs:
     name: Release build
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.1.0
+      image: registry.gitlab.com/finestructure/spi-base:1.1.1
       options: --privileged
     steps:
       - name: GH Runner bug workaround
