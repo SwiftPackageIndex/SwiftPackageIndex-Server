@@ -96,7 +96,9 @@
             }
 
             li.dependencies {
+                display: flex;
                 grid-column-start: span 2;
+                flex-direction: column;
                 background-image: var(--image-dependencies);
             }
 
