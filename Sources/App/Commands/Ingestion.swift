@@ -181,7 +181,7 @@ enum Ingestion {
             }
 
             let (metadata, license, readme) = try await run {
-                try await fetchMetadata(client: client, package: package.model, owner: owner, repository: repository)
+                try await fetchMetadata(package: package.model, owner: owner, repository: repository)
             } rethrowing: {
                 Ingestion.Error(packageId: package.model.id!,
                                 underlyingError: .fetchMetadataFailed(owner: owner, name: repository, details: "\($0)"))
@@ -256,7 +256,7 @@ enum Ingestion {
     }
 
 
-    static func fetchMetadata(client: Client, package: Package, owner: String, repository: String) async throws(Github.Error) -> (Github.Metadata, Github.License?, Github.Readme?) {
+    static func fetchMetadata(package: Package, owner: String, repository: String) async throws(Github.Error) -> (Github.Metadata, Github.License?, Github.Readme?) {
         @Dependency(\.environment) var environment
         if environment.shouldFail(failureMode: .fetchMetadataFailed) {
             throw Github.Error.requestFailed(.internalServerError)
