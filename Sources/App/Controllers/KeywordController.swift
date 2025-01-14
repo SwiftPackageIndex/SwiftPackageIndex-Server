@@ -31,6 +31,7 @@ enum KeywordController {
             .filter(Repository.self, \.$keywords, .custom("@>"), [keyword])
             .sort(\.$score, .descending)
             .sort(Repository.self, \.$name)
+            .field(\.$scoreDetails)
             .page(page, size: pageSize)
     }
 

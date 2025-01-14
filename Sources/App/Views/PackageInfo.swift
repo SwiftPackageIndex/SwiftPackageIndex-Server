@@ -39,7 +39,8 @@ extension PackageInfo {
                   repositoryName: repoName,
                   url: SiteURL.package(.value(repoOwner), .value(repoName), .none).relativeURL(),
                   stars: package.repository.stars,
-                  lastActivityAt: package.repository.lastActivityAt
+                  lastActivityAt: package.repository.lastActivityAt,
+                  hasDocs: package.model.scoreDetails?.hasDocumentation ?? false
         )
     }
 }
