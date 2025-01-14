@@ -654,8 +654,8 @@ requests:
     url: ${base_url}/vapor-community/HTMLKit/documentation
     validation:
       status: .regex((2|3)\d\d)
-  /vapor-community/PassKit/documentation:
-    url: ${base_url}/vapor-community/PassKit/documentation
+  /vapor-community/wallet/documentation:
+    url: ${base_url}/vapor-community/wallet/documentation
     validation:
       status: .regex((2|3)\d\d)
   /vapor-community/Zip/documentation:
