@@ -39,47 +39,47 @@ enum Api: Resourceable, Sendable {
 
     var path: String {
         switch self {
-            case let .builds(.value(id), next):
-                return "builds/\(id.uuidString)/\(next.path)"
-            case .builds(.key, _):
-                fatalError("path must not be called with a name parameter")
-            case .dependencies:
-                return "dependencies"
-            case let .packages(.value(owner), .value(repo), next):
-                return "packages/\(owner)/\(repo)/\(next.path)"
-            case .packages:
-                fatalError("path must not be called with a name parameter")
-            case .packageCollections:
-                return "package-collections"
-            case .version:
-                return "version"
-            case let .versions(.value(id), next):
-                return "versions/\(id.uuidString)/\(next.path)"
-            case .versions(.key, _):
-                fatalError("path must not be called with a name parameter")
-            case .search:
-                return "search"
+        case let .builds(.value(id), next):
+            return "builds/\(id.uuidString)/\(next.path)"
+        case .builds(.key, _):
+            fatalError("path must not be called with a name parameter")
+        case .dependencies:
+            return "dependencies"
+        case let .packages(.value(owner), .value(repo), next):
+            return "packages/\(owner)/\(repo)/\(next.path)"
+        case .packages:
+            fatalError("path must not be called with a name parameter")
+        case .packageCollections:
+            return "package-collections"
+        case .version:
+            return "version"
+        case let .versions(.value(id), next):
+            return "versions/\(id.uuidString)/\(next.path)"
+        case .versions(.key, _):
+            fatalError("path must not be called with a name parameter")
+        case .search:
+            return "search"
         }
     }
 
     var pathComponents: [PathComponent] {
         switch self {
-            case let .builds(.key, remainder):
-                return ["builds", ":id"] + remainder.pathComponents
-            case .builds(.value, _):
-                fatalError("pathComponents must not be called with a value parameter")
-            case let .packages(.key, .key, remainder):
-                return ["packages", ":owner", ":repository"] + remainder.pathComponents
-            case .packages:
-                fatalError("pathComponents must not be called with a value parameter")
-            case .packageCollections:
-                return ["package-collections"]
-            case .dependencies, .search, .version:
-                return [.init(stringLiteral: path)]
-            case let .versions(.key, remainder):
-                return ["versions", ":id"] + remainder.pathComponents
-            case .versions(.value, _):
-                fatalError("pathComponents must not be called with a value parameter")
+        case let .builds(.key, remainder):
+            return ["builds", ":id"] + remainder.pathComponents
+        case .builds(.value, _):
+            fatalError("pathComponents must not be called with a value parameter")
+        case let .packages(.key, .key, remainder):
+            return ["packages", ":owner", ":repository"] + remainder.pathComponents
+        case .packages:
+            fatalError("pathComponents must not be called with a value parameter")
+        case .packageCollections:
+            return ["package-collections"]
+        case .dependencies, .search, .version:
+            return [.init(stringLiteral: path)]
+        case let .versions(.key, remainder):
+            return ["versions", ":id"] + remainder.pathComponents
+        case .versions(.value, _):
+            fatalError("pathComponents must not be called with a value parameter")
         }
     }
 
@@ -138,200 +138,200 @@ enum SiteURL: Resourceable, Sendable {
 
     var path: String {
         switch self {
-            case .addAPackage:
-                return "add-a-package"
-
-            case let .api(next):
-                return "api/\(next.path)"
-
-            case let .author(.value(owner)):
-                return owner
-
-            case .author:
-                fatalError("invalid path: \(self)")
-
-            case .blog:
-                return "blog"
-
-            case .blogFeed:
-                return "blog/feed.xml"
-
-            case let .blogPost(.value(slug)):
-                return "blog/\(slug)"
-
-            case .blogPost:
-                fatalError("invalid path: \(self)")
-
-            case let .builds(.value(id)):
-                return "builds/\(id.uuidString)"
-
-            case .builds(.key):
-                fatalError("invalid path: \(self)")
-
-            case .buildMonitor:
-                return "build-monitor"
-
-            case let .collections(.value(key)):
-                return "collections/\(key.urlPathEncoded)"
-
-            case .collections(.key):
-                fatalError("invalid path: \(self)")
-
-            case let .docs(next):
-                return "docs/\(next.path)"
-
-            case .faq:
-                return "faq"
-
-            case .home:
-                return ""
-
-            case let .images(name):
-                return "images/\(name)"
-
-            case let .javascripts(name):
-                return "/\(name).js"
-
-            case let .keywords(.value(keyword)):
-                return "keywords/\(keyword)"
-
-            case .keywords:
-                fatalError("invalid path: \(self)")
-
-            case let .package(.value(owner), .value(repo), .none):
-                let owner = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? owner
-                let repo = repo.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? repo
-                return "\(owner)/\(repo)"
-
-            case let .package(owner, repo, .some(next)):
-                return "\(Self.package(owner, repo, .none).path)/\(next.path)"
-
-            case .package:
-                fatalError("invalid path: \(self)")
-
-            case let .packageCollectionAuthor(.value(owner)):
-                return "\(owner)/collection.json"
-
-            case .packageCollectionAuthor(.key):
-                fatalError("invalid path: \(self)")
-
-            case let .packageCollectionCustom(.value(key)):
-                return "collections/\(key.urlPathEncoded)/collection.json"
-
-            case .packageCollectionCustom(.key):
-                fatalError("invalid path: \(self)")
-
-            case .packageCollections:
-                return "package-collections"
-
-            case .privacy:
-                return "privacy"
-
-            case .readyForSwift6:
-                return "ready-for-swift-6"
-
-            case .rssPackages:
-                return "packages.rss"
-
-            case .rssReleases:
-                return "releases.rss"
-
-            case .search:
-                return "search"
-
-            case .siteMapIndex:
-                return "sitemap.xml"
-
-            case .siteMapStaticPages:
-                return "sitemap-static-pages.xml"
-
-            case .supporters:
-                return "supporters"
-
-            case let .stylesheets(name):
-                return "/\(name).css"
-
-            case .tryInPlayground:
-                return "try-in-a-playground"
-
-            case .validateSPIManifest:
-                return "validate-spi-manifest"
+        case .addAPackage:
+            return "add-a-package"
+            
+        case let .api(next):
+            return "api/\(next.path)"
+            
+        case let .author(.value(owner)):
+            return owner
+            
+        case .author:
+            fatalError("invalid path: \(self)")
+            
+        case .blog:
+            return "blog"
+            
+        case .blogFeed:
+            return "blog/feed.xml"
+            
+        case let .blogPost(.value(slug)):
+            return "blog/\(slug)"
+            
+        case .blogPost:
+            fatalError("invalid path: \(self)")
+            
+        case let .builds(.value(id)):
+            return "builds/\(id.uuidString)"
+            
+        case .builds(.key):
+            fatalError("invalid path: \(self)")
+            
+        case .buildMonitor:
+            return "build-monitor"
+            
+        case let .collections(.value(key)):
+            return "collections/\(key.urlPathEncoded)"
+            
+        case .collections(.key):
+            fatalError("invalid path: \(self)")
+            
+        case let .docs(next):
+            return "docs/\(next.path)"
+            
+        case .faq:
+            return "faq"
+            
+        case .home:
+            return ""
+            
+        case let .images(name):
+            return "images/\(name)"
+            
+        case let .javascripts(name):
+            return "/\(name).js"
+            
+        case let .keywords(.value(keyword)):
+            return "keywords/\(keyword)"
+            
+        case .keywords:
+            fatalError("invalid path: \(self)")
+            
+        case let .package(.value(owner), .value(repo), .none):
+            let owner = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? owner
+            let repo = repo.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? repo
+            return "\(owner)/\(repo)"
+            
+        case let .package(owner, repo, .some(next)):
+            return "\(Self.package(owner, repo, .none).path)/\(next.path)"
+            
+        case .package:
+            fatalError("invalid path: \(self)")
+            
+        case let .packageCollectionAuthor(.value(owner)):
+            return "\(owner)/collection.json"
+            
+        case .packageCollectionAuthor(.key):
+            fatalError("invalid path: \(self)")
+            
+        case let .packageCollectionCustom(.value(key)):
+            return "collections/\(key.urlPathEncoded)/collection.json"
+            
+        case .packageCollectionCustom(.key):
+            fatalError("invalid path: \(self)")
+            
+        case .packageCollections:
+            return "package-collections"
+            
+        case .privacy:
+            return "privacy"
+            
+        case .readyForSwift6:
+            return "ready-for-swift-6"
+            
+        case .rssPackages:
+            return "packages.rss"
+            
+        case .rssReleases:
+            return "releases.rss"
+            
+        case .search:
+            return "search"
+            
+        case .siteMapIndex:
+            return "sitemap.xml"
+            
+        case .siteMapStaticPages:
+            return "sitemap-static-pages.xml"
+            
+        case .supporters:
+            return "supporters"
+            
+        case let .stylesheets(name):
+            return "/\(name).css"
+            
+        case .tryInPlayground:
+            return "try-in-a-playground"
+            
+        case .validateSPIManifest:
+            return "validate-spi-manifest"
         }
     }
 
     var pathComponents: [PathComponent] {
         switch self {
-            case .addAPackage,
-                    .blog,
-                    .buildMonitor,
-                    .faq,
-                    .home,
-                    .packageCollections,
-                    .privacy,
-                    .readyForSwift6,
-                    .rssPackages,
-                    .rssReleases,
-                    .search,
-                    .siteMapIndex,
-                    .siteMapStaticPages,
-                    .supporters,
-                    .tryInPlayground,
-                    .validateSPIManifest:
-                return [.init(stringLiteral: path)]
-
-            case let .api(next):
-                return ["api"] + next.pathComponents
-
-            case .author:
-                return [":owner"]
-
-            case .blogFeed:
-                return ["blog", "feed.xml"]
-
-            case .blogPost:
-                return ["blog", ":slug"]
-
-            case .builds(.key):
-                return ["builds", ":id"]
-
-            case .builds(.value):
-                fatalError("pathComponents must not be called with a value parameter")
-
-            case .collections(.key):
-                return ["collections", ":key"]
-
-            case .collections(.value):
-                fatalError("pathComponents must not be called with a value parameter")
-
-            case let .docs(next):
-                return ["docs"] + next.pathComponents
-
-            case .keywords:
-                return ["keywords", ":keyword"]
-
-            case .package(.key, .key, .none):
-                return [":owner", ":repository"]
-
-            case let .package(k1, k2, .some(next)):
-                return Self.package(k1, k2, .none).pathComponents + next.pathComponents
-
-            case .package:
-                fatalError("pathComponents must not be called with a value parameter")
-
-            case .packageCollectionAuthor(.key):
-                return [":owner", "collection.json"]
-
-            case .packageCollectionAuthor(.value):
-                fatalError("pathComponents must not be called with a value parameter")
-
-            case .packageCollectionCustom(.key):
-                return ["collections", ":key", "collection.json"]
-
-            case .packageCollectionCustom(.value):
-                fatalError("pathComponents must not be called with a value parameter")
-
-            case .images, .javascripts, .stylesheets:
-                fatalError("invalid resource path for routing - only use in static HTML (DSL)")
+        case .addAPackage,
+                .blog,
+                .buildMonitor,
+                .faq,
+                .home,
+                .packageCollections,
+                .privacy,
+                .readyForSwift6,
+                .rssPackages,
+                .rssReleases,
+                .search,
+                .siteMapIndex,
+                .siteMapStaticPages,
+                .supporters,
+                .tryInPlayground,
+                .validateSPIManifest:
+            return [.init(stringLiteral: path)]
+            
+        case let .api(next):
+            return ["api"] + next.pathComponents
+            
+        case .author:
+            return [":owner"]
+            
+        case .blogFeed:
+            return ["blog", "feed.xml"]
+            
+        case .blogPost:
+            return ["blog", ":slug"]
+            
+        case .builds(.key):
+            return ["builds", ":id"]
+            
+        case .builds(.value):
+            fatalError("pathComponents must not be called with a value parameter")
+            
+        case .collections(.key):
+            return ["collections", ":key"]
+            
+        case .collections(.value):
+            fatalError("pathComponents must not be called with a value parameter")
+            
+        case let .docs(next):
+            return ["docs"] + next.pathComponents
+            
+        case .keywords:
+            return ["keywords", ":keyword"]
+            
+        case .package(.key, .key, .none):
+            return [":owner", ":repository"]
+            
+        case let .package(k1, k2, .some(next)):
+            return Self.package(k1, k2, .none).pathComponents + next.pathComponents
+            
+        case .package:
+            fatalError("pathComponents must not be called with a value parameter")
+            
+        case .packageCollectionAuthor(.key):
+            return [":owner", "collection.json"]
+            
+        case .packageCollectionAuthor(.value):
+            fatalError("pathComponents must not be called with a value parameter")
+            
+        case .packageCollectionCustom(.key):
+            return ["collections", ":key", "collection.json"]
+            
+        case .packageCollectionCustom(.value):
+            fatalError("pathComponents must not be called with a value parameter")
+            
+        case .images, .javascripts, .stylesheets:
+            fatalError("invalid resource path for routing - only use in static HTML (DSL)")
         }
     }
 
@@ -344,15 +344,15 @@ enum SiteURL: Resourceable, Sendable {
         return path
     }
 
-    #if DEBUG
+#if DEBUG
     // make `var` for debug so we can dependency inject
     nonisolated(unsafe) static var absoluteURL = _absoluteURL
     nonisolated(unsafe) static var relativeURL = _relativeURL
-    #else
+#else
     static let absoluteURL = _absoluteURL
     static let relativeURL = _relativeURL
-    #endif
 
+#endif
     static var apiBaseURL: String { absoluteURL("api") }
 
     enum PackagePathComponents: String, Resourceable {
