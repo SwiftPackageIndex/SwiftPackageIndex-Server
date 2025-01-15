@@ -108,3 +108,10 @@ func makeBody(_ data: Data) -> ByteBuffer {
     buffer.writeBytes(data)
     return buffer
 }
+
+
+extension HTTPClient.Response {
+    static func ok(fixture: String) throws -> Self {
+        try .init(status: .ok, body: .init(data: fixtureData(for: fixture)))
+    }
+}

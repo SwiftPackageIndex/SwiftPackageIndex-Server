@@ -110,5 +110,14 @@ extension HTTPClient.Response {
     static var notFound: Self { .init(status: .notFound) }
     static var tooManyRequests: Self { .init(status: .tooManyRequests) }
     static var ok: Self { .init(status: .ok) }
+
+    static func ok(body: String, headers: HTTPHeaders = .init()) -> Self {
+        .init(status: .ok, headers: headers, body: .init(string: body))
+    }
+
+    static func ok<T: Encodable>(jsonEncode value: T, headers: HTTPHeaders = .init()) throws -> Self {
+        let data = try JSONEncoder().encode(value)
+        return .init(status: .ok, headers: headers, body: .init(data: data))
+    }
 }
 #endif
