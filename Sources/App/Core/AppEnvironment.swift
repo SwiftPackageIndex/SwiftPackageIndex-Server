@@ -30,7 +30,6 @@ struct AppEnvironment: Sendable {
     var gitlabApiToken: @Sendable () -> String?
     var gitlabPipelineToken: @Sendable () -> String?
     var gitlabPipelineLimit: @Sendable () -> Int
-    var hideStagingBanner: @Sendable () -> Bool
     var maintenanceMessage: @Sendable () -> String?
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var logger: @Sendable () -> Logger
@@ -77,10 +76,6 @@ extension AppEnvironment {
         gitlabPipelineLimit: {
             Environment.get("GITLAB_PIPELINE_LIMIT").flatMap(Int.init)
             ?? Constants.defaultGitlabPipelineLimit
-        },
-        hideStagingBanner: {
-            Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
-                ?? Constants.defaultHideStagingBanner
         },
         maintenanceMessage: {
             Environment.get("MAINTENANCE_MESSAGE").flatMap(\.trimmed)

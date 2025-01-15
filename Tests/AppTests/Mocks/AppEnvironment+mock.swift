@@ -29,7 +29,6 @@ extension AppEnvironment {
             gitlabApiToken: { nil },
             gitlabPipelineToken: { nil },
             gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
-            hideStagingBanner: { false },
             maintenanceMessage: { nil },
             loadSPIManifest: { _ in nil },
             logger: { logger },
