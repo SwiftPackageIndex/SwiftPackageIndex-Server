@@ -103,7 +103,6 @@ class GithubTests: AppTestCase {
     }
 
     func test_fetchResource() async throws {
-        Current.githubToken = { "secr3t" }
         struct Response: Decodable, Equatable {
             var data: Data
             struct Data: Decodable, Equatable {
@@ -116,6 +115,7 @@ class GithubTests: AppTestCase {
         let q = Github.GraphQLQuery(query: "query { viewer { login } }")
 
         try await withDependencies {
+            $0.github.token = { "secr3t" }
             $0.httpClient.post = { @Sendable _, _, _ in
                 .ok(body: #"{"data":{"viewer":{"login":"finestructure"}}}"#)
             }
@@ -126,10 +126,10 @@ class GithubTests: AppTestCase {
     }
 
     func test_fetchMetadata() async throws {
-        Current.githubToken = { "secr3t" }
         let iso8601 = ISO8601DateFormatter()
 
         try await withDependencies {
+            $0.github.token = { "secr3t" }
             $0.httpClient.post = { @Sendable _, _, _ in
                 try .ok(fixture: "github-graphql-resource.json")
             }
@@ -181,9 +181,8 @@ class GithubTests: AppTestCase {
     }
 
     func test_fetchMetadata_badRequest() async throws {
-        Current.githubToken = { "secr3t" }
-
         await withDependencies {
+            $0.github.token = { "secr3t" }
             $0.httpClient.post = { @Sendable _, _, _ in .badRequest }
         } operation: {
             do {
@@ -200,10 +199,8 @@ class GithubTests: AppTestCase {
     }
 
     func test_fetchMetadata_badData() async throws {
-        // setup
-        Current.githubToken = { "secr3t" }
-
         await withDependencies {
+            $0.github.token = { "secr3t" }
             $0.httpClient.post = { @Sendable _, _, _ in .ok(body: "bad data") }
         } operation: {
             // MUT
@@ -225,10 +222,8 @@ class GithubTests: AppTestCase {
 
     func test_fetchMetadata_rateLimiting_429() async throws {
         // Github doesn't actually send a 429 when you hit the rate limit
-        // setup
-        Current.githubToken = { "secr3t" }
-
         await withDependencies {
+            $0.github.token = { "secr3t" }
             $0.httpClient.post = { @Sendable _, _, _ in .tooManyRequests }
         } operation: {
             // MUT
@@ -278,10 +273,8 @@ class GithubTests: AppTestCase {
         //   X-RateLimit-Limit: 60
         //   X-RateLimit-Remaining: 56
         // Ensure we record it as a rate limit error and raise a Rollbar item
-        // setup
-        Current.githubToken = { "secr3t" }
-
         await withDependencies {
+            $0.github.token = { "secr3t" }
             $0.httpClient.post = { @Sendable _, _, _ in
                     .init(status: .forbidden, headers: ["X-RateLimit-Remaining": "0"])
             }
@@ -313,10 +306,8 @@ class GithubTests: AppTestCase {
     }
 
     func test_fetchLicense() async throws {
-        // setup
-        Current.githubToken = { "secr3t" }
-
         await withDependencies {
+            $0.github.token = { "secr3t" }
             $0.httpClient.get = { @Sendable _, _ in
                 try .ok(fixture: "github-license-response.json")
             }
@@ -331,10 +322,8 @@ class GithubTests: AppTestCase {
 
     func test_fetchLicense_notFound() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
-        // setup
-        Current.githubToken = { "secr3t" }
-
         await withDependencies {
+            $0.github.token = { "secr3t" }
             $0.httpClient.get = { @Sendable _, _ in .notFound }
         } operation: {
             // MUT
@@ -346,10 +335,9 @@ class GithubTests: AppTestCase {
     }
 
     func test_fetchReadme() async throws {
-        // setup
-        Current.githubToken = { "secr3t" }
         let requestCount = QueueIsolated(0)
         await withDependencies {
+            $0.github.token = { "secr3t" }
             $0.httpClient.get = { @Sendable _, headers in
                 requestCount.increment()
                 switch headers[.accept] {
@@ -383,10 +371,8 @@ class GithubTests: AppTestCase {
     }
 
     func test_fetchReadme_notFound() async throws {
-        // setup
-        Current.githubToken = { "secr3t" }
-
         await withDependencies {
+            $0.github.token = { "secr3t" }
             $0.httpClient.get = { @Sendable _, headers in .notFound }
         } operation: {
             // MUT

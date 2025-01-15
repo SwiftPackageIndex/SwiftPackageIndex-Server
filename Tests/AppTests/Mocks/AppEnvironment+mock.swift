@@ -26,7 +26,6 @@ extension AppEnvironment {
             fileManager: .mock,
             getStatusCount: { _, _ in 100 },
             git: .mock,
-            githubToken: { nil },
             gitlabApiToken: { nil },
             gitlabPipelineToken: { nil },
             gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
