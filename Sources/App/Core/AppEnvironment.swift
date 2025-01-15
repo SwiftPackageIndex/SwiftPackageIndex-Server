@@ -45,7 +45,6 @@ struct AppEnvironment: Sendable {
                                   _ readme: String) async throws(S3Readme.Error) -> String
     var storeS3ReadmeImages: @Sendable (_ client: Client,
                                         _ imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) -> Void
-    var timeZone: @Sendable () -> TimeZone
     var triggerBuild: @Sendable (_ client: Client,
                                  _ buildId: Build.Id,
                                  _ cloneURL: String,
@@ -102,7 +101,6 @@ extension AppEnvironment {
         storeS3ReadmeImages: { client, images throws(S3Readme.Error) in
             try await S3Readme.storeReadmeImages(client: client, imagesToCache: images)
         },
-        timeZone: { .current },
         triggerBuild: { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
             try await Gitlab.Builder.triggerBuild(client: client,
                                                   buildId: buildId,

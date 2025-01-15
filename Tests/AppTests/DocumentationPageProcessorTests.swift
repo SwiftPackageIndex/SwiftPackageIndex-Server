@@ -16,6 +16,7 @@ import XCTest
 
 @testable import App
 
+import Dependencies
 import InlineSnapshotTesting
 import SwiftSoup
 
@@ -24,39 +25,43 @@ final class DocumentationPageProcessorTests: AppTestCase {
 
     func test_header_linkTitle() throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2249
-        // setup
-        let coreArchive = DocArchive(name: "tecocore", title: "TecoCore")
-        let signerArchive = DocArchive(name: "tecosigner", title: "Teco Signer")
-        let archives: [DocumentationPageProcessor.AvailableArchive] = [
-            .init(archive: coreArchive, isCurrent: false),
-            .init(archive: signerArchive, isCurrent: true)
-        ]
-        let processor = try XCTUnwrap(
-            DocumentationPageProcessor(
-                repositoryOwner: "owner",
-                repositoryOwnerName: "Owner Name",
-                repositoryName: "repo",
-                packageName: "package",
-                docVersion: .reference("main"),
-                referenceLatest: .release,
-                referenceKind: .release,
-                canonicalUrl: "https://example.com/owner/repo/canonical-ref",
-                availableArchives: archives,
-                availableVersions: [
-                    .init(
-                        kind: .defaultBranch,
-                        reference: "main",
-                        docArchives: [coreArchive, signerArchive],
-                        isLatestStable: false
-                    )
-                ],
-                updatedAt: .t0,
-                rawHtml: try fixtureString(for: "docc-template.html")
+        try withDependencies {
+            $0.timeZone = .utc
+        } operation: {
+            // setup
+            let coreArchive = DocArchive(name: "tecocore", title: "TecoCore")
+            let signerArchive = DocArchive(name: "tecosigner", title: "Teco Signer")
+            let archives: [DocumentationPageProcessor.AvailableArchive] = [
+                .init(archive: coreArchive, isCurrent: false),
+                .init(archive: signerArchive, isCurrent: true)
+            ]
+            let processor = try XCTUnwrap(
+                DocumentationPageProcessor(
+                    repositoryOwner: "owner",
+                    repositoryOwnerName: "Owner Name",
+                    repositoryName: "repo",
+                    packageName: "package",
+                    docVersion: .reference("main"),
+                    referenceLatest: .release,
+                    referenceKind: .release,
+                    canonicalUrl: "https://example.com/owner/repo/canonical-ref",
+                    availableArchives: archives,
+                    availableVersions: [
+                        .init(
+                            kind: .defaultBranch,
+                            reference: "main",
+                            docArchives: [coreArchive, signerArchive],
+                            isLatestStable: false
+                        )
+                    ],
+                    updatedAt: .t0,
+                    rawHtml: try fixtureString(for: "docc-template.html")
+                )
             )
-        )
 
-        // MUT & validate
-        assertSnapshot(of: processor.header, as: .html)
+            // MUT & validate
+            assertSnapshot(of: processor.header, as: .html)
+        }
     }
 
     func test_rewriteBaseUrls() throws {
@@ -187,7 +192,7 @@ final class DocumentationPageProcessorTests: AppTestCase {
             }
         }
     }
-    
+
     func test_rewriteAttribute_current() throws {
         do {  // test rewriting of un-prefixed src attributes
             let doc = try SwiftSoup.parse(#"""
