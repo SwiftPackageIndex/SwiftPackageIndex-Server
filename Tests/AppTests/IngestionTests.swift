@@ -640,6 +640,7 @@ class IngestionTests: AppTestCase {
             // use mock for metadata request which we're not interested in ...
             $0.github.fetchMetadata = { @Sendable _, _ in .init() }
             $0.github.fetchReadme = { @Sendable _, _ in nil }
+            $0.github.token = { "token" }
             $0.httpClient.get = { @Sendable url, _ in
                 if url.hasSuffix("/license") {
                     return .notFound
@@ -653,7 +654,6 @@ class IngestionTests: AppTestCase {
             // setup
             let pkg = Package(url: "https://github.com/foo/1")
             try await pkg.save(on: app.db)
-            Current.githubToken = { "token" }
 
             // MUT
             let (_, license, _) = try await Ingestion.fetchMetadata(package: pkg, owner: "foo", repository: "1")

@@ -87,11 +87,13 @@ extension Github {
     }
 
     static func fetch(url: String, headers: [(String, String)] = []) async throws -> (content: String, etag: String?) {
-        guard let token = Current.githubToken() else {
+        @Dependency(\.github) var github
+        @Dependency(\.httpClient) var httpClient
+
+        guard let token = github.token() else {
             throw Error.missingToken
         }
 
-        @Dependency(\.httpClient) var httpClient
 
         let response = try await httpClient.get(url: url, headers: defaultHeaders(with: token).adding(contentsOf: headers))
 
@@ -114,7 +116,9 @@ extension Github {
     }
 
     static func fetchResource<T: Decodable>(_ type: T.Type, url: String) async throws -> T {
-        guard let token = Current.githubToken() else {
+        @Dependency(\.github) var github
+
+        guard let token = github.token() else {
             throw Error.missingToken
         }
 
@@ -176,7 +180,9 @@ extension Github {
     }
 
     static func fetchResource<T: Decodable>(_ type: T.Type, query: GraphQLQuery) async throws(Github.Error) -> T {
-        guard let token = Current.githubToken() else {
+        @Dependency(\.github) var github
+
+        guard let token = github.token() else {
             throw Error.missingToken
         }
 
