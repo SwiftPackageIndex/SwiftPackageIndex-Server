@@ -636,20 +636,27 @@ class IngestionTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         try await withDependencies {
             // use live fetch request for fetchLicense, whose behaviour we want to test ...
-            $0.github.fetchLicense = { @Sendable owner, repo in await Github.fetchLicense(owner: owner, repository: repo) }
+            $0.github.fetchLicense = GithubClient.liveValue.fetchLicense
             // use mock for metadata request which we're not interested in ...
             $0.github.fetchMetadata = { @Sendable _, _ in .init() }
             $0.github.fetchReadme = { @Sendable _, _ in nil }
+            $0.github.token = { "token" }
+            $0.httpClient.get = { @Sendable url, _ in
+                if url.hasSuffix("/license") {
+                    return .notFound
+                } else {
+                    XCTFail("unexpected url \(url)")
+                    struct TestError: Error { }
+                    throw TestError()
+                }
+            }
         } operation: {
             // setup
             let pkg = Package(url: "https://github.com/foo/1")
             try await pkg.save(on: app.db)
-            // and simulate its underlying request returning a 404 (by making all requests
-            // return a 404, but it's the only one we're sending)
-            let client = MockClient { _, resp in resp.status = .notFound }
 
             // MUT
-            let (_, license, _) = try await Ingestion.fetchMetadata(client: client, package: pkg, owner: "foo", repository: "1")
+            let (_, license, _) = try await Ingestion.fetchMetadata(package: pkg, owner: "foo", repository: "1")
 
             // validate
             XCTAssertEqual(license, nil)

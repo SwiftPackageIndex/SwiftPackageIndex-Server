@@ -15,6 +15,7 @@
 
 import Dependencies
 import IssueReporting
+import Vapor
 
 
 // We currently cannot use @DependencyClient here due to
@@ -24,6 +25,7 @@ struct GithubClient {
     var fetchLicense: @Sendable (_ owner: String, _ repository: String) async -> Github.License?
     var fetchMetadata: @Sendable (_ owner: String, _ repository: String) async throws(Github.Error) -> Github.Metadata = { _,_ in reportIssue("fetchMetadata"); return .init() }
     var fetchReadme: @Sendable (_ owner: String, _ repository: String) async -> Github.Readme?
+    var token: @Sendable () -> String?
 }
 
 
@@ -32,7 +34,8 @@ extension GithubClient: DependencyKey {
         .init(
             fetchLicense: { owner, repo in await Github.fetchLicense(owner: owner, repository: repo) },
             fetchMetadata: { owner, repo throws(Github.Error) in try await Github.fetchMetadata(owner: owner, repository: repo) },
-            fetchReadme: { owner, repo in await Github.fetchReadme(owner: owner, repository: repo) }
+            fetchReadme: { owner, repo in await Github.fetchReadme(owner: owner, repository: repo) },
+            token: { Environment.get("GITHUB_TOKEN") }
         )
     }
 }
@@ -43,7 +46,8 @@ extension GithubClient: TestDependencyKey {
         .init(
             fetchLicense: { _, _ in unimplemented("fetchLicense"); return nil },
             fetchMetadata: { _, _ in unimplemented("fetchMetadata"); return .init() },
-            fetchReadme: { _, _ in unimplemented("fetchReadme"); return nil }
+            fetchReadme: { _, _ in unimplemented("fetchReadme"); return nil },
+            token: { unimplemented("token"); return nil }
         )
     }
 }

@@ -27,7 +27,6 @@ struct AppEnvironment: Sendable {
     var fileManager: FileManager
     var getStatusCount: @Sendable (_ client: Client, _ status: Gitlab.Builder.Status) async throws -> Int
     var git: Git
-    var githubToken: @Sendable () -> String?
     var gitlabApiToken: @Sendable () -> String?
     var gitlabPipelineToken: @Sendable () -> String?
     var gitlabPipelineLimit: @Sendable () -> Int
@@ -73,7 +72,6 @@ extension AppEnvironment {
                                                     maxPageCount: 5)
         },
         git: .live,
-        githubToken: { Environment.get("GITHUB_TOKEN") },
         gitlabApiToken: { Environment.get("GITLAB_API_TOKEN") },
         gitlabPipelineToken: { Environment.get("GITLAB_PIPELINE_TOKEN") },
         gitlabPipelineLimit: {
