@@ -134,6 +134,7 @@ enum SiteURL: Resourceable, Sendable {
     case stylesheets(String)
     case supporters
     case tryInPlayground
+    case uptimeCheck
     case validateSPIManifest
 
     var path: String {
@@ -254,6 +255,9 @@ enum SiteURL: Resourceable, Sendable {
         case .tryInPlayground:
             return "try-in-a-playground"
 
+        case .uptimeCheck:
+            return "uptime-check"
+
         case .validateSPIManifest:
             return "validate-spi-manifest"
         }
@@ -276,6 +280,7 @@ enum SiteURL: Resourceable, Sendable {
                 .siteMapStaticPages,
                 .supporters,
                 .tryInPlayground,
+                .uptimeCheck,
                 .validateSPIManifest:
             return [.init(stringLiteral: path)]
 

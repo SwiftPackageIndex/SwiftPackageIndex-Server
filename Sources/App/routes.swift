@@ -128,6 +128,10 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.supporters.pathComponents, use: SupportersController.show).excludeFromOpenAPI()
     }
 
+    do { // Uptime check
+        app.get(SiteURL.uptimeCheck.pathComponents, use: UptimeCheckController.show).excludeFromOpenAPI()
+    }
+
     do {  // spi.yml validation page
         app.get(SiteURL.validateSPIManifest.pathComponents, use: ValidateSPIManifestController.show)
             .excludeFromOpenAPI()
