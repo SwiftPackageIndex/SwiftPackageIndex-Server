@@ -26,7 +26,7 @@ func routes(_ app: Application) throws {
 
     do {  // home page
         app.get { req in
-            if let maintenanceMessage = Current.maintenanceMessage() {
+            if let maintenanceMessage = environment.maintenanceMessage() {
                 let model = MaintenanceMessageIndex.Model(markdown: maintenanceMessage)
                 return MaintenanceMessageIndex.View(path: req.url.path, model: model).document()
             } else {

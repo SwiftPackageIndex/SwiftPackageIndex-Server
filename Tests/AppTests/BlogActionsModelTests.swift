@@ -37,36 +37,40 @@ class BlogActionsModelTests: AppTestCase {
             """.data(using: .utf8)
         }
 
-        try withDependencies {  // Ensure dev shows all summaries
-            $0.environment.current = { .development }
+        try withDependencies {
+            $0.timeZone = .utc
         } operation: {
-            // MUT
-            let summaries = try BlogActions.Model().summaries
+            try withDependencies {  // Ensure dev shows all summaries
+                $0.environment.current = { .development }
+            } operation: {
+                // MUT
+                let summaries = try BlogActions.Model().summaries
 
-            XCTAssertEqual(summaries.count, 2)
-            XCTAssertEqual(summaries.map(\.slug), ["post-2", "post-1"])
-            XCTAssertEqual(summaries.map(\.published), [false, true])
+                XCTAssertEqual(summaries.count, 2)
+                XCTAssertEqual(summaries.map(\.slug), ["post-2", "post-1"])
+                XCTAssertEqual(summaries.map(\.published), [false, true])
 
-            let firstSummary = try XCTUnwrap(summaries).first
+                let firstSummary = try XCTUnwrap(summaries).first
 
-            // Note that we are testing that the first item in this list is the *last* item in the source YAML
-            // as the init should reverse the order of posts so that they display in reverse chronological order
-            XCTAssertEqual(firstSummary, BlogActions.Model.PostSummary(slug: "post-2",
-                                                                       title: "Blog post title two",
-                                                                       summary: "Summary of blog post two",
-                                                                       publishedAt: DateFormatter.yearMonthDayDateFormatter.date(from: "2024-01-02")!,
-                                                                       published: false))
-        }
+                // Note that we are testing that the first item in this list is the *last* item in the source YAML
+                // as the init should reverse the order of posts so that they display in reverse chronological order
+                XCTAssertEqual(firstSummary, BlogActions.Model.PostSummary(slug: "post-2",
+                                                                           title: "Blog post title two",
+                                                                           summary: "Summary of blog post two",
+                                                                           publishedAt: DateFormatter.yearMonthDayDateFormatter.date(from: "2024-01-02")!,
+                                                                           published: false))
+            }
 
-        try withDependencies {  // Ensure prod shows only published summaries
-            $0.environment.current = { .production }
-        } operation: {
-            // MUT
-            let summaries = try BlogActions.Model().summaries
+            try withDependencies {  // Ensure prod shows only published summaries
+                $0.environment.current = { .production }
+            } operation: {
+                // MUT
+                let summaries = try BlogActions.Model().summaries
 
-            // validate
-            XCTAssertEqual(summaries.map(\.slug), ["post-1"])
-            XCTAssertEqual(summaries.map(\.published), [true])
+                // validate
+                XCTAssertEqual(summaries.map(\.slug), ["post-1"])
+                XCTAssertEqual(summaries.map(\.published), [true])
+            }
         }
     }
 
@@ -88,11 +92,15 @@ class BlogActionsModelTests: AppTestCase {
         // setup
         Current.fileManager = .live
 
-        // MUT
-        let summaries = try BlogActions.Model.allSummaries()
-
-        // validate
-        XCTAssert(summaries.count > 0)
+        try withDependencies {
+            $0.timeZone = .utc
+        } operation: {
+            // MUT
+            let summaries = try BlogActions.Model.allSummaries()
+            
+            // validate
+            XCTAssert(summaries.count > 0)
+        }
     }
 
 }

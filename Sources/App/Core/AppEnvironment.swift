@@ -30,9 +30,6 @@ struct AppEnvironment: Sendable {
     var gitlabApiToken: @Sendable () -> String?
     var gitlabPipelineToken: @Sendable () -> String?
     var gitlabPipelineLimit: @Sendable () -> Int
-    var hideStagingBanner: @Sendable () -> Bool
-    var maintenanceMessage: @Sendable () -> String?
-    var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var logger: @Sendable () -> Logger
     var metricsPushGatewayUrl: @Sendable () -> String?
     var plausibleBackendReportingSiteID: @Sendable () -> String?
@@ -46,7 +43,6 @@ struct AppEnvironment: Sendable {
                                   _ readme: String) async throws(S3Readme.Error) -> String
     var storeS3ReadmeImages: @Sendable (_ client: Client,
                                         _ imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) -> Void
-    var timeZone: @Sendable () -> TimeZone
     var triggerBuild: @Sendable (_ client: Client,
                                  _ buildId: Build.Id,
                                  _ cloneURL: String,
@@ -78,14 +74,6 @@ extension AppEnvironment {
             Environment.get("GITLAB_PIPELINE_LIMIT").flatMap(Int.init)
             ?? Constants.defaultGitlabPipelineLimit
         },
-        hideStagingBanner: {
-            Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
-                ?? Constants.defaultHideStagingBanner
-        },
-        maintenanceMessage: {
-            Environment.get("MAINTENANCE_MESSAGE").flatMap(\.trimmed)
-        },
-        loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },
@@ -107,7 +95,6 @@ extension AppEnvironment {
         storeS3ReadmeImages: { client, images throws(S3Readme.Error) in
             try await S3Readme.storeReadmeImages(client: client, imagesToCache: images)
         },
-        timeZone: { .current },
         triggerBuild: { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
             try await Gitlab.Builder.triggerBuild(client: client,
                                                   buildId: buildId,

@@ -29,6 +29,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .t0
             $0.environment.allowSocialPosts = { true }
+            $0.environment.loadSPIManifest = { _ in nil }
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
             // setup
@@ -108,14 +109,6 @@ class ReAnalyzeVersionsTests: AppTestCase {
                     .mock(description: "rel 1.2.3", tagName: "1.2.3")
                 ]
                 try await r.save(on: app.db)
-                // Package has gained a SPI manifest
-                Current.loadSPIManifest = { path in
-                    if path.hasSuffix("foo-1") {
-                        return .init(builder: .init(configs: [.init(documentationTargets: ["DocTarget"])]))
-                    } else {
-                        return nil
-                    }
-                }
             }
             do {  // assert running analysis again does not update existing versions
                 try await Analyze.analyze(client: app.client,
@@ -188,6 +181,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
         let cutoff = Date.t1
         try await withDependencies {
             $0.date.now = .t2
+            $0.environment.loadSPIManifest = { _ in nil }
         } operation: {
             let pkg = try await savePackage(on: app.db,
                                             "https://github.com/foo/1".url,

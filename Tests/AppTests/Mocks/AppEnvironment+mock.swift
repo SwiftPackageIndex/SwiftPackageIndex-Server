@@ -29,9 +29,6 @@ extension AppEnvironment {
             gitlabApiToken: { nil },
             gitlabPipelineToken: { nil },
             gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
-            hideStagingBanner: { false },
-            maintenanceMessage: { nil },
-            loadSPIManifest: { _ in nil },
             logger: { logger },
             metricsPushGatewayUrl: { "http://pushgateway:9091" },
             plausibleBackendReportingSiteID: { nil },
@@ -42,7 +39,6 @@ extension AppEnvironment {
             siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
             storeS3Readme: { _, _, _ in "s3ObjectUrl" },
             storeS3ReadmeImages: { _, _ in },
-            timeZone: { .utc },
             triggerBuild: { _, _, _, _, _, _, _, _ in .init(status: .ok, webUrl: "http://web_url") }
         )
     }

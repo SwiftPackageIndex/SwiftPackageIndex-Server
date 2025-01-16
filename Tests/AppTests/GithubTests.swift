@@ -469,19 +469,3 @@ class GithubTests: AppTestCase {
     }
 
 }
-
-
-private extension HTTPClient.Response {
-    static func ok(body: String, headers: HTTPHeaders = .init()) -> Self {
-        .init(status: .ok, headers: headers, body: .init(string: body))
-    }
-
-    static func ok(fixture: String) throws -> Self {
-        try .init(status: .ok, body: .init(data: fixtureData(for: fixture)))
-    }
-
-    static func ok<T: Encodable>(jsonEncode value: T) throws -> Self {
-        let data = try JSONEncoder().encode(value)
-        return .init(status: .ok, body: .init(data: data))
-    }
-}

@@ -568,7 +568,8 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.timeZone = .utc
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -651,7 +652,8 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
+            $0.timeZone = .utc
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -725,7 +727,8 @@ class PackageController_routesTests: SnapshotTestCase {
         //   /owner/package/documentation/{reference} + various path elements
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.timeZone = .utc
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -804,7 +807,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // Test documentation routes when no archive is in the path
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -1126,6 +1129,7 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
+            $0.timeZone = .utc
         } operation: {
             // The `packageName` property on the `Version` has been set to the lower-cased version so
             // we can be sure the canonical URL is built from the properties on the `Repository` model.
@@ -1158,7 +1162,8 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.timeZone = .utc
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -1223,7 +1228,8 @@ class PackageController_routesTests: SnapshotTestCase {
             $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.dbId = { nil }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.timeZone = .utc
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -1324,8 +1330,9 @@ class PackageController_routesTests: SnapshotTestCase {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = { @Sendable uri in
                 // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: "<p>\(uri.path)</p>"))
+                    .ok(body: "<p>\(uri.path)</p>")
             }
+            $0.timeZone = .utc
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -1481,7 +1488,9 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
-            $0.httpClient.fetchDocumentation = { @Sendable _ in .init(status: .ok, body: .mockIndexHTML()) }
+            $0.environment.loadSPIManifest = { _ in nil }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.timeZone = .utc
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "https://github.com/foo/bar".url, processingStage: .ingestion)
@@ -1645,10 +1654,10 @@ private extension String {
                     """#
 }
 
-private extension ByteBuffer {
+private extension String {
     static func mockIndexHTML(baseURL: String = "/") -> Self {
         let baseURL = baseURL.hasSuffix("/") ? baseURL : baseURL + "/"
-        return .init(string: """
+        return """
             <!doctype html>
             <html lang="en-US">
 
@@ -1672,6 +1681,6 @@ private extension ByteBuffer {
             </body>
 
             </html>
-            """)
+            """
     }
 }

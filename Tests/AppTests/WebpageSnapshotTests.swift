@@ -34,6 +34,7 @@ class WebpageSnapshotTests: SnapshotTestCase {
         withDependencies {
             $0.environment.current = { .production }
             $0.environment.dbId = { "db-id" }
+            $0.timeZone = .utc
         } operation: {
             super.invokeTest()
         }

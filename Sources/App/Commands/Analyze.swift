@@ -555,7 +555,8 @@ extension Analyze {
 
         do {
             let packageManifest = try await dumpPackage(at: cacheDir)
-            let spiManifest = Current.loadSPIManifest(cacheDir)
+            @Dependency(\.environment) var environment
+            let spiManifest = environment.loadSPIManifest(cacheDir)
 
             return PackageInfo(packageManifest: packageManifest,
                                spiManifest: spiManifest)

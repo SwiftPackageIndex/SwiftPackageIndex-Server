@@ -431,6 +431,7 @@ class IngestionTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { false }
+            $0.environment.loadSPIManifest = { _ in nil }
         } operation: { [db = app.db] in
             Current.fileManager.fileExists = { @Sendable _ in true }
             Current.git.commitCount = { @Sendable _ in 1 }

@@ -278,8 +278,8 @@ class PublicPage {
     /// A staging banner, which only appears on the staging/development server.
     /// - Returns: Either a <div> element, or nothing.
     final func stagingBanner() -> Node<HTML.BodyContext> {
-        guard !Current.hideStagingBanner() else { return .empty }
         @Dependency(\.environment) var environment
+        guard !environment.hideStagingBanner() else { return .empty }
         if environment.current() == .development {
             return .div(
                 .class("staging"),

@@ -142,14 +142,12 @@ class SitemapTests: SnapshotTestCase {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = { @Sendable url in
                 guard url.path.hasSuffix("/owner/repo0/default/linkable-paths.json") else { throw Abort(.notFound) }
-                return .init(status: .ok,
-                             body: .init(string: """
+                return .ok(body: """
                             [
                                 "/documentation/foo/bar/1",
                                 "/documentation/foo/bar/2",
                             ]
                             """)
-                )
             }
         } operation: {
             // setup
@@ -187,14 +185,12 @@ class SitemapTests: SnapshotTestCase {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.httpClient.fetchDocumentation = { @Sendable url in
                 guard url.path.hasSuffix("/owner/repo0/a-b/linkable-paths.json") else { throw Abort(.notFound) }
-                return .init(status: .ok,
-                             body: .init(string: """
+                return .ok(body: """
                             [
                                 "/documentation/foo/bar/1",
                                 "/documentation/foo/bar/2",
                             ]
                             """)
-                )
             }
         } operation: {
             // setup

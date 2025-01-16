@@ -18,26 +18,29 @@ import Dependencies
 
 extension DateFormatter {
     static var mediumDateFormatter: DateFormatter {
+        @Dependency(\.timeZone) var timeZone
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.locale = .init(identifier: "en_GB")
-        formatter.timeZone = Current.timeZone()
+        formatter.timeZone = timeZone
         return formatter
     }
 
     static var longDateFormatter: DateFormatter {
+        @Dependency(\.timeZone) var timeZone
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.locale = .init(identifier: "en_GB")
-        formatter.timeZone = Current.timeZone()
+        formatter.timeZone = timeZone
         return formatter
     }
 
     static var yearMonthDayDateFormatter: DateFormatter {
+        @Dependency(\.timeZone) var timeZone
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = .init(identifier: "en_GB")
-        formatter.timeZone = Current.timeZone()
+        formatter.timeZone = timeZone
         return formatter
     }
 

@@ -14,6 +14,7 @@
 
 import Dependencies
 import DependenciesMacros
+import SPIManifest
 import Vapor
 
 
@@ -40,6 +41,9 @@ struct EnvironmentClient {
     var collectionSigningPrivateKey: @Sendable () -> Data?
     var current: @Sendable () -> Environment = { XCTFail("current"); return .development }
     var dbId: @Sendable () -> String?
+    var hideStagingBanner: @Sendable () -> Bool = { XCTFail("hideStagingBanner"); return Constants.defaultHideStagingBanner }
+    var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
+    var maintenanceMessage: @Sendable () -> String?
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
 
@@ -102,6 +106,14 @@ extension EnvironmentClient: DependencyKey {
             },
             current: { (try? Environment.detect()) ?? .development },
             dbId: { Environment.get("DATABASE_ID") },
+            hideStagingBanner: {
+                Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
+                    ?? Constants.defaultHideStagingBanner
+            },
+            loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
+            maintenanceMessage: {
+                Environment.get("MAINTENANCE_MESSAGE").flatMap(\.trimmed)
+            },
             mastodonCredentials: {
                 Environment.get("MASTODON_ACCESS_TOKEN")
                     .map(Mastodon.Credentials.init(accessToken:))
@@ -134,7 +146,7 @@ extension EnvironmentClient {
 extension EnvironmentClient: TestDependencyKey {
     static var testValue: Self {
         // sas 2024-11-22:
-        // For a few attributes we provide a default value overriding the XCTFail, because theis use is too
+        // For a few attributes we provide a default value overriding the XCTFail, because their use is too
         // pervasive and would require the vast majority of tests to be wrapped with `withDependencies`.
         // We can do so at a later time once more tests are transitioned over for other dependencies. This is
         // the exact same default behaviour we had with the Current dependency injection. It did not have
@@ -143,6 +155,7 @@ extension EnvironmentClient: TestDependencyKey {
         var mock = Self()
         mock.appVersion = { "test" }
         mock.current = { .development }
+        mock.hideStagingBanner = { false }
         return mock
     }
 }
