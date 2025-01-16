@@ -544,12 +544,13 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /giginet/Scipio/documentation:
-    url: ${base_url}/giginet/Scipio/documentation
-    headers:
-      X-SPI-Smoke-Test: ${smoke_test_token}
-    validation:
-      status: .regex((2|3)\d\d)
+# Documentation fails to build. Needs investigation.
+#   /giginet/Scipio/documentation:
+#     url: ${base_url}/giginet/Scipio/documentation
+#     headers:
+#       X-SPI-Smoke-Test: ${smoke_test_token}
+#     validation:
+#       status: .regex((2|3)\d\d)
   /gonzalezreal/swift-markdown-ui/documentation:
     url: ${base_url}/gonzalezreal/swift-markdown-ui/documentation
     headers:
@@ -1092,7 +1093,7 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /vapor-community/PassKit/documentation:
+  /vapor-community/wallet/documentation:
     url: ${base_url}/vapor-community/PassKit/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
