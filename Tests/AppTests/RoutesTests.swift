@@ -83,8 +83,8 @@ final class RoutesTests: AppTestCase {
     func test_maintenanceMessage() throws {
         try withDependencies {
             $0.environment.dbId = { nil }
+            $0.environment.maintenanceMessage = { "MAINTENANCE_MESSAGE" }
         } operation: {
-            Current.maintenanceMessage = { "MAINTENANCE_MESSAGE" }
 
             try app.test(.GET, "/") { res in
                 XCTAssertContains(res.body.string, "MAINTENANCE_MESSAGE")

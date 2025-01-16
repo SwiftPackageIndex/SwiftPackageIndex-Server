@@ -41,6 +41,7 @@ struct EnvironmentClient {
     var current: @Sendable () -> Environment = { XCTFail("current"); return .development }
     var dbId: @Sendable () -> String?
     var hideStagingBanner: @Sendable () -> Bool = { XCTFail("hideStagingBanner"); return Constants.defaultHideStagingBanner }
+    var maintenanceMessage: @Sendable () -> String?
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
 
@@ -106,6 +107,9 @@ extension EnvironmentClient: DependencyKey {
             hideStagingBanner: {
                 Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
                     ?? Constants.defaultHideStagingBanner
+            },
+            maintenanceMessage: {
+                Environment.get("MAINTENANCE_MESSAGE").flatMap(\.trimmed)
             },
             mastodonCredentials: {
                 Environment.get("MASTODON_ACCESS_TOKEN")
