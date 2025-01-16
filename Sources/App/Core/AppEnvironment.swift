@@ -31,7 +31,6 @@ struct AppEnvironment: Sendable {
     var gitlabPipelineToken: @Sendable () -> String?
     var gitlabPipelineLimit: @Sendable () -> Int
     var logger: @Sendable () -> Logger
-    var processingBuildBacklog: @Sendable () -> Bool
     var runnerIds: @Sendable () -> [String]
     var setLogger: @Sendable (Logger) -> Void
     var shell: Shell
@@ -73,9 +72,6 @@ extension AppEnvironment {
             ?? Constants.defaultGitlabPipelineLimit
         },
         logger: { logger },
-        processingBuildBacklog: {
-            Environment.get("PROCESSING_BUILD_BACKLOG").flatMap(\.asBool) ?? false
-        },
         runnerIds: {
             Environment.get("RUNNER_IDS")
                 .map { Data($0.utf8) }

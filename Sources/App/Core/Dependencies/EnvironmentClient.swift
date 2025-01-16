@@ -47,6 +47,7 @@ struct EnvironmentClient {
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
     var metricsPushGatewayUrl: @Sendable () -> String?
     var plausibleBackendReportingSiteID: @Sendable () -> String?
+    var processingBuildBacklog: @Sendable () -> Bool = { XCTFail("processingBuildBacklog"); return false }
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
 
     enum FailureMode: String {
@@ -122,6 +123,9 @@ extension EnvironmentClient: DependencyKey {
             },
             metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
             plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },
+            processingBuildBacklog: {
+                Environment.get("PROCESSING_BUILD_BACKLOG").flatMap(\.asBool) ?? false
+            },
             random: { range in Double.random(in: range) },
             shouldFail: { failureMode in
                 let shouldFail = Environment.get("FAILURE_MODE")
