@@ -125,12 +125,7 @@ extension EnvironmentClient: DependencyKey {
                 Environment.get("PROCESSING_BUILD_BACKLOG").flatMap(\.asBool) ?? false
             },
             random: { range in Double.random(in: range) },
-            runnerIds: {
-                Environment.get("RUNNER_IDS")
-                    .map { Data($0.utf8) }
-                    .flatMap { try? JSONDecoder().decode([String].self, from: $0) }
-                ?? []
-            },
+            runnerIds: { Environment.decode("RUNNER_IDS", as: [String].self) ?? [] },
             shouldFail: { failureMode in
                 let shouldFail = Environment.decode("FAILURE_MODE", as: [String: Double].self) ?? [:]
                 guard let rate = shouldFail[failureMode.rawValue] else { return false }
