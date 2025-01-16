@@ -30,7 +30,6 @@ extension AppEnvironment {
             gitlabPipelineToken: { nil },
             gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
             logger: { logger },
-            plausibleBackendReportingSiteID: { nil },
             processingBuildBacklog: { false },
             runnerIds: { [] },
             setLogger: { logger in Self.logger = logger },

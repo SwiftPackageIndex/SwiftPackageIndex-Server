@@ -33,6 +33,7 @@ final class PlausibleTests: XCTestCase {
     func test_postEvent_anonymous() async throws {
         let called = ActorIsolated(false)
         try await withDependencies {
+            $0.environment.plausibleBackendReportingSiteID = { "foo.bar" }
             $0.httpClient.post = { @Sendable _, _, body in
                 await called.withValue { $0 = true }
                 // validate
@@ -45,8 +46,6 @@ final class PlausibleTests: XCTestCase {
                 return .ok
             }
         } operation: {
-            Current.plausibleBackendReportingSiteID = { "foo.bar" }
-
             // MUT
             _ = try await Plausible.postEvent(kind: .pageview, path: .search, user: nil)
 
@@ -57,6 +56,7 @@ final class PlausibleTests: XCTestCase {
     func test_postEvent_package() async throws {
         let called = ActorIsolated(false)
         try await withDependencies {
+            $0.environment.plausibleBackendReportingSiteID = { "foo.bar" }
             $0.httpClient.post = { @Sendable _, _, body in
                 await called.withValue { $0 = true }
                 // validate
@@ -69,7 +69,6 @@ final class PlausibleTests: XCTestCase {
                 return .ok
             }
         } operation: {
-            Current.plausibleBackendReportingSiteID = { "foo.bar" }
             let user = User(name: "api", identifier: "3c469e9d")
 
             // MUT
