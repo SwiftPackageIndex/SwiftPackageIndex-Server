@@ -30,7 +30,6 @@ extension AppEnvironment {
             gitlabPipelineToken: { nil },
             gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
             logger: { logger },
-            metricsPushGatewayUrl: { "http://pushgateway:9091" },
             plausibleBackendReportingSiteID: { nil },
             processingBuildBacklog: { false },
             runnerIds: { [] },

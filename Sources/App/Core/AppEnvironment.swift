@@ -31,7 +31,6 @@ struct AppEnvironment: Sendable {
     var gitlabPipelineToken: @Sendable () -> String?
     var gitlabPipelineLimit: @Sendable () -> Int
     var logger: @Sendable () -> Logger
-    var metricsPushGatewayUrl: @Sendable () -> String?
     var plausibleBackendReportingSiteID: @Sendable () -> String?
     var processingBuildBacklog: @Sendable () -> Bool
     var runnerIds: @Sendable () -> [String]
@@ -75,7 +74,6 @@ extension AppEnvironment {
             ?? Constants.defaultGitlabPipelineLimit
         },
         logger: { logger },
-        metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },
         processingBuildBacklog: {
             Environment.get("PROCESSING_BUILD_BACKLOG").flatMap(\.asBool) ?? false

@@ -45,6 +45,7 @@ struct EnvironmentClient {
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var maintenanceMessage: @Sendable () -> String?
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
+    var metricsPushGatewayUrl: @Sendable () -> String?
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
 
     enum FailureMode: String {
@@ -118,6 +119,7 @@ extension EnvironmentClient: DependencyKey {
                 Environment.get("MASTODON_ACCESS_TOKEN")
                     .map(Mastodon.Credentials.init(accessToken:))
             },
+            metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
             random: { range in Double.random(in: range) },
             shouldFail: { failureMode in
                 let shouldFail = Environment.get("FAILURE_MODE")
