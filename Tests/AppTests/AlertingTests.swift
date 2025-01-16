@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
-import XCTest
+import Dependencies
 
 
 class AlertingTests: XCTestCase {
@@ -77,34 +79,40 @@ class AlertingTests: XCTestCase {
 
     func test_validateRunnerIdsPresent() throws {
         let runnerIds = ["a", "b", "c"]
-        Current.runnerIds = { runnerIds }
-        let all = runnerIds.map {
-            Alerting.BuildInfo.mock(runnerId: $0)
+        withDependencies {
+            $0.environment.runnerIds = { runnerIds }
+        } operation: {
+            let all = runnerIds.map {
+                Alerting.BuildInfo.mock(runnerId: $0)
+            }
+            XCTAssertEqual(all.validateRunnerIdsPresent(), .ok)
+            XCTAssertEqual(all.filter { $0.runnerId != "a" }.validateRunnerIdsPresent(),
+                           .failed(reasons: ["Missing runner id: a"]))
+            XCTAssertEqual(all.filter { $0.runnerId != "a" && $0.runnerId != "b" }.validateRunnerIdsPresent(),
+                           .failed(reasons: ["Missing runner id: a", "Missing runner id: b"]))
         }
-        XCTAssertEqual(all.validateRunnerIdsPresent(), .ok)
-        XCTAssertEqual(all.filter { $0.runnerId != "a" }.validateRunnerIdsPresent(),
-                       .failed(reasons: ["Missing runner id: a"]))
-        XCTAssertEqual(all.filter { $0.runnerId != "a" && $0.runnerId != "b" }.validateRunnerIdsPresent(),
-                       .failed(reasons: ["Missing runner id: a", "Missing runner id: b"]))
     }
 
     func test_validateRunnerIdsSuccessful() throws {
         let runnerIds = ["a", "b", "c"]
-        Current.runnerIds = { runnerIds }
-        let all = runnerIds.map {
-            Alerting.BuildInfo.mock(runnerId: $0, status: .ok)
+        withDependencies {
+            $0.environment.runnerIds = { runnerIds }
+        } operation: {
+            let all = runnerIds.map {
+                Alerting.BuildInfo.mock(runnerId: $0, status: .ok)
+            }
+            XCTAssertEqual(all.validateRunnerIdsSuccessful(), .ok)
+            XCTAssertEqual(all.filter { $0.runnerId != "a" }.validateRunnerIdsSuccessful(),
+                           .failed(reasons: ["Runner id without successful builds: a"]))
+            XCTAssertEqual(
+                Array(all.filter { $0.runnerId != "a" })
+                    .appending(.mock(runnerId: "a", status: .failed))
+                    .validateRunnerIdsSuccessful(),
+                .failed(reasons: ["Runner id without successful builds: a"])
+            )
+            XCTAssertEqual(all.filter { $0.runnerId != "a" && $0.runnerId != "b" }.validateRunnerIdsSuccessful(),
+                           .failed(reasons: ["Runner id without successful builds: a", "Runner id without successful builds: b"]))
         }
-        XCTAssertEqual(all.validateRunnerIdsSuccessful(), .ok)
-        XCTAssertEqual(all.filter { $0.runnerId != "a" }.validateRunnerIdsSuccessful(),
-                       .failed(reasons: ["Runner id without successful builds: a"]))
-        XCTAssertEqual(
-            Array(all.filter { $0.runnerId != "a" })
-                .appending(.mock(runnerId: "a", status: .failed))
-            .validateRunnerIdsSuccessful(),
-            .failed(reasons: ["Runner id without successful builds: a"])
-        )
-        XCTAssertEqual(all.filter { $0.runnerId != "a" && $0.runnerId != "b" }.validateRunnerIdsSuccessful(),
-                       .failed(reasons: ["Runner id without successful builds: a", "Runner id without successful builds: b"]))
     }
 
     func test_validateSuccessRateInRange() throws {

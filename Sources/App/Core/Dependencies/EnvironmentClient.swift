@@ -49,6 +49,7 @@ struct EnvironmentClient {
     var plausibleBackendReportingSiteID: @Sendable () -> String?
     var processingBuildBacklog: @Sendable () -> Bool = { XCTFail("processingBuildBacklog"); return false }
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
+    var runnerIds: @Sendable () -> [String] = { XCTFail("runnerIds"); return [] }
 
     enum FailureMode: String {
         case fetchMetadataFailed
@@ -127,6 +128,12 @@ extension EnvironmentClient: DependencyKey {
                 Environment.get("PROCESSING_BUILD_BACKLOG").flatMap(\.asBool) ?? false
             },
             random: { range in Double.random(in: range) },
+            runnerIds: {
+                Environment.get("RUNNER_IDS")
+                    .map { Data($0.utf8) }
+                    .flatMap { try? JSONDecoder().decode([String].self, from: $0) }
+                ?? []
+            },
             shouldFail: { failureMode in
                 let shouldFail = Environment.get("FAILURE_MODE")
                     .map { Data($0.utf8) }

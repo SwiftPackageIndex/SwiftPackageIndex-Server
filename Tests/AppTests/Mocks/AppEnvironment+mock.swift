@@ -30,7 +30,6 @@ extension AppEnvironment {
             gitlabPipelineToken: { nil },
             gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
             logger: { logger },
-            runnerIds: { [] },
             setLogger: { logger in Self.logger = logger },
             shell: .mock,
             siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },

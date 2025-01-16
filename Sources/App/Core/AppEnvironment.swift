@@ -31,7 +31,6 @@ struct AppEnvironment: Sendable {
     var gitlabPipelineToken: @Sendable () -> String?
     var gitlabPipelineLimit: @Sendable () -> Int
     var logger: @Sendable () -> Logger
-    var runnerIds: @Sendable () -> [String]
     var setLogger: @Sendable (Logger) -> Void
     var shell: Shell
     var siteURL: @Sendable () -> String
@@ -72,12 +71,6 @@ extension AppEnvironment {
             ?? Constants.defaultGitlabPipelineLimit
         },
         logger: { logger },
-        runnerIds: {
-            Environment.get("RUNNER_IDS")
-                .map { Data($0.utf8) }
-                .flatMap { try? JSONDecoder().decode([String].self, from: $0) }
-            ?? []
-        },
         setLogger: { logger in Self.logger = logger },
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
