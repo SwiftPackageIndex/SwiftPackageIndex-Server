@@ -345,10 +345,10 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // setup
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
 
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
@@ -408,11 +408,11 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Explicitly test the full range of all currently triggered platforms and swift versions
             // setup
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
 
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
@@ -489,6 +489,7 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Tests error handling when a build record already exists and `create` raises a
             // uq:builds.version_id+builds.platform+builds.swift_version+v2
@@ -502,7 +503,6 @@ class BuildTriggerTests: AppTestCase {
             // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2237
             // setup
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
 
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
@@ -573,11 +573,11 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
             $0.environment.random = { @Sendable _ in 0 }
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Ensure we respect the pipeline limit when triggering builds
             // setup
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
             Current.gitlabPipelineLimit = { 300 }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
@@ -690,11 +690,11 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTriggerDownscaling = { 1 }
             $0.environment.buildTriggerLatestSwiftVersionDownscaling = { 1 }
             $0.environment.random = { @Sendable _ in 0 }
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Ensure we respect the pipeline limit when triggering builds for multiple package ids
             // setup
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
             Current.gitlabPipelineLimit = { 300 }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
@@ -743,11 +743,11 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
             $0.environment.random = { @Sendable _ in 0 }
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Ensure we trim builds as part of triggering
             // setup
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
             Current.gitlabPipelineLimit = { 300 }
 
             let client = MockClient { _, _ in }
@@ -783,11 +783,11 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
             $0.environment.random = { @Sendable _ in 0 }
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Ensure we trim builds as part of triggering
             // setup
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
             Current.gitlabPipelineLimit = { 300 }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
@@ -911,11 +911,11 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
             $0.environment.random = { @Sendable _ in 0 }
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Ensure don't trigger if the override is off
             // setup
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
             Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
@@ -988,11 +988,11 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 0.05 } // 5% downscaling rate
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Test build trigger downscaling behaviour
             // setup
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
             Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
@@ -1065,11 +1065,11 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [.id0] }
             $0.environment.buildTriggerDownscaling = { 0.05 } // 5% downscaling rate
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Test build trigger downscaling behaviour for allow-listed packages
             // setup
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
             Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in

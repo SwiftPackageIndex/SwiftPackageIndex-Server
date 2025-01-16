@@ -33,7 +33,6 @@ struct AppEnvironment: Sendable {
     var logger: @Sendable () -> Logger
     var setLogger: @Sendable (Logger) -> Void
     var shell: Shell
-    var siteURL: @Sendable () -> String
     var storeS3Readme: @Sendable (_ owner: String,
                                   _ repository: String,
                                   _ readme: String) async throws(S3Readme.Error) -> String
@@ -73,7 +72,6 @@ extension AppEnvironment {
         logger: { logger },
         setLogger: { logger in Self.logger = logger },
         shell: .live,
-        siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
         storeS3Readme: { owner, repo, readme throws(S3Readme.Error) in
             try await S3Readme.storeReadme(owner: owner, repository: repo, readme: readme)
         },

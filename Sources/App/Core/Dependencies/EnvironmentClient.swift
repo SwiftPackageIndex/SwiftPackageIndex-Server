@@ -59,7 +59,8 @@ struct EnvironmentClient {
         case repositorySaveFailed
         case repositorySaveUniqueViolation
     }
-    var shouldFail: @Sendable (_ failureMode: FailureMode) -> Bool = { _ in false }
+    var shouldFail: @Sendable (_ failureMode: FailureMode) -> Bool = { _ in XCTFail("shouldFail"); return false }
+    var siteURL: @Sendable () -> String = { XCTFail("siteURL"); return "" }
 }
 
 
@@ -130,7 +131,8 @@ extension EnvironmentClient: DependencyKey {
                 let shouldFail = Environment.decode("FAILURE_MODE", as: [String: Double].self) ?? [:]
                 guard let rate = shouldFail[failureMode.rawValue] else { return false }
                 return Double.random(in: 0...1) <= rate
-            }
+            },
+            siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" }
         )
     }
 }
@@ -161,6 +163,8 @@ extension EnvironmentClient: TestDependencyKey {
         mock.appVersion = { "test" }
         mock.current = { .development }
         mock.hideStagingBanner = { false }
+        mock.siteURL = { "http://localhost:8080" }
+        mock.shouldFail = { @Sendable _ in false }
         return mock
     }
 }

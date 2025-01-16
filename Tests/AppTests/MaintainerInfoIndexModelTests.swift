@@ -14,27 +14,34 @@
 
 @testable import App
 
-import XCTVapor
+import Dependencies
 import SnapshotTesting
+import XCTVapor
 
 
 class MaintainerInfoIndexModelTests: SnapshotTestCase {
 
     func test_badgeURL() throws {
-        Current.siteURL = { "https://spi.com" }
-        let model = MaintainerInfoIndex.Model.mock
+        withDependencies {
+            $0.environment.siteURL = { "https://spi.com" }
+        } operation: {
+            let model = MaintainerInfoIndex.Model.mock
 
-        XCTAssertEqual(model.badgeURL(for: .swiftVersions), "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions")
-        XCTAssertEqual(model.badgeURL(for: .platforms), "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms")
+            XCTAssertEqual(model.badgeURL(for: .swiftVersions), "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions")
+            XCTAssertEqual(model.badgeURL(for: .platforms), "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms")
+        }
     }
 
     func test_badgeMarkdown() throws {
         // Test badge markdown structure
-        Current.siteURL = { "https://spi.com" }
-        let model = MaintainerInfoIndex.Model.mock
-
-        let badgeURL = model.badgeURL(for: .swiftVersions)
-        XCTAssertEqual(model.badgeMarkdown(for: .swiftVersions), "[![](\(badgeURL))](https://spi.com/example/package)")
+        withDependencies {
+            $0.environment.siteURL = { "https://spi.com" }
+        } operation: {
+            let model = MaintainerInfoIndex.Model.mock
+            
+            let badgeURL = model.badgeURL(for: .swiftVersions)
+            XCTAssertEqual(model.badgeMarkdown(for: .swiftVersions), "[![](\(badgeURL))](https://spi.com/example/package)")
+        }
     }
 
     func test_scoreCategories_dependencies() throws {

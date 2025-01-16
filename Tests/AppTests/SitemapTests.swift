@@ -140,6 +140,7 @@ class SitemapTests: SnapshotTestCase {
     func test_linkablePathUrls() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.siteURL = { "https://spi.com" }
             $0.httpClient.fetchDocumentation = { @Sendable url in
                 guard url.path.hasSuffix("/owner/repo0/default/linkable-paths.json") else { throw Abort(.notFound) }
                 return .ok(body: """
@@ -166,7 +167,6 @@ class SitemapTests: SnapshotTestCase {
                               spiManifest: .init(builder: .init(configs: [.init(documentationTargets: ["t1", "t2"])]))).save(on: app.db)
             let packageResult = try await PackageController.PackageResult
                 .query(on: app.db, owner: "owner", repository: "repo0")
-            Current.siteURL = { "https://spi.com" }
 
             // MUT
             let urls = await PackageController.linkablePathUrls(client: app.client, packageResult: packageResult)
@@ -183,6 +183,7 @@ class SitemapTests: SnapshotTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2462
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.siteURL = { "https://spi.com" }
             $0.httpClient.fetchDocumentation = { @Sendable url in
                 guard url.path.hasSuffix("/owner/repo0/a-b/linkable-paths.json") else { throw Abort(.notFound) }
                 return .ok(body: """
@@ -209,7 +210,6 @@ class SitemapTests: SnapshotTestCase {
                               spiManifest: .init(builder: .init(configs: [.init(documentationTargets: ["t1", "t2"])]))).save(on: app.db)
             let packageResult = try await PackageController.PackageResult
                 .query(on: app.db, owner: "owner", repository: "repo0")
-            Current.siteURL = { "https://spi.com" }
             
             // MUT
             let urls = await PackageController.linkablePathUrls(client: app.client, packageResult: packageResult)

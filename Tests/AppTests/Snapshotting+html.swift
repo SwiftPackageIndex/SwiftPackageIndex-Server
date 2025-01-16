@@ -16,6 +16,7 @@
 
 import Plot
 import SnapshotTesting
+import Dependencies
 
 extension Snapshotting where Value == String, Format == String {
   public static let html = Snapshotting(pathExtension: "html", diffing: .lines)
@@ -24,8 +25,11 @@ extension Snapshotting where Value == String, Format == String {
 extension Snapshotting where Value == () -> HTML, Format == String {
     public static var html: Snapshotting {
         Snapshotting<String, String>.init(pathExtension: "html", diffing: .lines).pullback { node in
-            Current.siteURL = { "http://localhost:8080" }
-            return node().render(indentedBy: .spaces(2))
+            withDependencies {
+                $0.environment.siteURL = { "http://localhost:8080" }
+            } operation: {
+                return node().render(indentedBy: .spaces(2))
+            }
         }
     }
 }

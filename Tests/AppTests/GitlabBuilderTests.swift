@@ -58,9 +58,9 @@ class GitlabBuilderTests: AppTestCase {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
             let buildId = UUID()
             let versionID = UUID()
 
@@ -107,9 +107,9 @@ class GitlabBuilderTests: AppTestCase {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
 
             var called = false
             let client = MockClient { req, res in
@@ -183,6 +183,7 @@ class LiveGitlabBuilderTests: AppTestCase {
             }
             // make sure environment variables are configured for live access
             $0.environment.awsDocsBucket = { "spi-dev-docs" }
+            $0.environment.siteURL = { "https://staging.swiftpackageindex.com" }
         } operation: {
             // set build branch to trigger on
             Gitlab.Builder.branch = "main"
@@ -192,7 +193,6 @@ class LiveGitlabBuilderTests: AppTestCase {
                 // This Gitlab token is required in order to trigger the pipeline
                 ProcessInfo.processInfo.environment["LIVE_GITLAB_PIPELINE_TOKEN"]
             }
-            Current.siteURL = { "https://staging.swiftpackageindex.com" }
 
             let buildId = UUID()
 
