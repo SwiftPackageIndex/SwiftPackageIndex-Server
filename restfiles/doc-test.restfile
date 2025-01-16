@@ -91,6 +91,7 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
+# Doc build is failing with a genuine error
 #   /GetStream/stream-chat-swiftui/documentation:
 #     url: ${base_url}/GetStream/stream-chat-swiftui/documentation
 #     headers:
@@ -103,6 +104,7 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
+# Build failures across the board
 #   /GetStream/stream-video-swift/documentation:
 #     url: ${base_url}/GetStream/stream-video-swift/documentation
 #     headers:
@@ -427,6 +429,7 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
+# All builds fail
 #   /apple/swift-playdate-examples/documentation:
 #     url: ${base_url}/apple/swift-playdate-examples/documentation
 #     headers:
@@ -625,12 +628,14 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /kingslay/KSPlayer/documentation:
-    url: ${base_url}/kingslay/KSPlayer/documentation
-    headers:
-      X-SPI-Smoke-Test: ${smoke_test_token}
-    validation:
-      status: .regex((2|3)\d\d)
+# 'KSPlayer' does not contain any documentable symbols or a DocC catalog and will not produce documentation
+# Needs further investigation
+#   /kingslay/KSPlayer/documentation:
+#     url: ${base_url}/kingslay/KSPlayer/documentation
+#     headers:
+#       X-SPI-Smoke-Test: ${smoke_test_token}
+#     validation:
+#       status: .regex((2|3)\d\d)
   /krzyzanowskim/CryptoSwift/documentation:
     url: ${base_url}/krzyzanowskim/CryptoSwift/documentation
     headers:
