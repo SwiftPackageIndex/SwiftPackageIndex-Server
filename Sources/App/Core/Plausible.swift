@@ -47,7 +47,8 @@ enum Plausible {
     static let postEventURL = "https://plausible.io/api/event"
 
     static func postEvent(kind: Event.Kind, path: Path, user: User?) async throws {
-        guard let siteID = Current.plausibleBackendReportingSiteID() else {
+        @Dependency(\.environment) var environment
+        guard let siteID = environment.plausibleBackendReportingSiteID() else {
             throw Error(message: "PLAUSIBLE_BACKEND_REPORTING_SITE_ID not set")
         }
         let body = try JSONEncoder().encode(Event(name: .pageview,

@@ -45,7 +45,11 @@ struct EnvironmentClient {
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var maintenanceMessage: @Sendable () -> String?
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
+    var metricsPushGatewayUrl: @Sendable () -> String?
+    var plausibleBackendReportingSiteID: @Sendable () -> String?
+    var processingBuildBacklog: @Sendable () -> Bool = { XCTFail("processingBuildBacklog"); return false }
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
+    var runnerIds: @Sendable () -> [String] = { XCTFail("runnerIds"); return [] }
 
     enum FailureMode: String {
         case fetchMetadataFailed
@@ -55,7 +59,8 @@ struct EnvironmentClient {
         case repositorySaveFailed
         case repositorySaveUniqueViolation
     }
-    var shouldFail: @Sendable (_ failureMode: FailureMode) -> Bool = { _ in false }
+    var shouldFail: @Sendable (_ failureMode: FailureMode) -> Bool = { _ in XCTFail("shouldFail"); return false }
+    var siteURL: @Sendable () -> String = { XCTFail("siteURL"); return "" }
 }
 
 
@@ -79,10 +84,7 @@ extension EnvironmentClient: DependencyKey {
             builderToken: { Environment.get("BUILDER_TOKEN") },
             buildTimeout: { Environment.get("BUILD_TIMEOUT").flatMap(Int.init) ?? 10 },
             buildTriggerAllowList: {
-                Environment.get("BUILD_TRIGGER_ALLOW_LIST")
-                    .map { Data($0.utf8) }
-                    .flatMap { try? JSONDecoder().decode([Package.Id].self, from: $0) }
-                ?? []
+                Environment.decode("BUILD_TRIGGER_ALLOW_LIST", as: [Package.Id].self) ?? []
             },
             buildTriggerDownscaling: {
                 Environment.get("BUILD_TRIGGER_DOWNSCALING")
@@ -118,14 +120,19 @@ extension EnvironmentClient: DependencyKey {
                 Environment.get("MASTODON_ACCESS_TOKEN")
                     .map(Mastodon.Credentials.init(accessToken:))
             },
+            metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
+            plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },
+            processingBuildBacklog: {
+                Environment.get("PROCESSING_BUILD_BACKLOG").flatMap(\.asBool) ?? false
+            },
             random: { range in Double.random(in: range) },
+            runnerIds: { Environment.decode("RUNNER_IDS", as: [String].self) ?? [] },
             shouldFail: { failureMode in
-                let shouldFail = Environment.get("FAILURE_MODE")
-                    .map { Data($0.utf8) }
-                    .flatMap { try? JSONDecoder().decode([String: Double].self, from: $0) } ?? [:]
+                let shouldFail = Environment.decode("FAILURE_MODE", as: [String: Double].self) ?? [:]
                 guard let rate = shouldFail[failureMode.rawValue] else { return false }
                 return Double.random(in: 0...1) <= rate
-            }
+            },
+            siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" }
         )
     }
 }
@@ -156,6 +163,8 @@ extension EnvironmentClient: TestDependencyKey {
         mock.appVersion = { "test" }
         mock.current = { .development }
         mock.hideStagingBanner = { false }
+        mock.siteURL = { "http://localhost:8080" }
+        mock.shouldFail = { @Sendable _ in false }
         return mock
     }
 }
@@ -165,5 +174,14 @@ extension DependencyValues {
     var environment: EnvironmentClient {
         get { self[EnvironmentClient.self] }
         set { self[EnvironmentClient.self] = newValue }
+    }
+}
+
+
+private extension Environment {
+    static func decode<T: Decodable>(_ key: String, as type: T.Type) -> T? {
+        Environment.get(key)
+            .map { Data($0.utf8) }
+            .flatMap { try? JSONDecoder().decode(type, from: $0) }
     }
 }

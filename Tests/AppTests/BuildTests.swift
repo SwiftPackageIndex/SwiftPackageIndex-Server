@@ -133,9 +133,9 @@ class BuildTests: AppTestCase {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
             // setup
             let p = try await savePackage(on: app.db, "1")
             let v = try Version(package: p, reference: .branch("main"))
@@ -201,11 +201,11 @@ class BuildTests: AppTestCase {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Same test as test_trigger above, except we trigger with isDocBuild: true
             // and expect a 15m TIMEOUT instead of 10m
             Current.gitlabPipelineToken = { "pipeline token" }
-            Current.siteURL = { "http://example.com" }
             // setup
             let p = try await savePackage(on: app.db, "1")
             let v = try Version(package: p, reference: .branch("main"))

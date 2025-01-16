@@ -245,7 +245,8 @@ extension [Alerting.BuildInfo] {
     }
 
     func validateRunnerIdsPresent() -> Alerting.Validation {
-        var notSeen = Set(Current.runnerIds())
+        @Dependency(\.environment) var environment
+        var notSeen = Set(environment.runnerIds())
         for build in self where build.runnerId != nil {
             notSeen.remove(build.runnerId!)
             if notSeen.isEmpty { return .ok }
@@ -254,7 +255,8 @@ extension [Alerting.BuildInfo] {
     }
 
     func validateRunnerIdsSuccessful() -> Alerting.Validation {
-        var noSuccess = Set(Current.runnerIds())
+        @Dependency(\.environment) var environment
+        var noSuccess = Set(environment.runnerIds())
         for build in self where build.runnerId != nil && build.status == .ok {
             noSuccess.remove(build.runnerId!)
             if noSuccess.isEmpty { return .ok }

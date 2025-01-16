@@ -619,7 +619,9 @@ extension API.PackageController.GetRoute.Model {
     }
 
     func noCompatibilityInformationExplainer() -> Node<HTML.BodyContext> {
-        .if(Current.processingBuildBacklog(),
+        @Dependency(\.environment) var environment
+
+        return .if(environment.processingBuildBacklog(),
             .group(
                 .p(
                     .text("This package currently has no compatibility information. "),

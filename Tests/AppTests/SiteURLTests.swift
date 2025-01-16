@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
+import Dependencies
 import Plot
 import Vapor
-import XCTest
 
 
 class SiteURLTests: XCTestCase {
@@ -61,30 +63,42 @@ class SiteURLTests: XCTestCase {
     }
 
     func test_absoluteURL() throws {
-        Current.siteURL = { "https://indexsite.com" }
-        XCTAssertEqual(SiteURL.home.absoluteURL(), "https://indexsite.com/")
-        XCTAssertEqual(SiteURL.images("foo.png").absoluteURL(), "https://indexsite.com/images/foo.png")
-        XCTAssertEqual(SiteURL.privacy.absoluteURL(), "https://indexsite.com/privacy")
+        withDependencies {
+            $0.environment.siteURL = { "https://indexsite.com" }
+        } operation: {
+            XCTAssertEqual(SiteURL.home.absoluteURL(), "https://indexsite.com/")
+            XCTAssertEqual(SiteURL.images("foo.png").absoluteURL(), "https://indexsite.com/images/foo.png")
+            XCTAssertEqual(SiteURL.privacy.absoluteURL(), "https://indexsite.com/privacy")
+        }
     }
 
     func test_absoluteURL_with_anchor() throws {
-        Current.siteURL = { "https://indexsite.com" }
-        XCTAssertEqual(SiteURL.faq.absoluteURL(anchor: "hello"), "https://indexsite.com/faq#hello")
+        withDependencies {
+            $0.environment.siteURL = { "https://indexsite.com" }
+        } operation: {
+            XCTAssertEqual(SiteURL.faq.absoluteURL(anchor: "hello"), "https://indexsite.com/faq#hello")
+        }
     }
 
     func test_absoluteURL_with_parameters() throws {
-        Current.siteURL = { "https://indexsite.com" }
-        let url = SiteURL.rssReleases.absoluteURL(parameters: [
-            QueryParameter(key: "c d", value: 2),
-            QueryParameter(key: "a b", value: 1)
-        ])
-        XCTAssertEqual(url, "https://indexsite.com/releases.rss?c%20d=2&a%20b=1")
+        withDependencies {
+            $0.environment.siteURL = { "https://indexsite.com" }
+        } operation: {
+            let url = SiteURL.rssReleases.absoluteURL(parameters: [
+                QueryParameter(key: "c d", value: 2),
+                QueryParameter(key: "a b", value: 1)
+            ])
+            XCTAssertEqual(url, "https://indexsite.com/releases.rss?c%20d=2&a%20b=1")
+        }
     }
 
     func test_url_escaping() throws {
-        Current.siteURL = { "https://indexsite.com" }
-        XCTAssertEqual(SiteURL.package(.value("foo bar"), .value("some repo"), .none).absoluteURL(),
-                       "https://indexsite.com/foo%20bar/some%20repo")
+        withDependencies {
+            $0.environment.siteURL = { "https://indexsite.com" }
+        } operation: {
+            XCTAssertEqual(SiteURL.package(.value("foo bar"), .value("some repo"), .none).absoluteURL(),
+                           "https://indexsite.com/foo%20bar/some%20repo")
+        }
     }
 
     func test_static_relativeURL() throws {
@@ -93,9 +107,12 @@ class SiteURLTests: XCTestCase {
     }
 
     func test_static_absoluteURL() throws {
-        Current.siteURL = { "https://indexsite.com" }
-        XCTAssertEqual(SiteURL.absoluteURL("foo"), "https://indexsite.com/foo")
-        XCTAssertEqual(SiteURL.absoluteURL("/foo"), "https://indexsite.com/foo")
+        withDependencies {
+            $0.environment.siteURL = { "https://indexsite.com" }
+        } operation: {
+            XCTAssertEqual(SiteURL.absoluteURL("foo"), "https://indexsite.com/foo")
+            XCTAssertEqual(SiteURL.absoluteURL("/foo"), "https://indexsite.com/foo")
+        }
     }
 
     func test_api_path() throws {
@@ -123,8 +140,11 @@ class SiteURLTests: XCTestCase {
     }
 
     func test_apiBaseURL() throws {
-        Current.siteURL = { "http://example.com" }
-        XCTAssertEqual(SiteURL.apiBaseURL, "http://example.com/api")
+        withDependencies {
+            $0.environment.siteURL = { "https://example.com" }
+        } operation: {
+            XCTAssertEqual(SiteURL.apiBaseURL, "https://example.com/api")
+        }
     }
 
     func test_packageBuildsURL() throws {

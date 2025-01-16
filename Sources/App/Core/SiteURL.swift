@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Plot
 import Vapor
 
@@ -341,7 +342,8 @@ enum SiteURL: Resourceable, Sendable {
     }
 
     static let _absoluteURL: @Sendable (String) -> String = { path in
-        Current.siteURL() + relativeURL(path)
+        @Dependency(\.environment) var environment
+        return environment.siteURL() + relativeURL(path)
     }
 
     static let _relativeURL: @Sendable (String) -> String = { path in

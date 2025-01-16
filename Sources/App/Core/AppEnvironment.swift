@@ -31,13 +31,8 @@ struct AppEnvironment: Sendable {
     var gitlabPipelineToken: @Sendable () -> String?
     var gitlabPipelineLimit: @Sendable () -> Int
     var logger: @Sendable () -> Logger
-    var metricsPushGatewayUrl: @Sendable () -> String?
-    var plausibleBackendReportingSiteID: @Sendable () -> String?
-    var processingBuildBacklog: @Sendable () -> Bool
-    var runnerIds: @Sendable () -> [String]
     var setLogger: @Sendable (Logger) -> Void
     var shell: Shell
-    var siteURL: @Sendable () -> String
     var storeS3Readme: @Sendable (_ owner: String,
                                   _ repository: String,
                                   _ readme: String) async throws(S3Readme.Error) -> String
@@ -75,20 +70,8 @@ extension AppEnvironment {
             ?? Constants.defaultGitlabPipelineLimit
         },
         logger: { logger },
-        metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
-        plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },
-        processingBuildBacklog: {
-            Environment.get("PROCESSING_BUILD_BACKLOG").flatMap(\.asBool) ?? false
-        },
-        runnerIds: {
-            Environment.get("RUNNER_IDS")
-                .map { Data($0.utf8) }
-                .flatMap { try? JSONDecoder().decode([String].self, from: $0) }
-            ?? []
-        },
         setLogger: { logger in Self.logger = logger },
         shell: .live,
-        siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
         storeS3Readme: { owner, repo, readme throws(S3Readme.Error) in
             try await S3Readme.storeReadme(owner: owner, repository: repo, readme: readme)
         },

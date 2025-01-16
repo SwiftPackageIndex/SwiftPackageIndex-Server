@@ -27,6 +27,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_show() async throws {
         try await withDependencies {
             $0.environment.dbId = { nil }
+            $0.environment.processingBuildBacklog = { false }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
