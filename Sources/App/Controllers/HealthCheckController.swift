@@ -16,7 +16,7 @@ import Fluent
 import Plot
 import Vapor
 
-enum UptimeCheckController {
+enum HealthCheckController {
 
     @Sendable
     static func show(req: Request) async throws -> String {

@@ -129,7 +129,7 @@ func routes(_ app: Application) throws {
     }
 
     do { // Uptime check
-        app.get(SiteURL.uptimeCheck.pathComponents, use: UptimeCheckController.show).excludeFromOpenAPI()
+        app.get(SiteURL.healthCheck.pathComponents, use: HealthCheckController.show).excludeFromOpenAPI()
     }
 
     do {  // spi.yml validation page
