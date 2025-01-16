@@ -36,6 +36,13 @@ class AnalyzerTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
+            $0.environment.loadSPIManifest = { path in
+                if path.hasSuffix("foo-1") {
+                    return .init(builder: .init(configs: [.init(documentationTargets: ["DocTarget"])]))
+                } else {
+                    return nil
+                }
+            }
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
             // setup
@@ -70,13 +77,6 @@ class AnalyzerTests: AppTestCase {
             }
             Current.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.setValue(path) }
             Current.git = .live
-            Current.loadSPIManifest = { path in
-                if path.hasSuffix("foo-1") {
-                    return .init(builder: .init(configs: [.init(documentationTargets: ["DocTarget"])]))
-                } else {
-                    return nil
-                }
-            }
             Current.shell.run = { @Sendable cmd, path in
                 let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!, with: ".")
                 commands.withValue {
@@ -219,6 +219,7 @@ class AnalyzerTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
+            $0.environment.loadSPIManifest = { _ in nil }
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
             // setup
@@ -359,6 +360,7 @@ class AnalyzerTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
+            $0.environment.loadSPIManifest = { _ in nil }
         } operation: {
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -410,6 +412,7 @@ class AnalyzerTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
+            $0.environment.loadSPIManifest = { _ in nil }
         } operation: {
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -749,32 +752,36 @@ class AnalyzerTests: AppTestCase {
 
     func test_getPackageInfo() async throws {
         // Tests getPackageInfo(package:version:)
-        // setup
-        let commands = QueueIsolated<[String]>([])
-        Current.shell.run = { @Sendable cmd, _ in
-            commands.withValue {
-                $0.append(cmd.description)
+        try await withDependencies {
+            $0.environment.loadSPIManifest = { _ in nil }
+        } operation: {
+            // setup
+            let commands = QueueIsolated<[String]>([])
+            Current.shell.run = { @Sendable cmd, _ in
+                commands.withValue {
+                    $0.append(cmd.description)
+                }
+                if cmd == .swiftDumpPackage {
+                    return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
+                }
+                return ""
             }
-            if cmd == .swiftDumpPackage {
-                return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
-            }
-            return ""
+            let pkg = try await savePackage(on: app.db, "https://github.com/foo/1")
+            try await Repository(package: pkg, name: "1", owner: "foo").save(on: app.db)
+            let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
+            try await version.save(on: app.db)
+            let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
+
+            // MUT
+            let info = try await Analyze.getPackageInfo(package: jpr, version: version)
+
+            // validation
+            XCTAssertEqual(commands.value, [
+                "git checkout 0.4.2 --quiet",
+                "swift package dump-package"
+            ])
+            XCTAssertEqual(info.packageManifest.name, "SPI-Server")
         }
-        let pkg = try await savePackage(on: app.db, "https://github.com/foo/1")
-        try await Repository(package: pkg, name: "1", owner: "foo").save(on: app.db)
-        let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
-        try await version.save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
-
-        // MUT
-        let info = try await Analyze.getPackageInfo(package: jpr, version: version)
-
-        // validation
-        XCTAssertEqual(commands.value, [
-            "git checkout 0.4.2 --quiet",
-            "swift package dump-package"
-        ])
-        XCTAssertEqual(info.packageManifest.name, "SPI-Server")
     }
 
     func test_updateVersion() async throws {
@@ -885,6 +892,7 @@ class AnalyzerTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
+            $0.environment.loadSPIManifest = { _ in nil }
         } operation: {
             // setup
             Current.git.commitCount = { @Sendable _ in 12 }
@@ -1498,6 +1506,7 @@ class AnalyzerTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2873
         try await withDependencies {
             $0.date.now = .now
+            $0.environment.loadSPIManifest = { _ in nil }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, id: .id0, "https://github.com/foo/1".url, processingStage: .ingestion)

@@ -30,7 +30,6 @@ struct AppEnvironment: Sendable {
     var gitlabApiToken: @Sendable () -> String?
     var gitlabPipelineToken: @Sendable () -> String?
     var gitlabPipelineLimit: @Sendable () -> Int
-    var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var logger: @Sendable () -> Logger
     var metricsPushGatewayUrl: @Sendable () -> String?
     var plausibleBackendReportingSiteID: @Sendable () -> String?
@@ -75,7 +74,6 @@ extension AppEnvironment {
             Environment.get("GITLAB_PIPELINE_LIMIT").flatMap(Int.init)
             ?? Constants.defaultGitlabPipelineLimit
         },
-        loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
         logger: { logger },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         plausibleBackendReportingSiteID: { Environment.get("PLAUSIBLE_BACKEND_REPORTING_SITE_ID") },

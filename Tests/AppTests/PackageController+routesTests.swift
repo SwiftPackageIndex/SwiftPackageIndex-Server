@@ -1488,6 +1488,7 @@ class PackageController_routesTests: SnapshotTestCase {
         try await withDependencies {
             $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.loadSPIManifest = { _ in nil }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.timeZone = .utc
         } operation: {

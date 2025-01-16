@@ -14,6 +14,7 @@
 
 import Dependencies
 import DependenciesMacros
+import SPIManifest
 import Vapor
 
 
@@ -41,6 +42,7 @@ struct EnvironmentClient {
     var current: @Sendable () -> Environment = { XCTFail("current"); return .development }
     var dbId: @Sendable () -> String?
     var hideStagingBanner: @Sendable () -> Bool = { XCTFail("hideStagingBanner"); return Constants.defaultHideStagingBanner }
+    var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var maintenanceMessage: @Sendable () -> String?
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
@@ -108,6 +110,7 @@ extension EnvironmentClient: DependencyKey {
                 Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
                     ?? Constants.defaultHideStagingBanner
             },
+            loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
             maintenanceMessage: {
                 Environment.get("MAINTENANCE_MESSAGE").flatMap(\.trimmed)
             },
