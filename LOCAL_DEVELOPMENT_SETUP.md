@@ -204,6 +204,18 @@ Note that this will launch several services defined in `app.yml`, including the 
 env VERSION=... docker-compose -f app.yml up -d server
 ```
 
+The site uses Redis as a local reference cache for some of the documentation resolution(`getDocRoute`).
+In the code, it's handled as an in-memory cache when running in DEBUG mode.
+Redis is not required to run the site locally - it's an optimization for the production setup.
+
+You can run an instance of redis in docker locally, should you want to leverage or work on that section:
+
+```
+make redis-up-dev
+```
+
+Use `make redis-down-dev` to cleanly disable the local redis instance.
+
 ## Running in a Linux container
 
 Sometimes you need to run tests or even the server on the target platform, Linux. The best way to do that is to build and run in a Linux container.
@@ -297,3 +309,5 @@ psql 'postgres://spi_test@host.docker.internal:5432/spi_test' -c 'select count(*
 # check connection for spi_dev database:
 psql 'postgres://spi_dev@host.docker.internal:6432/spi_dev' -c 'select count(*) from packages;'
 ```
+
+## 
