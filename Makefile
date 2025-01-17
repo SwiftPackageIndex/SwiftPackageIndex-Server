@@ -92,7 +92,13 @@ ingest:
 analyze:
 	swift run Run analyze --limit 1
 
-db-up: db-up-dev db-up-test
+redis-up-dev:
+	docker run --name spi_redis -p 6379:6379 -d redis/redis-stack:7.4.0-v1
+
+redis-down-dev:
+	docker rm -f spi_redis
+
+db-up: db-up-dev db-up-test redis-up-dev
 
 db-up-dev:
 	docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 6432:5432 -d postgres:16-alpine
@@ -111,7 +117,7 @@ db-up-test:
 		-d \
 		postgres:13-alpine
 
-db-down: db-down-dev db-down-test
+db-down: db-down-dev db-down-test redis-down-dev
 
 db-down-dev:
 	docker rm -f spi_dev

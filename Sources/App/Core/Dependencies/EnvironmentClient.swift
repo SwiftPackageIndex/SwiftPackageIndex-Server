@@ -49,7 +49,6 @@ struct EnvironmentClient {
     var plausibleBackendReportingSiteID: @Sendable () -> String?
     var processingBuildBacklog: @Sendable () -> Bool = { XCTFail("processingBuildBacklog"); return false }
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
-    var runnerIds: @Sendable () -> [String] = { XCTFail("runnerIds"); return [] }
 
     enum FailureMode: String {
         case fetchMetadataFailed
@@ -59,6 +58,8 @@ struct EnvironmentClient {
         case repositorySaveFailed
         case repositorySaveUniqueViolation
     }
+    var redisHostname: @Sendable () -> String = { "redis" }
+    var runnerIds: @Sendable () -> [String] = { XCTFail("runnerIds"); return [] }
     var shouldFail: @Sendable (_ failureMode: FailureMode) -> Bool = { _ in XCTFail("shouldFail"); return false }
     var siteURL: @Sendable () -> String = { XCTFail("siteURL"); return "" }
 }
@@ -126,6 +127,12 @@ extension EnvironmentClient: DependencyKey {
                 Environment.get("PROCESSING_BUILD_BACKLOG").flatMap(\.asBool) ?? false
             },
             random: { range in Double.random(in: range) },
+            redisHostname: {
+                // Defaulting this to `redis`, which is the service name in `app.yml`.
+                // This is also why `REDIS_HOST` is not set as an env variable in `app.yml`,
+                // it's a known value that needs no configuration outside of local use for testing.
+                Environment.get("REDIS_HOST") ?? "redis"
+            },
             runnerIds: { Environment.decode("RUNNER_IDS", as: [String].self) ?? [] },
             shouldFail: { failureMode in
                 let shouldFail = Environment.decode("FAILURE_MODE", as: [String: Double].self) ?? [:]
