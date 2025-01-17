@@ -49,7 +49,6 @@ struct EnvironmentClient {
     var plausibleBackendReportingSiteID: @Sendable () -> String?
     var processingBuildBacklog: @Sendable () -> Bool = { XCTFail("processingBuildBacklog"); return false }
     var random: @Sendable (_ range: ClosedRange<Double>) -> Double = { XCTFail("random"); return Double.random(in: $0) }
-    var runnerIds: @Sendable () -> [String] = { XCTFail("runnerIds"); return [] }
 
     enum FailureMode: String {
         case fetchMetadataFailed
@@ -60,6 +59,7 @@ struct EnvironmentClient {
         case repositorySaveUniqueViolation
     }
     var redisHostname: @Sendable () -> String = { "redis" }
+    var runnerIds: @Sendable () -> [String] = { XCTFail("runnerIds"); return [] }
     var shouldFail: @Sendable (_ failureMode: FailureMode) -> Bool = { _ in XCTFail("shouldFail"); return false }
     var siteURL: @Sendable () -> String = { XCTFail("siteURL"); return "" }
 }
