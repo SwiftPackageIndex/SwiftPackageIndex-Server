@@ -1,5 +1,5 @@
 {
-  "originHash" : "4fd7c643a40a7d331afeba2e56e75d992aebdddd9e01ffbf01e463bd25242316",
+  "originHash" : "c68e60d7c703a8fa9fb0a3a11024cf6b2304fb294ba9f124de1d41f024b11cc9",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -312,8 +312,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "bc92c4b27f9a84bfb498cdbfdf35d5a357e9161f",
-        "version" : "1.5.6"
+        "revision" : "e7039aaa4d9cf386fa8324a89f258c3f2c54d751",
+        "version" : "1.6.0"
       }
     },
     {
@@ -492,8 +492,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-parsing.git",
       "state" : {
-        "revision" : "fda02264a411776236c8efc035571915b238a815",
-        "version" : "0.14.0"
+        "revision" : "3432cb81164dd3d69a75d0d63205be5fbae2c34b",
+        "version" : "0.14.1"
       }
     },
     {
