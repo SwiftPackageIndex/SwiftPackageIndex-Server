@@ -91,6 +91,26 @@ class CustomCollectionControllerTests: AppTestCase {
         }
     }
 
+    func test_show_collection() async throws {
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            try await CustomCollection.save(
+                on: app.db,
+                key: "list",
+                name: "List",
+                url: "https://github.com/foo/bar/list.json",
+                packages: [( id: .id0, url: "https://github.com/foo/1", owner: "foo", name: "1" )]
+            )
+            
+            // MUT
+            try await app.test(.GET, "/collections/list") { req async in
+                // validate
+                XCTAssertEqual(req.status, .ok)
+            }
+        }
+    }
+
 }
 
 
