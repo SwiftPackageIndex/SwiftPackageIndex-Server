@@ -32,6 +32,7 @@ enum CustomCollectionsController {
             .field(Version.self, \.$packageName)
             .filter(CustomCollection.self, \.$key == key)
             .sort(Repository.self, \.$name)
+            .field(\.$scoreDetails)
             .page(page, size: pageSize)
     }
 
