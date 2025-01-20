@@ -116,12 +116,16 @@ enum HomeIndex {
                         .class("support"),
                         .text("Support the Swift Package Index")
                     ),
-                    .text("We currently have availability for one additional homepage sponsor. "),
-                    .a(
-                        .href(ExternalURL.contactMailto),
-                        .text("Get in touch for details")
-                    ),
-                    .text(".")
+                    .p(
+                        .text("We have one homepage sponsorship spot available. Support the project while promoting your company.")
+                        ),
+                    .p(
+                        .class("cta"),
+                        .a(
+                            .href(ExternalURL.contactMailto),
+                            .text("Get in touch for details →")
+                        )
+                    )
                 ))
             )
         }
