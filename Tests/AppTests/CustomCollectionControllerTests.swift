@@ -79,7 +79,7 @@ class CustomCollectionControllerTests: AppTestCase {
             XCTAssertEqual(page.hasMoreResults, true)
         }
 
-        do {  // first page
+        do {  // third page
               // MUT
             let page = try await CustomCollectionsController.query(on: app.db,
                                                                    key: "list",
