@@ -1094,7 +1094,7 @@ requests:
     validation:
       status: .regex((2|3)\d\d)
   /vapor-community/wallet/documentation:
-    url: ${base_url}/vapor-community/PassKit/documentation
+    url: ${base_url}/vapor-community/wallet/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
