@@ -102,11 +102,21 @@ class CustomCollectionControllerTests: AppTestCase {
                 url: "https://github.com/foo/bar/list.json",
                 packages: [( id: .id0, url: "https://github.com/foo/1", owner: "foo", name: "1" )]
             )
-            
+
             // MUT
             try await app.test(.GET, "/collections/list") { req async in
                 // validate
                 XCTAssertEqual(req.status, .ok)
+            }
+        }
+    }
+
+    func test_not_found() throws {
+        try withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            try app.test(.GET, "/collections/list") {
+                XCTAssertEqual($0.status, .notFound)
             }
         }
     }
