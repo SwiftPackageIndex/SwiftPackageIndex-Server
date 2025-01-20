@@ -71,3 +71,14 @@ body.home {
         }
     }
 }
+
+.ccta-availability {
+    padding: 10px;
+    font-size: 13px;
+    background-color: var(--panel-button-background);
+
+    .support {
+        margin: 0 0 5px;
+        font-weight: bold;
+    }
+}
