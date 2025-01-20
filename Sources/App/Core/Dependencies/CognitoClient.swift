@@ -20,7 +20,7 @@ import SotoCognitoAuthenticationKit
 @DependencyClient
 struct CognitoClient {
     var authenticate: @Sendable (_ req: Request, _ username: String, _ password: String) async throws -> CognitoAuthenticateResponse
-    var authenticateToken: @Sendable (_ req: Request, _ sessionID: String, _ accessToken: String, _ eventLoop: EventLoop) async throws -> Void
+    var authenticateToken: @Sendable (_ req: Request, _ sessionID: String, _ accessToken: String) async throws -> Void
     var signup: @Sendable (_ req: Request, _ username: String, _ password: String) async throws -> Void
     var resetPassword: @Sendable (_ req: Request, _ username: String, _ password: String, _ confirmationCode: String) async throws -> Void
     var forgotPassword: @Sendable (_ req: Request, _ username: String) async throws -> Void
@@ -32,7 +32,7 @@ extension CognitoClient: DependencyKey {
     static var liveValue: CognitoClient {
         .init(
             authenticate: { req, username, password in try await Cognito.authenticate(req: req, username: username, password: password) },
-            authenticateToken: { req, sessionID, accessToken, eventLoop in try await Cognito.authenticateToken(req: req, sessionID: sessionID, accessToken: accessToken, on: eventLoop)},
+            authenticateToken: { req, sessionID, accessToken in try await Cognito.authenticateToken(req: req, sessionID: sessionID, accessToken: accessToken)},
             signup : { req, username, password in try await Cognito.signup(req: req, username: username, password: password) },
             resetPassword : { req, username, password, confirmationCode in try await Cognito.resetPassword(req: req, username: username, password: password, confirmationCode: confirmationCode) },
             forgotPassword: { req, username in try await Cognito.forgotPassword(req: req, username: username) },

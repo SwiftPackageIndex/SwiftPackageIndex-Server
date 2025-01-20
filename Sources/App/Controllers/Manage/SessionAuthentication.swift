@@ -6,7 +6,6 @@ import SotoCognitoIdentity
 
 struct AuthenticatedUser {
     var accessToken: String
-    var refreshToken: String?
 }
 
 extension AuthenticatedUser: SessionAuthenticatable {
@@ -19,11 +18,10 @@ struct UserSessionAuthenticator: AsyncSessionAuthenticator {
     func authenticate(sessionID: String, for request: Vapor.Request) async throws {
         @Dependency(\.cognito) var cognito
         do {
-            // TODO: handle response, refresh token
-            try await cognito.authenticateToken(req: request, sessionID: sessionID, accessToken: sessionID, eventLoop: request.eventLoop)
+            try await cognito.authenticateToken(req: request, sessionID: sessionID, accessToken: sessionID)
             request.auth.login(User(accessToken: sessionID))
-        } catch let error as SotoCognitoError { // TODO: handle error
-            return
+        } catch let error as SotoCognitoError {
+            // .unauthorized SotoCognitoError with reason "invalid token", attempt to refresh using req.application.cognito.authenticatable.refresh(), which requires the username and refresh token, both returned upon initial successful login
         }
     }
     typealias User = AuthenticatedUser

@@ -21,7 +21,7 @@ struct Cognito {
     }
     
     @Sendable
-    static func authenticateToken(req: Request, sessionID: String, accessToken: String, on eventLoop: EventLoop) async throws -> Void {
+    static func authenticateToken(req: Request, sessionID: String, accessToken: String) async throws -> Void {
         let awsClient = AWSClient(httpClientProvider: .shared(req.application.http.client.shared))
         let awsCognitoConfiguration = CognitoConfiguration(
             userPoolId: Environment.get("AWS_COGNITO_POOL_ID")!,

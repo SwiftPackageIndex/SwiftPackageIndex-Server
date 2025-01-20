@@ -25,7 +25,7 @@ enum LoginController {
             let response = try await cognito.authenticate(req: req, username: user.email, password: user.password)
             switch response {
             case .authenticated(let authenticatedResponse):
-                let user = AuthenticatedUser(accessToken: authenticatedResponse.accessToken!, refreshToken: authenticatedResponse.refreshToken!)
+                let user = AuthenticatedUser(accessToken: authenticatedResponse.accessToken!)
                 req.auth.login(user)
             case .challenged(let challengedResponse): // with the current pool configuration, a challenge response is not expected
                 break
