@@ -25,11 +25,6 @@ enum Supporters {
                           darkModeUrl: "/images/sponsors/emerge~dark.png"),
               url: "https://www.emergetools.com/?utm_source=spi2&utm_medium=sponsor&utm_campaign=emerge",
               advertisingCopy: "Join the future of mobile development. Trusted by top companies like Duolingo, Square, DoorDash & more…"),
-        .init(name: "ContextSDK",
-              logo: .init(lightModeUrl: "/images/sponsors/contextsdk.png",
-                          darkModeUrl: "/images/sponsors/contextsdk~dark.png"),
-              url: "https://contextsdk.com",
-              advertisingCopy: "Intent detection with real-world context. Lean, lightweight and GDPR compliant out of the box."),
     ]
 
     nonisolated(unsafe) static var infrastructure: [Corporate] = [
