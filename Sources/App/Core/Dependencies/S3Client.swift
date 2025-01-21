@@ -27,7 +27,7 @@ struct S3Client {
         reportIssue("storeS3Readme"); return ""
     }
 #warning("drop client parameter")
-    var storeS3ReadmeImages: @Sendable (_ client: Client, _ imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) -> Void
+    var storeReadmeImages: @Sendable (_ client: Client, _ imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) -> Void
 }
 
 extension S3Client: DependencyKey {
@@ -39,7 +39,7 @@ extension S3Client: DependencyKey {
             storeReadme: { owner, repo, readme throws(S3Readme.Error) in
                 try await S3Readme.storeReadme(owner: owner, repository: repo, readme: readme)
             },
-            storeS3ReadmeImages: { client, images throws(S3Readme.Error) in
+            storeReadmeImages: { client, images throws(S3Readme.Error) in
                 try await S3Readme.storeReadmeImages(client: client, imagesToCache: images)
             }
         )
@@ -51,7 +51,7 @@ extension S3Client: TestDependencyKey {
         .init(
             fetchReadme: { _, _, _ in unimplemented(); return "" },
             storeReadme: { _, _, _ in unimplemented("storeS3Readme"); return "" },
-            storeS3ReadmeImages: { _, _ throws(S3Readme.Error) in unimplemented("storeS3ReadmeImages") }
+            storeReadmeImages: { _, _ throws(S3Readme.Error) in unimplemented("storeS3ReadmeImages") }
         )
     }
 }

@@ -581,7 +581,7 @@ class IngestionTests: AppTestCase {
                              ])
             }
             $0.s3.storeReadme = { _, _, _ in "objectUrl" }
-            $0.s3.storeS3ReadmeImages = { _, imagesToCache in
+            $0.s3.storeReadmeImages = { _, imagesToCache in
                 storeS3ReadmeImagesCalls.increment()
                 XCTAssertEqual(imagesToCache.count, 2)
             }
