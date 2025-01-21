@@ -22,7 +22,6 @@ import Vapor
 extension AppEnvironment {
     static func mock(eventLoop: EventLoop) -> Self {
         .init(
-            fetchS3Readme: { _, _, _ in "" },
             fileManager: .mock,
             getStatusCount: { _, _ in 100 },
             git: .mock,

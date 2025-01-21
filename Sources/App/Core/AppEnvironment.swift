@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var fetchS3Readme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> String
     var fileManager: FileManager
     var getStatusCount: @Sendable (_ client: Client, _ status: Gitlab.Builder.Status) async throws -> Int
     var git: Git
@@ -53,7 +52,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        fetchS3Readme: { client, owner, repo in try await S3Readme.fetchReadme(client:client, owner: owner, repository: repo) },
         fileManager: .live,
         getStatusCount: { client, status in
             try await Gitlab.Builder.getStatusCount(client: client,
