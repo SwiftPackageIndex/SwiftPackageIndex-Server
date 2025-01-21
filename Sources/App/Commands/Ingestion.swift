@@ -246,7 +246,7 @@ enum Ingestion {
            let owner = metadata.repositoryOwner,
            let repository = metadata.repositoryName,
            let html = readme?.html {
-            let objectUrl = try await s3.storeS3Readme(owner, repository, html)
+            let objectUrl = try await s3.storeReadme(owner, repository, html)
             if let imagesToCache = readme?.imagesToCache, imagesToCache.isEmpty == false {
                 try await Current.storeS3ReadmeImages(client, imagesToCache)
             }

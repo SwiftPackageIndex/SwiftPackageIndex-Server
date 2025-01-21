@@ -485,7 +485,7 @@ class IngestionTests: AppTestCase {
                                  imagesToCache: [])
                 }
             }
-            $0.s3.storeS3Readme = { owner, repo, html in
+            $0.s3.storeReadme = { owner, repo, html in
                 storeCalls.increment()
                 XCTAssertEqual(owner, "foo")
                 XCTAssertEqual(repo, "bar")
@@ -585,7 +585,7 @@ class IngestionTests: AppTestCase {
                                                    path: "/foo/bar/with-jwt-2.jpg"))
                              ])
             }
-            $0.s3.storeS3Readme = { _, _, _ in "objectUrl" }
+            $0.s3.storeReadme = { _, _, _ in "objectUrl" }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
@@ -613,7 +613,7 @@ class IngestionTests: AppTestCase {
                                  htmlUrl: "readme url",
                                  imagesToCache: [])
                 }
-                $0.s3.storeS3Readme = { owner, repo, html throws(S3Readme.Error) in
+                $0.s3.storeReadme = { owner, repo, html throws(S3Readme.Error) in
                     storeCalls.increment()
                     throw .storeReadmeFailed
                 }

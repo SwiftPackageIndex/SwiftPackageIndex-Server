@@ -23,7 +23,7 @@ import Vapor
 struct S3Client {
 #warning("drop client parameter")
     var fetchReadme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> String
-    var storeS3Readme: @Sendable (_ owner: String, _ repository: String, _ readme: String) async throws(S3Readme.Error) -> String = { _, _, _ in
+    var storeReadme: @Sendable (_ owner: String, _ repository: String, _ readme: String) async throws(S3Readme.Error) -> String = { _, _, _ in
         reportIssue("storeS3Readme"); return ""
     }
 }
@@ -34,7 +34,7 @@ extension S3Client: DependencyKey {
             fetchReadme: { client, owner, repo in
                 try await S3Readme.fetchReadme(client:client, owner: owner, repository: repo)
             },
-            storeS3Readme: { owner, repo, readme throws(S3Readme.Error) in
+            storeReadme: { owner, repo, readme throws(S3Readme.Error) in
                 try await S3Readme.storeReadme(owner: owner, repository: repo, readme: readme)
             }
         )
@@ -45,7 +45,7 @@ extension S3Client: TestDependencyKey {
     static var testValue: Self {
         .init(
             fetchReadme: { _, _, _ in unimplemented(); return "" },
-            storeS3Readme: { _, _, _ in unimplemented("storeS3Readme"); return "" }
+            storeReadme: { _, _, _ in unimplemented("storeS3Readme"); return "" }
         )
     }
 }
