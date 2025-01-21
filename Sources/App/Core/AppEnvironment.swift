@@ -32,8 +32,6 @@ struct AppEnvironment: Sendable {
     var logger: @Sendable () -> Logger
     var setLogger: @Sendable (Logger) -> Void
     var shell: Shell
-    var storeS3ReadmeImages: @Sendable (_ client: Client,
-                                        _ imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) -> Void
     var triggerBuild: @Sendable (_ client: Client,
                                  _ buildId: Build.Id,
                                  _ cloneURL: String,
@@ -67,9 +65,6 @@ extension AppEnvironment {
         logger: { logger },
         setLogger: { logger in Self.logger = logger },
         shell: .live,
-        storeS3ReadmeImages: { client, images throws(S3Readme.Error) in
-            try await S3Readme.storeReadmeImages(client: client, imagesToCache: images)
-        },
         triggerBuild: { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
             try await Gitlab.Builder.triggerBuild(client: client,
                                                   buildId: buildId,

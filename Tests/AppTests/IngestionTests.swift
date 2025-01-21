@@ -554,11 +554,6 @@ class IngestionTests: AppTestCase {
                           processingStage: .reconciliation)
         try await pkg.save(on: app.db)
         let storeS3ReadmeImagesCalls = QueueIsolated(0)
-        Current.storeS3ReadmeImages = { _, imagesToCache in
-            storeS3ReadmeImagesCalls.increment()
-
-            XCTAssertEqual(imagesToCache.count, 2)
-        }
 
         try await withDependencies {
             $0.date.now = .now
@@ -586,6 +581,10 @@ class IngestionTests: AppTestCase {
                              ])
             }
             $0.s3.storeReadme = { _, _, _ in "objectUrl" }
+            $0.s3.storeS3ReadmeImages = { _, imagesToCache in
+                storeS3ReadmeImagesCalls.increment()
+                XCTAssertEqual(imagesToCache.count, 2)
+            }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))

@@ -248,7 +248,7 @@ enum Ingestion {
            let html = readme?.html {
             let objectUrl = try await s3.storeReadme(owner, repository, html)
             if let imagesToCache = readme?.imagesToCache, imagesToCache.isEmpty == false {
-                try await Current.storeS3ReadmeImages(client, imagesToCache)
+                try await s3.storeS3ReadmeImages(client, imagesToCache)
             }
             return .cached(s3ObjectUrl: objectUrl, githubEtag: upstreamEtag)
         } else {
