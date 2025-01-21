@@ -190,7 +190,7 @@ enum Ingestion {
 
             let s3Readme: S3Readme?
             do throws(S3Readme.Error) {
-                s3Readme = try await storeS3Readme(client: client, repository: repo, metadata: metadata, readme: readme)
+                s3Readme = try await storeS3Readme(repository: repo, metadata: metadata, readme: readme)
             } catch {
                 // We don't want to fail ingestion in case storing the readme fails - warn and continue.
                 Current.logger().warning("storeS3Readme failed: \(error)")
@@ -239,7 +239,7 @@ enum Ingestion {
     }
 
 
-    static func storeS3Readme(client: Client, repository: Repository, metadata: Github.Metadata, readme: Github.Readme?) async throws(S3Readme.Error) -> S3Readme? {
+    static func storeS3Readme(repository: Repository, metadata: Github.Metadata, readme: Github.Readme?) async throws(S3Readme.Error) -> S3Readme? {
         @Dependency(\.s3) var s3
         if let upstreamEtag = readme?.etag,
            repository.s3Readme?.needsUpdate(upstreamEtag: upstreamEtag) ?? true,
@@ -248,7 +248,7 @@ enum Ingestion {
            let html = readme?.html {
             let objectUrl = try await s3.storeReadme(owner, repository, html)
             if let imagesToCache = readme?.imagesToCache, imagesToCache.isEmpty == false {
-                try await s3.storeReadmeImages(client, imagesToCache)
+                try await s3.storeReadmeImages(imagesToCache)
             }
             return .cached(s3ObjectUrl: objectUrl, githubEtag: upstreamEtag)
         } else {

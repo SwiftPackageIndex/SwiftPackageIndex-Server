@@ -57,8 +57,9 @@ extension S3Readme {
         return key.objectUrl
     }
 
-    static func storeReadmeImages(client: Client, imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) {
+    static func storeReadmeImages(imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) {
         @Dependency(\.environment) var environment
+        @Dependency(\.httpClient) var httpClient
         guard let accessKeyId = environment.awsAccessKeyId() else { throw .envVariableNotSet("AWS_ACCESS_KEY_ID") }
         guard let secretAccessKey = environment.awsSecretAccessKey() else { throw .envVariableNotSet("AWS_SECRET_ACCESS_KEY")}
 
@@ -66,7 +67,7 @@ extension S3Readme {
         for imageToCache in imagesToCache {
             Current.logger().debug("Copying readme image to \(imageToCache.s3Key.s3Uri) ...")
             do {
-                let response = try await client.get(URI(stringLiteral: imageToCache.originalUrl))
+                let response = try await httpClient.get(url: imageToCache.originalUrl)
                 if var body = response.body, let imageData = body.readData(length: body.readableBytes) {
                     try await store.save(payload: imageData, to: imageToCache.s3Key)
                 }

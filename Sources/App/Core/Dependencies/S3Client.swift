@@ -14,7 +14,6 @@
 
 import Dependencies
 import IssueReporting
-import Vapor
 
 
 // We currently cannot use @DependencyClient here due to
@@ -25,8 +24,7 @@ struct S3Client {
     var storeReadme: @Sendable (_ owner: String, _ repository: String, _ readme: String) async throws(S3Readme.Error) -> String = { _, _, _ in
         reportIssue("storeS3Readme"); return ""
     }
-#warning("drop client parameter")
-    var storeReadmeImages: @Sendable (_ client: Client, _ imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) -> Void
+    var storeReadmeImages: @Sendable (_ imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) -> Void
 }
 
 
@@ -39,8 +37,8 @@ extension S3Client: DependencyKey {
             storeReadme: { owner, repo, readme throws(S3Readme.Error) in
                 try await S3Readme.storeReadme(owner: owner, repository: repo, readme: readme)
             },
-            storeReadmeImages: { client, images throws(S3Readme.Error) in
-                try await S3Readme.storeReadmeImages(client: client, imagesToCache: images)
+            storeReadmeImages: { images throws(S3Readme.Error) in
+                try await S3Readme.storeReadmeImages(imagesToCache: images)
             }
         )
     }
@@ -52,7 +50,7 @@ extension S3Client: TestDependencyKey {
         .init(
             fetchReadme: { _, _ in unimplemented(); return "" },
             storeReadme: { _, _, _ in unimplemented("storeS3Readme"); return "" },
-            storeReadmeImages: { _, _ throws(S3Readme.Error) in unimplemented("storeS3ReadmeImages") }
+            storeReadmeImages: { _ throws(S3Readme.Error) in unimplemented("storeS3ReadmeImages") }
         )
     }
 }
