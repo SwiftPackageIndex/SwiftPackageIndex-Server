@@ -66,6 +66,8 @@ extension HTTPClient: DependencyKey {
             }
         )
     }
+
+    func get(url: String) async throws -> Response { try await get(url: url, headers: .init()) }
 }
 
 

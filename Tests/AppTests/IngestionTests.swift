@@ -466,6 +466,7 @@ class IngestionTests: AppTestCase {
 
     func test_ingest_storeS3Readme() async throws {
         let fetchCalls = QueueIsolated(0)
+        let storeCalls = QueueIsolated(0)
         try await withDependencies {
             $0.date.now = .now
             $0.github.fetchLicense = { @Sendable _, _ in nil }
@@ -484,13 +485,7 @@ class IngestionTests: AppTestCase {
                                  imagesToCache: [])
                 }
             }
-        } operation: {
-            // setup
-            let app = self.app!
-            let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
-            try await pkg.save(on: app.db)
-            let storeCalls = QueueIsolated(0)
-            Current.storeS3Readme = { owner, repo, html in
+            $0.s3.storeReadme = { owner, repo, html in
                 storeCalls.increment()
                 XCTAssertEqual(owner, "foo")
                 XCTAssertEqual(repo, "bar")
@@ -501,6 +496,11 @@ class IngestionTests: AppTestCase {
                 }
                 return "objectUrl"
             }
+        } operation: {
+            // setup
+            let app = self.app!
+            let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
+            try await pkg.save(on: app.db)
 
             do { // first ingestion, no readme has been saved
                  // MUT
@@ -553,13 +553,7 @@ class IngestionTests: AppTestCase {
         let pkg = Package(url: "https://github.com/foo/bar".url,
                           processingStage: .reconciliation)
         try await pkg.save(on: app.db)
-        Current.storeS3Readme = { _, _, _ in "objectUrl" }
         let storeS3ReadmeImagesCalls = QueueIsolated(0)
-        Current.storeS3ReadmeImages = { _, imagesToCache in
-            storeS3ReadmeImagesCalls.increment()
-
-            XCTAssertEqual(imagesToCache.count, 2)
-        }
 
         try await withDependencies {
             $0.date.now = .now
@@ -586,6 +580,11 @@ class IngestionTests: AppTestCase {
                                                    path: "/foo/bar/with-jwt-2.jpg"))
                              ])
             }
+            $0.s3.storeReadme = { _, _, _ in "objectUrl" }
+            $0.s3.storeReadmeImages = { imagesToCache in
+                storeS3ReadmeImagesCalls.increment()
+                XCTAssertEqual(imagesToCache.count, 2)
+            }
         } operation: {
             // MUT
             try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
@@ -601,10 +600,6 @@ class IngestionTests: AppTestCase {
         let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
         try await pkg.save(on: app.db)
         let storeCalls = QueueIsolated(0)
-        Current.storeS3Readme = { owner, repo, html throws(S3Readme.Error) in
-            storeCalls.increment()
-            throw .storeReadmeFailed
-        }
 
         do { // first ingestion, no readme has been saved
             try await withDependencies {
@@ -616,6 +611,10 @@ class IngestionTests: AppTestCase {
                                  html: "readme html 1",
                                  htmlUrl: "readme url",
                                  imagesToCache: [])
+                }
+                $0.s3.storeReadme = { owner, repo, html throws(S3Readme.Error) in
+                    storeCalls.increment()
+                    throw .storeReadmeFailed
                 }
             } operation: {
                 // MUT
