@@ -157,7 +157,8 @@ extension Gitlab.Builder {
                                status: Status,
                                page: Int,
                                pageSize: Int = 20) async throws -> [Pipeline] {
-        guard let apiToken = Current.gitlabApiToken() else { throw Gitlab.Error.missingToken }
+        @Dependency(\.buildSystem) var buildSystem
+        guard let apiToken = buildSystem.gitlabApiToken() else { throw Gitlab.Error.missingToken }
 
         let uri: URI = .init(string: "\(projectURL)/pipelines?status=\(status)&page=\(page)&per_page=\(pageSize)")
         let response = try await client.get(uri, headers: HTTPHeaders([("Authorization", "Bearer \(apiToken)")]))

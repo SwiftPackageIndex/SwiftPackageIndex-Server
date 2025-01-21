@@ -19,6 +19,7 @@ import Vapor
 
 @DependencyClient
 struct BuildSystemClient {
+    var gitlabApiToken: @Sendable () -> String?
 #warning("remove client")
     var getStatusCount: @Sendable (_ client: Client, _ status: Gitlab.Builder.Status) async throws -> Int
 }
@@ -27,6 +28,7 @@ struct BuildSystemClient {
 extension BuildSystemClient: DependencyKey {
     static var liveValue: Self {
         .init(
+            gitlabApiToken: { Environment.get("GITLAB_API_TOKEN") },
             getStatusCount: { client, status in
                 try await Gitlab.Builder.getStatusCount(client: client,
                                                         status: status,

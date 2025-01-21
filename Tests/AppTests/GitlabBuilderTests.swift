@@ -137,32 +137,35 @@ class GitlabBuilderTests: AppTestCase {
     }
 
     func test_getStatusCount() async throws {
-        Current.gitlabApiToken = { "api token" }
-        Current.gitlabPipelineToken = { nil }
-
-        var page = 1
-        let client = MockClient { req, res in
-            XCTAssertEqual(req.url.string, "https://gitlab.com/api/v4/projects/19564054/pipelines?status=pending&page=\(page)&per_page=20")
-            res.status = .ok
-            let pending = #"{"id": 1, "status": "pending"}"#
-            switch page {
-                case 1:
-                    let list = Array(repeating: pending, count: 20).joined(separator: ", ")
-                    res.body = makeBody("[\(list)]")
-                case 2:
-                    let list = Array(repeating: pending, count: 10).joined(separator: ", ")
-                    res.body = makeBody("[\(list)]")
-                default:
-                    XCTFail("unexpected page: \(page)")
+        try await withDependencies {
+            $0.buildSystem.gitlabApiToken = { "api token" }
+        } operation: {
+            Current.gitlabPipelineToken = { nil }
+            
+            var page = 1
+            let client = MockClient { req, res in
+                XCTAssertEqual(req.url.string, "https://gitlab.com/api/v4/projects/19564054/pipelines?status=pending&page=\(page)&per_page=20")
+                res.status = .ok
+                let pending = #"{"id": 1, "status": "pending"}"#
+                switch page {
+                    case 1:
+                        let list = Array(repeating: pending, count: 20).joined(separator: ", ")
+                        res.body = makeBody("[\(list)]")
+                    case 2:
+                        let list = Array(repeating: pending, count: 10).joined(separator: ", ")
+                        res.body = makeBody("[\(list)]")
+                    default:
+                        XCTFail("unexpected page: \(page)")
+                }
+                page += 1
             }
-            page += 1
+            
+            let res = try await Gitlab.Builder.getStatusCount(client: client,
+                                                              status: .pending,
+                                                              pageSize: 20,
+                                                              maxPageCount: 3)
+            XCTAssertEqual(res, 30)
         }
-
-        let res = try await Gitlab.Builder.getStatusCount(client: client,
-                                                          status: .pending,
-                                                          pageSize: 20,
-                                                          maxPageCount: 3)
-        XCTAssertEqual(res, 30)
     }
 
 }

@@ -25,7 +25,6 @@ import FoundationNetworking
 struct AppEnvironment: Sendable {
     var fileManager: FileManager
     var git: Git
-    var gitlabApiToken: @Sendable () -> String?
     var gitlabPipelineToken: @Sendable () -> String?
     var gitlabPipelineLimit: @Sendable () -> Int
     var logger: @Sendable () -> Logger
@@ -48,7 +47,6 @@ extension AppEnvironment {
     static let live = AppEnvironment(
         fileManager: .live,
         git: .live,
-        gitlabApiToken: { Environment.get("GITLAB_API_TOKEN") },
         gitlabPipelineToken: { Environment.get("GITLAB_PIPELINE_TOKEN") },
         gitlabPipelineLimit: {
             Environment.get("GITLAB_PIPELINE_LIMIT").flatMap(Int.init)
