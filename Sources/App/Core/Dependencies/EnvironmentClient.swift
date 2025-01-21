@@ -41,6 +41,8 @@ struct EnvironmentClient {
     var collectionSigningPrivateKey: @Sendable () -> Data?
     var current: @Sendable () -> Environment = { XCTFail("current"); return .development }
     var dbId: @Sendable () -> String?
+    var gitlabApiToken: @Sendable () -> String?
+    var gitlabPipelineToken: @Sendable () -> String?
     var hideStagingBanner: @Sendable () -> Bool = { XCTFail("hideStagingBanner"); return Constants.defaultHideStagingBanner }
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var maintenanceMessage: @Sendable () -> String?
@@ -109,6 +111,8 @@ extension EnvironmentClient: DependencyKey {
             },
             current: { (try? Environment.detect()) ?? .development },
             dbId: { Environment.get("DATABASE_ID") },
+            gitlabApiToken: { Environment.get("GITLAB_API_TOKEN") },
+            gitlabPipelineToken: { Environment.get("GITLAB_PIPELINE_TOKEN") },
             hideStagingBanner: {
                 Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
                     ?? Constants.defaultHideStagingBanner

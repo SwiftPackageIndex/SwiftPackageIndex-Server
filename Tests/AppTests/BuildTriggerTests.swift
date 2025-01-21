@@ -342,10 +342,10 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuildsUnchecked() async throws {
         try await withDependencies {
-            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // setup
@@ -403,11 +403,11 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuildsUnchecked_supported() async throws {
         try await withDependencies {
-            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Explicitly test the full range of all currently triggered platforms and swift versions
@@ -484,10 +484,10 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuildsUnchecked_build_exists() async throws {
         try await withDependencies {
-            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Tests error handling when a build record already exists and `create` raises a
@@ -563,13 +563,13 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuilds_checked() async throws {
         try await withDependencies {
-            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
@@ -689,7 +689,6 @@ class BuildTriggerTests: AppTestCase {
             $0.buildSystem.getStatusCount = { @Sendable c, _ in
                 299 + triggerCount.withLockedValue { $0 }
             }
-            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -697,6 +696,7 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
             $0.environment.buildTriggerLatestSwiftVersionDownscaling = { 1 }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
@@ -743,12 +743,12 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_trimming() async throws {
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
-            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
@@ -783,13 +783,13 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_error() async throws {
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
-            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
@@ -913,12 +913,12 @@ class BuildTriggerTests: AppTestCase {
     func test_override_switch() async throws {
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
-            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
@@ -991,13 +991,13 @@ class BuildTriggerTests: AppTestCase {
     func test_downscaling() async throws {
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
-            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 0.05 } // 5% downscaling rate
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Test build trigger downscaling behaviour
@@ -1069,13 +1069,13 @@ class BuildTriggerTests: AppTestCase {
     func test_downscaling_allow_list_override() async throws {
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
-            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [.id0] }
             $0.environment.buildTriggerDownscaling = { 0.05 } // 5% downscaling rate
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Test build trigger downscaling behaviour for allow-listed packages

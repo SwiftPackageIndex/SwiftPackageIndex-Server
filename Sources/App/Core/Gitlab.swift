@@ -78,11 +78,11 @@ extension Gitlab.Builder {
                              swiftVersion: SwiftVersion,
                              versionID: Version.Id) async throws -> Build.TriggerResponse {
         @Dependency(\.environment) var environment
-        @Dependency(\.buildSystem) var buildSystem
 
-        guard let pipelineToken = buildSystem.gitlabPipelineToken(),
+        guard let pipelineToken = environment.gitlabPipelineToken(),
               let builderToken = environment.builderToken()
         else { throw Gitlab.Error.missingToken }
+
         guard let awsDocsBucket = environment.awsDocsBucket() else {
             throw Gitlab.Error.missingConfiguration("AWS_DOCS_BUCKET")
         }
@@ -158,9 +158,11 @@ extension Gitlab.Builder {
                                status: Status,
                                page: Int,
                                pageSize: Int = 20) async throws -> [Pipeline] {
-        @Dependency(\.buildSystem) var buildSystem
+        @Dependency(\.environment) var environment
+        guard let apiToken = environment.gitlabApiToken() else { throw Gitlab.Error.missingToken }
+
         let uri: URI = .init(string: "\(projectURL)/pipelines?status=\(status)&page=\(page)&per_page=\(pageSize)")
-        let response = try await client.get(uri, headers: .bearer(buildSystem.apiToken()))
+        let response = try await client.get(uri, headers: .bearer(apiToken))
 
         guard response.status == .ok else { throw Gitlab.Error.requestFailed(response.status, uri) }
 

@@ -55,10 +55,10 @@ class GitlabBuilderTests: AppTestCase {
 
     func test_triggerBuild() async throws {
         try await withDependencies {
-            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
             let buildId = UUID()
@@ -104,10 +104,10 @@ class GitlabBuilderTests: AppTestCase {
 
     func test_issue_588() async throws {
         try await withDependencies {
-            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
             var called = false
@@ -137,8 +137,8 @@ class GitlabBuilderTests: AppTestCase {
 
     func test_getStatusCount() async throws {
         try await withDependencies {
-            $0.buildSystem.gitlabPipelineToken = { nil }
-            $0.buildSystem.apiToken = { "api token" }
+            $0.environment.gitlabApiToken = { "api token" }
+//            $0.environment.gitlabPipelineToken = { "pipeline token" }
         } operation: {
             var page = 1
             let client = MockClient { req, res in
@@ -179,16 +179,15 @@ class LiveGitlabBuilderTests: AppTestCase {
 
         try await withDependencies {
             // make sure environment variables are configured for live access
-            $0.buildSystem.gitlabPipelineToken = {
-                // This Gitlab token is required in order to trigger the pipeline
-                ProcessInfo.processInfo.environment["LIVE_GITLAB_PIPELINE_TOKEN"]
-            }
+            $0.environment.awsDocsBucket = { "spi-dev-docs" }
             $0.environment.builderToken = {
                 // Set this to a valid value if you want to report build results back to the server
                 ProcessInfo.processInfo.environment["LIVE_BUILDER_TOKEN"]
             }
-            // make sure environment variables are configured for live access
-            $0.environment.awsDocsBucket = { "spi-dev-docs" }
+            $0.environment.gitlabPipelineToken = {
+                // This Gitlab token is required in order to trigger the pipeline
+                ProcessInfo.processInfo.environment["LIVE_GITLAB_PIPELINE_TOKEN"]
+            }
             $0.environment.siteURL = { "https://staging.swiftpackageindex.com" }
         } operation: {
             // set build branch to trigger on
