@@ -179,6 +179,7 @@ func triggerBuilds(on database: Database,
                    packages: [Package.Id],
                    force: Bool = false) async throws {
     @Dependency(\.environment) var environment
+    @Dependency(\.buildSystem) var buildSystem
 
     guard environment.allowBuildTriggers() else {
         Current.logger().info("Build trigger override switch OFF - no builds are being triggered")
@@ -196,8 +197,9 @@ func triggerBuilds(on database: Database,
         }
     }
 
-    async let pendingJobsTask = Current.getStatusCount(client, .pending)
-    async let runningJobsTask = Current.getStatusCount(client, .running)
+    let getStatusCount = buildSystem.getStatusCount
+    async let pendingJobsTask = getStatusCount(client, .pending)
+    async let runningJobsTask = getStatusCount(client, .running)
     let pendingJobs = try await pendingJobsTask
     let runningJobs = try await runningJobsTask
 

@@ -24,7 +24,6 @@ import FoundationNetworking
 
 struct AppEnvironment: Sendable {
     var fileManager: FileManager
-    var getStatusCount: @Sendable (_ client: Client, _ status: Gitlab.Builder.Status) async throws -> Int
     var git: Git
     var gitlabApiToken: @Sendable () -> String?
     var gitlabPipelineToken: @Sendable () -> String?
@@ -48,13 +47,6 @@ extension AppEnvironment {
 
     static let live = AppEnvironment(
         fileManager: .live,
-        getStatusCount: { client, status in
-            try await Gitlab.Builder.getStatusCount(client: client,
-                                                    status: status,
-                                                    page: 1,
-                                                    pageSize: 100,
-                                                    maxPageCount: 5)
-        },
         git: .live,
         gitlabApiToken: { Environment.get("GITLAB_API_TOKEN") },
         gitlabPipelineToken: { Environment.get("GITLAB_PIPELINE_TOKEN") },

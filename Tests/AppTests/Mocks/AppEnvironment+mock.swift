@@ -23,7 +23,6 @@ extension AppEnvironment {
     static func mock(eventLoop: EventLoop) -> Self {
         .init(
             fileManager: .mock,
-            getStatusCount: { _, _ in 100 },
             git: .mock,
             gitlabApiToken: { nil },
             gitlabPipelineToken: { nil },

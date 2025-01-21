@@ -600,88 +600,98 @@ class BuildTriggerTests: AppTestCase {
             }
 
             do {  // fist run: we are at capacity and should not be triggering more builds
-                Current.getStatusCount = { _, _ in 300 }
+                try await withDependencies {
+                    $0.buildSystem.getStatusCount = { @Sendable _, _ in 300 }
+                } operation: {
+                    let pkgId = UUID()
+                    let versionId = UUID()
+                    let p = Package(id: pkgId, url: "1")
+                    try await p.save(on: app.db)
+                    try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                        .save(on: app.db)
 
-                let pkgId = UUID()
-                let versionId = UUID()
-                let p = Package(id: pkgId, url: "1")
-                try await p.save(on: app.db)
-                try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-                    .save(on: app.db)
+                    // MUT
+                    try await triggerBuilds(on: app.db,
+                                            client: client,
+                                            mode: .packageId(pkgId, force: false))
 
-                // MUT
-                try await triggerBuilds(on: app.db,
-                                        client: client,
-                                        mode: .packageId(pkgId, force: false))
-
-                // validate
-                XCTAssertEqual(triggerCount, 0)
-                // ensure no build stubs have been created either
-                let v = try await Version.find(versionId, on: app.db)
-                try await v?.$builds.load(on: app.db)
-                XCTAssertEqual(v?.builds.count, 0)
+                    // validate
+                    XCTAssertEqual(triggerCount, 0)
+                    // ensure no build stubs have been created either
+                    let v = try await Version.find(versionId, on: app.db)
+                    try await v?.$builds.load(on: app.db)
+                    XCTAssertEqual(v?.builds.count, 0)
+                }
             }
 
             triggerCount = 0
 
             do {  // second run: we are just below capacity and allow more builds to be triggered
-                Current.getStatusCount = { c, _ in 299 }
+                try await withDependencies {
+                    $0.buildSystem.getStatusCount = { @Sendable _, _ in 299 }
+                } operation: {
+                    let pkgId = UUID()
+                    let versionId = UUID()
+                    let p = Package(id: pkgId, url: "2")
+                    try await p.save(on: app.db)
+                    try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                        .save(on: app.db)
 
-                let pkgId = UUID()
-                let versionId = UUID()
-                let p = Package(id: pkgId, url: "2")
-                try await p.save(on: app.db)
-                try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-                    .save(on: app.db)
+                    // MUT
+                    try await triggerBuilds(on: app.db,
+                                            client: client,
+                                            mode: .packageId(pkgId, force: false))
 
-                // MUT
-                try await triggerBuilds(on: app.db,
-                                        client: client,
-                                        mode: .packageId(pkgId, force: false))
-
-                // validate
-                XCTAssertEqual(triggerCount, 27)
-                // ensure builds are now in progress
-                let v = try await Version.find(versionId, on: app.db)
-                try await v?.$builds.load(on: app.db)
-                XCTAssertEqual(v?.builds.count, 27)
+                    // validate
+                    XCTAssertEqual(triggerCount, 27)
+                    // ensure builds are now in progress
+                    let v = try await Version.find(versionId, on: app.db)
+                    try await v?.$builds.load(on: app.db)
+                    XCTAssertEqual(v?.builds.count, 27)
+                }
             }
 
             do {  // third run: we are at capacity and using the `force` flag
-                Current.getStatusCount = { c, _ in 300 }
+                try await withDependencies {
+                    $0.buildSystem.getStatusCount = { @Sendable _, _ in 300 }
+                } operation: {
+                    var triggerCount = 0
+                    let client = MockClient { _, res in
+                        triggerCount += 1
+                        try? res.content.encode(
+                            Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                        )
+                    }
 
-                var triggerCount = 0
-                let client = MockClient { _, res in
-                    triggerCount += 1
-                    try? res.content.encode(
-                        Gitlab.Builder.Response.init(webUrl: "http://web_url")
-                    )
+                    let pkgId = UUID()
+                    let versionId = UUID()
+                    let p = Package(id: pkgId, url: "3")
+                    try await p.save(on: app.db)
+                    try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                        .save(on: app.db)
+
+                    // MUT
+                    try await triggerBuilds(on: app.db,
+                                            client: client,
+                                            mode: .packageId(pkgId, force: true))
+
+                    // validate
+                    XCTAssertEqual(triggerCount, 27)
+                    // ensure builds are now in progress
+                    let v = try await Version.find(versionId, on: app.db)
+                    try await v?.$builds.load(on: app.db)
+                    XCTAssertEqual(v?.builds.count, 27)
                 }
-
-                let pkgId = UUID()
-                let versionId = UUID()
-                let p = Package(id: pkgId, url: "3")
-                try await p.save(on: app.db)
-                try await Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-                    .save(on: app.db)
-
-                // MUT
-                try await triggerBuilds(on: app.db,
-                                        client: client,
-                                        mode: .packageId(pkgId, force: true))
-
-                // validate
-                XCTAssertEqual(triggerCount, 27)
-                // ensure builds are now in progress
-                let v = try await Version.find(versionId, on: app.db)
-                try await v?.$builds.load(on: app.db)
-                XCTAssertEqual(v?.builds.count, 27)
             }
         }
     }
 
     func test_triggerBuilds_multiplePackages() async throws {
+        let triggerCount = NIOLockedValueBox<Int>(0)
         try await withDependencies {
+            $0.buildSystem.getStatusCount = { @Sendable c, _ in
+                299 + triggerCount.withLockedValue { $0 }
+            }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -708,14 +718,12 @@ class BuildTriggerTests: AppTestCase {
                                                       swiftVersion: swiftVersion,
                                                       versionID: versionID)
             }
-            let triggerCount = NIOLockedValueBox<Int>(0)
             let client = MockClient { _, res in
                 triggerCount.withLockedValue { $0 += 1 }
                 try? res.content.encode(
                     Gitlab.Builder.Response.init(webUrl: "http://web_url")
                 )
             }
-            Current.getStatusCount = { c, _ in 299 + triggerCount.withLockedValue { $0 } }
 
             let pkgIds = [UUID(), UUID()]
             for id in pkgIds {
@@ -737,6 +745,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuilds_trimming() async throws {
         try await withDependencies {
+            $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -776,6 +785,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuilds_error() async throws {
         try await withDependencies {
+            $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -905,6 +915,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_override_switch() async throws {
         try await withDependencies {
+            $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
@@ -982,6 +993,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_downscaling() async throws {
         try await withDependencies {
+            $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -1059,6 +1071,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_downscaling_allow_list_override() async throws {
         try await withDependencies {
+            $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
