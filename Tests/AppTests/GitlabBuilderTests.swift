@@ -138,10 +138,10 @@ class GitlabBuilderTests: AppTestCase {
 
     func test_getStatusCount() async throws {
         try await withDependencies {
-            $0.buildSystem.gitlabApiToken = { "api token" }
+            $0.buildSystem.apiToken = { "api token" }
         } operation: {
             Current.gitlabPipelineToken = { nil }
-            
+
             var page = 1
             let client = MockClient { req, res in
                 XCTAssertEqual(req.url.string, "https://gitlab.com/api/v4/projects/19564054/pipelines?status=pending&page=\(page)&per_page=20")
@@ -159,7 +159,7 @@ class GitlabBuilderTests: AppTestCase {
                 }
                 page += 1
             }
-            
+
             let res = try await Gitlab.Builder.getStatusCount(client: client,
                                                               status: .pending,
                                                               pageSize: 20,

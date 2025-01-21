@@ -158,10 +158,8 @@ extension Gitlab.Builder {
                                page: Int,
                                pageSize: Int = 20) async throws -> [Pipeline] {
         @Dependency(\.buildSystem) var buildSystem
-        guard let apiToken = buildSystem.gitlabApiToken() else { throw Gitlab.Error.missingToken }
-
         let uri: URI = .init(string: "\(projectURL)/pipelines?status=\(status)&page=\(page)&per_page=\(pageSize)")
-        let response = try await client.get(uri, headers: HTTPHeaders([("Authorization", "Bearer \(apiToken)")]))
+        let response = try await client.get(uri, headers: .bearer(buildSystem.apiToken()))
 
         guard response.status == .ok else { throw Gitlab.Error.requestFailed(response.status, uri) }
 
@@ -198,3 +196,12 @@ private extension DateFormatter {
         return formatter
     }
 }
+
+
+private extension HTTPHeaders {
+    static func bearer(_ token: String) -> Self {
+        .init([("Authorization", "Bearer \(token)")])
+    }
+}
+
+
