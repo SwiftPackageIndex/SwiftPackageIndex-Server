@@ -20,13 +20,13 @@ import Vapor
 @DependencyClient
 struct S3Client {
 #warning("drop client parameter")
-    var fetchS3Readme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> String
+    var fetchReadme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> String
 }
 
 extension S3Client: DependencyKey {
     static var liveValue: Self {
         .init(
-            fetchS3Readme: { client, owner, repo in
+            fetchReadme: { client, owner, repo in
                 try await S3Readme.fetchReadme(client:client, owner: owner, repository: repo)
             }
         )
@@ -38,7 +38,7 @@ extension S3Client: TestDependencyKey {
 }
 
 extension DependencyValues {
-    var s3Client: S3Client {
+    var s3: S3Client {
         get { self[S3Client.self] }
         set { self[S3Client.self] = newValue }
     }
