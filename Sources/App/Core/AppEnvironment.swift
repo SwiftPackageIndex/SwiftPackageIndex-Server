@@ -32,9 +32,6 @@ struct AppEnvironment: Sendable {
     var logger: @Sendable () -> Logger
     var setLogger: @Sendable (Logger) -> Void
     var shell: Shell
-    var storeS3Readme: @Sendable (_ owner: String,
-                                  _ repository: String,
-                                  _ readme: String) async throws(S3Readme.Error) -> String
     var storeS3ReadmeImages: @Sendable (_ client: Client,
                                         _ imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) -> Void
     var triggerBuild: @Sendable (_ client: Client,
@@ -70,9 +67,6 @@ extension AppEnvironment {
         logger: { logger },
         setLogger: { logger in Self.logger = logger },
         shell: .live,
-        storeS3Readme: { owner, repo, readme throws(S3Readme.Error) in
-            try await S3Readme.storeReadme(owner: owner, repository: repo, readme: readme)
-        },
         storeS3ReadmeImages: { client, images throws(S3Readme.Error) in
             try await S3Readme.storeReadmeImages(client: client, imagesToCache: images)
         },

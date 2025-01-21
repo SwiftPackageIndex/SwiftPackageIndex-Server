@@ -240,12 +240,13 @@ enum Ingestion {
 
 
     static func storeS3Readme(client: Client, repository: Repository, metadata: Github.Metadata, readme: Github.Readme?) async throws(S3Readme.Error) -> S3Readme? {
+        @Dependency(\.s3) var s3
         if let upstreamEtag = readme?.etag,
            repository.s3Readme?.needsUpdate(upstreamEtag: upstreamEtag) ?? true,
            let owner = metadata.repositoryOwner,
            let repository = metadata.repositoryName,
            let html = readme?.html {
-            let objectUrl = try await Current.storeS3Readme(owner, repository, html)
+            let objectUrl = try await s3.storeS3Readme(owner, repository, html)
             if let imagesToCache = readme?.imagesToCache, imagesToCache.isEmpty == false {
                 try await Current.storeS3ReadmeImages(client, imagesToCache)
             }
