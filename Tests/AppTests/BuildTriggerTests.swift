@@ -342,14 +342,13 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuildsUnchecked() async throws {
         try await withDependencies {
+            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // setup
-            Current.gitlabPipelineToken = { "pipeline token" }
-
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
             Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
@@ -404,6 +403,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuildsUnchecked_supported() async throws {
         try await withDependencies {
+            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
@@ -412,8 +412,6 @@ class BuildTriggerTests: AppTestCase {
         } operation: {
             // Explicitly test the full range of all currently triggered platforms and swift versions
             // setup
-            Current.gitlabPipelineToken = { "pipeline token" }
-
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
             Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
@@ -486,6 +484,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuildsUnchecked_build_exists() async throws {
         try await withDependencies {
+            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
@@ -502,8 +501,6 @@ class BuildTriggerTests: AppTestCase {
             // being completely ignored because the command errors out.
             // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2237
             // setup
-            Current.gitlabPipelineToken = { "pipeline token" }
-
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
             Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
@@ -566,6 +563,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuilds_checked() async throws {
         try await withDependencies {
+            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -577,7 +575,6 @@ class BuildTriggerTests: AppTestCase {
         } operation: {
             // Ensure we respect the pipeline limit when triggering builds
             // setup
-            Current.gitlabPipelineToken = { "pipeline token" }
             Current.gitlabPipelineLimit = { 300 }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
@@ -692,6 +689,7 @@ class BuildTriggerTests: AppTestCase {
             $0.buildSystem.getStatusCount = { @Sendable c, _ in
                 299 + triggerCount.withLockedValue { $0 }
             }
+            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -704,7 +702,6 @@ class BuildTriggerTests: AppTestCase {
         } operation: {
             // Ensure we respect the pipeline limit when triggering builds for multiple package ids
             // setup
-            Current.gitlabPipelineToken = { "pipeline token" }
             Current.gitlabPipelineLimit = { 300 }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
@@ -746,6 +743,7 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_trimming() async throws {
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
+            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -756,7 +754,6 @@ class BuildTriggerTests: AppTestCase {
         } operation: {
             // Ensure we trim builds as part of triggering
             // setup
-            Current.gitlabPipelineToken = { "pipeline token" }
             Current.gitlabPipelineLimit = { 300 }
 
             let client = MockClient { _, _ in }
@@ -786,6 +783,7 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_error() async throws {
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
+            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -797,7 +795,6 @@ class BuildTriggerTests: AppTestCase {
         } operation: {
             // Ensure we trim builds as part of triggering
             // setup
-            Current.gitlabPipelineToken = { "pipeline token" }
             Current.gitlabPipelineLimit = { 300 }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
@@ -916,6 +913,7 @@ class BuildTriggerTests: AppTestCase {
     func test_override_switch() async throws {
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
+            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
@@ -926,7 +924,6 @@ class BuildTriggerTests: AppTestCase {
         } operation: {
             // Ensure don't trigger if the override is off
             // setup
-            Current.gitlabPipelineToken = { "pipeline token" }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
             Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
@@ -994,6 +991,7 @@ class BuildTriggerTests: AppTestCase {
     func test_downscaling() async throws {
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
+            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -1004,7 +1002,6 @@ class BuildTriggerTests: AppTestCase {
         } operation: {
             // Test build trigger downscaling behaviour
             // setup
-            Current.gitlabPipelineToken = { "pipeline token" }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
             Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
@@ -1072,6 +1069,7 @@ class BuildTriggerTests: AppTestCase {
     func test_downscaling_allow_list_override() async throws {
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
+            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -1082,7 +1080,6 @@ class BuildTriggerTests: AppTestCase {
         } operation: {
             // Test build trigger downscaling behaviour for allow-listed packages
             // setup
-            Current.gitlabPipelineToken = { "pipeline token" }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
             Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in

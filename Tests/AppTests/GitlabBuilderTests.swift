@@ -55,12 +55,12 @@ class GitlabBuilderTests: AppTestCase {
 
     func test_triggerBuild() async throws {
         try await withDependencies {
+            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
-            Current.gitlabPipelineToken = { "pipeline token" }
             let buildId = UUID()
             let versionID = UUID()
 
@@ -104,13 +104,12 @@ class GitlabBuilderTests: AppTestCase {
 
     func test_issue_588() async throws {
         try await withDependencies {
+            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
-            Current.gitlabPipelineToken = { "pipeline token" }
-
             var called = false
             let client = MockClient { req, res in
                 called = true
@@ -138,10 +137,9 @@ class GitlabBuilderTests: AppTestCase {
 
     func test_getStatusCount() async throws {
         try await withDependencies {
+            $0.buildSystem.gitlabPipelineToken = { nil }
             $0.buildSystem.apiToken = { "api token" }
         } operation: {
-            Current.gitlabPipelineToken = { nil }
-
             var page = 1
             let client = MockClient { req, res in
                 XCTAssertEqual(req.url.string, "https://gitlab.com/api/v4/projects/19564054/pipelines?status=pending&page=\(page)&per_page=20")
@@ -180,6 +178,11 @@ class LiveGitlabBuilderTests: AppTestCase {
         )
 
         try await withDependencies {
+            // make sure environment variables are configured for live access
+            $0.buildSystem.gitlabPipelineToken = {
+                // This Gitlab token is required in order to trigger the pipeline
+                ProcessInfo.processInfo.environment["LIVE_GITLAB_PIPELINE_TOKEN"]
+            }
             $0.environment.builderToken = {
                 // Set this to a valid value if you want to report build results back to the server
                 ProcessInfo.processInfo.environment["LIVE_BUILDER_TOKEN"]
@@ -190,12 +193,6 @@ class LiveGitlabBuilderTests: AppTestCase {
         } operation: {
             // set build branch to trigger on
             Gitlab.Builder.branch = "main"
-
-            // make sure environment variables are configured for live access
-            Current.gitlabPipelineToken = {
-                // This Gitlab token is required in order to trigger the pipeline
-                ProcessInfo.processInfo.environment["LIVE_GITLAB_PIPELINE_TOKEN"]
-            }
 
             let buildId = UUID()
 

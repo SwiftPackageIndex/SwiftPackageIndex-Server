@@ -22,6 +22,7 @@ struct BuildSystemClient {
     var apiToken: @Sendable () throws -> String
 #warning("remove client")
     var getStatusCount: @Sendable (_ client: Client, _ status: Gitlab.Builder.Status) async throws -> Int
+    var gitlabPipelineToken: @Sendable () -> String?
 }
 
 
@@ -37,7 +38,8 @@ extension BuildSystemClient: DependencyKey {
                                                         page: 1,
                                                         pageSize: 100,
                                                         maxPageCount: 5)
-            }
+            },
+            gitlabPipelineToken: { Environment.get("GITLAB_PIPELINE_TOKEN") }
         )
     }
 }

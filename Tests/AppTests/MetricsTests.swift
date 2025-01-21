@@ -23,10 +23,10 @@ class MetricsTests: AppTestCase {
 
     func test_basic() async throws {
         try await withDependencies {
+            $0.buildSystem.gitlabPipelineToken = { "pipeline token" }
             $0.environment.builderToken = { "builder token" }
         } operation: {
             // setup - trigger build to increment counter
-            Current.gitlabPipelineToken = { "pipeline token" }
             let versionId = UUID()
             do {  // save minimal package + version
                 let p = Package(id: UUID(), url: "1")

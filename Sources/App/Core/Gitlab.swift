@@ -78,8 +78,9 @@ extension Gitlab.Builder {
                              swiftVersion: SwiftVersion,
                              versionID: Version.Id) async throws -> Build.TriggerResponse {
         @Dependency(\.environment) var environment
+        @Dependency(\.buildSystem) var buildSystem
 
-        guard let pipelineToken = Current.gitlabPipelineToken(),
+        guard let pipelineToken = buildSystem.gitlabPipelineToken(),
               let builderToken = environment.builderToken()
         else { throw Gitlab.Error.missingToken }
         guard let awsDocsBucket = environment.awsDocsBucket() else {
