@@ -21,8 +21,7 @@ import Vapor
 // https://github.com/pointfreeco/swift-dependencies/discussions/324
 //@DependencyClient
 struct S3Client {
-#warning("drop client parameter")
-    var fetchReadme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> String
+    var fetchReadme: @Sendable (_ owner: String, _ repository: String) async throws -> String
     var storeReadme: @Sendable (_ owner: String, _ repository: String, _ readme: String) async throws(S3Readme.Error) -> String = { _, _, _ in
         reportIssue("storeS3Readme"); return ""
     }
@@ -30,11 +29,12 @@ struct S3Client {
     var storeReadmeImages: @Sendable (_ client: Client, _ imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) -> Void
 }
 
+
 extension S3Client: DependencyKey {
     static var liveValue: Self {
         .init(
-            fetchReadme: { client, owner, repo in
-                try await S3Readme.fetchReadme(client:client, owner: owner, repository: repo)
+            fetchReadme: { owner, repo in
+                try await S3Readme.fetchReadme(owner: owner, repository: repo)
             },
             storeReadme: { owner, repo, readme throws(S3Readme.Error) in
                 try await S3Readme.storeReadme(owner: owner, repository: repo, readme: readme)
@@ -46,15 +46,17 @@ extension S3Client: DependencyKey {
     }
 }
 
+
 extension S3Client: TestDependencyKey {
     static var testValue: Self {
         .init(
-            fetchReadme: { _, _, _ in unimplemented(); return "" },
+            fetchReadme: { _, _ in unimplemented(); return "" },
             storeReadme: { _, _, _ in unimplemented("storeS3Readme"); return "" },
             storeReadmeImages: { _, _ throws(S3Readme.Error) in unimplemented("storeS3ReadmeImages") }
         )
     }
 }
+
 
 extension DependencyValues {
     var s3: S3Client {

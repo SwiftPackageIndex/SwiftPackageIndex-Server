@@ -307,7 +307,7 @@ enum PackageController {
 
         do {
             @Dependency(\.s3) var s3
-            let readme = try await s3.fetchReadme(req.client, owner, repository)
+            let readme = try await s3.fetchReadme(owner, repository)
             guard let branch = pkg.repository?.defaultBranch else {
                 return PackageReadme.View(model: .cacheLookupFailed(url: readmeHtmlUrl)).document()
             }

@@ -27,11 +27,12 @@ extension S3Readme {
         case storeImagesFailed
     }
 
-    static func fetchReadme(client: Client, owner: String, repository: String) async throws(S3Readme.Error) -> String {
+    static func fetchReadme(owner: String, repository: String) async throws(S3Readme.Error) -> String {
         let key = try S3Store.Key.readme(owner: owner, repository: repository)
-        let response: ClientResponse
+        @Dependency(\.httpClient) var httpClient
+        let response: HTTPClient.Response
         do {
-            response = try await client.get(URI(string: key.objectUrl))
+            response = try await httpClient.get(url: key.objectUrl)
         } catch {
             throw .requestFailed(key: key, error: error)
         }

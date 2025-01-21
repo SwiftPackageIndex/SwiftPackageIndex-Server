@@ -168,7 +168,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_readme_basic() async throws {
         // Test readme fragment happy path
         try await withDependencies {
-            $0.s3.fetchReadme = { @Sendable _, _, _ in
+            $0.s3.fetchReadme = { @Sendable _, _ in
                 #"<div id="readme"><article>readme content</article></div>"#
             }
         } operation: {
@@ -195,7 +195,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_readme_no_readmeHtmlUrl() async throws {
         // Test readme fragment when there's no readme html url
         try await withDependencies {
-            $0.s3.fetchReadme = { @Sendable _, _, _ in
+            $0.s3.fetchReadme = { @Sendable _, _ in
                 XCTFail("must not be called")
                 return ""
             }
@@ -225,7 +225,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_readme_error() async throws {
         // Test readme fragment when fetchS3Readme throws
         try await withDependencies {
-            $0.s3.fetchReadme = { @Sendable _, _, _ in
+            $0.s3.fetchReadme = { @Sendable _, _ in
                 struct Error: Swift.Error { }
                 throw Error()
             }
