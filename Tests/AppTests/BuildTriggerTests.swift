@@ -569,6 +569,7 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.gitlabPipelineLimit = { 300 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
@@ -587,7 +588,6 @@ class BuildTriggerTests: AppTestCase {
         } operation: {
             // Ensure we respect the pipeline limit when triggering builds
             // setup
-            Current.gitlabPipelineLimit = { 300 }
             var triggerCount = 0
             let client = MockClient { _, res in
                 triggerCount += 1
@@ -696,6 +696,7 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
             $0.environment.buildTriggerLatestSwiftVersionDownscaling = { 1 }
+            $0.environment.gitlabPipelineLimit = { 300 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
@@ -714,7 +715,6 @@ class BuildTriggerTests: AppTestCase {
         } operation: {
             // Ensure we respect the pipeline limit when triggering builds for multiple package ids
             // setup
-            Current.gitlabPipelineLimit = { 300 }
             let client = MockClient { _, res in
                 triggerCount.withLockedValue { $0 += 1 }
                 try? res.content.encode(
@@ -748,13 +748,13 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.gitlabPipelineLimit = { 300 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
         } operation: {
             // Ensure we trim builds as part of triggering
             // setup
-            Current.gitlabPipelineLimit = { 300 }
 
             let client = MockClient { _, _ in }
 
@@ -789,6 +789,7 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.gitlabPipelineLimit = { 300 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
@@ -807,7 +808,6 @@ class BuildTriggerTests: AppTestCase {
         } operation: {
             // Ensure we trim builds as part of triggering
             // setup
-            Current.gitlabPipelineLimit = { 300 }
             var triggerCount = 0
             let client = MockClient { _, res in
                 // let the 5th trigger succeed to ensure we don't early out on errors
@@ -918,6 +918,7 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 1 }
+            $0.environment.gitlabPipelineLimit = { Constants.defaultGitlabPipelineLimit }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
@@ -997,6 +998,7 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.buildTriggerDownscaling = { 0.05 } // 5% downscaling rate
+            $0.environment.gitlabPipelineLimit = { Constants.defaultGitlabPipelineLimit }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
             // Use live dependency but replace actual client with a mock so we can
@@ -1075,6 +1077,7 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.buildTriggerAllowList = { [.id0] }
             $0.environment.buildTriggerDownscaling = { 0.05 } // 5% downscaling rate
+            $0.environment.gitlabPipelineLimit = { Constants.defaultGitlabPipelineLimit }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
             // Use live dependency but replace actual client with a mock so we can

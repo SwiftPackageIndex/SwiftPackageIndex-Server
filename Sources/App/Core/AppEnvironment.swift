@@ -25,7 +25,6 @@ import FoundationNetworking
 struct AppEnvironment: Sendable {
     var fileManager: FileManager
     var git: Git
-    var gitlabPipelineLimit: @Sendable () -> Int
     var logger: @Sendable () -> Logger
     var setLogger: @Sendable (Logger) -> Void
     var shell: Shell
@@ -38,10 +37,6 @@ extension AppEnvironment {
     static let live = AppEnvironment(
         fileManager: .live,
         git: .live,
-        gitlabPipelineLimit: {
-            Environment.get("GITLAB_PIPELINE_LIMIT").flatMap(Int.init)
-            ?? Constants.defaultGitlabPipelineLimit
-        },
         logger: { logger },
         setLogger: { logger in Self.logger = logger },
         shell: .live

@@ -207,6 +207,7 @@ func triggerBuilds(on database: Database,
     AppMetrics.buildRunningJobsCount?.set(runningJobs)
 
     let newJobs = ActorIsolated(0)
+    let gitlabPipelineLimit = environment.gitlabPipelineLimit
 
     await withThrowingTaskGroup(of: Void.self) { group in
         for pkgId in packages {
@@ -219,7 +220,7 @@ func triggerBuilds(on database: Database,
             group.addTask {
                 // check if we have capacity to schedule more builds before querying for builds
                 var newJobCount = await newJobs.value
-                guard pendingJobs + newJobCount < Current.gitlabPipelineLimit() else {
+                guard pendingJobs + newJobCount < gitlabPipelineLimit() else {
                     Current.logger().info("too many pending pipelines (\(pendingJobs + newJobCount))")
                     return
                 }
@@ -228,7 +229,7 @@ func triggerBuilds(on database: Database,
                 let triggers = try await findMissingBuilds(database, packageId: pkgId)
 
                 newJobCount = await newJobs.value
-                guard pendingJobs + newJobCount < Current.gitlabPipelineLimit() else {
+                guard pendingJobs + newJobCount < gitlabPipelineLimit() else {
                     Current.logger().info("too many pending pipelines (\(pendingJobs + newJobCount))")
                     return
                 }

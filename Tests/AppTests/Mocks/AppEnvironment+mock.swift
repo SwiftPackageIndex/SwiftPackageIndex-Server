@@ -24,7 +24,6 @@ extension AppEnvironment {
         .init(
             fileManager: .mock,
             git: .mock,
-            gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
             logger: { logger },
             setLogger: { logger in Self.logger = logger },
             shell: .mock
