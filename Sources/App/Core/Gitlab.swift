@@ -70,8 +70,7 @@ extension Gitlab.Builder {
         }
     }
 
-    static func triggerBuild(client: Client,
-                             buildId: Build.Id,
+    static func triggerBuild(buildId: Build.Id,
                              cloneURL: String,
                              isDocBuild: Bool,
                              platform: Build.Platform,
@@ -79,6 +78,7 @@ extension Gitlab.Builder {
                              swiftVersion: SwiftVersion,
                              versionID: Version.Id) async throws -> Build.TriggerResponse {
         @Dependency(\.environment) var environment
+        @Dependency(\.httpClient) var httpClient
 
         guard let pipelineToken = environment.gitlabPipelineToken(),
               let builderToken = environment.builderToken()
@@ -89,31 +89,29 @@ extension Gitlab.Builder {
         }
         let timeout = environment.buildTimeout() + (isDocBuild ? 5 : 0)
 
-        let uri: URI = .init(string: "\(projectURL)/trigger/pipeline")
-        let response = try await client
-            .post(uri) { req in
-                let data = PostDTO(
-                    token: pipelineToken,
-                    ref: branch,
-                    variables: [
-                        "API_BASEURL": SiteURL.apiBaseURL,
-                        "AWS_DOCS_BUCKET": awsDocsBucket,
-                        "BUILD_ID": buildId.uuidString,
-                        "BUILD_PLATFORM": platform.rawValue,
-                        "BUILDER_TOKEN": builderToken,
-                        "CLONE_URL": cloneURL,
-                        "REFERENCE": "\(reference)",
-                        "SWIFT_VERSION": "\(swiftVersion.major).\(swiftVersion.minor)",
-                        "TIMEOUT": "\(timeout)m",
-                        "VERSION_ID": versionID.uuidString
-                    ])
-                try req.query.encode(data)
-            }
+        let dto = PostDTO(
+            token: pipelineToken,
+            ref: branch,
+            variables: [
+                "API_BASEURL": SiteURL.apiBaseURL,
+                "AWS_DOCS_BUCKET": awsDocsBucket,
+                "BUILD_ID": buildId.uuidString,
+                "BUILD_PLATFORM": platform.rawValue,
+                "BUILDER_TOKEN": builderToken,
+                "CLONE_URL": cloneURL,
+                "REFERENCE": "\(reference)",
+                "SWIFT_VERSION": "\(swiftVersion.major).\(swiftVersion.minor)",
+                "TIMEOUT": "\(timeout)m",
+                "VERSION_ID": versionID.uuidString
+            ]
+        )
+        let body = try JSONEncoder().encode(dto)
+        let response = try await httpClient.post(url: "\(projectURL)/trigger/pipeline", body: body)
+
         do {
-            let res = Build.TriggerResponse(
-                status: response.status,
-                webUrl: try response.content.decode(Response.self).webUrl
-            )
+            guard let body = response.body else { throw Gitlab.Error.noBody }
+            let webUrl = try JSONDecoder().decode(Response.self, from: body).webUrl
+            let res = Build.TriggerResponse(status: response.status, webUrl: webUrl)
             Current.logger().info("Triggered build: \(res.webUrl)")
             return res
         } catch {

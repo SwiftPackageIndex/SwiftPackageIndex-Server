@@ -137,9 +137,8 @@ class BuildTests: AppTestCase {
             $0.environment.siteURL = { "http://example.com" }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            $0.buildSystem.triggerBuild = { @Sendable client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(client: client,
-                                                      buildId: buildId,
+            $0.buildSystem.triggerBuild = { @Sendable buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(buildId: buildId,
                                                       cloneURL: cloneURL,
                                                       isDocBuild: isDocBuild,
                                                       platform: platform,
@@ -205,9 +204,8 @@ class BuildTests: AppTestCase {
             $0.environment.siteURL = { "http://example.com" }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            $0.buildSystem.triggerBuild = { @Sendable client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(client: client,
-                                                      buildId: buildId,
+            $0.buildSystem.triggerBuild = { @Sendable buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(buildId: buildId,
                                                       cloneURL: cloneURL,
                                                       isDocBuild: isDocBuild,
                                                       platform: platform,

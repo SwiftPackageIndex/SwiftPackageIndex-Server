@@ -174,6 +174,7 @@ extension Build {
         var webUrl: String?
     }
 
+#warning("remove client")
     static func trigger(database: Database,
                         client: Client,
                         buildId: Build.Id,
@@ -189,8 +190,7 @@ extension Build {
             .unwrap(or: Abort(.notFound))
 
         @Dependency(\.buildSystem) var buildSystem
-        return try await buildSystem.triggerBuild(client,
-                                                  buildId,
+        return try await buildSystem.triggerBuild(buildId,
                                                   version.package.url,
                                                   isDocBuild,
                                                   platform,

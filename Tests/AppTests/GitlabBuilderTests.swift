@@ -90,8 +90,7 @@ class GitlabBuilderTests: AppTestCase {
             }
 
             // MUT
-            _ = try await Gitlab.Builder.triggerBuild(client: client,
-                                                      buildId: buildId,
+            _ = try await Gitlab.Builder.triggerBuild(buildId: buildId,
                                                       cloneURL: "https://github.com/daveverwer/LeftPad.git",
                                                       isDocBuild: false,
                                                       platform: .macosSpm,
@@ -123,8 +122,7 @@ class GitlabBuilderTests: AppTestCase {
             }
 
             // MUT
-            _ = try await Gitlab.Builder.triggerBuild(client: client,
-                                                      buildId: .id0,
+            _ = try await Gitlab.Builder.triggerBuild(buildId: .id0,
                                                       cloneURL: "https://github.com/daveverwer/LeftPad.git",
                                                       isDocBuild: false,
                                                       platform: .macosSpm,
@@ -199,7 +197,6 @@ class LiveGitlabBuilderTests: AppTestCase {
 
             // MUT
             let res = try await Gitlab.Builder.triggerBuild(
-                client: app.client,
                 buildId: buildId,
                 cloneURL: "https://github.com/SwiftPackageIndex/SemanticVersion.git",
                 isDocBuild: false,

@@ -14,15 +14,12 @@
 
 import Dependencies
 import DependenciesMacros
-import Vapor
 
 
 @DependencyClient
 struct BuildSystemClient {
     var getStatusCount: @Sendable (_ status: Gitlab.Builder.Status) async throws -> Int
-#warning("remove client")
-    var triggerBuild: @Sendable (_ client: Client,
-                                 _ buildId: Build.Id,
+    var triggerBuild: @Sendable (_ buildId: Build.Id,
                                  _ cloneURL: String,
                                  _ isDocBuild: Bool,
                                  _ platform: Build.Platform,
@@ -41,9 +38,8 @@ extension BuildSystemClient: DependencyKey {
                                                         pageSize: 100,
                                                         maxPageCount: 5)
             },
-            triggerBuild: { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(client: client,
-                                                      buildId: buildId,
+            triggerBuild: { buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(buildId: buildId,
                                                       cloneURL: cloneURL,
                                                       isDocBuild: isDocBuild,
                                                       platform: platform,
