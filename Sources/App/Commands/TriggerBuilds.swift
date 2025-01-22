@@ -174,6 +174,7 @@ func triggerBuilds(on database: Database,
 ///   - client: `Client` used for http request
 ///   - packages: list of `Package.Id`s to trigger
 ///   - force: do not check pipeline capacity and ignore downscaling
+#warning("remove client")
 func triggerBuilds(on database: Database,
                    client: Client,
                    packages: [Package.Id],
@@ -198,8 +199,8 @@ func triggerBuilds(on database: Database,
     }
 
     let getStatusCount = buildSystem.getStatusCount
-    async let pendingJobsTask = getStatusCount(client, .pending)
-    async let runningJobsTask = getStatusCount(client, .running)
+    async let pendingJobsTask = getStatusCount(.pending)
+    async let runningJobsTask = getStatusCount(.running)
     let pendingJobs = try await pendingJobsTask
     let runningJobs = try await runningJobsTask
 

@@ -19,8 +19,7 @@ import Vapor
 
 @DependencyClient
 struct BuildSystemClient {
-#warning("remove client")
-    var getStatusCount: @Sendable (_ client: Client, _ status: Gitlab.Builder.Status) async throws -> Int
+    var getStatusCount: @Sendable (_ status: Gitlab.Builder.Status) async throws -> Int
 #warning("remove client")
     var triggerBuild: @Sendable (_ client: Client,
                                  _ buildId: Build.Id,
@@ -36,9 +35,8 @@ struct BuildSystemClient {
 extension BuildSystemClient: DependencyKey {
     static var liveValue: Self {
         .init(
-            getStatusCount: { client, status in
-                try await Gitlab.Builder.getStatusCount(client: client,
-                                                        status: status,
+            getStatusCount: { status in
+                try await Gitlab.Builder.getStatusCount(status: status,
                                                         page: 1,
                                                         pageSize: 100,
                                                         maxPageCount: 5)

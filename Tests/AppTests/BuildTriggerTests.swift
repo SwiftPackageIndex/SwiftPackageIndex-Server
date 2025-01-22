@@ -598,7 +598,7 @@ class BuildTriggerTests: AppTestCase {
 
             do {  // fist run: we are at capacity and should not be triggering more builds
                 try await withDependencies {
-                    $0.buildSystem.getStatusCount = { @Sendable _, _ in 300 }
+                    $0.buildSystem.getStatusCount = { @Sendable _ in 300 }
                 } operation: {
                     let pkgId = UUID()
                     let versionId = UUID()
@@ -625,7 +625,7 @@ class BuildTriggerTests: AppTestCase {
 
             do {  // second run: we are just below capacity and allow more builds to be triggered
                 try await withDependencies {
-                    $0.buildSystem.getStatusCount = { @Sendable _, _ in 299 }
+                    $0.buildSystem.getStatusCount = { @Sendable _ in 299 }
                 } operation: {
                     let pkgId = UUID()
                     let versionId = UUID()
@@ -650,7 +650,7 @@ class BuildTriggerTests: AppTestCase {
 
             do {  // third run: we are at capacity and using the `force` flag
                 try await withDependencies {
-                    $0.buildSystem.getStatusCount = { @Sendable _, _ in 300 }
+                    $0.buildSystem.getStatusCount = { @Sendable _ in 300 }
                 } operation: {
                     var triggerCount = 0
                     let client = MockClient { _, res in
@@ -686,7 +686,7 @@ class BuildTriggerTests: AppTestCase {
     func test_triggerBuilds_multiplePackages() async throws {
         let triggerCount = NIOLockedValueBox<Int>(0)
         try await withDependencies {
-            $0.buildSystem.getStatusCount = { @Sendable c, _ in
+            $0.buildSystem.getStatusCount = { @Sendable _ in
                 299 + triggerCount.withLockedValue { $0 }
             }
             $0.environment.allowBuildTriggers = { true }
@@ -742,7 +742,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuilds_trimming() async throws {
         try await withDependencies {
-            $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
+            $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -782,7 +782,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_triggerBuilds_error() async throws {
         try await withDependencies {
-            $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
+            $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -912,7 +912,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_override_switch() async throws {
         try await withDependencies {
-            $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
+            $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
@@ -991,7 +991,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_downscaling() async throws {
         try await withDependencies {
-            $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
+            $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -1070,7 +1070,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_downscaling_allow_list_override() async throws {
         try await withDependencies {
-            $0.buildSystem.getStatusCount = { @Sendable _, _ in 100 }
+            $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }

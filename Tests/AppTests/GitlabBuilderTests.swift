@@ -136,29 +136,28 @@ class GitlabBuilderTests: AppTestCase {
     }
 
     func test_getStatusCount() async throws {
+        let page = QueueIsolated(1)
         try await withDependencies {
             $0.environment.gitlabApiToken = { "api token" }
-        } operation: {
-            var page = 1
-            let client = MockClient { req, res in
-                XCTAssertEqual(req.url.string, "https://gitlab.com/api/v4/projects/19564054/pipelines?status=pending&page=\(page)&per_page=20")
-                res.status = .ok
+            $0.httpClient.get = { @Sendable url, _ in
+                XCTAssertEqual(
+                    url,
+                    "https://gitlab.com/api/v4/projects/19564054/pipelines?status=pending&page=\(page.value)&per_page=20"
+                )
                 let pending = #"{"id": 1, "status": "pending"}"#
-                switch page {
-                    case 1:
-                        let list = Array(repeating: pending, count: 20).joined(separator: ", ")
-                        res.body = makeBody("[\(list)]")
-                    case 2:
-                        let list = Array(repeating: pending, count: 10).joined(separator: ", ")
-                        res.body = makeBody("[\(list)]")
+                defer { page.increment() }
+                let elementsPerPage = switch page.value {
+                    case 1: 20
+                    case 2: 10
                     default:
                         XCTFail("unexpected page: \(page)")
+                        throw Abort(.badRequest)
                 }
-                page += 1
+                let list = Array(repeating: pending, count: elementsPerPage).joined(separator: ", ")
+                return .ok(body: "[\(list)]")
             }
-
-            let res = try await Gitlab.Builder.getStatusCount(client: client,
-                                                              status: .pending,
+        } operation: {
+            let res = try await Gitlab.Builder.getStatusCount(status: .pending,
                                                               pageSize: 20,
                                                               maxPageCount: 3)
             XCTAssertEqual(res, 30)
