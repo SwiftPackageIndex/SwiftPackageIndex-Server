@@ -27,8 +27,7 @@ extension AppEnvironment {
             gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
             logger: { logger },
             setLogger: { logger in Self.logger = logger },
-            shell: .mock,
-            triggerBuild: { _, _, _, _, _, _, _, _ in .init(status: .ok, webUrl: "http://web_url") }
+            shell: .mock
         )
     }
 }

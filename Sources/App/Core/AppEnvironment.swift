@@ -29,14 +29,6 @@ struct AppEnvironment: Sendable {
     var logger: @Sendable () -> Logger
     var setLogger: @Sendable (Logger) -> Void
     var shell: Shell
-    var triggerBuild: @Sendable (_ client: Client,
-                                 _ buildId: Build.Id,
-                                 _ cloneURL: String,
-                                 _ isDocBuild: Bool,
-                                 _ platform: Build.Platform,
-                                 _ reference: Reference,
-                                 _ swiftVersion: SwiftVersion,
-                                 _ versionID: Version.Id) async throws -> Build.TriggerResponse
 }
 
 
@@ -52,17 +44,7 @@ extension AppEnvironment {
         },
         logger: { logger },
         setLogger: { logger in Self.logger = logger },
-        shell: .live,
-        triggerBuild: { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            try await Gitlab.Builder.triggerBuild(client: client,
-                                                  buildId: buildId,
-                                                  cloneURL: cloneURL,
-                                                  isDocBuild: isDocBuild,
-                                                  platform: platform,
-                                                  reference: ref,
-                                                  swiftVersion: swiftVersion,
-                                                  versionID: versionID)
-        }
+        shell: .live
     )
 }
 

@@ -347,11 +347,9 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-        } operation: {
-            // setup
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+            $0.buildSystem.triggerBuild = { @Sendable client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
                 try await Gitlab.Builder.triggerBuild(client: client,
                                                       buildId: buildId,
                                                       cloneURL: cloneURL,
@@ -361,6 +359,8 @@ class BuildTriggerTests: AppTestCase {
                                                       swiftVersion: swiftVersion,
                                                       versionID: versionID)
             }
+        } operation: {
+            // setup
             let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
             let client = MockClient { req, res in
                 guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
@@ -409,12 +409,9 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-        } operation: {
-            // Explicitly test the full range of all currently triggered platforms and swift versions
-            // setup
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+            $0.buildSystem.triggerBuild = { @Sendable client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
                 try await Gitlab.Builder.triggerBuild(client: client,
                                                       buildId: buildId,
                                                       cloneURL: cloneURL,
@@ -424,6 +421,9 @@ class BuildTriggerTests: AppTestCase {
                                                       swiftVersion: swiftVersion,
                                                       versionID: versionID)
             }
+        } operation: {
+            // Explicitly test the full range of all currently triggered platforms and swift versions
+            // setup
             let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
             let client = MockClient { req, res in
                 guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
@@ -489,6 +489,18 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
+            // Use live dependency but replace actual client with a mock so we can
+            // assert on the details being sent without actually making a request
+            $0.buildSystem.triggerBuild = { @Sendable client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(client: client,
+                                                      buildId: buildId,
+                                                      cloneURL: cloneURL,
+                                                      isDocBuild: isDocBuild,
+                                                      platform: platform,
+                                                      reference: ref,
+                                                      swiftVersion: swiftVersion,
+                                                      versionID: versionID)
+            }
         } operation: {
             // Tests error handling when a build record already exists and `create` raises a
             // uq:builds.version_id+builds.platform+builds.swift_version+v2
@@ -501,18 +513,6 @@ class BuildTriggerTests: AppTestCase {
             // being completely ignored because the command errors out.
             // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2237
             // setup
-            // Use live dependency but replace actual client with a mock so we can
-            // assert on the details being sent without actually making a request
-            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(client: client,
-                                                      buildId: buildId,
-                                                      cloneURL: cloneURL,
-                                                      isDocBuild: isDocBuild,
-                                                      platform: platform,
-                                                      reference: ref,
-                                                      swiftVersion: swiftVersion,
-                                                      versionID: versionID)
-            }
             let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
             let client = MockClient { req, res in
                 guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
@@ -572,13 +572,9 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
-        } operation: {
-            // Ensure we respect the pipeline limit when triggering builds
-            // setup
-            Current.gitlabPipelineLimit = { 300 }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+            $0.buildSystem.triggerBuild = { @Sendable client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
                 try await Gitlab.Builder.triggerBuild(client: client,
                                                       buildId: buildId,
                                                       cloneURL: cloneURL,
@@ -588,6 +584,10 @@ class BuildTriggerTests: AppTestCase {
                                                       swiftVersion: swiftVersion,
                                                       versionID: versionID)
             }
+        } operation: {
+            // Ensure we respect the pipeline limit when triggering builds
+            // setup
+            Current.gitlabPipelineLimit = { 300 }
             var triggerCount = 0
             let client = MockClient { _, res in
                 triggerCount += 1
@@ -699,13 +699,9 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
-        } operation: {
-            // Ensure we respect the pipeline limit when triggering builds for multiple package ids
-            // setup
-            Current.gitlabPipelineLimit = { 300 }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+            $0.buildSystem.triggerBuild = { @Sendable client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
                 try await Gitlab.Builder.triggerBuild(client: client,
                                                       buildId: buildId,
                                                       cloneURL: cloneURL,
@@ -715,6 +711,10 @@ class BuildTriggerTests: AppTestCase {
                                                       swiftVersion: swiftVersion,
                                                       versionID: versionID)
             }
+        } operation: {
+            // Ensure we respect the pipeline limit when triggering builds for multiple package ids
+            // setup
+            Current.gitlabPipelineLimit = { 300 }
             let client = MockClient { _, res in
                 triggerCount.withLockedValue { $0 += 1 }
                 try? res.content.encode(
@@ -792,13 +792,9 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
-        } operation: {
-            // Ensure we trim builds as part of triggering
-            // setup
-            Current.gitlabPipelineLimit = { 300 }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+            $0.buildSystem.triggerBuild = { @Sendable client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
                 try await Gitlab.Builder.triggerBuild(client: client,
                                                       buildId: buildId,
                                                       cloneURL: cloneURL,
@@ -808,6 +804,10 @@ class BuildTriggerTests: AppTestCase {
                                                       swiftVersion: swiftVersion,
                                                       versionID: versionID)
             }
+        } operation: {
+            // Ensure we trim builds as part of triggering
+            // setup
+            Current.gitlabPipelineLimit = { 300 }
             var triggerCount = 0
             let client = MockClient { _, res in
                 // let the 5th trigger succeed to ensure we don't early out on errors
@@ -921,12 +921,9 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
-        } operation: {
-            // Ensure don't trigger if the override is off
-            // setup
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+            $0.buildSystem.triggerBuild = { @Sendable client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
                 try await Gitlab.Builder.triggerBuild(client: client,
                                                       buildId: buildId,
                                                       cloneURL: cloneURL,
@@ -936,6 +933,9 @@ class BuildTriggerTests: AppTestCase {
                                                       swiftVersion: swiftVersion,
                                                       versionID: versionID)
             }
+        } operation: {
+            // Ensure don't trigger if the override is off
+            // setup
             var triggerCount = 0
             let client = MockClient { _, res in
                 triggerCount += 1
@@ -999,12 +999,9 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTriggerDownscaling = { 0.05 } // 5% downscaling rate
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-        } operation: {
-            // Test build trigger downscaling behaviour
-            // setup
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+            $0.buildSystem.triggerBuild = { @Sendable client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
                 try await Gitlab.Builder.triggerBuild(client: client,
                                                       buildId: buildId,
                                                       cloneURL: cloneURL,
@@ -1014,6 +1011,9 @@ class BuildTriggerTests: AppTestCase {
                                                       swiftVersion: swiftVersion,
                                                       versionID: versionID)
             }
+        } operation: {
+            // Test build trigger downscaling behaviour
+            // setup
             var triggerCount = 0
             let client = MockClient { _, res in
                 triggerCount += 1
@@ -1077,12 +1077,9 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTriggerDownscaling = { 0.05 } // 5% downscaling rate
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-        } operation: {
-            // Test build trigger downscaling behaviour for allow-listed packages
-            // setup
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+            $0.buildSystem.triggerBuild = { @Sendable client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
                 try await Gitlab.Builder.triggerBuild(client: client,
                                                       buildId: buildId,
                                                       cloneURL: cloneURL,
@@ -1092,6 +1089,9 @@ class BuildTriggerTests: AppTestCase {
                                                       swiftVersion: swiftVersion,
                                                       versionID: versionID)
             }
+        } operation: {
+            // Test build trigger downscaling behaviour for allow-listed packages
+            // setup
             var triggerCount = 0
             let client = MockClient { _, res in
                 triggerCount += 1

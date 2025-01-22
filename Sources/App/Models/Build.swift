@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
 import PostgresKit
 import Vapor
@@ -186,14 +187,16 @@ extension Build {
             .with(\.$package)
             .first()
             .unwrap(or: Abort(.notFound))
-        return try await Current.triggerBuild(client,
-                                              buildId,
-                                              version.package.url,
-                                              isDocBuild,
-                                              platform,
-                                              version.reference,
-                                              swiftVersion,
-                                              versionId)
+
+        @Dependency(\.buildSystem) var buildSystem
+        return try await buildSystem.triggerBuild(client,
+                                                  buildId,
+                                                  version.package.url,
+                                                  isDocBuild,
+                                                  platform,
+                                                  version.reference,
+                                                  swiftVersion,
+                                                  versionId)
     }
 
 }

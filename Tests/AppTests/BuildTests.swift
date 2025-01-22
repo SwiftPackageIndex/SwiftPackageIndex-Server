@@ -135,17 +135,9 @@ class BuildTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-        } operation: {
-            // setup
-            let p = try await savePackage(on: app.db, "1")
-            let v = try Version(package: p, reference: .branch("main"))
-            try await v.save(on: app.db)
-            let buildId = UUID()
-            let versionID = try XCTUnwrap(v.id)
-
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+            $0.buildSystem.triggerBuild = { @Sendable client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
                 try await Gitlab.Builder.triggerBuild(client: client,
                                                       buildId: buildId,
                                                       cloneURL: cloneURL,
@@ -155,6 +147,14 @@ class BuildTests: AppTestCase {
                                                       swiftVersion: swiftVersion,
                                                       versionID: versionID)
             }
+        } operation: {
+            // setup
+            let p = try await savePackage(on: app.db, "1")
+            let v = try Version(package: p, reference: .branch("main"))
+            try await v.save(on: app.db)
+            let buildId = UUID()
+            let versionID = try XCTUnwrap(v.id)
+
             var called = false
             let client = MockClient { req, res in
                 called = true
@@ -203,6 +203,18 @@ class BuildTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
+            // Use live dependency but replace actual client with a mock so we can
+            // assert on the details being sent without actually making a request
+            $0.buildSystem.triggerBuild = { @Sendable client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(client: client,
+                                                      buildId: buildId,
+                                                      cloneURL: cloneURL,
+                                                      isDocBuild: isDocBuild,
+                                                      platform: platform,
+                                                      reference: ref,
+                                                      swiftVersion: swiftVersion,
+                                                      versionID: versionID)
+            }
         } operation: {
             // Same test as test_trigger above, except we trigger with isDocBuild: true
             // and expect a 15m TIMEOUT instead of 10m
@@ -213,18 +225,6 @@ class BuildTests: AppTestCase {
             let buildId = UUID()
             let versionID = try XCTUnwrap(v.id)
 
-            // Use live dependency but replace actual client with a mock so we can
-            // assert on the details being sent without actually making a request
-            Current.triggerBuild = { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(client: client,
-                                                      buildId: buildId,
-                                                      cloneURL: cloneURL,
-                                                      isDocBuild: isDocBuild,
-                                                      platform: platform,
-                                                      reference: ref,
-                                                      swiftVersion: swiftVersion,
-                                                      versionID: versionID)
-            }
             var called = false
             let client = MockClient { req, res in
                 called = true

@@ -23,6 +23,9 @@ class MetricsTests: AppTestCase {
 
     func test_basic() async throws {
         try await withDependencies {
+            $0.buildSystem.triggerBuild = { @Sendable  _, _, _, _, _, _, _, _ in
+                    .init(status: .ok, webUrl: "")
+            }
             $0.environment.builderToken = { "builder token" }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
         } operation: {
