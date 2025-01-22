@@ -138,7 +138,6 @@ class GitlabBuilderTests: AppTestCase {
     func test_getStatusCount() async throws {
         try await withDependencies {
             $0.environment.gitlabApiToken = { "api token" }
-//            $0.environment.gitlabPipelineToken = { "pipeline token" }
         } operation: {
             var page = 1
             let client = MockClient { req, res in
