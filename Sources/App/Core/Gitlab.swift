@@ -105,8 +105,12 @@ extension Gitlab.Builder {
                 "VERSION_ID": versionID.uuidString
             ]
         )
-        let body = try JSONEncoder().encode(dto)
-        let response = try await httpClient.post(url: "\(projectURL)/trigger/pipeline", body: body)
+        let body = try URLEncodedFormEncoder().encode(dto)
+        let response = try await httpClient.post(
+            url: "\(projectURL)/trigger/pipeline",
+            headers: .contentTypeFormURLEncoded,
+            body: Data(body.utf8)
+        )
 
         do {
             guard let body = response.body else { throw Gitlab.Error.noBody }
@@ -204,6 +208,10 @@ private extension DateFormatter {
 private extension HTTPHeaders {
     static func bearer(_ token: String) -> Self {
         .init([("Authorization", "Bearer \(token)")])
+    }
+
+    static var contentTypeFormURLEncoded: Self {
+        .init([("Content-Type", "application/x-www-form-urlencoded")])
     }
 }
 

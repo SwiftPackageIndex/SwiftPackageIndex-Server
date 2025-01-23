@@ -145,7 +145,7 @@ class BuildTests: AppTestCase {
                 called.setTrue()
                 let body = try XCTUnwrap(body)
                 XCTAssertEqual(
-                    try JSONDecoder().decode(Gitlab.Builder.PostDTO.self, from: body),
+                    try URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body),
                     .init(token: "pipeline token",
                           ref: "main",
                           variables: [
@@ -201,7 +201,7 @@ class BuildTests: AppTestCase {
                 called.setTrue()
                 let body = try XCTUnwrap(body)
                 // only test the TIMEOUT value, the rest is already tested in `test_trigger` above
-                let response = try? JSONDecoder().decode(Gitlab.Builder.PostDTO.self, from: body)
+                let response = try? URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body)
                 XCTAssertNotNil(response)
                 XCTAssertEqual(response?.variables["TIMEOUT"], "15m")
                 return try .created(jsonEncode: Gitlab.Builder.Response.init(webUrl: "http://web_url"))

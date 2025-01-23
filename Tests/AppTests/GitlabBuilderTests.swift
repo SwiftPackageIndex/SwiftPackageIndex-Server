@@ -175,11 +175,13 @@ class LiveGitlabBuilderTests: AppTestCase {
                 // Set this to a valid value if you want to report build results back to the server
                 ProcessInfo.processInfo.environment["LIVE_BUILDER_TOKEN"]
             }
+            $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = {
                 // This Gitlab token is required in order to trigger the pipeline
                 ProcessInfo.processInfo.environment["LIVE_GITLAB_PIPELINE_TOKEN"]
             }
             $0.environment.siteURL = { "https://staging.swiftpackageindex.com" }
+            $0.httpClient = .liveValue
         } operation: {
             // set build branch to trigger on
             Gitlab.Builder.branch = "main"
@@ -198,7 +200,8 @@ class LiveGitlabBuilderTests: AppTestCase {
                 platform: .macosSpm,
                 reference: .tag(.init(0, 3, 2)),
                 swiftVersion: .v4,
-                versionID: versionID)
+                versionID: versionID
+            )
 
             print("status: \(res.status)")
             print("buildId: \(buildId)")
