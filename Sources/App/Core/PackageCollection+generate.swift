@@ -48,8 +48,9 @@ extension PackageCollection {
                          collectionName: String? = nil,
                          keywords: [String]? = nil,
                          overview: String? = nil,
-                         revision: Int? = nil) async throws -> PackageCollection {
-        let results = try await VersionResult.query(on: db, filterBy: filter)
+                         revision: Int? = nil,
+                         limit maxResults: Int? = nil) async throws -> PackageCollection {
+        let results = try await VersionResult.query(on: db, filterBy: filter, limit: maxResults)
 
         // Multiple versions can reference the same package, therefore
         // we need to group them so we don't create duplicate packages.
