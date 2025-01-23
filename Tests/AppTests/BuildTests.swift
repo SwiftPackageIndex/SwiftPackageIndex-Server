@@ -129,6 +129,9 @@ class BuildTests: AppTestCase {
     }
 
     func test_trigger() async throws {
+        let buildID = UUID.id0
+        let versionID = UUID.id1
+        let called = QueueIsolated(false)
         try await withDependencies {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -146,51 +149,45 @@ class BuildTests: AppTestCase {
                                                       swiftVersion: swiftVersion,
                                                       versionID: versionID)
             }
+            $0.httpClient.post = { @Sendable _, _, body in
+                called.setTrue()
+                let body = try XCTUnwrap(body)
+                XCTAssertEqual(
+                    try JSONDecoder().decode(Gitlab.Builder.PostDTO.self, from: body),
+                    .init(token: "pipeline token",
+                          ref: "main",
+                          variables: [
+                            "API_BASEURL": "http://example.com/api",
+                            "AWS_DOCS_BUCKET": "awsDocsBucket",
+                            "BUILD_ID": buildID.uuidString,
+                            "BUILD_PLATFORM": "macos-xcodebuild",
+                            "BUILDER_TOKEN": "builder token",
+                            "CLONE_URL": "1",
+                            "REFERENCE": "main",
+                            "SWIFT_VERSION": "5.2",
+                            "TIMEOUT": "10m",
+                            "VERSION_ID": versionID.uuidString,
+                          ])
+                )
+                return try .created(jsonEncode: Gitlab.Builder.Response.init(webUrl: "http://web_url"))
+            }
         } operation: {
             // setup
             let p = try await savePackage(on: app.db, "1")
-            let v = try Version(package: p, reference: .branch("main"))
+            let v = try Version(id: versionID, package: p, reference: .branch("main"))
             try await v.save(on: app.db)
-            let buildId = UUID()
-            let versionID = try XCTUnwrap(v.id)
-
-            var called = false
-            let client = MockClient { req, res in
-                called = true
-                res.status = .created
-                try? res.content.encode(
-                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
-                )
-                // validate request data
-                XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
-                               Gitlab.Builder.PostDTO(
-                                token: "pipeline token",
-                                ref: "main",
-                                variables: [
-                                    "API_BASEURL": "http://example.com/api",
-                                    "AWS_DOCS_BUCKET": "awsDocsBucket",
-                                    "BUILD_ID": buildId.uuidString,
-                                    "BUILD_PLATFORM": "macos-xcodebuild",
-                                    "BUILDER_TOKEN": "builder token",
-                                    "CLONE_URL": "1",
-                                    "REFERENCE": "main",
-                                    "SWIFT_VERSION": "5.2",
-                                    "TIMEOUT": "10m",
-                                    "VERSION_ID": versionID.uuidString,
-                                ]))
-            }
 
             // MUT
             let res = try await Build.trigger(database: app.db,
-                                              client: client,
-                                              buildId: buildId,
+                                              client: app.client,
+                                              buildId: buildID,
                                               isDocBuild: false,
                                               platform: .macosXcodebuild,
                                               swiftVersion: .init(5, 2, 4),
                                               versionId: versionID)
 
             // validate
-            XCTAssertTrue(called)
+            XCTAssertTrue(called.value)
             XCTAssertEqual(res.status, .created)
         }
     }
