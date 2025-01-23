@@ -34,6 +34,7 @@ extension PackageCollection {
     enum Filter {
         case urls([String])
         case author(String)
+        case keyword(String)
         case customCollection(String)
     }
 
@@ -97,6 +98,10 @@ extension PackageCollection {
             case (.author(let owner), .none):
                 return owner
             case (.author, .some(let label)):
+                return label
+            case (.keyword(let keyword), .none):
+                return keyword
+            case (.keyword, .some(let label)):
                 return label
             case (.customCollection(let name), .none):
                 return name
