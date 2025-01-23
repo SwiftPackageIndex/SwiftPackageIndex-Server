@@ -140,15 +140,7 @@ class BuildTests: AppTestCase {
             $0.environment.siteURL = { "http://example.com" }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            $0.buildSystem.triggerBuild = { @Sendable buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(buildId: buildId,
-                                                      cloneURL: cloneURL,
-                                                      isDocBuild: isDocBuild,
-                                                      platform: platform,
-                                                      reference: ref,
-                                                      swiftVersion: swiftVersion,
-                                                      versionID: versionID)
-            }
+            $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
                 called.setTrue()
                 let body = try XCTUnwrap(body)
@@ -193,6 +185,9 @@ class BuildTests: AppTestCase {
     }
 
     func test_trigger_isDocBuild() async throws {
+        let buildID = UUID.id0
+        let versionID = UUID.id1
+        let called = QueueIsolated(false)
         try await withDependencies {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -201,49 +196,35 @@ class BuildTests: AppTestCase {
             $0.environment.siteURL = { "http://example.com" }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            $0.buildSystem.triggerBuild = { @Sendable buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(buildId: buildId,
-                                                      cloneURL: cloneURL,
-                                                      isDocBuild: isDocBuild,
-                                                      platform: platform,
-                                                      reference: ref,
-                                                      swiftVersion: swiftVersion,
-                                                      versionID: versionID)
+            $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
+            $0.httpClient.post = { @Sendable _, _, body in
+                called.setTrue()
+                let body = try XCTUnwrap(body)
+                // only test the TIMEOUT value, the rest is already tested in `test_trigger` above
+                let response = try? JSONDecoder().decode(Gitlab.Builder.PostDTO.self, from: body)
+                XCTAssertNotNil(response)
+                XCTAssertEqual(response?.variables["TIMEOUT"], "15m")
+                return try .created(jsonEncode: Gitlab.Builder.Response.init(webUrl: "http://web_url"))
             }
         } operation: {
             // Same test as test_trigger above, except we trigger with isDocBuild: true
             // and expect a 15m TIMEOUT instead of 10m
             // setup
             let p = try await savePackage(on: app.db, "1")
-            let v = try Version(package: p, reference: .branch("main"))
+            let v = try Version(id: versionID, package: p, reference: .branch("main"))
             try await v.save(on: app.db)
-            let buildId = UUID()
-            let versionID = try XCTUnwrap(v.id)
-
-            var called = false
-            let client = MockClient { req, res in
-                called = true
-                res.status = .created
-                try? res.content.encode(
-                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
-                )
-                // only test the TIMEOUT value, the rest is already tested in `test_trigger` above
-                let response = try? req.query.decode(Gitlab.Builder.PostDTO.self)
-                XCTAssertNotNil(response)
-                XCTAssertEqual(response?.variables["TIMEOUT"], "15m")
-            }
 
             // MUT
             let res = try await Build.trigger(database: app.db,
-                                              client: client,
-                                              buildId: buildId,
+                                              client: app.client,
+                                              buildId: buildID,
                                               isDocBuild: true,
                                               platform: .macosXcodebuild,
                                               swiftVersion: .init(5, 2, 4),
                                               versionId: versionID)
 
             // validate
-            XCTAssertTrue(called)
+            XCTAssertTrue(called.value)
             XCTAssertEqual(res.status, .created)
         }
     }
