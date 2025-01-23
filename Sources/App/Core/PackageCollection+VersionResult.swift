@@ -40,7 +40,7 @@ extension PackageCollection.VersionResult {
     var targets: [App.Target] { version.targets }
     var version: App.Version { model.version }
 
-    static func query(on database: Database, filterBy filter: PackageCollection.Filter) async throws -> [Self] {
+    static func query(on database: Database, filterBy filter: PackageCollection.Filter, limit maxResults: Int? = nil) async throws -> [Self] {
         let query = M
             .query(
                 on: database,
@@ -64,6 +64,10 @@ extension PackageCollection.VersionResult {
                     .filter(CustomCollection.self, \.$key == key)
             case let .urls(packageURLs):
                 query.filter(App.Package.self, \.$url ~~ packageURLs)
+        }
+
+        if let maxResults = maxResults {
+            query.limit(maxResults)
         }
 
         return try await query.all()
