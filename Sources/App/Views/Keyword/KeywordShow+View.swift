@@ -48,6 +48,18 @@ enum KeywordShow {
                     .class("trimmed"),
                     .text("Packages for keyword “\(model.keyword)”")
                 ),
+                .p(
+                    .text("These packages are available as a package collection, "),
+                    .a(
+                        .href(SiteURL.packageCollections.relativeURL()),
+                        "usable in Xcode or SwiftPM"
+                    ),
+                    .text(".")
+                ),
+                .copyableInputForm(buttonName: "Copy Package Collection URL",
+                                   eventName: "Copy Package Collection URL Button",
+                                   valueToCopy: SiteURL.packageCollectionKeyword(.value(model.keyword)).absoluteURL()),
+                .hr(.class("minor")),
                 .ul(
                     .id("package-list"),
                     .group(
