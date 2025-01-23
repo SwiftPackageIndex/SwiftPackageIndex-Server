@@ -55,6 +55,8 @@ extension PackageCollection.VersionResult {
         switch filter {
             case let .author(owner):
                 query.filter(Repository.self, \Repository.$owner, .custom("ilike"), owner)
+            case let .keyword(keyword):
+                query.filter(Repository.self, \Repository.$keywords, .custom("@>"), [keyword])
             case let .customCollection(key):
                 query
                     .join(CustomCollectionPackage.self, on: \Package.$id == \CustomCollectionPackage.$package.$id)
