@@ -59,6 +59,11 @@ enum KeywordShow {
                 .copyableInputForm(buttonName: "Copy Package Collection URL",
                                    eventName: "Copy Package Collection URL Button",
                                    valueToCopy: SiteURL.packageCollectionKeyword(.value(model.keyword)).absoluteURL()),
+                .p(
+                    .h6(
+                        .i("Note: Package collections are limited to a maximum of \(Constants.maxKeywordPackageCollectionCount) packages. If a keyword has more than \(Constants.maxKeywordPackageCollectionCount) packages, only the top \(Constants.maxKeywordPackageCollectionCount) packages will be included based on their package score.")
+                    )
+                ),
                 .hr(.class("minor")),
                 .ul(
                     .id("package-list"),
@@ -79,7 +84,6 @@ enum KeywordShow {
             )
         }
     }
-
 }
 
 
