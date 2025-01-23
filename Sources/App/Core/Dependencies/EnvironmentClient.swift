@@ -44,6 +44,7 @@ struct EnvironmentClient {
     var hideStagingBanner: @Sendable () -> Bool = { XCTFail("hideStagingBanner"); return Constants.defaultHideStagingBanner }
     var loadSPIManifest: @Sendable (String) -> SPIManifest.Manifest?
     var maintenanceMessage: @Sendable () -> String?
+    var enableCFRayLogging: @Sendable () -> Bool = { XCTFail("enableCFRayLogging"); return true }
     var mastodonCredentials: @Sendable () -> Mastodon.Credentials?
     var metricsPushGatewayUrl: @Sendable () -> String?
     var plausibleBackendReportingSiteID: @Sendable () -> String?
@@ -116,6 +117,10 @@ extension EnvironmentClient: DependencyKey {
             loadSPIManifest: { path in SPIManifest.Manifest.load(in: path) },
             maintenanceMessage: {
                 Environment.get("MAINTENANCE_MESSAGE").flatMap(\.trimmed)
+            enableCFRayLogging: {
+                Environment.get("ENABLE_CF_RAY_LOGGING")
+                    .flatMap(\.asBool)
+                ?? false
             },
             mastodonCredentials: {
                 Environment.get("MASTODON_ACCESS_TOKEN")
@@ -172,6 +177,7 @@ extension EnvironmentClient: TestDependencyKey {
         mock.hideStagingBanner = { false }
         mock.siteURL = { "http://localhost:8080" }
         mock.shouldFail = { @Sendable _ in false }
+        mock.enableCFRayLogging = { true }
         return mock
     }
 }

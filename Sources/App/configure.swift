@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
 import FluentPostgresDriver
 import Vapor
@@ -36,6 +37,17 @@ public func configure(_ app: Application) async throws -> String {
     // ---
     // app.http.server.configuration.responseCompression = .enabled
     // app.http.server.configuration.requestDecompression = .enabled
+
+    @Dependency(\.environment) var environment
+
+    if environment.enableCFRayLogging() {
+        // This stanza replaces the default middleware from Vapor, specifically replacing the
+        // default route logging middleware with the tweaked up version that reports on the cf-ray
+        // header (if any) from CloudFlare.
+        app.middleware = Middlewares()
+        app.middleware.use(Vapor.ErrorMiddleware.default(environment: app.environment))
+        app.middleware.use(CFRayRouteLoggingMiddleware())
+    }
 
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     app.middleware.use(ErrorMiddleware())
