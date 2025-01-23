@@ -432,12 +432,6 @@ class PublicPage {
                         ),
                         .li(
                             .a(
-                                .href("https://swiftpackageindex.statuspage.io"),
-                                "Uptime and System Status"
-                            )
-                        ),
-                        .li(
-                            .a(
                                 .href(SiteURL.buildMonitor.relativeURL()),
                                 "Build System Monitor"
                             )
