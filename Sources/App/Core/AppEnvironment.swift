@@ -23,29 +23,11 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var fetchS3Readme: @Sendable (_ client: Client, _ owner: String, _ repository: String) async throws -> String
     var fileManager: FileManager
-    var getStatusCount: @Sendable (_ client: Client, _ status: Gitlab.Builder.Status) async throws -> Int
     var git: Git
-    var gitlabApiToken: @Sendable () -> String?
-    var gitlabPipelineToken: @Sendable () -> String?
-    var gitlabPipelineLimit: @Sendable () -> Int
     var logger: @Sendable () -> Logger
     var setLogger: @Sendable (Logger) -> Void
     var shell: Shell
-    var storeS3Readme: @Sendable (_ owner: String,
-                                  _ repository: String,
-                                  _ readme: String) async throws(S3Readme.Error) -> String
-    var storeS3ReadmeImages: @Sendable (_ client: Client,
-                                        _ imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) -> Void
-    var triggerBuild: @Sendable (_ client: Client,
-                                 _ buildId: Build.Id,
-                                 _ cloneURL: String,
-                                 _ isDocBuild: Bool,
-                                 _ platform: Build.Platform,
-                                 _ reference: Reference,
-                                 _ swiftVersion: SwiftVersion,
-                                 _ versionID: Version.Id) async throws -> Build.TriggerResponse
 }
 
 
@@ -53,41 +35,11 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        fetchS3Readme: { client, owner, repo in try await S3Readme.fetchReadme(client:client, owner: owner, repository: repo) },
         fileManager: .live,
-        getStatusCount: { client, status in
-            try await Gitlab.Builder.getStatusCount(client: client,
-                                                    status: status,
-                                                    page: 1,
-                                                    pageSize: 100,
-                                                    maxPageCount: 5)
-        },
         git: .live,
-        gitlabApiToken: { Environment.get("GITLAB_API_TOKEN") },
-        gitlabPipelineToken: { Environment.get("GITLAB_PIPELINE_TOKEN") },
-        gitlabPipelineLimit: {
-            Environment.get("GITLAB_PIPELINE_LIMIT").flatMap(Int.init)
-            ?? Constants.defaultGitlabPipelineLimit
-        },
         logger: { logger },
         setLogger: { logger in Self.logger = logger },
-        shell: .live,
-        storeS3Readme: { owner, repo, readme throws(S3Readme.Error) in
-            try await S3Readme.storeReadme(owner: owner, repository: repo, readme: readme)
-        },
-        storeS3ReadmeImages: { client, images throws(S3Readme.Error) in
-            try await S3Readme.storeReadmeImages(client: client, imagesToCache: images)
-        },
-        triggerBuild: { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-            try await Gitlab.Builder.triggerBuild(client: client,
-                                                  buildId: buildId,
-                                                  cloneURL: cloneURL,
-                                                  isDocBuild: isDocBuild,
-                                                  platform: platform,
-                                                  reference: ref,
-                                                  swiftVersion: swiftVersion,
-                                                  versionID: versionID)
-        }
+        shell: .live
     )
 }
 

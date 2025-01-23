@@ -79,9 +79,10 @@ extension Gitlab.Builder {
                              versionID: Version.Id) async throws -> Build.TriggerResponse {
         @Dependency(\.environment) var environment
 
-        guard let pipelineToken = Current.gitlabPipelineToken(),
+        guard let pipelineToken = environment.gitlabPipelineToken(),
               let builderToken = environment.builderToken()
         else { throw Gitlab.Error.missingToken }
+
         guard let awsDocsBucket = environment.awsDocsBucket() else {
             throw Gitlab.Error.missingConfiguration("AWS_DOCS_BUCKET")
         }
@@ -157,10 +158,11 @@ extension Gitlab.Builder {
                                status: Status,
                                page: Int,
                                pageSize: Int = 20) async throws -> [Pipeline] {
-        guard let apiToken = Current.gitlabApiToken() else { throw Gitlab.Error.missingToken }
+        @Dependency(\.environment) var environment
+        guard let apiToken = environment.gitlabApiToken() else { throw Gitlab.Error.missingToken }
 
         let uri: URI = .init(string: "\(projectURL)/pipelines?status=\(status)&page=\(page)&per_page=\(pageSize)")
-        let response = try await client.get(uri, headers: HTTPHeaders([("Authorization", "Bearer \(apiToken)")]))
+        let response = try await client.get(uri, headers: .bearer(apiToken))
 
         guard response.status == .ok else { throw Gitlab.Error.requestFailed(response.status, uri) }
 
@@ -197,3 +199,12 @@ private extension DateFormatter {
         return formatter
     }
 }
+
+
+private extension HTTPHeaders {
+    static func bearer(_ token: String) -> Self {
+        .init([("Authorization", "Bearer \(token)")])
+    }
+}
+
+

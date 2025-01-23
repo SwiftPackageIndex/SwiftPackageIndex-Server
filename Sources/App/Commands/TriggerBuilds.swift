@@ -179,6 +179,7 @@ func triggerBuilds(on database: Database,
                    packages: [Package.Id],
                    force: Bool = false) async throws {
     @Dependency(\.environment) var environment
+    @Dependency(\.buildSystem) var buildSystem
 
     guard environment.allowBuildTriggers() else {
         Current.logger().info("Build trigger override switch OFF - no builds are being triggered")
@@ -196,8 +197,9 @@ func triggerBuilds(on database: Database,
         }
     }
 
-    async let pendingJobsTask = Current.getStatusCount(client, .pending)
-    async let runningJobsTask = Current.getStatusCount(client, .running)
+    let getStatusCount = buildSystem.getStatusCount
+    async let pendingJobsTask = getStatusCount(client, .pending)
+    async let runningJobsTask = getStatusCount(client, .running)
     let pendingJobs = try await pendingJobsTask
     let runningJobs = try await runningJobsTask
 
@@ -205,6 +207,7 @@ func triggerBuilds(on database: Database,
     AppMetrics.buildRunningJobsCount?.set(runningJobs)
 
     let newJobs = ActorIsolated(0)
+    let gitlabPipelineLimit = environment.gitlabPipelineLimit
 
     await withThrowingTaskGroup(of: Void.self) { group in
         for pkgId in packages {
@@ -217,7 +220,7 @@ func triggerBuilds(on database: Database,
             group.addTask {
                 // check if we have capacity to schedule more builds before querying for builds
                 var newJobCount = await newJobs.value
-                guard pendingJobs + newJobCount < Current.gitlabPipelineLimit() else {
+                guard pendingJobs + newJobCount < gitlabPipelineLimit() else {
                     Current.logger().info("too many pending pipelines (\(pendingJobs + newJobCount))")
                     return
                 }
@@ -226,7 +229,7 @@ func triggerBuilds(on database: Database,
                 let triggers = try await findMissingBuilds(database, packageId: pkgId)
 
                 newJobCount = await newJobs.value
-                guard pendingJobs + newJobCount < Current.gitlabPipelineLimit() else {
+                guard pendingJobs + newJobCount < gitlabPipelineLimit() else {
                     Current.logger().info("too many pending pipelines (\(pendingJobs + newJobCount))")
                     return
                 }

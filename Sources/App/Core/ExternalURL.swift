@@ -15,28 +15,30 @@
 import Plot
 
 enum ExternalURL: URLRepresentable {
+    case addNewPackage(_ owner: String, _ repository: String)
+    case contactMailto
     case mastodon
+    case podcast
     case projectGitHub
     case projectSponsorship
     case raiseNewIssue
-    case podcast
-    case addNewPackage(_ owner: String, _ repository: String)
-
 
     var description: String {
         switch(self) {
+            case let .addNewPackage(owner, repository):
+                return "https://github.com/SwiftPackageIndex/PackageList/issues/new?labels=Add+Package&template=add_package.yml&title=Add+\(repository)&list=https%3A%2F%2Fgithub.com%2F\(owner)%2F\(repository).git"
+            case .contactMailto:
+                return "mailto:contact@swiftpackageindex.com"
             case .mastodon:
                 return "https://mas.to/@SwiftPackageIndex"
+            case .podcast:
+                return "https://swiftpackageindexing.transistor.fm"
             case .projectGitHub:
                 return "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"
             case .projectSponsorship:
                 return "https://github.com/sponsors/SwiftPackageIndex"
             case .raiseNewIssue:
                 return "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose"
-            case .podcast:
-                return "https://swiftpackageindexing.transistor.fm"
-            case let .addNewPackage(owner, repository):
-                return "https://github.com/SwiftPackageIndex/PackageList/issues/new?labels=Add+Package&template=add_package.yml&title=Add+\(repository)&list=https%3A%2F%2Fgithub.com%2F\(owner)%2F\(repository).git"
         }
     }
 }

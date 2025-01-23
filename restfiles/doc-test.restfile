@@ -643,8 +643,8 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /li3zhen1/Grape/documentation:
-    url: ${base_url}/li3zhen1/Grape/documentation
+  /SwiftGraphs/Grape/documentation:
+    url: ${base_url}/SwiftGraphs/Grape/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
@@ -1094,7 +1094,7 @@ requests:
     validation:
       status: .regex((2|3)\d\d)
   /vapor-community/wallet/documentation:
-    url: ${base_url}/vapor-community/PassKit/documentation
+    url: ${base_url}/vapor-community/wallet/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
