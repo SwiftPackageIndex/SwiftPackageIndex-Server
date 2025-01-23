@@ -129,8 +129,8 @@ class BuildTests: AppTestCase {
     }
 
     func test_trigger() async throws {
-        let buildID = UUID.id0
-        let versionID = UUID.id1
+        let buildId = UUID.id0
+        let versionId = UUID.id1
         let called = QueueIsolated(false)
         try await withDependencies {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
@@ -151,14 +151,14 @@ class BuildTests: AppTestCase {
                           variables: [
                             "API_BASEURL": "http://example.com/api",
                             "AWS_DOCS_BUCKET": "awsDocsBucket",
-                            "BUILD_ID": buildID.uuidString,
+                            "BUILD_ID": buildId.uuidString,
                             "BUILD_PLATFORM": "macos-xcodebuild",
                             "BUILDER_TOKEN": "builder token",
                             "CLONE_URL": "1",
                             "REFERENCE": "main",
                             "SWIFT_VERSION": "5.2",
                             "TIMEOUT": "10m",
-                            "VERSION_ID": versionID.uuidString,
+                            "VERSION_ID": versionId.uuidString,
                           ])
                 )
                 return try .created(jsonEncode: Gitlab.Builder.Response.init(webUrl: "http://web_url"))
@@ -166,17 +166,17 @@ class BuildTests: AppTestCase {
         } operation: {
             // setup
             let p = try await savePackage(on: app.db, "1")
-            let v = try Version(id: versionID, package: p, reference: .branch("main"))
+            let v = try Version(id: versionId, package: p, reference: .branch("main"))
             try await v.save(on: app.db)
 
             // MUT
             let res = try await Build.trigger(database: app.db,
                                               client: app.client,
-                                              buildId: buildID,
+                                              buildId: buildId,
                                               isDocBuild: false,
                                               platform: .macosXcodebuild,
                                               swiftVersion: .init(5, 2, 4),
-                                              versionId: versionID)
+                                              versionId: versionId)
 
             // validate
             XCTAssertTrue(called.value)
@@ -185,8 +185,8 @@ class BuildTests: AppTestCase {
     }
 
     func test_trigger_isDocBuild() async throws {
-        let buildID = UUID.id0
-        let versionID = UUID.id1
+        let buildId = UUID.id0
+        let versionId = UUID.id1
         let called = QueueIsolated(false)
         try await withDependencies {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
@@ -211,17 +211,17 @@ class BuildTests: AppTestCase {
             // and expect a 15m TIMEOUT instead of 10m
             // setup
             let p = try await savePackage(on: app.db, "1")
-            let v = try Version(id: versionID, package: p, reference: .branch("main"))
+            let v = try Version(id: versionId, package: p, reference: .branch("main"))
             try await v.save(on: app.db)
 
             // MUT
             let res = try await Build.trigger(database: app.db,
                                               client: app.client,
-                                              buildId: buildID,
+                                              buildId: buildId,
                                               isDocBuild: true,
                                               platform: .macosXcodebuild,
                                               swiftVersion: .init(5, 2, 4),
-                                              versionId: versionID)
+                                              versionId: versionId)
 
             // validate
             XCTAssertTrue(called.value)

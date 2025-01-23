@@ -54,24 +54,20 @@ class GitlabBuilderTests: AppTestCase {
     }
 
     func test_triggerBuild() async throws {
+        let buildId = UUID.id0
+        let versionId = UUID.id1
+        let called = QueueIsolated(false)
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-        } operation: {
-            let buildId = UUID()
-            let versionID = UUID()
-
-            var called = false
-            let client = MockClient { req, res in
-                called = true
-                try? res.content.encode(
-                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
-                )
+            $0.httpClient.post = { @Sendable _, _, body in
+                called.setTrue()
+                let body = try XCTUnwrap(body)
                 // validate
-                XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
+                XCTAssertEqual(try? JSONDecoder().decode(Gitlab.Builder.PostDTO.self, from: body),
                                Gitlab.Builder.PostDTO(
                                 token: "pipeline token",
                                 ref: "main",
@@ -85,10 +81,11 @@ class GitlabBuilderTests: AppTestCase {
                                     "REFERENCE": "1.2.3",
                                     "SWIFT_VERSION": "5.2",
                                     "TIMEOUT": "10m",
-                                    "VERSION_ID": versionID.uuidString,
+                                    "VERSION_ID": versionId.uuidString,
                                 ]))
+                return try .created(jsonEncode: Gitlab.Builder.Response.init(webUrl: "http://web_url"))
             }
-
+        } operation: {
             // MUT
             _ = try await Gitlab.Builder.triggerBuild(buildId: buildId,
                                                       cloneURL: "https://github.com/daveverwer/LeftPad.git",
@@ -96,8 +93,8 @@ class GitlabBuilderTests: AppTestCase {
                                                       platform: .macosSpm,
                                                       reference: .tag(.init(1, 2, 3)),
                                                       swiftVersion: .init(5, 2, 4),
-                                                      versionID: versionID)
-            XCTAssertTrue(called)
+                                                      versionID: versionId)
+            XCTAssertTrue(called.value)
         }
     }
 
