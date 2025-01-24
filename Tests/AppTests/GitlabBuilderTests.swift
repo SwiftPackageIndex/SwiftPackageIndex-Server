@@ -67,22 +67,24 @@ class GitlabBuilderTests: AppTestCase {
                 called.setValue(true)
                 let body = try XCTUnwrap(body)
                 // validate
-                XCTAssertEqual(try? JSONDecoder().decode(Gitlab.Builder.PostDTO.self, from: body),
-                               Gitlab.Builder.PostDTO(
-                                token: "pipeline token",
-                                ref: "main",
-                                variables: [
-                                    "API_BASEURL": "http://example.com/api",
-                                    "AWS_DOCS_BUCKET": "docs-bucket",
-                                    "BUILD_ID": buildId.uuidString,
-                                    "BUILD_PLATFORM": "macos-spm",
-                                    "BUILDER_TOKEN": "builder token",
-                                    "CLONE_URL": "https://github.com/daveverwer/LeftPad.git",
-                                    "REFERENCE": "1.2.3",
-                                    "SWIFT_VERSION": "5.2",
-                                    "TIMEOUT": "10m",
-                                    "VERSION_ID": versionId.uuidString,
-                                ]))
+                XCTAssertEqual(
+                    try? URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body),
+                    Gitlab.Builder.PostDTO(
+                        token: "pipeline token",
+                        ref: "main",
+                        variables: [
+                            "API_BASEURL": "http://example.com/api",
+                            "AWS_DOCS_BUCKET": "docs-bucket",
+                            "BUILD_ID": buildId.uuidString,
+                            "BUILD_PLATFORM": "macos-spm",
+                            "BUILDER_TOKEN": "builder token",
+                            "CLONE_URL": "https://github.com/daveverwer/LeftPad.git",
+                            "REFERENCE": "1.2.3",
+                            "SWIFT_VERSION": "5.2",
+                            "TIMEOUT": "10m",
+                            "VERSION_ID": versionId.uuidString,
+                        ])
+                )
                 return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
