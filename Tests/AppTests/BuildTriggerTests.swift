@@ -626,10 +626,11 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_triggerBuilds_multiplePackages() async throws {
-        let triggerCount = NIOLockedValueBox<Int>(0)
+        // Ensure we respect the pipeline limit when triggering builds for multiple package ids
+        let triggerCount = QueueIsolated(0)
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _ in
-                299 + triggerCount.withLockedValue { $0 }
+                299 + triggerCount.value
             }
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
@@ -642,27 +643,13 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
-            // Use live dependency but replace actual client with a mock so we can
-            // assert on the details being sent without actually making a request
-            $0.buildSystem.triggerBuild = { @Sendable buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(buildId: buildId,
-                                                      cloneURL: cloneURL,
-                                                      isDocBuild: isDocBuild,
-                                                      platform: platform,
-                                                      reference: ref,
-                                                      swiftVersion: swiftVersion,
-                                                      versionID: versionID)
+            $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
+            $0.httpClient.post = { @Sendable _, _, body in
+                triggerCount.increment()
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
-            // Ensure we respect the pipeline limit when triggering builds for multiple package ids
             // setup
-            let client = MockClient { _, res in
-                triggerCount.withLockedValue { $0 += 1 }
-                try? res.content.encode(
-                    Gitlab.Builder.Response(webUrl: "http://web_url")
-                )
-            }
-
             let pkgIds = [UUID(), UUID()]
             for id in pkgIds {
                 let p = Package(id: id, url: id.uuidString.url)
@@ -673,11 +660,11 @@ class BuildTriggerTests: AppTestCase {
 
             // MUT
             try await triggerBuilds(on: app.db,
-                                    client: client,
+                                    client: app.client,
                                     mode: .limit(4))
 
             // validate - only the first batch must be allowed to trigger
-            XCTAssertEqual(triggerCount.withLockedValue { $0 }, 27)
+            XCTAssertEqual(triggerCount.value, 27)
         }
     }
 
