@@ -83,7 +83,7 @@ class GitlabBuilderTests: AppTestCase {
                                     "TIMEOUT": "10m",
                                     "VERSION_ID": versionId.uuidString,
                                 ]))
-                return try .created(jsonEncode: Gitlab.Builder.Response.init(webUrl: "http://web_url"))
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
             // MUT
@@ -113,7 +113,7 @@ class GitlabBuilderTests: AppTestCase {
                 let swiftVersion = (try? JSONDecoder().decode(Gitlab.Builder.PostDTO.self, from: body))
                     .flatMap { $0.variables["SWIFT_VERSION"] }
                 XCTAssertEqual(swiftVersion, "6.0")
-                return try .created(jsonEncode: Gitlab.Builder.Response.init(webUrl: "http://web_url"))
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
             // MUT

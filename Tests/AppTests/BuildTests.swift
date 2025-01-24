@@ -138,8 +138,6 @@ class BuildTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-            // Use live dependency but replace actual client with a mock so we can
-            // assert on the details being sent without actually making a request
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
                 called.setTrue()
@@ -161,7 +159,7 @@ class BuildTests: AppTestCase {
                             "VERSION_ID": versionId.uuidString,
                           ])
                 )
-                return try .created(jsonEncode: Gitlab.Builder.Response.init(webUrl: "http://web_url"))
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
             // setup
@@ -194,8 +192,6 @@ class BuildTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-            // Use live dependency but replace actual client with a mock so we can
-            // assert on the details being sent without actually making a request
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
                 called.setTrue()
@@ -204,7 +200,7 @@ class BuildTests: AppTestCase {
                 let response = try? URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body)
                 XCTAssertNotNil(response)
                 XCTAssertEqual(response?.variables["TIMEOUT"], "15m")
-                return try .created(jsonEncode: Gitlab.Builder.Response.init(webUrl: "http://web_url"))
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
             // Same test as test_trigger above, except we trigger with isDocBuild: true

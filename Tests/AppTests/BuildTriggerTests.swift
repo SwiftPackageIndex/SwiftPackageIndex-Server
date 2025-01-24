@@ -348,14 +348,12 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-            // Use live dependency but replace actual client with a mock so we can
-            // assert on the details being sent without actually making a request
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
                 let body = try XCTUnwrap(body)
                 let query = try URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body)
                 queries.withValue { $0.append(query) }
-                return try .created(jsonEncode: Gitlab.Builder.Response.init(webUrl: "http://web_url"))
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
             // setup
@@ -417,7 +415,7 @@ class BuildTriggerTests: AppTestCase {
                 guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
                 queries.withValue { $0.append(query) }
                 try? res.content.encode(
-                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                    Gitlab.Builder.Response(webUrl: "http://web_url")
                 )
             }
 
@@ -505,7 +503,7 @@ class BuildTriggerTests: AppTestCase {
                 guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
                 queries.withValue { $0.append(query) }
                 try? res.content.encode(
-                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                    Gitlab.Builder.Response(webUrl: "http://web_url")
                 )
             }
 
@@ -578,7 +576,7 @@ class BuildTriggerTests: AppTestCase {
             let client = MockClient { _, res in
                 triggerCount += 1
                 try? res.content.encode(
-                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                    Gitlab.Builder.Response(webUrl: "http://web_url")
                 )
             }
 
@@ -642,7 +640,7 @@ class BuildTriggerTests: AppTestCase {
                     let client = MockClient { _, res in
                         triggerCount += 1
                         try? res.content.encode(
-                            Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                            Gitlab.Builder.Response(webUrl: "http://web_url")
                         )
                     }
 
@@ -703,7 +701,7 @@ class BuildTriggerTests: AppTestCase {
             let client = MockClient { _, res in
                 triggerCount.withLockedValue { $0 += 1 }
                 try? res.content.encode(
-                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                    Gitlab.Builder.Response(webUrl: "http://web_url")
                 )
             }
 
@@ -797,7 +795,7 @@ class BuildTriggerTests: AppTestCase {
                 // let the 5th trigger succeed to ensure we don't early out on errors
                 if triggerCount == 5 {
                     try? res.content.encode(
-                        Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                        Gitlab.Builder.Response(webUrl: "http://web_url")
                     )
                 } else {
                     struct Response: Content {
@@ -924,7 +922,7 @@ class BuildTriggerTests: AppTestCase {
             let client = MockClient { _, res in
                 triggerCount += 1
                 try? res.content.encode(
-                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                    Gitlab.Builder.Response(webUrl: "http://web_url")
                 )
             }
 
@@ -1002,7 +1000,7 @@ class BuildTriggerTests: AppTestCase {
             let client = MockClient { _, res in
                 triggerCount += 1
                 try? res.content.encode(
-                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                    Gitlab.Builder.Response(webUrl: "http://web_url")
                 )
             }
 
@@ -1080,7 +1078,7 @@ class BuildTriggerTests: AppTestCase {
             let client = MockClient { _, res in
                 triggerCount += 1
                 try? res.content.encode(
-                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                    Gitlab.Builder.Response(webUrl: "http://web_url")
                 )
             }
 
