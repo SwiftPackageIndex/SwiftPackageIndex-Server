@@ -140,7 +140,7 @@ class BuildTests: AppTestCase {
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
-                called.setTrue()
+                called.setValue(true)
                 let body = try XCTUnwrap(body)
                 XCTAssertEqual(
                     try URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body),
@@ -196,7 +196,7 @@ class BuildTests: AppTestCase {
             $0.environment.siteURL = { "http://example.com" }
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
-                called.setTrue()
+                called.setValue(true)
                 let body = try XCTUnwrap(body)
                 // only test the TIMEOUT value, the rest is already tested in `test_trigger` above
                 let response = try? URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body)

@@ -64,7 +64,7 @@ class GitlabBuilderTests: AppTestCase {
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
             $0.httpClient.post = { @Sendable _, _, body in
-                called.setTrue()
+                called.setValue(true)
                 let body = try XCTUnwrap(body)
                 // validate
                 XCTAssertEqual(try? JSONDecoder().decode(Gitlab.Builder.PostDTO.self, from: body),
@@ -107,7 +107,7 @@ class GitlabBuilderTests: AppTestCase {
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
             $0.httpClient.post = { @Sendable _, _, body in
-                called.setTrue()
+                called.setValue(true)
                 let body = try XCTUnwrap(body)
                 // validate
                 let swiftVersion = (try? JSONDecoder().decode(Gitlab.Builder.PostDTO.self, from: body))

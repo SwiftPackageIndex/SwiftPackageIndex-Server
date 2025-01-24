@@ -67,10 +67,3 @@ extension QueueIsolated where Value == Int {
         withValue { $0 -= delta }
     }
 }
-
-
-extension QueueIsolated<Bool> {
-    public func setTrue() { withValue { $0 = true } }
-    public func setFalse() { withValue { $0 = false } }
-    public func toggle() { withValue { $0 = !$0 } }
-}
