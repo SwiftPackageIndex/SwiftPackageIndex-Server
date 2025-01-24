@@ -85,9 +85,7 @@ struct TriggerBuildsCommand: AsyncCommand {
         }
 
         do {
-            try await triggerBuilds(on: context.application.db,
-                                    client: context.application.client,
-                                    mode: mode)
+            try await triggerBuilds(on: context.application.db, mode: mode)
         } catch {
             Current.logger().critical("\(error)")
         }
@@ -122,9 +120,7 @@ extension TriggerBuildsCommand {
 ///   - client: `Client` used for http request
 ///   - parameter: `BuildTriggerCommand.Parameter` holding either a list of package ids
 ///   or a fetch limit for candidate selection.
-func triggerBuilds(on database: Database,
-                   client: Client,
-                   mode: TriggerBuildsCommand.Mode) async throws {
+func triggerBuilds(on database: Database, mode: TriggerBuildsCommand.Mode) async throws {
     @Dependency(\.environment) var environment
     let start = DispatchTime.now().uptimeNanoseconds
 
@@ -138,15 +134,12 @@ func triggerBuilds(on database: Database,
             AppMetrics.buildCandidatesCount?.set(candidates.count)
 
             let limitedCandidates = Array(candidates.prefix(limit))
-            try await triggerBuilds(on: database,
-                                    client: client,
-                                    packages: limitedCandidates)
+            try await triggerBuilds(on: database, packages: limitedCandidates)
             AppMetrics.buildTriggerDurationSeconds?.time(since: start)
 
         case let .packageId(id, force):
             Current.logger().info("Triggering builds (packageID: \(id)) ...")
             try await triggerBuilds(on: database,
-                                    client: client,
                                     packages: [id],
                                     force: force)
             AppMetrics.buildTriggerDurationSeconds?.time(since: start)
@@ -159,9 +152,7 @@ func triggerBuilds(on database: Database,
                 Current.logger().error("Failed to create trigger.")
                 return
             }
-            try await triggerBuildsUnchecked(on: database,
-                                             client: client,
-                                             triggers: [trigger])
+            try await triggerBuildsUnchecked(on: database, triggers: [trigger])
 
     }
 }
@@ -175,7 +166,6 @@ func triggerBuilds(on database: Database,
 ///   - packages: list of `Package.Id`s to trigger
 ///   - force: do not check pipeline capacity and ignore downscaling
 func triggerBuilds(on database: Database,
-                   client: Client,
                    packages: [Package.Id],
                    force: Bool = false) async throws {
     @Dependency(\.environment) var environment
@@ -191,15 +181,15 @@ func triggerBuilds(on database: Database,
             for package in packages {
                 group.addTask {
                     let triggerInfo = try await findMissingBuilds(database, packageId: package)
-                    try await triggerBuildsUnchecked(on: database, client: client, triggers: triggerInfo)
+                    try await triggerBuildsUnchecked(on: database, triggers: triggerInfo)
                 }
             }
         }
     }
 
     let getStatusCount = buildSystem.getStatusCount
-    async let pendingJobsTask = getStatusCount(client, .pending)
-    async let runningJobsTask = getStatusCount(client, .running)
+    async let pendingJobsTask = getStatusCount(.pending)
+    async let runningJobsTask = getStatusCount(.running)
     let pendingJobs = try await pendingJobsTask
     let runningJobs = try await runningJobsTask
 
@@ -237,9 +227,7 @@ func triggerBuilds(on database: Database,
                 let triggeredJobCount = triggers.reduce(0) { $0 + $1.buildPairs.count }
                 await newJobs.withValue { $0 += triggeredJobCount }
 
-                try await triggerBuildsUnchecked(on: database,
-                                                 client: client,
-                                                 triggers: triggers)
+                try await triggerBuildsUnchecked(on: database, triggers: triggers)
             }
         }
     }
@@ -255,9 +243,7 @@ func triggerBuilds(on database: Database,
 ///   - database: `Database` handle used for database access
 ///   - client: `Client` used for http request
 ///   - triggers: trigger information for builds to trigger
-func triggerBuildsUnchecked(on database: Database,
-                            client: Client,
-                            triggers: [BuildTriggerInfo]) async throws {
+func triggerBuildsUnchecked(on database: Database, triggers: [BuildTriggerInfo]) async throws {
     await withThrowingTaskGroup(of: Void.self) { group in
         for trigger in triggers {
             if let packageName = trigger.packageName, let reference = trigger.reference {
@@ -272,7 +258,6 @@ func triggerBuildsUnchecked(on database: Database,
                     let buildId = Build.Id()
 
                     let response = try await Build.trigger(database: database,
-                                                           client: client,
                                                            buildId: buildId,
                                                            isDocBuild: trigger.docPairs.contains(pair),
                                                            platform: pair.platform,

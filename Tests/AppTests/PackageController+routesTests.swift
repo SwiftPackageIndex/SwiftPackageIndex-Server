@@ -1435,8 +1435,6 @@ class PackageController_routesTests: SnapshotTestCase {
         // MUT
         let latestMajorVersions = versions.latestMajorVersions()
         let latestMajorRerefences = latestMajorVersions.map { "\($0.reference)" }
-        print(latestMajorRerefences)
-
         XCTAssertEqual(latestMajorRerefences, ["1.1.2", "2.1.1", "3.0.0"])
     }
 

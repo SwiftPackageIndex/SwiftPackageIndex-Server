@@ -23,7 +23,7 @@ class MetricsTests: AppTestCase {
 
     func test_basic() async throws {
         try await withDependencies {
-            $0.buildSystem.triggerBuild = { @Sendable  _, _, _, _, _, _, _, _ in
+            $0.buildSystem.triggerBuild = { @Sendable _, _, _, _, _, _, _ in
                     .init(status: .ok, webUrl: "")
             }
             $0.environment.builderToken = { "builder token" }
@@ -37,7 +37,6 @@ class MetricsTests: AppTestCase {
                 try await Version(id: versionId, package: p, reference: .branch("main")).save(on: app.db)
             }
             try await triggerBuildsUnchecked(on: app.db,
-                                             client: app.client,
                                              triggers: [
                                                 .init(versionId: versionId,
                                                       buildPairs: [.init(.macosSpm, .v3)])!
@@ -148,7 +147,7 @@ class MetricsTests: AppTestCase {
             let pkg = try await savePackage(on: app.db, "1")
             
             // MUT
-            try await triggerBuilds(on: app.db, client: app.client, mode: .packageId(pkg.id!, force: true))
+            try await triggerBuilds(on: app.db, mode: .packageId(pkg.id!, force: true))
             
             // validation
             XCTAssert((AppMetrics.buildTriggerDurationSeconds?.get()) ?? 0 > 0)

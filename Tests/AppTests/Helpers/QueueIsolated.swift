@@ -60,10 +60,10 @@ public final class QueueIsolated<Value: Sendable>: @unchecked Sendable {
 
 extension QueueIsolated where Value == Int {
     public func increment(by delta: Int = 1) {
-        self._value += delta
+        withValue { $0 += delta }
     }
 
     public func decrement(by delta: Int = 1) {
-        self._value -= delta
+        withValue { $0 -= delta }
     }
 }
