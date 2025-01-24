@@ -31,14 +31,16 @@ extension SignedCollection {
                          collectionName: String? = nil,
                          keywords: [String]? = nil,
                          overview: String? = nil,
-                         revision: Int? = nil) async throws -> SignedCollection {
-        let collection  = try await PackageCollection.generate(db: db,
-                                                               filterBy: filter,
-                                                               authorName: authorName,
-                                                               collectionName: collectionName,
-                                                               keywords: keywords,
-                                                               overview: overview,
-                                                               revision: revision)
+                         revision: Int? = nil,
+                         limit maxResults: Int? = nil) async throws -> SignedCollection {
+        let collection = try await PackageCollection.generate(db: db,
+                                                              filterBy: filter,
+                                                              authorName: authorName,
+                                                              collectionName: collectionName,
+                                                              keywords: keywords,
+                                                              overview: overview,
+                                                              revision: revision,
+                                                              limit: maxResults)
         return try await sign(collection: collection)
     }
 

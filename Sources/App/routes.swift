@@ -92,6 +92,8 @@ func routes(_ app: Application) throws {
                 use: PackageCollectionController.generate).excludeFromOpenAPI()
         app.get(SiteURL.packageCollectionCustom(.key).pathComponents,
                 use: PackageCollectionController.generate).excludeFromOpenAPI()
+        app.get(SiteURL.packageCollectionKeyword(.key).pathComponents,
+                use: PackageCollectionController.generate).excludeFromOpenAPI()
     }
 
     do {  // author page

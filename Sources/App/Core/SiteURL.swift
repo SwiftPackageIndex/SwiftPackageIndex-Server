@@ -122,6 +122,7 @@ enum SiteURL: Resourceable, Sendable {
     case javascripts(String)
     case keywords(_ keyword: Parameter<String>)
     case package(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagePathComponents?)
+    case packageCollectionKeyword(_ keyword: Parameter<String>)
     case packageCollectionAuthor(_ owner: Parameter<String>)
     case packageCollectionCustom(_ key: Parameter<String>)
     case packageCollections
@@ -209,6 +210,12 @@ enum SiteURL: Resourceable, Sendable {
             return "\(Self.package(owner, repo, .none).path)/\(next.path)"
 
         case .package:
+            fatalError("invalid path: \(self)")
+
+        case let .packageCollectionKeyword(.value(keyword)):
+            return "keywords/\(keyword)/collection.json"
+
+        case .packageCollectionKeyword(.key):
             fatalError("invalid path: \(self)")
 
         case let .packageCollectionAuthor(.value(owner)):
@@ -322,6 +329,12 @@ enum SiteURL: Resourceable, Sendable {
             return Self.package(k1, k2, .none).pathComponents + next.pathComponents
 
         case .package:
+            fatalError("pathComponents must not be called with a value parameter")
+
+        case .packageCollectionKeyword(.key):
+            return ["keywords", ":keyword", "collection.json"]
+
+        case .packageCollectionKeyword(.value):
             fatalError("pathComponents must not be called with a value parameter")
 
         case .packageCollectionAuthor(.key):
