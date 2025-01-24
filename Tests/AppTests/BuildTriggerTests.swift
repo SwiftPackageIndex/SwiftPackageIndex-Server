@@ -457,44 +457,32 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_triggerBuildsUnchecked_build_exists() async throws {
+        // Tests error handling when a build record already exists and `create` raises a
+        // uq:builds.version_id+builds.platform+builds.swift_version+v2
+        // unique key violation.
+        // The only way this can currently happen is by running a manual trigger command
+        // from a container in the dev or prod envs (docker exec ...), like so:
+        //   ./Run trigger-builds -v {version-id} -p macos-spm -s 5.7
+        // This is how we routinely manually trigger doc-related builds.
+        // This test ensures that the build record is updated in this case rather than
+        // being completely ignored because the command errors out.
+        // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2237
+        let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
         try await withDependencies {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-            // Use live dependency but replace actual client with a mock so we can
-            // assert on the details being sent without actually making a request
-            $0.buildSystem.triggerBuild = { @Sendable buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(buildId: buildId,
-                                                      cloneURL: cloneURL,
-                                                      isDocBuild: isDocBuild,
-                                                      platform: platform,
-                                                      reference: ref,
-                                                      swiftVersion: swiftVersion,
-                                                      versionID: versionID)
+            $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
+            $0.httpClient.post = { @Sendable _, _, body in
+                let body = try XCTUnwrap(body)
+                let query = try URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body)
+                queries.withValue { $0.append(query) }
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
-            // Tests error handling when a build record already exists and `create` raises a
-            // uq:builds.version_id+builds.platform+builds.swift_version+v2
-            // unique key violation.
-            // The only way this can currently happen is by running a manual trigger command
-            // from a container in the dev or prod envs (docker exec ...), like so:
-            //   ./Run trigger-builds -v {version-id} -p macos-spm -s 5.7
-            // This is how we routinely manually trigger doc-related builds.
-            // This test ensures that the build record is updated in this case rather than
-            // being completely ignored because the command errors out.
-            // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2237
             // setup
-            let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
-            let client = MockClient { req, res in
-                guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
-                queries.withValue { $0.append(query) }
-                try? res.content.encode(
-                    Gitlab.Builder.Response(webUrl: "http://web_url")
-                )
-            }
-
             let buildId = UUID()
             let versionId = UUID()
             do {  // save package with a build that we re-trigger
@@ -514,7 +502,7 @@ class BuildTriggerTests: AppTestCase {
 
             // MUT
             try await triggerBuildsUnchecked(on: app.db,
-                                             client: client,
+                                             client: app.client,
                                              triggers: triggers)
 
             // validate
