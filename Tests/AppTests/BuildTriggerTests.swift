@@ -523,6 +523,8 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_triggerBuilds_checked() async throws {
+        // Ensure we respect the pipeline limit when triggering builds
+        let triggerCount = QueueIsolated(0)
         try await withDependencies {
             $0.environment.allowBuildTriggers = { true }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
@@ -536,26 +538,12 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.siteURL = { "http://example.com" }
             // Use live dependency but replace actual client with a mock so we can
             // assert on the details being sent without actually making a request
-            $0.buildSystem.triggerBuild = { @Sendable buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(buildId: buildId,
-                                                      cloneURL: cloneURL,
-                                                      isDocBuild: isDocBuild,
-                                                      platform: platform,
-                                                      reference: ref,
-                                                      swiftVersion: swiftVersion,
-                                                      versionID: versionID)
+            $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
+            $0.httpClient.post = { @Sendable _, _, body in
+                triggerCount.increment()
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
-            // Ensure we respect the pipeline limit when triggering builds
-            // setup
-            var triggerCount = 0
-            let client = MockClient { _, res in
-                triggerCount += 1
-                try? res.content.encode(
-                    Gitlab.Builder.Response(webUrl: "http://web_url")
-                )
-            }
-
             do {  // fist run: we are at capacity and should not be triggering more builds
                 try await withDependencies {
                     $0.buildSystem.getStatusCount = { @Sendable _ in 300 }
@@ -569,11 +557,11 @@ class BuildTriggerTests: AppTestCase {
 
                     // MUT
                     try await triggerBuilds(on: app.db,
-                                            client: client,
+                                            client: app.client,
                                             mode: .packageId(pkgId, force: false))
 
                     // validate
-                    XCTAssertEqual(triggerCount, 0)
+                    XCTAssertEqual(triggerCount.value, 0)
                     // ensure no build stubs have been created either
                     let v = try await Version.find(versionId, on: app.db)
                     try await v?.$builds.load(on: app.db)
@@ -581,7 +569,7 @@ class BuildTriggerTests: AppTestCase {
                 }
             }
 
-            triggerCount = 0
+            triggerCount.setValue(0)
 
             do {  // second run: we are just below capacity and allow more builds to be triggered
                 try await withDependencies {
@@ -596,11 +584,11 @@ class BuildTriggerTests: AppTestCase {
 
                     // MUT
                     try await triggerBuilds(on: app.db,
-                                            client: client,
+                                            client: app.client,
                                             mode: .packageId(pkgId, force: false))
 
                     // validate
-                    XCTAssertEqual(triggerCount, 27)
+                    XCTAssertEqual(triggerCount.value, 27)
                     // ensure builds are now in progress
                     let v = try await Version.find(versionId, on: app.db)
                     try await v?.$builds.load(on: app.db)
@@ -608,18 +596,12 @@ class BuildTriggerTests: AppTestCase {
                 }
             }
 
+            triggerCount.setValue(0)
+
             do {  // third run: we are at capacity and using the `force` flag
                 try await withDependencies {
                     $0.buildSystem.getStatusCount = { @Sendable _ in 300 }
                 } operation: {
-                    var triggerCount = 0
-                    let client = MockClient { _, res in
-                        triggerCount += 1
-                        try? res.content.encode(
-                            Gitlab.Builder.Response(webUrl: "http://web_url")
-                        )
-                    }
-
                     let pkgId = UUID()
                     let versionId = UUID()
                     let p = Package(id: pkgId, url: "3")
@@ -629,11 +611,11 @@ class BuildTriggerTests: AppTestCase {
 
                     // MUT
                     try await triggerBuilds(on: app.db,
-                                            client: client,
+                                            client: app.client,
                                             mode: .packageId(pkgId, force: true))
 
                     // validate
-                    XCTAssertEqual(triggerCount, 27)
+                    XCTAssertEqual(triggerCount.value, 27)
                     // ensure builds are now in progress
                     let v = try await Version.find(versionId, on: app.db)
                     try await v?.$builds.load(on: app.db)
