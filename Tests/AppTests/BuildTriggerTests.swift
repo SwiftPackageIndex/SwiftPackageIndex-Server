@@ -822,6 +822,8 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_override_switch() async throws {
+        // Ensure we don't trigger if the override is off
+        let triggerCount = QueueIsolated(0)
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
@@ -833,28 +835,13 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
-            // Use live dependency but replace actual client with a mock so we can
-            // assert on the details being sent without actually making a request
-            $0.buildSystem.triggerBuild = { @Sendable buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(buildId: buildId,
-                                                      cloneURL: cloneURL,
-                                                      isDocBuild: isDocBuild,
-                                                      platform: platform,
-                                                      reference: ref,
-                                                      swiftVersion: swiftVersion,
-                                                      versionID: versionID)
+            $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
+            $0.httpClient.post = { @Sendable _, _, body in
+                triggerCount.increment()
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
-            // Ensure don't trigger if the override is off
             // setup
-            var triggerCount = 0
-            let client = MockClient { _, res in
-                triggerCount += 1
-                try? res.content.encode(
-                    Gitlab.Builder.Response(webUrl: "http://web_url")
-                )
-            }
-
             try await withDependencies {
                 // confirm that the off switch prevents triggers
                 $0.environment.allowBuildTriggers = { false }
@@ -868,14 +855,14 @@ class BuildTriggerTests: AppTestCase {
 
                 // MUT
                 try await triggerBuilds(on: app.db,
-                                        client: client,
+                                        client: app.client,
                                         mode: .packageId(pkgId, force: false))
 
                 // validate
-                XCTAssertEqual(triggerCount, 0)
+                XCTAssertEqual(triggerCount.value, 0)
             }
 
-            triggerCount = 0
+            triggerCount.setValue(0)
 
             try await withDependencies {
                 // flipping the switch to on should allow triggers to proceed
@@ -890,11 +877,11 @@ class BuildTriggerTests: AppTestCase {
 
                 // MUT
                 try await triggerBuilds(on: app.db,
-                                        client: client,
+                                        client: app.client,
                                         mode: .packageId(pkgId, force: false))
 
                 // validate
-                XCTAssertEqual(triggerCount, 27)
+                XCTAssertEqual(triggerCount.value, 27)
             }
         }
     }
