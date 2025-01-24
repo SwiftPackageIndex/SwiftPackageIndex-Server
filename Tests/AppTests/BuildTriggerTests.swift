@@ -389,6 +389,7 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_triggerBuildsUnchecked_supported() async throws {
+        let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
         try await withDependencies {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
             $0.environment.builderToken = { "builder token" }
@@ -396,29 +397,16 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.buildTriggerAllowList = { [] }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-            // Use live dependency but replace actual client with a mock so we can
-            // assert on the details being sent without actually making a request
-            $0.buildSystem.triggerBuild = { @Sendable buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(buildId: buildId,
-                                                      cloneURL: cloneURL,
-                                                      isDocBuild: isDocBuild,
-                                                      platform: platform,
-                                                      reference: ref,
-                                                      swiftVersion: swiftVersion,
-                                                      versionID: versionID)
+            $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
+            $0.httpClient.post = { @Sendable _, _, body in
+                let body = try XCTUnwrap(body)
+                let query = try URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body)
+                queries.withValue { $0.append(query) }
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
             // Explicitly test the full range of all currently triggered platforms and swift versions
             // setup
-            let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
-            let client = MockClient { req, res in
-                guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
-                queries.withValue { $0.append(query) }
-                try? res.content.encode(
-                    Gitlab.Builder.Response(webUrl: "http://web_url")
-                )
-            }
-
             let pkgId = UUID()
             let versionId = UUID()
             do {  // save package with partially completed builds
@@ -431,7 +419,7 @@ class BuildTriggerTests: AppTestCase {
 
             // MUT
             try await triggerBuildsUnchecked(on: app.db,
-                                             client: client,
+                                             client: app.client,
                                              triggers: triggers)
 
             // validate
