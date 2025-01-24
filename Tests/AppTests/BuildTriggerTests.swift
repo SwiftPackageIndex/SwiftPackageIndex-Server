@@ -353,7 +353,7 @@ class BuildTriggerTests: AppTestCase {
                 let body = try XCTUnwrap(body)
                 let query = try URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body)
                 queries.withValue { $0.append(query) }
-                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
+                return .created(webUrl: "http://web_url")
             }
         } operation: {
             // setup
@@ -403,7 +403,7 @@ class BuildTriggerTests: AppTestCase {
                 let body = try XCTUnwrap(body)
                 let query = try URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body)
                 queries.withValue { $0.append(query) }
-                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
+                return .created(webUrl: "http://web_url")
             }
         } operation: {
             // setup
@@ -479,7 +479,7 @@ class BuildTriggerTests: AppTestCase {
                 let body = try XCTUnwrap(body)
                 let query = try URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body)
                 queries.withValue { $0.append(query) }
-                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
+                return .created(webUrl: "http://web_url")
             }
         } operation: {
             // setup
@@ -541,7 +541,7 @@ class BuildTriggerTests: AppTestCase {
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
                 triggerCount.increment()
-                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
+                return .created(webUrl: "http://web_url")
             }
         } operation: {
             do {  // fist run: we are at capacity and should not be triggering more builds
@@ -646,7 +646,7 @@ class BuildTriggerTests: AppTestCase {
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
                 triggerCount.increment()
-                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
+                return .created(webUrl: "http://web_url")
             }
         } operation: {
             // setup
@@ -728,7 +728,7 @@ class BuildTriggerTests: AppTestCase {
                 defer { triggerCount.increment() }
                 // let the 5th trigger succeed to ensure we don't early out on errors
                 if triggerCount.value == 5 {
-                    return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
+                    return .created(webUrl: "http://web_url")
                 } else {
                     struct Response: Content { var message: String }
                     return try .tooManyRequests(jsonEncode: Response(message: "Too many pipelines created in the last minute. Try again later."))
@@ -838,7 +838,7 @@ class BuildTriggerTests: AppTestCase {
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
                 triggerCount.increment()
-                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
+                return .created(webUrl: "http://web_url")
             }
         } operation: {
             // setup
@@ -903,8 +903,7 @@ class BuildTriggerTests: AppTestCase {
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
                 triggerCount.increment()
-#warning("can we simplify this?")
-                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
+                return .created(webUrl: "http://web_url")
             }
         } operation: {
             // confirm that bad luck prevents triggers
@@ -968,7 +967,7 @@ class BuildTriggerTests: AppTestCase {
             $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
             $0.httpClient.post = { @Sendable _, _, body in
                 triggerCount.increment()
-                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
+                return .created(webUrl: "http://web_url")
             }
         } operation: {
             // confirm that we trigger even when rolling above the threshold
@@ -1313,6 +1312,10 @@ private func updateBuildCreatedAt(id: Build.Id, addTimeInterval timeInterval: Ti
 
 
 private extension HTTPClient.Response {
+    static func created(webUrl: String) -> Self {
+        return try! .created(jsonEncode: Gitlab.Builder.Response(webUrl: webUrl))
+    }
+
     static func tooManyRequests<T: Encodable>(jsonEncode value: T) throws -> Self {
         let data = try JSONEncoder().encode(value)
         return .init(status: .tooManyRequests, body: .init(data: data))
