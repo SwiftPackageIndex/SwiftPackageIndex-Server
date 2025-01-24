@@ -112,7 +112,7 @@ class GitlabBuilderTests: AppTestCase {
                 called.setValue(true)
                 let body = try XCTUnwrap(body)
                 // validate
-                let swiftVersion = (try? JSONDecoder().decode(Gitlab.Builder.PostDTO.self, from: body))
+                let swiftVersion = (try? URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body))
                     .flatMap { $0.variables["SWIFT_VERSION"] }
                 XCTAssertEqual(swiftVersion, "6.0")
                 return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
