@@ -85,9 +85,7 @@ struct TriggerBuildsCommand: AsyncCommand {
         }
 
         do {
-            try await triggerBuilds(on: context.application.db,
-                                    client: context.application.client,
-                                    mode: mode)
+            try await triggerBuilds(on: context.application.db, mode: mode)
         } catch {
             Current.logger().critical("\(error)")
         }
@@ -122,10 +120,7 @@ extension TriggerBuildsCommand {
 ///   - client: `Client` used for http request
 ///   - parameter: `BuildTriggerCommand.Parameter` holding either a list of package ids
 ///   or a fetch limit for candidate selection.
-#warning("remove client")
-func triggerBuilds(on database: Database,
-                   client: Client,
-                   mode: TriggerBuildsCommand.Mode) async throws {
+func triggerBuilds(on database: Database, mode: TriggerBuildsCommand.Mode) async throws {
     @Dependency(\.environment) var environment
     let start = DispatchTime.now().uptimeNanoseconds
 
@@ -139,15 +134,12 @@ func triggerBuilds(on database: Database,
             AppMetrics.buildCandidatesCount?.set(candidates.count)
 
             let limitedCandidates = Array(candidates.prefix(limit))
-            try await triggerBuilds(on: database,
-                                    client: client,
-                                    packages: limitedCandidates)
+            try await triggerBuilds(on: database, packages: limitedCandidates)
             AppMetrics.buildTriggerDurationSeconds?.time(since: start)
 
         case let .packageId(id, force):
             Current.logger().info("Triggering builds (packageID: \(id)) ...")
             try await triggerBuilds(on: database,
-                                    client: client,
                                     packages: [id],
                                     force: force)
             AppMetrics.buildTriggerDurationSeconds?.time(since: start)
@@ -173,9 +165,7 @@ func triggerBuilds(on database: Database,
 ///   - client: `Client` used for http request
 ///   - packages: list of `Package.Id`s to trigger
 ///   - force: do not check pipeline capacity and ignore downscaling
-#warning("remove client")
 func triggerBuilds(on database: Database,
-                   client: Client,
                    packages: [Package.Id],
                    force: Bool = false) async throws {
     @Dependency(\.environment) var environment

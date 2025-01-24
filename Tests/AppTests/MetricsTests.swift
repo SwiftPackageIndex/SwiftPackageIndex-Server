@@ -147,7 +147,7 @@ class MetricsTests: AppTestCase {
             let pkg = try await savePackage(on: app.db, "1")
             
             // MUT
-            try await triggerBuilds(on: app.db, client: app.client, mode: .packageId(pkg.id!, force: true))
+            try await triggerBuilds(on: app.db, mode: .packageId(pkg.id!, force: true))
             
             // validation
             XCTAssert((AppMetrics.buildTriggerDurationSeconds?.get()) ?? 0 > 0)

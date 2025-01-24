@@ -550,9 +550,7 @@ class BuildTriggerTests: AppTestCase {
                         .save(on: app.db)
 
                     // MUT
-                    try await triggerBuilds(on: app.db,
-                                            client: app.client,
-                                            mode: .packageId(pkgId, force: false))
+                    try await triggerBuilds(on: app.db, mode: .packageId(pkgId, force: false))
 
                     // validate
                     XCTAssertEqual(triggerCount.value, 0)
@@ -577,9 +575,7 @@ class BuildTriggerTests: AppTestCase {
                         .save(on: app.db)
 
                     // MUT
-                    try await triggerBuilds(on: app.db,
-                                            client: app.client,
-                                            mode: .packageId(pkgId, force: false))
+                    try await triggerBuilds(on: app.db, mode: .packageId(pkgId, force: false))
 
                     // validate
                     XCTAssertEqual(triggerCount.value, 27)
@@ -604,9 +600,7 @@ class BuildTriggerTests: AppTestCase {
                         .save(on: app.db)
 
                     // MUT
-                    try await triggerBuilds(on: app.db,
-                                            client: app.client,
-                                            mode: .packageId(pkgId, force: true))
+                    try await triggerBuilds(on: app.db, mode: .packageId(pkgId, force: true))
 
                     // validate
                     XCTAssertEqual(triggerCount.value, 27)
@@ -653,9 +647,7 @@ class BuildTriggerTests: AppTestCase {
             }
 
             // MUT
-            try await triggerBuilds(on: app.db,
-                                    client: app.client,
-                                    mode: .limit(4))
+            try await triggerBuilds(on: app.db, mode: .limit(4))
 
             // validate - only the first batch must be allowed to trigger
             XCTAssertEqual(triggerCount.value, 27)
@@ -692,9 +684,7 @@ class BuildTriggerTests: AppTestCase {
             try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 1)
 
             // MUT
-            try await triggerBuilds(on: app.db,
-                                    client: client,
-                                    mode: .packageId(p.id!, force: false))
+            try await triggerBuilds(on: app.db, mode: .packageId(p.id!, force: false))
 
             // validate
             let count = try await Build.query(on: app.db).count()
@@ -736,9 +726,7 @@ class BuildTriggerTests: AppTestCase {
             try await v.save(on: app.db)
 
             // MUT
-            try await triggerBuilds(on: app.db,
-                                    client: app.client,
-                                    mode: .packageId(.id0, force: false))
+            try await triggerBuilds(on: app.db, mode: .packageId(.id0, force: false))
 
             // validate that one build record is saved, for the successful trigger
             let count = try await Build.query(on: app.db).count()
@@ -848,9 +836,7 @@ class BuildTriggerTests: AppTestCase {
                     .save(on: app.db)
 
                 // MUT
-                try await triggerBuilds(on: app.db,
-                                        client: app.client,
-                                        mode: .packageId(pkgId, force: false))
+                try await triggerBuilds(on: app.db, mode: .packageId(pkgId, force: false))
 
                 // validate
                 XCTAssertEqual(triggerCount.value, 0)
@@ -870,9 +856,7 @@ class BuildTriggerTests: AppTestCase {
                     .save(on: app.db)
 
                 // MUT
-                try await triggerBuilds(on: app.db,
-                                        client: app.client,
-                                        mode: .packageId(pkgId, force: false))
+                try await triggerBuilds(on: app.db, mode: .packageId(pkgId, force: false))
 
                 // validate
                 XCTAssertEqual(triggerCount.value, 27)
@@ -912,9 +896,7 @@ class BuildTriggerTests: AppTestCase {
                     .save(on: app.db)
 
                 // MUT
-                try await triggerBuilds(on: app.db,
-                                        client: app.client,
-                                        mode: .packageId(pkgId, force: false))
+                try await triggerBuilds(on: app.db, mode: .packageId(pkgId, force: false))
 
                 // validate
                 XCTAssertEqual(triggerCount.value, 0)
@@ -934,9 +916,7 @@ class BuildTriggerTests: AppTestCase {
                     .save(on: app.db)
 
                 // MUT
-                try await triggerBuilds(on: app.db,
-                                        client: app.client,
-                                        mode: .packageId(pkgId, force: false))
+                try await triggerBuilds(on: app.db, mode: .packageId(pkgId, force: false))
 
                 // validate
                 XCTAssertEqual(triggerCount.value, 27)
@@ -975,9 +955,7 @@ class BuildTriggerTests: AppTestCase {
                     .save(on: app.db)
 
                 // MUT
-                try await triggerBuilds(on: app.db,
-                                        client: app.client,
-                                        mode: .packageId(.id0, force: false))
+                try await triggerBuilds(on: app.db, mode: .packageId(.id0, force: false))
 
                 // validate
                 XCTAssertEqual(triggerCount.value, 27)
