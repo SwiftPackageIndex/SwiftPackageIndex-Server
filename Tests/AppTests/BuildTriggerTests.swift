@@ -389,6 +389,7 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_triggerBuildsUnchecked_supported() async throws {
+        // Explicitly test the full range of all currently triggered platforms and swift versions
         let queries = QueueIsolated<[Gitlab.Builder.PostDTO]>([])
         try await withDependencies {
             $0.environment.awsDocsBucket = { "awsDocsBucket" }
@@ -405,7 +406,6 @@ class BuildTriggerTests: AppTestCase {
                 return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
-            // Explicitly test the full range of all currently triggered platforms and swift versions
             // setup
             let pkgId = UUID()
             let versionId = UUID()

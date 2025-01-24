@@ -183,6 +183,8 @@ class BuildTests: AppTestCase {
     }
 
     func test_trigger_isDocBuild() async throws {
+        // Same test as test_trigger above, except we trigger with isDocBuild: true
+        // and expect a 15m TIMEOUT instead of 10m
         let buildId = UUID.id0
         let versionId = UUID.id1
         let called = QueueIsolated(false)
@@ -203,8 +205,6 @@ class BuildTests: AppTestCase {
                 return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
-            // Same test as test_trigger above, except we trigger with isDocBuild: true
-            // and expect a 15m TIMEOUT instead of 10m
             // setup
             let p = try await savePackage(on: app.db, "1")
             let v = try Version(id: versionId, package: p, reference: .branch("main"))
