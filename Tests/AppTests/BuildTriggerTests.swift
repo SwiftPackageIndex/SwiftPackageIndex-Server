@@ -709,6 +709,8 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_triggerBuilds_error() async throws {
+        // Ensure we trim builds as part of triggering
+        let triggerCount = QueueIsolated(0)
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
             $0.environment.allowBuildTriggers = { true }
@@ -721,37 +723,19 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.random = { @Sendable _ in 0 }
             $0.environment.siteURL = { "http://example.com" }
-            // Use live dependency but replace actual client with a mock so we can
-            // assert on the details being sent without actually making a request
-            $0.buildSystem.triggerBuild = { @Sendable buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(buildId: buildId,
-                                                      cloneURL: cloneURL,
-                                                      isDocBuild: isDocBuild,
-                                                      platform: platform,
-                                                      reference: ref,
-                                                      swiftVersion: swiftVersion,
-                                                      versionID: versionID)
+            $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
+            $0.httpClient.post = { @Sendable _, _, body in
+                defer { triggerCount.increment() }
+                // let the 5th trigger succeed to ensure we don't early out on errors
+                if triggerCount.value == 5 {
+                    return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
+                } else {
+                    struct Response: Content { var message: String }
+                    return try .tooManyRequests(jsonEncode: Response(message: "Too many pipelines created in the last minute. Try again later."))
+                }
             }
         } operation: {
-            // Ensure we trim builds as part of triggering
             // setup
-            var triggerCount = 0
-            let client = MockClient { _, res in
-                // let the 5th trigger succeed to ensure we don't early out on errors
-                if triggerCount == 5 {
-                    try? res.content.encode(
-                        Gitlab.Builder.Response(webUrl: "http://web_url")
-                    )
-                } else {
-                    struct Response: Content {
-                        var message: String
-                    }
-                    try? res.content.encode(Response(message: "Too many pipelines created in the last minute. Try again later."))
-                    res.status = .tooManyRequests
-                }
-                triggerCount += 1
-            }
-
             let p = Package(id: .id0, url: "1")
             try await p.save(on: app.db)
             let v = try Version(id: .id1, package: p, latest: .defaultBranch, reference: .branch("main"))
@@ -759,7 +743,7 @@ class BuildTriggerTests: AppTestCase {
 
             // MUT
             try await triggerBuilds(on: app.db,
-                                    client: client,
+                                    client: app.client,
                                     mode: .packageId(.id0, force: false))
 
             // validate that one build record is saved, for the successful trigger
@@ -1365,4 +1349,12 @@ private func updateBuildCreatedAt(id: Build.Id, addTimeInterval timeInterval: Ti
     let b = try await XCTUnwrapAsync(await Build.find(id, on: database))
     b.createdAt = b.createdAt?.addingTimeInterval(timeInterval)
     try await b.save(on: database)
+}
+
+
+private extension HTTPClient.Response {
+    static func tooManyRequests<T: Encodable>(jsonEncode value: T) throws -> Self {
+        let data = try JSONEncoder().encode(value)
+        return .init(status: .tooManyRequests, body: .init(data: data))
+    }
 }
