@@ -122,6 +122,7 @@ extension TriggerBuildsCommand {
 ///   - client: `Client` used for http request
 ///   - parameter: `BuildTriggerCommand.Parameter` holding either a list of package ids
 ///   or a fetch limit for candidate selection.
+#warning("remove client")
 func triggerBuilds(on database: Database,
                    client: Client,
                    mode: TriggerBuildsCommand.Mode) async throws {
@@ -159,9 +160,7 @@ func triggerBuilds(on database: Database,
                 Current.logger().error("Failed to create trigger.")
                 return
             }
-            try await triggerBuildsUnchecked(on: database,
-                                             client: client,
-                                             triggers: [trigger])
+            try await triggerBuildsUnchecked(on: database, triggers: [trigger])
 
     }
 }
@@ -192,7 +191,7 @@ func triggerBuilds(on database: Database,
             for package in packages {
                 group.addTask {
                     let triggerInfo = try await findMissingBuilds(database, packageId: package)
-                    try await triggerBuildsUnchecked(on: database, client: client, triggers: triggerInfo)
+                    try await triggerBuildsUnchecked(on: database, triggers: triggerInfo)
                 }
             }
         }
@@ -238,9 +237,7 @@ func triggerBuilds(on database: Database,
                 let triggeredJobCount = triggers.reduce(0) { $0 + $1.buildPairs.count }
                 await newJobs.withValue { $0 += triggeredJobCount }
 
-                try await triggerBuildsUnchecked(on: database,
-                                                 client: client,
-                                                 triggers: triggers)
+                try await triggerBuildsUnchecked(on: database, triggers: triggers)
             }
         }
     }
@@ -256,10 +253,7 @@ func triggerBuilds(on database: Database,
 ///   - database: `Database` handle used for database access
 ///   - client: `Client` used for http request
 ///   - triggers: trigger information for builds to trigger
-#warning("remove client")
-func triggerBuildsUnchecked(on database: Database,
-                            client: Client,
-                            triggers: [BuildTriggerInfo]) async throws {
+func triggerBuildsUnchecked(on database: Database, triggers: [BuildTriggerInfo]) async throws {
     await withThrowingTaskGroup(of: Void.self) { group in
         for trigger in triggers {
             if let packageName = trigger.packageName, let reference = trigger.reference {

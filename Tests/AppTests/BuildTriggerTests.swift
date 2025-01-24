@@ -368,9 +368,7 @@ class BuildTriggerTests: AppTestCase {
                                              buildPairs: [BuildPair(.iOS, .v1)])!]
 
             // MUT
-            try await triggerBuildsUnchecked(on: app.db,
-                                             client: app.client,
-                                             triggers: triggers)
+            try await triggerBuildsUnchecked(on: app.db, triggers: triggers)
 
             // validate
             // ensure Gitlab requests go out
@@ -418,9 +416,7 @@ class BuildTriggerTests: AppTestCase {
             let triggers = try await findMissingBuilds(app.db, packageId: pkgId)
 
             // MUT
-            try await triggerBuildsUnchecked(on: app.db,
-                                             client: app.client,
-                                             triggers: triggers)
+            try await triggerBuildsUnchecked(on: app.db, triggers: triggers)
 
             // validate
             // ensure Gitlab requests go out
@@ -501,9 +497,7 @@ class BuildTriggerTests: AppTestCase {
                                              buildPairs: [BuildPair(.macosSpm, .v3)])!]
 
             // MUT
-            try await triggerBuildsUnchecked(on: app.db,
-                                             client: app.client,
-                                             triggers: triggers)
+            try await triggerBuildsUnchecked(on: app.db, triggers: triggers)
 
             // validate
             // triggerBuildsUnchecked always creates a new buildId,

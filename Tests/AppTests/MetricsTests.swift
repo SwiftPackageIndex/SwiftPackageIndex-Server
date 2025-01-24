@@ -37,7 +37,6 @@ class MetricsTests: AppTestCase {
                 try await Version(id: versionId, package: p, reference: .branch("main")).save(on: app.db)
             }
             try await triggerBuildsUnchecked(on: app.db,
-                                             client: app.client,
                                              triggers: [
                                                 .init(versionId: versionId,
                                                       buildPairs: [.init(.macosSpm, .v3)])!
