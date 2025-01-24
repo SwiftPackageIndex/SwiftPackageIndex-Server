@@ -887,6 +887,8 @@ class BuildTriggerTests: AppTestCase {
     }
 
     func test_downscaling() async throws {
+        // Test build trigger downscaling behaviour
+        let triggerCount = QueueIsolated(0)
         try await withDependencies {
             $0.buildSystem.getStatusCount = { @Sendable _ in 100 }
             $0.environment.allowBuildTriggers = { true }
@@ -898,28 +900,13 @@ class BuildTriggerTests: AppTestCase {
             $0.environment.gitlabPipelineLimit = { Constants.defaultGitlabPipelineLimit }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-            // Use live dependency but replace actual client with a mock so we can
-            // assert on the details being sent without actually making a request
-            $0.buildSystem.triggerBuild = { @Sendable buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(buildId: buildId,
-                                                      cloneURL: cloneURL,
-                                                      isDocBuild: isDocBuild,
-                                                      platform: platform,
-                                                      reference: ref,
-                                                      swiftVersion: swiftVersion,
-                                                      versionID: versionID)
+            $0.buildSystem.triggerBuild = BuildSystemClient.liveValue.triggerBuild
+            $0.httpClient.post = { @Sendable _, _, body in
+                triggerCount.increment()
+#warning("can we simplify this?")
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
-            // Test build trigger downscaling behaviour
-            // setup
-            var triggerCount = 0
-            let client = MockClient { _, res in
-                triggerCount += 1
-                try? res.content.encode(
-                    Gitlab.Builder.Response(webUrl: "http://web_url")
-                )
-            }
-
             // confirm that bad luck prevents triggers
             try await withDependencies {
                 $0.environment.random = { @Sendable _ in 0.05 } // rolling a 0.05 ... so close!
@@ -933,14 +920,14 @@ class BuildTriggerTests: AppTestCase {
 
                 // MUT
                 try await triggerBuilds(on: app.db,
-                                        client: client,
+                                        client: app.client,
                                         mode: .packageId(pkgId, force: false))
 
                 // validate
-                XCTAssertEqual(triggerCount, 0)
+                XCTAssertEqual(triggerCount.value, 0)
             }
 
-            triggerCount = 0
+            triggerCount.setValue(0)
 
             // if we get lucky however...
             try await withDependencies {
@@ -955,11 +942,11 @@ class BuildTriggerTests: AppTestCase {
 
                 // MUT
                 try await triggerBuilds(on: app.db,
-                                        client: client,
+                                        client: app.client,
                                         mode: .packageId(pkgId, force: false))
 
                 // validate
-                XCTAssertEqual(triggerCount, 27)
+                XCTAssertEqual(triggerCount.value, 27)
             }
         }
     }
