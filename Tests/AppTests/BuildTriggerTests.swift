@@ -669,9 +669,6 @@ class BuildTriggerTests: AppTestCase {
         } operation: {
             // Ensure we trim builds as part of triggering
             // setup
-
-            let client = MockClient { _, _ in }
-
             let p = Package(id: .id0, url: "2")
             try await p.save(on: app.db)
             let v = try Version(id: .id1, package: p, latest: nil, reference: .branch("main"))
