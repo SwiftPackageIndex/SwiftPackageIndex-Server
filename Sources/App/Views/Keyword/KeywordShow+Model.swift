@@ -18,15 +18,18 @@ extension KeywordShow {
         var packages: [PackageInfo]
         var page: Int
         var hasMoreResults: Bool
+        let totalPackageCount: Int
 
         internal init(keyword: String,
                       packages: [PackageInfo],
                       page: Int,
-                      hasMoreResults: Bool) {
+                      hasMoreResults: Bool,
+                      totalPackageCount: Int) {
             self.keyword = keyword
             self.packages = packages
             self.page = page
             self.hasMoreResults = hasMoreResults
+            self.totalPackageCount = totalPackageCount
         }
     }
 }
