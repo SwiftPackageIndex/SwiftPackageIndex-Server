@@ -29,6 +29,6 @@ extension KeywordShow.Model {
             lastActivityAt: .t0,
             hasDocs: true
         ) }
-        return .init(keyword: "networking", packages: packages, page: 1, hasMoreResults: false)
+        return .init(keyword: "networking", packages: packages, page: 1, hasMoreResults: false, totalPackageCount: 10)
     }
 }
