@@ -256,6 +256,7 @@ func triggerBuilds(on database: Database,
 ///   - database: `Database` handle used for database access
 ///   - client: `Client` used for http request
 ///   - triggers: trigger information for builds to trigger
+#warning("remove client")
 func triggerBuildsUnchecked(on database: Database,
                             client: Client,
                             triggers: [BuildTriggerInfo]) async throws {
@@ -273,7 +274,6 @@ func triggerBuildsUnchecked(on database: Database,
                     let buildId = Build.Id()
 
                     let response = try await Build.trigger(database: database,
-                                                           client: client,
                                                            buildId: buildId,
                                                            isDocBuild: trigger.docPairs.contains(pair),
                                                            platform: pair.platform,

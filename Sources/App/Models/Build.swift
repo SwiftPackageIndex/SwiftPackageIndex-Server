@@ -174,9 +174,7 @@ extension Build {
         var webUrl: String?
     }
 
-#warning("remove client")
     static func trigger(database: Database,
-                        client: Client,
                         buildId: Build.Id,
                         isDocBuild: Bool,
                         platform: Build.Platform,
