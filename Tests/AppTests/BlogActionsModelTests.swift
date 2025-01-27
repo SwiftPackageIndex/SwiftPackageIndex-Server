@@ -93,7 +93,7 @@ class BlogActionsModelTests: AppTestCase {
     func test_decode_posts_yml() async throws {
         // setup
         try withDependencies {
-            $0.fileManager = .liveValue
+            $0.fileManager.contents = FileManagerClient.liveValue.contents(atPath:)
             $0.timeZone = .utc
         } operation: {
             // MUT
