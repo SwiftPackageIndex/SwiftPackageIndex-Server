@@ -260,7 +260,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "Vkt0r",
             name: "Victor Sigler",
-            avatarUrl: "https://avatars.githubusercontent.com/u/4573453?u=ecc5faaa658a54d2c705c24c891d870a3993cce7&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/4573453?u=0ed9d1e41dd700d559b9435022db4cab0bdf6d76&v=4"
         ),
         .init(
             login: "JonPulfer",
