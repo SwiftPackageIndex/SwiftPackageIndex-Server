@@ -14,16 +14,12 @@
 
 import Dependencies
 import DependenciesMacros
-import Vapor
 
 
 @DependencyClient
 struct BuildSystemClient {
-#warning("remove client")
-    var getStatusCount: @Sendable (_ client: Client, _ status: Gitlab.Builder.Status) async throws -> Int
-#warning("remove client")
-    var triggerBuild: @Sendable (_ client: Client,
-                                 _ buildId: Build.Id,
+    var getStatusCount: @Sendable (_ status: Gitlab.Builder.Status) async throws -> Int
+    var triggerBuild: @Sendable (_ buildId: Build.Id,
                                  _ cloneURL: String,
                                  _ isDocBuild: Bool,
                                  _ platform: Build.Platform,
@@ -36,16 +32,14 @@ struct BuildSystemClient {
 extension BuildSystemClient: DependencyKey {
     static var liveValue: Self {
         .init(
-            getStatusCount: { client, status in
-                try await Gitlab.Builder.getStatusCount(client: client,
-                                                        status: status,
+            getStatusCount: { status in
+                try await Gitlab.Builder.getStatusCount(status: status,
                                                         page: 1,
                                                         pageSize: 100,
                                                         maxPageCount: 5)
             },
-            triggerBuild: { client, buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
-                try await Gitlab.Builder.triggerBuild(client: client,
-                                                      buildId: buildId,
+            triggerBuild: { buildId, cloneURL, isDocBuild, platform, ref, swiftVersion, versionID in
+                try await Gitlab.Builder.triggerBuild(buildId: buildId,
                                                       cloneURL: cloneURL,
                                                       isDocBuild: isDocBuild,
                                                       platform: platform,

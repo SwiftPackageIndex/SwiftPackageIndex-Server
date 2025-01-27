@@ -175,7 +175,6 @@ extension Build {
     }
 
     static func trigger(database: Database,
-                        client: Client,
                         buildId: Build.Id,
                         isDocBuild: Bool,
                         platform: Build.Platform,
@@ -189,8 +188,7 @@ extension Build {
             .unwrap(or: Abort(.notFound))
 
         @Dependency(\.buildSystem) var buildSystem
-        return try await buildSystem.triggerBuild(client,
-                                                  buildId,
+        return try await buildSystem.triggerBuild(buildId,
                                                   version.package.url,
                                                   isDocBuild,
                                                   platform,

@@ -83,7 +83,8 @@ enum KeywordShow {
         private func packageCollectionLimitNote() -> Node<HTML.BodyContext> {
             guard model.totalPackageCount > Constants.maxKeywordPackageCollectionCount else { return .empty }
             return .p(
-                .strong("Note: Package collections are limited to a maximum of \(Constants.maxKeywordPackageCollectionCount) packages. If a keyword has more than \(Constants.maxKeywordPackageCollectionCount) packages, only the top \(Constants.maxKeywordPackageCollectionCount) packages will be included based on their package score."
+                .strong("Note: "),
+                .text("Package collections are limited to a maximum of \(Constants.maxKeywordPackageCollectionCount) packages. If a keyword has more than \(Constants.maxKeywordPackageCollectionCount) packages, only the top \(Constants.maxKeywordPackageCollectionCount) packages will be included based on their package score."
                 )
             )
         }

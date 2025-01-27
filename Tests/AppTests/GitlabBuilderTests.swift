@@ -54,111 +54,105 @@ class GitlabBuilderTests: AppTestCase {
     }
 
     func test_triggerBuild() async throws {
+        let buildId = UUID.id0
+        let versionId = UUID.id1
+        let called = QueueIsolated(false)
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-        } operation: {
-            let buildId = UUID()
-            let versionID = UUID()
-
-            var called = false
-            let client = MockClient { req, res in
-                called = true
-                try? res.content.encode(
-                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
-                )
+            $0.httpClient.post = { @Sendable _, _, body in
+                called.setValue(true)
+                let body = try XCTUnwrap(body)
                 // validate
-                XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
-                               Gitlab.Builder.PostDTO(
-                                token: "pipeline token",
-                                ref: "main",
-                                variables: [
-                                    "API_BASEURL": "http://example.com/api",
-                                    "AWS_DOCS_BUCKET": "docs-bucket",
-                                    "BUILD_ID": buildId.uuidString,
-                                    "BUILD_PLATFORM": "macos-spm",
-                                    "BUILDER_TOKEN": "builder token",
-                                    "CLONE_URL": "https://github.com/daveverwer/LeftPad.git",
-                                    "REFERENCE": "1.2.3",
-                                    "SWIFT_VERSION": "5.2",
-                                    "TIMEOUT": "10m",
-                                    "VERSION_ID": versionID.uuidString,
-                                ]))
+                XCTAssertEqual(
+                    try? URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body),
+                    Gitlab.Builder.PostDTO(
+                        token: "pipeline token",
+                        ref: "main",
+                        variables: [
+                            "API_BASEURL": "http://example.com/api",
+                            "AWS_DOCS_BUCKET": "docs-bucket",
+                            "BUILD_ID": buildId.uuidString,
+                            "BUILD_PLATFORM": "macos-spm",
+                            "BUILDER_TOKEN": "builder token",
+                            "CLONE_URL": "https://github.com/daveverwer/LeftPad.git",
+                            "REFERENCE": "1.2.3",
+                            "SWIFT_VERSION": "5.2",
+                            "TIMEOUT": "10m",
+                            "VERSION_ID": versionId.uuidString,
+                        ])
+                )
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
-
+        } operation: {
             // MUT
-            _ = try await Gitlab.Builder.triggerBuild(client: client,
-                                                      buildId: buildId,
+            _ = try await Gitlab.Builder.triggerBuild(buildId: buildId,
                                                       cloneURL: "https://github.com/daveverwer/LeftPad.git",
                                                       isDocBuild: false,
                                                       platform: .macosSpm,
                                                       reference: .tag(.init(1, 2, 3)),
                                                       swiftVersion: .init(5, 2, 4),
-                                                      versionID: versionID)
-            XCTAssertTrue(called)
+                                                      versionID: versionId)
+            XCTAssertTrue(called.value)
         }
     }
 
     func test_issue_588() async throws {
+        let called = QueueIsolated(false)
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.builderToken = { "builder token" }
             $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = { "pipeline token" }
             $0.environment.siteURL = { "http://example.com" }
-        } operation: {
-            var called = false
-            let client = MockClient { req, res in
-                called = true
-                try? res.content.encode(
-                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
-                )
+            $0.httpClient.post = { @Sendable _, _, body in
+                called.setValue(true)
+                let body = try XCTUnwrap(body)
                 // validate
-                let swiftVersion = (try? req.query.decode(Gitlab.Builder.PostDTO.self))
+                let swiftVersion = (try? URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body))
                     .flatMap { $0.variables["SWIFT_VERSION"] }
                 XCTAssertEqual(swiftVersion, "6.0")
+                return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
-
+        } operation: {
             // MUT
-            _ = try await Gitlab.Builder.triggerBuild(client: client,
-                                                      buildId: .id0,
+            _ = try await Gitlab.Builder.triggerBuild(buildId: .id0,
                                                       cloneURL: "https://github.com/daveverwer/LeftPad.git",
                                                       isDocBuild: false,
                                                       platform: .macosSpm,
                                                       reference: .tag(.init(1, 2, 3)),
                                                       swiftVersion: .v6_0,
                                                       versionID: .id1)
-            XCTAssertTrue(called)
+            XCTAssertTrue(called.value)
         }
     }
 
     func test_getStatusCount() async throws {
+        let page = QueueIsolated(1)
         try await withDependencies {
             $0.environment.gitlabApiToken = { "api token" }
-        } operation: {
-            var page = 1
-            let client = MockClient { req, res in
-                XCTAssertEqual(req.url.string, "https://gitlab.com/api/v4/projects/19564054/pipelines?status=pending&page=\(page)&per_page=20")
-                res.status = .ok
+            $0.httpClient.get = { @Sendable url, _ in
+                XCTAssertEqual(
+                    url,
+                    "https://gitlab.com/api/v4/projects/19564054/pipelines?status=pending&page=\(page.value)&per_page=20"
+                )
                 let pending = #"{"id": 1, "status": "pending"}"#
-                switch page {
-                    case 1:
-                        let list = Array(repeating: pending, count: 20).joined(separator: ", ")
-                        res.body = makeBody("[\(list)]")
-                    case 2:
-                        let list = Array(repeating: pending, count: 10).joined(separator: ", ")
-                        res.body = makeBody("[\(list)]")
+                defer { page.increment() }
+                let elementsPerPage = switch page.value {
+                    case 1: 20
+                    case 2: 10
                     default:
                         XCTFail("unexpected page: \(page)")
+                        throw Abort(.badRequest)
                 }
-                page += 1
+                let list = Array(repeating: pending, count: elementsPerPage).joined(separator: ", ")
+                return .ok(body: "[\(list)]")
             }
-
-            let res = try await Gitlab.Builder.getStatusCount(client: client,
-                                                              status: .pending,
+        } operation: {
+            let res = try await Gitlab.Builder.getStatusCount(status: .pending,
                                                               pageSize: 20,
                                                               maxPageCount: 3)
             XCTAssertEqual(res, 30)
@@ -183,11 +177,13 @@ class LiveGitlabBuilderTests: AppTestCase {
                 // Set this to a valid value if you want to report build results back to the server
                 ProcessInfo.processInfo.environment["LIVE_BUILDER_TOKEN"]
             }
+            $0.environment.buildTimeout = { 10 }
             $0.environment.gitlabPipelineToken = {
                 // This Gitlab token is required in order to trigger the pipeline
                 ProcessInfo.processInfo.environment["LIVE_GITLAB_PIPELINE_TOKEN"]
             }
             $0.environment.siteURL = { "https://staging.swiftpackageindex.com" }
+            $0.httpClient = .liveValue
         } operation: {
             // set build branch to trigger on
             Gitlab.Builder.branch = "main"
@@ -200,14 +196,14 @@ class LiveGitlabBuilderTests: AppTestCase {
 
             // MUT
             let res = try await Gitlab.Builder.triggerBuild(
-                client: app.client,
                 buildId: buildId,
                 cloneURL: "https://github.com/SwiftPackageIndex/SemanticVersion.git",
                 isDocBuild: false,
                 platform: .macosSpm,
                 reference: .tag(.init(0, 3, 2)),
                 swiftVersion: .v4,
-                versionID: versionID)
+                versionID: versionID
+            )
 
             print("status: \(res.status)")
             print("buildId: \(buildId)")

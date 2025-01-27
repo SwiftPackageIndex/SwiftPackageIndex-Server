@@ -13,7 +13,7 @@
         "highlight.js": "^11.11.1",
         "mermaid": "^11.4.1",
         "normalize.css": "^8.0.1",
-        "vega": "^5.30.0",
+        "vega": "^5.31.0",
         "vega-tooltip": "^0.35.2"
     },
     "devDependencies": {
@@ -21,7 +21,7 @@
         "esbuild-sass-plugin": "^3.3.1",
         "postcss": "^8.5.1",
         "prettier": "^3.4.2",
-        "stylelint": "^16.13.2",
+        "stylelint": "^16.14.0",
         "stylelint-config-standard-scss": "^14.0.0",
         "stylelint-order": "^6.0.4",
         "stylelint-scss": "^6.10.1"
