@@ -45,7 +45,6 @@ extension AppEnvironment {
 
 
 struct FileManager: Sendable {
-    var checkoutsDirectory: @Sendable () -> String
     var createDirectory: @Sendable (String, Bool, [FileAttributeKey : Any]?) throws -> Void
     var fileExists: @Sendable (String) -> Bool
     var removeItem: @Sendable (_ path: String) throws -> Void
@@ -61,20 +60,11 @@ struct FileManager: Sendable {
     func removeItem(atPath path: String) throws { try removeItem(path) }
 
     static let live: Self = .init(
-        checkoutsDirectory: { Environment.get("CHECKOUTS_DIR") ?? DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
         createDirectory: { try Foundation.FileManager.default.createDirectory(atPath: $0, withIntermediateDirectories: $1, attributes: $2) },
         fileExists: { Foundation.FileManager.default.fileExists(atPath: $0) },
         removeItem: { try Foundation.FileManager.default.removeItem(atPath: $0) },
         workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
     )
-}
-
-
-extension FileManager {
-    func cacheDirectoryPath(for package: Package) -> String? {
-        guard let dirname = package.cacheDirectoryName else { return nil }
-        return checkoutsDirectory() + "/" + dirname
-    }
 }
 
 

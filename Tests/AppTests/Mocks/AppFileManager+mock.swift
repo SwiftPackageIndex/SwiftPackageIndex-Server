@@ -21,7 +21,6 @@ extension App.FileManager {
     static let mock = Self.mock(fileExists: true)
     static func mock(fileExists: Bool) -> Self {
         .init(
-            checkoutsDirectory: { DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
             createDirectory: { _, _, _ in },
             fileExists: { path in fileExists },
             removeItem: { _ in },

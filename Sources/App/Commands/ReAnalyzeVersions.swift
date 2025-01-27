@@ -183,7 +183,8 @@ enum ReAnalyzeVersions {
             try await withEscapedDependencies { dependencies in
                 try await database.transaction { tx in
                     try await dependencies.yield {
-                        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: pkg.model) else { return }
+                        @Dependency(\.fileManager) var fileManager
+                        guard let cacheDir = fileManager.cacheDirectoryPath(for: pkg.model) else { return }
                         if !Current.fileManager.fileExists(atPath: cacheDir) || refreshCheckouts {
                             try await Analyze.refreshCheckout(package: pkg)
                         }

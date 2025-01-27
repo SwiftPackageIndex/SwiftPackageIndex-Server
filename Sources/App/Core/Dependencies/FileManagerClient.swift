@@ -16,13 +16,24 @@ import Foundation
 
 import Dependencies
 import DependenciesMacros
+import IssueReporting
+import Vapor
 
 
 @DependencyClient
 struct FileManagerClient {
     var attributesOfItem: @Sendable (_ atPath: String) throws -> [FileAttributeKey : Any]
+    var checkoutsDirectory: @Sendable () -> String = { reportIssue("checkoutsDirectory"); return "SPI-checkouts" }
     var contents: @Sendable (_ atPath: String) -> Data?
     var contentsOfDirectory: @Sendable (_ atPath: String) throws -> [String]
+}
+
+
+extension FileManagerClient {
+    func cacheDirectoryPath(for package: Package) -> String? {
+        guard let dirname = package.cacheDirectoryName else { return nil }
+        return checkoutsDirectory() + "/" + dirname
+    }
 }
 
 
@@ -30,6 +41,7 @@ extension FileManagerClient: DependencyKey {
     static var liveValue: Self {
         .init(
             attributesOfItem: { try Foundation.FileManager.default.attributesOfItem(atPath: $0) },
+            checkoutsDirectory: { Environment.get("CHECKOUTS_DIR") ?? DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
             contents: { Foundation.FileManager.default.contents(atPath: $0) },
             contentsOfDirectory: { try Foundation.FileManager.default.contentsOfDirectory(atPath: $0) }
         )
@@ -38,7 +50,12 @@ extension FileManagerClient: DependencyKey {
 
 
 extension FileManagerClient: TestDependencyKey {
-    static var testValue: Self { .init() }
+    static var testValue: Self {
+        var mock = Self()
+        // Override the `unimplemented` default because it is a very common dependency.
+        mock.checkoutsDirectory = { "SPI-checkouts" }
+        return mock
+    }
 }
 
 
