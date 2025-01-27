@@ -579,10 +579,70 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
 
     func test_ReadyForSwift6Show() throws {
-        let model = ReadyForSwift6Show.Model()
-        let page = { ReadyForSwift6Show.View(path: "", model: model).document() }
+        withDependencies {
+            $0.fileManager.contents = { @Sendable path in
+                switch path {
+                    case _ where path.hasSuffix("rfs6-packages.json"):
+                        return Data(
+                            """
+                            [
+                              {
+                                "id" : "all",
+                                "name" : "All packages",
+                                "total" : 3395,
+                                "values" : [
+                                  {
+                                    "date" : "2024-05-04",
+                                    "toolchainId" : "org.swift.600202404221a",
+                                    "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-04-22 (a)",
+                                    "value" : 1295
+                                  }
+                                ]
+                              }
+                            ]
+                            """.utf8
+                        )
+                    case _ where path.hasSuffix("rfs6-errors.json"):
+                        return Data(
+                            """
+                            [
+                              {
+                                "id" : "all",
+                                "name" : "All packages",
+                                "total" : 3395,
+                                "values" : [
+                                  {
+                                    "date" : "2024-05-04",
+                                    "toolchainId" : "org.swift.600202404221a",
+                                    "toolchainLabel" : "Swift 6.0 Development Snapshot 2024-04-22 (a)",
+                                    "value" : 56911
+                                  }
+                                ]
+                              }
+                            ]
+                            """.utf8
+                        )
+                    case _ where path.hasSuffix("rfs6-events.json"):
+                        return Data(
+                            """
+                            [
+                                {
+                                    "date": "2024-06-10",
+                                    "value": "Xcode 16 beta 1 released at WWDC '24"
+                                }
+                            ]
+                            """.utf8
+                        )
+                    default:
+                        return nil
+                }
+            }
+        } operation: {
+            let model = ReadyForSwift6Show.Model()
+            let page = { ReadyForSwift6Show.View(path: "", model: model).document() }
 
-        assertSnapshot(of: page, as: .html)
+            assertSnapshot(of: page, as: .html)
+        }
     }
 
     func test_ValidateSPIManifest_show() throws {

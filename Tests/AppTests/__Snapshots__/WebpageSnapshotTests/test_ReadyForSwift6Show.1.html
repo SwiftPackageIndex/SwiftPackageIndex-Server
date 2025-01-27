@@ -90,12 +90,18 @@
         </p>
         <h3 id="total-zero-errors">Total packages with Swift 6 zero data race safety errors</h3>
         <p>This chart shows packages with zero data race safety compiler diagnostics during a successful build on at least one tested platform.</p>
-        <p>Couldn’t load chart data.</p>
+        <div data-controller="vega-chart" data-vega-chart-class-value="CompatiblePackagesChart" data-include-totals="true">
+          <script data-vega-chart-target="plotData" type="application/json">[{"id":"all","name":"All packages","total":3395,"values":[{"toolchainLabel":"Swift 6.0 Development Snapshot 2024-04-22 (a)","value":1295,"toolchainId":"org.swift.600202404221a","date":"2024-05-04"}]}]</script>
+          <script data-vega-chart-target="eventData" type="application/json">[{"date":"2024-06-10","value":"Xcode 16 beta 1 released at WWDC '24"}]</script>
+        </div>
         <h3 id="total-errors">Total Swift 6 data race safety errors</h3>
         <p>This chart shows the total number of all data race safety diagnostics across 
           <em>all</em> packages.
         </p>
-        <p>Couldn’t load chart data.</p>
+        <div data-controller="vega-chart" data-vega-chart-class-value="TotalErrorsChart" data-include-totals="false">
+          <script data-vega-chart-target="plotData" type="application/json">[{"id":"all","name":"All packages","total":3395,"values":[{"toolchainLabel":"Swift 6.0 Development Snapshot 2024-04-22 (a)","value":56911,"toolchainId":"org.swift.600202404221a","date":"2024-05-04"}]}]</script>
+          <script data-vega-chart-target="eventData" type="application/json">[{"date":"2024-06-10","value":"Xcode 16 beta 1 released at WWDC '24"}]</script>
+        </div>
         <h3 id="faq">Frequently asked questions</h3>
         <p>
           <strong>Q: </strong>What is a “data race safety error”?
