@@ -1143,11 +1143,7 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.fileExists = { @Sendable _ in true }
         let commands = QueueIsolated<[String]>([])
         Current.shell.run = { @Sendable cmd, _ in
-            commands.withValue {
-                // mask variable checkout
-                let checkoutDir = "/checkouts"
-                $0.append(cmd.description.replacingOccurrences(of: checkoutDir, with: "..."))
-            }
+            commands.withValue { $0.append(cmd.description) }
             if cmd == .gitFetchAndPruneTags { throw TestError.simulatedFetchError }
             return ""
         }
