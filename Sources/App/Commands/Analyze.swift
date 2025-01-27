@@ -76,7 +76,7 @@ extension Analyze {
             fileURLWithPath: Current.fileManager.checkoutsDirectory(),
             isDirectory: true
         )
-        try Current.fileManager.contentsOfDirectory(atPath: checkoutDir.path)
+        try fileManager.contentsOfDirectory(atPath: checkoutDir.path)
             .map { dir -> (String, Date)? in
                 let url = checkoutDir.appendingPathComponent(dir)
                 guard let mod = try fileManager

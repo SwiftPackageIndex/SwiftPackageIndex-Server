@@ -1274,10 +1274,10 @@ class AnalyzerTests: AppTestCase {
                     "/checkouts/bar": [FileAttributeKey.modificationDate: Date.t0.adding(days: -29)],
                 ][path]!
             }
+            $0.fileManager.contentsOfDirectory = { @Sendable _ in ["foo", "bar"] }
         } operation: {
             // setup
             Current.fileManager.checkoutsDirectory = { "/checkouts" }
-            Current.fileManager.contentsOfDirectory = { @Sendable _ in ["foo", "bar"] }
             let removedPaths = NIOLockedValueBox<[String]>([])
             Current.fileManager.removeItem = { @Sendable p in removedPaths.withLockedValue { $0.append(p) } }
 
