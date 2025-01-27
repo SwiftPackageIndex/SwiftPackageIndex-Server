@@ -507,11 +507,7 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.fileExists = { @Sendable _ in true }
         let commands = QueueIsolated<[String]>([])
         Current.shell.run = { @Sendable cmd, path in
-            // mask variable checkout
-            let checkoutDir = "/checkouts"
-            commands.withValue {
-                $0.append(cmd.description.replacingOccurrences(of: checkoutDir, with: "..."))
-            }
+            commands.withValue { $0.append(cmd.description) }
             return ""
         }
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
