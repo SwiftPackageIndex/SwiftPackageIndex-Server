@@ -289,7 +289,7 @@ class PackageResultTests: AppTestCase {
     func test_currentDocumentationTarget() async throws {
         do {
             // Test package with branch docs and stable version docs
-            let pkg = try savePackage(on: app.db, "1".url)
+            let pkg = try await savePackage(on: app.db, "1".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  forks: 42,
@@ -311,7 +311,7 @@ class PackageResultTests: AppTestCase {
 
         do {
             // Test package with only branch docs hosted externally.
-            let pkg = try savePackage(on: app.db, "2".url)
+            let pkg = try await savePackage(on: app.db, "2".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  forks: 42,
@@ -328,7 +328,7 @@ class PackageResultTests: AppTestCase {
 
         do {
             // Test package with no documentation
-            let pkg = try savePackage(on: app.db, "3".url)
+            let pkg = try await savePackage(on: app.db, "3".url)
             try await Repository(package: pkg,
                                  defaultBranch: "main",
                                  forks: 42,
