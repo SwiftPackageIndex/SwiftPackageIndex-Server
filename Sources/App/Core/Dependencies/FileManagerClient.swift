@@ -12,19 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 import Dependencies
 import DependenciesMacros
 
 
 @DependencyClient
 struct FileManagerClient {
-
+    var attributesOfItem: @Sendable (_ atPath: String) throws -> [FileAttributeKey : Any]
 }
 
 
 extension FileManagerClient: DependencyKey {
     static var liveValue: Self {
-        .init()
+        .init(
+            attributesOfItem: { try Foundation.FileManager.default.attributesOfItem(atPath: $0) }
+        )
     }
 }
 

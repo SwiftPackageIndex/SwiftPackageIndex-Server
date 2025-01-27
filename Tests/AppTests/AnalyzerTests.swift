@@ -1268,16 +1268,16 @@ class AnalyzerTests: AppTestCase {
     func test_trimCheckouts() throws {
         try withDependencies {
             $0.date.now = .t0
-        } operation: {
-            // setup
-            Current.fileManager.checkoutsDirectory = { "/checkouts" }
-            Current.fileManager.contentsOfDirectory = { @Sendable _ in ["foo", "bar"] }
-            Current.fileManager.attributesOfItem = { @Sendable path in
+            $0.fileManager.attributesOfItem = { @Sendable path in
                 [
                     "/checkouts/foo": [FileAttributeKey.modificationDate: Date.t0.adding(days: -31)],
                     "/checkouts/bar": [FileAttributeKey.modificationDate: Date.t0.adding(days: -29)],
                 ][path]!
             }
+        } operation: {
+            // setup
+            Current.fileManager.checkoutsDirectory = { "/checkouts" }
+            Current.fileManager.contentsOfDirectory = { @Sendable _ in ["foo", "bar"] }
             let removedPaths = NIOLockedValueBox<[String]>([])
             Current.fileManager.removeItem = { @Sendable p in removedPaths.withLockedValue { $0.append(p) } }
 

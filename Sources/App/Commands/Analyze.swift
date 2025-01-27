@@ -71,6 +71,7 @@ extension Analyze {
 
 
     static func trimCheckouts() throws {
+        @Dependency(\.fileManager) var fileManager
         let checkoutDir = URL(
             fileURLWithPath: Current.fileManager.checkoutsDirectory(),
             isDirectory: true
@@ -78,7 +79,7 @@ extension Analyze {
         try Current.fileManager.contentsOfDirectory(atPath: checkoutDir.path)
             .map { dir -> (String, Date)? in
                 let url = checkoutDir.appendingPathComponent(dir)
-                guard let mod = try Current.fileManager
+                guard let mod = try fileManager
                     .attributesOfItem(atPath: url.path)[.modificationDate] as? Date
                 else { return nil }
                 return (url.path, mod)

@@ -36,11 +36,12 @@ struct ResourceReloadIdentifier {
 
     private static func modificationDate(forLocalResource resource: String) -> Date {
         @Dependency(\.date.now) var now
+        @Dependency(\.fileManager) var fileManager
         let pathToPublic = DirectoryConfiguration.detect().publicDirectory
         let url = URL(fileURLWithPath: pathToPublic + resource)
 
         // Assume the file has been modified *now* if the file can't be found.
-        guard let attributes = try? Current.fileManager.attributesOfItem(atPath: url.path)
+        guard let attributes = try? fileManager.attributesOfItem(atPath: url.path)
         else { return now }
 
         // Also assume the file is modified now if the attribute doesn't exist.
