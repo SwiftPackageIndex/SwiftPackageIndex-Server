@@ -43,12 +43,6 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /ChimeHQ/SwiftTreeSitter/documentation:
-    url: ${base_url}/ChimeHQ/SwiftTreeSitter/documentation
-    headers:
-      X-SPI-Smoke-Test: ${smoke_test_token}
-    validation:
-      status: .regex((2|3)\d\d)
   /CoreOffice/XMLCoder/documentation:
     url: ${base_url}/CoreOffice/XMLCoder/documentation
     headers:
@@ -179,6 +173,12 @@ requests:
       status: .regex((2|3)\d\d)
   /SwiftBeta/SwiftOpenAI/documentation:
     url: ${base_url}/SwiftBeta/SwiftOpenAI/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /SwiftGraphs/Grape/documentation:
+    url: ${base_url}/SwiftGraphs/Grape/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
@@ -643,8 +643,8 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /SwiftGraphs/Grape/documentation:
-    url: ${base_url}/SwiftGraphs/Grape/documentation
+  /krzyzanowskim/CryptoSwift/documentation:
+    url: ${base_url}/krzyzanowskim/CryptoSwift/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
@@ -919,6 +919,12 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
+  /stadiamaps/ferrostar/documentation:
+    url: ${base_url}/stadiamaps/ferrostar/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
   /swift-server-community/APNSwift/documentation:
     url: ${base_url}/swift-server-community/APNSwift/documentation
     headers:
@@ -1075,6 +1081,12 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
+  /tree-sitter/swift-tree-sitter/documentation:
+    url: ${base_url}/tree-sitter/swift-tree-sitter/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
   /tuist/XcodeProj/documentation:
     url: ${base_url}/tuist/XcodeProj/documentation
     headers:
@@ -1093,12 +1105,6 @@ requests:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /vapor-community/wallet/documentation:
-    url: ${base_url}/vapor-community/wallet/documentation
-    headers:
-      X-SPI-Smoke-Test: ${smoke_test_token}
-    validation:
-      status: .regex((2|3)\d\d)
   /vapor-community/Zip/documentation:
     url: ${base_url}/vapor-community/Zip/documentation
     headers:
@@ -1113,6 +1119,12 @@ requests:
       status: .regex((2|3)\d\d)
   /vapor-community/sendgrid/documentation:
     url: ${base_url}/vapor-community/sendgrid/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /vapor-community/wallet/documentation:
+    url: ${base_url}/vapor-community/wallet/documentation
     headers:
       X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
