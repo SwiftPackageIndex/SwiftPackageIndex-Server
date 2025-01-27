@@ -46,7 +46,6 @@ extension AppEnvironment {
 
 struct FileManager: Sendable {
     var contentsOfDirectory: @Sendable (_ path: String) throws -> [String]
-    var contents: @Sendable (_ atPath: String) -> Data?
     var checkoutsDirectory: @Sendable () -> String
     var createDirectory: @Sendable (String, Bool, [FileAttributeKey : Any]?) throws -> Void
     var fileExists: @Sendable (String) -> Bool
@@ -54,7 +53,6 @@ struct FileManager: Sendable {
     var workingDirectory: @Sendable () -> String
 
     // pass-through methods to preserve argument labels
-    func contents(atPath path: String) -> Data? { contents(path) }
     func contentsOfDirectory(atPath path: String) throws -> [String] {
         try contentsOfDirectory(path)
     }
@@ -68,7 +66,6 @@ struct FileManager: Sendable {
 
     static let live: Self = .init(
         contentsOfDirectory: { try Foundation.FileManager.default.contentsOfDirectory(atPath: $0) },
-        contents: { Foundation.FileManager.default.contents(atPath: $0) },
         checkoutsDirectory: { Environment.get("CHECKOUTS_DIR") ?? DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
         createDirectory: { try Foundation.FileManager.default.createDirectory(atPath: $0, withIntermediateDirectories: $1, attributes: $2) },
         fileExists: { Foundation.FileManager.default.fileExists(atPath: $0) },

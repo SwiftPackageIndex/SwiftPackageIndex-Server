@@ -22,22 +22,21 @@ import Dependencies
 class BlogActionsModelTests: AppTestCase {
 
     func test_init_loadSummaries() async throws {
-        Current.fileManager.contents = { @Sendable _ in
-            """
-            - slug: post-1
-              title: Blog post title one
-              summary: Summary of blog post one
-              published_at: 2024-01-01
-              published: true
-            - slug: post-2
-              title: Blog post title two
-              summary: Summary of blog post two
-              published_at: 2024-01-02
-              published: false
-            """.data(using: .utf8)
-        }
-
         try withDependencies {
+            $0.fileManager.contents = { @Sendable _ in
+                """
+                - slug: post-1
+                  title: Blog post title one
+                  summary: Summary of blog post one
+                  published_at: 2024-01-01
+                  published: true
+                - slug: post-2
+                  title: Blog post title two
+                  summary: Summary of blog post two
+                  published_at: 2024-01-02
+                  published: false
+                """.data(using: .utf8)
+            }
             $0.timeZone = .utc
         } operation: {
             try withDependencies {  // Ensure dev shows all summaries
@@ -75,24 +74,26 @@ class BlogActionsModelTests: AppTestCase {
     }
 
     func test_postSummary_postMarkdown_load() async throws {
-        Current.fileManager.contents = { @Sendable _ in
-            """
-            This is some Markdown with [a link](https://example.com) and some _formatting_.
-            """.data(using: .utf8)
+        withDependencies {
+            $0.fileManager.contents = { @Sendable _ in
+                """
+                This is some Markdown with [a link](https://example.com) and some _formatting_.
+                """.data(using: .utf8)
+            }
+        } operation: {
+            let summary = BlogActions.Model.PostSummary.mock()
+
+            // MUT
+            let markdown = summary.postMarkdown
+
+            XCTAssertEqual(markdown, "<p>This is some Markdown with <a href=\"https://example.com\">a link</a> and some <em>formatting</em>.</p>")
         }
-        let summary = BlogActions.Model.PostSummary.mock()
-
-        // MUT
-        let markdown = summary.postMarkdown
-
-        XCTAssertEqual(markdown, "<p>This is some Markdown with <a href=\"https://example.com\">a link</a> and some <em>formatting</em>.</p>")
     }
 
     func test_decode_posts_yml() async throws {
         // setup
-        Current.fileManager = .live
-
         try withDependencies {
+            $0.fileManager = .liveValue
             $0.timeZone = .utc
         } operation: {
             // MUT

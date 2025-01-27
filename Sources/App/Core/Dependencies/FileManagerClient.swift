@@ -21,13 +21,15 @@ import DependenciesMacros
 @DependencyClient
 struct FileManagerClient {
     var attributesOfItem: @Sendable (_ atPath: String) throws -> [FileAttributeKey : Any]
+    var contents: @Sendable (_ atPath: String) -> Data?
 }
 
 
 extension FileManagerClient: DependencyKey {
     static var liveValue: Self {
         .init(
-            attributesOfItem: { try Foundation.FileManager.default.attributesOfItem(atPath: $0) }
+            attributesOfItem: { try Foundation.FileManager.default.attributesOfItem(atPath: $0) },
+            contents: { Foundation.FileManager.default.contents(atPath: $0) }
         )
     }
 }
