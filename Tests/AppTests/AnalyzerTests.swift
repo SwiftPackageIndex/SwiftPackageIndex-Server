@@ -987,17 +987,13 @@ class AnalyzerTests: AppTestCase {
         try await savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
         let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
-        let checkoutDir = "/checkouts"
         // claim every file exists, including our ficticious 'index.lock' for which
         // we want to trigger the cleanup mechanism
         Current.fileManager.fileExists = { @Sendable path in true }
 
         let commands = QueueIsolated<[String]>([])
         Current.shell.run = { @Sendable cmd, path in
-            commands.withValue {
-                let c = cmd.description.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
-                $0.append(c)
-            }
+            commands.withValue { $0.append(cmd.description) }
             if cmd == .gitCheckout(branch: "master") {
                 throw TestError.simulatedCheckoutError
             }
