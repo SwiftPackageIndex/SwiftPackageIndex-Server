@@ -386,6 +386,8 @@ extension Analyze {
     static func getIncomingVersions(client: Client,
                                     package: Joined<Package, Repository>) async throws -> [Version] {
         @Dependency(\.fileManager) var fileManager
+        @Dependency(\.git) var git
+        
         guard let cacheDir = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
@@ -400,7 +402,7 @@ extension Analyze {
             throw AppError.analysisError(package.model.id, "Default branch '\(defaultBranch)' does not exist in checkout")
         }
 
-        let tags = try await Current.git.getTags(cacheDir)
+        let tags = try await git.getTags(at: cacheDir)
 
         let references = [defaultBranch] + tags
         return try await references

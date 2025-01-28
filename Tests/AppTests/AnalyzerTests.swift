@@ -224,6 +224,7 @@ class AnalyzerTests: AppTestCase {
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.commitCount = { @Sendable _ in 12 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
+            $0.git.getTags = { @Sendable _ in [.tag(1, 0, 0), .tag(1, 1, 1)] }
             $0.git.lastCommitDate = { @Sendable _ in .t2 }
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
@@ -249,7 +250,6 @@ class AnalyzerTests: AppTestCase {
                               packageName: "foo-1",
                               reference: .tag(1, 0, 0)).save(on: app.db)
 
-            Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0), .tag(1, 1, 1)] }
             Current.git.hasBranch = { @Sendable _, _ in true }
             Current.git.revisionInfo = { @Sendable ref, _ in
                 // simulate the following scenario:
@@ -363,6 +363,7 @@ class AnalyzerTests: AppTestCase {
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.commitCount = { @Sendable _ in 12 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
+            $0.git.getTags = { @Sendable _ in [.tag(1, 0, 0)] }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
         } operation: {
             // setup
@@ -373,7 +374,6 @@ class AnalyzerTests: AppTestCase {
             }
             let lastUpdate = Date()
 
-            Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0)] }
             Current.git.hasBranch = { @Sendable _, _ in true }
             Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
             Current.git.shortlog = { @Sendable _ in
@@ -562,22 +562,25 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_getIncomingVersions() async throws {
-        // setup
-        Current.git.getTags = { @Sendable _ in [.tag(1, 2, 3)] }
-        Current.git.hasBranch = { @Sendable _, _ in true }
-        Current.git.revisionInfo = { @Sendable ref, _ in .init(commit: "sha-\(ref)", date: .t0) }
-        do {
-            let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
-            try await pkg.save(on: app.db)
-            try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
+        try await withDependencies {
+            $0.git.getTags = { @Sendable _ in [.tag(1, 2, 3)] }
+        } operation: {
+            // setup
+            Current.git.hasBranch = { @Sendable _, _ in true }
+            Current.git.revisionInfo = { @Sendable ref, _ in .init(commit: "sha-\(ref)", date: .t0) }
+            do {
+                let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
+                try await pkg.save(on: app.db)
+                try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
+            }
+            let pkg = try await Package.fetchCandidate(app.db, id: .id0)
+
+            // MUT
+            let versions = try await Analyze.getIncomingVersions(client: app.client, package: pkg)
+
+            // validate
+            XCTAssertEqual(versions.map(\.commit).sorted(), ["sha-1.2.3", "sha-main"])
         }
-        let pkg = try await Package.fetchCandidate(app.db, id: .id0)
-
-        // MUT
-        let versions = try await Analyze.getIncomingVersions(client: app.client, package: pkg)
-
-        // validate
-        XCTAssertEqual(versions.map(\.commit).sorted(), ["sha-1.2.3", "sha-main"])
     }
 
     func test_getIncomingVersions_default_branch_mismatch() async throws {
@@ -619,39 +622,42 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_diffVersions() async throws {
-        //setup
-        Current.git.getTags = { @Sendable _ in [.tag(1, 2, 3)] }
-        Current.git.hasBranch = { @Sendable _, _ in true }
-        Current.git.revisionInfo = { @Sendable ref, _ in
-            if ref == .branch("main") { return . init(commit: "sha.main", date: .t0) }
-            if ref == .tag(1, 2, 3) { return .init(commit: "sha.1.2.3", date: .t1) }
-            fatalError("unknown ref: \(ref)")
-        }
-        Current.shell.run = { @Sendable cmd, _ in throw TestError.unknownCommand }
-        let pkgId = UUID()
-        do {
-            let pkg = Package(id: pkgId, url: "1".asGithubUrl.url)
-            try await pkg.save(on: app.db)
-            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
-        }
-        let pkg = try await Package.fetchCandidate(app.db, id: pkgId)
+        try await withDependencies {
+            $0.git.getTags = { @Sendable _ in [.tag(1, 2, 3)] }
+        } operation: {
+            //setup
+            Current.git.hasBranch = { @Sendable _, _ in true }
+            Current.git.revisionInfo = { @Sendable ref, _ in
+                if ref == .branch("main") { return . init(commit: "sha.main", date: .t0) }
+                if ref == .tag(1, 2, 3) { return .init(commit: "sha.1.2.3", date: .t1) }
+                fatalError("unknown ref: \(ref)")
+            }
+            Current.shell.run = { @Sendable cmd, _ in throw TestError.unknownCommand }
+            let pkgId = UUID()
+            do {
+                let pkg = Package(id: pkgId, url: "1".asGithubUrl.url)
+                try await pkg.save(on: app.db)
+                try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
+            }
+            let pkg = try await Package.fetchCandidate(app.db, id: pkgId)
 
-        // MUT
-        let delta = try await Analyze.diffVersions(client: app.client,
-                                                   transaction: app.db,
-                                                   package: pkg)
+            // MUT
+            let delta = try await Analyze.diffVersions(client: app.client,
+                                                       transaction: app.db,
+                                                       package: pkg)
 
-        // validate
-        assertEquals(delta.toAdd, \.reference,
-                     [.branch("main"), .tag(1, 2, 3)])
-        assertEquals(delta.toAdd, \.commit, ["sha.main", "sha.1.2.3"])
-        assertEquals(delta.toAdd, \.commitDate,
-                     [Date(timeIntervalSince1970: 0), Date(timeIntervalSince1970: 1)])
-        assertEquals(delta.toAdd, \.url, [
-            "https://github.com/foo/1/tree/main",
-            "https://github.com/foo/1/releases/tag/1.2.3"
-        ])
-        XCTAssertEqual(delta.toDelete, [])
+            // validate
+            assertEquals(delta.toAdd, \.reference,
+                         [.branch("main"), .tag(1, 2, 3)])
+            assertEquals(delta.toAdd, \.commit, ["sha.main", "sha.1.2.3"])
+            assertEquals(delta.toAdd, \.commitDate,
+                         [Date(timeIntervalSince1970: 0), Date(timeIntervalSince1970: 1)])
+            assertEquals(delta.toAdd, \.url, [
+                "https://github.com/foo/1/tree/main",
+                "https://github.com/foo/1/releases/tag/1.2.3"
+            ])
+            XCTAssertEqual(delta.toDelete, [])
+        }
     }
 
     func test_mergeReleaseInfo() async throws {
@@ -898,10 +904,10 @@ class AnalyzerTests: AppTestCase {
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.commitCount = { @Sendable _ in 12 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
+            $0.git.getTags = { @Sendable _ in [.tag(1, 0, 0), .tag(2, 0, 0)] }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
         } operation: {
             // setup
-            Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0), .tag(2, 0, 0)] }
             Current.git.hasBranch = { @Sendable _, _ in true }
             Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
             Current.git.shortlog = { @Sendable _ in
@@ -1304,6 +1310,7 @@ class AnalyzerTests: AppTestCase {
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.commitCount = { @Sendable _ in 2 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
+            $0.git.getTags = { @Sendable _ in throw TestError.unspecifiedError }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
         } operation: {
             let pkgId = UUID()
@@ -1326,7 +1333,6 @@ class AnalyzerTests: AppTestCase {
                               packageName: "foo-1",
                               reference: .tag(1, 0, 0)).save(on: app.db)
             Current.git.hasBranch = { @Sendable _, _ in true }
-            struct Error: Swift.Error { }
             Current.git.shortlog = { @Sendable _ in
             """
             1\tPerson 1
@@ -1336,7 +1342,6 @@ class AnalyzerTests: AppTestCase {
             Current.shell.run = { @Sendable cmd, path in "" }
 
             do {  // first scenario: bad getTags
-                Current.git.getTags = { @Sendable _ in throw Error() }
                 Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "", date: .t1) }
 
                 // MUT
@@ -1351,9 +1356,10 @@ class AnalyzerTests: AppTestCase {
                 XCTAssertEqual(versions, ["1.0.0", "main"])
             }
 
-            do {  // second scenario: revisionInfo throws
-                Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0)] }
-                Current.git.revisionInfo = { @Sendable _, _ in throw Error() }
+            try await withDependencies {  // second scenario: revisionInfo throws
+                $0.git.getTags = { @Sendable _ in [.tag(1, 0, 0)] }
+            } operation: {
+                Current.git.revisionInfo = { @Sendable _, _ in throw TestError.unspecifiedError }
 
                 // MUT
                 try await Analyze.analyze(client: app.client,
@@ -1367,8 +1373,9 @@ class AnalyzerTests: AppTestCase {
                 XCTAssertEqual(versions, ["1.0.0", "main"])
             }
 
-            do {  // second scenario: gitTags throws
-                Current.git.getTags = { @Sendable _ in throw Error() }
+            try await withDependencies {  // second scenario: gitTags throws
+                $0.git.getTags = { @Sendable _ in throw TestError.unspecifiedError }
+            } operation: {
                 Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "", date: .t1) }
 
                 // MUT
@@ -1383,10 +1390,11 @@ class AnalyzerTests: AppTestCase {
                 XCTAssertEqual(versions, ["1.0.0", "main"])
             }
 
-            do {  // third scenario: everything throws
-                Current.shell.run = { @Sendable _, _ in throw Error() }
-                Current.git.getTags = { @Sendable _ in throw Error() }
-                Current.git.revisionInfo = { @Sendable _, _ in throw Error() }
+            try await withDependencies {  // third scenario: everything throws
+                $0.git.getTags = { @Sendable _ in throw TestError.unspecifiedError }
+            } operation: {
+                Current.git.revisionInfo = { @Sendable _, _ in throw TestError.unspecifiedError }
+                Current.shell.run = { @Sendable _, _ in throw TestError.unspecifiedError }
 
                 // MUT
                 try await Analyze.analyze(client: app.client,
@@ -1410,6 +1418,7 @@ class AnalyzerTests: AppTestCase {
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.commitCount = { @Sendable _ in 2 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
+            $0.git.getTags = {@Sendable  _ in [.tag(1, 0, 0)] }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
         } operation: {
             let pkgId = UUID()
@@ -1439,7 +1448,6 @@ class AnalyzerTests: AppTestCase {
             1\tPerson 2
             """
             }
-            Current.git.getTags = {@Sendable  _ in [.tag(1, 0, 0)] }
             Current.shell.run = { @Sendable cmd, path in return "" }
 
             do {  // ensure happy path passes test (no revision changes)
@@ -1521,6 +1529,7 @@ class AnalyzerTests: AppTestCase {
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.commitCount = { @Sendable _ in 12 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
+            $0.git.getTags = { @Sendable _ in [] }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
         } operation: {
             // setup
@@ -1530,7 +1539,6 @@ class AnalyzerTests: AppTestCase {
                                  name: "1",
                                  owner: "foo",
                                  stars: 100).save(on: app.db)
-            Current.git.getTags = { @Sendable _ in [] }
             Current.git.hasBranch = { @Sendable _, _ in true }
             Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha1", date: .t0) }
             Current.git.shortlog = { @Sendable _ in "10\tPerson 1" }
@@ -1677,6 +1685,7 @@ private enum TestError: Error {
     case simulatedCheckoutError
     case simulatedFetchError
     case unknownCommand
+    case unspecifiedError
 }
 
 

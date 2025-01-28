@@ -73,11 +73,6 @@ final class AnalyzeErrorTests: AppTestCase {
             Repository(package: pkgs[1], defaultBranch: "main", name: "2", owner: "foo"),
         ].save(on: app.db)
 
-        Current.git.getTags = { @Sendable checkoutDir in
-            if checkoutDir.hasSuffix("foo-1") { return [] }
-            if checkoutDir.hasSuffix("foo-2") { return [.tag(1, 2, 3)] }
-            throw SetupError()
-        }
         Current.git.hasBranch = { @Sendable _, _ in true }
         Current.git.revisionInfo = { @Sendable ref, checkoutDir in
             if checkoutDir.hasSuffix("foo-1") { return .init(commit: "commit \(ref)", date: .t1) }
@@ -103,6 +98,11 @@ final class AnalyzeErrorTests: AppTestCase {
             $0.environment.allowSocialPosts = { true }
             $0.git.commitCount = { @Sendable _ in 1 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
+            $0.git.getTags = { @Sendable checkoutDir in
+                if checkoutDir.hasSuffix("foo-1") { return [] }
+                if checkoutDir.hasSuffix("foo-2") { return [.tag(1, 2, 3)] }
+                throw SetupError()
+            }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
             $0.httpClient.mastodonPost = { @Sendable [socialPosts = self.socialPosts] message in
                 socialPosts.withValue { $0.append(message) }
