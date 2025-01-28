@@ -77,7 +77,7 @@ private extension ReadyForSwift6Show.Model.ChartKind {
 private extension Data {
     func compactJson() -> String? {
         guard let json = try? JSONSerialization.jsonObject(with: self),
-              let compactedJsonData = try? JSONSerialization.data(withJSONObject: json),
+              let compactedJsonData = try? JSONSerialization.data(withJSONObject: json, options: [.sortedKeys]),
               let compactJson = String(data: compactedJsonData, encoding: .utf8)
         else { return nil }
         return compactJson
