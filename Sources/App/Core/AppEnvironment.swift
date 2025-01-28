@@ -45,14 +45,9 @@ extension AppEnvironment {
 
 
 struct FileManager: Sendable {
-    var removeItem: @Sendable (_ path: String) throws -> Void
     var workingDirectory: @Sendable () -> String
 
-    // pass-through methods to preserve argument labels
-    func removeItem(atPath path: String) throws { try removeItem(path) }
-
     static let live: Self = .init(
-        removeItem: { try Foundation.FileManager.default.removeItem(atPath: $0) },
         workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
     )
 }

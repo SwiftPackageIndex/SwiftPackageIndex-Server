@@ -28,6 +28,7 @@ struct FileManagerClient {
     var contentsOfDirectory: @Sendable (_ atPath: String) throws -> [String]
     var createDirectory: @Sendable (_ atPath: String, _ withIntermediateDirectories: Bool, _ attributes: [FileAttributeKey : Any]?) throws -> Void
     var fileExists: @Sendable (_ atPath: String) -> Bool = { reportIssue("fileExists"); return Foundation.FileManager.default.fileExists(atPath: $0) }
+    var removeItem: @Sendable (_ atPath: String) throws -> Void
 }
 
 
@@ -47,7 +48,8 @@ extension FileManagerClient: DependencyKey {
             contents: { Foundation.FileManager.default.contents(atPath: $0) },
             contentsOfDirectory: { try Foundation.FileManager.default.contentsOfDirectory(atPath: $0) },
             createDirectory: { try Foundation.FileManager.default.createDirectory(atPath: $0, withIntermediateDirectories: $1, attributes: $2) },
-            fileExists: { Foundation.FileManager.default.fileExists(atPath: $0) }
+            fileExists: { Foundation.FileManager.default.fileExists(atPath: $0) },
+            removeItem: { try Foundation.FileManager.default.removeItem(atPath: $0) }
         )
     }
 }

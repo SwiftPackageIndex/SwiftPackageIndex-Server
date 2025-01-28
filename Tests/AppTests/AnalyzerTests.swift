@@ -1278,6 +1278,7 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_trimCheckouts() throws {
+        let removedPaths = NIOLockedValueBox<[String]>([])
         try withDependencies {
             $0.date.now = .t0
             $0.fileManager.attributesOfItem = { @Sendable path in
@@ -1288,11 +1289,8 @@ class AnalyzerTests: AppTestCase {
             }
             $0.fileManager.checkoutsDirectory = { "/checkouts" }
             $0.fileManager.contentsOfDirectory = { @Sendable _ in ["foo", "bar"] }
+            $0.fileManager.removeItem = { @Sendable p in removedPaths.withLockedValue { $0.append(p) } }
         } operation: {
-            // setup
-            let removedPaths = NIOLockedValueBox<[String]>([])
-            Current.fileManager.removeItem = { @Sendable p in removedPaths.withLockedValue { $0.append(p) } }
-
             // MUT
             try Analyze.trimCheckouts()
 

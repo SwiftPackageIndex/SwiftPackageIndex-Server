@@ -87,9 +87,10 @@ extension Analyze {
             .forEach { pair in
                 guard let (path, mod) = pair else { return }
                 @Dependency(\.date.now) var now
+                @Dependency(\.fileManager) var fileManager
                 let cutoff = now.addingTimeInterval(-Constants.gitCheckoutMaxAge)
                 if mod < cutoff {
-                    try Current.fileManager.removeItem(atPath: path)
+                    try fileManager.removeItem(atPath: path)
                     AppMetrics.analyzeTrimCheckoutsCount?.inc()
                 }
             }
