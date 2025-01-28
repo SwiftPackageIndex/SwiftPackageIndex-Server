@@ -467,7 +467,9 @@ extension PackageController {
 
         // Replace the reference with the "current" tilde character regardless of the incoming reference.
         urlComponents[3] = "~"
-        return Current.siteURL() + urlComponents.joined(by: "/")
+
+        @Dependency(\.environment) var environment
+        return environment.siteURL() + urlComponents.joined(by: "/")
     }
 }
 
