@@ -48,6 +48,19 @@ enum KeywordShow {
                     .class("trimmed"),
                     .text("Packages for keyword “\(model.keyword)”")
                 ),
+                .p(
+                    .text("These packages are available as a package collection, "),
+                    .a(
+                        .href(SiteURL.packageCollections.relativeURL()),
+                        "usable in Xcode or SwiftPM"
+                    ),
+                    .text(".")
+                ),
+                .copyableInputForm(buttonName: "Copy Package Collection URL",
+                                   eventName: "Copy Package Collection URL Button",
+                                   valueToCopy: SiteURL.packageCollectionKeyword(.value(model.keyword)).absoluteURL()),
+                packageCollectionLimitNote(),
+                .hr(.class("minor")),
                 .ul(
                     .id("package-list"),
                     .group(
@@ -66,8 +79,16 @@ enum KeywordShow {
                 )
             )
         }
-    }
 
+        private func packageCollectionLimitNote() -> Node<HTML.BodyContext> {
+            guard model.totalPackageCount > Constants.maxKeywordPackageCollectionCount else { return .empty }
+            return .p(
+                .strong("Note: "),
+                .text("Package collections are limited to a maximum of \(Constants.maxKeywordPackageCollectionCount) packages. If a keyword has more than \(Constants.maxKeywordPackageCollectionCount) packages, only the top \(Constants.maxKeywordPackageCollectionCount) packages will be included based on their package score."
+                )
+            )
+        }
+    }
 }
 
 

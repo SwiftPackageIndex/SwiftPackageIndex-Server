@@ -46,4 +46,7 @@ enum Constants {
     // build system settings
     static let trimBuildsGracePeriod: TimeInterval = .hours(4)
     static let branchVersionRefreshDelay: TimeInterval = .hours(24)
+
+    // package
+    static let maxKeywordPackageCollectionCount = 300
 }
