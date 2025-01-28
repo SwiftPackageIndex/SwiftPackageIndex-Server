@@ -44,12 +44,10 @@ extension AppEnvironment {
 
 
 struct Git: Sendable {
-    var hasBranch: @Sendable (Reference, String) async throws -> Bool
     var revisionInfo: @Sendable (Reference, String) async throws -> RevisionInfo
     var shortlog: @Sendable (String) async throws -> String
 
     static let live: Self = .init(
-        hasBranch: { ref, path in try await hasBranch(ref, at: path) },
         revisionInfo: { ref, path in try await revisionInfo(ref, at: path) },
         shortlog: { path in try await shortlog(at: path) }
     )
