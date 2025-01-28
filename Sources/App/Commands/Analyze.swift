@@ -71,14 +71,15 @@ extension Analyze {
 
 
     static func trimCheckouts() throws {
+        @Dependency(\.fileManager) var fileManager
         let checkoutDir = URL(
-            fileURLWithPath: Current.fileManager.checkoutsDirectory(),
+            fileURLWithPath: fileManager.checkoutsDirectory(),
             isDirectory: true
         )
-        try Current.fileManager.contentsOfDirectory(atPath: checkoutDir.path)
+        try fileManager.contentsOfDirectory(atPath: checkoutDir.path)
             .map { dir -> (String, Date)? in
                 let url = checkoutDir.appendingPathComponent(dir)
-                guard let mod = try Current.fileManager
+                guard let mod = try fileManager
                     .attributesOfItem(atPath: url.path)[.modificationDate] as? Date
                 else { return nil }
                 return (url.path, mod)
@@ -86,9 +87,10 @@ extension Analyze {
             .forEach { pair in
                 guard let (path, mod) = pair else { return }
                 @Dependency(\.date.now) var now
+                @Dependency(\.fileManager) var fileManager
                 let cutoff = now.addingTimeInterval(-Constants.gitCheckoutMaxAge)
                 if mod < cutoff {
-                    try Current.fileManager.removeItem(atPath: path)
+                    try fileManager.removeItem(atPath: path)
                     AppMetrics.analyzeTrimCheckoutsCount?.inc()
                 }
             }
@@ -139,9 +141,10 @@ extension Analyze {
         AppMetrics.analyzeCandidatesCount?.set(packages.count)
 
         // get or create directory
-        let checkoutDir = Current.fileManager.checkoutsDirectory()
+        @Dependency(\.fileManager) var fileManager
+        let checkoutDir = fileManager.checkoutsDirectory()
         Current.logger().info("Checkout directory: \(checkoutDir)")
-        if !Current.fileManager.fileExists(atPath: checkoutDir) {
+        if !fileManager.fileExists(atPath: checkoutDir) {
             try await createCheckoutsDirectory(client: client, path: checkoutDir)
         }
 
@@ -234,9 +237,10 @@ extension Analyze {
                                          path: String) async throws {
         Current.logger().info("Creating checkouts directory at path: \(path)")
         do {
-            try Current.fileManager.createDirectory(atPath: path,
-                                                    withIntermediateDirectories: false,
-                                                    attributes: nil)
+            @Dependency(\.fileManager) var fileManager
+            try fileManager.createDirectory(atPath: path,
+                                            withIntermediateDirectories: false,
+                                            attributes: nil)
         } catch {
             let error = AppError.genericError(nil, "Failed to create checkouts directory: \(error.localizedDescription)")
             Current.logger().report(error: error)
@@ -251,8 +255,9 @@ extension Analyze {
     /// - Throws: Shell errors
     static func clone(cacheDir: String, url: String) async throws {
         Current.logger().info("cloning \(url) to \(cacheDir)")
+        @Dependency(\.fileManager) var fileManager
         try await Current.shell.run(command: .gitClone(url: URL(string: url)!, to: cacheDir),
-                                    at: Current.fileManager.checkoutsDirectory())
+                                    at: fileManager.checkoutsDirectory())
     }
 
 
@@ -263,11 +268,12 @@ extension Analyze {
     ///   - url: url to fetch from
     /// - Throws: Shell errors
     static func fetch(cacheDir: String, branch: String, url: String) async throws {
+        @Dependency(\.fileManager) var fileManager
         Current.logger().info("pulling \(url) in \(cacheDir)")
         // clean up stray lock files that might have remained from aborted commands
         for fileName in ["HEAD.lock", "index.lock"] {
             let filePath = cacheDir + "/.git/\(fileName)"
-            if Current.fileManager.fileExists(atPath: filePath) {
+            if fileManager.fileExists(atPath: filePath) {
                 Current.logger().info("Removing stale \(fileName) at path: \(filePath)")
                 try await Current.shell.run(command: .removeFile(from: filePath))
             }
@@ -286,12 +292,13 @@ extension Analyze {
     /// - Parameters:
     ///   - package: `Package` to refresh
     static func refreshCheckout(package: Joined<Package, Repository>) async throws {
-        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+        @Dependency(\.fileManager) var fileManager
+        guard let cacheDir = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
         do {
-            guard Current.fileManager.fileExists(atPath: cacheDir) else {
+            guard fileManager.fileExists(atPath: cacheDir) else {
                 try await clone(cacheDir: cacheDir, url: package.model.url)
                 return
             }
@@ -322,7 +329,8 @@ extension Analyze {
         guard let repo = package.repository else {
             throw AppError.genericError(package.model.id, "updateRepository: no repository")
         }
-        guard let gitDirectory = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+        @Dependency(\.fileManager) var fileManager
+        guard let gitDirectory = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
@@ -375,7 +383,8 @@ extension Analyze {
     /// - Returns: future with incoming `Version`s
     static func getIncomingVersions(client: Client,
                                     package: Joined<Package, Repository>) async throws -> [Version] {
-        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+        @Dependency(\.fileManager) var fileManager
+        guard let cacheDir = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
@@ -523,7 +532,8 @@ extension Analyze {
     /// - Throws: Shell errors or AppError.invalidRevision if there is no Package.swift file
     /// - Returns: `Manifest` data
     static func dumpPackage(at path: String) async throws -> Manifest {
-        guard Current.fileManager.fileExists(atPath: path + "/Package.swift") else {
+        @Dependency(\.fileManager) var fileManager
+        guard fileManager.fileExists(atPath: path + "/Package.swift") else {
             // It's important to check for Package.swift - otherwise `dump-package` will go
             // up the tree through parent directories to find one
             throw AppError.invalidRevision(nil, "no Package.swift")
@@ -546,7 +556,8 @@ extension Analyze {
     /// - Returns: `Result` with `Manifest` data
     static func getPackageInfo(package: Joined<Package, Repository>, version: Version) async throws -> PackageInfo {
         // check out version in cache directory
-        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+        @Dependency(\.fileManager) var fileManager
+        guard let cacheDir = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id,
                                                    package.model.url)
         }

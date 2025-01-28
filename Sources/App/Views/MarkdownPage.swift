@@ -13,8 +13,10 @@
 // limitations under the License.
 
 import Foundation
-import Plot
+
+import Dependencies
 import Ink
+import Plot
 
 
 class MarkdownPage: PublicPage {
@@ -28,7 +30,8 @@ class MarkdownPage: PublicPage {
     let html: String?
 
     init(path: String, _ markdownFilename: String) {
-        let pathToMarkdownFile = Current.fileManager.workingDirectory()
+        @Dependency(\.fileManager) var fileManager
+        let pathToMarkdownFile = fileManager.workingDirectory()
             .appending("Resources/Markdown/")
             .appending(markdownFilename)
 

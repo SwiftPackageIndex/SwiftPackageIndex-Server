@@ -23,12 +23,16 @@ import Vapor
 class AppEnvironmentTests: XCTestCase {
 
     func test_Filemanager_checkoutsDirectory() throws {
-        Current.fileManager = .live
-        unsetenv("CHECKOUTS_DIR")
-        XCTAssertEqual(Current.fileManager.checkoutsDirectory(),
-                       DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts")
-        setenv("CHECKOUTS_DIR", "/tmp/foo", 1)
-        XCTAssertEqual(Current.fileManager.checkoutsDirectory(), "/tmp/foo")
+        withDependencies {
+            $0.fileManager.checkoutsDirectory = FileManagerClient.liveValue.checkoutsDirectory
+        } operation: {
+            unsetenv("CHECKOUTS_DIR")
+            @Dependency(\.fileManager) var fileManager
+            XCTAssertEqual(fileManager.checkoutsDirectory(),
+                           DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts")
+            setenv("CHECKOUTS_DIR", "/tmp/foo", 1)
+            XCTAssertEqual(fileManager.checkoutsDirectory(), "/tmp/foo")
+        }
     }
 
     func test_maintenanceMessage() throws {

@@ -25,7 +25,8 @@ enum BlogActions {
     struct Model {
 
         static var blogIndexYmlPath: String {
-            Current.fileManager.workingDirectory().appending("Resources/Blog/posts.yml")
+            @Dependency(\.fileManager) var fileManager
+            return fileManager.workingDirectory().appending("Resources/Blog/posts.yml")
         }
 
         struct PostSummary: Equatable {
@@ -63,7 +64,8 @@ enum BlogActions {
         }
 
         static func allSummaries() throws -> [PostSummary] {
-            guard let data = Current.fileManager.contents(atPath: Self.blogIndexYmlPath) else {
+            @Dependency(\.fileManager) var fileManager
+            guard let data = fileManager.contents(atPath: Self.blogIndexYmlPath) else {
                 throw AppError.genericError(nil, "failed to read posts.yml")
             }
 
@@ -78,11 +80,12 @@ enum BlogActions {
 extension BlogActions.Model.PostSummary {
 
     var postMarkdown: String {
-        let markdownPath = Current.fileManager.workingDirectory()
+        @Dependency(\.fileManager) var fileManager
+        let markdownPath = fileManager.workingDirectory()
             .appending("Resources/Blog/Posts/")
             .appending(slug)
             .appending(".md")
-        if let markdownData = Current.fileManager.contents(atPath: markdownPath),
+        if let markdownData = fileManager.contents(atPath: markdownPath),
            let markdown = String(data: markdownData, encoding: .utf8)
         {
             let parsedMarkdown = MarkdownParser().parse(markdown)
