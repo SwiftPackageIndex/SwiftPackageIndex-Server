@@ -84,7 +84,7 @@ enum KeywordShow {
             guard model.totalPackageCount > Constants.maxKeywordPackageCollectionCount else { return .empty }
             return .p(
                 .strong("Note: "),
-                .text("Package collections are limited to a maximum of \(Constants.maxKeywordPackageCollectionCount) packages. If a keyword has more than \(Constants.maxKeywordPackageCollectionCount) packages, only the top \(Constants.maxKeywordPackageCollectionCount) packages will be included based on their package score."
+                .text("Package collections are limited to \(Constants.maxKeywordPackageCollectionCount) packages. The “\(model.keyword)”  keyword currently has \(pluralizedCount: model.totalPackageCount, singular: "associated package"), so its package collection includes only the top \(Constants.maxKeywordPackageCollectionCount) packages by package score."
                 )
             )
         }
