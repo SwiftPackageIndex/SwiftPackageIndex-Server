@@ -83,12 +83,8 @@ class PackageContributorsTests : AppTestCase {
             """
         }
 
-        guard let gitCacheDirectoryPath = Current.fileManager.cacheDirectoryPath(for: pkg) else {
-            throw AppError.invalidPackageCachePath(pkg.id, pkg.url)
-        }
-
         // MUT
-        let pkgAuthors = try await PackageContributors.extract(gitCacheDirectoryPath: gitCacheDirectoryPath,
+        let pkgAuthors = try await PackageContributors.extract(gitCacheDirectoryPath: "",
                                                                packageID: pkg.id)
 
         XCTAssertEqual(pkgAuthors.authors, [Author(name: "Person 1") ,

@@ -13,7 +13,10 @@
 // limitations under the License.
 
 import Foundation
+
+import Dependencies
 import Plot
+
 
 enum ReadyForSwift6Show {
 
@@ -25,11 +28,12 @@ enum ReadyForSwift6Show {
         }
 
         func readyForSwift6Chart(kind: ChartKind, includeTotals: Bool = false) -> Node<HTML.BodyContext> {
+            @Dependency(\.fileManager) var fileManager
             let plotDataPath = Current.fileManager.workingDirectory().appending("Resources/ChartData/\(kind.dataFile)")
             let eventDataPath = Current.fileManager.workingDirectory().appending("Resources/ChartData/rfs6-events.json")
-            guard let plotData = Current.fileManager.contents(atPath: plotDataPath)?.compactJson(),
-                  let eventData = Current.fileManager.contents(atPath: eventDataPath)?.compactJson()
-            else { return .p("Couldn’t load chart data.") } 
+            guard let plotData = fileManager.contents(atPath: plotDataPath)?.compactJson(),
+                  let eventData = fileManager.contents(atPath: eventDataPath)?.compactJson()
+            else { return .p("Couldn’t load chart data.") }
 
             return .div(
                 .data(named: "controller", value: "vega-chart"),
@@ -73,7 +77,7 @@ private extension ReadyForSwift6Show.Model.ChartKind {
 private extension Data {
     func compactJson() -> String? {
         guard let json = try? JSONSerialization.jsonObject(with: self),
-              let compactedJsonData = try? JSONSerialization.data(withJSONObject: json),
+              let compactedJsonData = try? JSONSerialization.data(withJSONObject: json, options: [.sortedKeys]),
               let compactJson = String(data: compactedJsonData, encoding: .utf8)
         else { return nil }
         return compactJson

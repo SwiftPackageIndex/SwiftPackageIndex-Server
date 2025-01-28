@@ -45,23 +45,12 @@ extension AppEnvironment {
 
 
 struct FileManager: Sendable {
-    var attributesOfItem: @Sendable (_ path: String) throws -> [FileAttributeKey : Any]
-    var contentsOfDirectory: @Sendable (_ path: String) throws -> [String]
-    var contents: @Sendable (_ atPath: String) -> Data?
-    var checkoutsDirectory: @Sendable () -> String
     var createDirectory: @Sendable (String, Bool, [FileAttributeKey : Any]?) throws -> Void
     var fileExists: @Sendable (String) -> Bool
     var removeItem: @Sendable (_ path: String) throws -> Void
     var workingDirectory: @Sendable () -> String
 
     // pass-through methods to preserve argument labels
-    func attributesOfItem(atPath path: String) throws -> [FileAttributeKey : Any] {
-        try attributesOfItem(path)
-    }
-    func contents(atPath path: String) -> Data? { contents(path) }
-    func contentsOfDirectory(atPath path: String) throws -> [String] {
-        try contentsOfDirectory(path)
-    }
     func createDirectory(atPath path: String,
                          withIntermediateDirectories createIntermediates: Bool,
                          attributes: [FileAttributeKey : Any]?) throws {
@@ -71,23 +60,11 @@ struct FileManager: Sendable {
     func removeItem(atPath path: String) throws { try removeItem(path) }
 
     static let live: Self = .init(
-        attributesOfItem: { try Foundation.FileManager.default.attributesOfItem(atPath: $0) },
-        contentsOfDirectory: { try Foundation.FileManager.default.contentsOfDirectory(atPath: $0) },
-        contents: { Foundation.FileManager.default.contents(atPath: $0) },
-        checkoutsDirectory: { Environment.get("CHECKOUTS_DIR") ?? DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
         createDirectory: { try Foundation.FileManager.default.createDirectory(atPath: $0, withIntermediateDirectories: $1, attributes: $2) },
         fileExists: { Foundation.FileManager.default.fileExists(atPath: $0) },
         removeItem: { try Foundation.FileManager.default.removeItem(atPath: $0) },
         workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
     )
-}
-
-
-extension FileManager {
-    func cacheDirectoryPath(for package: Package) -> String? {
-        guard let dirname = package.cacheDirectoryName else { return nil }
-        return checkoutsDirectory() + "/" + dirname
-    }
 }
 
 

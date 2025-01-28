@@ -71,14 +71,15 @@ extension Analyze {
 
 
     static func trimCheckouts() throws {
+        @Dependency(\.fileManager) var fileManager
         let checkoutDir = URL(
-            fileURLWithPath: Current.fileManager.checkoutsDirectory(),
+            fileURLWithPath: fileManager.checkoutsDirectory(),
             isDirectory: true
         )
-        try Current.fileManager.contentsOfDirectory(atPath: checkoutDir.path)
+        try fileManager.contentsOfDirectory(atPath: checkoutDir.path)
             .map { dir -> (String, Date)? in
                 let url = checkoutDir.appendingPathComponent(dir)
-                guard let mod = try Current.fileManager
+                guard let mod = try fileManager
                     .attributesOfItem(atPath: url.path)[.modificationDate] as? Date
                 else { return nil }
                 return (url.path, mod)
@@ -139,7 +140,8 @@ extension Analyze {
         AppMetrics.analyzeCandidatesCount?.set(packages.count)
 
         // get or create directory
-        let checkoutDir = Current.fileManager.checkoutsDirectory()
+        @Dependency(\.fileManager) var fileManager
+        let checkoutDir = fileManager.checkoutsDirectory()
         Current.logger().info("Checkout directory: \(checkoutDir)")
         if !Current.fileManager.fileExists(atPath: checkoutDir) {
             try await createCheckoutsDirectory(client: client, path: checkoutDir)
@@ -251,8 +253,9 @@ extension Analyze {
     /// - Throws: Shell errors
     static func clone(cacheDir: String, url: String) async throws {
         Current.logger().info("cloning \(url) to \(cacheDir)")
+        @Dependency(\.fileManager) var fileManager
         try await Current.shell.run(command: .gitClone(url: URL(string: url)!, to: cacheDir),
-                                    at: Current.fileManager.checkoutsDirectory())
+                                    at: fileManager.checkoutsDirectory())
     }
 
 
@@ -286,7 +289,8 @@ extension Analyze {
     /// - Parameters:
     ///   - package: `Package` to refresh
     static func refreshCheckout(package: Joined<Package, Repository>) async throws {
-        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+        @Dependency(\.fileManager) var fileManager
+        guard let cacheDir = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
@@ -322,7 +326,8 @@ extension Analyze {
         guard let repo = package.repository else {
             throw AppError.genericError(package.model.id, "updateRepository: no repository")
         }
-        guard let gitDirectory = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+        @Dependency(\.fileManager) var fileManager
+        guard let gitDirectory = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
@@ -375,7 +380,8 @@ extension Analyze {
     /// - Returns: future with incoming `Version`s
     static func getIncomingVersions(client: Client,
                                     package: Joined<Package, Repository>) async throws -> [Version] {
-        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+        @Dependency(\.fileManager) var fileManager
+        guard let cacheDir = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
@@ -546,7 +552,8 @@ extension Analyze {
     /// - Returns: `Result` with `Manifest` data
     static func getPackageInfo(package: Joined<Package, Repository>, version: Version) async throws -> PackageInfo {
         // check out version in cache directory
-        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+        @Dependency(\.fileManager) var fileManager
+        guard let cacheDir = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id,
                                                    package.model.url)
         }

@@ -507,11 +507,7 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.fileExists = { @Sendable _ in true }
         let commands = QueueIsolated<[String]>([])
         Current.shell.run = { @Sendable cmd, path in
-            // mask variable checkout
-            let checkoutDir = Current.fileManager.checkoutsDirectory()
-            commands.withValue {
-                $0.append(cmd.description.replacingOccurrences(of: checkoutDir, with: "..."))
-            }
+            commands.withValue { $0.append(cmd.description) }
             return ""
         }
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
@@ -961,17 +957,13 @@ class AnalyzerTests: AppTestCase {
         try await savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
         let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
-        let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which
         // we want to trigger the cleanup mechanism
         Current.fileManager.fileExists = { @Sendable path in true }
 
         let commands = QueueIsolated<[String]>([])
         Current.shell.run = { @Sendable cmd, path in
-            commands.withValue {
-                let c = cmd.description.replacingOccurrences(of: checkoutDir, with: "...")
-                $0.append(c)
-            }
+            commands.withValue { $0.append(cmd.description) }
             return ""
         }
 
@@ -995,17 +987,13 @@ class AnalyzerTests: AppTestCase {
         try await savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
         let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
-        let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which
         // we want to trigger the cleanup mechanism
         Current.fileManager.fileExists = { @Sendable path in true }
 
         let commands = QueueIsolated<[String]>([])
         Current.shell.run = { @Sendable cmd, path in
-            commands.withValue {
-                let c = cmd.description.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
-                $0.append(c)
-            }
+            commands.withValue { $0.append(cmd.description) }
             if cmd == .gitCheckout(branch: "master") {
                 throw TestError.simulatedCheckoutError
             }
@@ -1155,11 +1143,7 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.fileExists = { @Sendable _ in true }
         let commands = QueueIsolated<[String]>([])
         Current.shell.run = { @Sendable cmd, _ in
-            commands.withValue {
-                // mask variable checkout
-                let checkoutDir = Current.fileManager.checkoutsDirectory()
-                $0.append(cmd.description.replacingOccurrences(of: checkoutDir, with: "..."))
-            }
+            commands.withValue { $0.append(cmd.description) }
             if cmd == .gitFetchAndPruneTags { throw TestError.simulatedFetchError }
             return ""
         }
@@ -1235,6 +1219,7 @@ class AnalyzerTests: AppTestCase {
         // Ensure we handle 404 repos properly
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/914
         // setup
+        let checkoutDir = "/checkouts"
         do {
             let url = "1".asGithubUrl.url
             let pkg = Package.init(url: url, processingStage: .ingestion)
@@ -1243,13 +1228,13 @@ class AnalyzerTests: AppTestCase {
                 if path.hasSuffix("github.com-foo-1") { return false }
                 return true
             }
-            let repoDir = try Current.fileManager.checkoutsDirectory() + "/" + XCTUnwrap(pkg.cacheDirectoryName)
+            let repoDir = try checkoutDir + "/" + XCTUnwrap(pkg.cacheDirectoryName)
             struct ShellOutError: Error {}
             Current.shell.run = { @Sendable cmd, path in
                 if cmd == .gitClone(url: url, to: repoDir) {
                     throw ShellOutError()
                 }
-                fatalError("should not be reached")
+                throw TestError.unknownCommand
             }
         }
         let lastUpdated = Date()
@@ -1268,16 +1253,16 @@ class AnalyzerTests: AppTestCase {
     func test_trimCheckouts() throws {
         try withDependencies {
             $0.date.now = .t0
-        } operation: {
-            // setup
-            Current.fileManager.checkoutsDirectory = { "/checkouts" }
-            Current.fileManager.contentsOfDirectory = { @Sendable _ in ["foo", "bar"] }
-            Current.fileManager.attributesOfItem = { @Sendable path in
+            $0.fileManager.attributesOfItem = { @Sendable path in
                 [
                     "/checkouts/foo": [FileAttributeKey.modificationDate: Date.t0.adding(days: -31)],
                     "/checkouts/bar": [FileAttributeKey.modificationDate: Date.t0.adding(days: -29)],
                 ][path]!
             }
+            $0.fileManager.checkoutsDirectory = { "/checkouts" }
+            $0.fileManager.contentsOfDirectory = { @Sendable _ in ["foo", "bar"] }
+        } operation: {
+            // setup
             let removedPaths = NIOLockedValueBox<[String]>([])
             Current.fileManager.removeItem = { @Sendable p in removedPaths.withLockedValue { $0.append(p) } }
 
