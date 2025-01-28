@@ -407,7 +407,7 @@ extension Analyze {
         let references = [defaultBranch] + tags
         return try await references
             .mapAsync { ref in
-                let revInfo = try await Current.git.revisionInfo(ref, cacheDir)
+                let revInfo = try await git.revisionInfo(ref, at: cacheDir)
                 let url = package.model.versionUrl(for: ref)
                 return try Version(package: package.model,
                                    commit: revInfo.commit,

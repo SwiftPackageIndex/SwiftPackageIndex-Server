@@ -17,7 +17,6 @@
 
 extension Git {
     static let mock: Self = .init(
-        revisionInfo: { _, _ in fatalError("not initialized") },
         shortlog: { _ in fatalError("not initialized") }
     )
 }
