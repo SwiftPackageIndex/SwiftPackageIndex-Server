@@ -326,17 +326,19 @@ extension Analyze {
     ///   - package: `Package` to update
     /// - Returns: result future
     static func updateRepository(on database: Database, package: Joined<Package, Repository>) async throws {
+        @Dependency(\.fileManager) var fileManager
+        @Dependency(\.git) var git
+
         guard let repo = package.repository else {
             throw AppError.genericError(package.model.id, "updateRepository: no repository")
         }
-        @Dependency(\.fileManager) var fileManager
         guard let gitDirectory = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
-        repo.commitCount = (try? await Current.git.commitCount(gitDirectory)) ?? 0
-        repo.firstCommitDate = try? await Current.git.firstCommitDate(gitDirectory)
-        repo.lastCommitDate = try? await Current.git.lastCommitDate(gitDirectory)
+        repo.commitCount = (try? await git.commitCount(at: gitDirectory)) ?? 0
+        repo.firstCommitDate = try? await git.firstCommitDate(at: gitDirectory)
+        repo.lastCommitDate = try? await git.lastCommitDate(at: gitDirectory)
         repo.authors = try? await PackageContributors.extract(gitCacheDirectoryPath: gitDirectory, packageID: package.model.id)
 
         try await repo.update(on: database)
@@ -384,6 +386,8 @@ extension Analyze {
     static func getIncomingVersions(client: Client,
                                     package: Joined<Package, Repository>) async throws -> [Version] {
         @Dependency(\.fileManager) var fileManager
+        @Dependency(\.git) var git
+        
         guard let cacheDir = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
@@ -398,7 +402,7 @@ extension Analyze {
             throw AppError.analysisError(package.model.id, "Default branch '\(defaultBranch)' does not exist in checkout")
         }
 
-        let tags = try await Current.git.getTags(cacheDir)
+        let tags = try await git.getTags(at: cacheDir)
 
         let references = [defaultBranch] + tags
         return try await references

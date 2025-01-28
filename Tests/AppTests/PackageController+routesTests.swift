@@ -1505,6 +1505,10 @@ class PackageController_routesTests: SnapshotTestCase {
                 if path.hasSuffix("Package.resolved") { return false }
                 return true
             }
+            $0.git.commitCount = { @Sendable _ in 2}
+            $0.git.firstCommitDate = { @Sendable _ in .t0 }
+            $0.git.getTags = { @Sendable _ in [] }
+            $0.git.lastCommitDate = { @Sendable _ in .t1 }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.timeZone = .utc
         } operation: {
@@ -1521,10 +1525,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               reference: .branch("main"))
                 .save(on: app.db)
             Current.git = .init(
-                commitCount: { _ in 2 },
-                firstCommitDate: { _ in .t0 },
-                lastCommitDate: { _ in .t1 },
-                getTags: { _ in [] },
                 hasBranch: { _, _ in true },
                 revisionInfo: { ref, _ in
                     if ref == .branch("main") { return .init(commit: "new-commit", date: .t1) }
