@@ -79,17 +79,19 @@ class ErrorReportingTests: AppTestCase {
     }
 
     func test_invalidPackageCachePath() async throws {
-        // setup
-        try await savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
+        try await withDependencies {
+            $0.fileManager.fileExists = { @Sendable _ in true }
+        } operation: {
+            // setup
+            try await savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
 
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
+            // MUT
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
-        // validation
-        let packages = try await Package.query(on: app.db).sort(\.$url).all()
-        XCTAssertEqual(packages.map(\.status), [.invalidCachePath, .invalidCachePath])
+            // validation
+            let packages = try await Package.query(on: app.db).sort(\.$url).all()
+            XCTAssertEqual(packages.map(\.status), [.invalidCachePath, .invalidCachePath])
+        }
     }
 
 }

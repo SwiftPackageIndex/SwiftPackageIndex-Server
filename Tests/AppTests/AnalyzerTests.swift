@@ -314,6 +314,7 @@ class AnalyzerTests: AppTestCase {
         // Ensure a package that fails analysis goes back to ingesting and isn't stuck in an analysis loop
         try await withDependencies {
             $0.date.now = .now
+            $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
             // setup
             do {
@@ -333,9 +334,7 @@ class AnalyzerTests: AppTestCase {
             try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 1)
 
             // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(10))
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
             // Ensure candidate selection is now zero for analysis
             // (and also for ingestion, as we're immediately after analysis)
@@ -360,6 +359,7 @@ class AnalyzerTests: AppTestCase {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -395,9 +395,7 @@ class AnalyzerTests: AppTestCase {
             }
 
             // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(10))
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
             // assert packages have been updated
             let packages = try await Package.query(on: app.db).sort(\.$createdAt).all()
@@ -521,39 +519,43 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_updateRepository() async throws {
-        // setup
-        Current.git.commitCount = { @Sendable _ in 12 }
-        Current.git.firstCommitDate = { @Sendable _ in .t0 }
-        Current.git.lastCommitDate = { @Sendable _ in .t1 }
-        Current.git.shortlog = { @Sendable _ in
+        try await withDependencies {
+            $0.fileManager.fileExists = { @Sendable _ in true }
+        } operation: {
+            // setup
+            Current.git.commitCount = { @Sendable _ in 12 }
+            Current.git.firstCommitDate = { @Sendable _ in .t0 }
+            Current.git.lastCommitDate = { @Sendable _ in .t1 }
+            Current.git.shortlog = { @Sendable _ in
             """
             10\tPerson 1
              2\tPerson 2
             """
-        }
-        Current.shell.run = { @Sendable cmd, _ in throw TestError.unknownCommand }
-        let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
-        try await pkg.save(on: app.db)
-        try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
+            }
+            Current.shell.run = { @Sendable cmd, _ in throw TestError.unknownCommand }
+            let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
+            try await pkg.save(on: app.db)
+            try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
+            let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
-        // MUT
-        try await Analyze.updateRepository(on: app.db, package: jpr)
+            // MUT
+            try await Analyze.updateRepository(on: app.db, package: jpr)
 
-        // validate
-        do { // ensure JPR relation is updated
-            XCTAssertEqual(jpr.repository?.commitCount, 12)
-            XCTAssertEqual(jpr.repository?.firstCommitDate, .t0)
-            XCTAssertEqual(jpr.repository?.lastCommitDate, .t1)
-            XCTAssertEqual(jpr.repository?.authors, PackageAuthors(authors: [Author(name: "Person 1")],
-                                                                   numberOfContributors: 1))
-        }
-        do { // ensure changes are persisted
-            let repo = try await Repository.find(.id1, on: app.db)
-            XCTAssertEqual(repo?.commitCount, 12)
-            XCTAssertEqual(repo?.firstCommitDate, .t0)
-            XCTAssertEqual(repo?.lastCommitDate, .t1)
-            XCTAssertEqual(repo?.authors, PackageAuthors(authors: [Author(name: "Person 1")], numberOfContributors: 1))
+            // validate
+            do { // ensure JPR relation is updated
+                XCTAssertEqual(jpr.repository?.commitCount, 12)
+                XCTAssertEqual(jpr.repository?.firstCommitDate, .t0)
+                XCTAssertEqual(jpr.repository?.lastCommitDate, .t1)
+                XCTAssertEqual(jpr.repository?.authors, PackageAuthors(authors: [Author(name: "Person 1")],
+                                                                       numberOfContributors: 1))
+            }
+            do { // ensure changes are persisted
+                let repo = try await Repository.find(.id1, on: app.db)
+                XCTAssertEqual(repo?.commitCount, 12)
+                XCTAssertEqual(repo?.firstCommitDate, .t0)
+                XCTAssertEqual(repo?.lastCommitDate, .t1)
+                XCTAssertEqual(repo?.authors, PackageAuthors(authors: [Author(name: "Person 1")], numberOfContributors: 1))
+            }
         }
     }
 
@@ -751,6 +753,7 @@ class AnalyzerTests: AppTestCase {
         // Tests getPackageInfo(package:version:)
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
             // setup
             let commands = QueueIsolated<[String]>([])
@@ -890,6 +893,7 @@ class AnalyzerTests: AppTestCase {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
             // setup
             Current.git.commitCount = { @Sendable _ in 12 }
@@ -1021,16 +1025,20 @@ class AnalyzerTests: AppTestCase {
         // Test parsing a Package.swift that requires a 5.4 toolchain
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
-        // setup
-        Current.fileManager = .live
-        Current.shell = .live
-        try await withTempDir { tempDir in
-            let fixture = fixturesDirectory()
-                .appendingPathComponent("5.4-Package-swift").path
-            let fname = tempDir.appending("/Package.swift")
-            try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-            let m = try await Analyze.dumpPackage(at: tempDir)
-            XCTAssertEqual(m.name, "VisualEffects")
+        try await withDependencies {
+            $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+        } operation: {
+            // setup
+            Current.fileManager = .live
+            Current.shell = .live
+            try await withTempDir { tempDir in
+                let fixture = fixturesDirectory()
+                    .appendingPathComponent("5.4-Package-swift").path
+                let fname = tempDir.appending("/Package.swift")
+                try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+                let m = try await Analyze.dumpPackage(at: tempDir)
+                XCTAssertEqual(m.name, "VisualEffects")
+            }
         }
     }
 
@@ -1039,16 +1047,20 @@ class AnalyzerTests: AppTestCase {
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
         // See also https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1441
-        // setup
-        Current.fileManager = .live
-        Current.shell = .live
-        try await withTempDir { tempDir in
-            let fixture = fixturesDirectory()
-                .appendingPathComponent("5.5-Package-swift").path
-            let fname = tempDir.appending("/Package.swift")
-            try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-            let m = try await Analyze.dumpPackage(at: tempDir)
-            XCTAssertEqual(m.name, "Firestarter")
+        try await withDependencies {
+            $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+        } operation: {
+            // setup
+            Current.fileManager = .live
+            Current.shell = .live
+            try await withTempDir { tempDir in
+                let fixture = fixturesDirectory()
+                    .appendingPathComponent("5.5-Package-swift").path
+                let fname = tempDir.appending("/Package.swift")
+                try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+                let m = try await Analyze.dumpPackage(at: tempDir)
+                XCTAssertEqual(m.name, "Firestarter")
+            }
         }
     }
 
@@ -1056,16 +1068,20 @@ class AnalyzerTests: AppTestCase {
         // Test parsing a 5.9 Package.swift with a macro target
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
-        // setup
-        Current.fileManager = .live
-        Current.shell = .live
-        try await withTempDir { tempDir in
-            let fixture = fixturesDirectory()
-                .appendingPathComponent("5.9-Package-swift").path
-            let fname = tempDir.appending("/Package.swift")
-            try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-            let m = try await Analyze.dumpPackage(at: tempDir)
-            XCTAssertEqual(m.name, "StaticMemberIterable")
+        try await withDependencies {
+            $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+        } operation: {
+            // setup
+            Current.fileManager = .live
+            Current.shell = .live
+            try await withTempDir { tempDir in
+                let fixture = fixturesDirectory()
+                    .appendingPathComponent("5.9-Package-swift").path
+                let fname = tempDir.appending("/Package.swift")
+                try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+                let m = try await Analyze.dumpPackage(at: tempDir)
+                XCTAssertEqual(m.name, "StaticMemberIterable")
+            }
         }
     }
 
@@ -1506,6 +1522,7 @@ class AnalyzerTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, id: .id0, "https://github.com/foo/1".url, processingStage: .ingestion)
