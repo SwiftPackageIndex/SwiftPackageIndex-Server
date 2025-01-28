@@ -338,7 +338,7 @@ extension Analyze {
 
         repo.commitCount = (try? await git.commitCount(at: gitDirectory)) ?? 0
         repo.firstCommitDate = try? await git.firstCommitDate(at: gitDirectory)
-        repo.lastCommitDate = try? await Current.git.lastCommitDate(gitDirectory)
+        repo.lastCommitDate = try? await git.lastCommitDate(at: gitDirectory)
         repo.authors = try? await PackageContributors.extract(gitCacheDirectoryPath: gitDirectory, packageID: package.model.id)
 
         try await repo.update(on: database)

@@ -23,6 +23,7 @@ import IssueReporting
 struct GitClient {
     var commitCount: @Sendable (_ at: String) async throws -> Int
     var firstCommitDate: @Sendable (_ at: String) async throws -> Date
+    var lastCommitDate: @Sendable (_ at: String) async throws -> Date
 }
 
 
@@ -30,7 +31,8 @@ extension GitClient: DependencyKey {
     static var liveValue: Self {
         .init(
             commitCount: { path in try await Git.commitCount(at: path) },
-            firstCommitDate: { path in try await Git.firstCommitDate(at: path) }
+            firstCommitDate: { path in try await Git.firstCommitDate(at: path) },
+            lastCommitDate: { path in try await Git.lastCommitDate(at: path) }
         )
     }
 }
