@@ -336,8 +336,8 @@ extension Analyze {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
-        repo.commitCount = (try? await git.commitCount(gitDirectory)) ?? 0
-        repo.firstCommitDate = try? await Current.git.firstCommitDate(gitDirectory)
+        repo.commitCount = (try? await git.commitCount(at: gitDirectory)) ?? 0
+        repo.firstCommitDate = try? await git.firstCommitDate(at: gitDirectory)
         repo.lastCommitDate = try? await Current.git.lastCommitDate(gitDirectory)
         repo.authors = try? await PackageContributors.extract(gitCacheDirectoryPath: gitDirectory, packageID: package.model.id)
 

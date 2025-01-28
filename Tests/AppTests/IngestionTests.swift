@@ -434,8 +434,8 @@ class IngestionTests: AppTestCase {
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.commitCount = { @Sendable _ in 1 }
+            $0.git.firstCommitDate = { @Sendable _ in .t0 }
         } operation: { [db = app.db] in
-            Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.lastCommitDate = { @Sendable _ in .t0 }
             Current.git.getTags = { @Sendable _ in [] }
             Current.git.hasBranch = { @Sendable _, _ in true }

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 import Dependencies
 import DependenciesMacros
 import IssueReporting
@@ -20,13 +22,15 @@ import IssueReporting
 @DependencyClient
 struct GitClient {
     var commitCount: @Sendable (_ at: String) async throws -> Int
+    var firstCommitDate: @Sendable (_ at: String) async throws -> Date
 }
 
 
 extension GitClient: DependencyKey {
     static var liveValue: Self {
         .init(
-            commitCount: { path in try await Git.commitCount(at: path) }
+            commitCount: { path in try await Git.commitCount(at: path) },
+            firstCommitDate: { path in try await Git.firstCommitDate(at: path) }
         )
     }
 }

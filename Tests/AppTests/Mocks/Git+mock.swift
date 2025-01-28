@@ -17,7 +17,6 @@
 
 extension Git {
     static let mock: Self = .init(
-        firstCommitDate: { _ in fatalError("not initialized") },
         lastCommitDate: { _ in fatalError("not initialized") },
         getTags: { _ in fatalError("not initialized") },
         hasBranch: { _, _ in fatalError("not initialized") },
