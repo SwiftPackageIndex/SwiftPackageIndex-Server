@@ -21,7 +21,6 @@ extension App.FileManager {
     static let mock = Self.mock(fileExists: true)
     static func mock(fileExists: Bool) -> Self {
         .init(
-            fileExists: { path in fileExists },
             removeItem: { _ in },
             workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
         )

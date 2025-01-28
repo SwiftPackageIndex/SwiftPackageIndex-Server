@@ -34,6 +34,7 @@ class AnalyzerTests: AppTestCase {
         // don't mock the git commands themselves to ensure we're running the
         // expected shell commands for the happy path.)
         let checkoutDir = QueueIsolated<String?>(nil)
+        let firstDirCloned = QueueIsolated(false)
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
@@ -45,6 +46,16 @@ class AnalyzerTests: AppTestCase {
                 }
             }
             $0.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.setValue(path) }
+            $0.fileManager.fileExists = { @Sendable path in
+                if let outDir = checkoutDir.value,
+                   path == "\(outDir)/github.com-foo-1" { return firstDirCloned.value }
+                // let the check for the second repo checkout path succeed to simulate pull
+                if let outDir = checkoutDir.value,
+                   path == "\(outDir)/github.com-foo-2" { return true }
+                if path.hasSuffix("Package.swift") { return true }
+                if path.hasSuffix("Package.resolved") { return true }
+                return false
+            }
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
             // setup
@@ -65,17 +76,6 @@ class AnalyzerTests: AppTestCase {
                                  stars: 100).save(on: app.db)
 
             let commands = QueueIsolated<[Command]>([])
-            let firstDirCloned = QueueIsolated(false)
-            Current.fileManager.fileExists = { @Sendable path in
-                if let outDir = checkoutDir.value,
-                   path == "\(outDir)/github.com-foo-1" { return firstDirCloned.value }
-                // let the check for the second repo checkout path succeed to simulate pull
-                if let outDir = checkoutDir.value,
-                   path == "\(outDir)/github.com-foo-2" { return true }
-                if path.hasSuffix("Package.swift") { return true }
-                if path.hasSuffix("Package.resolved") { return true }
-                return false
-            }
             Current.git = .live
             Current.shell.run = { @Sendable cmd, path in
                 let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!, with: ".")
@@ -220,6 +220,7 @@ class AnalyzerTests: AppTestCase {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
             // setup
@@ -243,8 +244,6 @@ class AnalyzerTests: AppTestCase {
                               latest: .release,
                               packageName: "foo-1",
                               reference: .tag(1, 0, 0)).save(on: app.db)
-
-            Current.fileManager.fileExists = { @Sendable _ in true }
 
             Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
@@ -415,19 +414,18 @@ class AnalyzerTests: AppTestCase {
             $0.environment.allowSocialPosts = { true }
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.withLockedValue { $0 = path } }
+            $0.fileManager.fileExists = { @Sendable path in
+                if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-1" { return true }
+                if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-2" { return true }
+                if path.hasSuffix("Package.swift") { return true }
+                return false
+            }
         } operation: {
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
             let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
             for p in pkgs {
                 try await Repository(package: p, defaultBranch: "main").save(on: app.db)
-            }
-
-            Current.fileManager.fileExists = { @Sendable path in
-                if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-1" { return true }
-                if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-2" { return true }
-                if path.hasSuffix("Package.swift") { return true }
-                return false
             }
 
             Current.git = .live
@@ -501,22 +499,25 @@ class AnalyzerTests: AppTestCase {
 
     @MainActor
     func test_refreshCheckout() async throws {
-        // setup
-        let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
-        try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
-        Current.fileManager.fileExists = { @Sendable _ in true }
-        let commands = QueueIsolated<[String]>([])
-        Current.shell.run = { @Sendable cmd, path in
-            commands.withValue { $0.append(cmd.description) }
-            return ""
+        try await withDependencies {
+            $0.fileManager.fileExists = { @Sendable _ in true }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
+            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
+            let commands = QueueIsolated<[String]>([])
+            Current.shell.run = { @Sendable cmd, path in
+                commands.withValue { $0.append(cmd.description) }
+                return ""
+            }
+            let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
+
+            // MUT
+            _ = try await Analyze.refreshCheckout(package: jpr)
+
+            // validate
+            assertSnapshot(of: commands.value, as: .dump)
         }
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
-
-        // MUT
-        _ = try await Analyze.refreshCheckout(package: jpr)
-
-        // validate
-        assertSnapshot(of: commands.value, as: .dump)
     }
 
     func test_updateRepository() async throws {
@@ -953,63 +954,67 @@ class AnalyzerTests: AppTestCase {
     func test_issue_70() async throws {
         // Certain git commands fail when index.lock exists
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/70
-        // setup
-        try await savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
-        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
+        try await withDependencies {
+            // claim every file exists, including our ficticious 'index.lock' for which
+            // we want to trigger the cleanup mechanism
+            $0.fileManager.fileExists = { @Sendable path in true }
+        } operation: {
+            // setup
+            try await savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
+            let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
-        // claim every file exists, including our ficticious 'index.lock' for which
-        // we want to trigger the cleanup mechanism
-        Current.fileManager.fileExists = { @Sendable path in true }
-
-        let commands = QueueIsolated<[String]>([])
-        Current.shell.run = { @Sendable cmd, path in
-            commands.withValue { $0.append(cmd.description) }
-            return ""
-        }
-
-        // MUT
-        let res = await pkgs.mapAsync { @Sendable pkg in
-            await Result {
-                try await Analyze.refreshCheckout(package: pkg)
+            let commands = QueueIsolated<[String]>([])
+            Current.shell.run = { @Sendable cmd, path in
+                commands.withValue { $0.append(cmd.description) }
+                return ""
             }
-        }
 
-        // validation
-        XCTAssertEqual(res.map(\.isSuccess), [true])
-        assertSnapshot(of: commands.value, as: .dump)
+            // MUT
+            let res = await pkgs.mapAsync { @Sendable pkg in
+                await Result {
+                    try await Analyze.refreshCheckout(package: pkg)
+                }
+            }
+
+            // validation
+            XCTAssertEqual(res.map(\.isSuccess), [true])
+            assertSnapshot(of: commands.value, as: .dump)
+        }
     }
 
     @MainActor
     func test_issue_498() async throws {
         // git checkout can still fail despite git reset --hard + git clean
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
-        // setup
-        try await savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
-        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
+        try await withDependencies {
+            // claim every file exists, including our ficticious 'index.lock' for which
+            // we want to trigger the cleanup mechanism
+            $0.fileManager.fileExists = { @Sendable path in true }
+        } operation: {
+            // setup
+            try await savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
+            let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
-        // claim every file exists, including our ficticious 'index.lock' for which
-        // we want to trigger the cleanup mechanism
-        Current.fileManager.fileExists = { @Sendable path in true }
-
-        let commands = QueueIsolated<[String]>([])
-        Current.shell.run = { @Sendable cmd, path in
-            commands.withValue { $0.append(cmd.description) }
-            if cmd == .gitCheckout(branch: "master") {
-                throw TestError.simulatedCheckoutError
+            let commands = QueueIsolated<[String]>([])
+            Current.shell.run = { @Sendable cmd, path in
+                commands.withValue { $0.append(cmd.description) }
+                if cmd == .gitCheckout(branch: "master") {
+                    throw TestError.simulatedCheckoutError
+                }
+                return ""
             }
-            return ""
-        }
 
-        // MUT
-        let res = await pkgs.mapAsync { @Sendable pkg in
-            await Result {
-                try await Analyze.refreshCheckout(package: pkg)
+            // MUT
+            let res = await pkgs.mapAsync { @Sendable pkg in
+                await Result {
+                    try await Analyze.refreshCheckout(package: pkg)
+                }
             }
-        }
 
-        // validation
-        XCTAssertEqual(res.map(\.isSuccess), [true])
-        assertSnapshot(of: commands.value, as: .dump)
+            // validation
+            XCTAssertEqual(res.map(\.isSuccess), [true])
+            assertSnapshot(of: commands.value, as: .dump)
+        }
     }
 
     func test_dumpPackage_5_4() async throws {
@@ -1134,25 +1139,28 @@ class AnalyzerTests: AppTestCase {
     func test_issue_693() async throws {
         // Handle moved tags
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/693
-        // setup
-        do {
-            let pkg = try await savePackage(on: app.db, id: .id0, "1".asGithubUrl.url)
-            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
-        }
-        let pkg = try await Package.fetchCandidate(app.db, id: .id0)
-        Current.fileManager.fileExists = { @Sendable _ in true }
-        let commands = QueueIsolated<[String]>([])
-        Current.shell.run = { @Sendable cmd, _ in
-            commands.withValue { $0.append(cmd.description) }
-            if cmd == .gitFetchAndPruneTags { throw TestError.simulatedFetchError }
-            return ""
-        }
+        try await withDependencies {
+            $0.fileManager.fileExists = { @Sendable _ in true }
+        } operation: {
+            // setup
+            do {
+                let pkg = try await savePackage(on: app.db, id: .id0, "1".asGithubUrl.url)
+                try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
+            }
+            let pkg = try await Package.fetchCandidate(app.db, id: .id0)
+            let commands = QueueIsolated<[String]>([])
+            Current.shell.run = { @Sendable cmd, _ in
+                commands.withValue { $0.append(cmd.description) }
+                if cmd == .gitFetchAndPruneTags { throw TestError.simulatedFetchError }
+                return ""
+            }
 
-        // MUT
-        _ = try await Analyze.refreshCheckout(package: pkg)
+            // MUT
+            _ = try await Analyze.refreshCheckout(package: pkg)
 
-        // validate
-        assertSnapshot(of: commands.value, as: .dump)
+            // validate
+            assertSnapshot(of: commands.value, as: .dump)
+        }
     }
 
     func test_updateLatestVersions() async throws {
@@ -1218,36 +1226,39 @@ class AnalyzerTests: AppTestCase {
     func test_issue_914() async throws {
         // Ensure we handle 404 repos properly
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/914
-        // setup
-        let checkoutDir = "/checkouts"
-        do {
-            let url = "1".asGithubUrl.url
-            let pkg = Package.init(url: url, processingStage: .ingestion)
-            try await pkg.save(on: app.db)
-            Current.fileManager.fileExists = { @Sendable path in
+        try await withDependencies {
+            $0.fileManager.fileExists = { @Sendable path in
                 if path.hasSuffix("github.com-foo-1") { return false }
                 return true
             }
-            let repoDir = try checkoutDir + "/" + XCTUnwrap(pkg.cacheDirectoryName)
-            struct ShellOutError: Error {}
-            Current.shell.run = { @Sendable cmd, path in
-                if cmd == .gitClone(url: url, to: repoDir) {
-                    throw ShellOutError()
+        } operation: {
+            // setup
+            let checkoutDir = "/checkouts"
+            do {
+                let url = "1".asGithubUrl.url
+                let pkg = Package.init(url: url, processingStage: .ingestion)
+                try await pkg.save(on: app.db)
+                let repoDir = try checkoutDir + "/" + XCTUnwrap(pkg.cacheDirectoryName)
+                struct ShellOutError: Error {}
+                Current.shell.run = { @Sendable cmd, path in
+                    if cmd == .gitClone(url: url, to: repoDir) {
+                        throw ShellOutError()
+                    }
+                    throw TestError.unknownCommand
                 }
-                throw TestError.unknownCommand
             }
+            let lastUpdated = Date()
+
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      mode: .limit(10))
+
+            // validate
+            let pkg = try await Package.query(on: app.db).first().unwrap()
+            XCTAssertTrue(pkg.updatedAt! > lastUpdated)
+            XCTAssertEqual(pkg.status, .analysisFailed)
         }
-        let lastUpdated = Date()
-
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
-
-        // validate
-        let pkg = try await Package.query(on: app.db).first().unwrap()
-        XCTAssertTrue(pkg.updatedAt! > lastUpdated)
-        XCTAssertEqual(pkg.status, .analysisFailed)
     }
 
     func test_trimCheckouts() throws {
@@ -1277,110 +1288,8 @@ class AnalyzerTests: AppTestCase {
     func test_issue_2571_tags() async throws {
         // Ensure bad git commands do not delete existing tag revisions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
-        let pkgId = UUID()
-        let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg,
-                             defaultBranch: "main",
-                             name: "1",
-                             owner: "foo").save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "commit0",
-                          commitDate: .t0,
-                          latest: .defaultBranch,
-                          packageName: "foo-1",
-                          reference: .branch("main")).save(on: app.db)
-        try await Version(package: pkg,
-                          commit: "commit0",
-                          commitDate: .t0,
-                          latest: .release,
-                          packageName: "foo-1",
-                          reference: .tag(1, 0, 0)).save(on: app.db)
-        Current.fileManager.fileExists = { @Sendable _ in true }
-        Current.git.commitCount = { @Sendable _ in 2 }
-        Current.git.firstCommitDate = { @Sendable _ in .t0 }
-        Current.git.hasBranch = { @Sendable _, _ in true }
-        Current.git.lastCommitDate = { @Sendable _ in .t1 }
-        struct Error: Swift.Error { }
-        Current.git.shortlog = { @Sendable _ in
-            """
-            1\tPerson 1
-            1\tPerson 2
-            """
-        }
-        Current.shell.run = { @Sendable cmd, path in "" }
-
-        do {  // first scenario: bad getTags
-            Current.git.getTags = { @Sendable _ in throw Error() }
-            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "", date: .t1) }
-
-            // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(1))
-
-            // validate versions
-            let p = try await Package.find(pkgId, on: app.db).unwrap()
-            try await p.$versions.load(on: app.db)
-            let versions = p.versions.map(\.reference.description).sorted()
-            XCTAssertEqual(versions, ["1.0.0", "main"])
-        }
-
-        do {  // second scenario: revisionInfo throws
-            Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0)] }
-            Current.git.revisionInfo = { @Sendable _, _ in throw Error() }
-
-            // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(1))
-
-            // validate versions
-            let p = try await Package.find(pkgId, on: app.db).unwrap()
-            try await p.$versions.load(on: app.db)
-            let versions = p.versions.map(\.reference.description).sorted()
-            XCTAssertEqual(versions, ["1.0.0", "main"])
-        }
-
-        do {  // second scenario: gitTags throws
-            Current.git.getTags = { @Sendable _ in throw Error() }
-            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "", date: .t1) }
-
-            // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(1))
-
-            // validate versions
-            let p = try await Package.find(pkgId, on: app.db).unwrap()
-            try await p.$versions.load(on: app.db)
-            let versions = p.versions.map(\.reference.description).sorted()
-            XCTAssertEqual(versions, ["1.0.0", "main"])
-        }
-
-        do {  // third scenario: everything throws
-            Current.shell.run = { @Sendable _, _ in throw Error() }
-            Current.git.getTags = { @Sendable _ in throw Error() }
-            Current.git.revisionInfo = { @Sendable _, _ in throw Error() }
-
-            // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(1))
-
-            // validate versions
-            let p = try await Package.find(pkgId, on: app.db).unwrap()
-            try await p.$versions.load(on: app.db)
-            let versions = p.versions.map(\.reference.description).sorted()
-            XCTAssertEqual(versions, ["1.0.0", "main"])
-        }
-    }
-
-    func test_issue_2571_latest_version() async throws {
-        // Ensure `latest` remains set in case of AppError.noValidVersions
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
         try await withDependencies {
-            $0.date.now = .now
+            $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
             let pkgId = UUID()
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
@@ -1401,7 +1310,112 @@ class AnalyzerTests: AppTestCase {
                               latest: .release,
                               packageName: "foo-1",
                               reference: .tag(1, 0, 0)).save(on: app.db)
-            Current.fileManager.fileExists = { @Sendable _ in true }
+            Current.git.commitCount = { @Sendable _ in 2 }
+            Current.git.firstCommitDate = { @Sendable _ in .t0 }
+            Current.git.hasBranch = { @Sendable _, _ in true }
+            Current.git.lastCommitDate = { @Sendable _ in .t1 }
+            struct Error: Swift.Error { }
+            Current.git.shortlog = { @Sendable _ in
+            """
+            1\tPerson 1
+            1\tPerson 2
+            """
+            }
+            Current.shell.run = { @Sendable cmd, path in "" }
+
+            do {  // first scenario: bad getTags
+                Current.git.getTags = { @Sendable _ in throw Error() }
+                Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "", date: .t1) }
+
+                // MUT
+                try await Analyze.analyze(client: app.client,
+                                          database: app.db,
+                                          mode: .limit(1))
+
+                // validate versions
+                let p = try await Package.find(pkgId, on: app.db).unwrap()
+                try await p.$versions.load(on: app.db)
+                let versions = p.versions.map(\.reference.description).sorted()
+                XCTAssertEqual(versions, ["1.0.0", "main"])
+            }
+
+            do {  // second scenario: revisionInfo throws
+                Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0)] }
+                Current.git.revisionInfo = { @Sendable _, _ in throw Error() }
+
+                // MUT
+                try await Analyze.analyze(client: app.client,
+                                          database: app.db,
+                                          mode: .limit(1))
+
+                // validate versions
+                let p = try await Package.find(pkgId, on: app.db).unwrap()
+                try await p.$versions.load(on: app.db)
+                let versions = p.versions.map(\.reference.description).sorted()
+                XCTAssertEqual(versions, ["1.0.0", "main"])
+            }
+
+            do {  // second scenario: gitTags throws
+                Current.git.getTags = { @Sendable _ in throw Error() }
+                Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "", date: .t1) }
+
+                // MUT
+                try await Analyze.analyze(client: app.client,
+                                          database: app.db,
+                                          mode: .limit(1))
+
+                // validate versions
+                let p = try await Package.find(pkgId, on: app.db).unwrap()
+                try await p.$versions.load(on: app.db)
+                let versions = p.versions.map(\.reference.description).sorted()
+                XCTAssertEqual(versions, ["1.0.0", "main"])
+            }
+
+            do {  // third scenario: everything throws
+                Current.shell.run = { @Sendable _, _ in throw Error() }
+                Current.git.getTags = { @Sendable _ in throw Error() }
+                Current.git.revisionInfo = { @Sendable _, _ in throw Error() }
+
+                // MUT
+                try await Analyze.analyze(client: app.client,
+                                          database: app.db,
+                                          mode: .limit(1))
+
+                // validate versions
+                let p = try await Package.find(pkgId, on: app.db).unwrap()
+                try await p.$versions.load(on: app.db)
+                let versions = p.versions.map(\.reference.description).sorted()
+                XCTAssertEqual(versions, ["1.0.0", "main"])
+            }
+        }
+    }
+
+    func test_issue_2571_latest_version() async throws {
+        // Ensure `latest` remains set in case of AppError.noValidVersions
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
+        try await withDependencies {
+            $0.date.now = .now
+            $0.fileManager.fileExists = { @Sendable _ in true }
+        } operation: {
+            let pkgId = UUID()
+            let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 name: "1",
+                                 owner: "foo").save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "commit0",
+                              commitDate: .t0,
+                              latest: .defaultBranch,
+                              packageName: "foo-1",
+                              reference: .branch("main")).save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "commit0",
+                              commitDate: .t0,
+                              latest: .release,
+                              packageName: "foo-1",
+                              reference: .tag(1, 0, 0)).save(on: app.db)
             Current.git.commitCount = { @Sendable _ in 2 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.hasBranch = { @Sendable _, _ in true }

@@ -432,8 +432,8 @@ class IngestionTests: AppTestCase {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { false }
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: { [db = app.db] in
-            Current.fileManager.fileExists = { @Sendable _ in true }
             Current.git.commitCount = { @Sendable _ in 1 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.lastCommitDate = { @Sendable _ in .t0 }

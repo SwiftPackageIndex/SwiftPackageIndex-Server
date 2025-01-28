@@ -27,6 +27,7 @@ struct FileManagerClient {
     var contents: @Sendable (_ atPath: String) -> Data?
     var contentsOfDirectory: @Sendable (_ atPath: String) throws -> [String]
     var createDirectory: @Sendable (_ atPath: String, _ withIntermediateDirectories: Bool, _ attributes: [FileAttributeKey : Any]?) throws -> Void
+    var fileExists: @Sendable (_ atPath: String) -> Bool = { reportIssue("fileExists"); return Foundation.FileManager.default.fileExists(atPath: $0) }
 }
 
 
@@ -45,7 +46,8 @@ extension FileManagerClient: DependencyKey {
             checkoutsDirectory: { Environment.get("CHECKOUTS_DIR") ?? DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
             contents: { Foundation.FileManager.default.contents(atPath: $0) },
             contentsOfDirectory: { try Foundation.FileManager.default.contentsOfDirectory(atPath: $0) },
-            createDirectory: { try Foundation.FileManager.default.createDirectory(atPath: $0, withIntermediateDirectories: $1, attributes: $2) }
+            createDirectory: { try Foundation.FileManager.default.createDirectory(atPath: $0, withIntermediateDirectories: $1, attributes: $2) },
+            fileExists: { Foundation.FileManager.default.fileExists(atPath: $0) }
         )
     }
 }

@@ -1501,6 +1501,10 @@ class PackageController_routesTests: SnapshotTestCase {
             $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable path in
+                if path.hasSuffix("Package.resolved") { return false }
+                return true
+            }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.timeZone = .utc
         } operation: {
@@ -1515,11 +1519,7 @@ class PackageController_routesTests: SnapshotTestCase {
                               latest: .defaultBranch,
                               packageName: "bar",
                               reference: .branch("main"))
-            .save(on: app.db)
-            Current.fileManager.fileExists = { @Sendable path in
-                if path.hasSuffix("Package.resolved") { return false }
-                return true
-            }
+                .save(on: app.db)
             Current.git = .init(
                 commitCount: { _ in 2 },
                 firstCommitDate: { _ in .t0 },

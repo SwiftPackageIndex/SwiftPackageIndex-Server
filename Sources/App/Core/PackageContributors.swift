@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import Foundation
+
+import Dependencies
 import ShellOut
 import Vapor
 
@@ -65,8 +67,8 @@ enum PackageContributors {
 
         /// Gets the git history in a string log
         private static func runShortlog(gitCacheDirectoryPath: String, packageID: UUID?) async throws -> String {
-
-            if Current.fileManager.fileExists(atPath: gitCacheDirectoryPath) == false {
+            @Dependency(\.fileManager) var fileManager
+            if fileManager.fileExists(atPath: gitCacheDirectoryPath) == false {
                 throw AppError.cacheDirectoryDoesNotExist(packageID, gitCacheDirectoryPath)
             }
 

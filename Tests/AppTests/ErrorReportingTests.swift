@@ -51,27 +51,30 @@ class ErrorReportingTests: AppTestCase {
     }
 
     func test_Analyzer_error_reporting() async throws {
-        // setup
-        try await Package(id: .id1, url: "1".asGithubUrl.url, processingStage: .ingestion).save(on: app.db)
-        Current.fileManager.fileExists = { @Sendable _ in true }
-        Current.shell.run = { @Sendable cmd, path in
-            if cmd.description == "git tag" { return "1.0.0" }
-            // returning a blank string will cause an exception when trying to
-            // decode it as the manifest result - we use this to simulate errors
-            return "invalid"
-        }
+        try await withDependencies {
+            $0.fileManager.fileExists = { @Sendable _ in true }
+        } operation: {
+            // setup
+            try await Package(id: .id1, url: "1".asGithubUrl.url, processingStage: .ingestion).save(on: app.db)
+            Current.shell.run = { @Sendable cmd, path in
+                if cmd.description == "git tag" { return "1.0.0" }
+                // returning a blank string will cause an exception when trying to
+                // decode it as the manifest result - we use this to simulate errors
+                return "invalid"
+            }
 
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      mode: .limit(10))
 
-        // validation
-        logger.logs.withValue {
-            XCTAssertEqual($0, [
-                .init(level: .critical, message: "updatePackages: unusually high error rate: 1/1 = 100.0%"),
-                .init(level: .warning, message: #"App.AppError.genericError(Optional(\#(UUID.id1)), "updateRepository: no repository")"#)
-            ])
+            // validation
+            logger.logs.withValue {
+                XCTAssertEqual($0, [
+                    .init(level: .critical, message: "updatePackages: unusually high error rate: 1/1 = 100.0%"),
+                    .init(level: .warning, message: #"App.AppError.genericError(Optional(\#(UUID.id1)), "updateRepository: no repository")"#)
+                ])
+            }
         }
     }
 

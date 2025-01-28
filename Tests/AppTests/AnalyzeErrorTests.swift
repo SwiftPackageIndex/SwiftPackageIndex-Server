@@ -204,15 +204,13 @@ final class AnalyzeErrorTests: AppTestCase {
     func test_analyze_dumpPackage_missing_manifest() async throws {
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
-        } operation: {
-            // setup
-            Current.fileManager.fileExists = { @Sendable path in
+            $0.fileManager.fileExists = { @Sendable path in
                 if path.hasSuffix("github.com-foo-1/Package.swift") {
                     return false
                 }
                 return true
             }
-            
+        } operation: {
             // MUT
             try await Analyze.analyze(client: app.client,
                                       database: app.db,

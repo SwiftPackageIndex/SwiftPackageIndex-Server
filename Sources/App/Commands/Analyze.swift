@@ -143,7 +143,7 @@ extension Analyze {
         @Dependency(\.fileManager) var fileManager
         let checkoutDir = fileManager.checkoutsDirectory()
         Current.logger().info("Checkout directory: \(checkoutDir)")
-        if !Current.fileManager.fileExists(atPath: checkoutDir) {
+        if !fileManager.fileExists(atPath: checkoutDir) {
             try await createCheckoutsDirectory(client: client, path: checkoutDir)
         }
 
@@ -267,11 +267,12 @@ extension Analyze {
     ///   - url: url to fetch from
     /// - Throws: Shell errors
     static func fetch(cacheDir: String, branch: String, url: String) async throws {
+        @Dependency(\.fileManager) var fileManager
         Current.logger().info("pulling \(url) in \(cacheDir)")
         // clean up stray lock files that might have remained from aborted commands
         for fileName in ["HEAD.lock", "index.lock"] {
             let filePath = cacheDir + "/.git/\(fileName)"
-            if Current.fileManager.fileExists(atPath: filePath) {
+            if fileManager.fileExists(atPath: filePath) {
                 Current.logger().info("Removing stale \(fileName) at path: \(filePath)")
                 try await Current.shell.run(command: .removeFile(from: filePath))
             }
@@ -296,7 +297,7 @@ extension Analyze {
         }
 
         do {
-            guard Current.fileManager.fileExists(atPath: cacheDir) else {
+            guard fileManager.fileExists(atPath: cacheDir) else {
                 try await clone(cacheDir: cacheDir, url: package.model.url)
                 return
             }
@@ -530,7 +531,8 @@ extension Analyze {
     /// - Throws: Shell errors or AppError.invalidRevision if there is no Package.swift file
     /// - Returns: `Manifest` data
     static func dumpPackage(at path: String) async throws -> Manifest {
-        guard Current.fileManager.fileExists(atPath: path + "/Package.swift") else {
+        @Dependency(\.fileManager) var fileManager
+        guard fileManager.fileExists(atPath: path + "/Package.swift") else {
             // It's important to check for Package.swift - otherwise `dump-package` will go
             // up the tree through parent directories to find one
             throw AppError.invalidRevision(nil, "no Package.swift")

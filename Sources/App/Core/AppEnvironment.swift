@@ -45,16 +45,13 @@ extension AppEnvironment {
 
 
 struct FileManager: Sendable {
-    var fileExists: @Sendable (String) -> Bool
     var removeItem: @Sendable (_ path: String) throws -> Void
     var workingDirectory: @Sendable () -> String
 
     // pass-through methods to preserve argument labels
-    func fileExists(atPath path: String) -> Bool { fileExists(path) }
     func removeItem(atPath path: String) throws { try removeItem(path) }
 
     static let live: Self = .init(
-        fileExists: { Foundation.FileManager.default.fileExists(atPath: $0) },
         removeItem: { try Foundation.FileManager.default.removeItem(atPath: $0) },
         workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
     )
