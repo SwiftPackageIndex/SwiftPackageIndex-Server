@@ -1029,7 +1029,6 @@ class AnalyzerTests: AppTestCase {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
         } operation: {
             // setup
-            Current.fileManager = .live
             Current.shell = .live
             try await withTempDir { tempDir in
                 let fixture = fixturesDirectory()
@@ -1051,7 +1050,6 @@ class AnalyzerTests: AppTestCase {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
         } operation: {
             // setup
-            Current.fileManager = .live
             Current.shell = .live
             try await withTempDir { tempDir in
                 let fixture = fixturesDirectory()
@@ -1072,7 +1070,6 @@ class AnalyzerTests: AppTestCase {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
         } operation: {
             // setup
-            Current.fileManager = .live
             Current.shell = .live
             try await withTempDir { tempDir in
                 let fixture = fixturesDirectory()
@@ -1098,7 +1095,6 @@ class AnalyzerTests: AppTestCase {
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
         // setup
-        Current.fileManager = .live
         Current.shell = .live
         try await withTempDir { @Sendable tempDir in
             let fixture = fixturesDirectory()
