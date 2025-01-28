@@ -312,6 +312,7 @@ final class PackageTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 12 }
             $0.github.fetchLicense = { @Sendable _, _ in nil }
             $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
             $0.github.fetchReadme = { @Sendable _, _ in nil }
@@ -320,7 +321,6 @@ final class PackageTests: AppTestCase {
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
         } operation: {
             // setup
-            Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.firstCommitDate = { @Sendable _ in Date(timeIntervalSince1970: 0) }
             Current.git.getTags = { @Sendable _ in [] }
             Current.git.hasBranch = { @Sendable _, _ in true }

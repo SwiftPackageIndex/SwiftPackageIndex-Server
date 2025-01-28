@@ -19,13 +19,15 @@ import IssueReporting
 
 @DependencyClient
 struct GitClient {
-
+    var commitCount: @Sendable (_ at: String) async throws -> Int
 }
 
 
 extension GitClient: DependencyKey {
     static var liveValue: Self {
-        .init()
+        .init(
+            commitCount: { path in try await Git.commitCount(at: path) }
+        )
     }
 }
 

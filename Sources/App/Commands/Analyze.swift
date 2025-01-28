@@ -326,15 +326,17 @@ extension Analyze {
     ///   - package: `Package` to update
     /// - Returns: result future
     static func updateRepository(on database: Database, package: Joined<Package, Repository>) async throws {
+        @Dependency(\.fileManager) var fileManager
+        @Dependency(\.git) var git
+
         guard let repo = package.repository else {
             throw AppError.genericError(package.model.id, "updateRepository: no repository")
         }
-        @Dependency(\.fileManager) var fileManager
         guard let gitDirectory = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
-        repo.commitCount = (try? await Current.git.commitCount(gitDirectory)) ?? 0
+        repo.commitCount = (try? await git.commitCount(gitDirectory)) ?? 0
         repo.firstCommitDate = try? await Current.git.firstCommitDate(gitDirectory)
         repo.lastCommitDate = try? await Current.git.lastCommitDate(gitDirectory)
         repo.authors = try? await PackageContributors.extract(gitCacheDirectoryPath: gitDirectory, packageID: package.model.id)

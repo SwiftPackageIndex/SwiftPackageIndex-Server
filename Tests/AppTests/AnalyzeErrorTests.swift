@@ -73,7 +73,6 @@ final class AnalyzeErrorTests: AppTestCase {
             Repository(package: pkgs[1], defaultBranch: "main", name: "2", owner: "foo"),
         ].save(on: app.db)
 
-        Current.git.commitCount = { @Sendable _ in 1 }
         Current.git.firstCommitDate = { @Sendable _ in .t0 }
         Current.git.lastCommitDate = { @Sendable _ in .t1 }
         Current.git.getTags = { @Sendable checkoutDir in
@@ -104,6 +103,7 @@ final class AnalyzeErrorTests: AppTestCase {
         withDependencies {
             $0.date.now = .t0
             $0.environment.allowSocialPosts = { true }
+            $0.git.commitCount = { @Sendable _ in 1 }
             $0.httpClient.mastodonPost = { @Sendable [socialPosts = self.socialPosts] message in
                 socialPosts.withValue { $0.append(message) }
             }

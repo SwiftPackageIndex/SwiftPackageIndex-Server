@@ -56,6 +56,7 @@ class AnalyzerTests: AppTestCase {
                 if path.hasSuffix("Package.resolved") { return true }
                 return false
             }
+            $0.git = .liveValue
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
             // setup
@@ -221,6 +222,7 @@ class AnalyzerTests: AppTestCase {
             $0.environment.allowSocialPosts = { true }
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 12 }
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
             // setup
@@ -245,7 +247,6 @@ class AnalyzerTests: AppTestCase {
                               packageName: "foo-1",
                               reference: .tag(1, 0, 0)).save(on: app.db)
 
-            Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.lastCommitDate = { @Sendable _ in .t2 }
             Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0), .tag(1, 1, 1)] }
@@ -315,6 +316,7 @@ class AnalyzerTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 12 }
         } operation: {
             // setup
             do {
@@ -322,7 +324,6 @@ class AnalyzerTests: AppTestCase {
                 try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
             }
 
-            Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.lastCommitDate = { @Sendable _ in .t1 }
             Current.git.hasBranch = { @Sendable _, _ in false }  // simulate analysis error via branch mismatch
@@ -360,6 +361,7 @@ class AnalyzerTests: AppTestCase {
             $0.environment.allowSocialPosts = { true }
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 12 }
         } operation: {
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -369,7 +371,6 @@ class AnalyzerTests: AppTestCase {
             }
             let lastUpdate = Date()
 
-            Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.lastCommitDate = { @Sendable _ in .t1 }
             Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0)] }
@@ -418,6 +419,7 @@ class AnalyzerTests: AppTestCase {
                 if path.hasSuffix("Package.swift") { return true }
                 return false
             }
+            $0.git = .liveValue
         } operation: {
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -521,9 +523,9 @@ class AnalyzerTests: AppTestCase {
     func test_updateRepository() async throws {
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 12 }
         } operation: {
             // setup
-            Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.lastCommitDate = { @Sendable _ in .t1 }
             Current.git.shortlog = { @Sendable _ in
@@ -894,9 +896,9 @@ class AnalyzerTests: AppTestCase {
             $0.environment.allowSocialPosts = { true }
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 12 }
         } operation: {
             // setup
-            Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.lastCommitDate = { @Sendable _ in .t1 }
             Current.git.getTags = { @Sendable _ in [.tag(1, 0, 0), .tag(2, 0, 0)] }
@@ -1300,6 +1302,7 @@ class AnalyzerTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 2 }
         } operation: {
             let pkgId = UUID()
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
@@ -1320,7 +1323,6 @@ class AnalyzerTests: AppTestCase {
                               latest: .release,
                               packageName: "foo-1",
                               reference: .tag(1, 0, 0)).save(on: app.db)
-            Current.git.commitCount = { @Sendable _ in 2 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.hasBranch = { @Sendable _, _ in true }
             Current.git.lastCommitDate = { @Sendable _ in .t1 }
@@ -1406,6 +1408,7 @@ class AnalyzerTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .now
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 2 }
         } operation: {
             let pkgId = UUID()
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
@@ -1426,7 +1429,6 @@ class AnalyzerTests: AppTestCase {
                               latest: .release,
                               packageName: "foo-1",
                               reference: .tag(1, 0, 0)).save(on: app.db)
-            Current.git.commitCount = { @Sendable _ in 2 }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.hasBranch = { @Sendable _, _ in true }
             Current.git.lastCommitDate = { @Sendable _ in .t1 }
@@ -1517,6 +1519,7 @@ class AnalyzerTests: AppTestCase {
             $0.date.now = .now
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 12 }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, id: .id0, "https://github.com/foo/1".url, processingStage: .ingestion)
@@ -1525,7 +1528,6 @@ class AnalyzerTests: AppTestCase {
                                  name: "1",
                                  owner: "foo",
                                  stars: 100).save(on: app.db)
-            Current.git.commitCount = { @Sendable _ in 12 }
             Current.git.getTags = { @Sendable _ in [] }
             Current.git.hasBranch = { @Sendable _, _ in true }
             Current.git.firstCommitDate = { @Sendable _ in .t0 }

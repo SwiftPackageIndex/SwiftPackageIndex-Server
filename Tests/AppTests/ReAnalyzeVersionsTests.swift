@@ -31,6 +31,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
             $0.environment.allowSocialPosts = { true }
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 12 }
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
             // setup
@@ -49,8 +50,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
                                  defaultBranch: "main",
                                  name: "1",
                                  owner: "foo").save(on: app.db)
-            
-            Current.git.commitCount = { @Sendable _ in 12 }
+
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.lastCommitDate = { @Sendable _ in .t1 }
             Current.git.getTags = { @Sendable _ in [.tag(1, 2, 3)] }
@@ -184,13 +184,12 @@ class ReAnalyzeVersionsTests: AppTestCase {
             $0.date.now = .t2
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 12 }
         } operation: {
             let pkg = try await savePackage(on: app.db,
                                             "https://github.com/foo/1".url,
                                             processingStage: .ingestion)
-            try await Repository(package: pkg,
-                                 defaultBranch: "main").save(on: app.db)
-            Current.git.commitCount = { @Sendable _ in 12 }
+            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
             Current.git.firstCommitDate = { @Sendable _ in .t0 }
             Current.git.lastCommitDate = { @Sendable _ in .t1 }
             Current.git.getTags = { @Sendable _ in [] }
