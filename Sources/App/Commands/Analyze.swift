@@ -398,7 +398,7 @@ extension Analyze {
             throw AppError.analysisError(package.model.id, "Package must have default branch")
         }
 
-        guard try await Current.git.hasBranch(defaultBranch, cacheDir) else {
+        guard try await git.hasBranch(defaultBranch, at: cacheDir) else {
             throw AppError.analysisError(package.model.id, "Default branch '\(defaultBranch)' does not exist in checkout")
         }
 

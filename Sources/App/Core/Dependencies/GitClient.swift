@@ -24,6 +24,7 @@ struct GitClient {
     var commitCount: @Sendable (_ at: String) async throws -> Int
     var firstCommitDate: @Sendable (_ at: String) async throws -> Date
     var getTags: @Sendable (_ at: String) async throws -> [Reference]
+    var hasBranch: @Sendable (Reference, _ at: String) async throws -> Bool
     var lastCommitDate: @Sendable (_ at: String) async throws -> Date
 }
 
@@ -34,6 +35,7 @@ extension GitClient: DependencyKey {
             commitCount: { path in try await Git.commitCount(at: path) },
             firstCommitDate: { path in try await Git.firstCommitDate(at: path) },
             getTags: { path in try await Git.getTags(at: path) },
+            hasBranch: { ref, path in try await Git.hasBranch(ref, at: path) },
             lastCommitDate: { path in try await Git.lastCommitDate(at: path) }
         )
     }

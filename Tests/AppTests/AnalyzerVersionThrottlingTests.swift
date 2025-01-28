@@ -191,9 +191,9 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .t0
             $0.git.getTags = { @Sendable _ in [.branch("main")] }
+            $0.git.hasBranch = { @Sendable _, _ in true }
         } operation: {
             // setup
-            Current.git.hasBranch = { @Sendable _, _ in true }
             let pkg = Package(url: "1".asGithubUrl.url)
             try await pkg.save(on: app.db)
             try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
@@ -246,8 +246,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             // Leaving tags out of it for simplicity - they are tested specifically
             // in test_throttle_ignore_tags above.
             $0.git.getTags = { @Sendable _ in [] }
+            $0.git.hasBranch = { @Sendable _, _ in true }
         } operation: {
-            Current.git.hasBranch = { @Sendable _, _ in true }
 
             // Little helper to simulate minimal version reconciliation
             func runVersionReconciliation() async throws -> VersionDelta {

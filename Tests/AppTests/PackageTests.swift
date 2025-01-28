@@ -315,6 +315,7 @@ final class PackageTests: AppTestCase {
             $0.git.commitCount = { @Sendable _ in 12 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
             $0.git.getTags = { @Sendable _ in [] }
+            $0.git.hasBranch = { @Sendable _, _ in true }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
             $0.github.fetchLicense = { @Sendable _, _ in nil }
             $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
@@ -324,7 +325,6 @@ final class PackageTests: AppTestCase {
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
         } operation: {
             // setup
-            Current.git.hasBranch = { @Sendable _, _ in true }
             Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
             Current.git.shortlog = { @Sendable _ in
             """
