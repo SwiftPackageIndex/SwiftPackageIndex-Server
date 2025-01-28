@@ -185,7 +185,7 @@ enum ReAnalyzeVersions {
                     try await dependencies.yield {
                         @Dependency(\.fileManager) var fileManager
                         guard let cacheDir = fileManager.cacheDirectoryPath(for: pkg.model) else { return }
-                        if !Current.fileManager.fileExists(atPath: cacheDir) || refreshCheckouts {
+                        if !fileManager.fileExists(atPath: cacheDir) || refreshCheckouts {
                             try await Analyze.refreshCheckout(package: pkg)
                         }
                         

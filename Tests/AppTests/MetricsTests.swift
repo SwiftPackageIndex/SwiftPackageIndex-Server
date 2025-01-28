@@ -129,14 +129,18 @@ class MetricsTests: AppTestCase {
     }
 
     func test_analyzeDurationSeconds() async throws {
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
+        try await withDependencies {
+            $0.fileManager.fileExists = { @Sendable _ in true }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
 
-        // MUT
-        try await Analyze.analyze(client: app.client, database: app.db, mode: .id(pkg.id!))
+            // MUT
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .id(pkg.id!))
 
-        // validation
-        XCTAssert((AppMetrics.analyzeDurationSeconds?.get()) ?? 0 > 0)
+            // validation
+            XCTAssert((AppMetrics.analyzeDurationSeconds?.get()) ?? 0 > 0)
+        }
     }
 
     func test_triggerBuildsDurationSeconds() async throws {

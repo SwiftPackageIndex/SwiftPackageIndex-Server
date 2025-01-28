@@ -115,6 +115,7 @@ final class AnalyzeErrorTests: AppTestCase {
     func test_analyze_refreshCheckout_failed() async throws {
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
             Current.shell.run = { @Sendable cmd, path in
                 switch cmd {
@@ -130,9 +131,7 @@ final class AnalyzeErrorTests: AppTestCase {
             }
 
             // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(10))
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
             // validate
             try await defaultValidation()
@@ -147,6 +146,7 @@ final class AnalyzeErrorTests: AppTestCase {
     func test_analyze_updateRepository_invalidPackageCachePath() async throws {
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
             // setup
             let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
@@ -157,9 +157,7 @@ final class AnalyzeErrorTests: AppTestCase {
             try await pkg.save(on: app.db)
 
             // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(10))
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
             // validate
             try await defaultValidation()
@@ -174,6 +172,7 @@ final class AnalyzeErrorTests: AppTestCase {
     func test_analyze_getPackageInfo_gitCheckout_error() async throws {
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
             // setup
             Current.shell.run = { @Sendable cmd, path in
@@ -187,9 +186,7 @@ final class AnalyzeErrorTests: AppTestCase {
             }
 
             // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(10))
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
             // validate
             try await defaultValidation()
@@ -204,15 +201,13 @@ final class AnalyzeErrorTests: AppTestCase {
     func test_analyze_dumpPackage_missing_manifest() async throws {
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
-        } operation: {
-            // setup
-            Current.fileManager.fileExists = { @Sendable path in
+            $0.fileManager.fileExists = { @Sendable path in
                 if path.hasSuffix("github.com-foo-1/Package.swift") {
                     return false
                 }
                 return true
             }
-            
+        } operation: {
             // MUT
             try await Analyze.analyze(client: app.client,
                                       database: app.db,

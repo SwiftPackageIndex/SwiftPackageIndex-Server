@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import Foundation
+
+import Dependencies
 import Vapor
 
 
@@ -33,8 +35,8 @@ struct EmojiStorage {
     var regularExpression: NSRegularExpression?
 
     init() {
-        let pathToEmojiFile = Current.fileManager.workingDirectory()
-            .appending("Resources/emoji.json")
+        @Dependency(\.fileManager) var fileManager
+        let pathToEmojiFile = fileManager.workingDirectory().appending("Resources/emoji.json")
 
         lookup = [:]
         regularExpression = nil

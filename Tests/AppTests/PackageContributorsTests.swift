@@ -16,6 +16,9 @@ import XCTest
 
 @testable import App
 
+import Dependencies
+
+
 class PackageContributorsTests : AppTestCase {
 
     func test_packageAuthors_hasAuthors() throws {
@@ -64,10 +67,12 @@ class PackageContributorsTests : AppTestCase {
 
 
     func test_PackageContributors_extract() async throws {
-        // setup
-        let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
-        Current.fileManager.fileExists = { @Sendable _ in true }
-        Current.git.shortlog = { @Sendable _ in
+        try await withDependencies {
+            $0.fileManager.fileExists = { @Sendable _ in true }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
+            Current.git.shortlog = { @Sendable _ in
             """
             1000\tPerson 1
              871\tPerson 2
@@ -81,19 +86,19 @@ class PackageContributorsTests : AppTestCase {
               40\tPerson 10
               11\tPerson 11
             """
+            }
+
+            // MUT
+            let pkgAuthors = try await PackageContributors.extract(gitCacheDirectoryPath: "",
+                                                                   packageID: pkg.id)
+
+            XCTAssertEqual(pkgAuthors.authors, [Author(name: "Person 1") ,
+                                                Author(name: "Person 2"),
+                                                Author(name: "Person 3"),
+                                                Author(name: "Person 4"),
+                                                Author(name: "Person 5")])
+            XCTAssertEqual(pkgAuthors.numberOfContributors, 6)
         }
-
-        // MUT
-        let pkgAuthors = try await PackageContributors.extract(gitCacheDirectoryPath: "",
-                                                               packageID: pkg.id)
-
-        XCTAssertEqual(pkgAuthors.authors, [Author(name: "Person 1") ,
-                                            Author(name: "Person 2"),
-                                            Author(name: "Person 3"),
-                                            Author(name: "Person 4"),
-                                            Author(name: "Person 5")])
-        XCTAssertEqual(pkgAuthors.numberOfContributors, 6)
-
     }
 
 

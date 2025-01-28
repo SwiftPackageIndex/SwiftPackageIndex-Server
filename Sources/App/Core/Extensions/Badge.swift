@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Vapor
 import Foundation
+
+import Dependencies
+import Vapor
 
 
 struct Badge: Content, Equatable {
@@ -68,8 +70,8 @@ enum BadgeType: String, Codable {
 extension Badge {
 
     static private func loadSVGLogo() -> String? {
-        let pathToFile = Current.fileManager.workingDirectory()
-            .appending("Public/images/logo-tiny.svg")
+        @Dependency(\.fileManager) var fileManager
+        let pathToFile = fileManager.workingDirectory().appending("Public/images/logo-tiny.svg")
 
         return try? String(contentsOfFile: pathToFile, encoding: .utf8)
     }

@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var fileManager: FileManager
     var git: Git
     var logger: @Sendable () -> Logger
     var setLogger: @Sendable (Logger) -> Void
@@ -35,7 +34,6 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        fileManager: .live,
         git: .live,
         logger: { logger },
         setLogger: { logger in Self.logger = logger },
@@ -43,29 +41,6 @@ extension AppEnvironment {
     )
 }
 
-
-struct FileManager: Sendable {
-    var createDirectory: @Sendable (String, Bool, [FileAttributeKey : Any]?) throws -> Void
-    var fileExists: @Sendable (String) -> Bool
-    var removeItem: @Sendable (_ path: String) throws -> Void
-    var workingDirectory: @Sendable () -> String
-
-    // pass-through methods to preserve argument labels
-    func createDirectory(atPath path: String,
-                         withIntermediateDirectories createIntermediates: Bool,
-                         attributes: [FileAttributeKey : Any]?) throws {
-        try createDirectory(path, createIntermediates, attributes)
-    }
-    func fileExists(atPath path: String) -> Bool { fileExists(path) }
-    func removeItem(atPath path: String) throws { try removeItem(path) }
-
-    static let live: Self = .init(
-        createDirectory: { try Foundation.FileManager.default.createDirectory(atPath: $0, withIntermediateDirectories: $1, attributes: $2) },
-        fileExists: { Foundation.FileManager.default.fileExists(atPath: $0) },
-        removeItem: { try Foundation.FileManager.default.removeItem(atPath: $0) },
-        workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
-    )
-}
 
 
 struct Git: Sendable {

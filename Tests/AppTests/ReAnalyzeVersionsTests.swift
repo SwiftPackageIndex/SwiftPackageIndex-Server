@@ -30,6 +30,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
             $0.date.now = .t0
             $0.environment.allowSocialPosts = { true }
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
             // setup
@@ -182,6 +183,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .t2
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
             let pkg = try await savePackage(on: app.db,
                                             "https://github.com/foo/1".url,

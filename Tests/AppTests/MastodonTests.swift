@@ -26,6 +26,7 @@ final class MastodonTests: AppTestCase {
         try await withDependencies {
             $0.environment.allowSocialPosts = { true }
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
             $0.github.fetchLicense = { @Sendable _, _ in nil }
             $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
             $0.github.fetchReadme = { @Sendable _, _ in nil }

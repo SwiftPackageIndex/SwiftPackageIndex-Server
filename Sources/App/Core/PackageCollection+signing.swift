@@ -59,9 +59,12 @@ extension SignedCollection {
         return true
     }
 
-    static let certsDir = URL(fileURLWithPath: Current.fileManager.workingDirectory())
-        .appendingPathComponent("Resources")
-        .appendingPathComponent("Certs")
+    static var certsDir: URL {
+        @Dependency(\.fileManager) var fileManager
+        return URL(fileURLWithPath: fileManager.workingDirectory())
+            .appendingPathComponent("Resources")
+            .appendingPathComponent("Certs")
+    }
 
     static let signer = PackageCollectionSigning(
         trustedRootCertsDir: certsDir,
