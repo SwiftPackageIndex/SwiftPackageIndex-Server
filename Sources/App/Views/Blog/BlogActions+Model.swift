@@ -25,7 +25,8 @@ enum BlogActions {
     struct Model {
 
         static var blogIndexYmlPath: String {
-            Current.fileManager.workingDirectory().appending("Resources/Blog/posts.yml")
+            @Dependency(\.fileManager) var fileManager
+            return fileManager.workingDirectory().appending("Resources/Blog/posts.yml")
         }
 
         struct PostSummary: Equatable {
@@ -80,7 +81,7 @@ extension BlogActions.Model.PostSummary {
 
     var postMarkdown: String {
         @Dependency(\.fileManager) var fileManager
-        let markdownPath = Current.fileManager.workingDirectory()
+        let markdownPath = fileManager.workingDirectory()
             .appending("Resources/Blog/Posts/")
             .appending(slug)
             .appending(".md")

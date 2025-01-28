@@ -43,12 +43,10 @@ extension AppEnvironment {
     )
 }
 
-
+@available(*, deprecated)
 struct FileManager: Sendable {
-    var workingDirectory: @Sendable () -> String
 
     static let live: Self = .init(
-        workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
     )
 }
 

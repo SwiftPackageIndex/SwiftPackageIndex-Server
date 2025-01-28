@@ -19,9 +19,5 @@ import Vapor
 
 extension App.FileManager {
     static let mock = Self.mock(fileExists: true)
-    static func mock(fileExists: Bool) -> Self {
-        .init(
-            workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
-        )
-    }
+    static func mock(fileExists: Bool) -> Self { .init() }
 }
