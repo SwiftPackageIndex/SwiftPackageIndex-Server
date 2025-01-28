@@ -26,6 +26,7 @@ struct FileManagerClient {
     var checkoutsDirectory: @Sendable () -> String = { reportIssue("checkoutsDirectory"); return "SPI-checkouts" }
     var contents: @Sendable (_ atPath: String) -> Data?
     var contentsOfDirectory: @Sendable (_ atPath: String) throws -> [String]
+    var createDirectory: @Sendable (_ atPath: String, _ withIntermediateDirectories: Bool, _ attributes: [FileAttributeKey : Any]?) throws -> Void
 }
 
 
@@ -43,7 +44,8 @@ extension FileManagerClient: DependencyKey {
             attributesOfItem: { try Foundation.FileManager.default.attributesOfItem(atPath: $0) },
             checkoutsDirectory: { Environment.get("CHECKOUTS_DIR") ?? DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
             contents: { Foundation.FileManager.default.contents(atPath: $0) },
-            contentsOfDirectory: { try Foundation.FileManager.default.contentsOfDirectory(atPath: $0) }
+            contentsOfDirectory: { try Foundation.FileManager.default.contentsOfDirectory(atPath: $0) },
+            createDirectory: { try Foundation.FileManager.default.createDirectory(atPath: $0, withIntermediateDirectories: $1, attributes: $2) }
         )
     }
 }

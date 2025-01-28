@@ -33,6 +33,7 @@ class AnalyzerTests: AppTestCase {
         // End-to-end test, where we mock at the shell command level (i.e. we
         // don't mock the git commands themselves to ensure we're running the
         // expected shell commands for the happy path.)
+        let checkoutDir = QueueIsolated<String?>(nil)
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
@@ -43,6 +44,7 @@ class AnalyzerTests: AppTestCase {
                     return nil
                 }
             }
+            $0.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.setValue(path) }
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
             // setup
@@ -62,7 +64,6 @@ class AnalyzerTests: AppTestCase {
                                  owner: "foo",
                                  stars: 100).save(on: app.db)
 
-            let checkoutDir = QueueIsolated<String?>(nil)
             let commands = QueueIsolated<[Command]>([])
             let firstDirCloned = QueueIsolated(false)
             Current.fileManager.fileExists = { @Sendable path in
@@ -75,7 +76,6 @@ class AnalyzerTests: AppTestCase {
                 if path.hasSuffix("Package.resolved") { return true }
                 return false
             }
-            Current.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.setValue(path) }
             Current.git = .live
             Current.shell.run = { @Sendable cmd, path in
                 let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!, with: ".")
@@ -409,10 +409,12 @@ class AnalyzerTests: AppTestCase {
 
     func test_continue_on_exception() async throws {
         // Test to ensure exceptions don't interrupt processing
+        let checkoutDir: NIOLockedValueBox<String?> = .init(nil)
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
             $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.withLockedValue { $0 = path } }
         } operation: {
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -420,7 +422,6 @@ class AnalyzerTests: AppTestCase {
             for p in pkgs {
                 try await Repository(package: p, defaultBranch: "main").save(on: app.db)
             }
-            let checkoutDir: NIOLockedValueBox<String?> = .init(nil)
 
             Current.fileManager.fileExists = { @Sendable path in
                 if let outDir = checkoutDir.withLockedValue({ $0 }), path == "\(outDir)/github.com-foo-1" { return true }
@@ -428,7 +429,6 @@ class AnalyzerTests: AppTestCase {
                 if path.hasSuffix("Package.swift") { return true }
                 return false
             }
-            Current.fileManager.createDirectory = { @Sendable path, _, _ in checkoutDir.withLockedValue { $0 = path } }
 
             Current.git = .live
 

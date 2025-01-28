@@ -236,9 +236,10 @@ extension Analyze {
                                          path: String) async throws {
         Current.logger().info("Creating checkouts directory at path: \(path)")
         do {
-            try Current.fileManager.createDirectory(atPath: path,
-                                                    withIntermediateDirectories: false,
-                                                    attributes: nil)
+            @Dependency(\.fileManager) var fileManager
+            try fileManager.createDirectory(atPath: path,
+                                            withIntermediateDirectories: false,
+                                            attributes: nil)
         } catch {
             let error = AppError.genericError(nil, "Failed to create checkouts directory: \(error.localizedDescription)")
             Current.logger().report(error: error)
