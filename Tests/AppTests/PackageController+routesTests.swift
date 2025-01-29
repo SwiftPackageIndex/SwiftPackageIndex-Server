@@ -1516,6 +1516,10 @@ class PackageController_routesTests: SnapshotTestCase {
             }
             $0.git.shortlog = { @Sendable _ in "2\tauthor" }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.shell.run = { @Sendable cmd, _ in
+                if cmd.description == "swift package dump-package" { return .mockManifest }
+                return ""
+            }
             $0.timeZone = .utc
         } operation: {
             // setup
@@ -1530,10 +1534,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "bar",
                               reference: .branch("main"))
                 .save(on: app.db)
-            Current.shell.run = { @Sendable cmd, _ in
-                if cmd.description == "swift package dump-package" { return .mockManifest }
-                return ""
-            }
             // Make sure the new commit doesn't get throttled
             try await withDependencies {
                 $0.date.now = .t1 + Constants.branchVersionRefreshDelay + 1

@@ -183,15 +183,13 @@ class PipelineTests: AppTestCase {
             $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [] }
-        } operation: {
-            // setup
-            Current.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path in
                 if cmd.description.hasSuffix("swift package dump-package") {
                     return #"{ "name": "Mock", "products": [], "targets": [] }"#
                 }
                 return ""
             }
-            
+        } operation: {
             // MUT - first stage
             try await reconcile(client: app.client, database: app.db)
             

@@ -53,15 +53,15 @@ class ErrorReportingTests: AppTestCase {
     func test_Analyzer_error_reporting() async throws {
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
-        } operation: {
-            // setup
-            try await Package(id: .id1, url: "1".asGithubUrl.url, processingStage: .ingestion).save(on: app.db)
-            Current.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, _ in
                 if cmd.description == "git tag" { return "1.0.0" }
                 // returning a blank string will cause an exception when trying to
                 // decode it as the manifest result - we use this to simulate errors
                 return "invalid"
             }
+        } operation: {
+            // setup
+            try await Package(id: .id1, url: "1".asGithubUrl.url, processingStage: .ingestion).save(on: app.db)
 
             // MUT
             try await Analyze.analyze(client: app.client,

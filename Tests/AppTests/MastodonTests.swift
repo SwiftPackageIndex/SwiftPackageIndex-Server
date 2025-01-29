@@ -50,15 +50,15 @@ final class MastodonTests: AppTestCase {
                     XCTFail("message must only be set once")
                 }
             }
-        } operation: {
-            // setup
-            let url = "https://github.com/foo/bar"
-            Current.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path in
                 if cmd.description.hasSuffix("swift package dump-package") {
                     return #"{ "name": "Mock", "products": [], "targets": [] }"#
                 }
                 return ""
             }
+        } operation: {
+            // setup
+            let url = "https://github.com/foo/bar"
 
             try await withDependencies {
                 $0.date.now = .now

@@ -25,7 +25,6 @@ import FoundationNetworking
 struct AppEnvironment: Sendable {
     var logger: @Sendable () -> Logger
     var setLogger: @Sendable (Logger) -> Void
-    var shell: Shell
 }
 
 
@@ -34,35 +33,7 @@ extension AppEnvironment {
 
     static let live = AppEnvironment(
         logger: { logger },
-        setLogger: { logger in Self.logger = logger },
-        shell: .live
-    )
-}
-
-
-
-struct Shell: Sendable {
-    var run: @Sendable (ShellOutCommand, String) async throws -> String
-
-    // also provide pass-through methods to preserve argument labels
-    @discardableResult
-    func run(command: ShellOutCommand, at path: String = ".") async throws -> String {
-        do {
-            return try await run(command, path)
-        } catch {
-            // re-package error to capture more information
-            throw AppError.shellCommandFailed(command.description, path, error.localizedDescription)
-        }
-    }
-
-    static let live: Self = .init(
-        run: {
-            let res = try await ShellOut.shellOut(to: $0, at: $1, logger: Current.logger())
-            if !res.stderr.isEmpty {
-                Current.logger().warning("stderr: \(res.stderr)")
-            }
-            return res.stdout
-        }
+        setLogger: { logger in Self.logger = logger }
     )
 }
 

@@ -23,8 +23,7 @@ extension AppEnvironment {
     static func mock(eventLoop: EventLoop) -> Self {
         .init(
             logger: { logger },
-            setLogger: { logger in Self.logger = logger },
-            shell: .mock
+            setLogger: { logger in Self.logger = logger }
         )
     }
 }

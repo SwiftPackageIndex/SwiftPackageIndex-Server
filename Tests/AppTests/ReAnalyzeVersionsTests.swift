@@ -63,19 +63,19 @@ class ReAnalyzeVersionsTests: AppTestCase {
 
             try await withDependencies {
                 $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
-            } operation: {
-                Current.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path in
                     if cmd.description.hasSuffix("swift package dump-package") {
                         return #"""
-                    {
-                      "name": "SPI-Server",
-                      "products": [],
-                      "targets": []
-                    }
-                    """#
+                            {
+                              "name": "SPI-Server",
+                              "products": [],
+                              "targets": []
+                            }
+                            """#
                     }
                     return ""
                 }
+            } operation: {
                 do {
                     // run initial analysis and assert initial state for versions
                     try await Analyze.analyze(client: app.client,
@@ -88,9 +88,10 @@ class ReAnalyzeVersionsTests: AppTestCase {
                     XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [[], []])
                     XCTAssertEqual(versions.map(\.releaseNotes) , [nil, nil])
                 }
-                do {
+
+                try await withDependencies {
                     // Update state that would normally not be affecting existing versions, effectively simulating the situation where we only started parsing it after versions had already been created
-                    Current.shell.run = { @Sendable cmd, path in
+                    $0.shell.run = { @Sendable cmd, path in
                         if cmd.description.hasSuffix("swift package dump-package") {
                             return #"""
                         {
@@ -111,35 +112,36 @@ class ReAnalyzeVersionsTests: AppTestCase {
                         .mock(description: "rel 1.2.3", tagName: "1.2.3")
                     ]
                     try await r.save(on: app.db)
-                }
-                do {  // assert running analysis again does not update existing versions
-                    try await Analyze.analyze(client: app.client,
-                                              database: app.db,
-                                              mode: .limit(10))
+                } operation: {
+                    do {  // assert running analysis again does not update existing versions
+                        try await Analyze.analyze(client: app.client,
+                                                  database: app.db,
+                                                  mode: .limit(10))
+                        let versions = try await Version.query(on: app.db)
+                            .with(\.$targets)
+                            .all()
+                        XCTAssertEqual(versions.map(\.toolsVersion), [nil, nil])
+                        XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [[], []])
+                        XCTAssertEqual(versions.map(\.releaseNotes) , [nil, nil])
+                        XCTAssertEqual(versions.map(\.docArchives), [nil, nil])
+                    }
+
+                    // MUT
+                    try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
+                                                                  database: app.db,
+                                                                  before: Date.now,
+                                                                  refreshCheckouts: false,
+                                                                  limit: 10)
+
+                    // validate that re-analysis has now updated existing versions
                     let versions = try await Version.query(on: app.db)
                         .with(\.$targets)
+                        .sort(\.$createdAt)
                         .all()
-                    XCTAssertEqual(versions.map(\.toolsVersion), [nil, nil])
-                    XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [[], []])
-                    XCTAssertEqual(versions.map(\.releaseNotes) , [nil, nil])
-                    XCTAssertEqual(versions.map(\.docArchives), [nil, nil])
+                    XCTAssertEqual(versions.map(\.toolsVersion), ["5.3", "5.3"])
+                    XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [["t1"], ["t1"]])
+                    XCTAssertEqual(versions.compactMap(\.releaseNotes) , ["rel 1.2.3"])
                 }
-
-                // MUT
-                try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
-                                                              database: app.db,
-                                                              before: Date.now,
-                                                              refreshCheckouts: false,
-                                                              limit: 10)
-
-                // validate that re-analysis has now updated existing versions
-                let versions = try await Version.query(on: app.db)
-                    .with(\.$targets)
-                    .sort(\.$createdAt)
-                    .all()
-                XCTAssertEqual(versions.map(\.toolsVersion), ["5.3", "5.3"])
-                XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [["t1"], ["t1"]])
-                XCTAssertEqual(versions.compactMap(\.releaseNotes) , ["rel 1.2.3"])
             }
         }
     }
@@ -198,12 +200,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
                  2\tPerson 2
                 """
             }
-        } operation: {
-            let pkg = try await savePackage(on: app.db,
-                                            "https://github.com/foo/1".url,
-                                            processingStage: .ingestion)
-            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
-            Current.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path in
                 if cmd == .swiftDumpPackage {
                     return #"""
                         {
@@ -215,6 +212,11 @@ class ReAnalyzeVersionsTests: AppTestCase {
                 }
                 return ""
             }
+        } operation: {
+            let pkg = try await savePackage(on: app.db,
+                                            "https://github.com/foo/1".url,
+                                            processingStage: .ingestion)
+            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
             try await Analyze.analyze(client: app.client,
                                       database: app.db,
                                       mode: .limit(10))
@@ -225,26 +227,28 @@ class ReAnalyzeVersionsTests: AppTestCase {
                 XCTAssertEqual(candidates.count, 1)
             }
 
-            Current.shell.run = { @Sendable cmd, path in
-                if cmd == .swiftDumpPackage {
-                    // simulate error during package dump
-                    struct Error: Swift.Error { }
-                    throw Error()
+            try await withDependencies {
+                $0.shell.run = { @Sendable cmd, path in
+                    if cmd == .swiftDumpPackage {
+                        // simulate error during package dump
+                        struct Error: Swift.Error { }
+                        throw Error()
+                    }
+                    return ""
                 }
-                return ""
+            } operation: {
+                // MUT
+                try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
+                                                              database: app.db,
+                                                              before: Date.now,
+                                                              refreshCheckouts: false,
+                                                              limit: 10)
+
+                // validate
+                let candidates = try await Package
+                    .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10)
+                XCTAssertEqual(candidates.count, 0)
             }
-
-            // MUT
-            try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
-                                                          database: app.db,
-                                                          before: Date.now,
-                                                          refreshCheckouts: false,
-                                                          limit: 10)
-
-            // validate
-            let candidates = try await Package
-                .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10)
-            XCTAssertEqual(candidates.count, 0)
         }
     }
 

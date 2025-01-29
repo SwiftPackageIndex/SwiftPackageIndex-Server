@@ -440,14 +440,13 @@ class IngestionTests: AppTestCase {
             $0.git.lastCommitDate = { @Sendable _ in .t0 }
             $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha0", date: .t0) }
             $0.git.shortlog = { @Sendable _ in "" }
-        } operation: { [db = app.db] in
-            Current.shell.run = { @Sendable cmd, _ in
+            $0.shell.run = { @Sendable cmd, _ in
                 if cmd.description.hasSuffix("package dump-package") {
                     return .packageDump(name: "foo")
                 }
                 return ""
             }
-
+        } operation: { [db = app.db] in
             try await Analyze.analyze(client: app.client, database: db, mode: .id(.id0))
             try await Analyze.analyze(client: app.client, database: db, mode: .id(.id1))
             try await XCTAssertEqualAsync(try await Package.find(.id0, on: db)?.processingStage, .analysis)
