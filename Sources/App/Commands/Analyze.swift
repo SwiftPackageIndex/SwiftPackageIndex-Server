@@ -256,8 +256,9 @@ extension Analyze {
     static func clone(cacheDir: String, url: String) async throws {
         Current.logger().info("cloning \(url) to \(cacheDir)")
         @Dependency(\.fileManager) var fileManager
-        try await Current.shell.run(command: .gitClone(url: URL(string: url)!, to: cacheDir),
-                                    at: fileManager.checkoutsDirectory())
+        @Dependency(\.shell) var shell
+        try await shell.run(command: .gitClone(url: URL(string: url)!, to: cacheDir),
+                            at: fileManager.checkoutsDirectory())
     }
 
 
@@ -269,22 +270,22 @@ extension Analyze {
     /// - Throws: Shell errors
     static func fetch(cacheDir: String, branch: String, url: String) async throws {
         @Dependency(\.fileManager) var fileManager
+        @Dependency(\.shell) var shell
         Current.logger().info("pulling \(url) in \(cacheDir)")
         // clean up stray lock files that might have remained from aborted commands
         for fileName in ["HEAD.lock", "index.lock"] {
             let filePath = cacheDir + "/.git/\(fileName)"
             if fileManager.fileExists(atPath: filePath) {
                 Current.logger().info("Removing stale \(fileName) at path: \(filePath)")
-                try await Current.shell.run(command: .removeFile(from: filePath))
+                try await shell.run(command: .removeFile(from: filePath), at: .cwd)
             }
         }
         // git reset --hard to deal with stray .DS_Store files on macOS
-        try await Current.shell.run(command: .gitReset(hard: true), at: cacheDir)
-        try await Current.shell.run(command: .gitClean, at: cacheDir)
-        try await Current.shell.run(command: .gitFetchAndPruneTags, at: cacheDir)
-        try await Current.shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
-        try await Current.shell.run(command: .gitReset(to: branch, hard: true),
-                                    at: cacheDir)
+        try await shell.run(command: .gitReset(hard: true), at: cacheDir)
+        try await shell.run(command: .gitClean, at: cacheDir)
+        try await shell.run(command: .gitFetchAndPruneTags, at: cacheDir)
+        try await shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
+        try await shell.run(command: .gitReset(to: branch, hard: true), at: cacheDir)
     }
 
 
@@ -293,6 +294,8 @@ extension Analyze {
     ///   - package: `Package` to refresh
     static func refreshCheckout(package: Joined<Package, Repository>) async throws {
         @Dependency(\.fileManager) var fileManager
+        @Dependency(\.shell) var shell
+
         guard let cacheDir = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
@@ -311,7 +314,7 @@ extension Analyze {
                                 url: package.model.url)
             } catch {
                 Current.logger().info("fetch failed: \(error.localizedDescription)")
-                try await Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
+                try await shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]), at: .cwd)
                 try await clone(cacheDir: cacheDir, url: package.model.url)
             }
         } catch {
@@ -537,12 +540,13 @@ extension Analyze {
     /// - Returns: `Manifest` data
     static func dumpPackage(at path: String) async throws -> Manifest {
         @Dependency(\.fileManager) var fileManager
+        @Dependency(\.shell) var shell
         guard fileManager.fileExists(atPath: path + "/Package.swift") else {
             // It's important to check for Package.swift - otherwise `dump-package` will go
             // up the tree through parent directories to find one
             throw AppError.invalidRevision(nil, "no Package.swift")
         }
-        let json = try await Current.shell.run(command: .swiftDumpPackage, at: path)
+        let json = try await shell.run(command: .swiftDumpPackage, at: path)
         return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
     }
 
@@ -561,12 +565,14 @@ extension Analyze {
     static func getPackageInfo(package: Joined<Package, Repository>, version: Version) async throws -> PackageInfo {
         // check out version in cache directory
         @Dependency(\.fileManager) var fileManager
+        @Dependency(\.shell) var shell
+
         guard let cacheDir = fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id,
                                                    package.model.url)
         }
 
-        try await Current.shell.run(command: .gitCheckout(branch: version.reference.description), at: cacheDir)
+        try await shell.run(command: .gitCheckout(branch: version.reference.description), at: cacheDir)
 
         do {
             let packageManifest = try await dumpPackage(at: cacheDir)

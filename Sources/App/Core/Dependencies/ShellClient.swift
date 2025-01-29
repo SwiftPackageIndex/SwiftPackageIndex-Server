@@ -14,17 +14,44 @@
 
 import Dependencies
 import DependenciesMacros
+import ShellOut
 
 
 @DependencyClient
 struct ShellClient {
+    var run: @Sendable (ShellOutCommand, String) async throws -> String
+}
 
+
+extension ShellClient {
+    @discardableResult
+    func run(command: ShellOutCommand, at path: String) async throws -> String {
+        try await run(command, path)
+    }
+}
+
+
+extension String {
+    static let cwd = "."
 }
 
 
 extension ShellClient: DependencyKey {
     static var liveValue: Self {
-        .init()
+        .init(
+            run: { command, path in
+                do {
+                    let res = try await ShellOut.shellOut(to: command, at: path, logger: Current.logger())
+                    if !res.stderr.isEmpty {
+                        Current.logger().warning("stderr: \(res.stderr)")
+                    }
+                    return res.stdout
+                } catch {
+                    // re-package error to capture more information
+                    throw AppError.shellCommandFailed(command.description, path, error.localizedDescription)
+                }
+            }
+        )
     }
 }
 

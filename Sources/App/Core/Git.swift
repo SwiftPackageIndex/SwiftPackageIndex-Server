@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import Foundation
+
+import Dependencies
 import SemanticVersion
 import ShellOut
 
@@ -26,7 +28,8 @@ enum Git {
     }
 
     static func commitCount(at path: String) async throws -> Int {
-        let res = try await Current.shell.run(command: .gitCommitCount, at: path)
+        @Dependency(\.shell) var shell
+        let res = try await shell.run(command: .gitCommitCount, at: path)
         guard let count = Int(res) else {
             throw Error.invalidInteger
         }
@@ -34,8 +37,9 @@ enum Git {
     }
 
     static func firstCommitDate(at path: String) async throws -> Date {
+        @Dependency(\.shell) var shell
         let res = String(
-            try await Current.shell.run(command: .gitFirstCommitDate, at: path)
+            try await shell.run(command: .gitFirstCommitDate, at: path)
                 .trimming { $0 == Character("\"") }
         )
         guard let timestamp = TimeInterval(res) else {
@@ -45,8 +49,9 @@ enum Git {
     }
 
     static func lastCommitDate(at path: String) async throws -> Date {
+        @Dependency(\.shell) var shell
         let res = String(
-            try await Current.shell.run(command: .gitLastCommitDate, at: path)
+            try await shell.run(command: .gitLastCommitDate, at: path)
                 .trimming { $0 == Character("\"") }
         )
         guard let timestamp = TimeInterval(res) else {
@@ -56,7 +61,8 @@ enum Git {
     }
 
     static func getTags(at path: String) async throws -> [Reference] {
-        let tags = try await Current.shell.run(command: .gitListTags, at: path)
+        @Dependency(\.shell) var shell
+        let tags = try await shell.run(command: .gitListTags, at: path)
         return tags.split(separator: "\n")
             .map(String.init)
             .compactMap { tag in SemanticVersion(tag).map { ($0, tag) } }
@@ -64,9 +70,10 @@ enum Git {
     }
 
     static func hasBranch(_ reference: Reference, at path: String) async throws -> Bool {
+        @Dependency(\.shell) var shell
         guard let branchName = reference.branchName else { return false }
         do {
-            _ = try await Current.shell.run(command: .gitHasBranch(branchName), at: path)
+            _ = try await shell.run(command: .gitHasBranch(branchName), at: path)
             return true
         } catch {
             return false
@@ -74,9 +81,10 @@ enum Git {
     }
 
     static func revisionInfo(_ reference: Reference, at path: String) async throws -> RevisionInfo {
+        @Dependency(\.shell) var shell
         let separator = "-"
         let res = String(
-            try await Current.shell.run(command: .gitRevisionInfo(reference: reference, separator: separator),
+            try await shell.run(command: .gitRevisionInfo(reference: reference, separator: separator),
                                         at: path)
                 .trimming { $0 == Character("\"") }
         )
@@ -92,7 +100,8 @@ enum Git {
     }
 
     static func shortlog(at path: String) async throws -> String {
-        try await Current.shell.run(command: .gitShortlog, at: path)
+        @Dependency(\.shell) var shell
+        return try await shell.run(command: .gitShortlog, at: path)
     }
 
     struct RevisionInfo: Equatable {

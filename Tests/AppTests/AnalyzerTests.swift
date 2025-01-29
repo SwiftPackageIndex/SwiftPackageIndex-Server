@@ -35,6 +35,7 @@ class AnalyzerTests: AppTestCase {
         // expected shell commands for the happy path.)
         let checkoutDir = QueueIsolated<String?>(nil)
         let firstDirCloned = QueueIsolated(false)
+        let commands = QueueIsolated<[Command]>([])
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
@@ -58,26 +59,7 @@ class AnalyzerTests: AppTestCase {
             }
             $0.git = .liveValue
             $0.httpClient.mastodonPost = { @Sendable _ in }
-        } operation: {
-            // setup
-            let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-            let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
-            try await Repository(package: pkgs[0],
-                                 defaultBranch: "main",
-                                 name: "1",
-                                 owner: "foo",
-                                 releases: [
-                                    .mock(description: "rel 1.0.0", tagName: "1.0.0")
-                                 ],
-                                 stars: 25).save(on: app.db)
-            try await Repository(package: pkgs[1],
-                                 defaultBranch: "main",
-                                 name: "2",
-                                 owner: "foo",
-                                 stars: 100).save(on: app.db)
-
-            let commands = QueueIsolated<[Command]>([])
-            Current.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path in
                 let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!, with: ".")
                 commands.withValue {
                     $0.append(.init(command: cmd, path: trimmedPath)!)
@@ -93,37 +75,37 @@ class AnalyzerTests: AppTestCase {
                 }
                 if cmd == .swiftDumpPackage && path.hasSuffix("foo-1") {
                     return #"""
-                    {
-                      "name": "foo-1",
-                      "products": [
                         {
-                          "name": "p1",
-                          "targets": ["t1"],
-                          "type": {
-                            "executable": null
-                          }
+                          "name": "foo-1",
+                          "products": [
+                            {
+                              "name": "p1",
+                              "targets": ["t1"],
+                              "type": {
+                                "executable": null
+                              }
+                            }
+                          ],
+                          "targets": [{"name": "t1", "type": "executable"}]
                         }
-                      ],
-                      "targets": [{"name": "t1", "type": "executable"}]
-                    }
-                    """#
+                        """#
                 }
                 if cmd == .swiftDumpPackage && path.hasSuffix("foo-2") {
                     return #"""
-                    {
-                      "name": "foo-2",
-                      "products": [
                         {
-                          "name": "p2",
-                          "targets": ["t2"],
-                          "type": {
-                            "library": ["automatic"]
-                          }
+                          "name": "foo-2",
+                          "products": [
+                            {
+                              "name": "p2",
+                              "targets": ["t2"],
+                              "type": {
+                                "library": ["automatic"]
+                              }
+                            }
+                          ],
+                          "targets": [{"name": "t2", "type": "regular"}]
                         }
-                      ],
-                      "targets": [{"name": "t2", "type": "regular"}]
-                    }
-                    """#
+                        """#
                 }
 
                 // Git.revisionInfo (per ref - default branch & tags)
@@ -147,6 +129,23 @@ class AnalyzerTests: AppTestCase {
 
                 return ""
             }
+        } operation: {
+            // setup
+            let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
+            let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
+            try await Repository(package: pkgs[0],
+                                 defaultBranch: "main",
+                                 name: "1",
+                                 owner: "foo",
+                                 releases: [
+                                    .mock(description: "rel 1.0.0", tagName: "1.0.0")
+                                 ],
+                                 stars: 25).save(on: app.db)
+            try await Repository(package: pkgs[1],
+                                 defaultBranch: "main",
+                                 name: "2",
+                                 owner: "foo",
+                                 stars: 100).save(on: app.db)
 
             // MUT
             try await Analyze.analyze(client: app.client,
@@ -248,8 +247,27 @@ class AnalyzerTests: AppTestCase {
                  2\tPerson 2
                 """
             }
-
             $0.httpClient.mastodonPost = { @Sendable _ in }
+            $0.shell.run = { @Sendable cmd, path in
+                if cmd.description.hasSuffix("package dump-package") {
+                    return #"""
+                        {
+                          "name": "foo-1",
+                          "products": [
+                            {
+                              "name": "p1",
+                              "targets": [],
+                              "type": {
+                                "executable": null
+                              }
+                            }
+                          ],
+                          "targets": []
+                        }
+                        """#
+                }
+                return ""
+            }
         } operation: {
             // setup
             let pkgId = UUID()
@@ -272,27 +290,6 @@ class AnalyzerTests: AppTestCase {
                               latest: .release,
                               packageName: "foo-1",
                               reference: .tag(1, 0, 0)).save(on: app.db)
-
-            Current.shell.run = { @Sendable cmd, path in
-                if cmd.description.hasSuffix("package dump-package") {
-                    return #"""
-                    {
-                      "name": "foo-1",
-                      "products": [
-                        {
-                          "name": "p1",
-                          "targets": [],
-                          "type": {
-                            "executable": null
-                          }
-                        }
-                      ],
-                      "targets": []
-                    }
-                    """#
-                }
-                return ""
-            }
 
             // MUT
             try await Analyze.analyze(client: app.client,
@@ -372,16 +369,7 @@ class AnalyzerTests: AppTestCase {
                  2\tPerson 2
                 """
             }
-        } operation: {
-            // setup
-            let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-            let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
-            for p in pkgs {
-                try await Repository(package: p, defaultBranch: "main").save(on: app.db)
-            }
-            let lastUpdate = Date()
-
-            Current.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path in
                 // first package fails
                 if cmd.description.hasSuffix("swift package dump-package") && path.hasSuffix("foo-1") {
                     return "bad data"
@@ -392,6 +380,14 @@ class AnalyzerTests: AppTestCase {
                 }
                 return ""
             }
+        } operation: {
+            // setup
+            let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
+            let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
+            for p in pkgs {
+                try await Repository(package: p, defaultBranch: "main").save(on: app.db)
+            }
+            let lastUpdate = Date()
 
             // MUT
             try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
@@ -406,6 +402,24 @@ class AnalyzerTests: AppTestCase {
     func test_continue_on_exception() async throws {
         // Test to ensure exceptions don't interrupt processing
         let checkoutDir: NIOLockedValueBox<String?> = .init(nil)
+        let commands = QueueIsolated<[Command]>([])
+        let refs: [Reference] = [.tag(1, 0, 0), .tag(1, 1, 1), .branch("main")]
+        let mockResults = {
+            var res: [ShellOutCommand: String] = [
+                .gitListTags: refs.filter(\.isTag).map { "\($0)" }.joined(separator: "\n"),
+                .gitCommitCount: "12",
+                .gitFirstCommitDate: "0",
+                .gitLastCommitDate: "1",
+                .gitShortlog : """
+                        10\tPerson 1
+                         2\tPerson 2
+                        """
+            ]
+            for (idx, ref) in refs.enumerated() {
+                res[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
+            }
+            return res
+        }()
         try await withDependencies {
             $0.date.now = .now
             $0.environment.allowSocialPosts = { true }
@@ -418,34 +432,7 @@ class AnalyzerTests: AppTestCase {
                 return false
             }
             $0.git = .liveValue
-        } operation: {
-            // setup
-            let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-            let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
-            for p in pkgs {
-                try await Repository(package: p, defaultBranch: "main").save(on: app.db)
-            }
-
-            let refs: [Reference] = [.tag(1, 0, 0), .tag(1, 1, 1), .branch("main")]
-            let mockResults = {
-                var res: [ShellOutCommand: String] = [
-                    .gitListTags: refs.filter(\.isTag).map { "\($0)" }.joined(separator: "\n"),
-                    .gitCommitCount: "12",
-                    .gitFirstCommitDate: "0",
-                    .gitLastCommitDate: "1",
-                    .gitShortlog : """
-                            10\tPerson 1
-                             2\tPerson 2
-                            """
-                ]
-                for (idx, ref) in refs.enumerated() {
-                    res[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
-                }
-                return res
-            }()
-
-            let commands = QueueIsolated<[Command]>([])
-            Current.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path in
                 commands.withValue {
                     $0.append(.init(command: cmd, path: path)!)
                 }
@@ -460,24 +447,31 @@ class AnalyzerTests: AppTestCase {
                         throw Error()
                     } else {
                         return #"""
-                    {
-                      "name": "foo-2",
-                      "products": [
-                        {
-                          "name": "p1",
-                          "targets": ["t1"],
-                          "type": {
-                            "executable": null
-                          }
-                        }
-                      ],
-                      "targets": [{"name": "t1", "type": "executable"}]
-                    }
-                    """#
+                            {
+                                "name": "foo-2",
+                                "products": [
+                                    {
+                                        "name": "p1",
+                                        "targets": ["t1"],
+                                        "type": {
+                                            "executable": null
+                                        }
+                                    }
+                                ],
+                                "targets": [{"name": "t1", "type": "executable"}]
+                            }
+                            """#
                     }
                 }
 
                 return ""
+            }
+        } operation: {
+            // setup
+            let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
+            let pkgs = try await savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
+            for p in pkgs {
+                try await Repository(package: p, defaultBranch: "main").save(on: app.db)
             }
 
             // MUT
@@ -495,17 +489,17 @@ class AnalyzerTests: AppTestCase {
 
     @MainActor
     func test_refreshCheckout() async throws {
+        let commands = QueueIsolated<[String]>([])
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.shell.run = { @Sendable cmd, path in
+                commands.withValue { $0.append(cmd.description) }
+                return ""
+            }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
             try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
-            let commands = QueueIsolated<[String]>([])
-            Current.shell.run = { @Sendable cmd, path in
-                commands.withValue { $0.append(cmd.description) }
-                return ""
-            }
             let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
             // MUT
@@ -528,9 +522,9 @@ class AnalyzerTests: AppTestCase {
                  2\tPerson 2
                 """
             }
+            $0.shell.run = { @Sendable cmd, _ in throw TestError.unknownCommand }
         } operation: {
             // setup
-            Current.shell.run = { @Sendable cmd, _ in throw TestError.unknownCommand }
             let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
             try await pkg.save(on: app.db)
             try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
@@ -629,9 +623,9 @@ class AnalyzerTests: AppTestCase {
                 if ref == .tag(1, 2, 3) { return .init(commit: "sha.1.2.3", date: .t1) }
                 fatalError("unknown ref: \(ref)")
             }
+            $0.shell.run = { @Sendable cmd, _ in throw TestError.unknownCommand }
         } operation: {
             //setup
-            Current.shell.run = { @Sendable cmd, _ in throw TestError.unknownCommand }
             let pkgId = UUID()
             do {
                 let pkg = Package(id: pkgId, url: "1".asGithubUrl.url)
@@ -758,13 +752,11 @@ class AnalyzerTests: AppTestCase {
 
     func test_getPackageInfo() async throws {
         // Tests getPackageInfo(package:version:)
+        let commands = QueueIsolated<[String]>([])
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable _ in true }
-        } operation: {
-            // setup
-            let commands = QueueIsolated<[String]>([])
-            Current.shell.run = { @Sendable cmd, _ in
+            $0.shell.run = { @Sendable cmd, _ in
                 commands.withValue {
                     $0.append(cmd.description)
                 }
@@ -773,6 +765,8 @@ class AnalyzerTests: AppTestCase {
                 }
                 return ""
             }
+        } operation: {
+            // setup
             let pkg = try await savePackage(on: app.db, "https://github.com/foo/1")
             try await Repository(package: pkg, name: "1", owner: "foo").save(on: app.db)
             let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
@@ -913,35 +907,35 @@ class AnalyzerTests: AppTestCase {
                  2\tPerson 2
                 """
             }
-        } operation: {
-            // setup
-            Current.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path in
                 if cmd.description.hasSuffix("swift package dump-package") {
                     return #"""
-                    {
-                      "name": "foo",
-                      "products": [
                         {
-                          "name": "p1",
-                          "targets": [],
-                          "type": {
-                            "executable": null
-                          }
-                        },
-                        {
-                          "name": "p2",
-                          "targets": [],
-                          "type": {
-                            "executable": null
-                          }
+                          "name": "foo",
+                          "products": [
+                            {
+                              "name": "p1",
+                              "targets": [],
+                              "type": {
+                                "executable": null
+                              }
+                            },
+                            {
+                              "name": "p2",
+                              "targets": [],
+                              "type": {
+                                "executable": null
+                              }
+                            }
+                          ],
+                          "targets": []
                         }
-                      ],
-                      "targets": []
-                    }
-                    """#
+                        """#
                 }
                 return ""
             }
+        } operation: {
+            // setup
             let pkgs = try await savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)
             for pkg in pkgs {
                 try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
@@ -965,20 +959,19 @@ class AnalyzerTests: AppTestCase {
     func test_issue_70() async throws {
         // Certain git commands fail when index.lock exists
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/70
+        let commands = QueueIsolated<[String]>([])
         try await withDependencies {
             // claim every file exists, including our ficticious 'index.lock' for which
             // we want to trigger the cleanup mechanism
             $0.fileManager.fileExists = { @Sendable path in true }
+            $0.shell.run = { @Sendable cmd, path in
+                commands.withValue { $0.append(cmd.description) }
+                return ""
+            }
         } operation: {
             // setup
             try await savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
             let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
-
-            let commands = QueueIsolated<[String]>([])
-            Current.shell.run = { @Sendable cmd, path in
-                commands.withValue { $0.append(cmd.description) }
-                return ""
-            }
 
             // MUT
             let res = await pkgs.mapAsync { @Sendable pkg in
@@ -997,23 +990,22 @@ class AnalyzerTests: AppTestCase {
     func test_issue_498() async throws {
         // git checkout can still fail despite git reset --hard + git clean
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
+        let commands = QueueIsolated<[String]>([])
         try await withDependencies {
             // claim every file exists, including our ficticious 'index.lock' for which
             // we want to trigger the cleanup mechanism
             $0.fileManager.fileExists = { @Sendable path in true }
-        } operation: {
-            // setup
-            try await savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
-            let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
-
-            let commands = QueueIsolated<[String]>([])
-            Current.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path in
                 commands.withValue { $0.append(cmd.description) }
                 if cmd == .gitCheckout(branch: "master") {
                     throw TestError.simulatedCheckoutError
                 }
                 return ""
             }
+        } operation: {
+            // setup
+            try await savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
+            let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
             // MUT
             let res = await pkgs.mapAsync { @Sendable pkg in
@@ -1034,9 +1026,9 @@ class AnalyzerTests: AppTestCase {
         // points to the correct version of Xcode!
         try await withDependencies {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+            $0.shell = .liveValue
         } operation: {
             // setup
-            Current.shell = .live
             try await withTempDir { tempDir in
                 let fixture = fixturesDirectory()
                     .appendingPathComponent("5.4-Package-swift").path
@@ -1055,9 +1047,9 @@ class AnalyzerTests: AppTestCase {
         // See also https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1441
         try await withDependencies {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+            $0.shell = .liveValue
         } operation: {
             // setup
-            Current.shell = .live
             try await withTempDir { tempDir in
                 let fixture = fixturesDirectory()
                     .appendingPathComponent("5.5-Package-swift").path
@@ -1075,9 +1067,9 @@ class AnalyzerTests: AppTestCase {
         // points to the correct version of Xcode!
         try await withDependencies {
             $0.fileManager.fileExists = FileManagerClient.liveValue.fileExists(atPath:)
+            $0.shell = .liveValue
         } operation: {
             // setup
-            Current.shell = .live
             try await withTempDir { tempDir in
                 let fixture = fixturesDirectory()
                     .appendingPathComponent("5.9-Package-swift").path
@@ -1102,13 +1094,12 @@ class AnalyzerTests: AppTestCase {
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
         // setup
-        Current.shell = .live
         try await withTempDir { @Sendable tempDir in
             let fixture = fixturesDirectory()
                 .appendingPathComponent("5.9-Package-swift").path
             let fname = tempDir.appending("/Package.swift")
             try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-            var json = try await Current.shell.run(command: .swiftDumpPackage, at: tempDir)
+            var json = try await ShellClient.liveValue.run(command: .swiftDumpPackage, at: tempDir)
             do {  // "root" references tempDir's absolute path - replace it to make the test stable
                 if var obj = try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any],
                    var packageKind = obj["packageKind"] as? [String: Any] {
@@ -1158,8 +1149,14 @@ class AnalyzerTests: AppTestCase {
     func test_issue_693() async throws {
         // Handle moved tags
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/693
+        let commands = QueueIsolated<[String]>([])
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.shell.run = { @Sendable cmd, _ in
+                commands.withValue { $0.append(cmd.description) }
+                if cmd == .gitFetchAndPruneTags { throw TestError.simulatedFetchError }
+                return ""
+            }
         } operation: {
             // setup
             do {
@@ -1167,13 +1164,6 @@ class AnalyzerTests: AppTestCase {
                 try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
             }
             let pkg = try await Package.fetchCandidate(app.db, id: .id0)
-            let commands = QueueIsolated<[String]>([])
-            Current.shell.run = { @Sendable cmd, _ in
-                commands.withValue { $0.append(cmd.description) }
-                if cmd == .gitFetchAndPruneTags { throw TestError.simulatedFetchError }
-                return ""
-            }
-
             // MUT
             _ = try await Analyze.refreshCheckout(package: pkg)
 
@@ -1245,33 +1235,31 @@ class AnalyzerTests: AppTestCase {
     func test_issue_914() async throws {
         // Ensure we handle 404 repos properly
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/914
+        // setup
+        let checkoutDir = "/checkouts"
+        let url = "1".asGithubUrl.url
+        let repoDir = try await {
+            let pkg = Package.init(url: url, processingStage: .ingestion)
+            try await pkg.save(on: app.db)
+            return try checkoutDir + "/" + XCTUnwrap(pkg.cacheDirectoryName)
+        }()
+        let lastUpdated = Date()
+
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable path in
                 if path.hasSuffix("github.com-foo-1") { return false }
                 return true
             }
-        } operation: {
-            // setup
-            let checkoutDir = "/checkouts"
-            do {
-                let url = "1".asGithubUrl.url
-                let pkg = Package.init(url: url, processingStage: .ingestion)
-                try await pkg.save(on: app.db)
-                let repoDir = try checkoutDir + "/" + XCTUnwrap(pkg.cacheDirectoryName)
-                struct ShellOutError: Error {}
-                Current.shell.run = { @Sendable cmd, path in
-                    if cmd == .gitClone(url: url, to: repoDir) {
-                        throw ShellOutError()
-                    }
-                    throw TestError.unknownCommand
+            $0.shell.run = { @Sendable cmd, path in
+                if cmd == .gitClone(url: url, to: repoDir) {
+                    struct ShellOutError: Error {}
+                    throw ShellOutError()
                 }
+                throw TestError.unknownCommand
             }
-            let lastUpdated = Date()
-
+        } operation: {
             // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(10))
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
             // validate
             let pkg = try await Package.query(on: app.db).first().unwrap()
@@ -1318,6 +1306,7 @@ class AnalyzerTests: AppTestCase {
                 1\tPerson 2
                 """
             }
+            $0.shell.run = { @Sendable _, _ in "" }
         } operation: {
             let pkgId = UUID()
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
@@ -1338,7 +1327,6 @@ class AnalyzerTests: AppTestCase {
                               latest: .release,
                               packageName: "foo-1",
                               reference: .tag(1, 0, 0)).save(on: app.db)
-            Current.shell.run = { @Sendable cmd, path in "" }
 
             try await withDependencies {  // first scenario: bad getTags
                 $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "", date: .t1) }
@@ -1390,9 +1378,8 @@ class AnalyzerTests: AppTestCase {
             try await withDependencies {  // third scenario: everything throws
                 $0.git.getTags = { @Sendable _ in throw TestError.unspecifiedError }
                 $0.git.revisionInfo = { @Sendable _, _ in throw TestError.unspecifiedError }
+                $0.shell.run = { @Sendable _, _ in throw TestError.unspecifiedError }
             } operation: {
-                Current.shell.run = { @Sendable _, _ in throw TestError.unspecifiedError }
-
                 // MUT
                 try await Analyze.analyze(client: app.client,
                                           database: app.db,
@@ -1424,6 +1411,7 @@ class AnalyzerTests: AppTestCase {
                 1\tPerson 2
                 """
             }
+            $0.shell.run = { @Sendable _, _ in return "" }
         } operation: {
             let pkgId = UUID()
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
@@ -1445,7 +1433,6 @@ class AnalyzerTests: AppTestCase {
                               packageName: "foo-1",
                               reference: .tag(1, 0, 0)).save(on: app.db)
             struct Error: Swift.Error { }
-            Current.shell.run = { @Sendable cmd, path in return "" }
 
             try await withDependencies {  // ensure happy path passes test (no revision changes)
                 $0.git.revisionInfo = { @Sendable ref, _ in
@@ -1488,15 +1475,14 @@ class AnalyzerTests: AppTestCase {
                             throw Error()
                     }
                 }
-            } operation: {
-                Current.shell.run = { @Sendable cmd, path in
+                $0.shell.run = { @Sendable cmd, path in
                     // simulate error in getPackageInfo by failing checkout
                     if cmd == .gitCheckout(branch: "main") {
                         throw Error()
                     }
                     return ""
                 }
-
+            } operation: {
                 // MUT
                 try await Analyze.analyze(client: app.client,
                                           database: app.db,
@@ -1532,6 +1518,10 @@ class AnalyzerTests: AppTestCase {
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
             $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha1", date: .t0) }
             $0.git.shortlog = { @Sendable _ in "10\tPerson 1" }
+            $0.shell.run = { @Sendable cmd, path in
+                if cmd == .swiftDumpPackage { return .packageDump(name: "foo1") }
+                return ""
+            }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, id: .id0, "https://github.com/foo/1".url, processingStage: .ingestion)
@@ -1540,10 +1530,6 @@ class AnalyzerTests: AppTestCase {
                                  name: "1",
                                  owner: "foo",
                                  stars: 100).save(on: app.db)
-            Current.shell.run = { @Sendable cmd, path in
-                if cmd == .swiftDumpPackage { return .packageDump(name: "foo1") }
-                return ""
-            }
             
             // MUT and validation
             

@@ -72,8 +72,6 @@ final class AnalyzeErrorTests: AppTestCase {
             Repository(package: pkgs[0], defaultBranch: "main", name: "1", owner: "foo"),
             Repository(package: pkgs[1], defaultBranch: "main", name: "2", owner: "foo"),
         ].save(on: app.db)
-
-        Current.shell.run = Self.defaultShellRun
     }
 
     override func invokeTest() {
@@ -106,6 +104,7 @@ final class AnalyzeErrorTests: AppTestCase {
             $0.httpClient.mastodonPost = { @Sendable [socialPosts = self.socialPosts] message in
                 socialPosts.withValue { $0.append(message) }
             }
+            $0.shell.run = Self.defaultShellRun
         } operation: {
             super.invokeTest()
         }
@@ -115,8 +114,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable _ in true }
-        } operation: {
-            Current.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path in
                 switch cmd {
                     case _ where cmd.description.contains("git clone https://github.com/foo/1"):
                         throw SimulatedError()
@@ -128,7 +126,7 @@ final class AnalyzeErrorTests: AppTestCase {
                         return try Self.defaultShellRun(cmd, path)
                 }
             }
-
+        } operation: {
             // MUT
             try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
@@ -172,9 +170,7 @@ final class AnalyzeErrorTests: AppTestCase {
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable _ in true }
-        } operation: {
-            // setup
-            Current.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path in
                 switch cmd {
                     case .gitCheckout(branch: "main", quiet: true) where path.hasSuffix("foo-1"):
                         throw SimulatedError()
@@ -183,7 +179,7 @@ final class AnalyzeErrorTests: AppTestCase {
                         return try Self.defaultShellRun(cmd, path)
                 }
             }
-
+        } operation: {
             // MUT
             try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
