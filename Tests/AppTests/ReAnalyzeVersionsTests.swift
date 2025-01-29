@@ -88,7 +88,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
                     XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [[], []])
                     XCTAssertEqual(versions.map(\.releaseNotes) , [nil, nil])
                 }
-                
+
                 try await withDependencies {
                     // Update state that would normally not be affecting existing versions, effectively simulating the situation where we only started parsing it after versions had already been created
                     $0.shell.run = { @Sendable cmd, path in

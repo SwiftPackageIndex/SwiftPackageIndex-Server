@@ -25,7 +25,6 @@ import FoundationNetworking
 struct AppEnvironment: Sendable {
     var logger: @Sendable () -> Logger
     var setLogger: @Sendable (Logger) -> Void
-    var shell: Shell
 }
 
 
@@ -34,16 +33,7 @@ extension AppEnvironment {
 
     static let live = AppEnvironment(
         logger: { logger },
-        setLogger: { logger in Self.logger = logger },
-        shell: .live
-    )
-}
-
-
-
-@available(*, deprecated)
-struct Shell: Sendable {
-    static let live: Self = .init(
+        setLogger: { logger in Self.logger = logger }
     )
 }
 
