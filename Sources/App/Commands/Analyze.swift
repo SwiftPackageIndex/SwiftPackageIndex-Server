@@ -398,7 +398,7 @@ extension Analyze {
             throw AppError.analysisError(package.model.id, "Package must have default branch")
         }
 
-        guard try await Current.git.hasBranch(defaultBranch, cacheDir) else {
+        guard try await git.hasBranch(defaultBranch, at: cacheDir) else {
             throw AppError.analysisError(package.model.id, "Default branch '\(defaultBranch)' does not exist in checkout")
         }
 
@@ -407,7 +407,7 @@ extension Analyze {
         let references = [defaultBranch] + tags
         return try await references
             .mapAsync { ref in
-                let revInfo = try await Current.git.revisionInfo(ref, cacheDir)
+                let revInfo = try await git.revisionInfo(ref, at: cacheDir)
                 let url = package.model.versionUrl(for: ref)
                 return try Version(package: package.model,
                                    commit: revInfo.commit,

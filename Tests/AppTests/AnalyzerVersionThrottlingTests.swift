@@ -191,9 +191,9 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         try await withDependencies {
             $0.date.now = .t0
             $0.git.getTags = { @Sendable _ in [.branch("main")] }
+            $0.git.hasBranch = { @Sendable _, _ in true }
         } operation: {
             // setup
-            Current.git.hasBranch = { @Sendable _, _ in true }
             let pkg = Package(url: "1".asGithubUrl.url)
             try await pkg.save(on: app.db)
             try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
@@ -201,11 +201,11 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             try await old.save(on: app.db)
             let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
-            do {  // keep old version if too soon
-                Current.git.revisionInfo = { @Sendable _, _ in
+            try await withDependencies {  // keep old version if too soon
+                $0.git.revisionInfo = { @Sendable _, _ in
                         .init(commit: "sha_new", date: .t0.addingTimeInterval(.hours(-1)) )
                 }
-
+            } operation: {
                 // MUT
                 let res = try await Analyze.diffVersions(client: app.client,
                                                          transaction: app.db,
@@ -219,13 +219,12 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
             try await withDependencies {
                 $0.date.now = .t0.addingTimeInterval(.hours(2))
-            } operation: {
                 // new version must come through
-                Current.git.revisionInfo = { @Sendable _, _ in
+                $0.git.revisionInfo = { @Sendable _, _ in
                     // now simulate a newer branch revision
                         .init(commit: "sha_new2", date: .t0.addingTimeInterval(.hours(2)) )
                 }
-
+            } operation: {
                 // MUT
                 let res = try await Analyze.diffVersions(client: app.client,
                                                          transaction: app.db,
@@ -246,8 +245,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             // Leaving tags out of it for simplicity - they are tested specifically
             // in test_throttle_ignore_tags above.
             $0.git.getTags = { @Sendable _ in [] }
+            $0.git.hasBranch = { @Sendable _, _ in true }
         } operation: {
-            Current.git.hasBranch = { @Sendable _, _ in true }
 
             // Little helper to simulate minimal version reconciliation
             func runVersionReconciliation() async throws -> VersionDelta {
@@ -279,10 +278,9 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
             try await withDependencies {
                 $0.date.now = commitDates[0]
-            } operation: {
                 // start with a branch revision
-                Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha0", date: commitDates[0] ) }
-
+                $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha0", date: commitDates[0] ) }
+            } operation: {
                 let delta = try await runVersionReconciliation()
                 XCTAssertEqual(delta.toAdd.map(\.commit), ["sha0"])
                 XCTAssertEqual(delta.toDelete, [])
@@ -291,10 +289,9 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
             try await withDependencies {
                 $0.date.now = commitDates[1]
-            } operation: {
                 // one hour later a new commit landed - which should be ignored
-                Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha1", date: commitDates[1] ) }
-
+                $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha1", date: commitDates[1] ) }
+            } operation: {
                 let delta = try await runVersionReconciliation()
                 XCTAssertEqual(delta.toAdd, [])
                 XCTAssertEqual(delta.toDelete, [])
@@ -305,9 +302,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             for idx in 2...6 {
                 try await withDependencies {
                     $0.date.now = commitDates[idx]
+                    $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha\(idx)", date: commitDates[idx] ) }
                 } operation: {
-                    Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha\(idx)", date: commitDates[idx] ) }
-
                     let delta = try await runVersionReconciliation()
                     XCTAssertEqual(delta.toAdd, [])
                     XCTAssertEqual(delta.toDelete, [])
@@ -317,10 +313,9 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
             try await withDependencies {
                 $0.date.now = commitDates[7]
-            } operation: {
                 // advancing another 4 hours for a total of 25 hours should finally create a new version
-                Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha7", date: commitDates[7] ) }
-
+                $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha7", date: commitDates[7] ) }
+            } operation: {
                 let delta = try await runVersionReconciliation()
                 XCTAssertEqual(delta.toAdd.map(\.commit), ["sha7"])
                 XCTAssertEqual(delta.toDelete.map(\.commit), ["sha0"])

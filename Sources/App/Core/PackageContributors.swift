@@ -68,13 +68,15 @@ enum PackageContributors {
         /// Gets the git history in a string log
         private static func runShortlog(gitCacheDirectoryPath: String, packageID: UUID?) async throws -> String {
             @Dependency(\.fileManager) var fileManager
+            @Dependency(\.git) var git
+
             if fileManager.fileExists(atPath: gitCacheDirectoryPath) == false {
                 throw AppError.cacheDirectoryDoesNotExist(packageID, gitCacheDirectoryPath)
             }
 
             // attempt to shortlog
             do {
-                return try await Current.git.shortlog(gitCacheDirectoryPath)
+                return try await git.shortlog(gitCacheDirectoryPath)
             } catch {
                 throw AppError.shellCommandFailed("gitShortlog",
                                                   gitCacheDirectoryPath,

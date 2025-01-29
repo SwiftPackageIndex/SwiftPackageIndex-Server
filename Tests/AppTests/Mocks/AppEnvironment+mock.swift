@@ -22,7 +22,6 @@ import Vapor
 extension AppEnvironment {
     static func mock(eventLoop: EventLoop) -> Self {
         .init(
-            git: .mock,
             logger: { logger },
             setLogger: { logger in Self.logger = logger },
             shell: .mock

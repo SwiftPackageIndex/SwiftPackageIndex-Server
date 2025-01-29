@@ -436,11 +436,11 @@ class IngestionTests: AppTestCase {
             $0.git.commitCount = { @Sendable _ in 1 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
             $0.git.getTags = { @Sendable _ in [] }
+            $0.git.hasBranch = { @Sendable _, _ in true }
             $0.git.lastCommitDate = { @Sendable _ in .t0 }
+            $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha0", date: .t0) }
+            $0.git.shortlog = { @Sendable _ in "" }
         } operation: { [db = app.db] in
-            Current.git.hasBranch = { @Sendable _, _ in true }
-            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha0", date: .t0) }
-            Current.git.shortlog = { @Sendable _ in "" }
             Current.shell.run = { @Sendable cmd, _ in
                 if cmd.description.hasSuffix("package dump-package") {
                     return .packageDump(name: "foo")

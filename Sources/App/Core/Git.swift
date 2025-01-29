@@ -17,18 +17,18 @@ import SemanticVersion
 import ShellOut
 
 
-enum GitError: LocalizedError {
-    case invalidInteger
-    case invalidTimestamp
-    case invalidRevisionInfo(String)
-}
+enum Git {
 
-extension Git {
+    enum Error: LocalizedError {
+        case invalidInteger
+        case invalidTimestamp
+        case invalidRevisionInfo(String)
+    }
 
     static func commitCount(at path: String) async throws -> Int {
         let res = try await Current.shell.run(command: .gitCommitCount, at: path)
         guard let count = Int(res) else {
-            throw GitError.invalidInteger
+            throw Error.invalidInteger
         }
         return count
     }
@@ -39,7 +39,7 @@ extension Git {
                 .trimming { $0 == Character("\"") }
         )
         guard let timestamp = TimeInterval(res) else {
-            throw GitError.invalidTimestamp
+            throw Error.invalidTimestamp
         }
         return Date(timeIntervalSince1970: timestamp)
     }
@@ -50,7 +50,7 @@ extension Git {
                 .trimming { $0 == Character("\"") }
         )
         guard let timestamp = TimeInterval(res) else {
-            throw GitError.invalidTimestamp
+            throw Error.invalidTimestamp
         }
         return Date(timeIntervalSince1970: timestamp)
     }
@@ -83,10 +83,10 @@ extension Git {
         let parts = res.components(separatedBy: separator)
         guard parts.count == 2 else {
             Current.logger().warning(#"Git.invalidRevisionInfo: \#(res) for '\#(ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator))' at: \#(path)"#)
-            throw GitError.invalidRevisionInfo(res)
+            throw Error.invalidRevisionInfo(res)
         }
         let hash = parts[0]
-        guard let timestamp = TimeInterval(parts[1]) else { throw GitError.invalidTimestamp }
+        guard let timestamp = TimeInterval(parts[1]) else { throw Error.invalidTimestamp }
         let date = Date(timeIntervalSince1970: timestamp)
         return .init(commit: hash, date: date)
     }
@@ -99,4 +99,5 @@ extension Git {
         let commit: CommitHash
         let date: Date
     }
+
 }

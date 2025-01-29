@@ -1508,7 +1508,13 @@ class PackageController_routesTests: SnapshotTestCase {
             $0.git.commitCount = { @Sendable _ in 2}
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
             $0.git.getTags = { @Sendable _ in [] }
+            $0.git.hasBranch = { @Sendable _, _ in true }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
+            $0.git.revisionInfo = { @Sendable ref, _ in
+                if ref == .branch("main") { return .init(commit: "new-commit", date: .t1) }
+                fatalError("revisionInfo: \(ref)")
+            }
+            $0.git.shortlog = { @Sendable _ in "2\tauthor" }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.timeZone = .utc
         } operation: {
@@ -1524,14 +1530,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "bar",
                               reference: .branch("main"))
                 .save(on: app.db)
-            Current.git = .init(
-                hasBranch: { _, _ in true },
-                revisionInfo: { ref, _ in
-                    if ref == .branch("main") { return .init(commit: "new-commit", date: .t1) }
-                    fatalError("revisionInfo: \(ref)")
-                },
-                shortlog: { _ in "2\tauthor" }
-            )
             Current.shell.run = { @Sendable cmd, _ in
                 if cmd.description == "swift package dump-package" { return .mockManifest }
                 return ""

@@ -69,24 +69,24 @@ class PackageContributorsTests : AppTestCase {
     func test_PackageContributors_extract() async throws {
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                1000\tPerson 1
+                 871\tPerson 2
+                 803\tPerson 3
+                 722\tPerson 4
+                 703\tPerson 5
+                 360\tPerson 6
+                 108\tPerson 7
+                  86\tPerson 8
+                  43\tPerson 9
+                  40\tPerson 10
+                  11\tPerson 11
+                """
+            }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
-            Current.git.shortlog = { @Sendable _ in
-            """
-            1000\tPerson 1
-             871\tPerson 2
-             803\tPerson 3
-             722\tPerson 4
-             703\tPerson 5
-             360\tPerson 6
-             108\tPerson 7
-              86\tPerson 8
-              43\tPerson 9
-              40\tPerson 10
-              11\tPerson 11
-            """
-            }
 
             // MUT
             let pkgAuthors = try await PackageContributors.extract(gitCacheDirectoryPath: "",
