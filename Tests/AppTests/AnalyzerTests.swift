@@ -243,6 +243,13 @@ class AnalyzerTests: AppTestCase {
                         fatalError("unexpected reference: \(ref)")
                 }
             }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                10\tPerson 1
+                 2\tPerson 2
+                """
+            }
+
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
             // setup
@@ -266,13 +273,6 @@ class AnalyzerTests: AppTestCase {
                               latest: .release,
                               packageName: "foo-1",
                               reference: .tag(1, 0, 0)).save(on: app.db)
-
-            Current.git.shortlog = { @Sendable _ in
-            """
-            10\tPerson 1
-             2\tPerson 2
-            """
-            }
 
             Current.shell.run = { @Sendable cmd, path in
                 if cmd.description.hasSuffix("package dump-package") {
@@ -320,6 +320,7 @@ class AnalyzerTests: AppTestCase {
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
             $0.git.hasBranch = { @Sendable _, _ in false }  // simulate analysis error via branch mismatch
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
+            $0.git.shortlog = { @Sendable _ in "" }
         } operation: {
             // setup
             do {
@@ -327,7 +328,6 @@ class AnalyzerTests: AppTestCase {
                 try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
             }
 
-            Current.git.shortlog = { @Sendable _ in "" }
 
             // Ensure candidate selection is as expected
             let app = self.app!
@@ -367,6 +367,12 @@ class AnalyzerTests: AppTestCase {
             $0.git.hasBranch = { @Sendable _, _ in true }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
             $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                10\tPerson 1
+                 2\tPerson 2
+                """
+            }
         } operation: {
             // setup
             let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -375,13 +381,6 @@ class AnalyzerTests: AppTestCase {
                 try await Repository(package: p, defaultBranch: "main").save(on: app.db)
             }
             let lastUpdate = Date()
-
-            Current.git.shortlog = { @Sendable _ in
-            """
-            10\tPerson 1
-             2\tPerson 2
-            """
-            }
 
             Current.shell.run = { @Sendable cmd, path in
                 // first package fails
@@ -526,14 +525,14 @@ class AnalyzerTests: AppTestCase {
             $0.git.commitCount = { @Sendable _ in 12 }
             $0.git.firstCommitDate = { @Sendable _ in .t0 }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                10\tPerson 1
+                 2\tPerson 2
+                """
+            }
         } operation: {
             // setup
-            Current.git.shortlog = { @Sendable _ in
-            """
-            10\tPerson 1
-             2\tPerson 2
-            """
-            }
             Current.shell.run = { @Sendable cmd, _ in throw TestError.unknownCommand }
             let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
             try await pkg.save(on: app.db)
@@ -911,14 +910,14 @@ class AnalyzerTests: AppTestCase {
             $0.git.hasBranch = { @Sendable _, _ in true }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
             $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                10\tPerson 1
+                 2\tPerson 2
+                """
+            }
         } operation: {
             // setup
-            Current.git.shortlog = { @Sendable _ in
-            """
-            10\tPerson 1
-             2\tPerson 2
-            """
-            }
             Current.shell.run = { @Sendable cmd, path in
                 if cmd.description.hasSuffix("swift package dump-package") {
                     return #"""
@@ -1316,6 +1315,12 @@ class AnalyzerTests: AppTestCase {
             $0.git.getTags = { @Sendable _ in throw TestError.unspecifiedError }
             $0.git.hasBranch = { @Sendable _, _ in true }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                1\tPerson 1
+                1\tPerson 2
+                """
+            }
         } operation: {
             let pkgId = UUID()
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
@@ -1336,12 +1341,6 @@ class AnalyzerTests: AppTestCase {
                               latest: .release,
                               packageName: "foo-1",
                               reference: .tag(1, 0, 0)).save(on: app.db)
-            Current.git.shortlog = { @Sendable _ in
-            """
-            1\tPerson 1
-            1\tPerson 2
-            """
-            }
             Current.shell.run = { @Sendable cmd, path in "" }
 
             try await withDependencies {  // first scenario: bad getTags
@@ -1422,6 +1421,12 @@ class AnalyzerTests: AppTestCase {
             $0.git.getTags = {@Sendable  _ in [.tag(1, 0, 0)] }
             $0.git.hasBranch = { @Sendable _, _ in true }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                1\tPerson 1
+                1\tPerson 2
+                """
+            }
         } operation: {
             let pkgId = UUID()
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
@@ -1443,12 +1448,6 @@ class AnalyzerTests: AppTestCase {
                               packageName: "foo-1",
                               reference: .tag(1, 0, 0)).save(on: app.db)
             struct Error: Swift.Error { }
-            Current.git.shortlog = { @Sendable _ in
-            """
-            1\tPerson 1
-            1\tPerson 2
-            """
-            }
             Current.shell.run = { @Sendable cmd, path in return "" }
 
             try await withDependencies {  // ensure happy path passes test (no revision changes)
@@ -1535,6 +1534,7 @@ class AnalyzerTests: AppTestCase {
             $0.git.hasBranch = { @Sendable _, _ in true }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
             $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha1", date: .t0) }
+            $0.git.shortlog = { @Sendable _ in "10\tPerson 1" }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, id: .id0, "https://github.com/foo/1".url, processingStage: .ingestion)
@@ -1543,7 +1543,6 @@ class AnalyzerTests: AppTestCase {
                                  name: "1",
                                  owner: "foo",
                                  stars: 100).save(on: app.db)
-            Current.git.shortlog = { @Sendable _ in "10\tPerson 1" }
             Current.shell.run = { @Sendable cmd, path in
                 if cmd == .swiftDumpPackage { return .packageDump(name: "foo1") }
                 return ""

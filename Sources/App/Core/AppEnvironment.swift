@@ -44,10 +44,8 @@ extension AppEnvironment {
 
 
 struct Git: Sendable {
-    var shortlog: @Sendable (String) async throws -> String
 
     static let live: Self = .init(
-        shortlog: { path in try await shortlog(at: path) }
     )
 }
 

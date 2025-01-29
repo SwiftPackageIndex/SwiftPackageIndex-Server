@@ -16,7 +16,7 @@
 
 
 extension Git {
+    @available(*, deprecated)
     static let mock: Self = .init(
-        shortlog: { _ in fatalError("not initialized") }
     )
 }

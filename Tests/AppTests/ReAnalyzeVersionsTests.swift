@@ -36,6 +36,12 @@ class ReAnalyzeVersionsTests: AppTestCase {
             $0.git.getTags = { @Sendable _ in [.tag(1, 2, 3)] }
             $0.git.hasBranch = { @Sendable _, _ in true }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                10\tPerson 1
+                 2\tPerson 2
+                """
+            }
             $0.httpClient.mastodonPost = { @Sendable _ in }
         } operation: {
             // setup
@@ -58,13 +64,6 @@ class ReAnalyzeVersionsTests: AppTestCase {
             try await withDependencies {
                 $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
             } operation: {
-                Current.git.shortlog = { @Sendable _ in
-                    """
-                    10\tPerson 1
-                     2\tPerson 2
-                    """
-                }
-
                 Current.shell.run = { @Sendable cmd, path in
                     if cmd.description.hasSuffix("swift package dump-package") {
                         return #"""
@@ -193,17 +192,17 @@ class ReAnalyzeVersionsTests: AppTestCase {
             $0.git.hasBranch = { @Sendable _, _ in true }
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
             $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                10\tPerson 1
+                 2\tPerson 2
+                """
+            }
         } operation: {
             let pkg = try await savePackage(on: app.db,
                                             "https://github.com/foo/1".url,
                                             processingStage: .ingestion)
             try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
-            Current.git.shortlog = { @Sendable _ in
-            """
-            10\tPerson 1
-             2\tPerson 2
-            """
-            }
             Current.shell.run = { @Sendable cmd, path in
                 if cmd == .swiftDumpPackage {
                     return #"""

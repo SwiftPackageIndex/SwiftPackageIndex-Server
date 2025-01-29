@@ -1514,6 +1514,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 if ref == .branch("main") { return .init(commit: "new-commit", date: .t1) }
                 fatalError("revisionInfo: \(ref)")
             }
+            $0.git.shortlog = { @Sendable _ in "2\tauthor" }
             $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
             $0.timeZone = .utc
         } operation: {
@@ -1529,9 +1530,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "bar",
                               reference: .branch("main"))
                 .save(on: app.db)
-            Current.git = .init(
-                shortlog: { _ in "2\tauthor" }
-            )
             Current.shell.run = { @Sendable cmd, _ in
                 if cmd.description == "swift package dump-package" { return .mockManifest }
                 return ""

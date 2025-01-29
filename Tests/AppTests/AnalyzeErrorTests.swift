@@ -73,16 +73,6 @@ final class AnalyzeErrorTests: AppTestCase {
             Repository(package: pkgs[1], defaultBranch: "main", name: "2", owner: "foo"),
         ].save(on: app.db)
 
-        Current.git.shortlog = { @Sendable _ in
-            """
-            1000\tPerson 1
-             871\tPerson 2
-             703\tPerson 3
-             360\tPerson 4
-             108\tPerson 5
-            """
-        }
-
         Current.shell.run = Self.defaultShellRun
     }
 
@@ -103,6 +93,15 @@ final class AnalyzeErrorTests: AppTestCase {
                 if checkoutDir.hasSuffix("foo-1") { return .init(commit: "commit \(ref)", date: .t1) }
                 if checkoutDir.hasSuffix("foo-2") { return .init(commit: "commit \(ref)", date: .t1) }
                 throw SetupError()
+            }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                1000\tPerson 1
+                 871\tPerson 2
+                 703\tPerson 3
+                 360\tPerson 4
+                 108\tPerson 5
+                """
             }
             $0.httpClient.mastodonPost = { @Sendable [socialPosts = self.socialPosts] message in
                 socialPosts.withValue { $0.append(message) }

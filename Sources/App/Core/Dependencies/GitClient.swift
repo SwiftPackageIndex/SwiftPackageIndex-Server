@@ -27,6 +27,7 @@ struct GitClient {
     var hasBranch: @Sendable (Reference, _ at: String) async throws -> Bool
     var lastCommitDate: @Sendable (_ at: String) async throws -> Date
     var revisionInfo: @Sendable (Reference, _ at: String) async throws -> Git.RevisionInfo
+    var shortlog: @Sendable (_ at: String) async throws -> String
 }
 
 
@@ -38,7 +39,8 @@ extension GitClient: DependencyKey {
             getTags: { path in try await Git.getTags(at: path) },
             hasBranch: { ref, path in try await Git.hasBranch(ref, at: path) },
             lastCommitDate: { path in try await Git.lastCommitDate(at: path) },
-            revisionInfo: { ref, path in try await Git.revisionInfo(ref, at: path) }
+            revisionInfo: { ref, path in try await Git.revisionInfo(ref, at: path) },
+            shortlog: { path in try await Git.shortlog(at: path) }
         )
     }
 }
