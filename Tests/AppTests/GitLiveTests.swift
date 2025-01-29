@@ -16,6 +16,7 @@ import XCTest
 
 @testable import App
 
+import Dependencies
 import ShellOut
 
 
@@ -46,6 +47,14 @@ class GitLiveTests: XCTestCase {
 
     override func setUp() {
         Current.setLogger(.init(label: "test", factory: { _ in logger }))
+    }
+
+    override func invokeTest() {
+        withDependencies {
+            $0.shell = .liveValue
+        } operation: {
+            super.invokeTest()
+        }
     }
 }
 

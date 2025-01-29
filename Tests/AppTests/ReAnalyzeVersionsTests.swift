@@ -88,6 +88,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
                     XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [[], []])
                     XCTAssertEqual(versions.map(\.releaseNotes) , [nil, nil])
                 }
+                
                 try await withDependencies {
                     // Update state that would normally not be affecting existing versions, effectively simulating the situation where we only started parsing it after versions had already been created
                     $0.shell.run = { @Sendable cmd, path in
@@ -105,42 +106,42 @@ class ReAnalyzeVersionsTests: AppTestCase {
                         }
                         return ""
                     }
-                } operation: {
                     // also, update release notes to ensure mergeReleaseInfo is being called
                     let r = try await Repository.find(repoId, on: app.db).unwrap()
                     r.releases = [
                         .mock(description: "rel 1.2.3", tagName: "1.2.3")
                     ]
                     try await r.save(on: app.db)
-                }
-                do {  // assert running analysis again does not update existing versions
-                    try await Analyze.analyze(client: app.client,
-                                              database: app.db,
-                                              mode: .limit(10))
+                } operation: {
+                    do {  // assert running analysis again does not update existing versions
+                        try await Analyze.analyze(client: app.client,
+                                                  database: app.db,
+                                                  mode: .limit(10))
+                        let versions = try await Version.query(on: app.db)
+                            .with(\.$targets)
+                            .all()
+                        XCTAssertEqual(versions.map(\.toolsVersion), [nil, nil])
+                        XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [[], []])
+                        XCTAssertEqual(versions.map(\.releaseNotes) , [nil, nil])
+                        XCTAssertEqual(versions.map(\.docArchives), [nil, nil])
+                    }
+
+                    // MUT
+                    try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
+                                                                  database: app.db,
+                                                                  before: Date.now,
+                                                                  refreshCheckouts: false,
+                                                                  limit: 10)
+
+                    // validate that re-analysis has now updated existing versions
                     let versions = try await Version.query(on: app.db)
                         .with(\.$targets)
+                        .sort(\.$createdAt)
                         .all()
-                    XCTAssertEqual(versions.map(\.toolsVersion), [nil, nil])
-                    XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [[], []])
-                    XCTAssertEqual(versions.map(\.releaseNotes) , [nil, nil])
-                    XCTAssertEqual(versions.map(\.docArchives), [nil, nil])
+                    XCTAssertEqual(versions.map(\.toolsVersion), ["5.3", "5.3"])
+                    XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [["t1"], ["t1"]])
+                    XCTAssertEqual(versions.compactMap(\.releaseNotes) , ["rel 1.2.3"])
                 }
-
-                // MUT
-                try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
-                                                              database: app.db,
-                                                              before: Date.now,
-                                                              refreshCheckouts: false,
-                                                              limit: 10)
-
-                // validate that re-analysis has now updated existing versions
-                let versions = try await Version.query(on: app.db)
-                    .with(\.$targets)
-                    .sort(\.$createdAt)
-                    .all()
-                XCTAssertEqual(versions.map(\.toolsVersion), ["5.3", "5.3"])
-                XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [["t1"], ["t1"]])
-                XCTAssertEqual(versions.compactMap(\.releaseNotes) , ["rel 1.2.3"])
             }
         }
     }

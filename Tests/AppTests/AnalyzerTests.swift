@@ -317,13 +317,13 @@ class AnalyzerTests: AppTestCase {
             $0.git.hasBranch = { @Sendable _, _ in false }  // simulate analysis error via branch mismatch
             $0.git.lastCommitDate = { @Sendable _ in .t1 }
             $0.git.shortlog = { @Sendable _ in "" }
+            $0.shell.run = { @Sendable _, _ in "" }
         } operation: {
             // setup
             do {
                 let pkg = try await savePackage(on: app.db, "https://github.com/foo/1", processingStage: .ingestion)
                 try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
             }
-
 
             // Ensure candidate selection is as expected
             let app = self.app!
