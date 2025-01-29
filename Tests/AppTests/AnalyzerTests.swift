@@ -77,7 +77,6 @@ class AnalyzerTests: AppTestCase {
                                  stars: 100).save(on: app.db)
 
             let commands = QueueIsolated<[Command]>([])
-            Current.git = .live
             Current.shell.run = { @Sendable cmd, path in
                 let trimmedPath = path.replacingOccurrences(of: checkoutDir.value!, with: ".")
                 commands.withValue {
@@ -426,8 +425,6 @@ class AnalyzerTests: AppTestCase {
             for p in pkgs {
                 try await Repository(package: p, defaultBranch: "main").save(on: app.db)
             }
-
-            Current.git = .live
 
             let refs: [Reference] = [.tag(1, 0, 0), .tag(1, 1, 1), .branch("main")]
             let mockResults = {

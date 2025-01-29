@@ -23,7 +23,6 @@ import FoundationNetworking
 
 
 struct AppEnvironment: Sendable {
-    var git: Git
     var logger: @Sendable () -> Logger
     var setLogger: @Sendable (Logger) -> Void
     var shell: Shell
@@ -34,20 +33,12 @@ extension AppEnvironment {
     nonisolated(unsafe) static var logger: Logger!
 
     static let live = AppEnvironment(
-        git: .live,
         logger: { logger },
         setLogger: { logger in Self.logger = logger },
         shell: .live
     )
 }
 
-
-
-struct Git: Sendable {
-
-    static let live: Self = .init(
-    )
-}
 
 
 struct Shell: Sendable {
