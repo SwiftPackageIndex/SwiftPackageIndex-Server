@@ -25,6 +25,11 @@ enum Supporters {
                           darkModeUrl: "/images/sponsors/emerge~dark.png"),
               url: "https://www.emergetools.com/?utm_source=spi2&utm_medium=sponsor&utm_campaign=emerge",
               advertisingCopy: "Join the future of mobile development. Trusted by top companies like Duolingo, Square, DoorDash & more…"),
+        .init(name: "RevenueCat",
+              logo: .init(lightModeUrl: "/images/sponsors/revenuecat.png",
+                          darkModeUrl: "/images/sponsors/revenuecat~dark.png"),
+              url: "https://www.revenuecat.com/",
+              advertisingCopy: "The world's best apps use RevenueCat to power in-app purchases, manage customer data, and grow revenue."),
     ]
 
     nonisolated(unsafe) static var infrastructure: [Corporate] = [
