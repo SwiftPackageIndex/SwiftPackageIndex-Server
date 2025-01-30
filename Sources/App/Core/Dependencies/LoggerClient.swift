@@ -74,6 +74,7 @@ extension DependencyValues {
 }
 
 
+#warning("Simplify this - we don't really need the typestate mechanism")
 // Modeled after https://swiftology.io/articles/typestate/
 
 extension LoggerClient {
