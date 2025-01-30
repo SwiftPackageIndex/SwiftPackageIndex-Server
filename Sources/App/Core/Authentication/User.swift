@@ -36,6 +36,7 @@ extension User {
         var tier: Tier<V1>
 
         @Dependency(\.environment) var environment
+        @Dependency(\.logger) var logger
 
         func authenticate(bearer: BearerAuthorization, for request: Request) async throws {
             guard let signingKey = environment.apiSigningKey() else { throw AppError.envVariableNotSet("API_SIGNING_KEY") }
@@ -45,7 +46,7 @@ extension User {
                 guard key.isAuthorized(for: tier) else { throw Abort(.unauthorized) }
                 request.auth.login(User.api(for: bearer.token))
             } catch let error as JWTError {
-                Current.logger().warning("\(error)")
+                logger.warning("\(error)")
                 throw Abort(.unauthorized)
             }
         }

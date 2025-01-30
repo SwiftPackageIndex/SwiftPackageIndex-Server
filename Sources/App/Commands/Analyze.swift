@@ -30,7 +30,8 @@ enum Analyze {
         func run(using context: CommandContext, signature: SPICommand.Signature) async throws {
             let client = context.application.client
             let db = context.application.db
-            Current.setLogger(Logger(component: "analyze"))
+            @Dependency(\.logger) var logger
+            logger.set(to: Logger(component: "analyze"))
 
             Analyze.resetMetrics()
 
@@ -39,20 +40,20 @@ enum Analyze {
                                   database: db,
                                   mode: .init(signature: signature))
             } catch {
-                Current.logger().error("\(error.localizedDescription)")
+                logger.error("\(error.localizedDescription)")
             }
 
             do {
                 try Analyze.trimCheckouts()
             } catch {
-                Current.logger().error("\(error.localizedDescription)")
+                logger.error("\(error.localizedDescription)")
             }
 
             do {
                 try await AppMetrics.push(client: client,
                                           jobName: "analyze")
             } catch {
-                Current.logger().warning("\(error.localizedDescription)")
+                logger.warning("\(error.localizedDescription)")
             }
         }
     }
@@ -110,19 +111,21 @@ extension Analyze {
         let start = DispatchTime.now().uptimeNanoseconds
         defer { AppMetrics.analyzeDurationSeconds?.time(since: start) }
 
+        @Dependency(\.logger) var logger
+
         switch mode {
             case .id(let id):
-                Current.logger().info("Analyzing (id: \(id)) ...")
+                logger.info("Analyzing (id: \(id)) ...")
                 let pkg = try await Package.fetchCandidate(database, id: id)
                 try await analyze(client: client, database: database, packages: [pkg])
 
             case .limit(let limit):
-                Current.logger().info("Analyzing (limit: \(limit)) ...")
+                logger.info("Analyzing (limit: \(limit)) ...")
                 let packages = try await Package.fetchCandidates(database, for: .analysis, limit: limit)
                 try await analyze(client: client, database: database, packages: packages)
 
             case .url(let url):
-                Current.logger().info("Analyzing (url: \(url)) ...")
+                logger.info("Analyzing (url: \(url)) ...")
                 let pkg = try await Package.fetchCandidate(database, url: url)
                 try await analyze(client: client, database: database, packages: [pkg])
         }
@@ -140,10 +143,12 @@ extension Analyze {
                         packages: [Joined<Package, Repository>]) async throws {
         AppMetrics.analyzeCandidatesCount?.set(packages.count)
 
-        // get or create directory
         @Dependency(\.fileManager) var fileManager
+        @Dependency(\.logger) var logger
+
+        // get or create directory
         let checkoutDir = fileManager.checkoutsDirectory()
-        Current.logger().info("Checkout directory: \(checkoutDir)")
+        logger.info("Checkout directory: \(checkoutDir)")
         if !fileManager.fileExists(atPath: checkoutDir) {
             try await createCheckoutsDirectory(client: client, path: checkoutDir)
         }
@@ -170,6 +175,8 @@ extension Analyze {
                         package: Joined<Package, Repository>) async throws {
         try await refreshCheckout(package: package)
 
+        @Dependency(\.logger) var logger
+
         // 2024-10-05 sas: We need to explicitly weave dependencies into the `transaction` closure, because escaping closures strip them.
         // https://github.com/pointfreeco/swift-dependencies/discussions/283#discussioncomment-10846172
         // This might not be needed in Vapor 5 / FluentKit 2
@@ -183,7 +190,7 @@ extension Analyze {
                                                               package: package)
                     let netDeleteCount = versionDelta.toDelete.count - versionDelta.toAdd.count
                     if netDeleteCount > 1 {
-                        Current.logger().warning("Suspicious loss of \(netDeleteCount) versions for package \(package.model.id)")
+                        logger.warning("Suspicious loss of \(netDeleteCount) versions for package \(package.model.id)")
                     }
 
                     try await applyVersionDelta(on: tx, delta: versionDelta)
@@ -235,7 +242,8 @@ extension Analyze {
 
     static func createCheckoutsDirectory(client: Client,
                                          path: String) async throws {
-        Current.logger().info("Creating checkouts directory at path: \(path)")
+        @Dependency(\.logger) var logger
+        logger.info("Creating checkouts directory at path: \(path)")
         do {
             @Dependency(\.fileManager) var fileManager
             try fileManager.createDirectory(atPath: path,
@@ -243,7 +251,7 @@ extension Analyze {
                                             attributes: nil)
         } catch {
             let error = AppError.genericError(nil, "Failed to create checkouts directory: \(error.localizedDescription)")
-            Current.logger().report(error: error)
+            logger.logger?.report(error: error)
         }
     }
 
@@ -254,7 +262,8 @@ extension Analyze {
     ///   - url: url to clone from
     /// - Throws: Shell errors
     static func clone(cacheDir: String, url: String) async throws {
-        Current.logger().info("cloning \(url) to \(cacheDir)")
+        @Dependency(\.logger) var logger
+        logger.info("cloning \(url) to \(cacheDir)")
         @Dependency(\.fileManager) var fileManager
         @Dependency(\.shell) var shell
         try await shell.run(command: .gitClone(url: URL(string: url)!, to: cacheDir),
@@ -270,13 +279,14 @@ extension Analyze {
     /// - Throws: Shell errors
     static func fetch(cacheDir: String, branch: String, url: String) async throws {
         @Dependency(\.fileManager) var fileManager
+        @Dependency(\.logger) var logger
         @Dependency(\.shell) var shell
-        Current.logger().info("pulling \(url) in \(cacheDir)")
+        logger.info("pulling \(url) in \(cacheDir)")
         // clean up stray lock files that might have remained from aborted commands
         for fileName in ["HEAD.lock", "index.lock"] {
             let filePath = cacheDir + "/.git/\(fileName)"
             if fileManager.fileExists(atPath: filePath) {
-                Current.logger().info("Removing stale \(fileName) at path: \(filePath)")
+                logger.info("Removing stale \(fileName) at path: \(filePath)")
                 try await shell.run(command: .removeFile(from: filePath), at: .cwd)
             }
         }
@@ -294,6 +304,7 @@ extension Analyze {
     ///   - package: `Package` to refresh
     static func refreshCheckout(package: Joined<Package, Repository>) async throws {
         @Dependency(\.fileManager) var fileManager
+        @Dependency(\.logger) var logger
         @Dependency(\.shell) var shell
 
         guard let cacheDir = fileManager.cacheDirectoryPath(for: package.model) else {
@@ -313,7 +324,7 @@ extension Analyze {
                                 branch: package.repository?.defaultBranch ?? "master",
                                 url: package.model.url)
             } catch {
-                Current.logger().info("fetch failed: \(error.localizedDescription)")
+                logger.info("fetch failed: \(error.localizedDescription)")
                 try await shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]), at: .cwd)
                 try await clone(cacheDir: cacheDir, url: package.model.url)
             }
@@ -357,6 +368,8 @@ extension Analyze {
     static func diffVersions(client: Client,
                              transaction: Database,
                              package: Joined<Package, Repository>) async throws -> VersionDelta {
+        @Dependency(\.logger) var logger
+
         guard let pkgId = package.model.id else {
             throw AppError.genericError(nil, "PANIC: package id nil for package \(package.model.url)")
         }
@@ -374,7 +387,7 @@ extension Analyze {
         let newDiff = Version.diff(local: existing, incoming: throttled)
         let delta = origDiff.toAdd.count - newDiff.toAdd.count
         if delta > 0 {
-            Current.logger().info("throttled \(delta) incoming revisions")
+            logger.info("throttled \(delta) incoming revisions")
             AppMetrics.buildThrottleCount?.inc(delta)
         }
         return newDiff
@@ -506,12 +519,13 @@ extension Analyze {
     /// have processed the new version.
     /// - Parameter versionDelta: The version change
     static func carryOverDefaultBranchData(versionDelta: VersionDelta) {
+        @Dependency(\.logger) var logger
         guard versionDelta.toDelete.filter(\.isBranch).count <= 1 else {
-            Current.logger().warning("versionDelta.toDelete has more than one branch version")
+            logger.warning("versionDelta.toDelete has more than one branch version")
             return
         }
         guard versionDelta.toAdd.filter(\.isBranch).count <= 1 else {
-            Current.logger().warning("versionDelta.toAdd has more than one branch version")
+            logger.warning("versionDelta.toAdd has more than one branch version")
             return
         }
         guard let oldDefaultBranch = versionDelta.toDelete.first(where: \.isBranch),
@@ -745,7 +759,8 @@ extension Analyze {
                                             package: package,
                                             versions: versions)
         } catch {
-            Current.logger().warning("Social.postToFirehose failed: \(error.localizedDescription)")
+            @Dependency(\.logger) var logger
+            logger.warning("Social.postToFirehose failed: \(error.localizedDescription)")
         }
     }
 

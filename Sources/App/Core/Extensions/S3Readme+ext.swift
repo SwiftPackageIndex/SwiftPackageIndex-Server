@@ -42,12 +42,14 @@ extension S3Readme {
 
     static func storeReadme(owner: String, repository: String, readme: String) async throws(S3Readme.Error) -> String {
         @Dependency(\.environment) var environment
+        @Dependency(\.logger) var logger
+
         guard let accessKeyId = environment.awsAccessKeyId() else { throw .envVariableNotSet("AWS_ACCESS_KEY_ID") }
         guard let secretAccessKey = environment.awsSecretAccessKey() else { throw .envVariableNotSet("AWS_SECRET_ACCESS_KEY")}
         let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
         let key = try S3Store.Key.readme(owner: owner, repository: repository)
 
-        Current.logger().debug("Copying readme to \(key.s3Uri) ...")
+        logger.debug("Copying readme to \(key.s3Uri) ...")
         do {
             try await store.save(payload: readme, to: key)
         } catch {
@@ -60,12 +62,14 @@ extension S3Readme {
     static func storeReadmeImages(imagesToCache: [Github.Readme.ImageToCache]) async throws(S3Readme.Error) {
         @Dependency(\.environment) var environment
         @Dependency(\.httpClient) var httpClient
+        @Dependency(\.logger) var logger
+
         guard let accessKeyId = environment.awsAccessKeyId() else { throw .envVariableNotSet("AWS_ACCESS_KEY_ID") }
         guard let secretAccessKey = environment.awsSecretAccessKey() else { throw .envVariableNotSet("AWS_SECRET_ACCESS_KEY")}
 
         let store = S3Store(credentials: .init(keyId: accessKeyId, secret: secretAccessKey))
         for imageToCache in imagesToCache {
-            Current.logger().debug("Copying readme image to \(imageToCache.s3Key.s3Uri) ...")
+            logger.debug("Copying readme image to \(imageToCache.s3Key.s3Uri) ...")
             do {
                 let response = try await httpClient.get(url: imageToCache.originalUrl)
                 if var body = response.body, let imageData = body.readData(length: body.readableBytes) {

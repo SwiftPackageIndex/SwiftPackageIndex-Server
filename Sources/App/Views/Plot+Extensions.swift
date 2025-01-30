@@ -41,7 +41,8 @@ extension Node where Context: HTML.BodyContext {
                 .raw(rawScript)
             )
         } catch {
-            AppEnvironment.logger?.error("Failed to encode structured data model: \(error)")
+            @Dependency(\.logger) var logger
+            logger.error("Failed to encode structured data model: \(error)")
             return .empty
         }
     }

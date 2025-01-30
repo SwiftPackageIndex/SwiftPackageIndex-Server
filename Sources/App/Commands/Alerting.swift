@@ -42,14 +42,15 @@ enum Alerting {
         }
 
         func run(using context: CommandContext, signature: Signature) async throws {
-            Current.setLogger(Logger(component: "alerting"))
+            @Dependency(\.logger) var logger
+            logger.set(to: Logger(component: "alerting"))
 
-            Current.logger().info("Running alerting...")
+            logger.info("Running alerting...")
 
             let timePeriod = signature.duration
             let limit = signature.limit ?? Alerting.defaultLimit
 
-            Current.logger().info("Validation time interval: \(timePeriod.hours)h, limit: \(limit)")
+            logger.info("Validation time interval: \(timePeriod.hours)h, limit: \(limit)")
 
             let builds = try await Alerting.fetchBuilds(on: context.application.db, timePeriod: timePeriod, limit: limit)
             try await Alerting.runBuildChecks(for: builds)
@@ -94,12 +95,14 @@ extension Alerting {
         // to do
         // - [ ] doc gen is configured but it failed
 
-        Current.logger().info("Build records selected: \(builds.count)")
+        @Dependency(\.logger) var logger
+
+        logger.info("Build records selected: \(builds.count)")
         if let oldest = builds.last {
-            Current.logger().info("Oldest selected: \(oldest.createdAt)")
+            logger.info("Oldest selected: \(oldest.createdAt)")
         }
         if let mostRecent = builds.first {
-            Current.logger().info("Most recent selected: \(mostRecent.createdAt)")
+            logger.info("Most recent selected: \(mostRecent.createdAt)")
         }
         builds.validateBuildsPresent().log(check: "CHECK_BUILDS_PRESENT")
         builds.validatePlatformsPresent().log(check: "CHECK_BUILDS_PLATFORMS_PRESENT")
@@ -114,9 +117,11 @@ extension Alerting {
     }
 
     static func fetchBuilds(on database: Database, timePeriod: TimeAmount, limit: Int) async throws -> [Alerting.BuildInfo] {
+        @Dependency(\.logger) var logger
+
         let start = Date.now
         defer {
-            Current.logger().debug("fetchBuilds elapsed: \(Date.now.timeIntervalSince(start).rounded(decimalPlaces: 2))s")
+            logger.debug("fetchBuilds elapsed: \(Date.now.timeIntervalSince(start).rounded(decimalPlaces: 2))s")
         }
         @Dependency(\.date.now) var now
         let cutoff = now.addingTimeInterval(-timePeriod.timeInterval)
@@ -187,15 +192,16 @@ extension Alerting {
         case failed(reasons: [String])
 
         func log(check: String) {
+            @Dependency(\.logger) var logger
             switch self {
                 case .ok:
-                    Current.logger().debug("\(check) passed")
+                    logger.debug("\(check) passed")
                 case .failed(let reasons):
                     if reasons.count >= 5 {
-                        Current.logger().critical("\(check) failures: \(reasons.count)")
+                        logger.critical("\(check) failures: \(reasons.count)")
                     }
                     for reason in reasons {
-                        Current.logger().critical("\(check) failed: \(reason)")
+                        logger.critical("\(check) failed: \(reason)")
                     }
             }
         }

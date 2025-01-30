@@ -14,7 +14,6 @@
 
 import Dependencies
 import DependenciesMacros
-import IssueReporting
 import Logging
 import Synchronization
 
@@ -22,7 +21,27 @@ import Synchronization
 @DependencyClient
 struct LoggerClient {
     var log: @Sendable (_ level: Logging.Logger.Level, Logging.Logger.Message) -> Void
-    var setLogger: @Sendable (Logging.Logger) -> Void
+    var set: @Sendable (_ to: Logging.Logger) -> Void
+}
+
+
+extension LoggerClient {
+    func critical(_ message: Logging.Logger.Message) { log(.critical, message) }
+    func debug(_ message: Logging.Logger.Message) { log(.debug, message) }
+    func error(_ message: Logging.Logger.Message) { log(.error, message) }
+    func info(_ message: Logging.Logger.Message) { log(.info, message) }
+    func warning(_ message: Logging.Logger.Message) { log(.warning, message) }
+    func trace(_ message: Logging.Logger.Message) { log(.trace, message) }
+    var logger: Logging.Logger? {
+        Self._logger.withLock {
+            switch $0 {
+                case .uninitialized:
+                    return nil
+                case let .initialized(value):
+                    return value.logger
+            }
+        }
+    }
 }
 
 
@@ -32,7 +51,7 @@ extension LoggerClient: DependencyKey {
             log: { level, message in
                 _logger.withLock { $0.log(level: level, message) }
             },
-            setLogger: { logger in
+            set: { logger in
                 _logger.withLock { $0.setLogger(logger) }
             }
         )
@@ -43,7 +62,7 @@ extension LoggerClient: DependencyKey {
 
 
 extension LoggerClient: TestDependencyKey {
-    static var testValue: Self { .init() }
+    static var testValue: Self { liveValue }
 }
 
 

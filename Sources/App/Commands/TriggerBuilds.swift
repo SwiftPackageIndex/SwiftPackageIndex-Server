@@ -55,7 +55,8 @@ struct TriggerBuildsCommand: AsyncCommand {
     }
 
     func run(using context: CommandContext, signature: Signature) async throws {
-        Current.setLogger(Logger(component: "trigger-builds"))
+        @Dependency(\.logger) var logger
+        logger.set(to: Logger(component: "trigger-builds"))
 
         Self.resetMetrics()
 
@@ -87,14 +88,14 @@ struct TriggerBuildsCommand: AsyncCommand {
         do {
             try await triggerBuilds(on: context.application.db, mode: mode)
         } catch {
-            Current.logger().critical("\(error)")
+            logger.critical("\(error)")
         }
 
         do {
             try await AppMetrics.push(client: context.application.client,
                                       jobName: "trigger-builds")
         } catch {
-            Current.logger().warning("\(error)")
+            logger.warning("\(error)")
         }
     }
 
@@ -122,11 +123,13 @@ extension TriggerBuildsCommand {
 ///   or a fetch limit for candidate selection.
 func triggerBuilds(on database: Database, mode: TriggerBuildsCommand.Mode) async throws {
     @Dependency(\.environment) var environment
+    @Dependency(\.logger) var logger
+
     let start = DispatchTime.now().uptimeNanoseconds
 
     switch mode {
         case .limit(let limit):
-            Current.logger().info("Triggering builds (limit: \(limit)) ...")
+            logger.info("Triggering builds (limit: \(limit)) ...")
 
             let withLatestSwiftVersion = environment.buildTriggerCandidatesWithLatestSwiftVersion
             let candidates = try await fetchBuildCandidates(database,
@@ -138,18 +141,18 @@ func triggerBuilds(on database: Database, mode: TriggerBuildsCommand.Mode) async
             AppMetrics.buildTriggerDurationSeconds?.time(since: start)
 
         case let .packageId(id, force):
-            Current.logger().info("Triggering builds (packageID: \(id)) ...")
+            logger.info("Triggering builds (packageID: \(id)) ...")
             try await triggerBuilds(on: database,
                                     packages: [id],
                                     force: force)
             AppMetrics.buildTriggerDurationSeconds?.time(since: start)
 
         case let .triggerInfo(versionId, buildPair, isDocBuild):
-            Current.logger().info("Triggering builds (versionID: \(versionId), \(buildPair)) ...")
+            logger.info("Triggering builds (versionID: \(versionId), \(buildPair)) ...")
             guard let trigger = BuildTriggerInfo(versionId: versionId,
                                                  buildPairs: [buildPair],
                                                  docPairs: isDocBuild ? [buildPair] : []) else {
-                Current.logger().error("Failed to create trigger.")
+                logger.error("Failed to create trigger.")
                 return
             }
             try await triggerBuildsUnchecked(on: database, triggers: [trigger])
@@ -170,9 +173,10 @@ func triggerBuilds(on database: Database,
                    force: Bool = false) async throws {
     @Dependency(\.environment) var environment
     @Dependency(\.buildSystem) var buildSystem
+    @Dependency(\.logger) var logger
 
     guard environment.allowBuildTriggers() else {
-        Current.logger().info("Build trigger override switch OFF - no builds are being triggered")
+        logger.info("Build trigger override switch OFF - no builds are being triggered")
         return
     }
 
@@ -203,24 +207,24 @@ func triggerBuilds(on database: Database,
         for pkgId in packages {
             let allowListed = environment.buildTriggerAllowList().contains(pkgId)
             guard allowListed || environment.buildTriggerDownscalingAccepted else {
-                Current.logger().info("Build trigger downscaling in effect - skipping builds")
+                logger.info("Build trigger downscaling in effect - skipping builds")
                 continue
             }
 
-            group.addTask {
+            group.addTask { [logger] in
                 // check if we have capacity to schedule more builds before querying for builds
                 var newJobCount = await newJobs.value
                 guard pendingJobs + newJobCount < gitlabPipelineLimit() else {
-                    Current.logger().info("too many pending pipelines (\(pendingJobs + newJobCount))")
+                    logger.info("too many pending pipelines (\(pendingJobs + newJobCount))")
                     return
                 }
 
-                Current.logger().info("Finding missing builds for package id: \(pkgId)")
+                logger.info("Finding missing builds for package id: \(pkgId)")
                 let triggers = try await findMissingBuilds(database, packageId: pkgId)
 
                 newJobCount = await newJobs.value
                 guard pendingJobs + newJobCount < gitlabPipelineLimit() else {
-                    Current.logger().info("too many pending pipelines (\(pendingJobs + newJobCount))")
+                    logger.info("too many pending pipelines (\(pendingJobs + newJobCount))")
                     return
                 }
 
@@ -244,12 +248,13 @@ func triggerBuilds(on database: Database,
 ///   - client: `Client` used for http request
 ///   - triggers: trigger information for builds to trigger
 func triggerBuildsUnchecked(on database: Database, triggers: [BuildTriggerInfo]) async throws {
+    @Dependency(\.logger) var logger
     await withThrowingTaskGroup(of: Void.self) { group in
         for trigger in triggers {
             if let packageName = trigger.packageName, let reference = trigger.reference {
-                Current.logger().info("Triggering \(pluralizedCount: trigger.buildPairs.count, singular: "build") for package name: \(packageName), ref: \(reference)")
+                logger.info("Triggering \(pluralizedCount: trigger.buildPairs.count, singular: "build") for package name: \(packageName), ref: \(reference)")
             } else {
-                Current.logger().info("Triggering \(pluralizedCount: trigger.buildPairs.count, singular: "build") for version ID: \(trigger.versionId)")
+                logger.info("Triggering \(pluralizedCount: trigger.buildPairs.count, singular: "build") for version ID: \(trigger.versionId)")
             }
 
             for pair in trigger.buildPairs {

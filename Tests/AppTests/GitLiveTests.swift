@@ -42,14 +42,9 @@ class GitLiveTests: XCTestCase {
         try? Foundation.FileManager.default.removeItem(atPath: tempDir)
     }
 
-    let logger = CapturingLogger()
-
-    override func setUp() {
-        Current.setLogger(.init(label: "test", factory: { _ in logger }))
-    }
-
     override func invokeTest() {
         withDependencies {
+            $0.logger.log = { @Sendable _, _ in }
             $0.shell = .liveValue
         } operation: {
             super.invokeTest()
