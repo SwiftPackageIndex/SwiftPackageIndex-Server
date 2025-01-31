@@ -88,7 +88,7 @@ extension Analyze {
                 try await recordError(database: database, error: error)
 
             case let .failure(error):
-                logger.logger?.report(error: error)
+                logger.report(error: error)
                 try await recordError(database: database, error: error)
         }
     }

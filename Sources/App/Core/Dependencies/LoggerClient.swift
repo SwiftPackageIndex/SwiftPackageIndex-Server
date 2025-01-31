@@ -32,16 +32,10 @@ extension LoggerClient {
     func info(_ message: Logging.Logger.Message) { log(.info, message) }
     func warning(_ message: Logging.Logger.Message) { log(.warning, message) }
     func trace(_ message: Logging.Logger.Message) { log(.trace, message) }
-    var logger: Logging.Logger? {
-        Self._logger.withLock {
-            switch $0 {
-                case .uninitialized:
-                    return nil
-                case let .initialized(value):
-                    return value.logger
-            }
-        }
+    func report(error: Error, file: String = #fileID, function: String = #function, line: UInt = #line) {
+        logger.report(error: error, file: file, function: function, line: line)
     }
+    var logger: Logging.Logger { Self._logger.withLock { $0 } }
 }
 
 
@@ -52,12 +46,12 @@ extension LoggerClient: DependencyKey {
                 _logger.withLock { $0.log(level: level, message) }
             },
             set: { logger in
-                _logger.withLock { $0.setLogger(logger) }
+                _logger.withLock { $0 = logger }
             }
         )
     }
 
-    private static let _logger = Mutex(Logger.uninitialized(.init()))
+    private static let _logger = Mutex(Logging.Logger(component: "default"))
 }
 
 
@@ -72,71 +66,3 @@ extension DependencyValues {
         set { self[LoggerClient.self] = newValue }
     }
 }
-
-
-#warning("Simplify this - we don't really need the typestate mechanism")
-// Modeled after https://swiftology.io/articles/typestate/
-
-extension LoggerClient {
-
-    private enum Logger: ~Copyable {
-        case uninitialized(_UninitializedLogger)
-        case initialized(_InitializedLogger)
-
-        mutating func setLogger(_ logger: Logging.Logger) {
-            self = .initialized(.init(logger: logger))
-        }
-
-        func log(
-            level: Logging.Logger.Level,
-            _ message: @autoclosure () -> Logging.Logger.Message,
-            metadata: @autoclosure () -> Logging.Logger.Metadata? = nil,
-            source: @autoclosure () -> String? = nil,
-            file: String = #fileID,
-            function: String = #function,
-            line: UInt = #line
-        ) {
-            switch self {
-                case .uninitialized:
-                    break
-                case let .initialized(logger):
-                    logger.log(level: level,
-                               message(),
-                               metadata: metadata(),
-                               source: source(),
-                               file: file,
-                               function: function,
-                               line: line)
-            }
-        }
-    }
-
-}
-
-
-private struct _UninitializedLogger: ~Copyable {
-    consuming func setLogger(_ logger: Logging.Logger) -> _InitializedLogger {
-        .init(logger: logger)
-    }
-}
-
-private struct _InitializedLogger: ~Copyable {
-    var logger: Logging.Logger
-
-    init(logger: Logging.Logger) {
-        self.logger = logger
-    }
-
-    func log(
-        level: Logging.Logger.Level,
-        _ message: @autoclosure () -> Logging.Logger.Message,
-        metadata: @autoclosure () -> Logging.Logger.Metadata? = nil,
-        source: @autoclosure () -> String? = nil,
-        file: String = #fileID,
-        function: String = #function,
-        line: UInt = #line
-    ) {
-        logger.log(level: level, message(), metadata: metadata(), source: source(), file: file, function: function, line: line)
-    }
-}
-

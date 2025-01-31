@@ -177,7 +177,7 @@ enum ReAnalyzeVersions {
         @Dependency(\.logger) var logger
 
         for pkg in packages {
-            logger.logger?.info("Re-analyzing package \(pkg.model.url) ...")
+            logger.info("Re-analyzing package \(pkg.model.url) ...")
 
             // 2024-10-05 sas: We need to explicitly weave dependencies into the `transaction` closure, because escaping closures strip them.
             // https://github.com/pointfreeco/swift-dependencies/discussions/283#discussioncomment-10846172
@@ -196,7 +196,7 @@ enum ReAnalyzeVersions {
                                                                      transaction: tx,
                                                                      package: pkg,
                                                                      before: cutoffDate)
-                        logger.logger?.info("Updating \(versions.count) versions (id: \(pkg.model.id)) ...")
+                        logger.info("Updating \(versions.count) versions (id: \(pkg.model.id)) ...")
 
                         try await setUpdatedAt(on: tx, versions: versions)
                         
@@ -207,7 +207,7 @@ enum ReAnalyzeVersions {
                             do {
                                 pkgInfo = try await Analyze.getPackageInfo(package: pkg, version: version)
                             } catch {
-                                logger.logger?.report(error: error)
+                                logger.report(error: error)
                                 continue
                             }
                             

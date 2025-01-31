@@ -251,7 +251,7 @@ extension Analyze {
                                             attributes: nil)
         } catch {
             let error = AppError.genericError(nil, "Failed to create checkouts directory: \(error.localizedDescription)")
-            logger.logger?.report(error: error)
+            logger.logger.report(error: error)
         }
     }
 

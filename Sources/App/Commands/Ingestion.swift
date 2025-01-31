@@ -222,7 +222,7 @@ enum Ingestion {
         do {
             try await updatePackage(client: client, database: database, result: result, stage: .ingestion)
         } catch {
-            logger.logger?.report(error: error)
+            logger.report(error: error)
         }
     }
 
