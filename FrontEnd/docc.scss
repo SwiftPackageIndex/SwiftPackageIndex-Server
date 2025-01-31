@@ -248,3 +248,13 @@ footer.spi {
         text-align: center;
     }
 }
+
+.badge {
+    margin-left: 4px;
+    padding: 2px 4px;
+    font-size: 10px;
+    text-align: center;
+    color: var(--grey);
+    background-color: var(--dark-grey);
+    border-radius: 4px;
+}

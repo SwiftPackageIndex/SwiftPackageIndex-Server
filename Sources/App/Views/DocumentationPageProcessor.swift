@@ -172,7 +172,8 @@ struct DocumentationPageProcessor {
                 .span(
                     .class(referenceKind.cssClass),
                     .text(docVersion.reference)
-                )
+                ),
+                latestBadge()
             ), choices: documentationVersionChoices.count > 0 ? documentationVersionChoices : nil)
         ]
 
@@ -242,6 +243,15 @@ struct DocumentationPageProcessor {
                     })
             )
         ).render()
+    }
+
+    func latestBadge() -> Plot.Node<HTML.BodyContext> {
+        let isLatest = availableVersions.first(where: { $0.reference == docVersion.reference })?.isLatestStable ?? false
+        print("isLatest: \(isLatest)")
+        return isLatest ? .span(
+            .class("badge"),
+            .text("LATEST")
+        ) : .empty
     }
 
     var footer: String {
