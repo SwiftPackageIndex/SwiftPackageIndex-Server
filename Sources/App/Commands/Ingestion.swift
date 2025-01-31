@@ -84,21 +84,22 @@ enum Ingestion {
         func run(using context: CommandContext, signature: SPICommand.Signature) async {
             let client = context.application.client
             let db = context.application.db
-            Current.setLogger(Logger(component: "ingest"))
+            @Dependency(\.logger) var logger
+            logger.set(to: Logger(component: "ingest"))
 
             Self.resetMetrics()
 
             do {
                 try await ingest(client: client, database: db, mode: .init(signature: signature))
             } catch {
-                Current.logger().error("\(error.localizedDescription)")
+                logger.error("\(error.localizedDescription)")
             }
 
             do {
                 try await AppMetrics.push(client: client,
                                           jobName: "ingest")
             } catch {
-                Current.logger().warning("\(error.localizedDescription)")
+                logger.warning("\(error.localizedDescription)")
             }
         }
 
@@ -121,20 +122,22 @@ enum Ingestion {
         let start = DispatchTime.now().uptimeNanoseconds
         defer { AppMetrics.ingestDurationSeconds?.time(since: start) }
 
+        @Dependency(\.logger) var logger
+
         switch mode {
             case .id(let id):
-                Current.logger().info("Ingesting (id: \(id)) ...")
+                logger.info("Ingesting (id: \(id)) ...")
                 let pkg = try await Package.fetchCandidate(database, id: id)
                 await ingest(client: client, database: database, packages: [pkg])
 
             case .limit(let limit):
-                Current.logger().info("Ingesting (limit: \(limit)) ...")
+                logger.info("Ingesting (limit: \(limit)) ...")
                 let packages = try await Package.fetchCandidates(database, for: .ingestion, limit: limit)
-                Current.logger().info("Candidate count: \(packages.count)")
+                logger.info("Candidate count: \(packages.count)")
                 await ingest(client: client, database: database, packages: packages)
 
             case .url(let url):
-                Current.logger().info("Ingesting (url: \(url)) ...")
+                logger.info("Ingesting (url: \(url)) ...")
                 let pkg = try await Package.fetchCandidate(database, url: url)
                 await ingest(client: client, database: database, packages: [pkg])
         }
@@ -150,7 +153,8 @@ enum Ingestion {
     static func ingest(client: Client,
                        database: Database,
                        packages: [Joined<Package, Repository>]) async {
-        Current.logger().debug("Ingesting \(packages.compactMap {$0.model.id})")
+        @Dependency(\.logger) var logger
+        logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
         AppMetrics.ingestCandidatesCount?.set(packages.count)
 
         await withTaskGroup(of: Void.self) { group in
@@ -164,9 +168,10 @@ enum Ingestion {
 
 
     static func ingest(client: Client, database: Database, package: Joined<Package, Repository>) async {
+        @Dependency(\.logger) var logger
         let result = await Result { () async throws(Ingestion.Error) -> Joined<Package, Repository> in
             @Dependency(\.environment) var environment
-            Current.logger().info("Ingesting \(package.package.url)")
+            logger.info("Ingesting \(package.package.url)")
 
             // Even though we have a `Joined<Package, Repository>` as a parameter, we must not rely
             // on `repository` for owner/name as it will be nil when a package is first ingested.
@@ -193,7 +198,7 @@ enum Ingestion {
                 s3Readme = try await storeS3Readme(repository: repo, metadata: metadata, readme: readme)
             } catch {
                 // We don't want to fail ingestion in case storing the readme fails - warn and continue.
-                Current.logger().warning("storeS3Readme failed: \(error)")
+                logger.warning("storeS3Readme failed: \(error)")
                 s3Readme = .error("\(error)")
             }
 
@@ -217,7 +222,7 @@ enum Ingestion {
         do {
             try await updatePackage(client: client, database: database, result: result, stage: .ingestion)
         } catch {
-            Current.logger().report(error: error)
+            logger.report(error: error)
         }
     }
 

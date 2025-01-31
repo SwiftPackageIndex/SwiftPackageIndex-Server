@@ -89,6 +89,7 @@ extension Github {
     static func fetch(url: String, headers: [(String, String)] = []) async throws -> (content: String, etag: String?) {
         @Dependency(\.github) var github
         @Dependency(\.httpClient) var httpClient
+        @Dependency(\.logger) var logger
 
         guard let token = github.token() else {
             throw Error.missingToken
@@ -98,17 +99,17 @@ extension Github {
         let response = try await httpClient.get(url: url, headers: defaultHeaders(with: token).adding(contentsOf: headers))
 
         guard !isRateLimited(response) else {
-            Current.logger().critical("rate limited while fetching \(url)")
+            logger.critical("rate limited while fetching \(url)")
             throw Error.requestFailed(.tooManyRequests)
         }
 
         guard response.status == .ok else {
-            Current.logger().warning("Github.fetch of '\(url)' failed with status \(response.status)")
+            logger.warning("Github.fetch of '\(url)' failed with status \(response.status)")
             throw Error.requestFailed(response.status)
         }
 
         guard let body = response.body else {
-            Current.logger().warning("Github.fetch has no body")
+            logger.warning("Github.fetch has no body")
             throw Error.noBody
         }
 
@@ -117,6 +118,7 @@ extension Github {
 
     static func fetchResource<T: Decodable>(_ type: T.Type, url: String) async throws -> T {
         @Dependency(\.github) var github
+        @Dependency(\.logger) var logger
 
         guard let token = github.token() else {
             throw Error.missingToken
@@ -127,7 +129,7 @@ extension Github {
         let response = try await httpClient.get(url: url, headers: defaultHeaders(with: token))
 
         guard !isRateLimited(response) else {
-            Current.logger().critical("rate limited while fetching resource \(url)")
+            logger.critical("rate limited while fetching resource \(url)")
             throw Error.requestFailed(.tooManyRequests)
         }
 
@@ -181,12 +183,12 @@ extension Github {
 
     static func fetchResource<T: Decodable>(_ type: T.Type, query: GraphQLQuery) async throws(Github.Error) -> T {
         @Dependency(\.github) var github
+        @Dependency(\.httpClient) var httpClient
+        @Dependency(\.logger) var logger
 
         guard let token = github.token() else {
             throw Error.missingToken
         }
-
-        @Dependency(\.httpClient) var httpClient
 
         let body = try run {
             try JSONEncoder().encode(query)
@@ -201,12 +203,12 @@ extension Github {
         }
 
         guard !isRateLimited(response) else {
-            Current.logger().critical("rate limited while fetching resource \(T.self)")
+            logger.critical("rate limited while fetching resource \(T.self)")
             throw Error.requestFailed(.tooManyRequests)
         }
 
         guard response.status == .ok else {
-            Current.logger().warning("fetchResource<\(T.self)> request failed with status \(response.status)")
+            logger.warning("fetchResource<\(T.self)> request failed with status \(response.status)")
             throw Error.requestFailed(response.status)
         }
 

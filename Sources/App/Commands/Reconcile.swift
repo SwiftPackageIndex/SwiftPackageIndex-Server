@@ -23,24 +23,25 @@ struct ReconcileCommand: AsyncCommand {
     var help: String { "Reconcile package list with server" }
 
     func run(using context: CommandContext, signature: Signature) async throws {
-        Current.setLogger(Logger(component: "reconcile"))
+        @Dependency(\.logger) var logger
+        logger.set(to: Logger(component: "reconcile"))
 
-        Current.logger().info("Reconciling...")
+        logger.info("Reconciling...")
 
         do {
             try await reconcile(client: context.application.client,
                                 database: context.application.db)
         } catch {
-            Current.logger().error("\(error)")
+            logger.error("\(error)")
         }
 
-        Current.logger().info("done.")
+        logger.info("done.")
 
         do {
             try await AppMetrics.push(client: context.application.client,
                                       jobName: "reconcile")
         } catch {
-            Current.logger().warning("\(error)")
+            logger.warning("\(error)")
         }
     }
 }
@@ -50,16 +51,18 @@ func reconcile(client: Client, database: Database) async throws {
     let start = DispatchTime.now().uptimeNanoseconds
     defer { AppMetrics.reconcileDurationSeconds?.time(since: start) }
 
+    @Dependency(\.logger) var logger
+
     // reconcile main package list
-    Current.logger().info("Reconciling main list...")
+    logger.info("Reconciling main list...")
     let fullPackageList = try await reconcileMainPackageList(client: client, database: database)
 
     do { // reconcile custom package collections
-        Current.logger().info("Reconciling custom collections...")
+        logger.info("Reconciling custom collections...")
         @Dependency(\.packageListRepository) var packageListRepository
         let collections = try await packageListRepository.fetchCustomCollections(client: client)
         for collection in collections {
-            Current.logger().info("Reconciling '\(collection.name)' collection...")
+            logger.info("Reconciling '\(collection.name)' collection...")
             try await reconcileCustomCollection(client: client, database: database, fullPackageList: fullPackageList, collection)
         }
     }

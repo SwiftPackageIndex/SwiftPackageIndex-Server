@@ -47,11 +47,12 @@ enum ReAnalyzeVersions {
 
             let client = context.application.client
             let db = context.application.db
-            Current.setLogger(Logger(component: "re-analyze-versions"))
+            @Dependency(\.logger) var logger
+            logger.set(to: Logger(component: "re-analyze-versions"))
 
             @Dependency(\.date.now) var now
             if let id = signature.packageId {
-                Current.logger().info("Re-analyzing versions (id: \(id)) ...")
+                logger.info("Re-analyzing versions (id: \(id)) ...")
                 do {
                     try await reAnalyzeVersions(
                         client: client,
@@ -61,20 +62,20 @@ enum ReAnalyzeVersions {
                         packageId: id
                     )
                 } catch {
-                    Current.logger().error("\(error.localizedDescription)")
+                    logger.error("\(error.localizedDescription)")
                 }
             } else {
                 guard let cutoffDate = signature.before else {
-                    Current.logger().info("No cut-off date set, skipping re-analysis")
+                    logger.info("No cut-off date set, skipping re-analysis")
                     return
                 }
 
-                Current.logger().info("Re-analyzing versions (limit: \(limit)) ...")
+                logger.info("Re-analyzing versions (limit: \(limit)) ...")
                 var processed = 0
                 while processed < limit {
                     let currentBatchSize = min(signature.batchSize ?? defaultBatchSize,
                                                limit - processed)
-                    Current.logger().info("Re-analyzing versions (batch: \(processed)..<\(processed + currentBatchSize)) ...")
+                    logger.info("Re-analyzing versions (batch: \(processed)..<\(processed + currentBatchSize)) ...")
                     do {
                         try await reAnalyzeVersions(
                             client: client,
@@ -85,17 +86,17 @@ enum ReAnalyzeVersions {
                         )
                         processed += currentBatchSize
                     } catch {
-                        Current.logger().error("\(error.localizedDescription)")
+                        logger.error("\(error.localizedDescription)")
                     }
                 }
             }
             do {
                 try await AppMetrics.push(client: client, jobName: "re-analyze-versions")
             } catch {
-                Current.logger().warning("\(error.localizedDescription)")
+                logger.warning("\(error.localizedDescription)")
             }
 
-            Current.logger().info("Done.")
+            logger.info("Done.")
         }
     }
 
@@ -173,8 +174,10 @@ enum ReAnalyzeVersions {
         // case by design, as `analyze` will only add or remove versions, ignoring
         // existing ones.
 
+        @Dependency(\.logger) var logger
+
         for pkg in packages {
-            Current.logger().info("Re-analyzing package \(pkg.model.url) ...")
+            logger.info("Re-analyzing package \(pkg.model.url) ...")
 
             // 2024-10-05 sas: We need to explicitly weave dependencies into the `transaction` closure, because escaping closures strip them.
             // https://github.com/pointfreeco/swift-dependencies/discussions/283#discussioncomment-10846172
@@ -193,8 +196,8 @@ enum ReAnalyzeVersions {
                                                                      transaction: tx,
                                                                      package: pkg,
                                                                      before: cutoffDate)
-                        Current.logger().info("Updating \(versions.count) versions (id: \(pkg.model.id)) ...")
-                        
+                        logger.info("Updating \(versions.count) versions (id: \(pkg.model.id)) ...")
+
                         try await setUpdatedAt(on: tx, versions: versions)
                         
                         Analyze.mergeReleaseInfo(package: pkg, into: versions)
@@ -204,7 +207,7 @@ enum ReAnalyzeVersions {
                             do {
                                 pkgInfo = try await Analyze.getPackageInfo(package: pkg, version: version)
                             } catch {
-                                Current.logger().report(error: error)
+                                logger.report(error: error)
                                 continue
                             }
                             

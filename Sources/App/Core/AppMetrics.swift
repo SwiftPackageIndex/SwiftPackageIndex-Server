@@ -172,6 +172,8 @@ extension AppMetrics {
     /// - Parameter client: client for POST request
     static func push(client: Client, jobName: String) async throws {
         @Dependency(\.environment) var environment
+        @Dependency(\.logger) var logger
+
         guard let pushGatewayUrl = environment.metricsPushGatewayUrl() else {
             throw AppError.envVariableNotSet("METRICS_PUSHGATEWAY_URL")
         }
@@ -185,7 +187,7 @@ extension AppMetrics {
                 try req.content.encode(metrics + "\n")
             }
         } catch {
-            Current.logger().warning("AppMetrics.push failed with error: \(error)")
+            logger.warning("AppMetrics.push failed with error: \(error)")
             // ignore error - we don't want metrics issues to cause upstream failures
         }
     }

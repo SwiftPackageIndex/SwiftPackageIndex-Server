@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Plot
 import Vapor
 
@@ -28,10 +29,12 @@ final class ErrorMiddleware: AsyncMiddleware {
             let statusCode = error.status.code
             let isCritical = (statusCode >= 500)
 
+            @Dependency(\.logger) var logger
+
             if isCritical {
-                Current.logger().critical("\(error): \(req.url)")
+                logger.critical("\(error): \(req.url)")
             } else {
-                Current.logger().error("\(error): \(req.url)")
+                logger.error("\(error): \(req.url)")
             }
 
             return ErrorPage.View(path: req.url.path, error: error)

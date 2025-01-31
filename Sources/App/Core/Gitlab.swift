@@ -79,6 +79,7 @@ extension Gitlab.Builder {
                              versionID: Version.Id) async throws -> Build.TriggerResponse {
         @Dependency(\.environment) var environment
         @Dependency(\.httpClient) var httpClient
+        @Dependency(\.logger) var logger
 
         guard let pipelineToken = environment.gitlabPipelineToken(),
               let builderToken = environment.builderToken()
@@ -116,11 +117,11 @@ extension Gitlab.Builder {
             guard let body = response.body else { throw Gitlab.Error.noBody }
             let webUrl = try JSONDecoder().decode(Response.self, from: body).webUrl
             let res = Build.TriggerResponse(status: response.status, webUrl: webUrl)
-            Current.logger().info("Triggered build: \(res.webUrl)")
+            logger.info("Triggered build: \(res.webUrl)")
             return res
         } catch {
             let body = response.body?.asString() ?? "nil"
-            Current.logger().error("Trigger failed: \(cloneURL) @ \(reference), \(platform) / \(swiftVersion), \(versionID), status: \(response.status), body: \(body)")
+            logger.error("Trigger failed: \(cloneURL) @ \(reference), \(platform) / \(swiftVersion), \(versionID), status: \(response.status), body: \(body)")
             return .init(status: response.status, webUrl: nil)
         }
     }

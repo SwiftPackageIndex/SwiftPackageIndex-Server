@@ -40,10 +40,11 @@ extension ShellClient: DependencyKey {
     static var liveValue: Self {
         .init(
             run: { command, path in
+                @Dependency(\.logger) var logger
                 do {
-                    let res = try await ShellOut.shellOut(to: command, at: path, logger: Current.logger())
+                    let res = try await ShellOut.shellOut(to: command, at: path, logger: logger.logger)
                     if !res.stderr.isEmpty {
-                        Current.logger().warning("stderr: \(res.stderr)")
+                        logger.warning("stderr: \(res.stderr)")
                     }
                     return res.stdout
                 } catch {

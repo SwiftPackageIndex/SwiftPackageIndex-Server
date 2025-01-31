@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
 import PostgresKit
 import Vapor
@@ -39,33 +40,35 @@ extension Analyze {
     static func updatePackages(client: Client,
                                database: Database,
                                results: [Result<Joined<Package, Repository>, Error>]) async throws {
+        @Dependency(\.logger) var logger
         do {
             let total = results.count
             let errors = results.filter(\.isError).count
             let errorRate = total > 0 ? 100.0 * Double(errors) / Double(total) : 0.0
             switch errorRate {
                 case 0:
-                    Current.logger().info("Updating \(total) packages for stage 'analysis'")
+                    logger.info("Updating \(total) packages for stage 'analysis'")
                 case 0..<20:
-                    Current.logger().info("Updating \(total) packages for stage 'analysis' (errors: \(errors))")
+                    logger.info("Updating \(total) packages for stage 'analysis' (errors: \(errors))")
                 default:
-                    Current.logger().critical("updatePackages: unusually high error rate: \(errors)/\(total) = \(errorRate)%")
+                    logger.critical("updatePackages: unusually high error rate: \(errors)/\(total) = \(errorRate)%")
             }
         }
         for result in results {
             do {
                 try await updatePackage(client: client, database: database, result: result)
             } catch {
-                Current.logger().critical("updatePackage failed: \(error)")
+                logger.critical("updatePackage failed: \(error)")
             }
         }
 
-        Current.logger().debug("updateStatus ops: \(results.count)")
+        logger.debug("updateStatus ops: \(results.count)")
     }
 
     static func updatePackage(client: Client,
                               database: Database,
                               result: Result<Joined<Package, Repository>, Error>) async throws {
+        @Dependency(\.logger) var logger
         switch result {
             case .success(let res):
                 try await res.package.update(on: database, status: .ok, stage: .analysis)
@@ -76,16 +79,16 @@ extension Analyze {
                 // Escalate database errors to critical
                 let error = error as! PSQLError
                 let msg = error.serverInfo?[.message] ?? String(reflecting: error)
-                Current.logger().critical("\(msg)")
+                logger.critical("\(msg)")
                 try await recordError(database: database, error: error)
 
             case let .failure(error) where error is DatabaseError:
                 // Escalate database errors to critical
-                Current.logger().critical("\(String(reflecting: error))")
+                logger.critical("\(String(reflecting: error))")
                 try await recordError(database: database, error: error)
 
             case let .failure(error):
-                Current.logger().report(error: error)
+                logger.report(error: error)
                 try await recordError(database: database, error: error)
         }
     }
@@ -128,13 +131,14 @@ extension Ingestion {
                               database: Database,
                               result: Result<Joined<Package, Repository>, Ingestion.Error>,
                               stage: Package.ProcessingStage) async throws {
+        @Dependency(\.logger) var logger
         switch result {
             case .success(let res):
                 // for newly ingested package leave status == .new in order to fast-track analysis
                 let updatedStatus: Package.Status = res.package.status == .new ? .new : .ok
                 try await res.package.update(on: database, status: updatedStatus, stage: stage)
             case .failure(let failure):
-                Current.logger().log(level: failure.level, "\(failure)")
+                logger.log(level: failure.level, "\(failure)")
                 try await Package.update(for: failure.packageId, on: database, status: failure.status, stage: stage)
         }
     }

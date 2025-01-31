@@ -82,6 +82,7 @@ enum Git {
 
     static func revisionInfo(_ reference: Reference, at path: String) async throws -> RevisionInfo {
         @Dependency(\.shell) var shell
+        @Dependency(\.logger) var logger
         let separator = "-"
         let res = String(
             try await shell.run(command: .gitRevisionInfo(reference: reference, separator: separator),
@@ -90,7 +91,7 @@ enum Git {
         )
         let parts = res.components(separatedBy: separator)
         guard parts.count == 2 else {
-            Current.logger().warning(#"Git.invalidRevisionInfo: \#(res) for '\#(ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator))' at: \#(path)"#)
+            logger.warning(#"Git.invalidRevisionInfo: \#(res) for '\#(ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator))' at: \#(path)"#)
             throw Error.invalidRevisionInfo(res)
         }
         let hash = parts[0]
