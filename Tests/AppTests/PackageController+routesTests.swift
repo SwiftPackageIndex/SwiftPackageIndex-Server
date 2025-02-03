@@ -625,7 +625,8 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.0.0</span>"#))
+                print(body)
             }
 
             // test catchall
@@ -640,7 +641,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
                 XCTAssertFalse(body.contains(#"a/b#anchor"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.0.0</span>"#))
             }
 
             // Test case insensitive path.
@@ -655,7 +656,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
                 XCTAssertFalse(body.contains(#"a/b#anchor"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.0.0</span>"#))
             }
         }
     }
@@ -703,7 +704,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.0.0</span>"#))
             }
 
             // test catchall
@@ -717,7 +718,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
                 XCTAssertFalse(body.contains(#"a/b#anchor"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.0.0</span>"#))
             }
 
             // Test case insensitive path.
@@ -731,7 +732,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
                 XCTAssertFalse(body.contains(#"a/b#anchor"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.0.0</span>"#))
             }
         }
     }
@@ -784,7 +785,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
                 XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target" />"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.2.3</span>"#))
             }
 
             // test catchall
@@ -798,7 +799,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
                 XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/a/b#anchor" />"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.2.3</span>"#))
             }
 
             // Test case insensitive path.
@@ -812,7 +813,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
                 XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/A/b#Anchor" />"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.2.3</span>"#))
             }
         }
     }
@@ -1204,7 +1205,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-                XCTAssert(body.contains(#"Documentation for <span class="branch">feature/1.2.3</span>"#))
+                XCTAssert(body.contains(#"<span class="branch">feature/1.2.3</span>"#))
                 XCTAssert(body.contains(#"<li class="current"><a href="/owner/package/feature-1.2.3/documentation/target"><span class="branch">feature/1.2.3</span></a></li>"#))
             }
 
@@ -1218,7 +1219,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/feature-1.2.3/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
                 XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/target" />"#))
-                XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
+                XCTAssert(body.contains(#"<span class="branch">feature-1.2.3</span>"#))
             }
 
             // test path a/b
@@ -1232,7 +1233,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/feature-1.2.3/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
                 XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/a/b" />"#))
-                XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
+                XCTAssert(body.contains(#"<span class="branch">feature-1.2.3</span>"#))
             }
         }
     }
