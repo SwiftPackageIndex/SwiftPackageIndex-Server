@@ -24,7 +24,7 @@ import Vapor
 
 class ParallelizedAppTestCase: XCTestCase {
 
-    private func withApp(_ environment: Environment, _ test: (Application, CapturingLogger) async throws -> Void) async throws {
+    func withApp(_ environment: Environment, _ test: @Sendable (Application, CapturingLogger) async throws -> Void) async throws {
         let dbOffset = await dbIndex.withValue { index in
             index = index + 1
             return index
