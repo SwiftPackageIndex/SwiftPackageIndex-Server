@@ -169,9 +169,13 @@ struct DocumentationPageProcessor {
             Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL()),
             Breadcrumb(title: .init(
                 .text("Documentation for "),
-                .span(
-                    .class(referenceKind.cssClass),
-                    .text(docVersion.reference)
+                .div(
+                    .class("reference"),
+                    .span(
+                        .class(referenceKind.cssClass),
+                        .text(docVersion.reference)
+                    ),
+                    latestBadge()
                 )
             ), choices: documentationVersionChoices.count > 0 ? documentationVersionChoices : nil)
         ]
@@ -242,6 +246,14 @@ struct DocumentationPageProcessor {
                     })
             )
         ).render()
+    }
+
+    func latestBadge() -> Plot.Node<HTML.BodyContext> {
+        let isLatest = availableVersions.first(where: { $0.reference == docVersion.reference })?.isLatestStable ?? false
+        return isLatest ? .span(
+            .class("badge"),
+            .text("LATEST")
+        ) : .empty
     }
 
     var footer: String {
