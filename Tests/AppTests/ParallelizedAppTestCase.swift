@@ -23,31 +23,47 @@ import Vapor
 
 
 class ParallelizedAppTestCase: XCTestCase {
+    var app: Application!
+    let logger = CapturingLogger()
 
-    func withApp(_ environment: Environment, _ test: @Sendable (Application, CapturingLogger) async throws -> Void) async throws {
-        let dbOffset = await dbIndex.withValue { index in
-            index = index + 1
-            return index
-        }
-        let port = 10_000 + dbOffset
-        try await relaunchDB(on: port)
+    override func setUp() async throws {
+        try await super.setUp()
+        app = try await setup(.testing)
 
-        let app = try await AppTestCase.setupApp(environment, databasePort: port)
-
-        let capturingLogger = CapturingLogger()
         @Dependency(\.logger) var logger
-        logger.set(to: .init(label: "test", factory: { _ in capturingLogger }))
+        logger.set(to: .init(label: "test", factory: { _ in self.logger }))
+    }
 
-        try await setupDB(on: port, app: app)
+    func setup(_ environment: Environment) async throws -> Application {
+        try await withDependencies {
+            // Setting builderToken here when it's also set in all tests may seem redundant but it's
+            // what allows test_post_buildReport_large to work.
+            // See https://github.com/pointfreeco/swift-dependencies/discussions/300#discussioncomment-11252906
+            // for details.
+            $0.environment.builderToken = { "secr3t" }
+        } operation: {
+            let dbOffset = await dbIndex.withValue { index in
+                index = index + 1
+                return index
+            }
+            let port = 10_000 + dbOffset
+            try await relaunchDB(on: port)
 
-        do {
-            try await test(app, capturingLogger)
-        } catch {
-            try await app.asyncShutdown()
-            throw error
+            let app = try await AppTestCase.setupApp(environment, databasePort: port)
+
+            let capturingLogger = CapturingLogger()
+            @Dependency(\.logger) var logger
+            logger.set(to: .init(label: "test", factory: { _ in capturingLogger }))
+
+            try await setupDB(on: port, app: app)
+
+            return app
         }
+    }
 
+    override func tearDown() async throws {
         try await app.asyncShutdown()
+        try await super.tearDown()
     }
 
 }
