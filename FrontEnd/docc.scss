@@ -182,9 +182,9 @@ header.spi {
     span.stable,
     span.beta,
     span.branch {
-        padding-left: 18px;
+        padding-left: 16px;
         font-weight: 600;
-        background-position: top 2px left;
+        background-position: center left;
         background-repeat: no-repeat;
         background-size: 14px;
     }
@@ -199,6 +199,22 @@ header.spi {
 
     span.branch {
         background-image: var(--image-branch);
+    }
+
+    .reference {
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+        justify-content: center;
+
+        .badge {
+            padding: 2px 4px;
+            font-size: 10px;
+            text-align: center;
+            color: var(--header-text);
+            background-color: rgba(255, 255, 255, 20%);
+            border-radius: 4px;
+        }
     }
 }
 
@@ -238,14 +254,4 @@ footer.spi {
         font-size: 13px;
         text-align: center;
     }
-}
-
-.badge {
-    margin-left: 4px;
-    padding: 2px 4px;
-    font-size: 10px;
-    text-align: center;
-    color: var(--grey);
-    background-color: var(--dark-grey);
-    border-radius: 4px;
 }

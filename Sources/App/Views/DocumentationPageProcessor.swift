@@ -169,11 +169,14 @@ struct DocumentationPageProcessor {
             Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL()),
             Breadcrumb(title: .init(
                 .text("Documentation for "),
-                .span(
-                    .class(referenceKind.cssClass),
-                    .text(docVersion.reference)
-                ),
-                latestBadge()
+                .div(
+                    .class("reference"),
+                    .span(
+                        .class(referenceKind.cssClass),
+                        .text(docVersion.reference)
+                    ),
+                    latestBadge()
+                )
             ), choices: documentationVersionChoices.count > 0 ? documentationVersionChoices : nil)
         ]
 
