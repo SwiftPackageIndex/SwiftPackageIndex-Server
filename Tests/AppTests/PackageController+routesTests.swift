@@ -626,7 +626,6 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
                 XCTAssert(body.contains(#"<span class="stable">1.0.0</span>"#))
-                print(body)
             }
 
             // test catchall
