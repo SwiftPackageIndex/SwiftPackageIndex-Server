@@ -247,7 +247,6 @@ struct DocumentationPageProcessor {
 
     func latestBadge() -> Plot.Node<HTML.BodyContext> {
         let isLatest = availableVersions.first(where: { $0.reference == docVersion.reference })?.isLatestStable ?? false
-        print("isLatest: \(isLatest)")
         return isLatest ? .span(
             .class("badge"),
             .text("LATEST")
