@@ -1569,7 +1569,7 @@ class AnalyzerTests: AppTestCase {
                 }
             }
         }
-}
+    }
 
 }
 

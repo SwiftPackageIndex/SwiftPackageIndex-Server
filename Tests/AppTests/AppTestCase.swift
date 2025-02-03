@@ -55,9 +55,9 @@ class AppTestCase: XCTestCase {
 
 extension AppTestCase {
 
-    static func setupApp(_ environment: Environment) async throws -> Application {
+    static func setupApp(_ environment: Environment, databasePort: Int? = nil) async throws -> Application {
         let app = try await Application.make(environment)
-        try await configure(app)
+        try await configure(app, databasePort: databasePort)
 
         // Silence app logging
         app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
