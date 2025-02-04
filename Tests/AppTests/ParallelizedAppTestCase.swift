@@ -74,7 +74,19 @@ private let dbIndex = ActorIsolated(0)
 
 private func relaunchDB(on port: Int) async throws {
     _ = try? await ShellOut.shellOut(to: .removeDB(port: port))
-    try await ShellOut.shellOut(to: .launchDB(port: port))
+    let maxAttempts = 3
+    var attemptsLeft = maxAttempts
+    while attemptsLeft > 0 {
+        do {
+            print("⚠️ Launching spi_test_\(port)")
+            try await ShellOut.shellOut(to: .launchDB(port: port))
+        } catch {
+            if attemptsLeft != maxAttempts {
+                try? await Task.sleep(for: .milliseconds(200))
+            }
+            attemptsLeft -= 1
+        }
+    }
 }
 
 
