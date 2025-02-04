@@ -34,6 +34,8 @@ class ParallelizedAppTestCase: XCTestCase {
         logger.set(to: .init(label: "test", factory: { _ in self.logger }))
     }
 
+    var dbInfo: (id: UUID, port: Int)!
+
     func setup(_ environment: Environment) async throws -> Application {
         try await withDependencies {
             // Setting builderToken here when it's also set in all tests may seem redundant but it's
@@ -42,20 +44,15 @@ class ParallelizedAppTestCase: XCTestCase {
             // for details.
             $0.environment.builderToken = { "secr3t" }
         } operation: {
-            let dbOffset = await dbIndex.withValue { index in
-                index = index + 1
-                return index
-            }
-            let port = 10_000 + dbOffset
-            try await relaunchDB(on: port)
+            self.dbInfo = try await launchDB()
 
-            let app = try await AppTestCase.setupApp(environment, databasePort: port)
+            let app = try await AppTestCase.setupApp(environment, databasePort: dbInfo.port)
 
             let capturingLogger = CapturingLogger()
             @Dependency(\.logger) var logger
             logger.set(to: .init(label: "test", factory: { _ in capturingLogger }))
 
-            try await setupDB(on: port, app: app)
+            try await setupDB(on: dbInfo.port, app: app)
 
             return app
         }
@@ -64,22 +61,22 @@ class ParallelizedAppTestCase: XCTestCase {
     override func tearDown() async throws {
         try await app.asyncShutdown()
         try await super.tearDown()
+        _ = try? await ShellOut.shellOut(to: .removeDB(id: dbInfo.id))
     }
 
 }
 
 
-private let dbIndex = ActorIsolated(0)
-
-
-private func relaunchDB(on port: Int) async throws {
-    _ = try? await ShellOut.shellOut(to: .removeDB(port: port))
+private func launchDB() async throws -> (id: UUID, port: Int) {
+    let id = UUID()
+    let port = Int.random(in: 10_000...65_000)
+    _ = try? await ShellOut.shellOut(to: .removeDB(id: id))
     let maxAttempts = 3
     var attemptsLeft = maxAttempts
     while attemptsLeft > 0 {
         do {
-            print("⚠️ Launching spi_test_\(port)")
-            try await ShellOut.shellOut(to: .launchDB(port: port))
+            print("⚠️ Launching DB \(id) on port \(port)")
+            try await ShellOut.shellOut(to: .launchDB(id: id, port: port))
         } catch {
             if attemptsLeft != maxAttempts {
                 try? await Task.sleep(for: .milliseconds(200))
@@ -87,6 +84,7 @@ private func relaunchDB(on port: Int) async throws {
             attemptsLeft -= 1
         }
     }
+    return (id, port)
 }
 
 
