@@ -19,7 +19,7 @@ import XCTest
 import Dependencies
 
 
-class PackageContributorsTests : AppTestCase {
+class PackageContributorsTests : ParallelizedAppTestCase {
 
     func test_packageAuthors_hasAuthors() throws {
         let noPackageAuthors = PackageAuthors(authors: [], numberOfContributors: 0)

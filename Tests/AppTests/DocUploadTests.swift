@@ -18,7 +18,7 @@ import PostgresKit
 import XCTVapor
 
 
-final class DocUploadTests: AppTestCase {
+final class DocUploadTests: ParallelizedAppTestCase {
 
     func test_attach() async throws {
         // setup

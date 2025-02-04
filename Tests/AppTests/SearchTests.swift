@@ -19,7 +19,7 @@ import SQLKit
 import XCTVapor
 
 
-class SearchTests: AppTestCase {
+class SearchTests: ParallelizedAppTestCase {
 
     func test_DBRecord_packageURL() throws {
         XCTAssertEqual(Search.DBRecord(matchType: .package,

@@ -18,7 +18,7 @@ import SQLKit
 import XCTest
 
 
-class SQLKitExtensionTests: AppTestCase {
+class SQLKitExtensionTests: ParallelizedAppTestCase {
 
     func test_OrderByGroup() throws {
         let b = SQLOrderBy(SQLIdentifier("id"), .ascending)

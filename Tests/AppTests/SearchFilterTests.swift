@@ -20,7 +20,7 @@ import XCTest
 import XCTVapor
 
 
-class SearchFilterTests: AppTestCase {
+class SearchFilterTests: ParallelizedAppTestCase {
 
     func test_SearchFilterKey_searchFilter() throws {
         // Ensure all `SearchFilter.Key`s are wired correctly to their

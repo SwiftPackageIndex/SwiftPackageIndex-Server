@@ -18,7 +18,7 @@ import SQLKit
 import XCTVapor
 
 
-final class RepositoryTests: AppTestCase {
+final class RepositoryTests: ParallelizedAppTestCase {
 
     func test_save() async throws {
         let pkg = Package(id: UUID(), url: "1")

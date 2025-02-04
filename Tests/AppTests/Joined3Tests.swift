@@ -17,7 +17,7 @@
 import Vapor
 import XCTest
 
-class Joined3Tests: AppTestCase {
+class Joined3Tests: ParallelizedAppTestCase {
 
     func test_query_no_version() async throws {
         // setup

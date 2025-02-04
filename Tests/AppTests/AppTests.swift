@@ -18,7 +18,7 @@ import Vapor
 import XCTest
 
 
-class AppTests: AppTestCase {
+class AppTests: ParallelizedAppTestCase {
 
     func test_migrations() async throws {
         try await XCTAssertNoThrowAsync(try await app.autoRevert())

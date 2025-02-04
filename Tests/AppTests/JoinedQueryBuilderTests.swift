@@ -22,7 +22,7 @@ import XCTest
 /// and forwards method calls to it. This test class tests this behaviour in principle for `sort`
 /// but not for any other methods at this time, because the instrumentation is quite mechanical
 /// and essentially compiler checked.
-class JoinedQueryBuilderTests: AppTestCase {
+class JoinedQueryBuilderTests: ParallelizedAppTestCase {
 
     func test_sort() async throws {
         // setup

@@ -17,7 +17,7 @@
 import XCTVapor
 
 
-class ProductTests: AppTestCase {
+class ProductTests: ParallelizedAppTestCase {
 
     func test_ProductType_Codable() throws {
         // Ensure ProductType is Codable in a way that's forward compatible with Swift 5.5's Codable synthesis for enums with associated types (SE-0295)

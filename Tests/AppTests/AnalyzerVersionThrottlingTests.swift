@@ -19,7 +19,7 @@ import XCTest
 import Dependencies
 
 
-class AnalyzerVersionThrottlingTests: AppTestCase {
+class AnalyzerVersionThrottlingTests: ParallelizedAppTestCase {
 
     func test_throttle_keep_old() async throws {
         // Test keeping old when within throttling window

@@ -18,7 +18,7 @@ import Plot
 import XCTVapor
 
 
-class BuildIndexModelTests: AppTestCase {
+class BuildIndexModelTests: ParallelizedAppTestCase {
 
     func test_init_no_name() async throws {
         // Tests behaviour when we're lacking data

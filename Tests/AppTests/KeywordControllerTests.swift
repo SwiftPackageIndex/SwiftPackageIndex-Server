@@ -20,7 +20,7 @@ import Dependencies
 import Vapor
 
 
-class KeywordControllerTests: AppTestCase {
+class KeywordControllerTests: ParallelizedAppTestCase {
 
     func test_query() async throws {
         // setup

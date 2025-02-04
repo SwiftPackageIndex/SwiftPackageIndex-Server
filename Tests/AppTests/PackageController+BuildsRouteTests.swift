@@ -17,7 +17,7 @@
 import Vapor
 import XCTest
 
-class PackageController_BuildsRouteTests: AppTestCase {
+class PackageController_BuildsRouteTests: ParallelizedAppTestCase {
 
     typealias BuildDetails = (id: Build.Id, reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status, docStatus: DocUpload.Status?)
 

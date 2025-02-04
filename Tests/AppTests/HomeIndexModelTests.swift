@@ -18,7 +18,7 @@ import Dependencies
 import XCTVapor
 
 
-class HomeIndexModelTests: AppTestCase {
+class HomeIndexModelTests: ParallelizedAppTestCase {
 
     func test_query() async throws {
         // setup

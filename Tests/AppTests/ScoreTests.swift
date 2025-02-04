@@ -19,7 +19,7 @@ import XCTest
 import Dependencies
 
 
-class ScoreTests: AppTestCase {
+class ScoreTests: ParallelizedAppTestCase {
 
     func test_computeBreakdown() throws {
         withDependencies {

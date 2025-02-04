@@ -19,7 +19,7 @@ import XCTest
 import Dependencies
 
 
-class BlogActionsModelTests: AppTestCase {
+class BlogActionsModelTests: ParallelizedAppTestCase {
 
     func test_init_loadSummaries() async throws {
         try withDependencies {

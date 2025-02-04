@@ -19,7 +19,7 @@ import XCTest
 import Dependencies
 
 
-class CustomCollectionTests: AppTestCase {
+class CustomCollectionTests: ParallelizedAppTestCase {
 
     func test_CustomCollection_save() async throws {
         // MUT

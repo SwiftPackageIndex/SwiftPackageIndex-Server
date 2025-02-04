@@ -23,7 +23,7 @@ import SnapshotTesting
 import Vapor
 
 
-class PackageCollectionTests: AppTestCase {
+class PackageCollectionTests: ParallelizedAppTestCase {
 
     let encoder: JSONEncoder = {
         let e = JSONEncoder()

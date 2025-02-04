@@ -17,7 +17,7 @@
 import XCTVapor
 
 
-class StatsTests: AppTestCase {
+class StatsTests: ParallelizedAppTestCase {
 
     func test_fetch() async throws {
         // setup

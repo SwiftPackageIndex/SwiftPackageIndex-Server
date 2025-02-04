@@ -17,7 +17,7 @@
 import Plot
 import XCTVapor
 
-class BuildMonitorIndexModelTests: AppTestCase {
+class BuildMonitorIndexModelTests: ParallelizedAppTestCase {
 
     func test_init_from_Build() async throws {
         do {

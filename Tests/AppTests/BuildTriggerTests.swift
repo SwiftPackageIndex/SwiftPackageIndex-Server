@@ -24,7 +24,7 @@ import SQLKit
 import Vapor
 
 
-class BuildTriggerTests: AppTestCase {
+class BuildTriggerTests: ParallelizedAppTestCase {
 
     func test_BuildTriggerInfo_emptyPair() throws {
         XCTAssertNotNil(BuildTriggerInfo(versionId: .id0, buildPairs: Set([BuildPair(.iOS, .v1)])))

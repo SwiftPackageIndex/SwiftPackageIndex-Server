@@ -19,7 +19,7 @@ import SwiftSoup
 import XCTVapor
 
 
-class SearchShowModelAppTests: AppTestCase {
+class SearchShowModelAppTests: ParallelizedAppTestCase {
 
     func test_SearchShow_Model_canonicalURLAllowList() async throws {
         try await withDependencies {

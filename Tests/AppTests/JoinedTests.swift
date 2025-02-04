@@ -16,7 +16,7 @@
 
 import XCTest
 
-class JoinedTests: AppTestCase {
+class JoinedTests: ParallelizedAppTestCase {
     typealias JPR = Joined<Package, Repository>
 
     func test_query_owner_repository() async throws {
