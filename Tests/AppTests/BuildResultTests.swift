@@ -17,7 +17,7 @@
 import XCTVapor
 
 
-class BuildResultTests: AppTestCase {
+class BuildResultTests: ParallelizedAppTestCase {
 
     func test_query() async throws {
         // setup

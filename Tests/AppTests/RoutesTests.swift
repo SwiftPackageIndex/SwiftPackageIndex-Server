@@ -18,7 +18,7 @@ import Dependencies
 import XCTVapor
 
 
-final class RoutesTests: AppTestCase {
+final class RoutesTests: ParallelizedAppTestCase {
 
     func test_documentation_images() async throws {
         try await withDependencies {

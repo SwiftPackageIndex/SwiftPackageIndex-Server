@@ -22,7 +22,7 @@ import SwiftSoup
 import Vapor
 
 
-class GithubTests: AppTestCase {
+class GithubTests: ParallelizedAppTestCase {
 
     func test_parseOwnerName() throws {
         do {

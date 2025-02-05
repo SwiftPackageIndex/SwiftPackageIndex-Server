@@ -20,7 +20,7 @@ import SnapshotTesting
 import XCTVapor
 
 
-class ApiTests: AppTestCase {
+class ApiTests: ParallelizedAppTestCase {
 
     func test_version() throws {
         try app.test(.GET, "api/version", afterResponse: { res in

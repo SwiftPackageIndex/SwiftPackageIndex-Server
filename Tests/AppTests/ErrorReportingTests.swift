@@ -18,7 +18,7 @@ import Dependencies
 import XCTVapor
 
 
-class ErrorReportingTests: AppTestCase {
+class ErrorReportingTests: ParallelizedAppTestCase {
 
     func test_Analyze_recordError() async throws {
         let pkg = try await savePackage(on: app.db, "1")

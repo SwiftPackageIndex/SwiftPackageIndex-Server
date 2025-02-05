@@ -21,7 +21,7 @@ import InlineSnapshotTesting
 import SwiftSoup
 
 
-final class DocumentationPageProcessorTests: AppTestCase {
+final class DocumentationPageProcessorTests: ParallelizedAppTestCase {
 
     func test_header_linkTitle() throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2249

@@ -18,7 +18,7 @@ import XCTVapor
 import Dependencies
 
 
-class PackageReleasesModelTests: AppTestCase {
+class PackageReleasesModelTests: ParallelizedAppTestCase {
 
     func test_initialise() async throws {
         // Setup

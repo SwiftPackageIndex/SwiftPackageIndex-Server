@@ -17,7 +17,7 @@
 import XCTest
 
 
-class API_PackageController_GetRouteTests: AppTestCase {
+class API_PackageController_GetRouteTests: ParallelizedAppTestCase {
 
     typealias PackageResult = PackageController.PackageResult
 

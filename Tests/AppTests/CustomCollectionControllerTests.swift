@@ -21,7 +21,7 @@ import Fluent
 import Vapor
 
 
-class CustomCollectionControllerTests: AppTestCase {
+class CustomCollectionControllerTests: ParallelizedAppTestCase {
 
     func test_query() async throws {
         // setup

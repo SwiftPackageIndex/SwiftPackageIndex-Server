@@ -20,7 +20,7 @@ import Dependencies
 import Vapor
 
 
-class ErrorMiddlewareTests: AppTestCase {
+class ErrorMiddlewareTests: ParallelizedAppTestCase {
 
     override func setUpWithError() throws {
         try super.setUpWithError()

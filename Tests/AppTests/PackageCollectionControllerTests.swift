@@ -19,7 +19,7 @@ import SnapshotTesting
 import XCTVapor
 
 
-class PackageCollectionControllerTests: AppTestCase {
+class PackageCollectionControllerTests: ParallelizedAppTestCase {
 
     func test_owner_request() async throws {
         try XCTSkipIf(!isRunningInCI && EnvironmentClient.liveValue.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")

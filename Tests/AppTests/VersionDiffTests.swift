@@ -140,7 +140,7 @@ class VersionImmutableReferenceDiffTests: XCTestCase {
 }
 
 
-class VersionDiffTests: AppTestCase {
+class VersionDiffTests: ParallelizedAppTestCase {
     // Test [Version] based diff (higher level interface)
     // Just run an integration scenario, the details are covered in the test above
 

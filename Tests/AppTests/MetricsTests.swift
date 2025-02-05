@@ -19,7 +19,7 @@ import Prometheus
 import XCTest
 
 
-class MetricsTests: AppTestCase {
+class MetricsTests: ParallelizedAppTestCase {
 
     func test_basic() async throws {
         try await withDependencies {
