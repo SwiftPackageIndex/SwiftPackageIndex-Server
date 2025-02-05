@@ -242,7 +242,7 @@ extension AnalyzeErrorTests {
 }
 
 
-let packageSwift1 = #"""
+private let packageSwift1 = #"""
                     {
                       "name": "foo-1",
                       "products": [
@@ -258,7 +258,7 @@ let packageSwift1 = #"""
                     }
                     """#
 
-let packageSwift2 = #"""
+private let packageSwift2 = #"""
                     {
                       "name": "foo-2",
                       "products": [
