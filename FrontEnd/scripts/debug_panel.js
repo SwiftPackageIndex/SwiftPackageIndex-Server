@@ -76,11 +76,11 @@ export class SPIDebugPanel extends HTMLElement {
     }
 
     addCanonicalUrls() {
-        const canonicalUrl = document.querySelector('link[rel="canonical"]').href
+        const canonicalUrl = document.querySelector('link[rel="canonical"]')?.href
         const windowUrl = window.location.href
         const matchingCanonicalUrl = canonicalUrl === windowUrl
 
-        this.newTableRow('Canonical URL', canonicalUrl)
+        this.newTableRow('Canonical URL', canonicalUrl ? canonicalUrl : 'Missing', canonicalUrl ? null : 'red')
         this.newTableRow('Window URL', windowUrl)
         this.newTableRow('Canonical Match', matchingCanonicalUrl, matchingCanonicalUrl ? 'green' : 'red')
     }

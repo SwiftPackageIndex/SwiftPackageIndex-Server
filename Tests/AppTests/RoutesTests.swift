@@ -23,13 +23,8 @@ final class RoutesTests: AppTestCase {
     func test_documentation_images() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
-
             // MUT
             try await app.test(.GET, "foo/bar/1.2.3/images/baz.png") { res async in
                 // validation
@@ -49,12 +44,23 @@ final class RoutesTests: AppTestCase {
     func test_documentation_img() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok }
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, _ in .init(status: .ok) }
-
             // MUT
             try await app.test(.GET, "foo/bar/1.2.3/img/baz.png") { res async in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+            }
+        }
+    }
+
+    func test_documentation_videos() async throws {
+        try await withDependencies {
+            $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok }
+        } operation: {
+            // MUT
+            try await app.test(.GET, "foo/bar/1.2.3/videos/baz.mov") { res async in
                 // validation
                 XCTAssertEqual(res.status, .ok)
             }
@@ -75,10 +81,14 @@ final class RoutesTests: AppTestCase {
     }
 
     func test_maintenanceMessage() throws {
-        Current.maintenanceMessage = { "MAINTENANCE_MESSAGE" }
+        try withDependencies {
+            $0.environment.dbId = { nil }
+            $0.environment.maintenanceMessage = { "MAINTENANCE_MESSAGE" }
+        } operation: {
 
-        try app.test(.GET, "/") { res in
-            XCTAssertContains(res.body.string, "MAINTENANCE_MESSAGE")
+            try app.test(.GET, "/") { res in
+                XCTAssertContains(res.body.string, "MAINTENANCE_MESSAGE")
+            }
         }
     }
 

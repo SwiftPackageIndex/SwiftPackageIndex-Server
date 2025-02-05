@@ -23,15 +23,16 @@ enum Gitlab {
     enum Error: LocalizedError {
         case missingConfiguration(String)
         case missingToken
-        case requestFailed(HTTPStatus, URI)
+        case noBody
+        case requestFailed(status: HTTPStatus, url: String)
     }
 
-    static let decoder: JSONDecoder = {
+    static var decoder: JSONDecoder {
         let d = JSONDecoder()
         d.keyDecodingStrategy = .convertFromSnakeCase
         d.dateDecodingStrategy = .formatted(DateFormatter.iso8601Full)
         return d
-    }()
+    }
 
 }
 
@@ -69,8 +70,7 @@ extension Gitlab.Builder {
         }
     }
 
-    static func triggerBuild(client: Client,
-                             buildId: Build.Id,
+    static func triggerBuild(buildId: Build.Id,
                              cloneURL: String,
                              isDocBuild: Bool,
                              platform: Build.Platform,
@@ -78,45 +78,50 @@ extension Gitlab.Builder {
                              swiftVersion: SwiftVersion,
                              versionID: Version.Id) async throws -> Build.TriggerResponse {
         @Dependency(\.environment) var environment
+        @Dependency(\.httpClient) var httpClient
+        @Dependency(\.logger) var logger
 
-        guard let pipelineToken = Current.gitlabPipelineToken(),
+        guard let pipelineToken = environment.gitlabPipelineToken(),
               let builderToken = environment.builderToken()
         else { throw Gitlab.Error.missingToken }
+
         guard let awsDocsBucket = environment.awsDocsBucket() else {
             throw Gitlab.Error.missingConfiguration("AWS_DOCS_BUCKET")
         }
         let timeout = environment.buildTimeout() + (isDocBuild ? 5 : 0)
 
-        let uri: URI = .init(string: "\(projectURL)/trigger/pipeline")
-        let response = try await client
-            .post(uri) { req in
-                let data = PostDTO(
-                    token: pipelineToken,
-                    ref: branch,
-                    variables: [
-                        "API_BASEURL": SiteURL.apiBaseURL,
-                        "AWS_DOCS_BUCKET": awsDocsBucket,
-                        "BUILD_ID": buildId.uuidString,
-                        "BUILD_PLATFORM": platform.rawValue,
-                        "BUILDER_TOKEN": builderToken,
-                        "CLONE_URL": cloneURL,
-                        "REFERENCE": "\(reference)",
-                        "SWIFT_VERSION": "\(swiftVersion.major).\(swiftVersion.minor)",
-                        "TIMEOUT": "\(timeout)m",
-                        "VERSION_ID": versionID.uuidString
-                    ])
-                try req.query.encode(data)
-            }
+        let dto = PostDTO(
+            token: pipelineToken,
+            ref: branch,
+            variables: [
+                "API_BASEURL": SiteURL.apiBaseURL,
+                "AWS_DOCS_BUCKET": awsDocsBucket,
+                "BUILD_ID": buildId.uuidString,
+                "BUILD_PLATFORM": platform.rawValue,
+                "BUILDER_TOKEN": builderToken,
+                "CLONE_URL": cloneURL,
+                "REFERENCE": "\(reference)",
+                "SWIFT_VERSION": "\(swiftVersion.major).\(swiftVersion.minor)",
+                "TIMEOUT": "\(timeout)m",
+                "VERSION_ID": versionID.uuidString
+            ]
+        )
+        let body = try URLEncodedFormEncoder().encode(dto)
+        let response = try await httpClient.post(
+            url: "\(projectURL)/trigger/pipeline",
+            headers: .contentTypeFormURLEncoded,
+            body: Data(body.utf8)
+        )
+
         do {
-            let res = Build.TriggerResponse(
-                status: response.status,
-                webUrl: try response.content.decode(Response.self).webUrl
-            )
-            Current.logger().info("Triggered build: \(res.webUrl)")
+            guard let body = response.body else { throw Gitlab.Error.noBody }
+            let webUrl = try JSONDecoder().decode(Response.self, from: body).webUrl
+            let res = Build.TriggerResponse(status: response.status, webUrl: webUrl)
+            logger.info("Triggered build: \(res.webUrl)")
             return res
         } catch {
             let body = response.body?.asString() ?? "nil"
-            Current.logger().error("Trigger failed: \(cloneURL) @ \(reference), \(platform) / \(swiftVersion), \(versionID), status: \(response.status), body: \(body)")
+            logger.error("Trigger failed: \(cloneURL) @ \(reference), \(platform) / \(swiftVersion), \(versionID), status: \(response.status), body: \(body)")
             return .init(status: response.status, webUrl: nil)
         }
     }
@@ -153,29 +158,31 @@ extension Gitlab.Builder {
     }
 
     // https://docs.gitlab.com/ee/api/pipelines.html
-    static func fetchPipelines(client: Client,
-                               status: Status,
+    static func fetchPipelines(status: Status,
                                page: Int,
                                pageSize: Int = 20) async throws -> [Pipeline] {
-        guard let apiToken = Current.gitlabApiToken() else { throw Gitlab.Error.missingToken }
+        @Dependency(\.environment) var environment
+        @Dependency(\.httpClient) var httpClient
+        guard let apiToken = environment.gitlabApiToken() else { throw Gitlab.Error.missingToken }
+        let url = "\(projectURL)/pipelines?status=\(status)&page=\(page)&per_page=\(pageSize)"
 
-        let uri: URI = .init(string: "\(projectURL)/pipelines?status=\(status)&page=\(page)&per_page=\(pageSize)")
-        let response = try await client.get(uri, headers: HTTPHeaders([("Authorization", "Bearer \(apiToken)")]))
+        let response = try await httpClient.get(url: url, headers: .bearer(apiToken))
 
-        guard response.status == .ok else { throw Gitlab.Error.requestFailed(response.status, uri) }
+        guard response.status == .ok else {
+            throw Gitlab.Error.requestFailed(status: response.status, url: url)
+        }
+        guard let body = response.body else { throw Gitlab.Error.noBody }
 
-        return try response.content.decode([Pipeline].self, using: Gitlab.decoder)
+        return try Gitlab.decoder.decode([Pipeline].self, from: body)
     }
 
-    static func getStatusCount(client: Client,
-                               status: Status,
+    static func getStatusCount(status: Status,
                                page: Int = 1,
                                pageSize: Int = 20,
                                maxPageCount: Int = 5) async throws -> Int {
-        let count = try await fetchPipelines(client: client, status: status, page: page, pageSize: pageSize).count
+        let count = try await fetchPipelines(status: status, page: page, pageSize: pageSize).count
         if count == pageSize && page < maxPageCount {
-            let statusCount = try await getStatusCount(client: client,
-                                                       status: status,
+            let statusCount = try await getStatusCount(status: status,
                                                        page: page + 1,
                                                        pageSize: pageSize,
                                                        maxPageCount: maxPageCount)
@@ -197,3 +204,16 @@ private extension DateFormatter {
         return formatter
     }
 }
+
+
+private extension HTTPHeaders {
+    static func bearer(_ token: String) -> Self {
+        .init([("Authorization", "Bearer \(token)")])
+    }
+
+    static var contentTypeFormURLEncoded: Self {
+        .init([("Content-Type", "application/x-www-form-urlencoded")])
+    }
+}
+
+

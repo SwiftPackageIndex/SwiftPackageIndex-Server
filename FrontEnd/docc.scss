@@ -22,17 +22,8 @@ header.spi,
 footer.spi {
     position: sticky;
     width: 100%;
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        'SF Hello',
-        'Segoe UI',
-        Roboto,
-        'Helvetica Neue',
-        Arial,
-        sans-serif,
-        'Apple Color Emoji',
-        'Segoe UI Emoji' !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Hello', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji' !important;
     font-size: 16px;
     line-height: 1.4;
     color: var(--header-text);
@@ -191,9 +182,9 @@ header.spi {
     span.stable,
     span.beta,
     span.branch {
-        padding-left: 18px;
+        padding-left: 16px;
         font-weight: 600;
-        background-position: top 2px left;
+        background-position: center left;
         background-repeat: no-repeat;
         background-size: 14px;
     }
@@ -208,6 +199,22 @@ header.spi {
 
     span.branch {
         background-image: var(--image-branch);
+    }
+
+    .reference {
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+        justify-content: center;
+
+        .badge {
+            padding: 2px 4px;
+            font-size: 10px;
+            text-align: center;
+            color: var(--header-text);
+            background-color: rgba(255, 255, 255, 20%);
+            border-radius: 4px;
+        }
     }
 }
 

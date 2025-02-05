@@ -29,10 +29,8 @@ class AppTestCase: XCTestCase {
         try await super.setUp()
         app = try await setup(.testing)
 
-        // Always start with a baseline mock environment to avoid hitting live resources
-        Current = .mock(eventLoop: app.eventLoopGroup.next())
-
-        Current.setLogger(.init(label: "test", factory: { _ in logger }))
+        @Dependency(\.logger) var logger
+        logger.set(to: .init(label: "test", factory: { _ in self.logger }))
     }
 
     func setup(_ environment: Environment) async throws -> Application {

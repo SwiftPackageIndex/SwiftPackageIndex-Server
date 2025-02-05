@@ -12,23 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-
 import Vapor
 
 
-extension App.FileManager {
-    static let mock = Self.mock(fileExists: true)
-    static func mock(fileExists: Bool) -> Self {
-        .init(
-            attributesOfItem: { _ in [:] },
-            contentsOfDirectory: { _ in [] },
-            contents: { _ in .init() },
-            checkoutsDirectory: { DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
-            createDirectory: { _, _, _ in },
-            fileExists: { path in fileExists },
-            removeItem: { _ in },
-            workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
-        )
+extension URLEncodedFormDecoder {
+    func decode<D: Decodable>(_: D.Type, from data: Data) throws -> D {
+        try self.decode(D.self, from: String(decoding: data, as: UTF8.self), userInfo: [:])
     }
 }

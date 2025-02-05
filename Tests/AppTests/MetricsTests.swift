@@ -23,10 +23,13 @@ class MetricsTests: AppTestCase {
 
     func test_basic() async throws {
         try await withDependencies {
+            $0.buildSystem.triggerBuild = { @Sendable _, _, _, _, _, _, _ in
+                    .init(status: .ok, webUrl: "")
+            }
             $0.environment.builderToken = { "builder token" }
+            $0.environment.gitlabPipelineToken = { "pipeline token" }
         } operation: {
             // setup - trigger build to increment counter
-            Current.gitlabPipelineToken = { "pipeline token" }
             let versionId = UUID()
             do {  // save minimal package + version
                 let p = Package(id: UUID(), url: "1")
@@ -34,7 +37,6 @@ class MetricsTests: AppTestCase {
                 try await Version(id: versionId, package: p, reference: .branch("main")).save(on: app.db)
             }
             try await triggerBuildsUnchecked(on: app.db,
-                                             client: app.client,
                                              triggers: [
                                                 .init(versionId: versionId,
                                                       buildPairs: [.init(.macosSpm, .v3)])!
@@ -120,21 +122,25 @@ class MetricsTests: AppTestCase {
         let pkg = try await savePackage(on: app.db, "1")
 
         // MUT
-        try await ingest(client: app.client, database: app.db, mode: .id(pkg.id!))
+        try await Ingestion.ingest(client: app.client, database: app.db, mode: .id(pkg.id!))
 
         // validation
         XCTAssert((AppMetrics.ingestDurationSeconds?.get()) ?? 0 > 0)
     }
 
     func test_analyzeDurationSeconds() async throws {
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
+        try await withDependencies {
+            $0.fileManager.fileExists = { @Sendable _ in true }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
 
-        // MUT
-        try await Analyze.analyze(client: app.client, database: app.db, mode: .id(pkg.id!))
+            // MUT
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .id(pkg.id!))
 
-        // validation
-        XCTAssert((AppMetrics.analyzeDurationSeconds?.get()) ?? 0 > 0)
+            // validation
+            XCTAssert((AppMetrics.analyzeDurationSeconds?.get()) ?? 0 > 0)
+        }
     }
 
     func test_triggerBuildsDurationSeconds() async throws {
@@ -145,7 +151,7 @@ class MetricsTests: AppTestCase {
             let pkg = try await savePackage(on: app.db, "1")
             
             // MUT
-            try await triggerBuilds(on: app.db, client: app.client, mode: .packageId(pkg.id!, force: true))
+            try await triggerBuilds(on: app.db, mode: .packageId(pkg.id!, force: true))
             
             // validation
             XCTAssert((AppMetrics.buildTriggerDurationSeconds?.get()) ?? 0 > 0)

@@ -416,13 +416,7 @@ class PackageCollectionTests: AppTestCase {
                                                            keywords: ["key", "word"],
                                                            overview: "overview")
 
-#if compiler(<6)
-            await MainActor.run {  // validate
-                assertSnapshot(of: res, as: .json(encoder))
-            }
-#else
             assertSnapshot(of: res, as: .json(encoder))
-#endif
         }
     }
 
@@ -521,13 +515,7 @@ class PackageCollectionTests: AppTestCase {
                                                            authorName: "Foo",
                                                            keywords: ["key", "word"])
             
-#if compiler(<6)
-            await MainActor.run {  // validate
-                assertSnapshot(of: res, as: .json(encoder))
-            }
-#else
             assertSnapshot(of: res, as: .json(encoder))
-#endif
         }
     }
 
@@ -844,13 +832,7 @@ class PackageCollectionTests: AppTestCase {
 
             // validate signed collection content
             XCTAssertFalse(signedCollection.signature.signature.isEmpty)
-#if compiler(<6)
-            await MainActor.run {
-                assertSnapshot(of: signedCollection, as: .json(encoder))
-            }
-#else
             assertSnapshot(of: signedCollection, as: .json(encoder))
-#endif
 
             // validate signature
             let validated = try await SignedCollection.validate(signedCollection: signedCollection)

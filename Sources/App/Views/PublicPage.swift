@@ -34,7 +34,7 @@ class PublicPage {
         return HTML(
             .lang(.english),
             .comment("Version: \(environment.appVersion())"),
-            .comment("DB Id: \(Current.dbId())"),
+            .comment("DB Id: \(environment.dbId())"),
             head(),
             body()
         )
@@ -278,8 +278,8 @@ class PublicPage {
     /// A staging banner, which only appears on the staging/development server.
     /// - Returns: Either a <div> element, or nothing.
     final func stagingBanner() -> Node<HTML.BodyContext> {
-        guard !Current.hideStagingBanner() else { return .empty }
         @Dependency(\.environment) var environment
+        guard !environment.hideStagingBanner() else { return .empty }
         if environment.current() == .development {
             return .div(
                 .class("staging"),

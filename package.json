@@ -10,20 +10,20 @@
     "dependencies": {
         "@hotwired/stimulus": "^3.2.1",
         "@hotwired/turbo": "^7.3.0",
-        "highlight.js": "^11.10.0",
-        "mermaid": "^11.4.0",
+        "highlight.js": "^11.11.1",
+        "mermaid": "^11.4.1",
         "normalize.css": "^8.0.1",
-        "vega": "^5.30.0",
+        "vega": "^5.31.0",
         "vega-tooltip": "^0.35.2"
     },
     "devDependencies": {
-        "esbuild": "^0.24.0",
+        "esbuild": "^0.24.2",
         "esbuild-sass-plugin": "^3.3.1",
-        "postcss": "^8.4.49",
-        "prettier": "^3.3.3",
-        "stylelint": "^16.10.0",
-        "stylelint-config-standard-scss": "^13.1.0",
+        "postcss": "^8.5.1",
+        "prettier": "^3.4.2",
+        "stylelint": "^16.14.1",
+        "stylelint-config-standard-scss": "^14.0.0",
         "stylelint-order": "^6.0.4",
-        "stylelint-scss": "^6.10.0"
+        "stylelint-scss": "^6.11.0"
     }
 }

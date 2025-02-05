@@ -12,31 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Vapor
-import SwiftSoup
+import Dependencies
 import S3Store
+import SwiftSoup
+import Vapor
 
 
 enum Github {
 
-    enum Error: LocalizedError {
+    enum Error: Swift.Error {
+        case decodeContentFailed(_ url: String, Swift.Error)
+        case encodeContentFailed(_ url: String, Swift.Error)
         case missingToken
         case noBody
-        case invalidURI(Package.Id?, _ url: String)
+        case invalidURL(String)
+        case postRequestFailed(_ url: String, Swift.Error)
         case requestFailed(HTTPStatus)
-
-        var errorDescription: String? {
-            switch self {
-                case .missingToken:
-                    return "missing Github API token"
-                case .noBody:
-                    return "no body"
-                case let .invalidURI(id, url):
-                    return "invalid URL: \(url) (id: \(id?.uuidString ?? "nil"))"
-                case .requestFailed(let statusCode):
-                    return "request failed with status code: \(statusCode)"
-            }
-        }
     }
 
     static var decoder: JSONDecoder {
@@ -46,7 +37,7 @@ enum Github {
         return decoder
     }
 
-    static func rateLimit(response: ClientResponse) -> Int? {
+    static func rateLimit(response: HTTPClient.Response) -> Int? {
         guard
             let header = response.headers.first(name: "X-RateLimit-Remaining"),
             let limit = Int(header)
@@ -54,19 +45,19 @@ enum Github {
         return limit
     }
 
-    static func isRateLimited(_ response: ClientResponse) -> Bool {
+    static func isRateLimited(_ response: HTTPClient.Response) -> Bool {
         guard let limit = rateLimit(response: response) else { return false }
         AppMetrics.githubRateLimitRemainingCount?.set(limit)
         return response.status == .forbidden && limit == 0
     }
 
-    static func parseOwnerName(url: String) throws -> (owner: String, name: String) {
+    static func parseOwnerName(url: String) throws(Github.Error) -> (owner: String, name: String) {
         let parts = url
             .droppingGithubComPrefix
             .droppingGitExtension
             .split(separator: "/")
             .map(String.init)
-        guard parts.count == 2 else { throw Error.invalidURI(nil, url) }
+        guard parts.count == 2 else { throw Error.invalidURL(url) }
         return (owner: parts[0], name: parts[1])
     }
 
@@ -88,67 +79,76 @@ extension Github {
         case readme
     }
 
-    static func apiUri(owner: String, repository: String, resource: Resource)  -> URI {
+    static func apiURL(owner: String, repository: String, resource: Resource)  -> String {
         switch resource {
             case .license, .readme:
-                return URI(string: "https://api.github.com/repos/\(owner)/\(repository)/\(resource.rawValue)")
+                return "https://api.github.com/repos/\(owner)/\(repository)/\(resource.rawValue)"
         }
     }
 
-    static func fetch(client: Client, uri: URI, headers: [(String, String)] = []) async throws -> (content: String, etag: String?) {
-        guard let token = Current.githubToken() else {
+    static func fetch(url: String, headers: [(String, String)] = []) async throws -> (content: String, etag: String?) {
+        @Dependency(\.github) var github
+        @Dependency(\.httpClient) var httpClient
+        @Dependency(\.logger) var logger
+
+        guard let token = github.token() else {
             throw Error.missingToken
         }
 
-        let response = try await client.get(uri, headers: defaultHeaders(with: token).adding(contentsOf: headers))
+
+        let response = try await httpClient.get(url: url, headers: defaultHeaders(with: token).adding(contentsOf: headers))
 
         guard !isRateLimited(response) else {
-            Current.logger().critical("rate limited while fetching uri \(uri)")
+            logger.critical("rate limited while fetching \(url)")
             throw Error.requestFailed(.tooManyRequests)
         }
 
         guard response.status == .ok else {
-            Current.logger().warning("Github.fetch of '\(uri.path)' failed with status \(response.status)")
+            logger.warning("Github.fetch of '\(url)' failed with status \(response.status)")
             throw Error.requestFailed(response.status)
         }
 
         guard let body = response.body else {
-            Current.logger().warning("Github.fetch has no body")
+            logger.warning("Github.fetch has no body")
             throw Error.noBody
         }
 
         return (body.asString(), response.headers.first(name: .eTag))
     }
 
-    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, uri: URI) async throws -> T {
-        guard let token = Current.githubToken() else {
+    static func fetchResource<T: Decodable>(_ type: T.Type, url: String) async throws -> T {
+        @Dependency(\.github) var github
+        @Dependency(\.logger) var logger
+
+        guard let token = github.token() else {
             throw Error.missingToken
         }
 
-        let response = try await client.get(uri, headers: defaultHeaders(with: token))
+        @Dependency(\.httpClient) var httpClient
+
+        let response = try await httpClient.get(url: url, headers: defaultHeaders(with: token))
 
         guard !isRateLimited(response) else {
-            Current.logger().critical("rate limited while fetching resource \(uri)")
+            logger.critical("rate limited while fetching resource \(url)")
             throw Error.requestFailed(.tooManyRequests)
         }
 
-        guard response.status == .ok else {
-            throw Error.requestFailed(response.status)
-        }
+        guard response.status == .ok else { throw Error.requestFailed(response.status) }
+        guard let body = response.body else { throw Github.Error.noBody }
 
-        return try response.content.decode(T.self, using: decoder)
+        return try decoder.decode(T.self, from: body)
     }
 
-    static func fetchLicense(client: Client, owner: String, repository: String) async -> License? {
-        let uri = Github.apiUri(owner: owner, repository: repository, resource: .license)
-        return try? await Github.fetchResource(Github.License.self, client: client, uri: uri)
+    static func fetchLicense(owner: String, repository: String) async -> License? {
+        let url = Github.apiURL(owner: owner, repository: repository, resource: .license)
+        return try? await Github.fetchResource(Github.License.self, url: url)
     }
 
-    static func fetchReadme(client: Client, owner: String, repository: String) async -> Readme? {
-        let uri = Github.apiUri(owner: owner, repository: repository, resource: .readme)
+    static func fetchReadme(owner: String, repository: String) async -> Readme? {
+        let url = Github.apiURL(owner: owner, repository: repository, resource: .readme)
 
         // Fetch readme html content
-        let readme = try? await Github.fetch(client: client, uri: uri, headers: [
+        let readme = try? await Github.fetch(url: url, headers: [
             ("Accept", "application/vnd.github.html+json")
         ])
         guard var html = readme?.content else { return nil }
@@ -158,7 +158,7 @@ extension Github {
             struct Response: Decodable {
                 var htmlUrl: String
             }
-            return try? await Github.fetchResource(Response.self, client: client, uri: uri).htmlUrl
+            return try? await Github.fetchResource(Response.self, url: url).htmlUrl
         }()
         guard let htmlUrl else { return nil }
 
@@ -175,47 +175,59 @@ extension Github {
 
 extension Github {
 
-    static let graphQLApiUri = URI(string: "https://api.github.com/graphql")
+    static let graphQLApiURL = "https://api.github.com/graphql"
 
     struct GraphQLQuery: Content {
         var query: String
     }
 
-    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, query: GraphQLQuery) async throws -> T {
-        guard let token = Current.githubToken() else {
+    static func fetchResource<T: Decodable>(_ type: T.Type, query: GraphQLQuery) async throws(Github.Error) -> T {
+        @Dependency(\.github) var github
+        @Dependency(\.httpClient) var httpClient
+        @Dependency(\.logger) var logger
+
+        guard let token = github.token() else {
             throw Error.missingToken
         }
 
-        let response = try await client.post(Self.graphQLApiUri, headers: defaultHeaders(with: token)) {
-            try $0.content.encode(query)
+        let body = try run {
+            try JSONEncoder().encode(query)
+        } rethrowing: {
+            Error.encodeContentFailed(graphQLApiURL, $0)
+        }
+
+        let response = try await run {
+            try await httpClient.post(url: graphQLApiURL, headers: defaultHeaders(with: token), body: body)
+        } rethrowing: {
+            Error.postRequestFailed(graphQLApiURL, $0)
         }
 
         guard !isRateLimited(response) else {
-            Current.logger().critical("rate limited while fetching resource \(T.self)")
+            logger.critical("rate limited while fetching resource \(T.self)")
             throw Error.requestFailed(.tooManyRequests)
         }
 
         guard response.status == .ok else {
-            Current.logger().warning("fetchResource<\(T.self)> request failed with status \(response.status)")
+            logger.warning("fetchResource<\(T.self)> request failed with status \(response.status)")
             throw Error.requestFailed(response.status)
         }
 
-        return try response.content.decode(T.self, using: decoder)
+        guard let body = response.body else { throw Github.Error.noBody }
+
+        return try run {
+            try decoder.decode(T.self, from: body)
+        } rethrowing: {
+            Error.decodeContentFailed(graphQLApiURL, $0)
+        }
     }
 
-    static func fetchMetadata(client: Client, owner: String, repository: String) async throws -> Metadata {
+    static func fetchMetadata(owner: String, repository: String) async throws(Github.Error) -> Metadata {
         struct Response<T: Decodable & Equatable>: Decodable, Equatable {
             var data: T
         }
         return try await fetchResource(Response<Metadata>.self,
-                                       client: client,
                                        query: Metadata.query(owner: owner, repository: repository))
         .data
-    }
-
-    static func fetchMetadata(client: Client, packageUrl: String) async throws -> Metadata {
-        let (owner, name) = try parseOwnerName(url: packageUrl)
-        return try await fetchMetadata(client: client, owner: owner, repository: name)
     }
 
 }
@@ -468,7 +480,7 @@ extension Github {
                 }
             }
         }
-        
+
         struct Parent: Decodable, Equatable {
             var url: String?
         }

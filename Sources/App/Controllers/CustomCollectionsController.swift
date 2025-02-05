@@ -32,6 +32,7 @@ enum CustomCollectionsController {
             .field(Version.self, \.$packageName)
             .filter(CustomCollection.self, \.$key == key)
             .sort(Repository.self, \.$name)
+            .field(\.$scoreDetails)
             .page(page, size: pageSize)
     }
 
@@ -73,6 +74,7 @@ enum CustomCollectionsController {
         let model = CustomCollectionShow.Model(
             key: collection.key,
             name: collection.name,
+            badge: collection.badge,
             packages: packageInfo,
             page: query.page,
             hasMoreResults: page.hasMoreResults

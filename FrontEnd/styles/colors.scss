@@ -191,6 +191,9 @@
     --debug-console-background: var(--light-blue);
     --debug-console-border: var(--grey);
     --debug-console-button-hover: var(--light-grey);
+
+    --custom-collections-badge-background: var(--light-grey);
+    --custom-collections-badge-text: var(--dark-grey);
 }
 
 // Dark mode.
@@ -317,5 +320,8 @@
         --debug-console-background: var(--dark-blue);
         --debug-console-border: var(--light-grey);
         --debug-console-button-hover: var(--dark-grey);
+
+        --custom-collections-badge-background: var(--dark-grey);
+        --custom-collections-badge-text: var(--light-grey);
     }
 }

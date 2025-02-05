@@ -25,6 +25,7 @@ class BuildMonitorControllerTests: AppTestCase {
     func test_show_owner() async throws {
         try await withDependencies {
             $0.date.now = .now
+            $0.environment.dbId = { nil }
         } operation: {
             let package = try await savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
             let version = try Version(package: package)

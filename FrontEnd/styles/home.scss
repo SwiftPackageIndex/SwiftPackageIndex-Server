@@ -71,3 +71,22 @@ body.home {
         }
     }
 }
+
+.ccta-availability {
+    padding: 15px;
+    font-size: 13px;
+    background-color: var(--panel-button-background);
+
+    p {
+        margin: 5px 0;
+    }
+
+    .support {
+        margin: 0 0 5px;
+        font-weight: bold;
+    }
+
+    .cta {
+        text-align: right;
+    }
+}

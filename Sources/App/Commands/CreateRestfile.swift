@@ -100,6 +100,8 @@ func createRestfile(on database: SQLDatabase, variant: Variant) async throws {
         print("""
                 \(r.url):
                   url: ${base_url}\(r.url)
+                  headers:
+                    X-SPI-Smoke-Test: ${smoke_test_token}
                   validation:
                     status: .regex((2|3)\\d\\d)
               """)

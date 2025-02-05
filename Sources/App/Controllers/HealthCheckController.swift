@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
+import Fluent
+import Plot
+import Vapor
 
+enum HealthCheckController {
 
-extension Git {
-    static let mock: Self = .init(
-        commitCount: { _ in fatalError("not initialized") },
-        firstCommitDate: { _ in fatalError("not initialized") },
-        lastCommitDate: { _ in fatalError("not initialized") },
-        getTags: { _ in fatalError("not initialized") },
-        hasBranch: { _, _ in fatalError("not initialized") },
-        revisionInfo: { _, _ in fatalError("not initialized") },
-        shortlog: { _ in fatalError("not initialized") }
-    )
+    @Sendable
+    static func show(req: Request) async throws -> String {
+        // A package page query is a good test of whether the site is healthy.
+        let (_, _) = try await API.PackageController.GetRoute
+            .query(on: req.db,
+                   owner: "SwiftPackageIndex",
+                   repository: "SemanticVersion")
+        return "Success"
+    }
 }

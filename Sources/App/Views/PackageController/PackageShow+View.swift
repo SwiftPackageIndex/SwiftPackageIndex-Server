@@ -173,6 +173,7 @@ extension PackageShow {
                     model.historyListItem(),
                     model.activityListItem(),
                     model.dependenciesListItem(),
+                    model.customCollectionsListItem(),
                     model.licenseListItem(),
                     model.starsListItem(),
                     model.productTypeListItem(.library),
@@ -180,8 +181,7 @@ extension PackageShow {
                     model.productTypeListItem(.plugin),
                     model.targetTypeListItem(.macro),
                     model.dataRaceSafeListItem(),
-                    model.keywordsListItem(),
-                    model.customCollectionsItem()
+                    model.keywordsListItem()
                 )
             )
         }
@@ -261,6 +261,7 @@ extension PackageShow {
                         .li(
                             .a(
                                 .href(homepageUrl),
+                                .data(named: "turbo", value: String(false)),
                                 "Package Homepage"
                             )
                         )

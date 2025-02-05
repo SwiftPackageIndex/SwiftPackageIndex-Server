@@ -25,37 +25,40 @@ final class MastodonTests: AppTestCase {
         let message = QueueIsolated<String?>(nil)
         try await withDependencies {
             $0.environment.allowSocialPosts = { true }
-            $0.environment.mastodonPost = { @Sendable _, msg in
+            $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 12 }
+            $0.git.firstCommitDate = { @Sendable _ in .t0 }
+            $0.git.getTags = { @Sendable _ in [Reference.tag(1, 2, 3)] }
+            $0.git.hasBranch = { @Sendable _, _ in true }
+            $0.git.lastCommitDate = { @Sendable _ in .t2 }
+            $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                10\tPerson 1
+                 2\tPerson 2
+                """
+            }
+
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
+            $0.httpClient.mastodonPost = { @Sendable msg in
                 if message.value == nil {
                     message.setValue(msg)
                 } else {
                     XCTFail("message must only be set once")
                 }
             }
-        } operation: {
-            // setup
-            let url = "https://github.com/foo/bar"
-            Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
-
-            Current.git.commitCount = { @Sendable _ in 12 }
-            Current.git.firstCommitDate = { @Sendable _ in .t0 }
-            Current.git.lastCommitDate = { @Sendable _ in .t2 }
-            Current.git.getTags = { @Sendable _ in [Reference.tag(1, 2, 3)] }
-            Current.git.hasBranch = { @Sendable _, _ in true }
-            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
-            Current.git.shortlog = { @Sendable _ in
-            """
-            10\tPerson 1
-             2\tPerson 2
-            """
-            }
-
-            Current.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path in
                 if cmd.description.hasSuffix("swift package dump-package") {
                     return #"{ "name": "Mock", "products": [], "targets": [] }"#
                 }
                 return ""
             }
+        } operation: {
+            // setup
+            let url = "https://github.com/foo/bar"
 
             try await withDependencies {
                 $0.date.now = .now
@@ -66,7 +69,7 @@ final class MastodonTests: AppTestCase {
             } operation: {
                 // run first two processing steps
                 try await reconcile(client: app.client, database: app.db)
-                try await ingest(client: app.client, database: app.db, mode: .limit(10))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
 
                 // MUT - analyze, triggering the post
                 try await Analyze.analyze(client: app.client,
@@ -86,7 +89,7 @@ final class MastodonTests: AppTestCase {
             try await withDependencies {
                 $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
             } operation: {
-                try await ingest(client: app.client, database: app.db, mode: .limit(10))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
 
                 // MUT - analyze, triggering posts if any
                 try await Analyze.analyze(client: app.client,
@@ -98,22 +101,24 @@ final class MastodonTests: AppTestCase {
             XCTAssertNil(message.value)
 
             // Now simulate receiving a package update: version 2.0.0
-            Current.git.getTags = { @Sendable _ in [.tag(2, 0, 0)] }
-
             try await withDependencies {
-                // fast forward our clock by the deadtime interval again (*2) and re-ingest
-                $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime * 2)
+                $0.git.getTags = { @Sendable _ in [.tag(2, 0, 0)] }
             } operation: {
-                try await ingest(client: app.client, database: app.db, mode: .limit(10))
-                // MUT - analyze again
-                try await Analyze.analyze(client: app.client,
-                                          database: app.db,
-                                          mode: .limit(10))
-            }
+                try await withDependencies {
+                    // fast forward our clock by the deadtime interval again (*2) and re-ingest
+                    $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime * 2)
+                } operation: {
+                    try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
+                    // MUT - analyze again
+                    try await Analyze.analyze(client: app.client,
+                                              database: app.db,
+                                              mode: .limit(10))
+                }
 
-            // validate
-            let msg = try XCTUnwrap(message.value)
-            XCTAssertTrue(msg.hasPrefix("⬆️ foo just released Mock v2.0.0"), "was: \(msg)")
+                // validate
+                let msg = try XCTUnwrap(message.value)
+                XCTAssertTrue(msg.hasPrefix("⬆️ foo just released Mock v2.0.0"), "was: \(msg)")
+            }
         }
     }
 

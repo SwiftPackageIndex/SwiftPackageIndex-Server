@@ -26,7 +26,8 @@ extension AuthorShow.Model {
             repositoryName: "name",
             url: "https://example.com/owner/name.git",
             stars: 3,
-            lastActivityAt: .t0
+            lastActivityAt: .t0,
+            hasDocs: true
         ) }
         return .init(owner: "test-author", ownerName: "Test Author", packages: packages)
     }

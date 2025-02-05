@@ -12,109 +12,102 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Testing
+
 @testable import App
 
-import XCTest
+import Dependencies
 
 
-class AlertingTests: XCTestCase {
+@Suite struct AlertingTests {
 
-    func test_validatePlatformsPresent() throws {
+    @Test func validatePlatformsPresent() throws {
         let all = Build.Platform.allCases.map {
             Alerting.BuildInfo.mock(platform: $0)
         }
-        XCTAssertEqual(all.validatePlatformsPresent(), .ok)
-        XCTAssertEqual(all.filter { $0.platform != .iOS }.validatePlatformsPresent(),
-                       .failed(reasons: ["Missing platform: ios"]))
-        XCTAssertEqual(all.filter { $0.platform != .iOS && $0.platform != .linux }.validatePlatformsPresent(),
-                       .failed(reasons: ["Missing platform: ios", "Missing platform: linux"]))
+        #expect(all.validatePlatformsPresent() == .ok)
+        #expect(all.filter { $0.platform != .iOS }.validatePlatformsPresent() == .failed(reasons: ["Missing platform: ios"]))
+        #expect(all.filter { $0.platform != .iOS && $0.platform != .linux }.validatePlatformsPresent() == .failed(reasons: ["Missing platform: ios", "Missing platform: linux"]))
     }
 
-    func test_validateSwiftVersionPresent() throws {
+    @Test func validateSwiftVersionPresent() throws {
         let all = SwiftVersion.allActive.map {
             Alerting.BuildInfo.mock(swiftVersion: $0)
         }
-        XCTAssertEqual(all.validateSwiftVersionsPresent(), .ok)
-        XCTAssertEqual(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsPresent(),
-                       .failed(reasons: ["Missing Swift version: 5.8"]))
-        XCTAssertEqual(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersionsPresent(),
-                       .failed(reasons: ["Missing Swift version: 5.8", "Missing Swift version: 5.9"]))
+        #expect(all.validateSwiftVersionsPresent() == .ok)
+        #expect(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsPresent() == .failed(reasons: ["Missing Swift version: 5.8"]))
+        #expect(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersionsPresent() == .failed(reasons: ["Missing Swift version: 5.8", "Missing Swift version: 5.9"]))
     }
 
-    func test_validatePlatformsSuccessful() throws {
+    @Test func validatePlatformsSuccessful() throws {
         let all = Build.Platform.allCases.map {
             Alerting.BuildInfo.mock(platform: $0, status: .ok)
         }
-        XCTAssertEqual(all.validatePlatformsSuccessful(), .ok)
-        XCTAssertEqual(all.filter { $0.platform != .iOS }.validatePlatformsSuccessful(),
-                       .failed(reasons: ["Platform without successful builds: ios"]))
-        XCTAssertEqual(
+        #expect(all.validatePlatformsSuccessful() == .ok)
+        #expect(all.filter { $0.platform != .iOS }.validatePlatformsSuccessful() == .failed(reasons: ["Platform without successful builds: ios"]))
+        #expect(
             Array(all.filter { $0.platform != .iOS })
             .appending(.mock(platform: .iOS, status: .failed))
-            .validatePlatformsSuccessful(),
-            .failed(reasons: ["Platform without successful builds: ios"])
+            .validatePlatformsSuccessful() == .failed(reasons: ["Platform without successful builds: ios"])
         )
-        XCTAssertEqual(all.filter { $0.platform != .iOS && $0.platform != .linux }.validatePlatformsSuccessful(),
-                       .failed(reasons: ["Platform without successful builds: ios", "Platform without successful builds: linux"]))
+        #expect(all.filter { $0.platform != .iOS && $0.platform != .linux }.validatePlatformsSuccessful() == .failed(reasons: ["Platform without successful builds: ios", "Platform without successful builds: linux"]))
     }
 
-    func test_validateSwiftVersionsSuccessful() throws {
+    @Test func validateSwiftVersionsSuccessful() throws {
         let all = SwiftVersion.allActive.map {
             Alerting.BuildInfo.mock(swiftVersion: $0, status: .ok)
         }
-        XCTAssertEqual(all.validateSwiftVersionsSuccessful(), .ok)
-        XCTAssertEqual(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsSuccessful(),
-                       .failed(reasons: ["Swift version without successful builds: 5.8"]))
-        XCTAssertEqual(
+        #expect(all.validateSwiftVersionsSuccessful() == .ok)
+        #expect(all.filter { $0.swiftVersion != .v1 }.validateSwiftVersionsSuccessful() == .failed(reasons: ["Swift version without successful builds: 5.8"]))
+        #expect(
             Array(all.filter { $0.swiftVersion != .v1 })
                 .appending(.mock(swiftVersion: .v1, status: .failed))
-            .validateSwiftVersionsSuccessful(),
-            .failed(reasons: ["Swift version without successful builds: 5.8"])
+            .validateSwiftVersionsSuccessful() == .failed(reasons: ["Swift version without successful builds: 5.8"])
         )
-        XCTAssertEqual(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersionsSuccessful(),
-                       .failed(reasons: ["Swift version without successful builds: 5.8", "Swift version without successful builds: 5.9"]))
+        #expect(all.filter { $0.swiftVersion != .v1 && $0.swiftVersion != .v2 }.validateSwiftVersionsSuccessful() == .failed(reasons: ["Swift version without successful builds: 5.8", "Swift version without successful builds: 5.9"]))
     }
 
-    func test_validateRunnerIdsPresent() throws {
+    @Test func validateRunnerIdsPresent() throws {
         let runnerIds = ["a", "b", "c"]
-        Current.runnerIds = { runnerIds }
-        let all = runnerIds.map {
-            Alerting.BuildInfo.mock(runnerId: $0)
+        withDependencies {
+            $0.environment.runnerIds = { runnerIds }
+        } operation: {
+            let all = runnerIds.map {
+                Alerting.BuildInfo.mock(runnerId: $0)
+            }
+            #expect(all.validateRunnerIdsPresent() == .ok)
+            #expect(all.filter { $0.runnerId != "a" }.validateRunnerIdsPresent() == .failed(reasons: ["Missing runner id: a"]))
+            #expect(all.filter { $0.runnerId != "a" && $0.runnerId != "b" }.validateRunnerIdsPresent() == .failed(reasons: ["Missing runner id: a", "Missing runner id: b"]))
         }
-        XCTAssertEqual(all.validateRunnerIdsPresent(), .ok)
-        XCTAssertEqual(all.filter { $0.runnerId != "a" }.validateRunnerIdsPresent(),
-                       .failed(reasons: ["Missing runner id: a"]))
-        XCTAssertEqual(all.filter { $0.runnerId != "a" && $0.runnerId != "b" }.validateRunnerIdsPresent(),
-                       .failed(reasons: ["Missing runner id: a", "Missing runner id: b"]))
     }
 
-    func test_validateRunnerIdsSuccessful() throws {
+    @Test func validateRunnerIdsSuccessful() throws {
         let runnerIds = ["a", "b", "c"]
-        Current.runnerIds = { runnerIds }
-        let all = runnerIds.map {
-            Alerting.BuildInfo.mock(runnerId: $0, status: .ok)
+        withDependencies {
+            $0.environment.runnerIds = { runnerIds }
+        } operation: {
+            let all = runnerIds.map {
+                Alerting.BuildInfo.mock(runnerId: $0, status: .ok)
+            }
+            #expect(all.validateRunnerIdsSuccessful() == .ok)
+            #expect(all.filter { $0.runnerId != "a" }.validateRunnerIdsSuccessful() == .failed(reasons: ["Runner id without successful builds: a"]))
+            #expect(
+                Array(all.filter { $0.runnerId != "a" })
+                    .appending(.mock(runnerId: "a", status: .failed))
+                    .validateRunnerIdsSuccessful() == .failed(reasons: ["Runner id without successful builds: a"])
+            )
+            #expect(all.filter { $0.runnerId != "a" && $0.runnerId != "b" }.validateRunnerIdsSuccessful() == .failed(reasons: ["Runner id without successful builds: a", "Runner id without successful builds: b"]))
         }
-        XCTAssertEqual(all.validateRunnerIdsSuccessful(), .ok)
-        XCTAssertEqual(all.filter { $0.runnerId != "a" }.validateRunnerIdsSuccessful(),
-                       .failed(reasons: ["Runner id without successful builds: a"]))
-        XCTAssertEqual(
-            Array(all.filter { $0.runnerId != "a" })
-                .appending(.mock(runnerId: "a", status: .failed))
-            .validateRunnerIdsSuccessful(),
-            .failed(reasons: ["Runner id without successful builds: a"])
-        )
-        XCTAssertEqual(all.filter { $0.runnerId != "a" && $0.runnerId != "b" }.validateRunnerIdsSuccessful(),
-                       .failed(reasons: ["Runner id without successful builds: a", "Runner id without successful builds: b"]))
     }
 
-    func test_validateSuccessRateInRange() throws {
+    @Test func validateSuccessRateInRange() throws {
         do {
             let okCount = 300
             let failedCount = 1000 - okCount
             let okBuilds = (0..<okCount).map { _ in Alerting.BuildInfo.mock(status: .ok) }
             let failedBuilds = (0..<failedCount).map { _ in Alerting.BuildInfo.mock(status: .failed) }
             let all = okBuilds + failedBuilds
-            XCTAssertEqual(all.validateSuccessRateInRange(), .ok)
+            #expect(all.validateSuccessRateInRange() == .ok)
         }
         do {
             let okCount = 199
@@ -122,8 +115,7 @@ class AlertingTests: XCTestCase {
             let okBuilds = (0..<okCount).map { _ in Alerting.BuildInfo.mock(status: .ok) }
             let failedBuilds = (0..<failedCount).map { _ in Alerting.BuildInfo.mock(status: .failed) }
             let all = okBuilds + failedBuilds
-            XCTAssertEqual(all.validateSuccessRateInRange(),
-                           .failed(reasons: ["Global success rate of 19.9% out of bounds"]))
+            #expect(all.validateSuccessRateInRange() == .failed(reasons: ["Global success rate of 19.9% out of bounds"]))
         }
         do {
             let okCount = 401
@@ -131,19 +123,17 @@ class AlertingTests: XCTestCase {
             let okBuilds = (0..<okCount).map { _ in Alerting.BuildInfo.mock(status: .ok) }
             let failedBuilds = (0..<failedCount).map { _ in Alerting.BuildInfo.mock(status: .failed) }
             let all = okBuilds + failedBuilds
-            XCTAssertEqual(all.validateSuccessRateInRange(),
-                           .failed(reasons: ["Global success rate of 40.1% out of bounds"]))
+            #expect(all.validateSuccessRateInRange() == .failed(reasons: ["Global success rate of 40.1% out of bounds"]))
         }
     }
 
-    func test_Mon001Row_isValid() throws {
-        XCTAssertEqual([Alerting.Mon001Row]().isValid(), .ok)
-        XCTAssertEqual(
+    @Test func Mon001Row_isValid() throws {
+        #expect([Alerting.Mon001Row]().isValid() == .ok)
+        #expect(
             [
                 Alerting.Mon001Row(owner: "bar", repository: "2", status: .ok, processingStage: .analysis, updatedAt: .t1),
                 Alerting.Mon001Row(owner: "foo", repository: "1", status: nil, processingStage: nil, updatedAt: .t0)
-            ].isValid(),
-            .failed(reasons: [
+            ].isValid() == .failed(reasons: [
                 "Outdated package: foo/1 - - 1970-01-01 00:00:00 +0000",
                 "Outdated package: bar/2 ok analysis 1970-01-01 00:00:01 +0000"
             ])

@@ -22,11 +22,10 @@ import S3Store
 import Vapor
 
 
-class IngestorTests: AppTestCase {
+class IngestionTests: AppTestCase {
 
     func test_ingest_basic() async throws {
         // setup
-        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         let packages = ["https://github.com/finestructure/Gala",
                         "https://github.com/finestructure/Rester",
                         "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"]
@@ -36,9 +35,12 @@ class IngestorTests: AppTestCase {
 
         try await withDependencies {
             $0.date.now = .now
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
         }
 
         // validate
@@ -64,31 +66,36 @@ class IngestorTests: AppTestCase {
 
     func test_ingest_continue_on_error() async throws {
         // Test completion of ingestion despite early error
-        // setup
-        enum TestError: Error, Equatable {
-            case badRequest
-        }
-
-        let packages = try await savePackages(on: app.db, ["https://github.com/foo/1",
-                                                           "https://github.com/foo/2"])
-            .map(Joined<Package, Repository>.init(model:))
-        Current.fetchMetadata = { _, owner, repository in
-            if owner == "foo" && repository == "1" {
-                throw TestError.badRequest
+        try await withDependencies {
+            $0.github.fetchLicense = { @Sendable _, _ in Github.License(htmlUrl: "license") }
+            $0.github.fetchMetadata = { @Sendable owner, repository throws(Github.Error) in
+                if owner == "foo" && repository == "1" {
+                    throw Github.Error.requestFailed(.badRequest)
+                }
+                return .mock(owner: owner, repository: repository)
             }
-            return .mock(owner: owner, repository: repository)
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
+        } operation: {
+            // setup
+            let packages = try await savePackages(on: app.db, ["https://github.com/foo/1",
+                                                               "https://github.com/foo/2"], processingStage: .reconciliation)
+                .map(Joined<Package, Repository>.init(model:))
+
+            // MUT
+            await Ingestion.ingest(client: app.client, database: app.db, packages: packages)
+
+            do {
+                // validate the second package's license is updated
+                let repo = try await Repository.query(on: app.db)
+                    .filter(\.$name == "2")
+                    .first()
+                    .unwrap()
+                XCTAssertEqual(repo.licenseUrl, "license")
+                for pkg in try await Package.query(on: app.db).all() {
+                    XCTAssertEqual(pkg.processingStage, .ingestion, "\(pkg.url) must be in ingestion")
+                }
+            }
         }
-        Current.fetchLicense = { _, _, _ in Github.License(htmlUrl: "license") }
-
-        // MUT
-        await ingest(client: app.client, database: app.db, packages: packages)
-
-        // validate the second package's license is updated
-        let repo = try await Repository.query(on: app.db)
-            .filter(\.$name == "2")
-            .first()
-            .unwrap()
-        XCTAssertEqual(repo.licenseUrl, "license")
     }
 
     func test_updateRepository_insert() async throws {
@@ -96,12 +103,12 @@ class IngestorTests: AppTestCase {
         let repo = Repository(packageId: try pkg.requireID())
 
         // MUT
-        try await updateRepository(on: app.db,
-                                   for: repo,
-                                   metadata: .mock(owner: "foo", repository: "bar"),
-                                   licenseInfo: .init(htmlUrl: ""),
-                                   readmeInfo: .init(html: "", htmlUrl: "", imagesToCache: []),
-                                   s3Readme: nil)
+        try await Ingestion.updateRepository(on: app.db,
+                                             for: repo,
+                                             metadata: .mock(owner: "foo", repository: "bar"),
+                                             licenseInfo: .init(htmlUrl: ""),
+                                             readmeInfo: .init(html: "", htmlUrl: "", imagesToCache: []),
+                                             s3Readme: nil)
 
         // validate
         do {
@@ -153,16 +160,16 @@ class IngestorTests: AppTestCase {
                                         summary: "package desc")
 
         // MUT
-        try await updateRepository(on: app.db,
-                                   for: repo,
-                                   metadata: md,
-                                   licenseInfo: .init(htmlUrl: "license url"),
-                                   readmeInfo: .init(etag: "etag",
-                                                     html: "readme html https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com",
-                                                     htmlUrl: "readme html url",
-                                                     imagesToCache: []),
-                                   s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"),
-                                   fork: .parentURL("https://github.com/foo/bar.git"))
+        try await Ingestion.updateRepository(on: app.db,
+                                             for: repo,
+                                             metadata: md,
+                                             licenseInfo: .init(htmlUrl: "license url"),
+                                             readmeInfo: .init(etag: "etag",
+                                                               html: "readme html https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com",
+                                                               htmlUrl: "readme html url",
+                                                               imagesToCache: []),
+                                             s3Readme: .cached(s3ObjectUrl: "url", githubEtag: "etag"),
+                                             fork: .parentURL("https://github.com/foo/bar.git"))
 
         // validate
         do {
@@ -228,14 +235,14 @@ class IngestorTests: AppTestCase {
                                         summary: "package desc")
 
         // MUT
-        try await updateRepository(on: app.db,
-                                   for: repo,
-                                   metadata: md,
-                                   licenseInfo: .init(htmlUrl: "license url"),
-                                   readmeInfo: .init(html: "readme html",
-                                                     htmlUrl: "readme html url",
-                                                     imagesToCache: []),
-                                   s3Readme: nil)
+        try await Ingestion.updateRepository(on: app.db,
+                                             for: repo,
+                                             metadata: md,
+                                             licenseInfo: .init(htmlUrl: "license url"),
+                                             readmeInfo: .init(html: "readme html",
+                                                               htmlUrl: "readme html url",
+                                                               imagesToCache: []),
+                                             s3Readme: nil)
 
         // validate
         do {
@@ -249,16 +256,19 @@ class IngestorTests: AppTestCase {
         let pkgs = try await savePackages(on: app.db, ["https://github.com/foo/1",
                                                        "https://github.com/foo/2"])
             .map(Joined<Package, Repository>.init(model:))
-        let results: [Result<Joined<Package, Repository>, Error>] = [
-            .failure(AppError.genericError(try pkgs[0].model.requireID(), "error 1")),
+        let pkgId0 = try pkgs[0].model.requireID()
+        let results: [Result<Joined<Package, Repository>, Ingestion.Error>] = [
+            .failure(.init(packageId: pkgId0, underlyingError: .fetchMetadataFailed(owner: "", name: "", details: ""))),
             .success(pkgs[1])
         ]
 
         // MUT
-        try await updatePackages(client: app.client,
-                                 database: app.db,
-                                 results: results,
-                                 stage: .ingestion)
+        for result in results {
+            try await Ingestion.updatePackage(client: app.client,
+                                              database: app.db,
+                                              result: result,
+                                              stage: .ingestion)
+        }
 
         // validate
         do {
@@ -268,7 +278,7 @@ class IngestorTests: AppTestCase {
         }
     }
 
-    func test_updatePackages_new() async throws {
+    func test_updatePackage_new() async throws {
         // Ensure newly ingested packages are passed on with status = new to fast-track
         // them into analysis
         let pkgs = [
@@ -276,14 +286,16 @@ class IngestorTests: AppTestCase {
             Package(id: UUID(), url: "https://github.com/foo/2", status: .new, processingStage: .reconciliation)
         ]
         try await pkgs.save(on: app.db)
-        let results: [Result<Joined<Package, Repository>, Error>] = [ .success(.init(model: pkgs[0])),
-                                                                      .success(.init(model: pkgs[1]))]
+        let results: [Result<Joined<Package, Repository>, Ingestion.Error>] = [ .success(.init(model: pkgs[0])),
+                                                                                .success(.init(model: pkgs[1]))]
 
         // MUT
-        try await updatePackages(client: app.client,
-                                 database: app.db,
-                                 results: results,
-                                 stage: .ingestion)
+        for result in results {
+            try await Ingestion.updatePackage(client: app.client,
+                                              database: app.db,
+                                              result: result,
+                                              stage: .ingestion)
+        }
 
         // validate
         do {
@@ -296,15 +308,17 @@ class IngestorTests: AppTestCase {
     func test_partial_save_issue() async throws {
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
-        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
         let packages = testUrls.map { Package(url: $0, processingStage: .reconciliation) }
         try await packages.save(on: app.db)
 
         try await withDependencies {
             $0.date.now = .now
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(testUrls.count))
         }
 
         // validate
@@ -318,21 +332,22 @@ class IngestorTests: AppTestCase {
         let urls = ["https://github.com/foo/1",
                     "https://github.com/foo/2",
                     "https://github.com/foo/3"]
-        let packages = try await savePackages(on: app.db, urls.asURLs,
-                                              processingStage: .reconciliation)
-        Current.fetchMetadata = { _, owner, repository in
-            if owner == "foo" && repository == "2" {
-                throw AppError.genericError(packages[1].id, "error 2")
-            }
-            return .mock(owner: owner, repository: repository)
-        }
+        try await savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         let lastUpdate = Date()
 
         try await withDependencies {
             $0.date.now = .now
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository throws(Github.Error) in
+                if owner == "foo" && repository == "2" {
+                    throw Github.Error.requestFailed(.badRequest)
+                }
+                return .mock(owner: owner, repository: repository)
+            }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
         }
 
         // validate
@@ -354,67 +369,88 @@ class IngestorTests: AppTestCase {
 
     func test_ingest_unique_owner_name_violation() async throws {
         // Test error behaviour when two packages resolving to the same owner/name are ingested:
-        //   - don't update package
         //   - don't create repository records
         // setup
-        for url in ["https://github.com/foo/1", "https://github.com/foo/2"].asURLs {
-            try await Package(url: url, processingStage: .reconciliation).save(on: app.db)
-        }
-        // Return identical metadata for both packages, same as a for instance a redirected
-        // package would after a rename / ownership change
-        Current.fetchMetadata = { _, _, _ in
-            Github.Metadata.init(
-                defaultBranch: "main",
-                forks: 0,
-                homepageUrl: nil,
-                isInOrganization: false,
-                issuesClosedAtDates: [],
-                license: .mit,
-                openIssues: 0,
-                parentUrl: nil,
-                openPullRequests: 0,
-                owner: "owner",
-                pullRequestsClosedAtDates: [],
-                name: "name",
-                stars: 0,
-                summary: "desc")
-        }
-        let lastUpdate = Date()
+        try await Package(id: .id0, url: "https://github.com/foo/0", status: .ok, processingStage: .reconciliation)
+            .save(on: app.db)
+        try await Package(id: .id1, url: "https://github.com/foo/1", status: .ok, processingStage: .reconciliation)
+            .save(on: app.db)
 
         try await withDependencies {
             $0.date.now = .now
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
+            // Return identical metadata for both packages, same as a for instance a redirected
+            // package would after a rename / ownership change
+            $0.github.fetchMetadata = { @Sendable _, _ in
+                Github.Metadata.init(
+                    defaultBranch: "main",
+                    forks: 0,
+                    homepageUrl: nil,
+                    isInOrganization: false,
+                    issuesClosedAtDates: [],
+                    license: .mit,
+                    openIssues: 0,
+                    parentUrl: nil,
+                    openPullRequests: 0,
+                    owner: "owner",
+                    pullRequestsClosedAtDates: [],
+                    name: "name",
+                    stars: 0,
+                    summary: "desc")
+            }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
         }
 
         // validate repositories (single element pointing to the ingested package)
         let repos = try await Repository.query(on: app.db).all()
-        let ingested = try await Package.query(on: app.db)
-            .filter(\.$processingStage == .ingestion)
-            .first()
-            .unwrap()
-        XCTAssertEqual(repos.map(\.$package.id), [try ingested.requireID()])
+        XCTAssertEqual(repos.count, 1)
 
-        // validate packages
-        let reconciled = try await Package.query(on: app.db)
-            .filter(\.$processingStage == .reconciliation)
+        // validate packages - one should have succeeded, one should have failed
+        let succeeded = try await Package.query(on: app.db)
+            .filter(\.$status == .ok)
             .first()
             .unwrap()
-        // the ingested package has the update ...
-        XCTAssertEqual(ingested.status, .new)
-        XCTAssertEqual(ingested.processingStage, .ingestion)
-        XCTAssert(ingested.updatedAt! > lastUpdate)
-        // ... while the reconciled package remains unchanged ...
-        XCTAssertEqual(reconciled.status, .new)
-        XCTAssertEqual(reconciled.processingStage, .reconciliation)
-        XCTAssert(reconciled.updatedAt! < lastUpdate)
-        // ... and an error has been logged
+        let failed = try await Package.query(on: app.db)
+            .filter(\.$status == .ingestionFailed)
+            .first()
+            .unwrap()
+        XCTAssertEqual(succeeded.processingStage, .ingestion)
+        XCTAssertEqual(failed.processingStage, .ingestion)
+        // an error must have been logged
         try logger.logs.withValue { logs in
             XCTAssertEqual(logs.count, 1)
             let log = try XCTUnwrap(logs.first)
             XCTAssertEqual(log.level, .critical)
-            XCTAssertEqual(log.message, #"duplicate key value violates unique constraint "idx_repositories_owner_name""#)
+            XCTAssertEqual(log.message, #"Ingestion.Error(\#(try failed.requireID()), repositorySaveUniqueViolation(owner, name, duplicate key value violates unique constraint "idx_repositories_owner_name"))"#)
+        }
+
+        // ensure analysis can process these packages
+        try await withDependencies {
+            $0.date.now = .now
+            $0.environment.allowSocialPosts = { false }
+            $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 1 }
+            $0.git.firstCommitDate = { @Sendable _ in .t0 }
+            $0.git.getTags = { @Sendable _ in [] }
+            $0.git.hasBranch = { @Sendable _, _ in true }
+            $0.git.lastCommitDate = { @Sendable _ in .t0 }
+            $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha0", date: .t0) }
+            $0.git.shortlog = { @Sendable _ in "" }
+            $0.shell.run = { @Sendable cmd, _ in
+                if cmd.description.hasSuffix("package dump-package") {
+                    return .packageDump(name: "foo")
+                }
+                return ""
+            }
+        } operation: { [db = app.db] in
+            try await Analyze.analyze(client: app.client, database: db, mode: .id(.id0))
+            try await Analyze.analyze(client: app.client, database: db, mode: .id(.id1))
+            try await XCTAssertEqualAsync(try await Package.find(.id0, on: db)?.processingStage, .analysis)
+            try await XCTAssertEqualAsync(try await Package.find(.id1, on: db)?.processingStage, .analysis)
         }
     }
 
@@ -428,16 +464,13 @@ class IngestorTests: AppTestCase {
     }
 
     func test_ingest_storeS3Readme() async throws {
+        let fetchCalls = QueueIsolated(0)
+        let storeCalls = QueueIsolated(0)
         try await withDependencies {
             $0.date.now = .now
-        } operation: {
-            // setup
-            let app = self.app!
-            let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
-            try await pkg.save(on: app.db)
-            Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
-            let fetchCalls = QueueIsolated(0)
-            Current.fetchReadme = { _, _, _ in
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
+            $0.github.fetchReadme = { @Sendable _, _ in
                 fetchCalls.increment()
                 if fetchCalls.value <= 2 {
                     return .init(etag: "etag1",
@@ -451,8 +484,7 @@ class IngestorTests: AppTestCase {
                                  imagesToCache: [])
                 }
             }
-            let storeCalls = QueueIsolated(0)
-            Current.storeS3Readme = { owner, repo, html in
+            $0.s3.storeReadme = { owner, repo, html in
                 storeCalls.increment()
                 XCTAssertEqual(owner, "foo")
                 XCTAssertEqual(repo, "bar")
@@ -463,10 +495,15 @@ class IngestorTests: AppTestCase {
                 }
                 return "objectUrl"
             }
+        } operation: {
+            // setup
+            let app = self.app!
+            let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
+            try await pkg.save(on: app.db)
 
             do { // first ingestion, no readme has been saved
                  // MUT
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
 
                 // validate
                 try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
@@ -482,7 +519,7 @@ class IngestorTests: AppTestCase {
                 try await pkg.save(on: app.db)
 
                 // MUT
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
 
                 // validate
                 try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
@@ -498,7 +535,7 @@ class IngestorTests: AppTestCase {
                 try await pkg.save(on: app.db)
 
                 // MUT
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
 
                 // validate
                 try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
@@ -515,11 +552,15 @@ class IngestorTests: AppTestCase {
         let pkg = Package(url: "https://github.com/foo/bar".url,
                           processingStage: .reconciliation)
         try await pkg.save(on: app.db)
-        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
-        Current.storeS3Readme = { _, _, _ in "objectUrl" }
-        Current.fetchReadme = { _, _, _ in
-            return .init(etag: "etag",
-                         html: """
+        let storeS3ReadmeImagesCalls = QueueIsolated(0)
+
+        try await withDependencies {
+            $0.date.now = .now
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
+            $0.github.fetchReadme = { @Sendable _, _ in
+                return .init(etag: "etag",
+                             html: """
                          <html>
                          <body>
                              <img src="https://private-user-images.githubusercontent.com/with-jwt-1.jpg?jwt=some-jwt" />
@@ -528,28 +569,24 @@ class IngestorTests: AppTestCase {
                          </body>
                          </html>
                          """,
-                         htmlUrl: "readme url",
-                         imagesToCache: [
-                            .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt-1.jpg?jwt=some-jwt",
-                                  s3Key: .init(bucket: "awsReadmeBucket",
-                                               path: "/foo/bar/with-jwt-1.jpg")),
-                            .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt-2.jpg?jwt=some-jwt",
-                                  s3Key: .init(bucket: "awsReadmeBucket",
-                                               path: "/foo/bar/with-jwt-2.jpg"))
-                         ])
-        }
-        let storeS3ReadmeImagesCalls = QueueIsolated(0)
-        Current.storeS3ReadmeImages = { _, imagesToCache in
-            storeS3ReadmeImagesCalls.increment()
-
-            XCTAssertEqual(imagesToCache.count, 2)
-        }
-
-        try await withDependencies {
-            $0.date.now = .now
+                             htmlUrl: "readme url",
+                             imagesToCache: [
+                                .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt-1.jpg?jwt=some-jwt",
+                                      s3Key: .init(bucket: "awsReadmeBucket",
+                                                   path: "/foo/bar/with-jwt-1.jpg")),
+                                .init(originalUrl: "https://private-user-images.githubusercontent.com/with-jwt-2.jpg?jwt=some-jwt",
+                                      s3Key: .init(bucket: "awsReadmeBucket",
+                                                   path: "/foo/bar/with-jwt-2.jpg"))
+                             ])
+            }
+            $0.s3.storeReadme = { _, _, _ in "objectUrl" }
+            $0.s3.storeReadmeImages = { imagesToCache in
+                storeS3ReadmeImagesCalls.increment()
+                XCTAssertEqual(imagesToCache.count, 2)
+            }
         } operation: {
             // MUT
-            try await ingest(client: app.client, database: app.db, mode: .limit(1))
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
         }
 
         // There should only be one call as `storeS3ReadmeImages` takes the array of images.
@@ -561,27 +598,27 @@ class IngestorTests: AppTestCase {
         // setup
         let pkg = Package(url: "https://github.com/foo/bar".url, processingStage: .reconciliation)
         try await pkg.save(on: app.db)
-        Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
-        Current.fetchReadme = { _, _, _ in
-            return .init(etag: "etag1",
-                         html: "readme html 1",
-                         htmlUrl: "readme url",
-                         imagesToCache: [])
-        }
         let storeCalls = QueueIsolated(0)
-        struct Error: Swift.Error { }
-        Current.storeS3Readme = { owner, repo, html in
-            storeCalls.increment()
-            throw Error()
-        }
 
         do { // first ingestion, no readme has been saved
             try await withDependencies {
                 $0.date.now = .now
+                $0.github.fetchLicense = { @Sendable _, _ in nil }
+                $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
+                $0.github.fetchReadme = { @Sendable _, _ in
+                    return .init(etag: "etag1",
+                                 html: "readme html 1",
+                                 htmlUrl: "readme url",
+                                 imagesToCache: [])
+                }
+                $0.s3.storeReadme = { owner, repo, html throws(S3Readme.Error) in
+                    storeCalls.increment()
+                    throw .storeReadmeFailed
+                }
             } operation: {
                 // MUT
                 let app = self.app!
-                try await ingest(client: app.client, database: app.db, mode: .limit(1))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
             }
 
             // validate
@@ -596,25 +633,33 @@ class IngestorTests: AppTestCase {
 
     func test_issue_761_no_license() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
-        // setup
-        let pkg = try await {
-            let p = Package(url: "https://github.com/foo/1")
-            try await p.save(on: app.db)
-            return Joined<Package, Repository>(model: p)
-        }()
-        // use mock for metadata request which we're not interested in ...
-        Current.fetchMetadata = { _, _, _ in Github.Metadata() }
-        // and live fetch request for fetchLicense, whose behaviour we want to test ...
-        Current.fetchLicense = { client, owner, repo in await Github.fetchLicense(client: client, owner: owner, repository: repo) }
-        // and simulate its underlying request returning a 404 (by making all requests
-        // return a 404, but it's the only one we're sending)
-        let client = MockClient { _, resp in resp.status = .notFound }
+        try await withDependencies {
+            // use live fetch request for fetchLicense, whose behaviour we want to test ...
+            $0.github.fetchLicense = GithubClient.liveValue.fetchLicense
+            // use mock for metadata request which we're not interested in ...
+            $0.github.fetchMetadata = { @Sendable _, _ in .init() }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
+            $0.github.token = { "token" }
+            $0.httpClient.get = { @Sendable url, _ in
+                if url.hasSuffix("/license") {
+                    return .notFound
+                } else {
+                    XCTFail("unexpected url \(url)")
+                    struct TestError: Error { }
+                    throw TestError()
+                }
+            }
+        } operation: {
+            // setup
+            let pkg = Package(url: "https://github.com/foo/1")
+            try await pkg.save(on: app.db)
 
-        // MUT
-        let (_, license, _) = try await fetchMetadata(client: client, package: pkg)
+            // MUT
+            let (_, license, _) = try await Ingestion.fetchMetadata(package: pkg, owner: "foo", repository: "1")
 
-        // validate
-        XCTAssertEqual(license, nil)
+            // validate
+            XCTAssertEqual(license, nil)
+        }
     }
 
     func test_migration076_updateRepositoryResetReadmes() async throws {
@@ -640,23 +685,44 @@ class IngestorTests: AppTestCase {
         try await Package(url: "https://github.com/bar/forked.git", processingStage: .analysis).save(on: app.db)
 
         // test lookup when package is in the index
-        let fork = await getFork(on: app.db, parent: .init(url: "https://github.com/foo/parent.git"))
+        let fork = await Ingestion.getFork(on: app.db, parent: .init(url: "https://github.com/foo/parent.git"))
         XCTAssertEqual(fork, .parentId(id: .id0, fallbackURL: "https://github.com/foo/parent.git"))
 
         // test lookup when package is in the index but with different case in URL
-        let fork2 = await getFork(on: app.db, parent: .init(url: "https://github.com/Foo/Parent.git"))
+        let fork2 = await Ingestion.getFork(on: app.db, parent: .init(url: "https://github.com/Foo/Parent.git"))
         XCTAssertEqual(fork2, .parentId(id: .id0, fallbackURL: "https://github.com/Foo/Parent.git"))
 
         // test whem metadata repo url doesn't have `.git` at end
-        let fork3 = await getFork(on: app.db, parent: .init(url: "https://github.com/Foo/Parent"))
+        let fork3 = await Ingestion.getFork(on: app.db, parent: .init(url: "https://github.com/Foo/Parent"))
         XCTAssertEqual(fork3, .parentId(id: .id0, fallbackURL: "https://github.com/Foo/Parent.git"))
 
         // test lookup when package is not in the index
-        let fork4 = await getFork(on: app.db, parent: .init(url: "https://github.com/some/other.git"))
+        let fork4 = await Ingestion.getFork(on: app.db, parent: .init(url: "https://github.com/some/other.git"))
         XCTAssertEqual(fork4, .parentURL("https://github.com/some/other.git"))
 
         // test lookup when parent url is nil
-        let fork5 = await getFork(on: app.db, parent: nil)
+        let fork5 = await Ingestion.getFork(on: app.db, parent: nil)
         XCTAssertEqual(fork5, nil)
+    }
+}
+
+
+private extension String {
+    static func packageDump(name: String) -> Self {
+        #"""
+            {
+              "name": "\#(name)",
+              "products": [
+                {
+                  "name": "p1",
+                  "targets": [],
+                  "type": {
+                    "executable": null
+                  }
+                }
+              ],
+              "targets": []
+            }
+            """#
     }
 }

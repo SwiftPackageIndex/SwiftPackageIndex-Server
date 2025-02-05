@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Metrics
 import Prometheus
 import Vapor
@@ -170,7 +171,10 @@ extension AppMetrics {
     /// scrape target.
     /// - Parameter client: client for POST request
     static func push(client: Client, jobName: String) async throws {
-        guard let pushGatewayUrl = Current.metricsPushGatewayUrl() else {
+        @Dependency(\.environment) var environment
+        @Dependency(\.logger) var logger
+
+        guard let pushGatewayUrl = environment.metricsPushGatewayUrl() else {
             throw AppError.envVariableNotSet("METRICS_PUSHGATEWAY_URL")
         }
         let url = URI(string: "\(pushGatewayUrl)/metrics/job/\(jobName)")
@@ -183,7 +187,7 @@ extension AppMetrics {
                 try req.content.encode(metrics + "\n")
             }
         } catch {
-            Current.logger().warning("AppMetrics.push failed with error: \(error)")
+            logger.warning("AppMetrics.push failed with error: \(error)")
             // ignore error - we don't want metrics issues to cause upstream failures
         }
     }

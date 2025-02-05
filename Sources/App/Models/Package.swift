@@ -267,6 +267,21 @@ extension Package {
             """#
         ).run()
     }
+
+    static func update(for id: Package.Id, on database: Database,
+                       status: Status, stage: ProcessingStage) async throws {
+        try await Package.query(on: database)
+            .filter(\.$id == id)
+            .set(\.$processingStage, to: stage)
+            .set(\.$status, to: status)
+            .update()
+    }
+
+    func update(on database: Database, status: Status, stage: ProcessingStage) async throws {
+        self.status = status
+        self.processingStage = stage
+        try await update(on: database)
+    }
 }
 
 

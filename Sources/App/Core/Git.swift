@@ -13,50 +13,56 @@
 // limitations under the License.
 
 import Foundation
+
+import Dependencies
 import SemanticVersion
 import ShellOut
 
 
-enum GitError: LocalizedError {
-    case invalidInteger
-    case invalidTimestamp
-    case invalidRevisionInfo(String)
-}
+enum Git {
 
-extension Git {
+    enum Error: LocalizedError {
+        case invalidInteger
+        case invalidTimestamp
+        case invalidRevisionInfo(String)
+    }
 
     static func commitCount(at path: String) async throws -> Int {
-        let res = try await Current.shell.run(command: .gitCommitCount, at: path)
+        @Dependency(\.shell) var shell
+        let res = try await shell.run(command: .gitCommitCount, at: path)
         guard let count = Int(res) else {
-            throw GitError.invalidInteger
+            throw Error.invalidInteger
         }
         return count
     }
 
     static func firstCommitDate(at path: String) async throws -> Date {
+        @Dependency(\.shell) var shell
         let res = String(
-            try await Current.shell.run(command: .gitFirstCommitDate, at: path)
+            try await shell.run(command: .gitFirstCommitDate, at: path)
                 .trimming { $0 == Character("\"") }
         )
         guard let timestamp = TimeInterval(res) else {
-            throw GitError.invalidTimestamp
+            throw Error.invalidTimestamp
         }
         return Date(timeIntervalSince1970: timestamp)
     }
 
     static func lastCommitDate(at path: String) async throws -> Date {
+        @Dependency(\.shell) var shell
         let res = String(
-            try await Current.shell.run(command: .gitLastCommitDate, at: path)
+            try await shell.run(command: .gitLastCommitDate, at: path)
                 .trimming { $0 == Character("\"") }
         )
         guard let timestamp = TimeInterval(res) else {
-            throw GitError.invalidTimestamp
+            throw Error.invalidTimestamp
         }
         return Date(timeIntervalSince1970: timestamp)
     }
 
     static func getTags(at path: String) async throws -> [Reference] {
-        let tags = try await Current.shell.run(command: .gitListTags, at: path)
+        @Dependency(\.shell) var shell
+        let tags = try await shell.run(command: .gitListTags, at: path)
         return tags.split(separator: "\n")
             .map(String.init)
             .compactMap { tag in SemanticVersion(tag).map { ($0, tag) } }
@@ -64,9 +70,10 @@ extension Git {
     }
 
     static func hasBranch(_ reference: Reference, at path: String) async throws -> Bool {
+        @Dependency(\.shell) var shell
         guard let branchName = reference.branchName else { return false }
         do {
-            _ = try await Current.shell.run(command: .gitHasBranch(branchName), at: path)
+            _ = try await shell.run(command: .gitHasBranch(branchName), at: path)
             return true
         } catch {
             return false
@@ -74,29 +81,33 @@ extension Git {
     }
 
     static func revisionInfo(_ reference: Reference, at path: String) async throws -> RevisionInfo {
+        @Dependency(\.shell) var shell
+        @Dependency(\.logger) var logger
         let separator = "-"
         let res = String(
-            try await Current.shell.run(command: .gitRevisionInfo(reference: reference, separator: separator),
+            try await shell.run(command: .gitRevisionInfo(reference: reference, separator: separator),
                                         at: path)
                 .trimming { $0 == Character("\"") }
         )
         let parts = res.components(separatedBy: separator)
         guard parts.count == 2 else {
-            Current.logger().warning(#"Git.invalidRevisionInfo: \#(res) for '\#(ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator))' at: \#(path)"#)
-            throw GitError.invalidRevisionInfo(res)
+            logger.warning(#"Git.invalidRevisionInfo: \#(res) for '\#(ShellOutCommand.gitRevisionInfo(reference: reference, separator: separator))' at: \#(path)"#)
+            throw Error.invalidRevisionInfo(res)
         }
         let hash = parts[0]
-        guard let timestamp = TimeInterval(parts[1]) else { throw GitError.invalidTimestamp }
+        guard let timestamp = TimeInterval(parts[1]) else { throw Error.invalidTimestamp }
         let date = Date(timeIntervalSince1970: timestamp)
         return .init(commit: hash, date: date)
     }
 
     static func shortlog(at path: String) async throws -> String {
-        try await Current.shell.run(command: .gitShortlog, at: path)
+        @Dependency(\.shell) var shell
+        return try await shell.run(command: .gitShortlog, at: path)
     }
 
     struct RevisionInfo: Equatable {
         let commit: CommitHash
         let date: Date
     }
+
 }

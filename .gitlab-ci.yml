@@ -176,7 +176,13 @@ smoke-test:
     - spi-server-deploy
   script: |
     rester() {
-      docker run --rm -t -e base_url="$SITE_URL" -e api_token="$api_token" -v $PWD:/host -w /host finestructure/rester:0.8.1 "$1"
+      docker run --rm -t \
+        -e base_url="$SITE_URL" \
+        -e api_token="$api_token" \
+        -e smoke_test_token="$SMOKE_TEST_TOKEN" \
+        -v $PWD:/host \
+        -w /host \
+        finestructure/rester:0.8.1 "$1"
     }
     echo Testing with SITE_URL: ${SITE_URL}
     rester restfiles/smoke-test.restfile
@@ -190,7 +196,12 @@ doc-test:
     - spi-server-deploy
   script: |
     rester() {
-      docker run --rm -t -e base_url="$SITE_URL" -v $PWD:/host -w /host finestructure/rester:0.8.1 "$1"
+      docker run --rm -t \
+        -e base_url="$SITE_URL" \
+        -e smoke_test_token="$SMOKE_TEST_TOKEN" \
+        -v $PWD:/host \
+        -w /host \
+        finestructure/rester:0.8.1 "$1"
     }
     echo Testing with SITE_URL: ${SITE_URL}
     rester restfiles/doc-test.restfile

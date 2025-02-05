@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
+import Dependencies
 import Vapor
 
 
@@ -88,6 +88,10 @@ func docRoutes(_ app: Application) throws {
         let route = try await $0.getDocRoute(fragment: .tutorials)
         return try await PackageController.documentation(req: $0, route: route)
     }.excludeFromOpenAPI()
+    app.get(":owner", ":repository", ":reference", "videos", "**") {
+        let route = try await $0.getDocRoute(fragment: .videos)
+        return try await PackageController.documentation(req: $0, route: route)
+    }.excludeFromOpenAPI()
 }
 
 
@@ -111,7 +115,7 @@ private extension Parameters {
                 // AND THE FIX
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/3039
                 return ([archive].compactMap { $0 } + getCatchall()).map { $0.lowercased() }
-            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .svgImages, .svgImg:
+            case .css, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .svgImages, .svgImg, .videos:
                 return getCatchall()
         }
     }
@@ -124,7 +128,7 @@ private extension Parameters {
         }
     }
 }
- 
+
 
 struct DocRedirect {
     var owner: String
@@ -152,7 +156,7 @@ extension Request {
                     target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository,
                                                                  docVersion: .reference(ref))
                 }
-                
+
             case .none:
                 target = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)
         }
@@ -160,7 +164,7 @@ extension Request {
 
         return .init(owner: owner, repository: repository, target: target, path: path)
     }
-    
+
     func getDocRoute(fragment: DocRoute.Fragment) async throws -> DocRoute {
         guard let owner = parameters.get("owner"),
               let repository = parameters.get("repository"),
@@ -170,16 +174,19 @@ extension Request {
         if fragment.requiresArchive && archive == nil { throw Abort(.badRequest) }
         let pathElements = parameters.pathElements(for: fragment, archive: archive)
 
+        @Dependency(\.environment) var environment
+
         let docVersion = try await { () -> DocVersion in
             if reference == String.current {
-                if let ref = Current.currentReferenceCache()?[owner: owner, repository: repository] {
+                @Dependency(\.currentReferenceCache) var currentReferenceCache
+                if let ref = await currentReferenceCache.get(owner: owner, repository: repository) {
                     return .current(referencing: ref)
                 }
 
                 guard let params = try await DocumentationTarget.query(on: db, owner: owner, repository: repository)?.internal
                 else { throw Abort(.notFound) }
 
-                Current.currentReferenceCache()?[owner: owner, repository: repository] = "\(params.docVersion)"
+                await currentReferenceCache.set(owner: owner, repository: repository, reference: "\(params.docVersion)")
                 return .current(referencing: "\(params.docVersion)")
             } else {
                 return .reference(reference)

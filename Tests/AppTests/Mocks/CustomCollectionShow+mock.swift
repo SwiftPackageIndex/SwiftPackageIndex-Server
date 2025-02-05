@@ -30,6 +30,7 @@ extension CustomCollectionShow.Model {
         ) }
         return .init(key: "custom-collection",
                      name: "Custom Collection",
+                     badge: "BADGE",
                      packages: packages, page: 1,
                      hasMoreResults: false)
     }

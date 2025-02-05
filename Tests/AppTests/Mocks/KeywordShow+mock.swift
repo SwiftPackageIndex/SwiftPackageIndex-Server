@@ -26,8 +26,9 @@ extension KeywordShow.Model {
             repositoryName: "name",
             url: "https://example.com/owner/name.git",
             stars: 4,
-            lastActivityAt: .t0
+            lastActivityAt: .t0,
+            hasDocs: true
         ) }
-        return .init(keyword: "networking", packages: packages, page: 1, hasMoreResults: false)
+        return .init(keyword: "networking", packages: packages, page: 1, hasMoreResults: false, totalPackageCount: 10)
     }
 }

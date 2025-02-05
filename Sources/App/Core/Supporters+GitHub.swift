@@ -73,11 +73,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/77312?u=ad58f63182bfded488ae855c793af7bda94aae2c&v=4"
         ),
         .init(
-            login: "jnozzi",
-            name: "Joshua Nozzi",
-            avatarUrl: "https://avatars.githubusercontent.com/u/81273?u=e04b9a7618c8ad23f85279f864d36315b8d91849&v=4"
-        ),
-        .init(
             login: "mattmassicotte",
             name: "Matt Massicotte",
             avatarUrl: "https://avatars.githubusercontent.com/u/85322?u=686384227a6f3796b5c80ab6f310da95bdce973c&v=4"
@@ -96,11 +91,6 @@ extension Array<Supporters.Community> {
             login: "bendodson",
             name: "Ben Dodson",
             avatarUrl: "https://avatars.githubusercontent.com/u/157243?v=4"
-        ),
-        .init(
-            login: "donaldww",
-            name: "Donald Wilson",
-            avatarUrl: "https://avatars.githubusercontent.com/u/221379?v=4"
         ),
         .init(
             login: "jabruder",
@@ -123,11 +113,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/619259?u=517f86b63e67f3c009d570755ec13a6d0f8f28c6&v=4"
         ),
         .init(
-            login: "csjones",
-            name: "Chris",
-            avatarUrl: "https://avatars.githubusercontent.com/u/637026?u=95adf59c4fab9321e9f7caacf711eea283d27e91&v=4"
-        ),
-        .init(
             login: "qmoya",
             name: "Quico Moya",
             avatarUrl: "https://avatars.githubusercontent.com/u/653000?u=42aa57fce8f6e0423320c2db2e299470ed19932a&v=4"
@@ -141,11 +126,6 @@ extension Array<Supporters.Community> {
             login: "tuparev",
             name: "Georg Tuparev",
             avatarUrl: "https://avatars.githubusercontent.com/u/693171?u=219818bce486228f3a7099db56ed078241b597c5&v=4"
-        ),
-        .init(
-            login: "bitwit",
-            name: "Kyle Newsome",
-            avatarUrl: "https://avatars.githubusercontent.com/u/707507?u=085dd32577d7f1639a39e3f6b553e5d8b77cbfad&v=4"
         ),
         .init(
             login: "Timac",
@@ -173,11 +153,6 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/842678?u=3459b6ce8224d2c0cad06b05283a8579fb32f7de&v=4"
         ),
         .init(
-            login: "hotngui",
-            name: "Joey Jarosz",
-            avatarUrl: "https://avatars.githubusercontent.com/u/856919?u=191c3a7883c794c5ab824e0b10dccb2abd045c90&v=4"
-        ),
-        .init(
             login: "wadetregaskis",
             name: "Wade Tregaskis",
             avatarUrl: "https://avatars.githubusercontent.com/u/863283?v=4"
@@ -190,7 +165,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "peterssand",
             name: nil,
-            avatarUrl: "https://avatars.githubusercontent.com/u/1046635?v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/1046635?u=b0ddade45ded79cb570f09e083c24fbdd63e7bee&v=4"
         ),
         .init(
             login: "sinoru",
@@ -204,7 +179,7 @@ extension Array<Supporters.Community> {
         ),
         .init(
             login: "PSPDFKit",
-            name: "PSPDFKit GmbH",
+            name: "Nutrient (formerly PSPDFKit)",
             avatarUrl: "https://avatars.githubusercontent.com/u/1527679?v=4"
         ),
         .init(
@@ -280,7 +255,7 @@ extension Array<Supporters.Community> {
         .init(
             login: "Vkt0r",
             name: "Victor Sigler",
-            avatarUrl: "https://avatars.githubusercontent.com/u/4573453?u=ecc5faaa658a54d2c705c24c891d870a3993cce7&v=4"
+            avatarUrl: "https://avatars.githubusercontent.com/u/4573453?u=0ed9d1e41dd700d559b9435022db4cab0bdf6d76&v=4"
         ),
         .init(
             login: "JonPulfer",
@@ -431,6 +406,11 @@ extension Array<Supporters.Community> {
             login: "TapEnvy-us-LLC",
             name: "TapEnvy.us, LLC",
             avatarUrl: "https://avatars.githubusercontent.com/u/88908726?v=4"
+        ),
+        .init(
+            login: "AliMark71",
+            name: "Ali AlSalman",
+            avatarUrl: "https://avatars.githubusercontent.com/u/88995125?u=bb03d697f6f6394e66201df1e02ac01880e2457a&v=4"
         ),
         .init(
             login: "sparrowcode",

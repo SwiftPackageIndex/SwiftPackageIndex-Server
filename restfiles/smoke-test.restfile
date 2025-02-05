@@ -16,16 +16,22 @@ requests:
 
     home:
         url: ${base_url}/
+        headers:
+            X-SPI-Smoke-Test: ${smoke_test_token}
         validation:
             status: 200
 
     privacy:
         url: ${base_url}/privacy
+        headers:
+            X-SPI-Smoke-Test: ${smoke_test_token}
         validation:
             status: 200
 
     package-collection:
         url: ${base_url}/apple/collection.json
+        headers:
+            X-SPI-Smoke-Test: ${smoke_test_token}
         validation:
             status: 200
 
@@ -35,6 +41,7 @@ requests:
             query: alamo
         headers:
             Authorization: Bearer ${api_token}
+            X-SPI-Smoke-Test: ${smoke_test_token}
         validation:
             status: 200
             json:

@@ -31,6 +31,7 @@ enum KeywordController {
             .filter(Repository.self, \.$keywords, .custom("@>"), [keyword])
             .sort(\.$score, .descending)
             .sort(Repository.self, \.$name)
+            .field(\.$scoreDetails)
             .page(page, size: pageSize)
     }
 
@@ -59,19 +60,24 @@ enum KeywordController {
             throw Abort(.notFound)
         }
         let query = try req.query.decode(Query.self)
-        let page = try await Self.query(on: req.db, keyword: keyword, page: query.page, pageSize: query.pageSize)
 
-        guard !page.results.isEmpty else {
+        async let page = Self.query(on: req.db, keyword: keyword, page: query.page, pageSize: query.pageSize)
+        async let weightedKeywords = WeightedKeyword.query(on: req.db, keywords: [keyword])
+
+        let (pageResult, weightedKeywordsResult) = try await (page, weightedKeywords)
+
+        guard !pageResult.results.isEmpty else {
             throw Abort(.notFound)
         }
 
-        let packageInfo = page.results.compactMap(PackageInfo.init(package:))
+        let packageInfo = pageResult.results.compactMap(PackageInfo.init(package:))
 
         let model = KeywordShow.Model(
             keyword: keyword,
             packages: packageInfo,
             page: query.page,
-            hasMoreResults: page.hasMoreResults
+            hasMoreResults: pageResult.hasMoreResults,
+            totalPackageCount: weightedKeywordsResult.weight(for: keyword)
         )
 
         return KeywordShow.View(path: req.url.path, model: model).document()

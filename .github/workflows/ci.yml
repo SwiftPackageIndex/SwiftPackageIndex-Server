@@ -29,7 +29,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.1.0
+      image: registry.gitlab.com/finestructure/spi-base:1.1.1
       options: --privileged
     services:
       postgres:
@@ -59,6 +59,21 @@ jobs:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
           DATABASE_HOST: postgres
           DATABASE_PORT: '5432'
+
+  release-build-linux:
+    name: Release build
+    runs-on: ubuntu-latest
+    container:
+      image: registry.gitlab.com/finestructure/spi-base:1.1.1
+      options: --privileged
+    steps:
+      - name: GH Runner bug workaround
+        run: sysctl -w vm.mmap_rnd_bits=28
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with: { 'fetch-depth': 0 }
+      - name: Build release
+        run: swift build -c release --static-swift-stdlib -Xlinker -ljemalloc
 
   # test-macos:
   #   name: Test macOS

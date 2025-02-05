@@ -3,678 +3,1147 @@ mode: sequential
 requests:
   /AudioKit/AudioKit/documentation:
     url: ${base_url}/AudioKit/AudioKit/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /AudioKit/Flow/documentation:
     url: ${base_url}/AudioKit/Flow/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /AudioKit/Waveform/documentation:
+    url: ${base_url}/AudioKit/Waveform/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /Blackjacx/SHSearchBar/documentation:
     url: ${base_url}/Blackjacx/SHSearchBar/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /ChimeHQ/ConcurrencyPlus/documentation:
     url: ${base_url}/ChimeHQ/ConcurrencyPlus/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /ChimeHQ/Meter/documentation:
     url: ${base_url}/ChimeHQ/Meter/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /ChimeHQ/Neon/documentation:
     url: ${base_url}/ChimeHQ/Neon/documentation
-    validation:
-      status: .regex((2|3)\d\d)
-  /ChimeHQ/SwiftTreeSitter/documentation:
-    url: ${base_url}/ChimeHQ/SwiftTreeSitter/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /CoreOffice/XMLCoder/documentation:
     url: ${base_url}/CoreOffice/XMLCoder/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /DataDog/dd-sdk-ios/documentation:
     url: ${base_url}/DataDog/dd-sdk-ios/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /EmergeTools/SnapshotPreviews/documentation:
     url: ${base_url}/EmergeTools/SnapshotPreviews/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /FabrizioBrancati/Queuer/documentation:
     url: ${base_url}/FabrizioBrancati/Queuer/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /FlineDev/HandySwift/documentation:
     url: ${base_url}/FlineDev/HandySwift/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /GetStream/effects-library/documentation:
     url: ${base_url}/GetStream/effects-library/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /GetStream/stream-chat-swift/documentation:
     url: ${base_url}/GetStream/stream-chat-swift/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  # Doc build is failing with a genuine error
-  # /GetStream/stream-chat-swiftui/documentation:
-  #   url: ${base_url}/GetStream/stream-chat-swiftui/documentation
-  #   validation:
-  #     status: .regex((2|3)\d\d)
+# Doc build is failing with a genuine error
+#   /GetStream/stream-chat-swiftui/documentation:
+#     url: ${base_url}/GetStream/stream-chat-swiftui/documentation
+#     headers:
+#       X-SPI-Smoke-Test: ${smoke_test_token}
+#     validation:
+#       status: .regex((2|3)\d\d)
   /GetStream/stream-chat-vapor-swift/documentation:
     url: ${base_url}/GetStream/stream-chat-vapor-swift/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  # Build failures across the board
-  # /GetStream/stream-video-swift/documentation:
-  #   url: ${base_url}/GetStream/stream-video-swift/documentation
-  #   validation:
-  #     status: .regex((2|3)\d\d)
+# Build failures across the board
+#   /GetStream/stream-video-swift/documentation:
+#     url: ${base_url}/GetStream/stream-video-swift/documentation
+#     headers:
+#       X-SPI-Smoke-Test: ${smoke_test_token}
+#     validation:
+#       status: .regex((2|3)\d\d)
   /GottaGetSwifty/CodableWrappers/documentation:
     url: ${base_url}/GottaGetSwifty/CodableWrappers/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /Kitura/Swift-JWT/documentation:
+    url: ${base_url}/Kitura/Swift-JWT/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /Lighter-swift/Lighter/documentation:
     url: ${base_url}/Lighter-swift/Lighter/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /MarcoEidinger/SwiftPlantUML/documentation:
     url: ${base_url}/MarcoEidinger/SwiftPlantUML/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /MarkCodable/MarkCodable/documentation:
     url: ${base_url}/MarkCodable/MarkCodable/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /Matejkob/swift-spyable/documentation:
     url: ${base_url}/Matejkob/swift-spyable/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /MessageKit/MessageKit/documentation:
     url: ${base_url}/MessageKit/MessageKit/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /OpenSwiftUIProject/OpenSwiftUI/documentation:
     url: ${base_url}/OpenSwiftUIProject/OpenSwiftUI/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /ReactorKit/ReactorKit/documentation:
     url: ${base_url}/ReactorKit/ReactorKit/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /RedMadRobot/input-mask-ios/documentation:
     url: ${base_url}/RedMadRobot/input-mask-ios/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /RevenueCat/purchases-ios/documentation:
     url: ${base_url}/RevenueCat/purchases-ios/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /SwiftBeta/SwiftOpenAI/documentation:
+    url: ${base_url}/SwiftBeta/SwiftOpenAI/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /SwiftGraphs/Grape/documentation:
+    url: ${base_url}/SwiftGraphs/Grape/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /SwiftyLab/MetaCodable/documentation:
     url: ${base_url}/SwiftyLab/MetaCodable/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /TootSDK/TootSDK/documentation:
     url: ${base_url}/TootSDK/TootSDK/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /VergeGroup/swift-verge/documentation:
     url: ${base_url}/VergeGroup/swift-verge/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /airbnb/epoxy-ios/documentation:
     url: ${base_url}/airbnb/epoxy-ios/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /airbnb/lottie-ios/documentation:
     url: ${base_url}/airbnb/lottie-ios/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /alexeichhorn/YouTubeKit/documentation:
+    url: ${base_url}/alexeichhorn/YouTubeKit/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/live-caller-id-lookup-example/documentation:
     url: ${base_url}/apple/live-caller-id-lookup-example/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-algorithms/documentation:
     url: ${base_url}/apple/swift-algorithms/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-argument-parser/documentation:
     url: ${base_url}/apple/swift-argument-parser/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-asn1/documentation:
     url: ${base_url}/apple/swift-asn1/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-async-algorithms/documentation:
     url: ${base_url}/apple/swift-async-algorithms/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-async-dns-resolver/documentation:
     url: ${base_url}/apple/swift-async-dns-resolver/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-atomics/documentation:
     url: ${base_url}/apple/swift-atomics/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-cassandra-client/documentation:
     url: ${base_url}/apple/swift-cassandra-client/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-certificates/documentation:
     url: ${base_url}/apple/swift-certificates/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-cluster-membership/documentation:
     url: ${base_url}/apple/swift-cluster-membership/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-collections/documentation:
     url: ${base_url}/apple/swift-collections/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-container-plugin/documentation:
     url: ${base_url}/apple/swift-container-plugin/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /apple/swift-crypto/documentation:
+    url: ${base_url}/apple/swift-crypto/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-distributed-actors/documentation:
     url: ${base_url}/apple/swift-distributed-actors/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-distributed-tracing-baggage-core/documentation:
     url: ${base_url}/apple/swift-distributed-tracing-baggage-core/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /apple/swift-distributed-tracing-extras/documentation:
+    url: ${base_url}/apple/swift-distributed-tracing-extras/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-distributed-tracing/documentation:
     url: ${base_url}/apple/swift-distributed-tracing/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-homomorphic-encryption/documentation:
     url: ${base_url}/apple/swift-homomorphic-encryption/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-http-structured-headers/documentation:
     url: ${base_url}/apple/swift-http-structured-headers/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-http-types/documentation:
     url: ${base_url}/apple/swift-http-types/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-log/documentation:
     url: ${base_url}/apple/swift-log/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-metrics-extras/documentation:
     url: ${base_url}/apple/swift-metrics-extras/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-metrics/documentation:
     url: ${base_url}/apple/swift-metrics/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-mmio/documentation:
     url: ${base_url}/apple/swift-mmio/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-nio-extras/documentation:
     url: ${base_url}/apple/swift-nio-extras/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-nio-http2/documentation:
     url: ${base_url}/apple/swift-nio-http2/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-nio-oblivious-http/documentation:
     url: ${base_url}/apple/swift-nio-oblivious-http/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-nio-ssh/documentation:
     url: ${base_url}/apple/swift-nio-ssh/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-nio-ssl/documentation:
     url: ${base_url}/apple/swift-nio-ssl/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-nio-transport-services/documentation:
     url: ${base_url}/apple/swift-nio-transport-services/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-nio/documentation:
     url: ${base_url}/apple/swift-nio/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-numerics/documentation:
     url: ${base_url}/apple/swift-numerics/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-openapi-generator/documentation:
     url: ${base_url}/apple/swift-openapi-generator/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-openapi-runtime/documentation:
     url: ${base_url}/apple/swift-openapi-runtime/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-openapi-urlsession/documentation:
     url: ${base_url}/apple/swift-openapi-urlsession/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  # All builds fail
-  # /apple/swift-playdate-examples/documentation:
-  #   url: ${base_url}/apple/swift-playdate-examples/documentation
-  #   validation:
-  #     status: .regex((2|3)\d\d)
+# All builds fail
+#   /apple/swift-playdate-examples/documentation:
+#     url: ${base_url}/apple/swift-playdate-examples/documentation
+#     headers:
+#       X-SPI-Smoke-Test: ${smoke_test_token}
+#     validation:
+#       status: .regex((2|3)\d\d)
   /apple/swift-protobuf/documentation:
     url: ${base_url}/apple/swift-protobuf/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-service-context/documentation:
     url: ${base_url}/apple/swift-service-context/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-service-discovery/documentation:
     url: ${base_url}/apple/swift-service-discovery/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-statsd-client/documentation:
     url: ${base_url}/apple/swift-statsd-client/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /apple/swift-system/documentation:
     url: ${base_url}/apple/swift-system/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /argmaxinc/WhisperKit/documentation:
     url: ${base_url}/argmaxinc/WhisperKit/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /audulus/vger/documentation:
     url: ${base_url}/audulus/vger/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /braintree/braintree_ios/documentation:
     url: ${base_url}/braintree/braintree_ios/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /buh/CompactSlider/documentation:
+    url: ${base_url}/buh/CompactSlider/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /calimarkus/JDStatusBarNotification/documentation:
     url: ${base_url}/calimarkus/JDStatusBarNotification/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /carekit-apple/CareKit/documentation:
     url: ${base_url}/carekit-apple/CareKit/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /crelies/AdvancedList/documentation:
     url: ${base_url}/crelies/AdvancedList/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /dagronf/QRCode/documentation:
     url: ${base_url}/dagronf/QRCode/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /daprice/Variablur/documentation:
     url: ${base_url}/daprice/Variablur/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /davdroman/swiftui-navigation-transitions/documentation:
     url: ${base_url}/davdroman/swiftui-navigation-transitions/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /davedelong/time/documentation:
     url: ${base_url}/davedelong/time/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /divadretlaw/CustomAlert/documentation:
+    url: ${base_url}/divadretlaw/CustomAlert/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /exPHAT/SwiftWhisper/documentation:
     url: ${base_url}/exPHAT/SwiftWhisper/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
+# Documentation fails to build. Needs investigation.
+#   /giginet/Scipio/documentation:
+#     url: ${base_url}/giginet/Scipio/documentation
+#     headers:
+#       X-SPI-Smoke-Test: ${smoke_test_token}
+#     validation:
+#       status: .regex((2|3)\d\d)
   /gonzalezreal/swift-markdown-ui/documentation:
     url: ${base_url}/gonzalezreal/swift-markdown-ui/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /google-gemini/generative-ai-swift/documentation:
     url: ${base_url}/google-gemini/generative-ai-swift/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /groue/GRDB.swift/documentation:
     url: ${base_url}/groue/GRDB.swift/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /groue/GRDBQuery/documentation:
     url: ${base_url}/groue/GRDBQuery/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /groue/Semaphore/documentation:
     url: ${base_url}/groue/Semaphore/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /grpc/grpc-swift/documentation:
     url: ${base_url}/grpc/grpc-swift/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /hmlongco/Factory/documentation:
     url: ${base_url}/hmlongco/Factory/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /huggingface/swift-transformers/documentation:
     url: ${base_url}/huggingface/swift-transformers/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /hylo-lang/hylo/documentation:
     url: ${base_url}/hylo-lang/hylo/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /immobiliare/RealHTTP/documentation:
     url: ${base_url}/immobiliare/RealHTTP/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /insidegui/CloudKitCodable/documentation:
     url: ${base_url}/insidegui/CloudKitCodable/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /jessesquires/Foil/documentation:
     url: ${base_url}/jessesquires/Foil/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /jpsim/Yams/documentation:
     url: ${base_url}/jpsim/Yams/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  # 'KSPlayer' does not contain any documentable symbols or a DocC catalog and will not produce documentation
-  # Needs further investigation
-  # /kingslay/KSPlayer/documentation:
-  #   url: ${base_url}/kingslay/KSPlayer/documentation
-  #   validation:
-  #     status: .regex((2|3)\d\d)
+# 'KSPlayer' does not contain any documentable symbols or a DocC catalog and will not produce documentation
+# Needs further investigation
+#   /kingslay/KSPlayer/documentation:
+#     url: ${base_url}/kingslay/KSPlayer/documentation
+#     headers:
+#       X-SPI-Smoke-Test: ${smoke_test_token}
+#     validation:
+#       status: .regex((2|3)\d\d)
   /krzyzanowskim/CryptoSwift/documentation:
     url: ${base_url}/krzyzanowskim/CryptoSwift/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /li3zhen1/Grape/documentation:
-      url: ${base_url}/li3zhen1/Grape/documentation
-      validation:
-        status: .regex((2|3)\d\d)
+  /krzyzanowskim/CryptoSwift/documentation:
+    url: ${base_url}/krzyzanowskim/CryptoSwift/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /liamnichols/xcstrings-tool/documentation:
+    url: ${base_url}/liamnichols/xcstrings-tool/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
   /liuliu/dflat/documentation:
     url: ${base_url}/liuliu/dflat/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /lorenzofiamingo/swiftui-cached-async-image/documentation:
     url: ${base_url}/lorenzofiamingo/swiftui-cached-async-image/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /m1guelpf/swift-realtime-openai/documentation:
+    url: ${base_url}/m1guelpf/swift-realtime-openai/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /marcoarment/Blackbird/documentation:
     url: ${base_url}/marcoarment/Blackbird/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /mattmassicotte/Queue/documentation:
     url: ${base_url}/mattmassicotte/Queue/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /maxxfrazer/FocusEntity/documentation:
     url: ${base_url}/maxxfrazer/FocusEntity/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /maxxfrazer/RealityUI/documentation:
     url: ${base_url}/maxxfrazer/RealityUI/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /mchakravarty/CodeEditorView/documentation:
     url: ${base_url}/mchakravarty/CodeEditorView/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /mergesort/Boutique/documentation:
     url: ${base_url}/mergesort/Boutique/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /migueldeicaza/SwiftGodot/documentation:
     url: ${base_url}/migueldeicaza/SwiftGodot/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /ml-explore/mlx-swift-examples/documentation:
+    url: ${base_url}/ml-explore/mlx-swift-examples/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /ml-explore/mlx-swift/documentation:
     url: ${base_url}/ml-explore/mlx-swift/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /nmdias/FeedKit/documentation:
+    url: ${base_url}/nmdias/FeedKit/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /omaralbeik/Drops/documentation:
     url: ${base_url}/omaralbeik/Drops/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /onevcat/Kingfisher/documentation:
     url: ${base_url}/onevcat/Kingfisher/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /ordo-one/package-benchmark/documentation:
     url: ${base_url}/ordo-one/package-benchmark/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /orlandos-nl/Citadel/documentation:
     url: ${base_url}/orlandos-nl/Citadel/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /orlandos-nl/MongoKitten/documentation:
     url: ${base_url}/orlandos-nl/MongoKitten/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /parse-community/Parse-Swift/documentation:
     url: ${base_url}/parse-community/Parse-Swift/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-case-paths/documentation:
     url: ${base_url}/pointfreeco/swift-case-paths/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-clocks/documentation:
     url: ${base_url}/pointfreeco/swift-clocks/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-composable-architecture/documentation:
     url: ${base_url}/pointfreeco/swift-composable-architecture/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /pointfreeco/swift-concurrency-extras/documentation:
+    url: ${base_url}/pointfreeco/swift-concurrency-extras/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-custom-dump/documentation:
     url: ${base_url}/pointfreeco/swift-custom-dump/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-dependencies/documentation:
     url: ${base_url}/pointfreeco/swift-dependencies/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-identified-collections/documentation:
     url: ${base_url}/pointfreeco/swift-identified-collections/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-issue-reporting/documentation:
     url: ${base_url}/pointfreeco/swift-issue-reporting/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-macro-testing/documentation:
     url: ${base_url}/pointfreeco/swift-macro-testing/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-navigation/documentation:
     url: ${base_url}/pointfreeco/swift-navigation/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-perception/documentation:
     url: ${base_url}/pointfreeco/swift-perception/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /pointfreeco/swift-sharing/documentation:
+    url: ${base_url}/pointfreeco/swift-sharing/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-snapshot-testing/documentation:
     url: ${base_url}/pointfreeco/swift-snapshot-testing/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /pointfreeco/swift-url-routing/documentation:
     url: ${base_url}/pointfreeco/swift-url-routing/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /richardtop/CalendarKit/documentation:
     url: ${base_url}/richardtop/CalendarKit/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /sbooth/SFBAudioEngine/documentation:
     url: ${base_url}/sbooth/SFBAudioEngine/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /scenee/FloatingPanel/documentation:
     url: ${base_url}/scenee/FloatingPanel/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /simonbs/KeyboardToolbar/documentation:
     url: ${base_url}/simonbs/KeyboardToolbar/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /simonbs/Runestone/documentation:
     url: ${base_url}/simonbs/Runestone/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /sindresorhus/Defaults/documentation:
     url: ${base_url}/sindresorhus/Defaults/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /sindresorhus/DockProgress/documentation:
     url: ${base_url}/sindresorhus/DockProgress/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /sindresorhus/KeyboardShortcuts/documentation:
     url: ${base_url}/sindresorhus/KeyboardShortcuts/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /siteline/swiftui-introspect/documentation:
     url: ${base_url}/siteline/swiftui-introspect/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /stackotter/swift-bundler/documentation:
     url: ${base_url}/stackotter/swift-bundler/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /stackotter/swift-macro-toolkit/documentation:
     url: ${base_url}/stackotter/swift-macro-toolkit/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /stadiamaps/ferrostar/documentation:
+    url: ${base_url}/stadiamaps/ferrostar/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swift-server-community/APNSwift/documentation:
     url: ${base_url}/swift-server-community/APNSwift/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swift-server/RediStack/documentation:
     url: ${base_url}/swift-server/RediStack/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swift-server/async-http-client/documentation:
     url: ${base_url}/swift-server/async-http-client/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swift-server/swift-aws-lambda-runtime/documentation:
     url: ${base_url}/swift-server/swift-aws-lambda-runtime/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swift-server/swift-backtrace/documentation:
     url: ${base_url}/swift-server/swift-backtrace/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /swift-server/swift-kafka-client/documentation:
+    url: ${base_url}/swift-server/swift-kafka-client/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swift-server/swift-openapi-async-http-client/documentation:
     url: ${base_url}/swift-server/swift-openapi-async-http-client/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /swift-server/swift-openapi-hummingbird/documentation:
+    url: ${base_url}/swift-server/swift-openapi-hummingbird/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swift-server/swift-openapi-vapor/documentation:
     url: ${base_url}/swift-server/swift-openapi-vapor/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swift-server/swift-prometheus/documentation:
     url: ${base_url}/swift-server/swift-prometheus/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swift-server/swift-service-lifecycle/documentation:
     url: ${base_url}/swift-server/swift-service-lifecycle/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swift-server/swift-webauthn/documentation:
     url: ${base_url}/swift-server/swift-webauthn/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swiftcsv/SwiftCSV/documentation:
     url: ${base_url}/swiftcsv/SwiftCSV/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swiftlang/swift-docc-plugin/documentation:
     url: ${base_url}/swiftlang/swift-docc-plugin/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swiftlang/swift-docc/documentation:
     url: ${base_url}/swiftlang/swift-docc/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swiftlang/swift-evolution-metadata-extractor/documentation:
     url: ${base_url}/swiftlang/swift-evolution-metadata-extractor/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /swiftlang/swift-format/documentation:
+    url: ${base_url}/swiftlang/swift-format/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swiftlang/swift-markdown/documentation:
     url: ${base_url}/swiftlang/swift-markdown/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swiftlang/swift-syntax/documentation:
     url: ${base_url}/swiftlang/swift-syntax/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swiftlang/swift-testing/documentation:
     url: ${base_url}/swiftlang/swift-testing/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swiftlang/swiftly/documentation:
     url: ${base_url}/swiftlang/swiftly/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swiftwasm/JavaScriptKit/documentation:
     url: ${base_url}/swiftwasm/JavaScriptKit/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swiftwasm/WasmKit/documentation:
     url: ${base_url}/swiftwasm/WasmKit/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /swiftyfinch/Rugby/documentation:
     url: ${base_url}/swiftyfinch/Rugby/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /tevelee/SwiftUI-Flow/documentation:
     url: ${base_url}/tevelee/SwiftUI-Flow/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /tgrapperon/swift-dependencies-additions/documentation:
     url: ${base_url}/tgrapperon/swift-dependencies-additions/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /tree-sitter/swift-tree-sitter/documentation:
+    url: ${base_url}/tree-sitter/swift-tree-sitter/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /tuist/XcodeProj/documentation:
     url: ${base_url}/tuist/XcodeProj/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /vapor-community/HTMLKit/documentation:
     url: ${base_url}/vapor-community/HTMLKit/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
-  /vapor-community/PassKit/documentation:
-    url: ${base_url}/vapor-community/PassKit/documentation
+  /vapor-community/Imperial/documentation:
+    url: ${base_url}/vapor-community/Imperial/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /vapor-community/Zip/documentation:
     url: ${base_url}/vapor-community/Zip/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /vapor-community/sendgrid-kit/documentation:
     url: ${base_url}/vapor-community/sendgrid-kit/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /vapor-community/sendgrid/documentation:
     url: ${base_url}/vapor-community/sendgrid/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /vapor-community/wallet/documentation:
+    url: ${base_url}/vapor-community/wallet/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /vtourraine/AcknowList/documentation:
     url: ${base_url}/vtourraine/AcknowList/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
+    validation:
+      status: .regex((2|3)\d\d)
+  /wulkano/Aperture/documentation:
+    url: ${base_url}/wulkano/Aperture/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)
   /yaslab/CSV.swift/documentation:
     url: ${base_url}/yaslab/CSV.swift/documentation
+    headers:
+      X-SPI-Smoke-Test: ${smoke_test_token}
     validation:
       status: .regex((2|3)\d\d)

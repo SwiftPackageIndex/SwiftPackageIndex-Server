@@ -37,8 +37,6 @@ x-shared: &shared
     BUILDER_TOKEN: ${BUILDER_TOKEN}
     CHECKOUTS_DIR: ${CHECKOUTS_DIR}
     COLLECTION_SIGNING_PRIVATE_KEY: ${COLLECTION_SIGNING_PRIVATE_KEY}
-    # FIXME: temporary
-    CRASH_ROUTE: ${CRASH_ROUTE}
     DATABASE_ID: ${DATABASE_ID}
     DATABASE_HOST: ${DATABASE_HOST}
     DATABASE_PORT: ${DATABASE_PORT}
@@ -46,6 +44,7 @@ x-shared: &shared
     DATABASE_USERNAME: ${DATABASE_USERNAME}
     DATABASE_PASSWORD: ${DATABASE_PASSWORD}
     DATABASE_USE_TLS: ${DATABASE_USE_TLS}
+    FAILURE_MODE: ${FAILURE_MODE}
     GITHUB_TOKEN: ${GITHUB_TOKEN}
     GITLAB_API_TOKEN: ${GITLAB_API_TOKEN}
     GITLAB_PIPELINE_LIMIT: ${GITLAB_PIPELINE_LIMIT}
@@ -60,10 +59,6 @@ x-shared: &shared
     RUNNER_IDS: ${RUNNER_IDS}
     SITE_URL: ${SITE_URL}
     SWIFT_BACKTRACE: ${SWIFT_BACKTRACE}
-    TWITTER_API_KEY: ${TWITTER_API_KEY}
-    TWITTER_API_SECRET: ${TWITTER_API_SECRET}
-    TWITTER_ACCESS_TOKEN_KEY: ${TWITTER_ACCESS_TOKEN_KEY}
-    TWITTER_ACCESS_TOKEN_SECRET: ${TWITTER_ACCESS_TOKEN_SECRET}
   volumes:
     - checkouts:/checkouts
 
@@ -162,23 +157,38 @@ services:
       - backend
 
   alerting:
-      image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
-      <<: *shared
-      depends_on:
-        - migrate
-      entrypoint: ["/bin/bash"]
-      command: ["-c", "--",
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    depends_on:
+      - migrate
+    entrypoint: ["/bin/bash"]
+    command: ["-c", "--",
         "trap : TERM INT; while true; do ./Run alerting --env ${ENV} --time-period ${ALERTING_TIME_PERIOD:-4} --limit ${ALERTING_LIMIT:-2000}; sleep ${ALERTING_SLEEP:-300}; done"
-      ]
-      deploy:
-        resources:
-          limits:
-            memory: 0.5GB
-        restart_policy:
+    ]
+    deploy:
+      resources:
+        limits:
+          memory: 0.5GB
+      restart_policy:
           max_attempts: 5
-      networks:
-        - backend
+    networks:
+      - backend
 
+  redis:
+    # Eventually we'll probably want to use redis/redis-stack-server:7.4.0-v1 here,
+    # which excludes the RedisInsight GUI front-end.
+    image: redis/redis-stack:7.4.0-v1
+    environment:
+      REDIS_ARGS: '--maxmemory 4GB --maxmemory-policy allkeys-lru'
+    ports:
+      - '6379:6379'
+      - '8001:8001'
+    deploy:
+      resources:
+        limits:
+          memory: 4.2GB
+    networks:
+      - backend
 
   migrate:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}

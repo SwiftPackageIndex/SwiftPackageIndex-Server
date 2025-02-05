@@ -26,7 +26,7 @@ func routes(_ app: Application) throws {
 
     do {  // home page
         app.get { req in
-            if let maintenanceMessage = Current.maintenanceMessage() {
+            if let maintenanceMessage = environment.maintenanceMessage() {
                 let model = MaintenanceMessageIndex.Model(markdown: maintenanceMessage)
                 return MaintenanceMessageIndex.View(path: req.url.path, model: model).document()
             } else {
@@ -92,6 +92,8 @@ func routes(_ app: Application) throws {
                 use: PackageCollectionController.generate).excludeFromOpenAPI()
         app.get(SiteURL.packageCollectionCustom(.key).pathComponents,
                 use: PackageCollectionController.generate).excludeFromOpenAPI()
+        app.get(SiteURL.packageCollectionKeyword(.key).pathComponents,
+                use: PackageCollectionController.generate).excludeFromOpenAPI()
     }
 
     do {  // author page
@@ -126,6 +128,10 @@ func routes(_ app: Application) throws {
 
     do {  // Supporters
         app.get(SiteURL.supporters.pathComponents, use: SupportersController.show).excludeFromOpenAPI()
+    }
+
+    do { // Uptime check
+        app.get(SiteURL.healthCheck.pathComponents, use: HealthCheckController.show).excludeFromOpenAPI()
     }
 
     do {  // spi.yml validation page

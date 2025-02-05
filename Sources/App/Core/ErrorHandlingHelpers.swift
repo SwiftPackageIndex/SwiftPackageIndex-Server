@@ -15,7 +15,7 @@
 
 @discardableResult
 func run<T>(_ operation: () async throws -> T,
-         defer deferredOperation: () async throws -> Void) async throws -> T {
+            defer deferredOperation: () async throws -> Void) async throws -> T {
     do {
         let result = try await operation()
         try await deferredOperation()
@@ -23,5 +23,29 @@ func run<T>(_ operation: () async throws -> T,
     } catch {
         try await deferredOperation()
         throw error
+    }
+}
+
+
+@discardableResult
+func run<T, E1: Error, E2: Error>(_ operation: () async throws(E1) -> T,
+                                  rethrowing transform: (E1) -> E2) async throws(E2) -> T {
+    do {
+        let result = try await operation()
+        return result
+    } catch {
+        throw transform(error)
+    }
+}
+
+
+@discardableResult
+func run<T, E1: Error, E2: Error>(_ operation: () throws(E1) -> T,
+                                  rethrowing transform: (E1) -> E2) throws(E2) -> T {
+    do {
+        let result = try operation()
+        return result
+    } catch {
+        throw transform(error)
     }
 }

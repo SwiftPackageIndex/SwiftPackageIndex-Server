@@ -72,143 +72,149 @@ final class AnalyzeErrorTests: AppTestCase {
             Repository(package: pkgs[0], defaultBranch: "main", name: "1", owner: "foo"),
             Repository(package: pkgs[1], defaultBranch: "main", name: "2", owner: "foo"),
         ].save(on: app.db)
-
-        Current.git.commitCount = { @Sendable _ in 1 }
-        Current.git.firstCommitDate = { @Sendable _ in .t0 }
-        Current.git.lastCommitDate = { @Sendable _ in .t1 }
-        Current.git.getTags = { @Sendable checkoutDir in
-            if checkoutDir.hasSuffix("foo-1") { return [] }
-            if checkoutDir.hasSuffix("foo-2") { return [.tag(1, 2, 3)] }
-            throw SetupError()
-        }
-        Current.git.hasBranch = { @Sendable _, _ in true }
-        Current.git.revisionInfo = { @Sendable ref, checkoutDir in
-            if checkoutDir.hasSuffix("foo-1") { return .init(commit: "commit \(ref)", date: .t1) }
-            if checkoutDir.hasSuffix("foo-2") { return .init(commit: "commit \(ref)", date: .t1) }
-            throw SetupError()
-        }
-        Current.git.shortlog = { @Sendable _ in
-            """
-            1000\tPerson 1
-             871\tPerson 2
-             703\tPerson 3
-             360\tPerson 4
-             108\tPerson 5
-            """
-        }
-
-        Current.shell.run = Self.defaultShellRun
     }
 
     override func invokeTest() {
         withDependencies {
             $0.date.now = .t0
             $0.environment.allowSocialPosts = { true }
-            $0.environment.mastodonPost = { @Sendable [socialPosts = self.socialPosts] _, message in
+            $0.git.commitCount = { @Sendable _ in 1 }
+            $0.git.firstCommitDate = { @Sendable _ in .t0 }
+            $0.git.getTags = { @Sendable checkoutDir in
+                if checkoutDir.hasSuffix("foo-1") { return [] }
+                if checkoutDir.hasSuffix("foo-2") { return [.tag(1, 2, 3)] }
+                throw SetupError()
+            }
+            $0.git.hasBranch = { @Sendable _, _ in true }
+            $0.git.lastCommitDate = { @Sendable _ in .t1 }
+            $0.git.revisionInfo = { @Sendable ref, checkoutDir in
+                if checkoutDir.hasSuffix("foo-1") { return .init(commit: "commit \(ref)", date: .t1) }
+                if checkoutDir.hasSuffix("foo-2") { return .init(commit: "commit \(ref)", date: .t1) }
+                throw SetupError()
+            }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                1000\tPerson 1
+                 871\tPerson 2
+                 703\tPerson 3
+                 360\tPerson 4
+                 108\tPerson 5
+                """
+            }
+            $0.httpClient.mastodonPost = { @Sendable [socialPosts = self.socialPosts] message in
                 socialPosts.withValue { $0.append(message) }
             }
+            $0.shell.run = Self.defaultShellRun
         } operation: {
             super.invokeTest()
         }
     }
 
     func test_analyze_refreshCheckout_failed() async throws {
-        Current.shell.run = { @Sendable cmd, path in
-            switch cmd {
-                case _ where cmd.description.contains("git clone https://github.com/foo/1"):
-                    throw SimulatedError()
+        try await withDependencies {
+            $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.shell.run = { @Sendable cmd, path in
+                switch cmd {
+                    case _ where cmd.description.contains("git clone https://github.com/foo/1"):
+                        throw SimulatedError()
 
-                case .gitFetchAndPruneTags where path.hasSuffix("foo-1"):
-                    throw SimulatedError()
+                    case .gitFetchAndPruneTags where path.hasSuffix("foo-1"):
+                        throw SimulatedError()
 
-                default:
-                    return try Self.defaultShellRun(cmd, path)
+                    default:
+                        return try Self.defaultShellRun(cmd, path)
+                }
             }
-        }
+        } operation: {
+            // MUT
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
-
-        // validate
-        try await defaultValidation()
-        try logger.logs.withValue { logs in
-            XCTAssertEqual(logs.count, 2)
-            let error = try logs.last.unwrap()
-            XCTAssertTrue(error.message.contains("refreshCheckout failed"), "was: \(error.message)")
+            // validate
+            try await defaultValidation()
+            try logger.logs.withValue { logs in
+                XCTAssertEqual(logs.count, 2)
+                let error = try logs.last.unwrap()
+                XCTAssertTrue(error.message.contains("refreshCheckout failed"), "was: \(error.message)")
+            }
         }
     }
 
     func test_analyze_updateRepository_invalidPackageCachePath() async throws {
-        // setup
-        let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
-        // This may look weird but its currently the only way to actually create an
-        // invalid package cache path - we need to mess up the package url.
-        pkg.url = "foo/1"
-        XCTAssertNil(pkg.cacheDirectoryName)
-        try await pkg.save(on: app.db)
+        try await withDependencies {
+            $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
+        } operation: {
+            // setup
+            let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
+            // This may look weird but its currently the only way to actually create an
+            // invalid package cache path - we need to mess up the package url.
+            pkg.url = "foo/1"
+            XCTAssertNil(pkg.cacheDirectoryName)
+            try await pkg.save(on: app.db)
 
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
+            // MUT
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
-        // validate
-        try await defaultValidation()
-        try logger.logs.withValue { logs in
-            XCTAssertEqual(logs.count, 2)
-            let error = try logs.last.unwrap()
-            XCTAssertTrue(error.message.contains( "AppError.invalidPackageCachePath"), "was: \(error.message)")
+            // validate
+            try await defaultValidation()
+            try logger.logs.withValue { logs in
+                XCTAssertEqual(logs.count, 2)
+                let error = try logs.last.unwrap()
+                XCTAssertTrue(error.message.contains( "AppError.invalidPackageCachePath"), "was: \(error.message)")
+            }
         }
     }
 
     func test_analyze_getPackageInfo_gitCheckout_error() async throws {
-        // setup
-        Current.shell.run = { @Sendable cmd, path in
-            switch cmd {
-                case .gitCheckout(branch: "main", quiet: true) where path.hasSuffix("foo-1"):
-                    throw SimulatedError()
+        try await withDependencies {
+            $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.shell.run = { @Sendable cmd, path in
+                switch cmd {
+                    case .gitCheckout(branch: "main", quiet: true) where path.hasSuffix("foo-1"):
+                        throw SimulatedError()
 
-                default:
-                    return try Self.defaultShellRun(cmd, path)
+                    default:
+                        return try Self.defaultShellRun(cmd, path)
+                }
             }
-        }
+        } operation: {
+            // MUT
+            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
-
-        // validate
-        try await defaultValidation()
-        try logger.logs.withValue { logs in
-            XCTAssertEqual(logs.count, 2)
-            let error = try logs.last.unwrap()
-            XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
+            // validate
+            try await defaultValidation()
+            try logger.logs.withValue { logs in
+                XCTAssertEqual(logs.count, 2)
+                let error = try logs.last.unwrap()
+                XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
+            }
         }
     }
 
     func test_analyze_dumpPackage_missing_manifest() async throws {
-        // setup
-        Current.fileManager.fileExists = { @Sendable path in
-            if path.hasSuffix("github.com-foo-1/Package.swift") {
-                return false
+        try await withDependencies {
+            $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable path in
+                if path.hasSuffix("github.com-foo-1/Package.swift") {
+                    return false
+                }
+                return true
             }
-            return true
-        }
-        
-        // MUT
-        try await Analyze.analyze(client: app.client,
-                                  database: app.db,
-                                  mode: .limit(10))
-        
-        // validate
-        try await defaultValidation()
-        try logger.logs.withValue { logs in
-            XCTAssertEqual(logs.count, 2)
-            let error = try logs.last.unwrap()
-            XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
+        } operation: {
+            // MUT
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      mode: .limit(10))
+            
+            // validate
+            try await defaultValidation()
+            try logger.logs.withValue { logs in
+                XCTAssertEqual(logs.count, 2)
+                let error = try logs.last.unwrap()
+                XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
+            }
         }
     }
 

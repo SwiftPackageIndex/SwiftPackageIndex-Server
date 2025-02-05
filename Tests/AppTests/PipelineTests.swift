@@ -158,37 +158,38 @@ class PipelineTests: AppTestCase {
     }
 
     func test_processing_pipeline() async throws {
+        // Test pipeline pick-up end to end
         let urls = ["1", "2", "3"].asGithubUrls
         try await withDependencies {
             $0.date.now = .now
+            $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.commitCount = { @Sendable _ in 12 }
+            $0.git.firstCommitDate = { @Sendable _ in .t0 }
+            $0.git.getTags = { @Sendable _ in [] }
+            $0.git.hasBranch = { @Sendable _, _ in true }
+            $0.git.lastCommitDate = { @Sendable _ in .t1 }
+            $0.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                10\tPerson 1
+                 2\tPerson 2
+                """
+            }
+            $0.github.fetchLicense = { @Sendable _, _ in nil }
+            $0.github.fetchMetadata = { @Sendable owner, repository in .mock(owner: owner, repository: repository) }
+            $0.github.fetchReadme = { @Sendable _, _ in nil }
             $0.packageListRepository.fetchPackageList = { @Sendable _ in urls.asURLs }
             $0.packageListRepository.fetchPackageDenyList = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollections = { @Sendable _ in [] }
             $0.packageListRepository.fetchCustomCollection = { @Sendable _, _ in [] }
-        } operation: {
-            // Test pipeline pick-up end to end
-            // setup
-            Current.fetchMetadata = { _, owner, repository in .mock(owner: owner, repository: repository) }
-            Current.git.commitCount = { @Sendable _ in 12 }
-            Current.git.firstCommitDate = { @Sendable _ in .t0 }
-            Current.git.lastCommitDate = { @Sendable _ in .t1 }
-            Current.git.getTags = { @Sendable _ in [] }
-            Current.git.hasBranch = { @Sendable _, _ in true }
-            Current.git.revisionInfo = { @Sendable _, _ in .init(commit: "sha", date: .t0) }
-            Current.git.shortlog = { @Sendable _ in
-            """
-            10\tPerson 1
-             2\tPerson 2
-            """
-            }
-            
-            Current.shell.run = { @Sendable cmd, path in
+            $0.shell.run = { @Sendable cmd, path in
                 if cmd.description.hasSuffix("swift package dump-package") {
                     return #"{ "name": "Mock", "products": [], "targets": [] }"#
                 }
                 return ""
             }
-            
+        } operation: {
             // MUT - first stage
             try await reconcile(client: app.client, database: app.db)
             
@@ -201,8 +202,8 @@ class PipelineTests: AppTestCase {
             }
             
             // MUT - second stage
-            try await ingest(client: app.client, database: app.db, mode: .limit(10))
-            
+            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
+
             do { // validate
                 let packages = try await Package.query(on: app.db).sort(\.$url).all()
                 XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
@@ -240,7 +241,7 @@ class PipelineTests: AppTestCase {
                 }
 
                 // MUT - ingest again
-                try await ingest(client: app.client, database: app.db, mode: .limit(10))
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
 
                 do {  // validate - only new package moves to .ingestion stage
                     let packages = try await Package.query(on: app.db).sort(\.$url).all()
@@ -270,7 +271,7 @@ class PipelineTests: AppTestCase {
                     $0.date.now = .now.addingTimeInterval(Constants.reIngestionDeadtime)
                 } operation: {
                     // MUT - ingest yet again
-                    try await ingest(client: app.client, database: app.db, mode: .limit(10))
+                    try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
 
                     do {  // validate - now all three packages should have been updated
                         let packages = try await Package.query(on: app.db).sort(\.$url).all()

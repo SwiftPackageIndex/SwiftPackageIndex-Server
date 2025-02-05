@@ -16,6 +16,7 @@ import XCTest
 
 @testable import App
 
+import Dependencies
 import ShellOut
 
 
@@ -33,7 +34,6 @@ class GitLiveTests: XCTestCase {
         // Simulate a class setUp (which does not exist as an async function)
         if Self.hasRunSetup { return }
         Self.hasRunSetup = true
-        Current.shell = .live
         try! Foundation.FileManager.default.createDirectory(atPath: Self.tempDir, withIntermediateDirectories: false, attributes: nil)
         try! await ShellOut.shellOut(to: .init(command: "unzip", arguments: [Self.sampleGitRepoZipFile]), at: Self.tempDir)
     }
@@ -42,10 +42,13 @@ class GitLiveTests: XCTestCase {
         try? Foundation.FileManager.default.removeItem(atPath: tempDir)
     }
 
-    let logger = CapturingLogger()
-
-    override func setUp() {
-        Current.setLogger(.init(label: "test", factory: { _ in logger }))
+    override func invokeTest() {
+        withDependencies {
+            $0.logger.log = { @Sendable _, _ in }
+            $0.shell = .liveValue
+        } operation: {
+            super.invokeTest()
+        }
     }
 }
 

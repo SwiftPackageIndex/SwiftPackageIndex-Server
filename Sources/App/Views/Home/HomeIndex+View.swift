@@ -110,7 +110,24 @@ enum HomeIndex {
                              analyticsEvent: "Home - Supporters CTA"),
                 .group(
                     Supporters.corporate.shuffled().map(\.advertisementNode)
-                )
+                ),
+                .if(Supporters.corporate.count < 2, .div(
+                    .class("ccta-availability"),
+                    .p(
+                        .class("support"),
+                        .text("Support the Swift Package Index")
+                    ),
+                    .p(
+                        .text("We have one homepage sponsorship spot available. Support the project while promoting your company.")
+                        ),
+                    .p(
+                        .class("cta"),
+                        .a(
+                            .href(ExternalURL.contactMailto),
+                            .text("Get in touch for details →")
+                        )
+                    )
+                ))
             )
         }
 

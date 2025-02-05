@@ -55,7 +55,8 @@ struct TriggerBuildsCommand: AsyncCommand {
     }
 
     func run(using context: CommandContext, signature: Signature) async throws {
-        Current.setLogger(Logger(component: "trigger-builds"))
+        @Dependency(\.logger) var logger
+        logger.set(to: Logger(component: "trigger-builds"))
 
         Self.resetMetrics()
 
@@ -85,18 +86,16 @@ struct TriggerBuildsCommand: AsyncCommand {
         }
 
         do {
-            try await triggerBuilds(on: context.application.db,
-                                    client: context.application.client,
-                                    mode: mode)
+            try await triggerBuilds(on: context.application.db, mode: mode)
         } catch {
-            Current.logger().critical("\(error)")
+            logger.critical("\(error)")
         }
 
         do {
             try await AppMetrics.push(client: context.application.client,
                                       jobName: "trigger-builds")
         } catch {
-            Current.logger().warning("\(error)")
+            logger.warning("\(error)")
         }
     }
 
@@ -122,15 +121,15 @@ extension TriggerBuildsCommand {
 ///   - client: `Client` used for http request
 ///   - parameter: `BuildTriggerCommand.Parameter` holding either a list of package ids
 ///   or a fetch limit for candidate selection.
-func triggerBuilds(on database: Database,
-                   client: Client,
-                   mode: TriggerBuildsCommand.Mode) async throws {
+func triggerBuilds(on database: Database, mode: TriggerBuildsCommand.Mode) async throws {
     @Dependency(\.environment) var environment
+    @Dependency(\.logger) var logger
+
     let start = DispatchTime.now().uptimeNanoseconds
 
     switch mode {
         case .limit(let limit):
-            Current.logger().info("Triggering builds (limit: \(limit)) ...")
+            logger.info("Triggering builds (limit: \(limit)) ...")
 
             let withLatestSwiftVersion = environment.buildTriggerCandidatesWithLatestSwiftVersion
             let candidates = try await fetchBuildCandidates(database,
@@ -138,30 +137,25 @@ func triggerBuilds(on database: Database,
             AppMetrics.buildCandidatesCount?.set(candidates.count)
 
             let limitedCandidates = Array(candidates.prefix(limit))
-            try await triggerBuilds(on: database,
-                                    client: client,
-                                    packages: limitedCandidates)
+            try await triggerBuilds(on: database, packages: limitedCandidates)
             AppMetrics.buildTriggerDurationSeconds?.time(since: start)
 
         case let .packageId(id, force):
-            Current.logger().info("Triggering builds (packageID: \(id)) ...")
+            logger.info("Triggering builds (packageID: \(id)) ...")
             try await triggerBuilds(on: database,
-                                    client: client,
                                     packages: [id],
                                     force: force)
             AppMetrics.buildTriggerDurationSeconds?.time(since: start)
 
         case let .triggerInfo(versionId, buildPair, isDocBuild):
-            Current.logger().info("Triggering builds (versionID: \(versionId), \(buildPair)) ...")
+            logger.info("Triggering builds (versionID: \(versionId), \(buildPair)) ...")
             guard let trigger = BuildTriggerInfo(versionId: versionId,
                                                  buildPairs: [buildPair],
                                                  docPairs: isDocBuild ? [buildPair] : []) else {
-                Current.logger().error("Failed to create trigger.")
+                logger.error("Failed to create trigger.")
                 return
             }
-            try await triggerBuildsUnchecked(on: database,
-                                             client: client,
-                                             triggers: [trigger])
+            try await triggerBuildsUnchecked(on: database, triggers: [trigger])
 
     }
 }
@@ -175,13 +169,14 @@ func triggerBuilds(on database: Database,
 ///   - packages: list of `Package.Id`s to trigger
 ///   - force: do not check pipeline capacity and ignore downscaling
 func triggerBuilds(on database: Database,
-                   client: Client,
                    packages: [Package.Id],
                    force: Bool = false) async throws {
     @Dependency(\.environment) var environment
+    @Dependency(\.buildSystem) var buildSystem
+    @Dependency(\.logger) var logger
 
     guard environment.allowBuildTriggers() else {
-        Current.logger().info("Build trigger override switch OFF - no builds are being triggered")
+        logger.info("Build trigger override switch OFF - no builds are being triggered")
         return
     }
 
@@ -190,14 +185,15 @@ func triggerBuilds(on database: Database,
             for package in packages {
                 group.addTask {
                     let triggerInfo = try await findMissingBuilds(database, packageId: package)
-                    try await triggerBuildsUnchecked(on: database, client: client, triggers: triggerInfo)
+                    try await triggerBuildsUnchecked(on: database, triggers: triggerInfo)
                 }
             }
         }
     }
 
-    async let pendingJobsTask = Current.getStatusCount(client, .pending)
-    async let runningJobsTask = Current.getStatusCount(client, .running)
+    let getStatusCount = buildSystem.getStatusCount
+    async let pendingJobsTask = getStatusCount(.pending)
+    async let runningJobsTask = getStatusCount(.running)
     let pendingJobs = try await pendingJobsTask
     let runningJobs = try await runningJobsTask
 
@@ -205,38 +201,37 @@ func triggerBuilds(on database: Database,
     AppMetrics.buildRunningJobsCount?.set(runningJobs)
 
     let newJobs = ActorIsolated(0)
+    let gitlabPipelineLimit = environment.gitlabPipelineLimit
 
     await withThrowingTaskGroup(of: Void.self) { group in
         for pkgId in packages {
             let allowListed = environment.buildTriggerAllowList().contains(pkgId)
             guard allowListed || environment.buildTriggerDownscalingAccepted else {
-                Current.logger().info("Build trigger downscaling in effect - skipping builds")
+                logger.info("Build trigger downscaling in effect - skipping builds")
                 continue
             }
 
-            group.addTask {
+            group.addTask { [logger] in
                 // check if we have capacity to schedule more builds before querying for builds
                 var newJobCount = await newJobs.value
-                guard pendingJobs + newJobCount < Current.gitlabPipelineLimit() else {
-                    Current.logger().info("too many pending pipelines (\(pendingJobs + newJobCount))")
+                guard pendingJobs + newJobCount < gitlabPipelineLimit() else {
+                    logger.info("too many pending pipelines (\(pendingJobs + newJobCount))")
                     return
                 }
 
-                Current.logger().info("Finding missing builds for package id: \(pkgId)")
+                logger.info("Finding missing builds for package id: \(pkgId)")
                 let triggers = try await findMissingBuilds(database, packageId: pkgId)
 
                 newJobCount = await newJobs.value
-                guard pendingJobs + newJobCount < Current.gitlabPipelineLimit() else {
-                    Current.logger().info("too many pending pipelines (\(pendingJobs + newJobCount))")
+                guard pendingJobs + newJobCount < gitlabPipelineLimit() else {
+                    logger.info("too many pending pipelines (\(pendingJobs + newJobCount))")
                     return
                 }
 
                 let triggeredJobCount = triggers.reduce(0) { $0 + $1.buildPairs.count }
                 await newJobs.withValue { $0 += triggeredJobCount }
 
-                try await triggerBuildsUnchecked(on: database,
-                                                 client: client,
-                                                 triggers: triggers)
+                try await triggerBuildsUnchecked(on: database, triggers: triggers)
             }
         }
     }
@@ -252,15 +247,14 @@ func triggerBuilds(on database: Database,
 ///   - database: `Database` handle used for database access
 ///   - client: `Client` used for http request
 ///   - triggers: trigger information for builds to trigger
-func triggerBuildsUnchecked(on database: Database,
-                            client: Client,
-                            triggers: [BuildTriggerInfo]) async throws {
+func triggerBuildsUnchecked(on database: Database, triggers: [BuildTriggerInfo]) async throws {
+    @Dependency(\.logger) var logger
     await withThrowingTaskGroup(of: Void.self) { group in
         for trigger in triggers {
             if let packageName = trigger.packageName, let reference = trigger.reference {
-                Current.logger().info("Triggering \(pluralizedCount: trigger.buildPairs.count, singular: "build") for package name: \(packageName), ref: \(reference)")
+                logger.info("Triggering \(pluralizedCount: trigger.buildPairs.count, singular: "build") for package name: \(packageName), ref: \(reference)")
             } else {
-                Current.logger().info("Triggering \(pluralizedCount: trigger.buildPairs.count, singular: "build") for version ID: \(trigger.versionId)")
+                logger.info("Triggering \(pluralizedCount: trigger.buildPairs.count, singular: "build") for version ID: \(trigger.versionId)")
             }
 
             for pair in trigger.buildPairs {
@@ -269,7 +263,6 @@ func triggerBuildsUnchecked(on database: Database,
                     let buildId = Build.Id()
 
                     let response = try await Build.trigger(database: database,
-                                                           client: client,
                                                            buildId: buildId,
                                                            isDocBuild: trigger.docPairs.contains(pair),
                                                            platform: pair.platform,

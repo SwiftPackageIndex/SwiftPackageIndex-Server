@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Fluent
 import FluentPostgresDriver
 import Vapor
 import SotoCognitoAuthentication
 import SotoCognitoIdentityProvider
 import SotoCognitoIdentity
+
 
 @discardableResult
 public func configure(_ app: Application) async throws -> String {
@@ -28,9 +30,9 @@ public func configure(_ app: Application) async throws -> String {
     let _ = Bundle(path: "/Applications/InjectionIII.app/Contents/Resources/macOSInjection.bundle")?.load()
     #endif
 
+    @Dependency(\.logger) var logger
     app.logger.component = "server"
-    Current.setLogger(app.logger)
-    Current.setHTTPClient(app.client)
+    logger.set(to: app.logger)
 
     // It will be tempting to uncomment/re-add these lines in the future. We should not enable
     // server-side compression as long as we pass requests through Cloudflare, which compresses
@@ -53,6 +55,7 @@ public func configure(_ app: Application) async throws -> String {
     // This parameter could also be made configurable via an env variable.
     let maxConnectionsPerEventLoop = 3
 
+    // Setup database connection
     guard
         let host = Environment.get("DATABASE_HOST"),
         let port = Environment.get("DATABASE_PORT").flatMap(Int.init),
@@ -365,7 +368,7 @@ public func configure(_ app: Application) async throws -> String {
     app.asyncCommands.use(Analyze.Command(), as: "analyze")
     app.asyncCommands.use(CreateRestfileCommand(), as: "create-restfile")
     app.asyncCommands.use(DeleteBuildsCommand(), as: "delete-builds")
-    app.asyncCommands.use(IngestCommand(), as: "ingest")
+    app.asyncCommands.use(Ingestion.Command(), as: "ingest")
     app.asyncCommands.use(ReconcileCommand(), as: "reconcile")
     app.asyncCommands.use(TriggerBuildsCommand(), as: "trigger-builds")
     app.asyncCommands.use(ReAnalyzeVersions.Command(), as: "re-analyze-versions")

@@ -25,44 +25,58 @@ import Vapor
 class PackageController_routesTests: SnapshotTestCase {
 
     func test_show() async throws {
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db)
-        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+            $0.environment.processingBuildBacklog = { false }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
-        // MUT
-        try await app.test(.GET, "/owner/package") { res async in
-            XCTAssertEqual(res.status, .ok)
+            // MUT
+            try await app.test(.GET, "/owner/package") { res async in
+                XCTAssertEqual(res.status, .ok)
+            }
         }
     }
 
     func test_show_checkingGitHubRepository_notFound() throws {
-        Current.fetchHTTPStatusCode = { _ in .notFound }
-
-        // MUT
-        try app.test(.GET, "/unknown/package") {
-            XCTAssertEqual($0.status, .notFound)
+        try withDependencies {
+            $0.environment.dbId = { nil }
+            $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in .notFound }
+        } operation: {
+            // MUT
+            try app.test(.GET, "/unknown/package") {
+                XCTAssertEqual($0.status, .notFound)
+            }
         }
     }
 
     func test_show_checkingGitHubRepository_found() throws {
-        Current.fetchHTTPStatusCode = { _ in .ok }
-
-        // MUT
-        try app.test(.GET, "/unknown/package") {
-            XCTAssertEqual($0.status, .notFound)
+        try withDependencies {
+            $0.environment.dbId = { nil }
+            $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in .ok }
+        } operation: {
+            // MUT
+            try app.test(.GET, "/unknown/package") {
+                XCTAssertEqual($0.status, .notFound)
+            }
         }
     }
 
     func test_show_checkingGitHubRepository_error() throws {
         // Make sure we don't throw an internal server error in case
         // fetchHTTPStatusCode fails
-        Current.fetchHTTPStatusCode = { _ in throw FetchError() }
-
-        // MUT
-        try app.test(.GET, "/unknown/package") {
-            XCTAssertEqual($0.status, .notFound)
+        try withDependencies {
+            $0.environment.dbId = { nil }
+            $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in throw FetchError() }
+        } operation: {
+            // MUT
+            try app.test(.GET, "/unknown/package") {
+                XCTAssertEqual($0.status, .notFound)
+            }
         }
     }
 
@@ -87,50 +101,53 @@ class PackageController_routesTests: SnapshotTestCase {
     }
 
     func test_ShowModel_packageMissing() async throws {
-        // setup
-        Current.fetchHTTPStatusCode = { _ in .ok }
+        try await withDependencies {
+            $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in .ok }
+        } operation: {
+            // MUT
+            let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
 
-        // MUT
-        let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
-
-        // validate
-        switch model {
-            case .packageAvailable, .packageDoesNotExist:
-                XCTFail("expected package to be missing")
-            case .packageMissing:
-                break
+            // validate
+            switch model {
+                case .packageAvailable, .packageDoesNotExist:
+                    XCTFail("expected package to be missing")
+                case .packageMissing:
+                    break
+            }
         }
     }
 
     func test_ShowModel_packageDoesNotExist() async throws {
-        // setup
-        Current.fetchHTTPStatusCode = { _ in .notFound }
+        try await withDependencies {
+            $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in .notFound }
+        } operation: {
+            // MUT
+            let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
 
-        // MUT
-        let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
-
-        // validate
-        switch model {
-            case .packageAvailable, .packageMissing:
-                XCTFail("expected package not to exist")
-            case .packageDoesNotExist:
-                break
+            // validate
+            switch model {
+                case .packageAvailable, .packageMissing:
+                    XCTFail("expected package not to exist")
+                case .packageDoesNotExist:
+                    break
+            }
         }
     }
 
     func test_ShowModel_fetchHTTPStatusCode_error() async throws {
-        // setup
-        Current.fetchHTTPStatusCode = { _ in throw FetchError() }
+        try await withDependencies {
+            $0.httpClient.fetchHTTPStatusCode = { @Sendable _ in throw FetchError() }
+        } operation: {
+            // MUT
+            let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
 
-        // MUT
-        let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
-
-        // validate
-        switch model {
-            case .packageAvailable, .packageMissing:
-                XCTFail("expected package not to exist")
-            case .packageDoesNotExist:
-                break
+            // validate
+            switch model {
+                case .packageAvailable, .packageMissing:
+                    XCTFail("expected package not to exist")
+                case .packageDoesNotExist:
+                    break
+            }
         }
     }
 
@@ -150,75 +167,87 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_readme_basic() async throws {
         // Test readme fragment happy path
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, defaultBranch: "main", name: "package", owner: "owner", readmeHtmlUrl: "html url")
-            .save(on: app.db)
-        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
-        let req = Request(application: app, on: app.eventLoopGroup.next())
-        req.parameters.set("owner", to: "owner")
-        req.parameters.set("repository", to: "package")
-        Current.fetchS3Readme = { _, _, _ in #"<div id="readme"><article>readme content</article></div>"# }
+        try await withDependencies {
+            $0.s3.fetchReadme = { @Sendable _, _ in
+                #"<div id="readme"><article>readme content</article></div>"#
+            }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, defaultBranch: "main", name: "package", owner: "owner", readmeHtmlUrl: "html url")
+                .save(on: app.db)
+            try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
+            let req = Request(application: app, on: app.eventLoopGroup.next())
+            req.parameters.set("owner", to: "owner")
+            req.parameters.set("repository", to: "package")
 
-        // MUT
-        let node = try await PackageController.readme(req: req)
+            // MUT
+            let node = try await PackageController.readme(req: req)
 
-        // validate
-        XCTAssertEqual(node.render(indentedBy: .spaces(2)),
+            // validate
+            XCTAssertEqual(node.render(indentedBy: .spaces(2)),
             """
             <turbo-frame id="readme_content">readme content</turbo-frame>
             """)
+        }
     }
 
     func test_readme_no_readmeHtmlUrl() async throws {
         // Test readme fragment when there's no readme html url
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner", readmeHtmlUrl: nil)
-            .save(on: app.db)
-        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
-        let req = Request(application: app, on: app.eventLoopGroup.next())
-        req.parameters.set("owner", to: "owner")
-        req.parameters.set("repository", to: "package")
-        Current.fetchS3Readme = { _, _, _ in
-            XCTFail("must not be called")
-            return ""
-        }
+        try await withDependencies {
+            $0.s3.fetchReadme = { @Sendable _, _ in
+                XCTFail("must not be called")
+                return ""
+            }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner", readmeHtmlUrl: nil)
+                .save(on: app.db)
+            try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
+            let req = Request(application: app, on: app.eventLoopGroup.next())
+            req.parameters.set("owner", to: "owner")
+            req.parameters.set("repository", to: "package")
 
-        // MUT
-        let node = try await PackageController.readme(req: req)
+            // MUT
+            let node = try await PackageController.readme(req: req)
 
-        // validate
-        XCTAssertEqual(node.render(indentedBy: .spaces(2)),
+            // validate
+            XCTAssertEqual(node.render(indentedBy: .spaces(2)),
             """
             <turbo-frame id="readme_content">
               <p>This package does not have a README file.</p>
             </turbo-frame>
             """)
+        }
     }
 
     func test_readme_error() async throws {
         // Test readme fragment when fetchS3Readme throws
-        // setup
-        struct Error: Swift.Error { }
-        Current.fetchS3Readme = { _, _, _ in throw Error() }
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg,
-                             name: "package",
-                             owner: "owner",
-                             readmeHtmlUrl: "html url",
-                             s3Readme: .cached(s3ObjectUrl: "", githubEtag: "")
-        ).save(on: app.db)
-        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
-        let req = Request(application: app, on: app.eventLoopGroup.next())
-        req.parameters.set("owner", to: "owner")
-        req.parameters.set("repository", to: "package")
+        try await withDependencies {
+            $0.s3.fetchReadme = { @Sendable _, _ in
+                struct Error: Swift.Error { }
+                throw Error()
+            }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg,
+                                 name: "package",
+                                 owner: "owner",
+                                 readmeHtmlUrl: "html url",
+                                 s3Readme: .cached(s3ObjectUrl: "", githubEtag: "")
+            ).save(on: app.db)
+            try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
+            let req = Request(application: app, on: app.eventLoopGroup.next())
+            req.parameters.set("owner", to: "owner")
+            req.parameters.set("repository", to: "package")
 
-        // MUT
-        let node = try await PackageController.readme(req: req)
+            // MUT
+            let node = try await PackageController.readme(req: req)
 
-        // validate
-        XCTAssertEqual(node.render(indentedBy: .spaces(2)),
+            // validate
+            XCTAssertEqual(node.render(indentedBy: .spaces(2)),
             """
             <turbo-frame id="readme_content">
               <p>This package's README file couldn't be loaded. Try 
@@ -226,10 +255,11 @@ class PackageController_routesTests: SnapshotTestCase {
               </p>
             </turbo-frame>
             """)
-        let app = self.app!
-        try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
-        let s3Readme = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first()?.s3Readme)
-        XCTAssert(s3Readme.isError)
+            let app = self.app!
+            try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
+            let s3Readme = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first()?.s3Readme)
+            XCTAssert(s3Readme.isError)
+        }
     }
 
     func test_releases() async throws {
@@ -246,44 +276,56 @@ class PackageController_routesTests: SnapshotTestCase {
     }
 
     func test_builds() async throws {
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db)
-        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
-        // MUT
-        try await app.test(.GET, "/owner/package/builds") { res async in
-            XCTAssertEqual(res.status, .ok)
+            // MUT
+            try await app.test(.GET, "/owner/package/builds") { res async in
+                XCTAssertEqual(res.status, .ok)
+            }
         }
     }
 
     func test_maintainerInfo() async throws {
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db)
-        try await Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
-            .save(on: app.db)
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
+                .save(on: app.db)
 
-        // MUT
-        try await app.test(.GET, "/owner/package/information-for-package-maintainers") { res async in
-            XCTAssertEqual(res.status, .ok)
+            // MUT
+            try await app.test(.GET, "/owner/package/information-for-package-maintainers") { res async in
+                XCTAssertEqual(res.status, .ok)
+            }
         }
     }
 
     func test_maintainerInfo_no_packageName() async throws {
         // Ensure we display the page even if packageName is not set
-        // setup
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db)
-        try await Version(package: pkg, latest: .defaultBranch, packageName: nil)
-            .save(on: app.db)
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg, latest: .defaultBranch, packageName: nil)
+                .save(on: app.db)
 
-        // MUT
-        try await app.test(.GET, "/owner/package/information-for-package-maintainers") { res async in
-            XCTAssertEqual(res.status, .ok)
+            // MUT
+            try await app.test(.GET, "/owner/package/information-for-package-maintainers") { res async in
+                XCTAssertEqual(res.status, .ok)
+            }
         }
     }
 
@@ -455,6 +497,7 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_routes_contentType() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok }
         } operation: {
             try await app.test(.GET, "/owner/package/main/images/foo/bar.jpeg") { res async in
                 XCTAssertEqual(res.headers.contentType, .init(type: "application", subType: "octet-stream"))
@@ -537,7 +580,10 @@ class PackageController_routesTests: SnapshotTestCase {
         // Test the current (~) documentation routes:
         //   /owner/package/documentation/~ + various path elements
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.timeZone = .utc
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -559,7 +605,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "pkg",
                               reference: .tag(1, 0, 0))
             .save(on: app.db)
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
             // MUT
 
@@ -580,7 +625,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.0.0</span>"#))
             }
 
             // test catchall
@@ -595,7 +640,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
                 XCTAssertFalse(body.contains(#"a/b#anchor"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.0.0</span>"#))
             }
 
             // Test case insensitive path.
@@ -610,7 +655,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
                 XCTAssertFalse(body.contains(#"a/b#anchor"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.0.0</span>"#))
             }
         }
     }
@@ -619,7 +664,10 @@ class PackageController_routesTests: SnapshotTestCase {
         // Test the current (~) documentation routes with baseURL rewriting:
         //   /owner/package/documentation/~ + various path elements
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
+            $0.timeZone = .utc
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -641,7 +689,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "pkg",
                               reference: .tag(1, 0, 0))
             .save(on: app.db)
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML(baseURL: "/owner/package/1.0.0")) }
 
             // MUT
 
@@ -656,7 +703,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.0.0</span>"#))
             }
 
             // test catchall
@@ -670,7 +717,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
                 XCTAssertFalse(body.contains(#"a/b#anchor"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.0.0</span>"#))
             }
 
             // Test case insensitive path.
@@ -684,7 +731,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
                 XCTAssertFalse(body.contains(#"a/b#anchor"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.0.0</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.0.0</span>"#))
             }
         }
     }
@@ -694,6 +741,8 @@ class PackageController_routesTests: SnapshotTestCase {
         //   /owner/package/documentation/{reference} + various path elements
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.timeZone = .utc
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -715,7 +764,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "pkg",
                               reference: .tag(1, 2, 3))
             .save(on: app.db)
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
             // MUT
 
@@ -736,7 +784,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
                 XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target" />"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.2.3</span>"#))
             }
 
             // test catchall
@@ -750,7 +798,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
                 XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/a/b#anchor" />"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.2.3</span>"#))
             }
 
             // Test case insensitive path.
@@ -764,7 +812,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/1.2.3/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/1.2.3/favicon.ico" />"#))
                 XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/1.2.3/documentation/target/A/b#Anchor" />"#))
-                XCTAssert(body.contains(#"Documentation for <span class="stable">1.2.3</span>"#))
+                XCTAssert(body.contains(#"<span class="stable">1.2.3</span>"#))
             }
         }
     }
@@ -773,6 +821,7 @@ class PackageController_routesTests: SnapshotTestCase {
         // Test documentation routes when no archive is in the path
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -794,7 +843,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "pkg",
                               reference: .tag(1, 0, 0))
             .save(on: app.db)
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
             // MUT
             try await app.test(.GET, "/owner/package/main/documentation") { res async in
@@ -813,34 +861,38 @@ class PackageController_routesTests: SnapshotTestCase {
     }
 
     func test_documentationRoot_notFound() async throws {
-        // setup
-        Current.fetchDocumentation = { _, _ in .init(status: .notFound) }
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Repository(package: pkg, name: "package", owner: "owner")
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .notFound }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Repository(package: pkg, name: "package", owner: "owner")
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "0123456789",
+                              commitDate: .t0,
+                              docArchives: [], // No docArchives!
+                              latest: .defaultBranch,
+                              packageName: "pkg",
+                              reference: .branch("main"))
             .save(on: app.db)
-        try await Version(package: pkg,
-                    commit: "0123456789",
-                    commitDate: .t0,
-                    docArchives: [], // No docArchives!
-                    latest: .defaultBranch,
-                    packageName: "pkg",
-                    reference: .branch("main"))
-        .save(on: app.db)
-        try await Version(package: pkg,
-                    commit: "9876543210",
-                    commitDate: .t0,
-                    docArchives: [], // No docArchives!
-                    latest: .release,
-                    packageName: "pkg",
-                    reference: .tag(1, 0, 0))
-        .save(on: app.db)
+            try await Version(package: pkg,
+                              commit: "9876543210",
+                              commitDate: .t0,
+                              docArchives: [], // No docArchives!
+                              latest: .release,
+                              packageName: "pkg",
+                              reference: .tag(1, 0, 0))
+            .save(on: app.db)
 
-        // MUT
-        try await app.test(.GET, "/owner/package/main/documentation") { res async in
-            XCTAssertEqual(res.status, .notFound)
-        }
-        try await app.test(.GET, "/owner/package/1.0.0/documentation") { res async in
-            XCTAssertEqual(res.status, .notFound)
+            // MUT
+            try await app.test(.GET, "/owner/package/main/documentation") { res async in
+                XCTAssertEqual(res.status, .notFound)
+            }
+            try await app.test(.GET, "/owner/package/1.0.0/documentation") { res async in
+                XCTAssertEqual(res.status, .notFound)
+            }
         }
     }
 
@@ -848,9 +900,10 @@ class PackageController_routesTests: SnapshotTestCase {
         // Test conversion of any doc fetching errors into 404s.
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.dbId = { nil }
+            $0.httpClient.fetchDocumentation = { @Sendable uri in .badRequest }
         } operation: {
             // setup
-            Current.fetchDocumentation = { _, uri in .init(status: .badRequest) }
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
                 .save(on: app.db)
@@ -872,11 +925,12 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_documentation_error() async throws {
         // Test behaviour when fetchDocumentation throws
+        struct SomeError: Error { }
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.dbId = { nil }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in throw SomeError() }
         } operation: {
-            struct SomeError: Error { }
-            Current.fetchDocumentation = { _, _ in throw SomeError() }
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
                 .save(on: app.db)
@@ -904,13 +958,11 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_documentation_current_css() async throws {
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
             // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
                 .save(on: app.db)
@@ -940,13 +992,8 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_ref_css() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
-
             // MUT
             // test base url
             try app.test(.GET, "/owner/package/1.2.3/css/a") {
@@ -966,13 +1013,11 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_documentation_current_js() async throws {
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
             // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
                 .save(on: app.db)
@@ -1002,13 +1047,8 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_ref_js() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
-
             // MUT
             // test base url
             try app.test(.GET, "/owner/package/1.2.3/js/a") {
@@ -1028,13 +1068,11 @@ class PackageController_routesTests: SnapshotTestCase {
 
     func test_documentation_current_data() async throws {
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
             // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
                 .save(on: app.db)
@@ -1073,13 +1111,8 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_ref_data() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
-
             // MUT
             // test base url
             try app.test(.GET, "/owner/package/1.2.3/data/a") {
@@ -1109,13 +1142,9 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_documentation_canonicalCapitalisation() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient.echoURL()
+            $0.timeZone = .utc
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: uri.path))
-            }
-
             // The `packageName` property on the `Version` has been set to the lower-cased version so
             // we can be sure the canonical URL is built from the properties on the `Repository` model.
             let pkg = try await savePackage(on: app.db, "1")
@@ -1145,7 +1174,10 @@ class PackageController_routesTests: SnapshotTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2287
         // Ensure references are path encoded
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.timeZone = .utc
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -1159,7 +1191,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "pkg",
                               reference: .branch("feature/1.2.3"))
             .save(on: app.db)
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
             // MUT
 
@@ -1173,7 +1204,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/~/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/~/favicon.ico" />"#))
                 XCTAssertFalse(body.contains(#"<link rel="canonical""#))
-                XCTAssert(body.contains(#"Documentation for <span class="branch">feature/1.2.3</span>"#))
+                XCTAssert(body.contains(#"<span class="branch">feature/1.2.3</span>"#))
                 XCTAssert(body.contains(#"<li class="current"><a href="/owner/package/feature-1.2.3/documentation/target"><span class="branch">feature/1.2.3</span></a></li>"#))
             }
 
@@ -1187,7 +1218,7 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/feature-1.2.3/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
                 XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/target" />"#))
-                XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
+                XCTAssert(body.contains(#"<span class="branch">feature-1.2.3</span>"#))
             }
 
             // test path a/b
@@ -1201,14 +1232,18 @@ class PackageController_routesTests: SnapshotTestCase {
                 XCTAssert(body.contains(#"var baseUrl = "/owner/package/feature-1.2.3/""#))
                 XCTAssert(body.contains(#"<link rel="icon" href="/owner/package/feature-1.2.3/favicon.ico" />"#))
                 XCTAssert(body.contains(#"<link rel="canonical" href="/owner/package/feature/1.2.3/documentation/a/b" />"#))
-                XCTAssert(body.contains(#"Documentation for <span class="branch">feature-1.2.3</span>"#))
+                XCTAssert(body.contains(#"<span class="branch">feature-1.2.3</span>"#))
             }
         }
     }
 
     func test_documentation_routes_tutorials() async throws {
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.dbId = { nil }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.timeZone = .utc
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "1")
@@ -1230,7 +1265,6 @@ class PackageController_routesTests: SnapshotTestCase {
                               packageName: "pkg",
                               reference: .tag(1, 0, 0))
             .save(on: app.db)
-            Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
 
             // MUT
             try await app.test(.GET, "/owner/package/~/tutorials") { res async in
@@ -1257,15 +1291,9 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_favicon() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient
+                .echoURL(headers: ["content-type": "application/octet-stream"])
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok,
-                          headers: ["content-type": "application/octet-stream"],
-                          body: .init(string: uri.path))
-            }
-
             // MUT
             try app.test(.GET, "/owner/package/1.2.3/favicon.ico") {
                 XCTAssertEqual($0.status, .ok)
@@ -1284,15 +1312,9 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_themeSettings() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient
+                .echoURL(headers: ["content-type": "application/json"])
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok,
-                          headers: ["content-type": "application/json"],
-                          body: .init(string: uri.path))
-            }
-
             // MUT
             try app.test(.GET, "/owner/package/1.2.3/theme-settings.json") {
                 XCTAssertEqual($0.status, .ok)
@@ -1305,15 +1327,9 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_linkablePaths() throws {
         try withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = App.HTTPClient
+                .echoURL(headers: ["content-type": "application/json"])
         } operation: {
-            // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok,
-                          headers: ["content-type": "application/json"],
-                          body: .init(string: uri.path))
-            }
-
             // MUT
             try app.test(.GET, "/owner/package/1.2.3/linkable-paths.json") {
                 XCTAssertEqual($0.status, .ok)
@@ -1326,12 +1342,13 @@ class PackageController_routesTests: SnapshotTestCase {
     func test_tutorial() async throws {
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.httpClient.fetchDocumentation = { @Sendable uri in
+                // embed uri.path in the body as a simple way to test the requested url
+                    .ok(body: "<p>\(uri.path)</p>")
+            }
+            $0.timeZone = .utc
         } operation: {
             // setup
-            Current.fetchDocumentation = { _, uri in
-                // embed uri.path in the body as a simple way to test the requested url
-                    .init(status: .ok, body: .init(string: "<p>\(uri.path)</p>"))
-            }
             let pkg = try await savePackage(on: app.db, "1")
             try await Repository(package: pkg, name: "package", owner: "owner")
                 .save(on: app.db)
@@ -1418,8 +1435,6 @@ class PackageController_routesTests: SnapshotTestCase {
         // MUT
         let latestMajorVersions = versions.latestMajorVersions()
         let latestMajorRerefences = latestMajorVersions.map { "\($0.reference)" }
-        print(latestMajorRerefences)
-
         XCTAssertEqual(latestMajorRerefences, ["1.1.2", "2.1.1", "3.0.0"])
     }
 
@@ -1432,7 +1447,7 @@ class PackageController_routesTests: SnapshotTestCase {
             // because app.test is not affected by @Dependency overrides.
             let prodApp = try await setup(.production)
 
-            do {
+            try await App.run {
                 // setup
                 let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
                 try await package.save(on: app.db)
@@ -1446,30 +1461,36 @@ class PackageController_routesTests: SnapshotTestCase {
                 try await prodApp.test(.GET, "/owner/repo0/sitemap.xml") { res async in
                     XCTAssertEqual(res.status, .ok)
                 }
-            } catch {
-                try? await prodApp.asyncShutdown()
-                throw error
+            } defer: {
+                try await prodApp.asyncShutdown()
             }
-            try await prodApp.asyncShutdown()
         }
     }
 
     func test_siteMap_dev() async throws {
         // Ensure we don't serve sitemaps in dev
-        // app and Current.environment are configured for .development by default
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            let devApp = try await setup(.development)
 
-        // setup
-        let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
-        try await package.save(on: app.db)
-        try await Repository(package: package, defaultBranch: "default",
-                             lastCommitDate: Date.now,
-                             name: "Repo0", owner: "Owner").save(on: app.db)
-        try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
-                          reference: .branch("default")).save(on: app.db)
+            try await App.run {
+                // setup
+                let package = Package(url: URL(stringLiteral: "https://example.com/owner/repo0"))
+                try await package.save(on: app.db)
+                try await Repository(package: package, defaultBranch: "default",
+                                     lastCommitDate: Date.now,
+                                     name: "Repo0", owner: "Owner").save(on: app.db)
+                try await Version(package: package, latest: .defaultBranch, packageName: "SomePackage",
+                                  reference: .branch("default")).save(on: app.db)
 
-        // MUT
-        try await app.test(.GET, "/owner/repo0/sitemap.xml") { res async in
-            XCTAssertEqual(res.status, .notFound)
+                // MUT
+                try await devApp.test(.GET, "/owner/repo0/sitemap.xml") { res async in
+                    XCTAssertEqual(res.status, .notFound)
+                }
+            } defer: {
+                try await devApp.asyncShutdown()
+            }
         }
     }
 
@@ -1477,7 +1498,29 @@ class PackageController_routesTests: SnapshotTestCase {
         // Ensures default branch updates don't introduce a "documentation gap"
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
         try await withDependencies {
+            $0.currentReferenceCache = .disabled
             $0.environment.awsDocsBucket = { "docs-bucket" }
+            $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable path in
+                if path.hasSuffix("Package.resolved") { return false }
+                return true
+            }
+            $0.git.commitCount = { @Sendable _ in 2}
+            $0.git.firstCommitDate = { @Sendable _ in .t0 }
+            $0.git.getTags = { @Sendable _ in [] }
+            $0.git.hasBranch = { @Sendable _, _ in true }
+            $0.git.lastCommitDate = { @Sendable _ in .t1 }
+            $0.git.revisionInfo = { @Sendable ref, _ in
+                if ref == .branch("main") { return .init(commit: "new-commit", date: .t1) }
+                fatalError("revisionInfo: \(ref)")
+            }
+            $0.git.shortlog = { @Sendable _ in "2\tauthor" }
+            $0.httpClient.fetchDocumentation = { @Sendable _ in .ok(body: .mockIndexHTML()) }
+            $0.shell.run = { @Sendable cmd, _ in
+                if cmd.description == "swift package dump-package" { return .mockManifest }
+                return ""
+            }
+            $0.timeZone = .utc
         } operation: {
             // setup
             let pkg = try await savePackage(on: app.db, "https://github.com/foo/bar".url, processingStage: .ingestion)
@@ -1490,33 +1533,11 @@ class PackageController_routesTests: SnapshotTestCase {
                               latest: .defaultBranch,
                               packageName: "bar",
                               reference: .branch("main"))
-            .save(on: app.db)
-            Current.fileManager.fileExists = { @Sendable path in
-                if path.hasSuffix("Package.resolved") { return false }
-                return true
-            }
-            Current.git = .init(
-                commitCount: { _ in 2 },
-                firstCommitDate: { _ in .t0 },
-                lastCommitDate: { _ in .t1 },
-                getTags: { _ in [] },
-                hasBranch: { _, _ in true },
-                revisionInfo: { ref, _ in
-                    if ref == .branch("main") { return .init(commit: "new-commit", date: .t1) }
-                    fatalError("revisionInfo: \(ref)")
-                },
-                shortlog: { _ in "2\tauthor" }
-            )
-            Current.shell.run = { @Sendable cmd, _ in
-                if cmd.description == "swift package dump-package" { return .mockManifest }
-                return ""
-            }
+                .save(on: app.db)
             // Make sure the new commit doesn't get throttled
             try await withDependencies {
                 $0.date.now = .t1 + Constants.branchVersionRefreshDelay + 1
             } operation: {
-                Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .mockIndexHTML()) }
-
                 // Ensure documentation is resolved
                 try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
                     await Task.yield() // essential to avoid deadlocking
@@ -1554,29 +1575,32 @@ class PackageController_routesTests: SnapshotTestCase {
     }
 
     func test_getDocRoute_documentation_current() async throws {
-        nonisolated(unsafe) let cache = CurrentReferenceCache()
-        Current.currentReferenceCache = { cache }
-        // owner/repo/~/documentation/archive
-        let req = Request(application: app, url: "", on: app.eventLoopGroup.next())
-        req.parameters.set("owner", to: "owner")
-        req.parameters.set("repository", to: "repo")
-        req.parameters.set("reference", to: "~")
-        req.parameters.set("archive", to: "archive")
+        try await withDependencies {
+            $0.currentReferenceCache = .inMemory
+        } operation: {
+            // owner/repo/~/documentation/archive
+            let req = Request(application: app, url: "", on: app.eventLoopGroup.next())
+            req.parameters.set("owner", to: "owner")
+            req.parameters.set("repository", to: "repo")
+            req.parameters.set("reference", to: "~")
+            req.parameters.set("archive", to: "archive")
 
-        do { // No cache value available and we've not set up the db with a record to be found -> notFound must be raised
-            _ = try await req.getDocRoute(fragment: .documentation)
-            XCTFail("expected a .notFound error")
-        } catch let error as Abort where error.status == .notFound {
-            // expected error
-        } catch {
-            XCTFail("unexpected error: \(error)")
-        }
+            do { // No cache value available and we've not set up the db with a record to be found -> notFound must be raised
+                _ = try await req.getDocRoute(fragment: .documentation)
+                XCTFail("expected a .notFound error")
+            } catch let error as Abort where error.status == .notFound {
+                // expected error
+            } catch {
+                XCTFail("unexpected error: \(error)")
+            }
 
-        cache[owner: "owner", repository: "repo"] = "1.2.3"
+            @Dependency(\.currentReferenceCache) var cache
+            await cache.set(owner: "owner", repository: "repo", reference: "1.2.3")
 
-        do { // Now with the cache in place this resolves
-            let route = try await req.getDocRoute(fragment: .documentation)
-            XCTAssertEqual(route, .init(owner: "owner", repository: "repo", docVersion: .current(referencing: "1.2.3"), fragment: .documentation, pathElements: ["archive"]))
+            do { // Now with the cache in place this resolves
+                let route = try await req.getDocRoute(fragment: .documentation)
+                XCTAssertEqual(route, .init(owner: "owner", repository: "repo", docVersion: .current(referencing: "1.2.3"), fragment: .documentation, pathElements: ["archive"]))
+            }
         }
     }
 
@@ -1640,10 +1664,10 @@ private extension String {
                     """#
 }
 
-private extension ByteBuffer {
+private extension String {
     static func mockIndexHTML(baseURL: String = "/") -> Self {
         let baseURL = baseURL.hasSuffix("/") ? baseURL : baseURL + "/"
-        return .init(string: """
+        return """
             <!doctype html>
             <html lang="en-US">
 
@@ -1667,6 +1691,6 @@ private extension ByteBuffer {
             </body>
 
             </html>
-            """)
+            """
     }
 }

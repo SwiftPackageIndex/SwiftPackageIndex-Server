@@ -12,45 +12,55 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
+import Dependencies
 import Vapor
-import XCTest
 
 
 class AppEnvironmentTests: XCTestCase {
 
     func test_Filemanager_checkoutsDirectory() throws {
-        Current.fileManager = .live
-        unsetenv("CHECKOUTS_DIR")
-        XCTAssertEqual(Current.fileManager.checkoutsDirectory(),
-                       DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts")
-        setenv("CHECKOUTS_DIR", "/tmp/foo", 1)
-        XCTAssertEqual(Current.fileManager.checkoutsDirectory(), "/tmp/foo")
+        withDependencies {
+            $0.fileManager.checkoutsDirectory = FileManagerClient.liveValue.checkoutsDirectory
+        } operation: {
+            unsetenv("CHECKOUTS_DIR")
+            @Dependency(\.fileManager) var fileManager
+            XCTAssertEqual(fileManager.checkoutsDirectory(),
+                           DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts")
+            setenv("CHECKOUTS_DIR", "/tmp/foo", 1)
+            XCTAssertEqual(fileManager.checkoutsDirectory(), "/tmp/foo")
+        }
     }
 
     func test_maintenanceMessage() throws {
         defer { unsetenv("MAINTENANCE_MESSAGE") }
-        Current.maintenanceMessage = AppEnvironment.live.maintenanceMessage
-        do {
-            unsetenv("MAINTENANCE_MESSAGE")
-            XCTAssertEqual(Current.maintenanceMessage(), nil)
-        }
-        do {
-            setenv("MAINTENANCE_MESSAGE", "foo", 1)
-            XCTAssertEqual(Current.maintenanceMessage(), "foo")
-        }
-        do {
-            setenv("MAINTENANCE_MESSAGE", "", 1)
-            XCTAssertEqual(Current.maintenanceMessage(), nil)
-        }
-        do {
-            setenv("MAINTENANCE_MESSAGE", " ", 1)
-            XCTAssertEqual(Current.maintenanceMessage(), nil)
-        }
-        do {
-            setenv("MAINTENANCE_MESSAGE", " \t\n ", 1)
-            XCTAssertEqual(Current.maintenanceMessage(), nil)
+        withDependencies {
+            $0.environment.maintenanceMessage = EnvironmentClient.liveValue.maintenanceMessage
+        } operation: {
+            @Dependency(\.environment) var environment
+            do {
+                unsetenv("MAINTENANCE_MESSAGE")
+                XCTAssertEqual(environment.maintenanceMessage(), nil)
+            }
+            do {
+                setenv("MAINTENANCE_MESSAGE", "foo", 1)
+                XCTAssertEqual(environment.maintenanceMessage(), "foo")
+            }
+            do {
+                setenv("MAINTENANCE_MESSAGE", "", 1)
+                XCTAssertEqual(environment.maintenanceMessage(), nil)
+            }
+            do {
+                setenv("MAINTENANCE_MESSAGE", " ", 1)
+                XCTAssertEqual(environment.maintenanceMessage(), nil)
+            }
+            do {
+                setenv("MAINTENANCE_MESSAGE", " \t\n ", 1)
+                XCTAssertEqual(environment.maintenanceMessage(), nil)
+            }
         }
     }
 

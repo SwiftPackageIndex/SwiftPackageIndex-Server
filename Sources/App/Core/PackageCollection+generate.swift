@@ -34,6 +34,7 @@ extension PackageCollection {
     enum Filter {
         case urls([String])
         case author(String)
+        case keyword(String)
         case customCollection(String)
     }
 
@@ -47,8 +48,9 @@ extension PackageCollection {
                          collectionName: String? = nil,
                          keywords: [String]? = nil,
                          overview: String? = nil,
-                         revision: Int? = nil) async throws -> PackageCollection {
-        let results = try await VersionResult.query(on: db, filterBy: filter)
+                         revision: Int? = nil,
+                         limit maxResults: Int? = nil) async throws -> PackageCollection {
+        let results = try await VersionResult.query(on: db, filterBy: filter, limit: maxResults)
 
         // Multiple versions can reference the same package, therefore
         // we need to group them so we don't create duplicate packages.
@@ -97,6 +99,10 @@ extension PackageCollection {
             case (.author(let owner), .none):
                 return owner
             case (.author, .some(let label)):
+                return label
+            case (.keyword(let keyword), .none):
+                return keyword
+            case (.keyword, .some(let label)):
                 return label
             case (.customCollection(let name), .none):
                 return name

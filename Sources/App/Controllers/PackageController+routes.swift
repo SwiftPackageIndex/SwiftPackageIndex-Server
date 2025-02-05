@@ -73,20 +73,20 @@ enum PackageController {
                     documentationMetadata: documentationMetadata
                 )
 
-            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .svgImages, .svgImg:
-                return try await res.encodeResponse(
+            case .css, .data, .faviconIco, .faviconSvg, .images, .img, .index, .js, .linkablePaths, .themeSettings, .svgImages, .svgImg, .videos:
+                return try await ClientResponse(
                     status: .ok,
                     headers: req.headers
                         .replacingOrAdding(name: .contentType, value: route.fragment.contentType)
                         .replacingOrAdding(name: .cacheControl, value: "no-transform"),
-                    for: req
-                )
+                    body: res.body
+                ).encodeResponse(for: req)
         }
     }
 
     static func documentationResponse(req: Request,
                                       route: DocRoute,
-                                      awsResponse: ClientResponse,
+                                      awsResponse: HTTPClient.Response,
                                       documentationMetadata: DocumentationMetadata) async throws -> Response {
         guard let documentation = documentationMetadata.versions[reference: route.docVersion.reference]
         else {
@@ -146,12 +146,12 @@ enum PackageController {
                                                          updatedAt: documentation.updatedAt,
                                                          rawHtml: body.asString())
         else {
-            return try await awsResponse.encodeResponse(
+            return try await ClientResponse(
                 status: .ok,
                 headers: req.headers.replacingOrAdding(name: .contentType,
                                                        value: route.contentType),
-                for: req
-            )
+                body: awsResponse.body
+            ).encodeResponse(for: req)
         }
 
         return try await processor.processedPage.encodeResponse(
@@ -162,9 +162,11 @@ enum PackageController {
         )
     }
 
-    static func awsResponse(client: Client, route: DocRoute) async throws -> ClientResponse {
+    static func awsResponse(client: Client, route: DocRoute) async throws -> HTTPClient.Response {
+        @Dependency(\.httpClient) var httpClient
+
         let url = try Self.awsDocumentationURL(route: route)
-        guard let response = try? await Current.fetchDocumentation(client, url) else {
+        guard let response = try? await httpClient.fetchDocumentation(url) else {
             throw Abort(.notFound)
         }
         guard (200..<399).contains(response.status.code) else {
@@ -304,7 +306,8 @@ enum PackageController {
         }
 
         do {
-            let readme = try await Current.fetchS3Readme(req.client, owner, repository)
+            @Dependency(\.s3) var s3
+            let readme = try await s3.fetchReadme(owner, repository)
             guard let branch = pkg.repository?.defaultBranch else {
                 return PackageReadme.View(model: .cacheLookupFailed(url: readmeHtmlUrl)).document()
             }
@@ -405,10 +408,11 @@ extension PackageController {
                     .query(on: db, owner: owner, repository: repository)
                 self = .packageAvailable(model, schema)
             } catch let error as AbortError where error.status == .notFound {
+                @Dependency(\.httpClient) var httpClient
                 // When the package is not in the index, we check if it's available on GitHub.
                 // We use try? to avoid raising internel server errors from exceptions raised
                 // from this call.
-                let status = try? await Current.fetchHTTPStatusCode("https://github.com/\(owner)/\(repository)")
+                let status = try? await httpClient.fetchHTTPStatusCode("https://github.com/\(owner)/\(repository)")
                 switch status {
                     case .some(.notFound):
                         // GitHub does not have the package
@@ -448,7 +452,7 @@ extension PackageController {
         let path = route.path
 
         switch route.fragment {
-            case .css, .data, .documentation, .images, .img, .index, .js, .tutorials, .svgImages, .svgImg:
+            case .css, .data, .documentation, .images, .img, .index, .js, .tutorials, .svgImages, .svgImg, .videos:
                 return URI(string: "\(baseURL)/\(route.fragment.urlFragment)/\(path)")
             case .faviconIco, .faviconSvg, .themeSettings:
                 return path.isEmpty

@@ -16,20 +16,31 @@ extension CustomCollectionShow {
     struct Model {
         var key: String
         var name: String
+        var badge: String?
         var packages: [PackageInfo]
         var page: Int
         var hasMoreResults: Bool
 
         internal init(key: String,
                       name: String,
+                      badge: String?,
                       packages: [PackageInfo],
                       page: Int,
                       hasMoreResults: Bool) {
             self.key = key
             self.name = name
+            self.badge = badge
             self.packages = packages
             self.page = page
             self.hasMoreResults = hasMoreResults
+        }
+
+        var fullName: String {
+            if let badge {
+                "\(badge) \(name)"
+            } else {
+                name
+            }
         }
     }
 }

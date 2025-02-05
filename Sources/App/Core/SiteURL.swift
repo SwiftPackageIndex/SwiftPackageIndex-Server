@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Dependencies
 import Plot
 import Vapor
 
@@ -125,6 +126,7 @@ enum SiteURL: Resourceable, Sendable {
     case login
     case logout
     case package(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagePathComponents?)
+    case packageCollectionKeyword(_ keyword: Parameter<String>)
     case packageCollectionAuthor(_ owner: Parameter<String>)
     case packageCollectionCustom(_ key: Parameter<String>)
     case packageCollections
@@ -141,6 +143,7 @@ enum SiteURL: Resourceable, Sendable {
     case stylesheets(String)
     case supporters
     case tryInPlayground
+    case healthCheck
     case validateSPIManifest
     case verify
 
@@ -229,6 +232,12 @@ enum SiteURL: Resourceable, Sendable {
             case .package:
                 fatalError("invalid path: \(self)")
 
+            case let .packageCollectionKeyword(.value(keyword)):
+                return "keywords/\(keyword)/collection.json"
+
+            case .packageCollectionKeyword(.key):
+                fatalError("invalid path: \(self)")
+
             case let .packageCollectionAuthor(.value(owner)):
                 return "\(owner)/collection.json"
 
@@ -286,6 +295,9 @@ enum SiteURL: Resourceable, Sendable {
             case .tryInPlayground:
                 return "try-in-a-playground"
 
+            case .healthCheck:
+                return "health-check"
+
             case .validateSPIManifest:
                 return "validate-spi-manifest"
             
@@ -320,6 +332,8 @@ enum SiteURL: Resourceable, Sendable {
                     .tryInPlayground,
                     .validateSPIManifest,
                     .verify:
+                    .healthCheck,
+                    .validateSPIManifest:
                 return [.init(stringLiteral: path)]
 
             case let .api(next):
@@ -361,6 +375,12 @@ enum SiteURL: Resourceable, Sendable {
             case .package:
                 fatalError("pathComponents must not be called with a value parameter")
 
+            case .packageCollectionKeyword(.key):
+                return ["keywords", ":keyword", "collection.json"]
+
+            case .packageCollectionKeyword(.value):
+                fatalError("pathComponents must not be called with a value parameter")
+
             case .packageCollectionAuthor(.key):
                 return [":owner", "collection.json"]
 
@@ -379,7 +399,8 @@ enum SiteURL: Resourceable, Sendable {
     }
 
     static let _absoluteURL: @Sendable (String) -> String = { path in
-        Current.siteURL() + relativeURL(path)
+        @Dependency(\.environment) var environment
+        return environment.siteURL() + relativeURL(path)
     }
 
     static let _relativeURL: @Sendable (String) -> String = { path in
@@ -387,15 +408,15 @@ enum SiteURL: Resourceable, Sendable {
         return path
     }
 
-    #if DEBUG
+#if DEBUG
     // make `var` for debug so we can dependency inject
     nonisolated(unsafe) static var absoluteURL = _absoluteURL
     nonisolated(unsafe) static var relativeURL = _relativeURL
-    #else
+#else
     static let absoluteURL = _absoluteURL
     static let relativeURL = _relativeURL
-    #endif
 
+#endif
     static var apiBaseURL: String { absoluteURL("api") }
 
     enum PackagePathComponents: String, Resourceable {

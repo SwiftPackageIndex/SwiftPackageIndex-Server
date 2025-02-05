@@ -16,6 +16,9 @@ import XCTest
 
 @testable import App
 
+import Dependencies
+
+
 class PackageContributorsTests : AppTestCase {
 
     func test_packageAuthors_hasAuthors() throws {
@@ -64,40 +67,38 @@ class PackageContributorsTests : AppTestCase {
 
 
     func test_PackageContributors_extract() async throws {
-        // setup
-        let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
-        Current.fileManager.fileExists = { @Sendable _ in true }
-        Current.git.shortlog = { @Sendable _ in
-            """
-            1000\tPerson 1
-             871\tPerson 2
-             803\tPerson 3
-             722\tPerson 4
-             703\tPerson 5
-             360\tPerson 6
-             108\tPerson 7
-              86\tPerson 8
-              43\tPerson 9
-              40\tPerson 10
-              11\tPerson 11
-            """
+        try await withDependencies {
+            $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.git.shortlog = { @Sendable _ in
+                """
+                1000\tPerson 1
+                 871\tPerson 2
+                 803\tPerson 3
+                 722\tPerson 4
+                 703\tPerson 5
+                 360\tPerson 6
+                 108\tPerson 7
+                  86\tPerson 8
+                  43\tPerson 9
+                  40\tPerson 10
+                  11\tPerson 11
+                """
+            }
+        } operation: {
+            // setup
+            let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
+
+            // MUT
+            let pkgAuthors = try await PackageContributors.extract(gitCacheDirectoryPath: "",
+                                                                   packageID: pkg.id)
+
+            XCTAssertEqual(pkgAuthors.authors, [Author(name: "Person 1") ,
+                                                Author(name: "Person 2"),
+                                                Author(name: "Person 3"),
+                                                Author(name: "Person 4"),
+                                                Author(name: "Person 5")])
+            XCTAssertEqual(pkgAuthors.numberOfContributors, 6)
         }
-
-        guard let gitCacheDirectoryPath = Current.fileManager.cacheDirectoryPath(for: pkg) else {
-            throw AppError.invalidPackageCachePath(pkg.id, pkg.url)
-        }
-
-        // MUT
-        let pkgAuthors = try await PackageContributors.extract(gitCacheDirectoryPath: gitCacheDirectoryPath,
-                                                               packageID: pkg.id)
-
-        XCTAssertEqual(pkgAuthors.authors, [Author(name: "Person 1") ,
-                                            Author(name: "Person 2"),
-                                            Author(name: "Person 3"),
-                                            Author(name: "Person 4"),
-                                            Author(name: "Person 5")])
-        XCTAssertEqual(pkgAuthors.numberOfContributors, 6)
-
     }
 
 

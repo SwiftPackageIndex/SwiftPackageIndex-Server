@@ -16,6 +16,8 @@ import XCTest
 
 @testable import App
 
+import Dependencies
+
 
 final class PlausibleTests: XCTestCase {
 
@@ -29,43 +31,50 @@ final class PlausibleTests: XCTestCase {
     }
 
     func test_postEvent_anonymous() async throws {
-        Current.plausibleBackendReportingSiteID = { "foo.bar" }
+        let called = ActorIsolated(false)
+        try await withDependencies {
+            $0.environment.plausibleBackendReportingSiteID = { "foo.bar" }
+            $0.httpClient.post = { @Sendable _, _, body in
+                await called.withValue { $0 = true }
+                // validate
+                let body = try XCTUnwrap(body)
+                XCTAssertEqual(try? JSONDecoder().decode(Plausible.Event.self, from: body),
+                               .init(name: .pageview,
+                                     url: "https://foo.bar/api/search",
+                                     domain: "foo.bar",
+                                     props: ["user": "none"]))
+                return .ok
+            }
+        } operation: {
+            // MUT
+            _ = try await Plausible.postEvent(kind: .pageview, path: .search, user: nil)
 
-        var called = false
-        let client = MockClient { req, _ in
-            called = true
-            // validate
-            XCTAssertEqual(try? req.content.decode(Plausible.Event.self),
-                           .init(name: .pageview,
-                                 url: "https://foo.bar/api/search",
-                                 domain: "foo.bar",
-                                 props: ["user": "none"]))
+            await called.withValue { XCTAssertTrue($0) }
         }
-
-        // MUT
-        _ = try await Plausible.postEvent(client: client, kind: .pageview, path: .search, user: nil)
-
-        XCTAssertTrue(called)
     }
 
     func test_postEvent_package() async throws {
-        Current.plausibleBackendReportingSiteID = { "foo.bar" }
+        let called = ActorIsolated(false)
+        try await withDependencies {
+            $0.environment.plausibleBackendReportingSiteID = { "foo.bar" }
+            $0.httpClient.post = { @Sendable _, _, body in
+                await called.withValue { $0 = true }
+                // validate
+                let body = try XCTUnwrap(body)
+                XCTAssertEqual(try? JSONDecoder().decode(Plausible.Event.self, from: body),
+                               .init(name: .pageview,
+                                     url: "https://foo.bar/api/packages/{owner}/{repository}",
+                                     domain: "foo.bar",
+                                     props: ["user": "3c469e9d"]))
+                return .ok
+            }
+        } operation: {
+            let user = User(name: "api", identifier: "3c469e9d")
 
-        let user = User(name: "api", identifier: "3c469e9d")
-        var called = false
-        let client = MockClient { req, _ in
-            called = true
-            // validate
-            XCTAssertEqual(try? req.content.decode(Plausible.Event.self),
-                           .init(name: .pageview,
-                                 url: "https://foo.bar/api/packages/{owner}/{repository}",
-                                 domain: "foo.bar",
-                                 props: ["user": user.identifier]))
+            // MUT
+            _ = try await Plausible.postEvent(kind: .pageview, path: .package, user: user)
+
+            await called.withValue { XCTAssertTrue($0) }
         }
-
-        // MUT
-        _ = try await Plausible.postEvent(client: client, kind: .pageview, path: .package, user: user)
-
-        XCTAssertTrue(called)
     }
 }

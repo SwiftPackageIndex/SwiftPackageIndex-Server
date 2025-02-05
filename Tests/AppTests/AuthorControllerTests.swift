@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
+import Dependencies
 import Vapor
-import XCTest
+
 
 class AuthorControllerTests: AppTestCase {
 
@@ -66,27 +69,33 @@ class AuthorControllerTests: AppTestCase {
     }
 
     func test_show_owner() async throws {
-        // setup
-        let p = try await savePackage(on: app.db, "1")
-        try await Repository(package: p, owner: "owner").save(on: app.db)
-        try await Version(package: p, latest: .defaultBranch).save(on: app.db)
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            let p = try await savePackage(on: app.db, "1")
+            try await Repository(package: p, owner: "owner").save(on: app.db)
+            try await Version(package: p, latest: .defaultBranch).save(on: app.db)
 
-        // MUT
-        try await app.test(.GET, "/owner", afterResponse: { response async in
-            XCTAssertEqual(response.status, .ok)
-        })
+            // MUT
+            try await app.test(.GET, "/owner", afterResponse: { response async in
+                XCTAssertEqual(response.status, .ok)
+            })
+        }
     }
 
     func test_show_owner_empty() async throws {
-        // setup
-        let p = try await savePackage(on: app.db, "1")
-        try await Repository(package: p, owner: "owner").save(on: app.db)
-        try await Version(package: p, latest: .defaultBranch).save(on: app.db)
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            let p = try await savePackage(on: app.db, "1")
+            try await Repository(package: p, owner: "owner").save(on: app.db)
+            try await Version(package: p, latest: .defaultBranch).save(on: app.db)
 
-        // MUT
-        try await app.test(.GET, "/fake-owner", afterResponse: { response async in
-            XCTAssertEqual(response.status, .notFound)
-        })
+            // MUT
+            try await app.test(.GET, "/fake-owner", afterResponse: { response async in
+                XCTAssertEqual(response.status, .notFound)
+            })
+        }
     }
 
 }

@@ -25,11 +25,11 @@ enum Supporters {
                           darkModeUrl: "/images/sponsors/emerge~dark.png"),
               url: "https://www.emergetools.com/?utm_source=spi2&utm_medium=sponsor&utm_campaign=emerge",
               advertisingCopy: "Join the future of mobile development. Trusted by top companies like Duolingo, Square, DoorDash & more…"),
-        .init(name: "ContextSDK",
-              logo: .init(lightModeUrl: "/images/sponsors/contextsdk.png",
-                          darkModeUrl: "/images/sponsors/contextsdk~dark.png"),
-              url: "https://contextsdk.com",
-              advertisingCopy: "Intent detection with real-world context. Lean, lightweight and GDPR compliant out of the box."),
+        .init(name: "RevenueCat",
+              logo: .init(lightModeUrl: "/images/sponsors/revenuecat.png",
+                          darkModeUrl: "/images/sponsors/revenuecat~dark.png"),
+              url: "https://www.revenuecat.com/?utm_medium=sponsored&utm_source=swift_package_index&utm_campaign=general_sponsorship&utm_content=banner%20ad",
+              advertisingCopy: "The world’s best apps use RevenueCat to power in-app purchases, manage customer data, and grow revenue."),
     ]
 
     nonisolated(unsafe) static var infrastructure: [Corporate] = [
