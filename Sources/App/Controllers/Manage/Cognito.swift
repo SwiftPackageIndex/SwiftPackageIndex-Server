@@ -46,7 +46,7 @@ struct Cognito {
             adminClient: true
         )
         req.application.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
-        try await req.application.cognito.authenticatable.signUp(username: username, password: password, attributes: [:], on:req.eventLoop)
+        _ = try await req.application.cognito.authenticatable.signUp(username: username, password: password, attributes: [:], on:req.eventLoop)
         try awsClient.syncShutdown()
     }
     

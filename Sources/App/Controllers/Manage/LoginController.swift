@@ -27,7 +27,7 @@ enum LoginController {
             case .authenticated(let authenticatedResponse):
                 let user = AuthenticatedUser(accessToken: authenticatedResponse.accessToken!)
                 req.auth.login(user)
-            case .challenged(let challengedResponse): // with the current pool configuration, a challenge response is not expected
+            case .challenged(_): // Cognito is not configured to send challenges, so we should never receive this response.
                 break
             }
             return req.redirect(to: SiteURL.portal.relativeURL(), redirectType: .normal)
