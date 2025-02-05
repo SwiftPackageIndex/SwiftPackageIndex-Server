@@ -256,9 +256,6 @@ enum SiteURL: Resourceable, Sendable {
             case .portal:
                 return "portal"
 
-            case .portal:
-                return "portal"
-
             case .privacy:
                 return "privacy"
 
