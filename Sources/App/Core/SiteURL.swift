@@ -331,9 +331,8 @@ enum SiteURL: Resourceable, Sendable {
                     .supporters,
                     .tryInPlayground,
                     .validateSPIManifest,
-                    .verify:
-                    .healthCheck,
-                    .validateSPIManifest:
+                    .verify,
+                    .healthCheck:
                 return [.init(stringLiteral: path)]
 
             case let .api(next):
