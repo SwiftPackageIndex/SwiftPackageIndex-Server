@@ -17,6 +17,7 @@ import Testing
 @testable import App
 
 import Dependencies
+import DependenciesTestSupport
 import Fluent
 import ShellOut
 
@@ -35,7 +36,54 @@ private func withApp(_ environment: Environment, _ test: (Application, Capturing
     }
 }
 
+// Workaround for Swift compiler bug https://github.com/swiftlang/swift/issues/76409
+private func isTrue() -> Bool { true }
+private let socialPosts = LockIsolated<[String]>([])
+private func mastodonPost(message: String) async throws -> Void {
+    socialPosts.withValue { $0.append(message) }
+}
+private extension GitClient {
+    struct SetupError: Error { }
+    static var mock: Self {
+        .init(
+            commitCount: { _ in 1 },
+            firstCommitDate: { _ in .t0 },
+            getTags: { checkoutDir in
+                if checkoutDir.hasSuffix("foo-1") { return [] }
+                if checkoutDir.hasSuffix("foo-2") { return [.tag(1, 2, 3)] }
+                throw SetupError()
+            },
+            hasBranch: { _, _ in true },
+            lastCommitDate: { _ in .t1 },
+            revisionInfo: { ref, checkoutDir in
+                if checkoutDir.hasSuffix("foo-1") { return .init(commit: "commit \(ref)", date: .t1) }
+                if checkoutDir.hasSuffix("foo-2") { return .init(commit: "commit \(ref)", date: .t1) }
+                throw SetupError()
+            },
+            shortlog: { _ in
+                """
+                1000\tPerson 1
+                 871\tPerson 2
+                 703\tPerson 3
+                 360\tPerson 4
+                 108\tPerson 5
+                """
+            }
+        )
+    }
+}
+private func defaultShellRun(command: ShellOutCommand, path: String) throws -> String {
+    switch command {
+        case .swiftDumpPackage where path.hasSuffix("foo-1"):
+            return packageSwift1
 
+        case .swiftDumpPackage where path.hasSuffix("foo-2"):
+            return packageSwift2
+
+        default:
+            return ""
+    }
+}
 
 // Test analysis error handling.
 //
@@ -44,27 +92,18 @@ private func withApp(_ environment: Environment, _ test: (Application, Capturing
 //
 // We analyze two packages where the first package is set up to encounter
 // various error states and ensure the second package is successfully processed.
-@Suite class AnalyzeErrorTests {
+@Suite(
+    .dependency(\.date.now, Date.t0),
+    .dependency(\.environment.allowSocialPosts, isTrue),
+    .dependency(GitClient.mock),
+    .dependency(\.httpClient.mastodonPost, mastodonPost(message:)),
+    .dependency(\.shell.run, defaultShellRun(command:path:))
+)
+class AnalyzeErrorTests {
 
     let badPackageID: Package.Id = .id0
     let goodPackageID: Package.Id = .id1
 
-    let socialPosts = LockIsolated<[String]>([])
-
-    static let defaultShellRun: @Sendable (ShellOutCommand, String) throws -> String = { @Sendable cmd, path in
-        switch cmd {
-            case .swiftDumpPackage where path.hasSuffix("foo-1"):
-                return packageSwift1
-
-            case .swiftDumpPackage where path.hasSuffix("foo-2"):
-                return packageSwift2
-
-            default:
-                return ""
-        }
-    }
-
-    struct SetupError: Error { }
     struct SimulatedError: Error { }
 
     init() async throws {
@@ -90,44 +129,6 @@ private func withApp(_ environment: Environment, _ test: (Application, Capturing
         }
     }
 
-#warning("FIXME: where should this go?")
-    // https://forums.swift.org/t/converting-xctest-invoketest-to-swift-testing
-    func invokeTest() {
-        withDependencies {
-            $0.date.now = .t0
-            $0.environment.allowSocialPosts = { true }
-            $0.git.commitCount = { @Sendable _ in 1 }
-            $0.git.firstCommitDate = { @Sendable _ in .t0 }
-            $0.git.getTags = { @Sendable checkoutDir in
-                if checkoutDir.hasSuffix("foo-1") { return [] }
-                if checkoutDir.hasSuffix("foo-2") { return [.tag(1, 2, 3)] }
-                throw SetupError()
-            }
-            $0.git.hasBranch = { @Sendable _, _ in true }
-            $0.git.lastCommitDate = { @Sendable _ in .t1 }
-            $0.git.revisionInfo = { @Sendable ref, checkoutDir in
-                if checkoutDir.hasSuffix("foo-1") { return .init(commit: "commit \(ref)", date: .t1) }
-                if checkoutDir.hasSuffix("foo-2") { return .init(commit: "commit \(ref)", date: .t1) }
-                throw SetupError()
-            }
-            $0.git.shortlog = { @Sendable _ in
-                """
-                1000\tPerson 1
-                 871\tPerson 2
-                 703\tPerson 3
-                 360\tPerson 4
-                 108\tPerson 5
-                """
-            }
-            $0.httpClient.mastodonPost = { @Sendable [socialPosts = self.socialPosts] message in
-                socialPosts.withValue { $0.append(message) }
-            }
-            $0.shell.run = Self.defaultShellRun
-        } operation: {
-//            super.invokeTest()
-        }
-    }
-
     @Test func analyze_refreshCheckout_failed() async throws {
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
@@ -141,7 +142,7 @@ private func withApp(_ environment: Environment, _ test: (Application, Capturing
                         throw SimulatedError()
 
                     default:
-                        return try Self.defaultShellRun(cmd, path)
+                        return try defaultShellRun(command: cmd, path: path)
                 }
             }
         } operation: {
@@ -199,7 +200,7 @@ private func withApp(_ environment: Environment, _ test: (Application, Capturing
                         throw SimulatedError()
 
                     default:
-                        return try Self.defaultShellRun(cmd, path)
+                        return try defaultShellRun(command: cmd, path: path)
                 }
             }
         } operation: {
