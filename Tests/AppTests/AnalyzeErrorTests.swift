@@ -12,13 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
+import Testing
 
 @testable import App
 
 import Dependencies
 import Fluent
 import ShellOut
+
+
+import Vapor
+private func withApp(_ environment: Environment, _ test: (Application, CapturingLogger) async throws -> Void) async throws {
+    try await AppTestCase.setupDb(environment)
+    let app = try await AppTestCase.setupApp(environment)
+
+    let logger = CapturingLogger()
+
+    return try await run {
+        try await test(app, logger)
+    } defer: {
+        try await app.asyncShutdown()
+    }
+}
+
 
 
 // Test analysis error handling.
@@ -28,7 +44,7 @@ import ShellOut
 //
 // We analyze two packages where the first package is set up to encounter
 // various error states and ensure the second package is successfully processed.
-final class AnalyzeErrorTests: AppTestCase {
+@Suite class AnalyzeErrorTests {
 
     let badPackageID: Package.Id = .id0
     let goodPackageID: Package.Id = .id1
@@ -51,30 +67,32 @@ final class AnalyzeErrorTests: AppTestCase {
     struct SetupError: Error { }
     struct SimulatedError: Error { }
 
-    override func setUp() async throws {
-        try await super.setUp()
-
+    init() async throws {
         socialPosts.setValue([])
 
-        let pkgs = [
-            Package(id: badPackageID,
-                    url: "https://github.com/foo/1".url,
-                    status: .ok,
-                    processingStage: .ingestion),
-            Package(id: goodPackageID,
-                    url: "https://github.com/foo/2".url,
-                    status: .ok,
-                    processingStage: .ingestion),
-        ]
-        try await pkgs.save(on: app.db)
+        try await withApp(.testing) { app, _ in
+            let pkgs = [
+                Package(id: badPackageID,
+                        url: "https://github.com/foo/1".url,
+                        status: .ok,
+                        processingStage: .ingestion),
+                Package(id: goodPackageID,
+                        url: "https://github.com/foo/2".url,
+                        status: .ok,
+                        processingStage: .ingestion),
+            ]
+            try await pkgs.save(on: app.db)
 
-        try await [
-            Repository(package: pkgs[0], defaultBranch: "main", name: "1", owner: "foo"),
-            Repository(package: pkgs[1], defaultBranch: "main", name: "2", owner: "foo"),
-        ].save(on: app.db)
+            try await [
+                Repository(package: pkgs[0], defaultBranch: "main", name: "1", owner: "foo"),
+                Repository(package: pkgs[1], defaultBranch: "main", name: "2", owner: "foo"),
+            ].save(on: app.db)
+        }
     }
 
-    override func invokeTest() {
+#warning("FIXME: where should this go?")
+    // https://forums.swift.org/t/converting-xctest-invoketest-to-swift-testing
+    func invokeTest() {
         withDependencies {
             $0.date.now = .t0
             $0.environment.allowSocialPosts = { true }
@@ -106,11 +124,11 @@ final class AnalyzeErrorTests: AppTestCase {
             }
             $0.shell.run = Self.defaultShellRun
         } operation: {
-            super.invokeTest()
+//            super.invokeTest()
         }
     }
 
-    func test_analyze_refreshCheckout_failed() async throws {
+    @Test func analyze_refreshCheckout_failed() async throws {
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable _ in true }
@@ -127,46 +145,51 @@ final class AnalyzeErrorTests: AppTestCase {
                 }
             }
         } operation: {
-            // MUT
-            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+#warning("Make the parameters part of withDependencies")
+            try await withApp(.testing) { app, logger in
+                // MUT
+                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
-            // validate
-            try await defaultValidation()
-            try logger.logs.withValue { logs in
-                XCTAssertEqual(logs.count, 2)
-                let error = try logs.last.unwrap()
-                XCTAssertTrue(error.message.contains("refreshCheckout failed"), "was: \(error.message)")
+                // validate
+                try await defaultValidation()
+                try logger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    let error = try logs.last.unwrap()
+                    #expect(error.message.contains("refreshCheckout failed"), "was: \(error.message)")
+                }
             }
         }
     }
 
-    func test_analyze_updateRepository_invalidPackageCachePath() async throws {
+    @Test func analyze_updateRepository_invalidPackageCachePath() async throws {
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
-            // setup
-            let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
-            // This may look weird but its currently the only way to actually create an
-            // invalid package cache path - we need to mess up the package url.
-            pkg.url = "foo/1"
-            XCTAssertNil(pkg.cacheDirectoryName)
-            try await pkg.save(on: app.db)
+            try await withApp(.testing) { app, logger in
+                // setup
+                let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
+                // This may look weird but its currently the only way to actually create an
+                // invalid package cache path - we need to mess up the package url.
+                pkg.url = "foo/1"
+                #expect(pkg.cacheDirectoryName == nil)
+                try await pkg.save(on: app.db)
 
-            // MUT
-            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+                // MUT
+                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
-            // validate
-            try await defaultValidation()
-            try logger.logs.withValue { logs in
-                XCTAssertEqual(logs.count, 2)
-                let error = try logs.last.unwrap()
-                XCTAssertTrue(error.message.contains( "AppError.invalidPackageCachePath"), "was: \(error.message)")
+                // validate
+                try await defaultValidation()
+                try logger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    let error = try logs.last.unwrap()
+                    #expect(error.message.contains( "AppError.invalidPackageCachePath"), "was: \(error.message)")
+                }
             }
         }
     }
 
-    func test_analyze_getPackageInfo_gitCheckout_error() async throws {
+    @Test func analyze_getPackageInfo_gitCheckout_error() async throws {
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable _ in true }
@@ -180,20 +203,22 @@ final class AnalyzeErrorTests: AppTestCase {
                 }
             }
         } operation: {
-            // MUT
-            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+            try await withApp(.testing) { app, logger in
+                // MUT
+                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
-            // validate
-            try await defaultValidation()
-            try logger.logs.withValue { logs in
-                XCTAssertEqual(logs.count, 2)
-                let error = try logs.last.unwrap()
-                XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
+                // validate
+                try await defaultValidation()
+                try logger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    let error = try logs.last.unwrap()
+                    #expect(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
+                }
             }
         }
     }
 
-    func test_analyze_dumpPackage_missing_manifest() async throws {
+    @Test func analyze_dumpPackage_missing_manifest() async throws {
         try await withDependencies {
             $0.environment.loadSPIManifest = { _ in nil }
             $0.fileManager.fileExists = { @Sendable path in
@@ -203,17 +228,19 @@ final class AnalyzeErrorTests: AppTestCase {
                 return true
             }
         } operation: {
-            // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(10))
-            
-            // validate
-            try await defaultValidation()
-            try logger.logs.withValue { logs in
-                XCTAssertEqual(logs.count, 2)
-                let error = try logs.last.unwrap()
-                XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
+            try await withApp(.testing) { app, logger in
+                // MUT
+                try await Analyze.analyze(client: app.client,
+                                          database: app.db,
+                                          mode: .limit(10))
+
+                // validate
+                try await defaultValidation()
+                try logger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    let error = try logs.last.unwrap()
+                    #expect(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
+                }
             }
         }
     }
@@ -223,20 +250,22 @@ final class AnalyzeErrorTests: AppTestCase {
 
 extension AnalyzeErrorTests {
     func defaultValidation() async throws {
-        let versions = try await Version.query(on: app.db)
-            .filter(\.$package.$id == goodPackageID)
-            .all()
-        XCTAssertEqual(versions.count, 2)
-        XCTAssertEqual(versions.filter(\.isBranch).first?.latest, .defaultBranch)
-        XCTAssertEqual(versions.filter(\.isTag).first?.latest, .release)
-        socialPosts.withValue { tweets in
-            XCTAssertEqual(tweets, [
+        try await withApp(.testing) { app, logger in
+            let versions = try await Version.query(on: app.db)
+                .filter(\.$package.$id == goodPackageID)
+                .all()
+            #expect(versions.count == 2)
+            #expect(versions.filter(\.isBranch).first?.latest == .defaultBranch)
+            #expect(versions.filter(\.isTag).first?.latest == .release)
+            socialPosts.withValue { tweets in
+                #expect(tweets == [
             """
             ⬆️ foo just released foo-2 v1.2.3
-
+            
             http://localhost:8080/foo/2#releases
             """
-            ])
+                ])
+            }
         }
     }
 }
