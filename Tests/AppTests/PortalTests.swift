@@ -23,7 +23,7 @@ import SotoCognitoAuthenticationKit
 
 
 
-class ManageTests: AppTestCase {
+class PortalTests: AppTestCase {
 
     func test_portal_route_protected() throws {
         try app.test(.GET, "portal") { res in
