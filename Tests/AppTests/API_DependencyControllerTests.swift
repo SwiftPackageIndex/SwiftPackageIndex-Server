@@ -17,7 +17,7 @@
 import XCTVapor
 
 
-final class API_DependencyControllerTests: AppTestCase {
+final class API_DependencyControllerTests: ParallelizedAppTestCase {
 
     func test_query() async throws {
         // setup

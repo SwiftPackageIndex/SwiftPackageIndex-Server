@@ -18,7 +18,7 @@ import PostgresKit
 import XCTVapor
 
 
-class VersionTests: AppTestCase {
+class VersionTests: ParallelizedAppTestCase {
 
     func test_save() async throws {
         // setup

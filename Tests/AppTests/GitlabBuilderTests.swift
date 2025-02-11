@@ -20,7 +20,7 @@ import Dependencies
 import Vapor
 
 
-class GitlabBuilderTests: AppTestCase {
+class GitlabBuilderTests: ParallelizedAppTestCase {
 
     func test_SwiftVersion_rendering() throws {
         XCTAssertEqual("\(SwiftVersion.v4)", "6.0.0")
@@ -162,7 +162,7 @@ class GitlabBuilderTests: AppTestCase {
 }
 
 
-class LiveGitlabBuilderTests: AppTestCase {
+class LiveGitlabBuilderTests: ParallelizedAppTestCase {
 
     func test_triggerBuild_live() async throws {
         try XCTSkipIf(

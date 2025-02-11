@@ -20,7 +20,7 @@ import NIOConcurrencyHelpers
 import XCTVapor
 
 
-class SocialTests: AppTestCase {
+class SocialTests: ParallelizedAppTestCase {
 
     func test_versionUpdateMessage() throws {
         XCTAssertEqual(

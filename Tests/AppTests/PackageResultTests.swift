@@ -19,7 +19,7 @@ import XCTest
 import SemanticVersion
 
 
-class PackageResultTests: AppTestCase {
+class PackageResultTests: ParallelizedAppTestCase {
     typealias PackageResult = PackageController.PackageResult
 
     func test_joined5() async throws {

@@ -20,7 +20,7 @@ import Dependencies
 import Vapor
 
 
-class API_PackageControllerTests: AppTestCase {
+class API_PackageControllerTests: ParallelizedAppTestCase {
 
     typealias BuildDetails = (reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status)
 

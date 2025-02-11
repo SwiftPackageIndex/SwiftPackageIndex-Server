@@ -21,7 +21,7 @@ import SQLKit
 import XCTVapor
 
 
-class BuildTests: AppTestCase {
+class BuildTests: ParallelizedAppTestCase {
 
     func test_save() async throws {
         // setup

@@ -17,7 +17,7 @@
 import XCTVapor
 
 
-class RecentViewsTests: AppTestCase {
+class RecentViewsTests: ParallelizedAppTestCase {
 
     func test_recentPackages() async throws {
         // setup

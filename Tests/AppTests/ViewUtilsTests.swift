@@ -45,7 +45,7 @@ class ViewUtilsTests: XCTestCase {
 
 
 // Test that require DB access
-class ViewUtilsDBTests: AppTestCase {
+class ViewUtilsDBTests: ParallelizedAppTestCase {
 
     func test_makeLink() async throws {
         // setup

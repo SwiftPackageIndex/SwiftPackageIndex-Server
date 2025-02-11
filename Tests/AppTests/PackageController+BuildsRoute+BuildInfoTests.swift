@@ -18,7 +18,7 @@ import Vapor
 import XCTest
 
 
-class PackageController_BuildsRoute_BuildInfoTests: AppTestCase {
+class PackageController_BuildsRoute_BuildInfoTests: ParallelizedAppTestCase {
 
     func test_buildStatus() throws {
         // Test build status aggregation, in particular see

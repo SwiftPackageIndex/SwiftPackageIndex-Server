@@ -35,7 +35,7 @@ run:
 
 test: xcbeautify
 	set -o pipefail \
-	&& swift test --disable-automatic-resolution --sanitize=thread \
+	&& swift test --disable-automatic-resolution --sanitize=thread --parallel \
 	2>&1 | ./xcbeautify --renderer github-actions
 
 test-query-performance: xcbeautify
@@ -50,7 +50,7 @@ test-query-performance: xcbeautify
 test-fast:
 	@echo Skipping image snapshot tests
 	@echo Running without --sanitize=thread
-	swift test --disable-automatic-resolution
+	swift test --disable-automatic-resolution --parallel
 
 xcbeautify:
 	rm -rf .build/checkouts/xcbeautify

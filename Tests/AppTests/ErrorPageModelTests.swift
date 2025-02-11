@@ -16,7 +16,7 @@
 
 import XCTVapor
 
-class ErrorPageModelTests: AppTestCase {
+class ErrorPageModelTests: ParallelizedAppTestCase {
 
     func test_500() throws {
         // setup

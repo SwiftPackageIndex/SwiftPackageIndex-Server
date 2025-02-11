@@ -19,7 +19,7 @@ import SnapshotTesting
 import Dependencies
 
 
-class SnapshotTestCase: AppTestCase {
+class SnapshotTestCase: ParallelizedAppTestCase {
 
     override func setUpWithError() throws {
         try super.setUpWithError()

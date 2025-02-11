@@ -17,7 +17,7 @@
 import XCTVapor
 
 
-class BuildShowModelTests: AppTestCase {
+class BuildShowModelTests: ParallelizedAppTestCase {
 
     typealias Model = BuildShow.Model
 

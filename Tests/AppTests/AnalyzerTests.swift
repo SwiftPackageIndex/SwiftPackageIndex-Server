@@ -26,7 +26,7 @@ import Vapor
 @preconcurrency import ShellOut
 
 
-class AnalyzerTests: AppTestCase {
+class AnalyzerTests: ParallelizedAppTestCase {
 
     @MainActor
     func test_analyze() async throws {
@@ -1569,7 +1569,7 @@ class AnalyzerTests: AppTestCase {
                 }
             }
         }
-}
+    }
 
 }
 

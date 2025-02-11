@@ -19,7 +19,7 @@ import XCTest
 import SemanticVersion
 import SPIManifest
 
-class ArrayVersionExtensionTests: AppTestCase {
+class ArrayVersionExtensionTests: ParallelizedAppTestCase {
 
     func test_Array_canonicalDocumentationTarget() async throws {
         let pkg = try await savePackage(on: app.db, "1".url)
