@@ -3,6 +3,7 @@ import SotoCognitoAuthentication
 import SotoCognitoIdentityProvider
 import SotoCognitoIdentity
 
+
 struct Cognito {
     @Sendable
     static func authenticate(req: Request, username: String, password: String) async throws -> CognitoAuthenticateResponse {
