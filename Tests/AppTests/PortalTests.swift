@@ -90,6 +90,7 @@ class PortalTests: AppTestCase {
         try withDependencies {
             let mock: @Sendable (_ req: Request, _ username: String, _ password: String) async throws -> CognitoAuthenticateResponse = { _, _, _ in throw SotoCognitoError.unauthorized(reason: "reason") }
             $0.cognito.authenticate = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "login", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword"])
             }, afterResponse: { res in
@@ -102,6 +103,7 @@ class PortalTests: AppTestCase {
         try withDependencies {
             let mock: @Sendable (_ req: Request, _ username: String, _ password: String) async throws -> CognitoAuthenticateResponse = { _, _, _ in throw AWSClientError.accessDenied }
             $0.cognito.authenticate = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "login", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword"])
             }, afterResponse: { res in
@@ -115,6 +117,7 @@ class PortalTests: AppTestCase {
         try withDependencies {
             let mock: @Sendable (_ req: Request, _ username: String, _ password: String) async throws -> CognitoAuthenticateResponse = { _, _, _ in throw SomeError() }
             $0.cognito.authenticate = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "login", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword"])
             }, afterResponse: { res in
@@ -127,6 +130,7 @@ class PortalTests: AppTestCase {
         try withDependencies {
             let mock: @Sendable (_ req: Request, _ username: String, _ password: String) async throws -> Void = { _, _, _ in }
             $0.cognito.signup = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "signup", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword"])
             }, afterResponse: { res in
@@ -140,6 +144,7 @@ class PortalTests: AppTestCase {
         try withDependencies {
             let mock: @Sendable (_ req: Request, _ username: String, _ password: String) async throws -> Void = { _, _, _ in throw AWSClientError.accessDenied }
             $0.cognito.signup = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "signup", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword"])
             }, afterResponse: { res in
@@ -153,6 +158,7 @@ class PortalTests: AppTestCase {
         try withDependencies {
             let mock: @Sendable (_ req: Request, _ username: String, _ password: String) async throws -> Void = { _, _, _ in throw SomeError() }
             $0.cognito.signup = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "signup") { res in
                 XCTAssertTrue(res.body.string.contains("error"))
@@ -164,6 +170,7 @@ class PortalTests: AppTestCase {
         try withDependencies {
             let mock: @Sendable (_ req: Request, _ username: String, _ password: String, _ confirmationCode: String) async throws -> Void = { _, _, _, _ in }
             $0.cognito.resetPassword = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "reset", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword", "confirmationCode": "123"])
             }, afterResponse: { res in
@@ -177,6 +184,7 @@ class PortalTests: AppTestCase {
         try withDependencies {
             let mock: @Sendable (_ req: Request, _ username: String, _ password: String, _ confirmationCode: String) async throws -> Void = { _, _, _, _ in throw AWSClientError.accessDenied }
             $0.cognito.resetPassword = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "reset", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword", "confirmationCode": "123"])
             }, afterResponse: { res in
@@ -190,6 +198,7 @@ class PortalTests: AppTestCase {
             struct SomeError: Error {}
             let mock: @Sendable (_ req: Request, _ username: String, _ password: String, _ confirmationCode: String) async throws -> Void = { _, _, _, _ in throw SomeError() }
             $0.cognito.resetPassword = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "reset", beforeRequest: { req in try req.content.encode(["email": "testemail", "password": "testpassword", "confirmationCode": "123"])
             }, afterResponse: { res in
@@ -202,6 +211,7 @@ class PortalTests: AppTestCase {
         try withDependencies {
             let mock: @Sendable (_ req: Request, _ username: String) async throws -> Void = { _, _ in }
             $0.cognito.forgotPassword = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "forgot-password", beforeRequest: { req in try req.content.encode(["email": "testemail"])
             }, afterResponse: { res in
@@ -216,6 +226,7 @@ class PortalTests: AppTestCase {
             struct SomeError: Error {}
             let mock: @Sendable (_ req: Request, _ username: String) async throws -> Void = { _, _ in throw SomeError() }
             $0.cognito.forgotPassword = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "forgot-password", beforeRequest: { req in try req.content.encode(["email": "testemail"])
             }, afterResponse: { res in
@@ -245,6 +256,7 @@ class PortalTests: AppTestCase {
         try withDependencies {
             let mock: @Sendable (_ req: Request, _ username: String, _ confirmationCode: String) async throws -> Void = { _, _, _ in }
             $0.cognito.confirmSignUp = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "verify", beforeRequest: { req in try req.content.encode(["email": "testemail", "confirmationCode": "123"])
             }, afterResponse: { res in
@@ -258,6 +270,7 @@ class PortalTests: AppTestCase {
         try withDependencies {
             let mock: @Sendable (_ req: Request, _ username: String, _ confirmationCode: String) async throws -> Void = { _, _, _ in throw AWSClientError.accessDenied }
             $0.cognito.confirmSignUp = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "verify", beforeRequest: { req in try req.content.encode(["email": "testemail", "confirmationCode": "123"])
             }, afterResponse: { res in
@@ -271,6 +284,7 @@ class PortalTests: AppTestCase {
             struct SomeError: Error {}
             let mock: @Sendable (_ req: Request, _ username: String, _ confirmationCode: String) async throws -> Void = { _, _, _ in throw SomeError() }
             $0.cognito.confirmSignUp = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "verify", beforeRequest: { req in try req.content.encode(["email": "testemail", "confirmationCode": "123"])
             }, afterResponse: { res in
@@ -310,6 +324,7 @@ class PortalTests: AppTestCase {
             struct SomeError: Error {}
             let mock: @Sendable (_ req: Request) async throws -> Void = { _ in throw SomeError() }
             $0.cognito.deleteUser = mock
+            $0.environment.dbId = { nil }
         } operation: {
             try app.test(.POST, "delete") { res in
                 XCTAssertEqual(res.status, .internalServerError)
