@@ -18,7 +18,7 @@ enum DeleteAccountController {
             req.session.destroy()
             return req.redirect(to: SiteURL.home.relativeURL())
         } catch {
-            return Portal.View(path: SiteURL.portal.relativeURL(), model: Portal.Model(errorMessage: "An unknown error occurred: \(error.localizedDescription)")).document().encodeResponse(status: .internalServerError)
+            return PortalPage.View(path: SiteURL.portal.relativeURL(), model: PortalPage.Model(errorMessage: "An unknown error occurred: \(error.localizedDescription)")).document().encodeResponse(status: .internalServerError)
         }
     }
 }

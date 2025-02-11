@@ -1,7 +1,7 @@
 import Plot
 import Foundation
 
-enum Portal {
+enum PortalPage {
     
     struct Model {
         var errorMessage: String = ""
