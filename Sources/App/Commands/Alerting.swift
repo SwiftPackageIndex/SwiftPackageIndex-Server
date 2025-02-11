@@ -306,7 +306,7 @@ private extension TimeAmount {
 
 private extension TimeInterval {
     func rounded(decimalPlaces: Int) -> Self {
-        let scale = (pow(10, decimalPlaces) as NSDecimalNumber).doubleValue
+        let scale = Double.pow(10, decimalPlaces)
         return (self * scale).rounded(.toNearestOrAwayFromZero) / scale
     }
 }
