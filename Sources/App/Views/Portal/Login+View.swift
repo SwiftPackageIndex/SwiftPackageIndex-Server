@@ -76,7 +76,6 @@ extension Node where Context: HTML.BodyContext {
 extension Node where Context == HTML.FormContext {
     static func emailField(email: String = "") -> Self {
         .input(
-            .class("manage-form-inputs"),
             .id("email"),
             .name("email"),
             .type(.email),
@@ -89,7 +88,6 @@ extension Node where Context == HTML.FormContext {
     
     static func passwordField(password: String = "", passwordFieldText: String = "Enter password") -> Self {
         .input(
-            .class("manage-form-inputs"),
             .id("password"),
             .name("password"),
             .type(.password),

@@ -22,7 +22,7 @@ enum Signup {
         
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .class("manage-page"),
+                .class("portal-page"),
                 .h2("Signup"),
                 .signupForm(),
                 .text(model.errorMessage)

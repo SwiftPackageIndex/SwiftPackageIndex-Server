@@ -22,6 +22,7 @@ enum SuccessfulChange {
         
         override func content() -> Node<HTML.BodyContext> {
             .div(
+                .class("portal-page"),
                 .text(self.model.successMessage),
                 .loginButton()
             )

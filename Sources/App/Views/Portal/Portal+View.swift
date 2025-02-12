@@ -22,6 +22,7 @@ enum PortalPage {
         
         override func content() -> Node<HTML.BodyContext> {
             .div(
+                .class("portal-page"),
                 .h2("Portal"),
                 .logoutButton(),
                 .deleteButton(),
@@ -35,6 +36,7 @@ enum PortalPage {
 extension Node where Context: HTML.BodyContext {
     static func logoutButton() -> Self {
         .form(
+            .class("portal-form-inputs"),
             .action(SiteURL.logout.relativeURL()),
             .method(.post),
             .data(named: "turbo", value: "false"),
@@ -47,6 +49,7 @@ extension Node where Context: HTML.BodyContext {
     
     static func deleteButton() -> Self {
         .form(
+            .class("portal-form-inputs"),
             .action(SiteURL.deleteAccount.relativeURL()),
             .method(.post),
             .data(named: "turbo", value: "false"),

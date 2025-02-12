@@ -22,7 +22,7 @@ enum ForgotPassword {
         
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .class("manage-page"),
+                .class("portal-page"),
                 .h2("An email will be sent with a reset code"),
                 .forgotPasswordForm(),
                 .text(model.errorMessage)

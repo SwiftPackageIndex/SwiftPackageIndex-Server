@@ -23,7 +23,7 @@ enum Verify {
         
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .class("manage-page"),
+                .class("portal-page"),
                 .h2("Please enter the confirmation code sent to your email"),
                 .verifyForm(email: model.email),
                 .text(model.errorMessage)
@@ -57,7 +57,7 @@ extension Node where Context: HTML.BodyContext {
 extension Node where Context == HTML.FormContext {
     static func codeField(code: String = "") -> Self {
         .input(
-            .class("manage-form-inputs"),
+            .class("portal-form-inputs"),
             .id("confirmationCode"),
             .name("confirmationCode"),
             .type(.text),
