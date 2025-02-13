@@ -22,6 +22,7 @@ struct CapturingLogger: LogHandler {
     }
 
     var logs = QueueIsolated<[LogEntry]>([])
+    var logLevel: Logger.Level = .warning
 
     func log(level: Logger.Level, message: Logger.Message, metadata: Logger.Metadata?, source: String, file: String, function: String, line: UInt) {
         logs.withValue { logs in
@@ -39,8 +40,7 @@ struct CapturingLogger: LogHandler {
         set { }
     }
 
-    var logLevel: Logger.Level {
-        get { return .warning }
-        set { }
+    func reset() {
+        logs.withValue { $0 = [] }
     }
 }
