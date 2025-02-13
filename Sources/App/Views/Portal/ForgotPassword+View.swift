@@ -31,7 +31,6 @@ enum ForgotPassword {
     }
 }
 
-// TODO: move to plot extensions
 extension Node where Context: HTML.BodyContext {
     static func forgotPasswordForm(email: String = "") -> Self {
         .form(

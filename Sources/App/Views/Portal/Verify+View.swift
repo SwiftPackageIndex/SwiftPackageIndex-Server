@@ -32,7 +32,6 @@ enum Verify {
     }
 }
 
-// TODO: move to plot extensions
 extension Node where Context: HTML.BodyContext {
     static func verifyForm(email: String = "", code: String = "") -> Self {
         .form(
@@ -44,27 +43,12 @@ extension Node where Context: HTML.BodyContext {
                 .type(.hidden),
                 .value(email)
             ),
-            .codeField(code: code),
+            .confirmationCodeField(code: code),
             .data(named: "turbo", value: "false"),
             .button(
                 .text("Confirm sign up"),
                 .type(.submit)
             )
-        )
-    }
-}
-
-extension Node where Context == HTML.FormContext {
-    static func codeField(code: String = "") -> Self {
-        .input(
-            .class("portal-form-inputs"),
-            .id("confirmationCode"),
-            .name("confirmationCode"),
-            .type(.text),
-            .placeholder("Confirmation code"),
-            .spellcheck(false),
-            .autocomplete(false),
-            .value(code)
         )
     }
 }

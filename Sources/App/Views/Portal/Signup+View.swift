@@ -31,7 +31,6 @@ enum Signup {
     }
 }
 
-// TODO: move to plot extensions
 extension Node where Context: HTML.BodyContext {
     static func signupForm(email: String = "", password: String = "") -> Self {
         .form(

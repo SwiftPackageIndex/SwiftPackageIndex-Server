@@ -34,7 +34,6 @@ enum Login {
     }
 }
 
-// TODO: move to plot extensions
 extension Node where Context: HTML.BodyContext {
     static func loginForm(email: String = "", password: String = "") -> Self {
         .div(
@@ -69,32 +68,6 @@ extension Node where Context: HTML.BodyContext {
                 .text("Reset password"),
                 .type(.submit)
             )
-        )
-    }
-}
-
-extension Node where Context == HTML.FormContext {
-    static func emailField(email: String = "") -> Self {
-        .input(
-            .id("email"),
-            .name("email"),
-            .type(.email),
-            .placeholder("Enter email"),
-            .spellcheck(false),
-            .autocomplete(false),
-            .value(email)
-        )
-    }
-    
-    static func passwordField(password: String = "", passwordFieldText: String = "Enter password") -> Self {
-        .input(
-            .id("password"),
-            .name("password"),
-            .type(.password),
-            .placeholder(passwordFieldText),
-            .spellcheck(false),
-            .autocomplete(false),
-            .value(password)
         )
     }
 }

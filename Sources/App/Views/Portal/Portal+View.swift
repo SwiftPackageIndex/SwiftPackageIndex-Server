@@ -32,7 +32,6 @@ enum PortalPage {
     }
 }
 
-// TODO: move to plot extensions
 extension Node where Context: HTML.BodyContext {
     static func logoutButton() -> Self {
         .form(

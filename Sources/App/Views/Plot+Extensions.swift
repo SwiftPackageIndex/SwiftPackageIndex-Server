@@ -249,6 +249,43 @@ extension Node where Context == HTML.FormContext {
             .value(query)
         )
     }
+    
+    static func emailField(email: String = "") -> Self {
+        .input(
+            .id("email"),
+            .name("email"),
+            .type(.email),
+            .placeholder("Enter email"),
+            .spellcheck(false),
+            .autocomplete(false),
+            .value(email)
+        )
+    }
+    
+    static func passwordField(password: String = "", passwordFieldText: String = "Enter password") -> Self {
+        .input(
+            .id("password"),
+            .name("password"),
+            .type(.password),
+            .placeholder(passwordFieldText),
+            .spellcheck(false),
+            .autocomplete(false),
+            .value(password)
+        )
+    }
+    
+    static func confirmationCodeField(code: String = "") -> Self {
+        .input(
+            .class("portal-form-inputs"),
+            .id("confirmationCode"),
+            .name("confirmationCode"),
+            .type(.text),
+            .placeholder("Confirmation code"),
+            .spellcheck(false),
+            .autocomplete(false),
+            .value(code)
+        )
+    }
 }
 
 extension Node where Context == HTML.ListContext {

@@ -31,14 +31,13 @@ enum Reset {
     }
 }
 
-// TODO: move to plot extensions
 extension Node where Context: HTML.BodyContext {
     static func resetPasswordForm(email: String = "", password: String = "", code: String = "") -> Self {
         .form(
             .action(SiteURL.resetPassword.relativeURL()),
             .method(.post),
             .data(named: "turbo", value: "false"),
-            .codeField(code: code),
+            .confirmationCodeField(code: code),
             .emailField(email: email)   ,
             .passwordField(password: password, passwordFieldText: "Enter new password"),
             .button(

@@ -24,15 +24,14 @@ enum SuccessfulChange {
             .div(
                 .class("portal-page"),
                 .text(self.model.successMessage),
-                .loginButton()
+                .loginRedirectButton()
             )
         }
     }
 }
 
-// TODO: move to plot extensions
 extension Node where Context: HTML.BodyContext {
-    static func loginButton() -> Self {
+    static func loginRedirectButton() -> Self {
         .form(
             .action(SiteURL.login.relativeURL()),
             .button(
