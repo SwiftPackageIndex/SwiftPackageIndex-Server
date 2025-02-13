@@ -24,9 +24,10 @@ import ShellOut
 
 #warning("Move this")
 import Vapor
-private func withApp(_ environment: Environment,
-                     _ setup: (Application) async throws -> Void,
+private func withApp(_ setup: (Application) async throws -> Void = { _ in },
                      _ updateValuesForOperation: (inout DependencyValues) async throws -> Void = { _ in },
+                     _ logHandler: LogHandler? = nil,
+                     environment: Environment = .testing,
                      _ test: (Application) async throws -> Void) async throws {
     try await AppTestCase.setupDb(environment)
     let app = try await AppTestCase.setupApp(environment)
@@ -34,7 +35,14 @@ private func withApp(_ environment: Environment,
     return try await run {
         try await setup(app)
         try await withDependencies(updateValuesForOperation) {
-            try await test(app)
+            let logger = logHandler.map { handler in Logger(label: "test", factory: { _ in handler }) }
+            try await withDependencies {
+                if let logger {
+                    $0.logger.set(to: logger)
+                }
+            } operation: {
+                try await test(app)
+            }
         }
     } defer: {
         try await app.asyncShutdown()
@@ -68,6 +76,8 @@ private func defaultShellRun(command: ShellOutCommand, path: String) throws -> S
 
     let badPackageID: Package.Id = .id0
     let goodPackageID: Package.Id = .id1
+
+    let capturingLogger = CapturingLogger()
     let socialPosts = LockIsolated<[String]>([])
 
     struct SimulatedError: Error { }
@@ -92,14 +102,10 @@ private func defaultShellRun(command: ShellOutCommand, path: String) throws -> S
     }
 
     @Test func analyze_refreshCheckout_failed() async throws {
-        try await withApp(.testing, setup, defaultDependencies) { app in
-            let capturingLogger = CapturingLogger()
-            let logger = Logger(label: "test", factory: { _ in capturingLogger })
-
+        try await withApp(setup, defaultDependencies, capturingLogger) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
-                $0.logger.set(to: logger)
                 $0.shell.run = { @Sendable cmd, path in
                     switch cmd {
                         case _ where cmd.description.contains("git clone https://github.com/foo/1"):
@@ -128,14 +134,10 @@ private func defaultShellRun(command: ShellOutCommand, path: String) throws -> S
     }
 
     @Test func analyze_updateRepository_invalidPackageCachePath() async throws {
-        try await withApp(.testing, setup, defaultDependencies) { app in
-            let capturingLogger = CapturingLogger()
-            let logger = Logger(label: "test", factory: { _ in capturingLogger })
-
+        try await withApp(setup, defaultDependencies, capturingLogger) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
-                $0.logger.set(to: logger)
             } operation: {
                 // setup
                 let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
@@ -147,7 +149,7 @@ private func defaultShellRun(command: ShellOutCommand, path: String) throws -> S
 
                 // MUT
                 try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
-                
+
                 // validate
                 try await defaultValidation(app)
                 try capturingLogger.logs.withValue { logs in
@@ -173,7 +175,7 @@ private func defaultShellRun(command: ShellOutCommand, path: String) throws -> S
                 }
             }
         } operation: {
-            try await withApp(.testing, setup) { app in
+            try await withApp(setup) { app in
                 // MUT
                 try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
@@ -198,7 +200,7 @@ private func defaultShellRun(command: ShellOutCommand, path: String) throws -> S
                 return true
             }
         } operation: {
-            try await withApp(.testing, setup) { app in
+            try await withApp(setup) { app in
                 // MUT
                 try await Analyze.analyze(client: app.client,
                                           database: app.db,
