@@ -17,7 +17,6 @@ import Testing
 @testable import App
 
 import Dependencies
-import DependenciesTestSupport
 import Fluent
 import ShellOut
 
