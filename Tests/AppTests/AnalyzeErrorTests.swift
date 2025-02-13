@@ -22,29 +22,228 @@ import Fluent
 import ShellOut
 
 
+#warning("Move this")
 import Vapor
-private func withApp(_ environment: Environment, _ test: (Application, CapturingLogger) async throws -> Void) async throws {
+private func withApp(_ environment: Environment,
+                     _ setup: (Application) async throws -> Void,
+                     _ test: (Application) async throws -> Void) async throws {
     try await AppTestCase.setupDb(environment)
     let app = try await AppTestCase.setupApp(environment)
 
-    let logger = CapturingLogger()
-
     return try await run {
-        try await test(app, logger)
+        try await setup(app)
+        try await test(app)
     } defer: {
         try await app.asyncShutdown()
     }
 }
 
-// Workaround for Swift compiler bug https://github.com/swiftlang/swift/issues/76409
-private func isTrue() -> Bool { true }
-private let socialPosts = LockIsolated<[String]>([])
-private func mastodonPost(message: String) async throws -> Void {
-    socialPosts.withValue { $0.append(message) }
+
+
+private func defaultShellRun(command: ShellOutCommand, path: String) throws -> String {
+    switch command {
+        case .swiftDumpPackage where path.hasSuffix("foo-1"):
+            return packageSwift1
+
+        case .swiftDumpPackage where path.hasSuffix("foo-2"):
+            return packageSwift2
+
+        default:
+            return ""
+    }
 }
+
+
+// Test analysis error handling.
+//
+// This suite of tests ensures that errors in batch analysis do not impact processing
+// of later packages.
+//
+// We analyze two packages where the first package is set up to encounter
+// various error states and ensure the second package is successfully processed.
+@Suite struct AnalyzeErrorTests {
+
+    let badPackageID: Package.Id = .id0
+    let goodPackageID: Package.Id = .id1
+    let socialPosts = LockIsolated<[String]>([])
+
+    struct SimulatedError: Error { }
+
+    func setup(_ app: Application) async throws {
+        let pkgs = [
+            Package(id: badPackageID,
+                    url: "https://github.com/foo/1".url,
+                    status: .ok,
+                    processingStage: .ingestion),
+            Package(id: goodPackageID,
+                    url: "https://github.com/foo/2".url,
+                    status: .ok,
+                    processingStage: .ingestion),
+        ]
+        try await pkgs.save(on: app.db)
+
+        try await [
+            Repository(package: pkgs[0], defaultBranch: "main", name: "1", owner: "foo"),
+            Repository(package: pkgs[1], defaultBranch: "main", name: "2", owner: "foo"),
+        ].save(on: app.db)
+    }
+
+    @Test func analyze_refreshCheckout_failed() async throws {
+        try await withDependencies {
+            $0.date.now = .t0
+            $0.environment.allowSocialPosts = { true }
+            $0.git = .analyzeErrorTestsMock
+            $0.httpClient.mastodonPost = { @Sendable msg in socialPosts.withValue { $0.append(msg) } }
+            $0.shell.run = defaultShellRun(command:path:)
+        } operation: {
+#warning("Make the parameters part of withDependencies")
+            try await withApp(.testing, setup) { app in
+                let capturingLogger = CapturingLogger()
+                let logger = Logger(label: "test", factory: { _ in capturingLogger })
+
+                try await withDependencies {
+                    $0.environment.loadSPIManifest = { _ in nil }
+                    $0.fileManager.fileExists = { @Sendable _ in true }
+                    $0.logger.set(to: logger)
+                    $0.shell.run = { @Sendable cmd, path in
+                        switch cmd {
+                            case _ where cmd.description.contains("git clone https://github.com/foo/1"):
+                                throw SimulatedError()
+
+                            case .gitFetchAndPruneTags where path.hasSuffix("foo-1"):
+                                throw SimulatedError()
+
+                            default:
+                                return try defaultShellRun(command: cmd, path: path)
+                        }
+                    }
+                } operation: {
+                    // MUT
+                    try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+
+                    // validate
+                    try await defaultValidation(app)
+                    try capturingLogger.logs.withValue { logs in
+                        #expect(logs.count == 2)
+                        let error = try logs.last.unwrap()
+                        #expect(error.message.contains("refreshCheckout failed"), "was: \(error.message)")
+                    }
+                }
+            }
+        }
+    }
+
+    @Test func analyze_updateRepository_invalidPackageCachePath() async throws {
+        try await withDependencies {
+            $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
+        } operation: {
+            try await withApp(.testing, setup) { app in
+                // setup
+                let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
+                // This may look weird but its currently the only way to actually create an
+                // invalid package cache path - we need to mess up the package url.
+                pkg.url = "foo/1"
+                #expect(pkg.cacheDirectoryName == nil)
+                try await pkg.save(on: app.db)
+
+                // MUT
+                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+
+                // validate
+                try await defaultValidation(app)
+//                try logger.logs.withValue { logs in
+//                    #expect(logs.count == 2)
+//                    let error = try logs.last.unwrap()
+//                    #expect(error.message.contains( "AppError.invalidPackageCachePath"), "was: \(error.message)")
+//                }
+            }
+        }
+    }
+
+    @Test func analyze_getPackageInfo_gitCheckout_error() async throws {
+        try await withDependencies {
+            $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.shell.run = { @Sendable cmd, path in
+                switch cmd {
+                    case .gitCheckout(branch: "main", quiet: true) where path.hasSuffix("foo-1"):
+                        throw SimulatedError()
+
+                    default:
+                        return try defaultShellRun(command: cmd, path: path)
+                }
+            }
+        } operation: {
+            try await withApp(.testing, setup) { app in
+                // MUT
+                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+
+                // validate
+                try await defaultValidation(app)
+//                try logger.logs.withValue { logs in
+//                    #expect(logs.count == 2)
+//                    let error = try logs.last.unwrap()
+//                    #expect(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
+//                }
+            }
+        }
+    }
+
+    @Test func analyze_dumpPackage_missing_manifest() async throws {
+        try await withDependencies {
+            $0.environment.loadSPIManifest = { _ in nil }
+            $0.fileManager.fileExists = { @Sendable path in
+                if path.hasSuffix("github.com-foo-1/Package.swift") {
+                    return false
+                }
+                return true
+            }
+        } operation: {
+            try await withApp(.testing, setup) { app in
+                // MUT
+                try await Analyze.analyze(client: app.client,
+                                          database: app.db,
+                                          mode: .limit(10))
+
+                // validate
+                try await defaultValidation(app)
+//                try logger.logs.withValue { logs in
+//                    #expect(logs.count == 2)
+//                    let error = try logs.last.unwrap()
+//                    #expect(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
+//                }
+            }
+        }
+    }
+
+}
+
+
+extension AnalyzeErrorTests {
+    func defaultValidation(_ app: Application) async throws {
+        let versions = try await Version.query(on: app.db)
+            .filter(\.$package.$id == goodPackageID)
+            .all()
+        #expect(versions.count == 2)
+        #expect(versions.filter(\.isBranch).first?.latest == .defaultBranch)
+        #expect(versions.filter(\.isTag).first?.latest == .release)
+        socialPosts.withValue { posts in
+            #expect(posts == [
+            """
+            ⬆️ foo just released foo-2 v1.2.3
+            
+            http://localhost:8080/foo/2#releases
+            """
+            ])
+        }
+    }
+}
+
+
 private extension GitClient {
     struct SetupError: Error { }
-    static var mock: Self {
+    static var analyzeErrorTestsMock: Self {
         .init(
             commitCount: { _ in 1 },
             firstCommitDate: { _ in .t0 },
@@ -70,204 +269,6 @@ private extension GitClient {
                 """
             }
         )
-    }
-}
-private func defaultShellRun(command: ShellOutCommand, path: String) throws -> String {
-    switch command {
-        case .swiftDumpPackage where path.hasSuffix("foo-1"):
-            return packageSwift1
-
-        case .swiftDumpPackage where path.hasSuffix("foo-2"):
-            return packageSwift2
-
-        default:
-            return ""
-    }
-}
-
-// Test analysis error handling.
-//
-// This suite of tests ensures that errors in batch analysis do not impact processing
-// of later packages.
-//
-// We analyze two packages where the first package is set up to encounter
-// various error states and ensure the second package is successfully processed.
-@Suite(
-    .dependency(\.date.now, Date.t0),
-    .dependency(\.environment.allowSocialPosts, isTrue),
-    .dependency(GitClient.mock),
-    .dependency(\.httpClient.mastodonPost, mastodonPost(message:)),
-    .dependency(\.shell.run, defaultShellRun(command:path:))
-)
-class AnalyzeErrorTests {
-
-    let badPackageID: Package.Id = .id0
-    let goodPackageID: Package.Id = .id1
-
-    struct SimulatedError: Error { }
-
-    init() async throws {
-        socialPosts.setValue([])
-
-        try await withApp(.testing) { app, _ in
-            let pkgs = [
-                Package(id: badPackageID,
-                        url: "https://github.com/foo/1".url,
-                        status: .ok,
-                        processingStage: .ingestion),
-                Package(id: goodPackageID,
-                        url: "https://github.com/foo/2".url,
-                        status: .ok,
-                        processingStage: .ingestion),
-            ]
-            try await pkgs.save(on: app.db)
-
-            try await [
-                Repository(package: pkgs[0], defaultBranch: "main", name: "1", owner: "foo"),
-                Repository(package: pkgs[1], defaultBranch: "main", name: "2", owner: "foo"),
-            ].save(on: app.db)
-        }
-    }
-
-    @Test func analyze_refreshCheckout_failed() async throws {
-        try await withDependencies {
-            $0.environment.loadSPIManifest = { _ in nil }
-            $0.fileManager.fileExists = { @Sendable _ in true }
-            $0.shell.run = { @Sendable cmd, path in
-                switch cmd {
-                    case _ where cmd.description.contains("git clone https://github.com/foo/1"):
-                        throw SimulatedError()
-
-                    case .gitFetchAndPruneTags where path.hasSuffix("foo-1"):
-                        throw SimulatedError()
-
-                    default:
-                        return try defaultShellRun(command: cmd, path: path)
-                }
-            }
-        } operation: {
-#warning("Make the parameters part of withDependencies")
-            try await withApp(.testing) { app, logger in
-                // MUT
-                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
-
-                // validate
-                try await defaultValidation()
-                try logger.logs.withValue { logs in
-                    #expect(logs.count == 2)
-                    let error = try logs.last.unwrap()
-                    #expect(error.message.contains("refreshCheckout failed"), "was: \(error.message)")
-                }
-            }
-        }
-    }
-
-    @Test func analyze_updateRepository_invalidPackageCachePath() async throws {
-        try await withDependencies {
-            $0.environment.loadSPIManifest = { _ in nil }
-            $0.fileManager.fileExists = { @Sendable _ in true }
-        } operation: {
-            try await withApp(.testing) { app, logger in
-                // setup
-                let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
-                // This may look weird but its currently the only way to actually create an
-                // invalid package cache path - we need to mess up the package url.
-                pkg.url = "foo/1"
-                #expect(pkg.cacheDirectoryName == nil)
-                try await pkg.save(on: app.db)
-
-                // MUT
-                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
-
-                // validate
-                try await defaultValidation()
-                try logger.logs.withValue { logs in
-                    #expect(logs.count == 2)
-                    let error = try logs.last.unwrap()
-                    #expect(error.message.contains( "AppError.invalidPackageCachePath"), "was: \(error.message)")
-                }
-            }
-        }
-    }
-
-    @Test func analyze_getPackageInfo_gitCheckout_error() async throws {
-        try await withDependencies {
-            $0.environment.loadSPIManifest = { _ in nil }
-            $0.fileManager.fileExists = { @Sendable _ in true }
-            $0.shell.run = { @Sendable cmd, path in
-                switch cmd {
-                    case .gitCheckout(branch: "main", quiet: true) where path.hasSuffix("foo-1"):
-                        throw SimulatedError()
-
-                    default:
-                        return try defaultShellRun(command: cmd, path: path)
-                }
-            }
-        } operation: {
-            try await withApp(.testing) { app, logger in
-                // MUT
-                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
-
-                // validate
-                try await defaultValidation()
-                try logger.logs.withValue { logs in
-                    #expect(logs.count == 2)
-                    let error = try logs.last.unwrap()
-                    #expect(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
-                }
-            }
-        }
-    }
-
-    @Test func analyze_dumpPackage_missing_manifest() async throws {
-        try await withDependencies {
-            $0.environment.loadSPIManifest = { _ in nil }
-            $0.fileManager.fileExists = { @Sendable path in
-                if path.hasSuffix("github.com-foo-1/Package.swift") {
-                    return false
-                }
-                return true
-            }
-        } operation: {
-            try await withApp(.testing) { app, logger in
-                // MUT
-                try await Analyze.analyze(client: app.client,
-                                          database: app.db,
-                                          mode: .limit(10))
-
-                // validate
-                try await defaultValidation()
-                try logger.logs.withValue { logs in
-                    #expect(logs.count == 2)
-                    let error = try logs.last.unwrap()
-                    #expect(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
-                }
-            }
-        }
-    }
-
-}
-
-
-extension AnalyzeErrorTests {
-    func defaultValidation() async throws {
-        try await withApp(.testing) { app, logger in
-            let versions = try await Version.query(on: app.db)
-                .filter(\.$package.$id == goodPackageID)
-                .all()
-            #expect(versions.count == 2)
-            #expect(versions.filter(\.isBranch).first?.latest == .defaultBranch)
-            #expect(versions.filter(\.isTag).first?.latest == .release)
-            socialPosts.withValue { tweets in
-                #expect(tweets == [
-            """
-            ⬆️ foo just released foo-2 v1.2.3
-            
-            http://localhost:8080/foo/2#releases
-            """
-                ])
-            }
-        }
     }
 }
 
@@ -303,3 +304,4 @@ private let packageSwift2 = #"""
                       "targets": [{"name": "t2", "type": "regular"}]
                     }
                     """#
+
