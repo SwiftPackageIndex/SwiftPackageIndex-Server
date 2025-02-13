@@ -26,13 +26,16 @@ import ShellOut
 import Vapor
 private func withApp(_ environment: Environment,
                      _ setup: (Application) async throws -> Void,
+                     _ updateValuesForOperation: (inout DependencyValues) async throws -> Void = { _ in },
                      _ test: (Application) async throws -> Void) async throws {
     try await AppTestCase.setupDb(environment)
     let app = try await AppTestCase.setupApp(environment)
 
     return try await run {
         try await setup(app)
-        try await test(app)
+        try await withDependencies(updateValuesForOperation) {
+            try await test(app)
+        }
     } defer: {
         try await app.asyncShutdown()
     }
@@ -89,85 +92,68 @@ private func defaultShellRun(command: ShellOutCommand, path: String) throws -> S
     }
 
     @Test func analyze_refreshCheckout_failed() async throws {
-        try await withDependencies {
-            $0.date.now = .t0
-            $0.environment.allowSocialPosts = { true }
-            $0.git = .analyzeErrorTestsMock
-            $0.httpClient.mastodonPost = { @Sendable msg in socialPosts.withValue { $0.append(msg) } }
-            $0.shell.run = defaultShellRun(command:path:)
-        } operation: {
-#warning("Make the parameters part of withDependencies")
-            try await withApp(.testing, setup) { app in
-                let capturingLogger = CapturingLogger()
-                let logger = Logger(label: "test", factory: { _ in capturingLogger })
+        try await withApp(.testing, setup, defaultDependencies) { app in
+            let capturingLogger = CapturingLogger()
+            let logger = Logger(label: "test", factory: { _ in capturingLogger })
 
-                try await withDependencies {
-                    $0.environment.loadSPIManifest = { _ in nil }
-                    $0.fileManager.fileExists = { @Sendable _ in true }
-                    $0.logger.set(to: logger)
-                    $0.shell.run = { @Sendable cmd, path in
-                        switch cmd {
-                            case _ where cmd.description.contains("git clone https://github.com/foo/1"):
-                                throw SimulatedError()
+            try await withDependencies {
+                $0.environment.loadSPIManifest = { _ in nil }
+                $0.fileManager.fileExists = { @Sendable _ in true }
+                $0.logger.set(to: logger)
+                $0.shell.run = { @Sendable cmd, path in
+                    switch cmd {
+                        case _ where cmd.description.contains("git clone https://github.com/foo/1"):
+                            throw SimulatedError()
 
-                            case .gitFetchAndPruneTags where path.hasSuffix("foo-1"):
-                                throw SimulatedError()
+                        case .gitFetchAndPruneTags where path.hasSuffix("foo-1"):
+                            throw SimulatedError()
 
-                            default:
-                                return try defaultShellRun(command: cmd, path: path)
-                        }
+                        default:
+                            return try defaultShellRun(command: cmd, path: path)
                     }
-                } operation: {
-                    // MUT
-                    try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+                }
+            } operation: {
+                // MUT
+                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
-                    // validate
-                    try await defaultValidation(app)
-                    try capturingLogger.logs.withValue { logs in
-                        #expect(logs.count == 2)
-                        let error = try logs.last.unwrap()
-                        #expect(error.message.contains("refreshCheckout failed"), "was: \(error.message)")
-                    }
+                // validate
+                try await defaultValidation(app)
+                try capturingLogger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    let error = try logs.last.unwrap()
+                    #expect(error.message.contains("refreshCheckout failed"), "was: \(error.message)")
                 }
             }
         }
     }
 
     @Test func analyze_updateRepository_invalidPackageCachePath() async throws {
-        try await withDependencies {
-            $0.date.now = .t0
-            $0.environment.allowSocialPosts = { true }
-            $0.git = .analyzeErrorTestsMock
-            $0.httpClient.mastodonPost = { @Sendable msg in socialPosts.withValue { $0.append(msg) } }
-            $0.shell.run = defaultShellRun(command:path:)
-        } operation: {
-            try await withApp(.testing, setup) { app in
-                let capturingLogger = CapturingLogger()
-                let logger = Logger(label: "test", factory: { _ in capturingLogger })
+        try await withApp(.testing, setup, defaultDependencies) { app in
+            let capturingLogger = CapturingLogger()
+            let logger = Logger(label: "test", factory: { _ in capturingLogger })
 
-                try await withDependencies {
-                    $0.environment.loadSPIManifest = { _ in nil }
-                    $0.fileManager.fileExists = { @Sendable _ in true }
-                    $0.logger.set(to: logger)
-                } operation: {
-                    // setup
-                    let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
-                    // This may look weird but its currently the only way to actually create an
-                    // invalid package cache path - we need to mess up the package url.
-                    pkg.url = "foo/1"
-                    #expect(pkg.cacheDirectoryName == nil)
-                    try await pkg.save(on: app.db)
+            try await withDependencies {
+                $0.environment.loadSPIManifest = { _ in nil }
+                $0.fileManager.fileExists = { @Sendable _ in true }
+                $0.logger.set(to: logger)
+            } operation: {
+                // setup
+                let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
+                // This may look weird but its currently the only way to actually create an
+                // invalid package cache path - we need to mess up the package url.
+                pkg.url = "foo/1"
+                #expect(pkg.cacheDirectoryName == nil)
+                try await pkg.save(on: app.db)
 
-                    // MUT
-                    try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
-
-                    // validate
-                    try await defaultValidation(app)
-                    try capturingLogger.logs.withValue { logs in
-                        #expect(logs.count == 2)
-                        let error = try logs.last.unwrap()
-                        #expect(error.message.contains( "AppError.invalidPackageCachePath"), "was: \(error.message)")
-                    }
+                // MUT
+                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+                
+                // validate
+                try await defaultValidation(app)
+                try capturingLogger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    let error = try logs.last.unwrap()
+                    #expect(error.message.contains( "AppError.invalidPackageCachePath"), "was: \(error.message)")
                 }
             }
         }
@@ -229,6 +215,23 @@ private func defaultShellRun(command: ShellOutCommand, path: String) throws -> S
         }
     }
 
+}
+
+
+extension AnalyzeErrorTests {
+#if compiler(>=6.1)
+#warning("Move this into a trait on @Test")
+    // See https://forums.swift.org/t/converting-xctest-invoketest-to-swift-testing/77692/4 for details
+#endif
+    var defaultDependencies: (inout DependencyValues) async throws -> Void {
+        {
+            $0.date.now = .t0
+            $0.environment.allowSocialPosts = { true }
+            $0.git = .analyzeErrorTestsMock
+            $0.httpClient.mastodonPost = { @Sendable msg in socialPosts.withValue { $0.append(msg) } }
+            $0.shell.run = defaultShellRun(command:path:)
+        }
+    }
 }
 
 
