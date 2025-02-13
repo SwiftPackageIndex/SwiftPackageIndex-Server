@@ -135,28 +135,40 @@ private func defaultShellRun(command: ShellOutCommand, path: String) throws -> S
 
     @Test func analyze_updateRepository_invalidPackageCachePath() async throws {
         try await withDependencies {
-            $0.environment.loadSPIManifest = { _ in nil }
-            $0.fileManager.fileExists = { @Sendable _ in true }
+            $0.date.now = .t0
+            $0.environment.allowSocialPosts = { true }
+            $0.git = .analyzeErrorTestsMock
+            $0.httpClient.mastodonPost = { @Sendable msg in socialPosts.withValue { $0.append(msg) } }
+            $0.shell.run = defaultShellRun(command:path:)
         } operation: {
             try await withApp(.testing, setup) { app in
-                // setup
-                let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
-                // This may look weird but its currently the only way to actually create an
-                // invalid package cache path - we need to mess up the package url.
-                pkg.url = "foo/1"
-                #expect(pkg.cacheDirectoryName == nil)
-                try await pkg.save(on: app.db)
+                let capturingLogger = CapturingLogger()
+                let logger = Logger(label: "test", factory: { _ in capturingLogger })
 
-                // MUT
-                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+                try await withDependencies {
+                    $0.environment.loadSPIManifest = { _ in nil }
+                    $0.fileManager.fileExists = { @Sendable _ in true }
+                    $0.logger.set(to: logger)
+                } operation: {
+                    // setup
+                    let pkg = try await Package.find(badPackageID, on: app.db).unwrap()
+                    // This may look weird but its currently the only way to actually create an
+                    // invalid package cache path - we need to mess up the package url.
+                    pkg.url = "foo/1"
+                    #expect(pkg.cacheDirectoryName == nil)
+                    try await pkg.save(on: app.db)
 
-                // validate
-                try await defaultValidation(app)
-//                try logger.logs.withValue { logs in
-//                    #expect(logs.count == 2)
-//                    let error = try logs.last.unwrap()
-//                    #expect(error.message.contains( "AppError.invalidPackageCachePath"), "was: \(error.message)")
-//                }
+                    // MUT
+                    try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+
+                    // validate
+                    try await defaultValidation(app)
+                    try capturingLogger.logs.withValue { logs in
+                        #expect(logs.count == 2)
+                        let error = try logs.last.unwrap()
+                        #expect(error.message.contains( "AppError.invalidPackageCachePath"), "was: \(error.message)")
+                    }
+                }
             }
         }
     }
