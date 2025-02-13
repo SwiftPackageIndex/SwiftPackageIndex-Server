@@ -94,7 +94,6 @@ let package = Package(
                 swiftSettings: swiftSettings),
         .testTarget(name: "AppTests",
                     dependencies: [
-                        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
                         .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
                         .product(name: "InlineSnapshotTesting", package: "swift-snapshot-testing"),
                         .product(name: "XCTVapor", package: "vapor"),
