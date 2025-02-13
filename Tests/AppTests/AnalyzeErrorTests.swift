@@ -162,45 +162,45 @@ private func defaultShellRun(command: ShellOutCommand, path: String) throws -> S
     }
 
     @Test func analyze_getPackageInfo_gitCheckout_error() async throws {
-        try await withDependencies {
-            $0.environment.loadSPIManifest = { _ in nil }
-            $0.fileManager.fileExists = { @Sendable _ in true }
-            $0.shell.run = { @Sendable cmd, path in
-                switch cmd {
-                    case .gitCheckout(branch: "main", quiet: true) where path.hasSuffix("foo-1"):
-                        throw SimulatedError()
+        try await withApp(setup, defaultDependencies, capturingLogger) { app in
+            try await withDependencies {
+                $0.environment.loadSPIManifest = { _ in nil }
+                $0.fileManager.fileExists = { @Sendable _ in true }
+                $0.shell.run = { @Sendable cmd, path in
+                    switch cmd {
+                        case .gitCheckout(branch: "main", quiet: true) where path.hasSuffix("foo-1"):
+                            throw SimulatedError()
 
-                    default:
-                        return try defaultShellRun(command: cmd, path: path)
+                        default:
+                            return try defaultShellRun(command: cmd, path: path)
+                    }
                 }
-            }
-        } operation: {
-            try await withApp(setup) { app in
+            } operation: {
                 // MUT
                 try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
                 // validate
                 try await defaultValidation(app)
-//                try logger.logs.withValue { logs in
-//                    #expect(logs.count == 2)
-//                    let error = try logs.last.unwrap()
-//                    #expect(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
-//                }
+                try capturingLogger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    let error = try logs.last.unwrap()
+                    #expect(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
+                }
             }
         }
     }
 
     @Test func analyze_dumpPackage_missing_manifest() async throws {
-        try await withDependencies {
-            $0.environment.loadSPIManifest = { _ in nil }
-            $0.fileManager.fileExists = { @Sendable path in
-                if path.hasSuffix("github.com-foo-1/Package.swift") {
-                    return false
+        try await withApp(setup, defaultDependencies, capturingLogger) { app in
+            try await withDependencies {
+                $0.environment.loadSPIManifest = { _ in nil }
+                $0.fileManager.fileExists = { @Sendable path in
+                    if path.hasSuffix("github.com-foo-1/Package.swift") {
+                        return false
+                    }
+                    return true
                 }
-                return true
-            }
-        } operation: {
-            try await withApp(setup) { app in
+            } operation: {
                 // MUT
                 try await Analyze.analyze(client: app.client,
                                           database: app.db,
@@ -208,11 +208,11 @@ private func defaultShellRun(command: ShellOutCommand, path: String) throws -> S
 
                 // validate
                 try await defaultValidation(app)
-//                try logger.logs.withValue { logs in
-//                    #expect(logs.count == 2)
-//                    let error = try logs.last.unwrap()
-//                    #expect(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
-//                }
+                try capturingLogger.logs.withValue { logs in
+                    #expect(logs.count == 2)
+                    let error = try logs.last.unwrap()
+                    #expect(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
+                }
             }
         }
     }
