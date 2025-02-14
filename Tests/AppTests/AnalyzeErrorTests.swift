@@ -12,56 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Testing
-
 @testable import App
 
 import Dependencies
 import Fluent
 import ShellOut
-
-
-#warning("Move this")
+import Testing
 import Vapor
-private func withApp(_ setup: (Application) async throws -> Void = { _ in },
-                     _ updateValuesForOperation: (inout DependencyValues) async throws -> Void = { _ in },
-                     _ logHandler: LogHandler? = nil,
-                     environment: Environment = .testing,
-                     _ test: (Application) async throws -> Void) async throws {
-    try await AppTestCase.setupDb(environment)
-    let app = try await AppTestCase.setupApp(environment)
-
-    return try await run {
-        try await setup(app)
-        try await withDependencies(updateValuesForOperation) {
-            let logger = logHandler.map { handler in Logger(label: "test", factory: { _ in handler }) }
-            try await withDependencies {
-                if let logger {
-                    $0.logger.set(to: logger)
-                }
-            } operation: {
-                try await test(app)
-            }
-        }
-    } defer: {
-        try await app.asyncShutdown()
-    }
-}
-
-
-
-private func defaultShellRun(command: ShellOutCommand, path: String) throws -> String {
-    switch command {
-        case .swiftDumpPackage where path.hasSuffix("foo-1"):
-            return packageSwift1
-
-        case .swiftDumpPackage where path.hasSuffix("foo-2"):
-            return packageSwift2
-
-        default:
-            return ""
-    }
-}
 
 
 // Test analysis error handling.
@@ -253,6 +210,20 @@ extension AnalyzeErrorTests {
             """
             ])
         }
+    }
+}
+
+
+private func defaultShellRun(command: ShellOutCommand, path: String) throws -> String {
+    switch command {
+        case .swiftDumpPackage where path.hasSuffix("foo-1"):
+            return packageSwift1
+
+        case .swiftDumpPackage where path.hasSuffix("foo-2"):
+            return packageSwift2
+
+        default:
+            return ""
     }
 }
 
