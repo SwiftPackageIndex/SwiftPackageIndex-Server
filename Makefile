@@ -33,6 +33,9 @@ build:
 run:
 	swift run
 
+test-plain:
+	swift test --disable-automatic-resolution --sanitize=thread --no-parallel
+
 test: xcbeautify
 	set -o pipefail \
 	&& swift test --disable-automatic-resolution --sanitize=thread \
