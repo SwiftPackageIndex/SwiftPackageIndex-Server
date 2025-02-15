@@ -28,7 +28,7 @@ import ShellOut
 //
 // We analyze two packages where the first package is set up to encounter
 // various error states and ensure the second package is successfully processed.
-final class AnalyzeErrorTests: AppTestCase {
+final class AnalyzeErrorTests: ParallelizedAppTestCase {
 
     let badPackageID: Package.Id = .id0
     let goodPackageID: Package.Id = .id1

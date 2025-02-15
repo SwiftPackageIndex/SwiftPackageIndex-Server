@@ -22,7 +22,7 @@ import SQLKit
 import Vapor
 
 
-class ReAnalyzeVersionsTests: AppTestCase {
+class ReAnalyzeVersionsTests: ParallelizedAppTestCase {
 
     func test_reAnalyzeVersions() async throws {
         // Basic end-to-end test

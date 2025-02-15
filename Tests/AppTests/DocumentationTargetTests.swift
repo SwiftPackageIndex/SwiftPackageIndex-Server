@@ -17,7 +17,7 @@
 import XCTest
 
 
-final class DocumentationTargetTests: AppTestCase {
+final class DocumentationTargetTests: ParallelizedAppTestCase {
 
     func test_external() async throws {
         // Test external doc url lookup

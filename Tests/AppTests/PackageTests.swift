@@ -21,7 +21,7 @@ import Vapor
 import XCTVapor
 
 
-final class PackageTests: AppTestCase {
+final class PackageTests: ParallelizedAppTestCase {
 
     func test_Equatable() throws {
         XCTAssertEqual(Package(id: .id0, url: "1".url),

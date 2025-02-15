@@ -22,7 +22,7 @@ import S3Store
 import Vapor
 
 
-class IngestionTests: AppTestCase {
+class IngestionTests: ParallelizedAppTestCase {
 
     func test_ingest_basic() async throws {
         // setup

@@ -1439,6 +1439,8 @@ class PackageController_routesTests: SnapshotTestCase {
     }
 
     func test_siteMap_prod() async throws {
+#warning("FIXME: re-enable test after fixing the setup for parallel testing")
+        try XCTSkipIf(true, "Disabled during parallel testing")
         // Ensure sitemap routing is configured in prod
         try await withDependencies {
             $0.environment.current = { .production }

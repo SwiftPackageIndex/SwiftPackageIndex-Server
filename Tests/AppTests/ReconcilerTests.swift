@@ -20,7 +20,7 @@ import Dependencies
 import Vapor
 
 
-class ReconcilerTests: AppTestCase {
+class ReconcilerTests: ParallelizedAppTestCase {
 
     func test_fetchCurrentPackageList() async throws {
         // setup

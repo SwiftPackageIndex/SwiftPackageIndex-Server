@@ -20,7 +20,7 @@ import Dependencies
 import Vapor
 
 
-class BuildMonitorControllerTests: AppTestCase {
+class BuildMonitorControllerTests: ParallelizedAppTestCase {
 
     func test_show_owner() async throws {
         try await withDependencies {

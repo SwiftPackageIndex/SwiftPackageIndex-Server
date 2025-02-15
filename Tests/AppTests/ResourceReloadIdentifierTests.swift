@@ -20,7 +20,7 @@ import Dependencies
 import Vapor
 
 
-class ResourceReloadIdentifierTests: AppTestCase {
+class ResourceReloadIdentifierTests: ParallelizedAppTestCase {
     func test_withAppVersion() throws {
         withDependencies {
             $0.environment.appVersion = { "1.2.3" }

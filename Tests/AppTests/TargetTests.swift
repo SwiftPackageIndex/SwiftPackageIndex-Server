@@ -19,7 +19,7 @@ import Vapor
 import XCTVapor
 
 
-final class TargetTests: AppTestCase {
+final class TargetTests: ParallelizedAppTestCase {
 
     func test_save() async throws {
         // setup

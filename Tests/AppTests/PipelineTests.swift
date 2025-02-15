@@ -25,7 +25,7 @@ import Vapor
 // - candidate selection at each stage
 // - processing stage recording
 // - error recording
-class PipelineTests: AppTestCase {
+class PipelineTests: ParallelizedAppTestCase {
 
     func test_fetchCandidates_ingestion_fifo() async throws {
         // oldest first

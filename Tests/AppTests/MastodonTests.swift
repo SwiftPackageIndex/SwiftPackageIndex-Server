@@ -19,7 +19,7 @@ import SemanticVersion
 import XCTVapor
 
 
-final class MastodonTests: AppTestCase {
+final class MastodonTests: ParallelizedAppTestCase {
 
     func test_endToEnd() async throws {
         let message = QueueIsolated<String?>(nil)
