@@ -1,1 +1,4 @@
 Sitemap: https://swiftpackageindex.com/sitemap.xml
+
+User-agent: *
+Disallow: /api/
