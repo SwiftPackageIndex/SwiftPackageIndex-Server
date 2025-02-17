@@ -43,12 +43,15 @@ enum ReAnalyzeVersions {
         var help: String { "Run version re-analysis" }
 
         func run(using context: CommandContext, signature: Signature) async throws {
+            prepareDependencies {
+                $0.logger = Logger(component: "re-analyze-versions")
+            }
+            @Dependency(\.logger) var logger
+
             let limit = signature.limit ?? defaultLimit
 
             let client = context.application.client
             let db = context.application.db
-            @Dependency(\.logger) var logger
-            logger.set(to: Logger(component: "re-analyze-versions"))
 
             @Dependency(\.date.now) var now
             if let id = signature.packageId {
