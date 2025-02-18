@@ -27,9 +27,9 @@ concurrency:
 jobs:
   test-linux:
     name: Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.1.1
+      image: registry.gitlab.com/finestructure/spi-base:1.1.1-arm
       options: --privileged
     services:
       postgres:
@@ -64,7 +64,7 @@ jobs:
     name: Release build
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:1.1.1
+      image: registry.gitlab.com/finestructure/spi-base:1.1.1-arm
       options: --privileged
     steps:
       - name: GH Runner bug workaround

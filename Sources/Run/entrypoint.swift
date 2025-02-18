@@ -13,8 +13,10 @@
 // limitations under the License.
 
 import App
+import Dependencies
 import Logging
 import Vapor
+
 
 @main
 enum Entrypoint {
@@ -23,6 +25,10 @@ enum Entrypoint {
         try LoggingSystem.bootstrap(from: &env)
 
         let app = try await Application.make(env)
+
+        prepareDependencies {
+            $0.logger = app.logger
+        }
 
         do {
             try await configure(app)

@@ -28,10 +28,13 @@ enum Analyze {
         var help: String { "Run package analysis (fetching git repository and inspecting content)" }
 
         func run(using context: CommandContext, signature: SPICommand.Signature) async throws {
+            prepareDependencies {
+                $0.logger = Logger(component: "analyze")
+            }
+            @Dependency(\.logger) var logger
+
             let client = context.application.client
             let db = context.application.db
-            @Dependency(\.logger) var logger
-            logger.set(to: Logger(component: "analyze"))
 
             Analyze.resetMetrics()
 
@@ -251,7 +254,7 @@ extension Analyze {
                                             attributes: nil)
         } catch {
             let error = AppError.genericError(nil, "Failed to create checkouts directory: \(error.localizedDescription)")
-            logger.logger.report(error: error)
+            logger.report(error: error)
         }
     }
 
