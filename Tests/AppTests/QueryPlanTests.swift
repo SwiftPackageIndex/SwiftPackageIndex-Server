@@ -114,6 +114,7 @@ struct QueryPlan: Equatable {
             OneOf {
                 "Append"
                 "Gather"
+                "Hash Join"
                 "Limit"
                 "Nested Loop"
                 "Sort"

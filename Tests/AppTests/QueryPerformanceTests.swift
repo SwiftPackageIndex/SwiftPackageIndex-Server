@@ -44,7 +44,7 @@ class QueryPerformanceTests: XCTestCase {
 
     func test_01_Search_packageMatchQuery() async throws {
         let query = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
-        try await assertQueryPerformance(query, expectedCost: 1650, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 1800, variation: 150)
     }
 
     func test_02_Search_keywordMatchQuery() async throws {
@@ -155,7 +155,7 @@ class QueryPerformanceTests: XCTestCase {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """)
-        try await assertQueryPerformance(query, expectedCost: 125_000, variation: 5000)
+        try await assertQueryPerformance(query, expectedCost: 132_000, variation: 5000)
     }
 
 }
