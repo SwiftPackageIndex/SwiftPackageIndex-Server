@@ -58,7 +58,7 @@ import Vapor
     }
 
     @Test func analyze_refreshCheckout_failed() async throws {
-        try await withApp(setup, defaultDependencies, capturingLogger) { app in
+        try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -90,7 +90,7 @@ import Vapor
     }
 
     @Test func analyze_updateRepository_invalidPackageCachePath() async throws {
-        try await withApp(setup, defaultDependencies, capturingLogger) { app in
+        try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -118,7 +118,7 @@ import Vapor
     }
 
     @Test func analyze_getPackageInfo_gitCheckout_error() async throws {
-        try await withApp(setup, defaultDependencies, capturingLogger) { app in
+        try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable _ in true }
@@ -147,7 +147,7 @@ import Vapor
     }
 
     @Test func analyze_dumpPackage_missing_manifest() async throws {
-        try await withApp(setup, defaultDependencies, capturingLogger) { app in
+        try await withApp(setup, defaultDependencies, logHandler: capturingLogger) { app in
             try await withDependencies {
                 $0.environment.loadSPIManifest = { _ in nil }
                 $0.fileManager.fileExists = { @Sendable path in

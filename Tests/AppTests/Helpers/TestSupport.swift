@@ -20,7 +20,7 @@ import Vapor
 
 func withApp(_ setup: (Application) async throws -> Void = { _ in },
              _ updateValuesForOperation: (inout DependencyValues) async throws -> Void = { _ in },
-             _ logHandler: LogHandler? = nil,
+             logHandler: LogHandler? = nil,
              environment: Environment = .testing,
              _ test: (Application) async throws -> Void) async throws {
     try await AppTestCase.setupDb(environment)
