@@ -21,6 +21,11 @@ import XCTVapor
 
 final class MastodonTests: AppTestCase {
 
+    func test_apiURL() throws {
+        let url = try Mastodon.apiURL(with: "message")
+        XCTAssert(url.contains("visibility=unlisted"), "was: \(url)")
+    }
+
     func test_endToEnd() async throws {
         let message = QueueIsolated<String?>(nil)
         try await withDependencies {
