@@ -251,7 +251,7 @@ class SocialTests: AppTestCase {
                 // validate
                 assertInlineSnapshot(of: url, as: .lines) {
                 """
-                https://mas.to/api/v1/statuses?status=%E2%AC%86%EF%B8%8F%20owner%20just%20released%20packageName%20v2.6.4%0A%0Ahttp://localhost:8080/owner/SuperAwesomePackage%23releases
+                https://mas.to/api/v1/statuses?status=%E2%AC%86%EF%B8%8F%20owner%20just%20released%20packageName%20v2.6.4%0A%0Ahttp://localhost:8080/owner/SuperAwesomePackage%23releases&visibility=unlisted
                 """
                 }
                 XCTAssertEqual(headers, HTTPHeaders([
