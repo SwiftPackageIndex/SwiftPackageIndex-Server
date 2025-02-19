@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
+import Testing
 
 @testable import App
 
@@ -26,10 +26,15 @@ import Vapor
 @preconcurrency import ShellOut
 
 
-class AnalyzerTests: AppTestCase {
+@Suite 
+
+
+struct AnalyzerTests {
+
+    @Test 
 
     @MainActor
-    func test_analyze() async throws {
+    func analyze() async throws {
         // End-to-end test, where we mock at the shell command level (i.e. we
         // don't mock the git commands themselves to ensure we're running the
         // expected shell commands for the happy path.)
@@ -154,8 +159,8 @@ class AnalyzerTests: AppTestCase {
 
             // validation
             let outDir = try checkoutDir.value.unwrap()
-            XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-            XCTAssertEqual(commands.value.count, 36)
+            #expect(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
+            #expect(commands.value.count == 36)
 
             // Snapshot for each package individually to avoid ordering issues when
             // concurrent processing causes commands to interleave between packages.
@@ -169,26 +174,26 @@ class AnalyzerTests: AppTestCase {
             // validate versions
             // A bit awkward... create a helper? There has to be a better way?
             let pkg1 = try await Package.query(on: app.db).filter(by: urls[0].url).with(\.$versions).first()!
-            XCTAssertEqual(pkg1.status, .ok)
-            XCTAssertEqual(pkg1.processingStage, .analysis)
-            XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1", "foo-1"])
+            #expect(pkg1.status == .ok)
+            #expect(pkg1.processingStage == .analysis)
+            #expect(pkg1.versions.map(\.packageName) == ["foo-1", "foo-1", "foo-1"])
             let sortedVersions1 = pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-            XCTAssertEqual(sortedVersions1.map(\.reference.description), ["main", "1.0.0", "1.1.1"])
-            XCTAssertEqual(sortedVersions1.map(\.latest), [.defaultBranch, nil, .release])
-            XCTAssertEqual(sortedVersions1.map(\.releaseNotes), [nil, "rel 1.0.0", nil])
+            #expect(sortedVersions1.map(\.reference.description) == ["main", "1.0.0", "1.1.1"])
+            #expect(sortedVersions1.map(\.latest) == [.defaultBranch, nil, .release])
+            #expect(sortedVersions1.map(\.releaseNotes) == [nil, "rel 1.0.0", nil])
 
             let pkg2 = try await Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first()!
-            XCTAssertEqual(pkg2.status, .ok)
-            XCTAssertEqual(pkg2.processingStage, .analysis)
-            XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2", "foo-2"])
+            #expect(pkg2.status == .ok)
+            #expect(pkg2.processingStage == .analysis)
+            #expect(pkg2.versions.map(\.packageName) == ["foo-2", "foo-2", "foo-2"])
             let sortedVersions2 = pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-            XCTAssertEqual(sortedVersions2.map(\.reference.description), ["main", "2.0.0", "2.1.0"])
-            XCTAssertEqual(sortedVersions2.map(\.latest), [.defaultBranch, nil, .release])
+            #expect(sortedVersions2.map(\.reference.description) == ["main", "2.0.0", "2.1.0"])
+            #expect(sortedVersions2.map(\.latest) == [.defaultBranch, nil, .release])
 
             // validate products
             // (2 packages with 3 versions with 1 product each = 6 products)
             let products = try await Product.query(on: app.db).sort(\.$name).all()
-            XCTAssertEqual(products.count, 6)
+            #expect(products.count == 6)
             assertEquals(products, \.name, ["p1", "p1", "p1", "p2", "p2", "p2"])
             assertEquals(products, \.targets,
                          [["t1"], ["t1"], ["t1"], ["t2"], ["t2"], ["t2"]])
@@ -197,11 +202,11 @@ class AnalyzerTests: AppTestCase {
             // validate targets
             // (2 packages with 3 versions with 1 target each = 6 targets)
             let targets = try await Target.query(on: app.db).sort(\.$name).all()
-            XCTAssertEqual(targets.map(\.name), ["t1", "t1", "t1", "t2", "t2", "t2"])
+            #expect(targets.map(\.name) == ["t1", "t1", "t1", "t2", "t2", "t2"])
 
             // validate score
-            XCTAssertEqual(pkg1.score, 30)
-            XCTAssertEqual(pkg2.score, 40)
+            #expect(pkg1.score == 30)
+            #expect(pkg2.score == 40)
 
             // ensure stats, recent packages, and releases are refreshed
             let app = self.app!
@@ -211,7 +216,7 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
-    func test_analyze_version_update() async throws {
+    @Test func analyze_version_update() async throws {
         // Ensure that new incoming versions update the latest properties and
         // move versions in case commits change. Tests both default branch commits
         // changing as well as a tag being moved to a different commit.
@@ -300,14 +305,14 @@ class AnalyzerTests: AppTestCase {
             let p = try await Package.find(pkgId, on: app.db).unwrap()
             try await p.$versions.load(on: app.db)
             let versions = p.versions.sorted(by: { $0.commitDate < $1.commitDate })
-            XCTAssertEqual(versions.map(\.commitDate), [.t1, .t2, .t3])
-            XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "1.1.1", "main"])
-            XCTAssertEqual(versions.map(\.latest), [nil, .release, .defaultBranch])
-            XCTAssertEqual(versions.map(\.commit), ["commit1", "commit2", "commit3"])
+            #expect(versions.map(\.commitDate) == [.t1, .t2, .t3])
+            #expect(versions.map(\.reference.description) == ["1.0.0", "1.1.1", "main"])
+            #expect(versions.map(\.latest) == [nil, .release, .defaultBranch])
+            #expect(versions.map(\.commit) == ["commit1", "commit2", "commit3"])
         }
     }
 
-    func test_forward_progress_on_analysisError() async throws {
+    @Test func forward_progress_on_analysisError() async throws {
         // Ensure a package that fails analysis goes back to ingesting and isn't stuck in an analysis loop
         try await withDependencies {
             $0.date.now = .now
@@ -350,7 +355,7 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
-    func test_package_status() async throws {
+    @Test func package_status() async throws {
         // Ensure packages record success/error status
         try await withDependencies {
             $0.date.now = .now
@@ -394,12 +399,12 @@ class AnalyzerTests: AppTestCase {
 
             // assert packages have been updated
             let packages = try await Package.query(on: app.db).sort(\.$createdAt).all()
-            packages.forEach { XCTAssert($0.updatedAt! > lastUpdate) }
-            XCTAssertEqual(packages.map(\.status), [.noValidVersions, .ok])
+            packages.forEach { #expect($0.updatedAt! > lastUpdate)  }
+            #expect(packages.map(\.status) == [.noValidVersions, .ok])
         }
     }
 
-    func test_continue_on_exception() async throws {
+    @Test func continue_on_exception() async throws {
         // Test to ensure exceptions don't interrupt processing
         let checkoutDir: NIOLockedValueBox<String?> = .init(nil)
         let commands = QueueIsolated<[Command]>([])
@@ -480,15 +485,17 @@ class AnalyzerTests: AppTestCase {
                                       mode: .limit(10))
 
             // validation (not in detail, this is just to ensure command count is as expected)
-            XCTAssertEqual(commands.value.count, 40, "was: \(dump(commands.value))")
+            #expect(commands.value.count == 40, "was: \(dump(commands.value))")
             // 1 packages with 2 tags + 1 default branch each -> 3 versions (the other package fails)
             let versionCount = try await Version.query(on: app.db).count()
-            XCTAssertEqual(versionCount, 3)
+            #expect(versionCount == 3)
         }
     }
 
+    @Test 
+
     @MainActor
-    func test_refreshCheckout() async throws {
+    func refreshCheckout() async throws {
         let commands = QueueIsolated<[String]>([])
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
@@ -510,7 +517,7 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
-    func test_updateRepository() async throws {
+    @Test func updateRepository() async throws {
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.commitCount = { @Sendable _ in 12 }
@@ -535,23 +542,23 @@ class AnalyzerTests: AppTestCase {
 
             // validate
             do { // ensure JPR relation is updated
-                XCTAssertEqual(jpr.repository?.commitCount, 12)
-                XCTAssertEqual(jpr.repository?.firstCommitDate, .t0)
-                XCTAssertEqual(jpr.repository?.lastCommitDate, .t1)
-                XCTAssertEqual(jpr.repository?.authors, PackageAuthors(authors: [Author(name: "Person 1")],
+                #expect(jpr.repository?.commitCount == 12)
+                #expect(jpr.repository?.firstCommitDate == .t0)
+                #expect(jpr.repository?.lastCommitDate == .t1)
+                #expect(jpr.repository?.authors == PackageAuthors(authors: [Author(name: "Person 1")],
                                                                        numberOfContributors: 1))
             }
             do { // ensure changes are persisted
                 let repo = try await Repository.find(.id1, on: app.db)
-                XCTAssertEqual(repo?.commitCount, 12)
-                XCTAssertEqual(repo?.firstCommitDate, .t0)
-                XCTAssertEqual(repo?.lastCommitDate, .t1)
-                XCTAssertEqual(repo?.authors, PackageAuthors(authors: [Author(name: "Person 1")], numberOfContributors: 1))
+                #expect(repo?.commitCount == 12)
+                #expect(repo?.firstCommitDate == .t0)
+                #expect(repo?.lastCommitDate == .t1)
+                #expect(repo?.authors == PackageAuthors(authors: [Author(name: "Person 1")], numberOfContributors: 1))
             }
         }
     }
 
-    func test_getIncomingVersions() async throws {
+    @Test func getIncomingVersions() async throws {
         try await withDependencies {
             $0.git.getTags = { @Sendable _ in [.tag(1, 2, 3)] }
             $0.git.hasBranch = { @Sendable _, _ in true }
@@ -569,11 +576,11 @@ class AnalyzerTests: AppTestCase {
             let versions = try await Analyze.getIncomingVersions(client: app.client, package: pkg)
 
             // validate
-            XCTAssertEqual(versions.map(\.commit).sorted(), ["sha-1.2.3", "sha-main"])
+            #expect(versions.map(\.commit).sorted() == ["sha-1.2.3", "sha-main"])
         }
     }
 
-    func test_getIncomingVersions_default_branch_mismatch() async throws {
+    @Test func getIncomingVersions_default_branch_mismatch() async throws {
         try await withDependencies {
             $0.git.hasBranch = { @Sendable _, _ in false}  // simulate branch mismatch
         } operation: {
@@ -588,16 +595,16 @@ class AnalyzerTests: AppTestCase {
             // MUT
             do {
                 _ = try await Analyze.getIncomingVersions(client: app.client, package: pkg)
-                XCTFail("expected an analysisError to be thrown")
+                Issue.record("expected an analysisError to be thrown")
             } catch let AppError.analysisError(.some(pkgId), msg) {
                 // validate
-                XCTAssertEqual(pkgId, .id0)
-                XCTAssertEqual(msg, "Default branch 'main' does not exist in checkout")
+                #expect(pkgId == .id0)
+                #expect(msg == "Default branch 'main' does not exist in checkout")
             }
         }
     }
 
-    func test_getIncomingVersions_no_default_branch() async throws {
+    @Test func getIncomingVersions_no_default_branch() async throws {
         // setup
         // saving Package without Repository means it has no default branch
         try await Package(id: .id0, url: "1".asGithubUrl.url).save(on: app.db)
@@ -606,15 +613,15 @@ class AnalyzerTests: AppTestCase {
         // MUT
         do {
             _ = try await Analyze.getIncomingVersions(client: app.client, package: pkg)
-            XCTFail("expected an analysisError to be thrown")
+            Issue.record("expected an analysisError to be thrown")
         } catch let AppError.analysisError(.some(pkgId), msg) {
             // validate
-            XCTAssertEqual(pkgId, .id0)
-            XCTAssertEqual(msg, "Package must have default branch")
+            #expect(pkgId == .id0)
+            #expect(msg == "Package must have default branch")
         }
     }
 
-    func test_diffVersions() async throws {
+    @Test func diffVersions() async throws {
         try await withDependencies {
             $0.git.getTags = { @Sendable _ in [.tag(1, 2, 3)] }
             $0.git.hasBranch = { @Sendable _, _ in true }
@@ -649,11 +656,11 @@ class AnalyzerTests: AppTestCase {
                 "https://github.com/foo/1/tree/main",
                 "https://github.com/foo/1/releases/tag/1.2.3"
             ])
-            XCTAssertEqual(delta.toDelete, [])
+            #expect(delta.toDelete == [])
         }
     }
 
-    func test_mergeReleaseInfo() async throws {
+    @Test func mergeReleaseInfo() async throws {
         // setup
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try await pkg.save(on: app.db)
@@ -688,19 +695,16 @@ class AnalyzerTests: AppTestCase {
 
         // validate
         let sortedResults = versions.sorted { $0.commitDate < $1.commitDate }
-        XCTAssertEqual(sortedResults.map(\.releaseNotes),
-                       ["rel 1.2.3", "rel 2.0.0", nil, nil, "rel 2.3.0", nil, nil])
-        XCTAssertEqual(sortedResults.map(\.url),
-                       ["", "", nil, nil, "some url", "", nil])
-        XCTAssertEqual(sortedResults.map(\.publishedAt),
-                       [Date(timeIntervalSince1970: 1),
+        #expect(sortedResults.map(\.releaseNotes) == ["rel 1.2.3", "rel 2.0.0", nil, nil, "rel 2.3.0", nil, nil])
+        #expect(sortedResults.map(\.url) == ["", "", nil, nil, "some url", "", nil])
+        #expect(sortedResults.map(\.publishedAt) == [Date(timeIntervalSince1970: 1),
                         Date(timeIntervalSince1970: 2),
                         nil, nil,
                         Date(timeIntervalSince1970: 4),
                         nil, nil])
     }
 
-    func test_applyVersionDelta() async throws {
+    @Test func applyVersionDelta() async throws {
         // Ensure the existing default doc archives are preserved when replacing the default branch version
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2288
         // setup
@@ -721,11 +725,11 @@ class AnalyzerTests: AppTestCase {
             let app = self.app!
             try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
             let v = try await XCTUnwrapAsync(await Version.query(on: app.db).first())
-            XCTAssertEqual(v.docArchives, [.init(name: "foo", title: "Foo")])
+            #expect(v.docArchives == [.init(name: "foo", title: "Foo")])
         }
     }
 
-    func test_applyVersionDelta_newRelease() async throws {
+    @Test func applyVersionDelta_newRelease() async throws {
         // Ensure the existing default doc archives aren't copied over to a new release
         // setup
         let pkg = Package(id: .id0, url: "1")
@@ -745,12 +749,12 @@ class AnalyzerTests: AppTestCase {
             let app = self.app!
             try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 2)
             let versions = try await XCTUnwrapAsync(await Version.query(on: app.db).sort(\.$commit).all())
-            XCTAssertEqual(versions[0].docArchives, [.init(name: "foo", title: "Foo")])
-            XCTAssertEqual(versions[1].docArchives, nil)
+            #expect(versions[0].docArchives == [.init(name: "foo", title: "Foo")])
+            #expect(versions[1].docArchives == nil)
         }
     }
 
-    func test_getPackageInfo() async throws {
+    @Test func getPackageInfo() async throws {
         // Tests getPackageInfo(package:version:)
         let commands = QueueIsolated<[String]>([])
         try await withDependencies {
@@ -777,15 +781,15 @@ class AnalyzerTests: AppTestCase {
             let info = try await Analyze.getPackageInfo(package: jpr, version: version)
 
             // validation
-            XCTAssertEqual(commands.value, [
+            #expect(commands.value == [
                 "git checkout 0.4.2 --quiet",
                 "swift package dump-package"
             ])
-            XCTAssertEqual(info.packageManifest.name, "SPI-Server")
+            #expect(info.packageManifest.name == "SPI-Server")
         }
     }
 
-    func test_updateVersion() async throws {
+    @Test func updateVersion() async throws {
         // setup
         let pkg = Package(id: UUID(), url: "1")
         try await pkg.save(on: app.db)
@@ -812,15 +816,15 @@ class AnalyzerTests: AppTestCase {
 
         // read back and validate
         let v = try await XCTUnwrapAsync(await Version.query(on: app.db).first())
-        XCTAssertEqual(v.packageName, "foo")
-        XCTAssertEqual(v.resolvedDependencies?.map(\.packageName), nil)
-        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0"].asSwiftVersions)
-        XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
-        XCTAssertEqual(v.toolsVersion, "5.0.0")
-        XCTAssertEqual(v.spiManifest, spiManifest)
+        #expect(v.packageName == "foo")
+        #expect(v.resolvedDependencies?.map(\.packageName) == nil)
+        #expect(v.swiftVersions == ["1", "2", "3.0.0"].asSwiftVersions)
+        #expect(v.supportedPlatforms == [.ios("11.0"), .macos("10.10")])
+        #expect(v.toolsVersion == "5.0.0")
+        #expect(v.spiManifest == spiManifest)
     }
 
-    func test_createProducts() async throws {
+    @Test func createProducts() async throws {
         // setup
         let p = Package(id: UUID(), url: "1")
         let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
@@ -841,12 +845,12 @@ class AnalyzerTests: AppTestCase {
 
         // validation
         let products = try await Product.query(on: app.db).sort(\.$createdAt).all()
-        XCTAssertEqual(products.map(\.name), ["p1", "p2"])
-        XCTAssertEqual(products.map(\.targets), [["t1", "t2"], ["t3", "t4"]])
-        XCTAssertEqual(products.map(\.type), [.library(.automatic), .executable])
+        #expect(products.map(\.name) == ["p1", "p2"])
+        #expect(products.map(\.targets) == [["t1", "t2"], ["t3", "t4"]])
+        #expect(products.map(\.type) == [.library(.automatic), .executable])
     }
 
-    func test_createTargets() async throws {
+    @Test func createTargets() async throws {
         // setup
         let p = Package(id: UUID(), url: "1")
         let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
@@ -862,11 +866,11 @@ class AnalyzerTests: AppTestCase {
 
         // validation
         let targets = try await Target.query(on: app.db).sort(\.$createdAt).all()
-        XCTAssertEqual(targets.map(\.name), ["t1", "t2"])
-        XCTAssertEqual(targets.map(\.type), [.regular, .executable])
+        #expect(targets.map(\.name) == ["t1", "t2"])
+        #expect(targets.map(\.type) == [.regular, .executable])
     }
 
-    func test_updatePackages() async throws {
+    @Test func updatePackages() async throws {
         // setup
         let packages = try await savePackages(on: app.db, ["1", "2"].asURLs)
             .map(Joined<Package, Repository>.init(model:))
@@ -887,7 +891,7 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
-    func test_issue_29() async throws {
+    @Test func issue_29() async throws {
         // Regression test for issue 29
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/29
         try await withDependencies {
@@ -955,8 +959,10 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
+    @Test 
+
     @MainActor
-    func test_issue_70() async throws {
+    func issue_70() async throws {
         // Certain git commands fail when index.lock exists
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/70
         let commands = QueueIsolated<[String]>([])
@@ -981,13 +987,15 @@ class AnalyzerTests: AppTestCase {
             }
 
             // validation
-            XCTAssertEqual(res.map(\.isSuccess), [true])
+            #expect(res.map(\.isSuccess) == [true])
             assertSnapshot(of: commands.value, as: .dump)
         }
     }
 
+    @Test 
+
     @MainActor
-    func test_issue_498() async throws {
+    func issue_498() async throws {
         // git checkout can still fail despite git reset --hard + git clean
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
         let commands = QueueIsolated<[String]>([])
@@ -1015,12 +1023,12 @@ class AnalyzerTests: AppTestCase {
             }
 
             // validation
-            XCTAssertEqual(res.map(\.isSuccess), [true])
+            #expect(res.map(\.isSuccess) == [true])
             assertSnapshot(of: commands.value, as: .dump)
         }
     }
 
-    func test_dumpPackage_5_4() async throws {
+    @Test func dumpPackage_5_4() async throws {
         // Test parsing a Package.swift that requires a 5.4 toolchain
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
@@ -1035,12 +1043,12 @@ class AnalyzerTests: AppTestCase {
                 let fname = tempDir.appending("/Package.swift")
                 try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
                 let m = try await Analyze.dumpPackage(at: tempDir)
-                XCTAssertEqual(m.name, "VisualEffects")
+                #expect(m.name == "VisualEffects")
             }
         }
     }
 
-    func test_dumpPackage_5_5() async throws {
+    @Test func dumpPackage_5_5() async throws {
         // Test parsing a Package.swift that requires a 5.5 toolchain
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
@@ -1056,12 +1064,12 @@ class AnalyzerTests: AppTestCase {
                 let fname = tempDir.appending("/Package.swift")
                 try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
                 let m = try await Analyze.dumpPackage(at: tempDir)
-                XCTAssertEqual(m.name, "Firestarter")
+                #expect(m.name == "Firestarter")
             }
         }
     }
 
-    func test_dumpPackage_5_9_macro_target() async throws {
+    @Test func dumpPackage_5_9_macro_target() async throws {
         // Test parsing a 5.9 Package.swift with a macro target
         // NB: If this test fails on macOS make sure xcode-select -p
         // points to the correct version of Xcode!
@@ -1076,13 +1084,15 @@ class AnalyzerTests: AppTestCase {
                 let fname = tempDir.appending("/Package.swift")
                 try await ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
                 let m = try await Analyze.dumpPackage(at: tempDir)
-                XCTAssertEqual(m.name, "StaticMemberIterable")
+                #expect(m.name == "StaticMemberIterable")
             }
         }
     }
 
+    @Test 
+
     @MainActor
-    func test_dumpPackage_format() async throws {
+    func dumpPackage_format() async throws {
         // Test dump-package JSON format
         // We decode this JSON output in a number of places and if there are changes in output
         // (which depend on the compiler version), the respective decoders need to be updated.
@@ -1118,7 +1128,7 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
-    func test_issue_577() async throws {
+    @Test func issue_577() async throws {
         // Duplicate "latest release" versions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/577
         // setup
@@ -1140,13 +1150,15 @@ class AnalyzerTests: AppTestCase {
         // validate
         do {  // refetch package to ensure changes are persisted
             let versions = versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-            XCTAssertEqual(versions.map(\.reference.description), ["1.2.3", "1.3.0"])
-            XCTAssertEqual(versions.map(\.latest), [nil, .release])
+            #expect(versions.map(\.reference.description) == ["1.2.3", "1.3.0"])
+            #expect(versions.map(\.latest) == [nil, .release])
         }
     }
 
+    @Test 
+
     @MainActor
-    func test_issue_693() async throws {
+    func issue_693() async throws {
         // Handle moved tags
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/693
         let commands = QueueIsolated<[String]>([])
@@ -1172,7 +1184,7 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
-    func test_updateLatestVersions() async throws {
+    @Test func updateLatestVersions() async throws {
         // setup
         func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
         let pkg = Package(id: UUID(), url: "1")
@@ -1193,12 +1205,12 @@ class AnalyzerTests: AppTestCase {
         do {
             try await pkg.$versions.load(on: app.db)
             let versions = versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-            XCTAssertEqual(versions.map(\.reference.description), ["main", "1.2.3", "2.0.0-rc1"])
-            XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, .preRelease])
+            #expect(versions.map(\.reference.description) == ["main", "1.2.3", "2.0.0-rc1"])
+            #expect(versions.map(\.latest) == [.defaultBranch, .release, .preRelease])
         }
     }
 
-    func test_updateLatestVersions_old_beta() async throws {
+    @Test func updateLatestVersions_old_beta() async throws {
         // Test to ensure outdated betas aren't picked up as latest versions
         // and that faulty db content (outdated beta marked as latest pre-release)
         // is correctly reset.
@@ -1228,21 +1240,17 @@ class AnalyzerTests: AppTestCase {
         let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
         // validate
-        XCTAssertEqual(versions.map(\.reference.description), ["main", "2.0.0", "2.0.0-rc1"])
-        XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, nil])
+        #expect(versions.map(\.reference.description) == ["main", "2.0.0", "2.0.0-rc1"])
+        #expect(versions.map(\.latest) == [.defaultBranch, .release, nil])
     }
 
-    func test_issue_914() async throws {
+    @Test func issue_914() async throws {
         // Ensure we handle 404 repos properly
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/914
         // setup
         let checkoutDir = "/checkouts"
         let url = "1".asGithubUrl.url
-        let repoDir = try await {
-            let pkg = Package.init(url: url, processingStage: .ingestion)
-            try await pkg.save(on: app.db)
-            return try checkoutDir + "/" + XCTUnwrap(pkg.cacheDirectoryName)
-        }()
+        let repoDir = try await #require()
         let lastUpdated = Date()
 
         try await withDependencies {
@@ -1263,12 +1271,12 @@ class AnalyzerTests: AppTestCase {
 
             // validate
             let pkg = try await Package.query(on: app.db).first().unwrap()
-            XCTAssertTrue(pkg.updatedAt! > lastUpdated)
-            XCTAssertEqual(pkg.status, .analysisFailed)
+            #expect(pkg.updatedAt! > lastUpdated)
+            #expect(pkg.status == .analysisFailed)
         }
     }
 
-    func test_trimCheckouts() throws {
+    @Test func trimCheckouts() throws {
         let removedPaths = NIOLockedValueBox<[String]>([])
         try withDependencies {
             $0.date.now = .t0
@@ -1286,11 +1294,11 @@ class AnalyzerTests: AppTestCase {
             try Analyze.trimCheckouts()
 
             // validate
-            XCTAssertEqual(removedPaths.withLockedValue { $0 }, ["/checkouts/foo"])
+            #expect(removedPaths.withLockedValue { $0 } == ["/checkouts/foo"])
         }
     }
 
-    func test_issue_2571_tags() async throws {
+    @Test func issue_2571_tags() async throws {
         // Ensure bad git commands do not delete existing tag revisions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
         try await withDependencies {
@@ -1340,7 +1348,7 @@ class AnalyzerTests: AppTestCase {
                 let p = try await Package.find(pkgId, on: app.db).unwrap()
                 try await p.$versions.load(on: app.db)
                 let versions = p.versions.map(\.reference.description).sorted()
-                XCTAssertEqual(versions, ["1.0.0", "main"])
+                #expect(versions == ["1.0.0", "main"])
             }
 
             try await withDependencies {  // second scenario: revisionInfo throws
@@ -1356,7 +1364,7 @@ class AnalyzerTests: AppTestCase {
                 let p = try await Package.find(pkgId, on: app.db).unwrap()
                 try await p.$versions.load(on: app.db)
                 let versions = p.versions.map(\.reference.description).sorted()
-                XCTAssertEqual(versions, ["1.0.0", "main"])
+                #expect(versions == ["1.0.0", "main"])
             }
 
             try await withDependencies {  // second scenario: gitTags throws
@@ -1372,7 +1380,7 @@ class AnalyzerTests: AppTestCase {
                 let p = try await Package.find(pkgId, on: app.db).unwrap()
                 try await p.$versions.load(on: app.db)
                 let versions = p.versions.map(\.reference.description).sorted()
-                XCTAssertEqual(versions, ["1.0.0", "main"])
+                #expect(versions == ["1.0.0", "main"])
             }
 
             try await withDependencies {  // third scenario: everything throws
@@ -1389,12 +1397,12 @@ class AnalyzerTests: AppTestCase {
                 let p = try await Package.find(pkgId, on: app.db).unwrap()
                 try await p.$versions.load(on: app.db)
                 let versions = p.versions.map(\.reference.description).sorted()
-                XCTAssertEqual(versions, ["1.0.0", "main"])
+                #expect(versions == ["1.0.0", "main"])
             }
         }
     }
 
-    func test_issue_2571_latest_version() async throws {
+    @Test func issue_2571_latest_version() async throws {
         // Ensure `latest` remains set in case of AppError.noValidVersions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2571
         try await withDependencies {
@@ -1455,8 +1463,8 @@ class AnalyzerTests: AppTestCase {
                 let p = try await Package.find(pkgId, on: app.db).unwrap()
                 try await p.$versions.load(on: app.db)
                 let versions = p.versions.sorted(by: { $0.reference.description < $1.reference.description })
-                XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "main"])
-                XCTAssertEqual(versions.map(\.latest), [.release, .defaultBranch])
+                #expect(versions.map(\.reference.description) == ["1.0.0", "main"])
+                #expect(versions.map(\.latest) == [.release, .defaultBranch])
             }
 
             // make package available for analysis again
@@ -1490,21 +1498,21 @@ class AnalyzerTests: AppTestCase {
 
                 // validate error logs
                 try logger.logs.withValue { logs in
-                    XCTAssertEqual(logs.count, 2)
+                    #expect(logs.count == 2)
                     let error = try logs.last.unwrap()
-                    XCTAssertTrue(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
+                    #expect(error.message.contains("AppError.noValidVersions"), "was: \(error.message)")
                 }
                 // validate versions
                 let p = try await Package.find(pkgId, on: app.db).unwrap()
                 try await p.$versions.load(on: app.db)
                 let versions = p.versions.sorted(by: { $0.reference.description < $1.reference.description })
-                XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "main"])
-                XCTAssertEqual(versions.map(\.latest), [.release, .defaultBranch])
+                #expect(versions.map(\.reference.description) == ["1.0.0", "main"])
+                #expect(versions.map(\.latest) == [.release, .defaultBranch])
             }
         }
     }
 
-    func test_issue_2873() async throws {
+    @Test func issue_2873() async throws {
         // Ensure we preserve dependency counts from previous default branch version
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2873
         try await withDependencies {
@@ -1538,7 +1546,7 @@ class AnalyzerTests: AppTestCase {
             do { // validate
                 let pkg = try await Package.query(on: app.db).first()
                 // numberOfDependencies is nil here, because we've not yet received the info back from the build
-                XCTAssertEqual(pkg?.scoreDetails?.numberOfDependencies, nil)
+                #expect(pkg?.scoreDetails?.numberOfDependencies == nil)
             }
             
             do { // receive build report - we could send an actual report here via the API but let's just update
@@ -1554,7 +1562,7 @@ class AnalyzerTests: AppTestCase {
             do { // validate
                 let pkg = try await Package.query(on: app.db).first()
                 // numberOfDependencies is 1 now, because we see the updated version
-                XCTAssertEqual(pkg?.scoreDetails?.numberOfDependencies, 1)
+                #expect(pkg?.scoreDetails?.numberOfDependencies == 1)
             }
             
             try await withDependencies {  // now we simulate a new version on the default branch
@@ -1565,7 +1573,7 @@ class AnalyzerTests: AppTestCase {
                 do { // validate
                     let pkg = try await Package.query(on: app.db).first()
                     // numberOfDependencies must be preserved as 1, even though we've not built this version yet
-                    XCTAssertEqual(pkg?.scoreDetails?.numberOfDependencies, 1)
+                    #expect(pkg?.scoreDetails?.numberOfDependencies == 1)
                 }
             }
         }
