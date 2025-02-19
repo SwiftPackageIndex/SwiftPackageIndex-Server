@@ -210,9 +210,9 @@ struct AnalyzerTests {
 
             // ensure stats, recent packages, and releases are refreshed
             let app = self.app!
-            try await XCTAssertEqualAsync(try await Stats.fetch(on: app.db), .init(packageCount: 2))
-            try await XCTAssertEqualAsync(try await RecentPackage.fetch(on: app.db).count, 2)
-            try await XCTAssertEqualAsync(try await RecentRelease.fetch(on: app.db).count, 2)
+            #expect(try await Stats.fetch(on: app.db) == .init(packageCount: 2))
+            #expect(try await RecentPackage.fetch(on: app.db).count == 2)
+            #expect(try await RecentRelease.fetch(on: app.db).count == 2)
         }
     }
 
@@ -332,16 +332,16 @@ struct AnalyzerTests {
 
             // Ensure candidate selection is as expected
             let app = self.app!
-            try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
-            try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 1)
+            #expect(try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count == 0)
+            #expect(try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count == 1)
 
             // MUT
             try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
             // Ensure candidate selection is now zero for analysis
             // (and also for ingestion, as we're immediately after analysis)
-            try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 0)
-            try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 0)
+            #expect(try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count == 0)
+            #expect(try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count == 0)
 
             try await withDependencies {
                 // Advance time beyond reIngestionDeadtime
@@ -349,8 +349,8 @@ struct AnalyzerTests {
             } operation: {
                 // Ensure candidate selection has flipped to ingestion
                 let app = self.app!
-                try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count, 1)
-                try await XCTAssertEqualAsync(try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count, 0)
+                #expect(try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).count == 1)
+                #expect(try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).count == 0)
             }
         }
     }
@@ -723,7 +723,7 @@ struct AnalyzerTests {
 
         do {  // validate
             let app = self.app!
-            try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
+            #expect(try await Version.query(on: app.db).count() == 1)
             let v = try await XCTUnwrapAsync(await Version.query(on: app.db).first())
             #expect(v.docArchives == [.init(name: "foo", title: "Foo")])
         }
@@ -747,7 +747,7 @@ struct AnalyzerTests {
 
         do {  // validate
             let app = self.app!
-            try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 2)
+            #expect(try await Version.query(on: app.db).count() == 2)
             let versions = try await XCTUnwrapAsync(await Version.query(on: app.db).sort(\.$commit).all())
             #expect(versions[0].docArchives == [.init(name: "foo", title: "Foo")])
             #expect(versions[1].docArchives == nil)
@@ -954,8 +954,8 @@ struct AnalyzerTests {
             // 1 version for the default branch + 2 for the tags each = 6 versions
             // 2 products per version = 12 products
             let db = app.db
-            try await XCTAssertEqualAsync(try await Version.query(on: db).count(), 6)
-            try await XCTAssertEqualAsync(try await Product.query(on: db).count(), 12)
+            #expect(try await Version.query(on: db).count() == 6)
+            #expect(try await Product.query(on: db).count() == 12)
         }
     }
 
