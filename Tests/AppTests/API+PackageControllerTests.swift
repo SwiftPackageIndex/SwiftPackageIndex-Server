@@ -23,64 +23,70 @@ import Vapor
 
     typealias BuildDetails = (reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status)
 
-    @Test(.dependency(\.date.now, .december15_2020))
     func History_query() async throws {
-        try await withApp { app in
-            let pkg = try await savePackage(on: app.db, "1")
-            try await Repository(package: pkg,
-                                 commitCount: 1433,
-                                 defaultBranch: "default",
-                                 firstCommitDate: .t0,
-                                 name: "bar",
-                                 owner: "foo").create(on: app.db)
-            for idx in (0..<10) {
-                try await Version(package: pkg,
-                                  latest: .defaultBranch,
-                                  reference: .branch("main")).create(on: app.db)
-                try await Version(package: pkg,
-                                  latest: .release,
-                                  reference: .tag(.init(idx, 0, 0))).create(on: app.db)
+        try await withDependencies {
+            $0.date.now = .december15_2020
+        } operation: {
+            try await withApp { app in
+                let pkg = try await savePackage(on: app.db, "1")
+                try await Repository(package: pkg,
+                                     commitCount: 1433,
+                                     defaultBranch: "default",
+                                     firstCommitDate: .t0,
+                                     name: "bar",
+                                     owner: "foo").create(on: app.db)
+                for idx in (0..<10) {
+                    try await Version(package: pkg,
+                                      latest: .defaultBranch,
+                                      reference: .branch("main")).create(on: app.db)
+                    try await Version(package: pkg,
+                                      latest: .release,
+                                      reference: .tag(.init(idx, 0, 0))).create(on: app.db)
+                }
+                // add pre-release and default branch - these should *not* be counted as releases
+                try await Version(package: pkg, reference: .branch("main")).create(on: app.db)
+                try await Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db)
+
+                // MUT
+                let record = try await API.PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
+
+                // validate
+                #expect(
+                    record == .init(url: "1",
+                                    defaultBranch: "default",
+                                    firstCommitDate: .t0,
+                                    commitCount: 1433,
+                                    releaseCount: 10)
+                )
             }
-            // add pre-release and default branch - these should *not* be counted as releases
-            try await Version(package: pkg, reference: .branch("main")).create(on: app.db)
-            try await Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db)
-
-            // MUT
-            let record = try await API.PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
-
-            // validate
-            #expect(
-                record == .init(url: "1",
-                                defaultBranch: "default",
-                                firstCommitDate: .t0,
-                                commitCount: 1433,
-                                releaseCount: 10)
-            )
         }
     }
 
-    @Test(.dependency(\.date.now, .december15_2020))
     func History_query_no_releases() async throws {
-        try await withApp { app in
-            let pkg = try await savePackage(on: app.db, "1")
-            try await Repository(package: pkg,
-                                 commitCount: 1433,
-                                 defaultBranch: "default",
-                                 firstCommitDate: .t0,
-                                 name: "bar",
-                                 owner: "foo").create(on: app.db)
+        try await withDependencies {
+            $0.date.now = .december15_2020
+        } operation: {
+            try await withApp { app in
+                let pkg = try await savePackage(on: app.db, "1")
+                try await Repository(package: pkg,
+                                     commitCount: 1433,
+                                     defaultBranch: "default",
+                                     firstCommitDate: .t0,
+                                     name: "bar",
+                                     owner: "foo").create(on: app.db)
 
-            // MUT
-            let record = try await API.PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
+                // MUT
+                let record = try await API.PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
 
-            // validate
-            #expect(
-                record == .init(url: "1",
-                                defaultBranch: "default",
-                                firstCommitDate: .t0,
-                                commitCount: 1433,
-                                releaseCount: 0)
-            )
+                // validate
+                #expect(
+                    record == .init(url: "1",
+                                    defaultBranch: "default",
+                                    firstCommitDate: .t0,
+                                    commitCount: 1433,
+                                    releaseCount: 0)
+                )
+            }
         }
     }
 
