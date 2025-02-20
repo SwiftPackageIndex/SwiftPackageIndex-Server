@@ -15,7 +15,6 @@
 @testable import App
 
 import Dependencies
-import DependenciesTestSupport
 import SPIManifest
 import SnapshotTesting
 import Testing
@@ -182,19 +181,22 @@ import Vapor
         #expect(model.gitHubRepositoryUrl == "https://github.com/owner/repository")
     }
 
-    @Test(.dependency(\.date.now, .t0))
     func history() throws {
-        var model = API.PackageController.GetRoute.Model.mock
-        model.history = .init(
-            createdAt: Calendar.current.date(byAdding: .month, value: -7, to: .t0)!,
-            commitCount: 12,
-            commitCountURL: "https://example.com/commits.html",
-            releaseCount: 2,
-            releaseCountURL: "https://example.com/releases.html"
-        )
+        withDependencies {
+            $0.date.now = .t0
+        } operation: {
+            var model = API.PackageController.GetRoute.Model.mock
+            model.history = .init(
+                createdAt: Calendar.current.date(byAdding: .month, value: -7, to: .t0)!,
+                commitCount: 12,
+                commitCountURL: "https://example.com/commits.html",
+                releaseCount: 2,
+                releaseCountURL: "https://example.com/releases.html"
+            )
 
-        let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(of: renderedHistory, as: .lines)
+            let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
+            assertSnapshot(of: renderedHistory, as: .lines)
+        }
     }
 
     @Test func forked_from_github() throws {
@@ -277,50 +279,65 @@ import Vapor
         assertSnapshot(of: renderedHistory, as: .lines)
     }
 
-    @Test(.dependency(\.date.now, .t0))
     func activity_variants__missing_open_issue() throws {
-        var model = API.PackageController.GetRoute.Model.mock
-        model.activity?.openIssuesURL = nil
+        withDependencies {
+            $0.date.now = .t0
+        } operation: {
+            var model = API.PackageController.GetRoute.Model.mock
+            model.activity?.openIssuesURL = nil
 
-        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(of: renderedActivity, as: .lines)
+            let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+            assertSnapshot(of: renderedActivity, as: .lines)
+        }
     }
 
-    @Test(.dependency(\.date.now, .t0))
     func activity_variants__missing_open_PRs() throws {
-        var model = API.PackageController.GetRoute.Model.mock
-        model.activity?.openPullRequestsURL = nil
+        withDependencies {
+            $0.date.now = .t0
+        } operation: {
+            var model = API.PackageController.GetRoute.Model.mock
+            model.activity?.openPullRequestsURL = nil
 
-        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(of: renderedActivity, as: .lines)
+            let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+            assertSnapshot(of: renderedActivity, as: .lines)
+        }
     }
 
-    @Test(.dependency(\.date.now, .t0))
     func activity_variants__missing_open_issues_and_PRs() throws {
-        var model = API.PackageController.GetRoute.Model.mock
-        model.activity?.openIssuesURL = nil
-        model.activity?.openPullRequestsURL = nil
+        withDependencies {
+            $0.date.now = .t0
+        } operation: {
+            var model = API.PackageController.GetRoute.Model.mock
+            model.activity?.openIssuesURL = nil
+            model.activity?.openPullRequestsURL = nil
 
-        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(of: renderedActivity, as: .lines)
+            let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+            assertSnapshot(of: renderedActivity, as: .lines)
+        }
     }
 
-    @Test(.dependency(\.date.now, .t0))
     func activity_variants__missing_last_closed_issue() throws {
-        var model = API.PackageController.GetRoute.Model.mock
-        model.activity?.lastIssueClosedAt = nil
+        withDependencies {
+            $0.date.now = .t0
+        } operation: {
+            var model = API.PackageController.GetRoute.Model.mock
+            model.activity?.lastIssueClosedAt = nil
 
-        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(of: renderedActivity, as: .lines)
+            let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+            assertSnapshot(of: renderedActivity, as: .lines)
+        }
     }
 
-    @Test(.dependency(\.date.now, .t0))
     func activity_variants__missing_last_closed_PR() throws {
-        var model = API.PackageController.GetRoute.Model.mock
-        model.activity?.lastPullRequestClosedAt = nil
+        withDependencies {
+            $0.date.now = .t0
+        } operation: {
+            var model = API.PackageController.GetRoute.Model.mock
+            model.activity?.lastPullRequestClosedAt = nil
 
-        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(of: renderedActivity, as: .lines)
+            let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+            assertSnapshot(of: renderedActivity, as: .lines)
+        }
     }
 
     @Test func activity_variants__missing_last_closed_issue_and_PR() throws {
