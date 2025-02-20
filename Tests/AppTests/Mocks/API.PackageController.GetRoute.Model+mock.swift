@@ -21,7 +21,6 @@ import Dependencies
 
 extension API.PackageController.GetRoute.Model {
     static var mock: Self {
-        @Dependency(\.date.now) var now
         return .init(
             packageId: UUID("cafecafe-cafe-cafe-cafe-cafecafecafe")!,
             repositoryOwner: "Alamo",
@@ -32,8 +31,8 @@ extension API.PackageController.GetRoute.Model {
                 openIssuesURL: "https://github.com/Alamofire/Alamofire/issues",
                 openPullRequestsCount: 5,
                 openPullRequestsURL: "https://github.com/Alamofire/Alamofire/pulls",
-                lastIssueClosedAt: now.adding(days: -5),
-                lastPullRequestClosedAt: now.adding(days: -6)
+                lastIssueClosedAt: .t0.adding(days: -5),
+                lastPullRequestClosedAt: .t0.adding(days: -6)
             ),
             authors: AuthorMetadata.fromGitRepository(.init(authors: [
                 .init(name: "Author One"),
@@ -87,7 +86,7 @@ extension API.PackageController.GetRoute.Model {
             history: .init(
                 createdAt: Calendar.current.date(byAdding: .day,
                                                  value: -70,
-                                                 to: now)!,
+                                                 to: .t0)!,
                 commitCount: 1433,
                 commitCountURL: "https://github.com/Alamofire/Alamofire/commits/main",
                 releaseCount: 79,
@@ -99,13 +98,13 @@ extension API.PackageController.GetRoute.Model {
                        .init(name: "lib2", type: .library),
                        .init(name: "exe", type: .executable),
                        .init(name: "lib3", type: .library)],
-            releases: .init(stable: .init(date: now.adding(days: -12),
+            releases: .init(stable: .init(date: .t0.adding(days: -12),
                                           link: .init(label: "5.2.0",
                                                       url: "https://github.com/Alamofire/Alamofire/releases/tag/5.2.0")),
-                            beta: .init(date: now.adding(days: -4),
+                            beta: .init(date: .t0.adding(days: -4),
                                         link: .init(label: "5.3.0-beta.1",
                                                     url: "https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1")),
-                            latest: .init(date: now.adding(minutes: -12),
+                            latest: .init(date: .t0.adding(minutes: -12),
                                           link: .init(label: "main",
                                                       url: "https://github.com/Alamofire/Alamofire"))),
             dependencies: [
