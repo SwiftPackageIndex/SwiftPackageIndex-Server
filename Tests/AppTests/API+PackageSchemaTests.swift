@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 @testable import App
-import XCTVapor
+
+import Testing
 
 
-class API_PackageSchemaTests: SnapshotTestCase {
+@Suite struct API_PackageSchemaTests {
 
-    func test_schema_initialiser() throws {
+    @Test func PackageSchema_init() throws {
         let schema = API.PackageSchema(
             repositoryOwner: "Owner",
             repositoryName: "Name",
@@ -27,30 +30,30 @@ class API_PackageSchemaTests: SnapshotTestCase {
             licenseUrl: "License",
             version: "Version",
             repositoryUrl: "URL",
-            datePublished: Date(timeIntervalSince1970: 0),
-            dateModified: Date(timeIntervalSinceReferenceDate: 0),
+            datePublished: .t0,
+            dateModified: .t1,
             keywords: ["foo", "bar", "baz"]
         )
 
-        XCTAssertEqual(schema.context, "https://schema.org")
-        XCTAssertEqual(schema.type, "SoftwareSourceCode")
-        XCTAssertEqual(schema.identifier, "Owner/Name")
-        XCTAssertEqual(schema.name, "Name")
-        XCTAssertEqual(schema.description, "Summary")
-        XCTAssertEqual(schema.license, "License")
-        XCTAssertEqual(schema.version, "Version")
-        XCTAssertEqual(schema.codeRepository, "URL")
-        XCTAssertEqual(schema.url, "http://localhost:8080/Owner/Name")
-        XCTAssertEqual(schema.datePublished, Date(timeIntervalSince1970: 0))
-        XCTAssertEqual(schema.dateModified, Date(timeIntervalSinceReferenceDate: 0))
-        XCTAssertEqual(schema.keywords, ["foo", "bar", "baz"])
+        #expect(schema.context == "https://schema.org")
+        #expect(schema.type == "SoftwareSourceCode")
+        #expect(schema.identifier == "Owner/Name")
+        #expect(schema.name == "Name")
+        #expect(schema.description == "Summary")
+        #expect(schema.license == "License")
+        #expect(schema.version == "Version")
+        #expect(schema.codeRepository == "URL")
+        #expect(schema.url == "http://localhost:8080/Owner/Name")
+        #expect(schema.datePublished == .t0)
+        #expect(schema.dateModified == .t1)
+        #expect(schema.keywords == ["foo", "bar", "baz"])
 
-        XCTAssertEqual(schema.sourceOrganization.type, "Organization")
-        XCTAssertEqual(schema.sourceOrganization.legalName, "OrganisationName")
+        #expect(schema.sourceOrganization.type == "Organization")
+        #expect(schema.sourceOrganization.legalName == "OrganisationName")
 
-        XCTAssertEqual(schema.programmingLanguage.type, "ComputerLanguage")
-        XCTAssertEqual(schema.programmingLanguage.name, "Swift")
-        XCTAssertEqual(schema.programmingLanguage.url, "https://swift.org/")
+        #expect(schema.programmingLanguage.type == "ComputerLanguage")
+        #expect(schema.programmingLanguage.name == "Swift")
+        #expect(schema.programmingLanguage.url == "https://swift.org/")
     }
 
 }
