@@ -15,14 +15,16 @@
 @testable import App
 
 import Vapor
-import XCTest
+import Testing
 
 
-class AppTests: AppTestCase {
+@Suite struct AppTests {
 
-    func test_migrations() async throws {
-        try await XCTAssertNoThrowAsync(try await app.autoRevert())
-        try await XCTAssertNoThrowAsync(try await app.autoMigrate())
+    @Test func migrations() async throws {
+        try await withApp { app in
+            await #expect(throws: Never.self) { try await app.autoRevert() }
+            await #expect(throws: Never.self) { try await app.autoMigrate() }
+        }
     }
 
 }

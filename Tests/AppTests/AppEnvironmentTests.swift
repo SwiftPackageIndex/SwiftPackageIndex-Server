@@ -12,30 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import App
 
 import Dependencies
+import Testing
 import Vapor
 
 
-class AppEnvironmentTests: XCTestCase {
+@Suite struct AppEnvironmentTests {
 
-    func test_Filemanager_checkoutsDirectory() throws {
+    @Test func Filemanager_checkoutsDirectory() throws {
         withDependencies {
             $0.fileManager.checkoutsDirectory = FileManagerClient.liveValue.checkoutsDirectory
         } operation: {
             unsetenv("CHECKOUTS_DIR")
             @Dependency(\.fileManager) var fileManager
-            XCTAssertEqual(fileManager.checkoutsDirectory(),
-                           DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts")
+            #expect(fileManager.checkoutsDirectory() == DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts")
             setenv("CHECKOUTS_DIR", "/tmp/foo", 1)
-            XCTAssertEqual(fileManager.checkoutsDirectory(), "/tmp/foo")
+            #expect(fileManager.checkoutsDirectory() == "/tmp/foo")
         }
     }
 
-    func test_maintenanceMessage() throws {
+    @Test func maintenanceMessage() throws {
         defer { unsetenv("MAINTENANCE_MESSAGE") }
         withDependencies {
             $0.environment.maintenanceMessage = EnvironmentClient.liveValue.maintenanceMessage
@@ -43,23 +41,23 @@ class AppEnvironmentTests: XCTestCase {
             @Dependency(\.environment) var environment
             do {
                 unsetenv("MAINTENANCE_MESSAGE")
-                XCTAssertEqual(environment.maintenanceMessage(), nil)
+                #expect(environment.maintenanceMessage() == nil)
             }
             do {
                 setenv("MAINTENANCE_MESSAGE", "foo", 1)
-                XCTAssertEqual(environment.maintenanceMessage(), "foo")
+                #expect(environment.maintenanceMessage() == "foo")
             }
             do {
                 setenv("MAINTENANCE_MESSAGE", "", 1)
-                XCTAssertEqual(environment.maintenanceMessage(), nil)
+                #expect(environment.maintenanceMessage() == nil)
             }
             do {
                 setenv("MAINTENANCE_MESSAGE", " ", 1)
-                XCTAssertEqual(environment.maintenanceMessage(), nil)
+                #expect(environment.maintenanceMessage() == nil)
             }
             do {
                 setenv("MAINTENANCE_MESSAGE", " \t\n ", 1)
-                XCTAssertEqual(environment.maintenanceMessage(), nil)
+                #expect(environment.maintenanceMessage() == nil)
             }
         }
     }
