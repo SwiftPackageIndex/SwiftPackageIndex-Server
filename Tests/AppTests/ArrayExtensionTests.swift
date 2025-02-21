@@ -12,122 +12,110 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import App
 
 import NIO
 import SPIManifest
+import Testing
 
 
-class ArrayExtensionTests: XCTestCase {
+@Suite struct ArrayExtensionTests {
 
-    func test_defaultBranchVersion() throws {
-        XCTAssertEqual(
+    @Test func defaultBranchVersion() throws {
+        #expect(
             [
                 Version(id: .id0, latest: .release),
                 Version(id: .id1, latest: .defaultBranch)
-            ].defaultBranchVersion?.id,
-            .id1
+            ].defaultBranchVersion?.id == .id1
         )
-        XCTAssertEqual(
+        #expect(
             [
                 Version(id: .id0, latest: .release),
                 Version(id: .id1, latest: .preRelease),
-            ].defaultBranchVersion?.id,
-            nil
+            ].defaultBranchVersion?.id == nil
         )
     }
 
-    func test_releaseVersion() throws {
-        XCTAssertEqual(
+    @Test func releaseVersion() throws {
+        #expect(
             [
                 Version(id: .id0, latest: .defaultBranch),
                 Version(id: .id1, latest: .release)
-            ].releaseVersion?.id,
-            .id1
+            ].releaseVersion?.id == .id1
         )
-        XCTAssertEqual(
+        #expect(
             [
                 Version(id: .id0, latest: .defaultBranch),
                 Version(id: .id1, latest: .preRelease),
-            ].releaseVersion?.id,
-            nil
+            ].releaseVersion?.id == nil
         )
     }
 
-    func test_documentationTarget_external() throws {
+    @Test func documentationTarget_external() throws {
         // Test with only external link
-        XCTAssertEqual(
+        #expect(
             [
                 Version(id: .id0, latest: .release),
                 Version(id: .id1, latest: .defaultBranch, spiManifest: .withExternalDocLink("link")),
-            ].canonicalDocumentationTarget(),
-            .external(url: "link")
+            ].canonicalDocumentationTarget() == .external(url: "link")
         )
 
         // Test external link overrides generated docs
-        XCTAssertEqual(
+        #expect(
             [
                 Version(id: .id0, latest: .release),
                 Version(id: .id1, latest: .defaultBranch,
                         spiManifest: .withExternalDocLink("link"),
                         docArchives: [.init(name: "foo", title: "Foo")]),
-            ].canonicalDocumentationTarget(),
-            .external(url: "link")
+            ].canonicalDocumentationTarget() == .external(url: "link")
         )
 
         // Test external link overrides generated docs, also if they're release docs
-        XCTAssertEqual(
+        #expect(
             [
                 Version(id: .id0, latest: .release,
                         docArchives: [.init(name: "foo", title: "Foo")]),
                 Version(id: .id1, latest: .defaultBranch,
                         spiManifest: .withExternalDocLink("link")),
-            ].canonicalDocumentationTarget(),
-            .external(url: "link")
+            ].canonicalDocumentationTarget() == .external(url: "link")
         )
     }
 
-    func test_documentationTarget_internal() throws {
+    @Test func documentationTarget_internal() throws {
         // Test default path - release docs available
-        XCTAssertEqual(
+        #expect(
             [
                 Version(id: .id0, latest: .release, reference: .tag(1, 2, 3),
                         docArchives: [.init(name: "foo", title: "Foo")]),
-            ].canonicalDocumentationTarget(),
-            .internal(docVersion: .reference("1.2.3"), archive: "foo")
+            ].canonicalDocumentationTarget() == .internal(docVersion: .reference("1.2.3"), archive: "foo")
         )
 
         // Test default branch fallback
-        XCTAssertEqual(
+        #expect(
             [
                 Version(id: .id0, latest: .release, reference: .tag(1, 2, 3)),
                 Version(id: .id0, latest: .defaultBranch, reference: .branch("main"),
                         docArchives: [.init(name: "foo", title: "Foo")]),
-            ].canonicalDocumentationTarget(),
-            .internal(docVersion: .reference("main"), archive: "foo")
+            ].canonicalDocumentationTarget() == .internal(docVersion: .reference("main"), archive: "foo")
         )
 
         // No default branch version available
-        XCTAssertEqual(
+        #expect(
             [
                 Version(id: .id0, latest: .release, reference: .tag(1, 2, 3)),
-            ].canonicalDocumentationTarget(),
-            nil
+            ].canonicalDocumentationTarget() == nil
         )
 
         // No doc archives available at all
-        XCTAssertEqual(
+        #expect(
             [
                 Version(id: .id0, latest: .release, reference: .tag(1, 2, 3)),
                 Version(id: .id0, latest: .defaultBranch, reference: .branch("main")),
-            ].canonicalDocumentationTarget(),
-            nil
+            ].canonicalDocumentationTarget() == nil
         )
 
         // Or simply no versions in array at all
-        XCTAssertEqual([Version]().canonicalDocumentationTarget(), nil)
+        #expect([Version]().canonicalDocumentationTarget() == nil)
     }
 
 }
