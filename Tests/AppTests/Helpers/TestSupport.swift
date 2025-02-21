@@ -42,3 +42,8 @@ func withApp(_ setup: (Application) async throws -> Void = { _ in },
         try await app.asyncShutdown()
     }
 }
+
+
+func isRunningInCI() -> Bool {
+    ProcessInfo.processInfo.environment.keys.contains("GITHUB_WORKFLOW")
+}
