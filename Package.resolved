@@ -1,5 +1,5 @@
 {
-  "originHash" : "26f82b707bad92b2be7a4eecc2a4f66cf274ab8f302a8a943abb21a5f9a7a26a",
+  "originHash" : "e4cbe7fdd2ae38684cd1260213735a213295ad75ceadf2daecf7d6c38e0203a2",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -159,8 +159,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/redis.git",
       "state" : {
-        "revision" : "383ed57e5b5acd4dd447c2967aa665dc3bbe5be9",
-        "version" : "4.11.0"
+        "revision" : "b4527022376f93ade3fa366f2c3465ed3489fca4",
+        "version" : "4.11.1"
       }
     },
     {
