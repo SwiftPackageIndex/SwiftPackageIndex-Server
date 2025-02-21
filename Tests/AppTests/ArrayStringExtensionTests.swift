@@ -13,15 +13,17 @@
 // limitations under the License.
 
 @testable import App
-import XCTest
 
-class ArrayStringExtensionTests: XCTestCase {
+import Testing
 
-    func test_pluralised() throws {
-        XCTAssertEqual([String]().pluralized(), "None")
-        XCTAssertEqual(["a"].pluralized(), "a")
-        XCTAssertEqual(["a", "b"].pluralized(), "a and b")
-        XCTAssertEqual(["a", "b", "c"].pluralized(), "a, b, and c")
+
+@Suite struct ArrayStringExtensionTests {
+
+    @Test func pluralised() throws {
+        #expect([String]().pluralized() == "None")
+        #expect(["a"].pluralized() == "a")
+        #expect(["a", "b"].pluralized() == "a and b")
+        #expect(["a", "b", "c"].pluralized() == "a, b, and c")
     }
 
 }
