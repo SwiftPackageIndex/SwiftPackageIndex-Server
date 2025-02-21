@@ -14,20 +14,19 @@
 
 @testable import App
 
-import XCTest
+import Testing
 
 
-class BadgeTests: AppTestCase {
+@Suite struct BadgeTests {
 
-    func test_badgeMessage_swiftVersions() throws {
-        XCTAssertEqual(Badge.badgeMessage(swiftVersions: [.v1, .v2, .v3, .v4]), "6.0 | 5.10 | 5.9 | 5.8")
-        XCTAssertNil(Badge.badgeMessage(swiftVersions: []))
+    @Test func badgeMessage_swiftVersions() throws {
+        #expect(Badge.badgeMessage(swiftVersions: [.v1, .v2, .v3, .v4]) == "6.0 | 5.10 | 5.9 | 5.8")
+        #expect(Badge.badgeMessage(swiftVersions: []) == nil)
     }
 
-    func test_badgeMessage_platforms() throws {
-        XCTAssertEqual(Badge.badgeMessage(platforms: [.linux, .iOS, .macosXcodebuild, .macosSpm]),
-                       "iOS | macOS | Linux")
-        XCTAssertNil(Badge.badgeMessage(platforms: []))
+    @Test func badgeMessage_platforms() throws {
+        #expect(Badge.badgeMessage(platforms: [.linux, .iOS, .macosXcodebuild, .macosSpm]) == "iOS | macOS | Linux")
+        #expect(Badge.badgeMessage(platforms: []) == nil)
     }
 
 }
