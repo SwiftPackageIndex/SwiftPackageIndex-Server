@@ -12,45 +12,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 @testable import App
 
 import Dependencies
-import XCTVapor
+import Testing
 
 
-class ErrorReportingTests: AppTestCase {
+@Suite struct ErrorReportingTests {
 
-    func test_Analyze_recordError() async throws {
-        let pkg = try await savePackage(on: app.db, "1")
-        try await Analyze.recordError(database: app.db,
-                                      error: AppError.cacheDirectoryDoesNotExist(pkg.id, "path"))
-        do {
-            let pkg = try await XCTUnwrapAsync(try await Package.find(pkg.id, on: app.db))
-            XCTAssertEqual(pkg.status, .cacheDirectoryDoesNotExist)
-            XCTAssertEqual(pkg.processingStage, .analysis)
+    let capturingLogger = CapturingLogger()
+
+    @Test func Analyze_recordError() async throws {
+        try await withApp { app in
+            let pkg = try await savePackage(on: app.db, "1")
+            try await Analyze.recordError(database: app.db,
+                                          error: AppError.cacheDirectoryDoesNotExist(pkg.id, "path"))
+            do {
+                let pkg = try await XCTUnwrapAsync(try await Package.find(pkg.id, on: app.db))
+                #expect(pkg.status == .cacheDirectoryDoesNotExist)
+                #expect(pkg.processingStage == .analysis)
+            }
         }
     }
 
-    func test_Ingestion_error_reporting() async throws {
-        // setup
-        try await Package(id: .id0, url: "1", processingStage: .reconciliation).save(on: app.db)
+    @Test func Ingestion_error_reporting() async throws {
+        try await withApp(logHandler: capturingLogger) { app in
+            // setup
+            try await Package(id: .id0, url: "1", processingStage: .reconciliation).save(on: app.db)
 
-        try await withDependencies {
-            $0.date.now = .now
-            $0.github.fetchMetadata = { @Sendable _, _ throws(Github.Error) in throw Github.Error.invalidURL("1") }
-        } operation: {
-            // MUT
-            try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
-        }
+            try await withDependencies {
+                $0.date.now = .now
+                $0.github.fetchMetadata = { @Sendable _, _ throws(Github.Error) in throw Github.Error.invalidURL("1") }
+            } operation: {
+                // MUT
+                try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
+            }
 
-        // validation
-        logger.logs.withValue {
-            XCTAssertEqual($0, [.init(level: .warning,
-                                      message: #"Ingestion.Error(\#(UUID.id0), invalidURL(1))"#)])
+            // validation
+            capturingLogger.logs.withValue {
+                #expect($0 == [.init(level: .warning,
+                                     message: #"Ingestion.Error(\#(UUID.id0), invalidURL(1))"#)])
+            }
         }
     }
 
-    func test_Analyzer_error_reporting() async throws {
+    @Test func Analyzer_error_reporting() async throws {
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.shell.run = { @Sendable cmd, _ in
@@ -60,37 +68,39 @@ class ErrorReportingTests: AppTestCase {
                 return "invalid"
             }
         } operation: {
-            // setup
-            try await Package(id: .id1, url: "1".asGithubUrl.url, processingStage: .ingestion).save(on: app.db)
+            try await withApp(logHandler: capturingLogger) { app in
+                // setup
+                try await Package(id: .id1, url: "1".asGithubUrl.url, processingStage: .ingestion).save(on: app.db)
 
-            // MUT
-            try await Analyze.analyze(client: app.client,
-                                      database: app.db,
-                                      mode: .limit(10))
+                // MUT
+                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
-            // validation
-            logger.logs.withValue {
-                XCTAssertEqual($0, [
-                    .init(level: .critical, message: "updatePackages: unusually high error rate: 1/1 = 100.0%"),
-                    .init(level: .warning, message: #"App.AppError.genericError(Optional(\#(UUID.id1)), "updateRepository: no repository")"#)
-                ])
+                // validation
+                capturingLogger.logs.withValue {
+                    #expect($0 == [
+                        .init(level: .critical, message: "updatePackages: unusually high error rate: 1/1 = 100.0%"),
+                        .init(level: .warning, message: #"App.AppError.genericError(Optional(\#(UUID.id1)), "updateRepository: no repository")"#)
+                    ])
+                }
             }
         }
     }
 
-    func test_invalidPackageCachePath() async throws {
+    @Test func invalidPackageCachePath() async throws {
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
         } operation: {
-            // setup
-            try await savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
+            try await withApp { app in
+                // setup
+                try await savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
 
-            // MUT
-            try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
+                // MUT
+                try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
-            // validation
-            let packages = try await Package.query(on: app.db).sort(\.$url).all()
-            XCTAssertEqual(packages.map(\.status), [.invalidCachePath, .invalidCachePath])
+                // validation
+                let packages = try await Package.query(on: app.db).sort(\.$url).all()
+                #expect(packages.map(\.status) == [.invalidCachePath, .invalidCachePath])
+            }
         }
     }
 
