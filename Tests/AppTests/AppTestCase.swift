@@ -30,7 +30,7 @@ class AppTestCase: XCTestCase {
         app = try await setup(.testing)
 
         @Dependency(\.logger) var logger
-        logger.set(to: .init(label: "test", factory: { _ in self.logger }))
+        logger.set(to: self.logger)
     }
 
     func setup(_ environment: Environment) async throws -> Application {
