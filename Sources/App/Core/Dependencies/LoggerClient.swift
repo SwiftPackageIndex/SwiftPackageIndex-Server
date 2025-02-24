@@ -39,6 +39,18 @@ extension LoggerClient {
 }
 
 
+#if DEBUG
+extension LoggerClient {
+    func set(to handler: LogHandler?) {
+        if let handler {
+            let logger = Logger(label: "test", factory: { _ in handler })
+            set(to: logger)
+        }
+    }
+}
+#endif
+
+
 extension LoggerClient: DependencyKey {
     static var liveValue: Self {
         .init(
