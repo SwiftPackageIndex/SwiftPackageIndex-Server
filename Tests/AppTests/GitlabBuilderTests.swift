@@ -12,29 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import App
 
 import Dependencies
+import Testing
 import Vapor
 
 
-class GitlabBuilderTests: AppTestCase {
+@Suite struct GitlabBuilderTests {
 
-    func test_SwiftVersion_rendering() throws {
-        XCTAssertEqual("\(SwiftVersion.v4)", "6.0.0")
-        XCTAssertEqual(SwiftVersion.v4.description(droppingZeroes: .none), "6.0.0")
-        XCTAssertEqual(SwiftVersion.v4.description(droppingZeroes: .patch), "6.0")
-        XCTAssertEqual(SwiftVersion.v4.description(droppingZeroes: .all), "6")
+    @Test func SwiftVersion_rendering() throws {
+        #expect("\(SwiftVersion.v4)" == "6.0.0")
+        #expect(SwiftVersion.v4.description(droppingZeroes: .none) == "6.0.0")
+        #expect(SwiftVersion.v4.description(droppingZeroes: .patch) == "6.0")
+        #expect(SwiftVersion.v4.description(droppingZeroes: .all) == "6")
     }
 
-    func test_variables_encoding() async throws {
+    @Test func variables_encoding() async throws {
         // Ensure the POST variables are encoded correctly
         // setup
-        let app = try await setup(.testing)
-
-        try await App.run {
+        try await withApp { app in
             let req = Request(application: app, on: app.eventLoopGroup.next())
             let dto = Gitlab.Builder.PostDTO(token: "token",
                                              ref: "ref",
@@ -46,14 +43,11 @@ class GitlabBuilderTests: AppTestCase {
             // validate
             // Gitlab accepts both `variables[FOO]=bar` and `variables%5BFOO%5D=bar` for the [] encoding.
             // Since Vapor 4.92.1 this is now encoded as `variables%5BFOO%5D=bar`.
-            XCTAssertEqual(req.url.query?.split(separator: "&").sorted(),
-                           ["ref=ref", "token=token", "variables%5BFOO%5D=bar"])
-        } defer: {
-            try await app.asyncShutdown()
+            #expect(req.url.query?.split(separator: "&").sorted() == ["ref=ref", "token=token", "variables%5BFOO%5D=bar"])
         }
     }
 
-    func test_triggerBuild() async throws {
+    @Test func triggerBuild() async throws {
         let buildId = UUID.id0
         let versionId = UUID.id1
         let called = QueueIsolated(false)
@@ -65,11 +59,11 @@ class GitlabBuilderTests: AppTestCase {
             $0.environment.siteURL = { "http://example.com" }
             $0.httpClient.post = { @Sendable _, _, body in
                 called.setValue(true)
-                let body = try XCTUnwrap(body)
+                let body = try #require(body)
                 // validate
-                XCTAssertEqual(
-                    try? URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body),
-                    Gitlab.Builder.PostDTO(
+                #expect(
+                    (try? URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body))
+                    == Gitlab.Builder.PostDTO(
                         token: "pipeline token",
                         ref: "main",
                         variables: [
@@ -83,7 +77,8 @@ class GitlabBuilderTests: AppTestCase {
                             "SWIFT_VERSION": "5.2",
                             "TIMEOUT": "10m",
                             "VERSION_ID": versionId.uuidString,
-                        ])
+                        ]
+                    )
                 )
                 return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
@@ -96,11 +91,11 @@ class GitlabBuilderTests: AppTestCase {
                                                       reference: .tag(.init(1, 2, 3)),
                                                       swiftVersion: .init(5, 2, 4),
                                                       versionID: versionId)
-            XCTAssertTrue(called.value)
+            #expect(called.value)
         }
     }
 
-    func test_issue_588() async throws {
+    @Test func issue_588() async throws {
         let called = QueueIsolated(false)
         try await withDependencies {
             $0.environment.awsDocsBucket = { "docs-bucket" }
@@ -110,11 +105,11 @@ class GitlabBuilderTests: AppTestCase {
             $0.environment.siteURL = { "http://example.com" }
             $0.httpClient.post = { @Sendable _, _, body in
                 called.setValue(true)
-                let body = try XCTUnwrap(body)
+                let body = try #require(body)
                 // validate
                 let swiftVersion = (try? URLEncodedFormDecoder().decode(Gitlab.Builder.PostDTO.self, from: body))
                     .flatMap { $0.variables["SWIFT_VERSION"] }
-                XCTAssertEqual(swiftVersion, "6.0")
+                #expect(swiftVersion == "6.0")
                 return try .created(jsonEncode: Gitlab.Builder.Response(webUrl: "http://web_url"))
             }
         } operation: {
@@ -126,18 +121,17 @@ class GitlabBuilderTests: AppTestCase {
                                                       reference: .tag(.init(1, 2, 3)),
                                                       swiftVersion: .v6_0,
                                                       versionID: .id1)
-            XCTAssertTrue(called.value)
+            #expect(called.value)
         }
     }
 
-    func test_getStatusCount() async throws {
+    @Test func getStatusCount() async throws {
         let page = QueueIsolated(1)
         try await withDependencies {
             $0.environment.gitlabApiToken = { "api token" }
             $0.httpClient.get = { @Sendable url, _ in
-                XCTAssertEqual(
-                    url,
-                    "https://gitlab.com/api/v4/projects/19564054/pipelines?status=pending&page=\(page.value)&per_page=20"
+                #expect(
+                    url == "https://gitlab.com/api/v4/projects/19564054/pipelines?status=pending&page=\(page.value)&per_page=20"
                 )
                 let pending = #"{"id": 1, "status": "pending"}"#
                 defer { page.increment() }
@@ -145,7 +139,7 @@ class GitlabBuilderTests: AppTestCase {
                     case 1: 20
                     case 2: 10
                     default:
-                        XCTFail("unexpected page: \(page)")
+                        Issue.record("unexpected page: \(page)")
                         throw Abort(.badRequest)
                 }
                 let list = Array(repeating: pending, count: elementsPerPage).joined(separator: ", ")
@@ -155,21 +149,22 @@ class GitlabBuilderTests: AppTestCase {
             let res = try await Gitlab.Builder.getStatusCount(status: .pending,
                                                               pageSize: 20,
                                                               maxPageCount: 3)
-            XCTAssertEqual(res, 30)
+            #expect(res == 30)
         }
     }
 
 }
 
 
-class LiveGitlabBuilderTests: AppTestCase {
+@Suite 
 
-    func test_triggerBuild_live() async throws {
-        try XCTSkipIf(
-            true,
-            "This is a live trigger test for end-to-end testing of pre-release builder versions"
-        )
 
+struct LiveGitlabBuilderTests {
+
+    @Test(
+        .disabled("This is a live trigger test for end-to-end testing of pre-release builder versions")
+    )
+    func triggerBuild_live() async throws {
         try await withDependencies {
             // make sure environment variables are configured for live access
             $0.environment.awsDocsBucket = { "spi-dev-docs" }
