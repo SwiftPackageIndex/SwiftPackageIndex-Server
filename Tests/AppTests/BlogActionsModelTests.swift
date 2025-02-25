@@ -50,11 +50,9 @@ import Testing
                 #expect(summaries.map(\.slug) == ["post-2", "post-1"])
                 #expect(summaries.map(\.published) == [false, true])
 
-                let firstSummary = try #require(summaries).first
-
                 // Note that we are testing that the first item in this list is the *last* item in the source YAML
                 // as the init should reverse the order of posts so that they display in reverse chronological order
-                #expect(firstSummary == BlogActions.Model.PostSummary(
+                #expect(summaries.first == BlogActions.Model.PostSummary(
                     slug: "post-2",
                     title: "Blog post title two",
                     summary: "Summary of blog post two",
