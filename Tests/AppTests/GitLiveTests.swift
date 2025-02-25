@@ -25,72 +25,88 @@ import Testing
 
     @Test func commitCount() async throws {
         try await withGitRepository(defaultDependencies) { path in
-            try await XCTAssertEqualAsync(try await Git.commitCount(at: path), 57)
+            let commitCount = try await Git.commitCount(at: path)
+            #expect(commitCount == 57)
         }
     }
 
     @Test func firstCommitDate() async throws {
         try await withGitRepository(defaultDependencies) { path in
-            try await XCTAssertEqualAsync(try await Git.firstCommitDate(at: path),
-                                          Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
+            let firstCommitDate = try await Git.firstCommitDate(at: path)
+            #expect(firstCommitDate == Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
         }
     }
 
     @Test func lastCommitDate() async throws {
         try await withGitRepository(defaultDependencies) { path in
-            try await XCTAssertEqualAsync(try await Git.lastCommitDate(at: path),
-                                          Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
+            let lastCommitDate = try await Git.lastCommitDate(at: path)
+            #expect(lastCommitDate == Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
         }
     }
 
     @Test func getTags() async throws {
         try await withGitRepository(defaultDependencies) { path in
-            try await XCTAssertEqualAsync(
-                try await Git.getTags(at: path),
-                [.tag(0,2,0),
-                 .tag(0,2,1),
-                 .tag(0,2,2),
-                 .tag(0,2,3),
-                 .tag(0,2,4),
-                 .tag(0,2,5),
-                 .tag(0,3,0),
-                 .tag(0,4,0),
-                 .tag(0,4,1),
-                 .tag(0,4,2),
-                 .tag(0,5,0),
-                 .tag(0,5,1),
-                 .tag(0,5,2),
-                 .tag(.init(0,0,1), "v0.0.1"),
-                 .tag(.init(0,0,2), "v0.0.2"),
-                 .tag(.init(0,0,3), "v0.0.3"),
-                 .tag(.init(0,0,4), "v0.0.4"),
-                 .tag(.init(0,0,5), "v0.0.5"),
-                 .tag(.init(0,1,0), "v0.1.0")]
+            let tags = try await Git.getTags(at: path)
+            #expect(
+                tags == [
+                    .tag(0,2,0),
+                    .tag(0,2,1),
+                    .tag(0,2,2),
+                    .tag(0,2,3),
+                    .tag(0,2,4),
+                    .tag(0,2,5),
+                    .tag(0,3,0),
+                    .tag(0,4,0),
+                    .tag(0,4,1),
+                    .tag(0,4,2),
+                    .tag(0,5,0),
+                    .tag(0,5,1),
+                    .tag(0,5,2),
+                    .tag(.init(0,0,1), "v0.0.1"),
+                    .tag(.init(0,0,2), "v0.0.2"),
+                    .tag(.init(0,0,3), "v0.0.3"),
+                    .tag(.init(0,0,4), "v0.0.4"),
+                    .tag(.init(0,0,5), "v0.0.5"),
+                    .tag(.init(0,1,0), "v0.1.0")
+                ]
             )
         }
     }
 
     @Test func hasBranch() async throws {
         try await withGitRepository(defaultDependencies) { path in
-            try await XCTAssertEqualAsync(try await Git.hasBranch(.branch("master"), at: path), true)
-            try await XCTAssertEqualAsync(try await Git.hasBranch(.branch("main"), at: path), false)
+            do {
+                let hasBranch = try await Git.hasBranch(.branch("master"), at: path)
+                #expect(hasBranch == true)
+            }
+            do {
+                let hasBranch = try await Git.hasBranch(.branch("main"), at: path)
+                #expect(hasBranch == false)
+            }
         }
     }
 
     @Test func revisionInfo() async throws {
         try await withGitRepository(defaultDependencies) { path in
-            try await XCTAssertEqualAsync(try await Git.revisionInfo(.tag(0,5,2), at: path),
-                                          .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
-                                                date: .init(timeIntervalSince1970: 1554248253)))
-            try await XCTAssertEqualAsync(try await Git.revisionInfo(.branch("master"), at: path),
-                                          .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
-                                                date: .init(timeIntervalSince1970: 1554248253)))
+            do {
+                let revisionInfo = try await Git.revisionInfo(.tag(0,5,2), at: path)
+                #expect(revisionInfo
+                        == .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
+                                 date: .init(timeIntervalSince1970: 1554248253)))
+            }
+            do {
+                let revisionInfo = try await Git.revisionInfo(.branch("master"), at: path)
+                #expect(revisionInfo
+                        == .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
+                                 date: .init(timeIntervalSince1970: 1554248253)))
+            }
         }
     }
 
     @Test func shortlog() async throws {
         try await withGitRepository(defaultDependencies) { path in
-            try await XCTAssertEqualAsync(try await Git.shortlog(at: path), """
+            let shortlog = try await Git.shortlog(at: path)
+            #expect(shortlog == """
                 36\tNeil Pankey
                 21\tJacob Williams
             """)
@@ -122,7 +138,7 @@ extension GitLiveTests {
 #endif
     var defaultDependencies: (inout DependencyValues) async throws -> Void {
         {
-            $0.logger.log = { @Sendable _, _ in }
+            $0.logger = .noop
             $0.shell = .liveValue
         }
     }
