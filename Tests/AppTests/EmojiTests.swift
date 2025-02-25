@@ -14,11 +14,12 @@
 
 @testable import App
 
-import XCTest
+import Testing
 
-class EmojiTests: XCTestCase {
 
-    func test_emojiReplacement() throws {
+@Suite struct EmojiTests {
+
+    @Test func emojiReplacement() throws {
         let cases: [(shorthand: String, result: String)] = [
             (":smile:", "😄"),
             (":grinning:", "😀"),
@@ -29,14 +30,14 @@ class EmojiTests: XCTestCase {
         ]
 
         cases.forEach { test in
-            XCTAssertEqual(test.shorthand.replaceShorthandEmojis(), test.result)
+            #expect(test.shorthand.replaceShorthandEmojis() == test.result)
         }
     }
 
-    func test_emojiLoading() throws {
+    @Test func emojiLoading() throws {
         let emojis = EmojiStorage.current.lookup
-        XCTAssertEqual(emojis.count, 1913)
-        XCTAssertEqual(emojis[":grinning:"], "😀")
+        #expect(emojis.count == 1913)
+        #expect(emojis[":grinning:"] == "😀")
     }
 
 }
