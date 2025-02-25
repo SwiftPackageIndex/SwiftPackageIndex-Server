@@ -14,29 +14,32 @@
 
 @testable import App
 
-import XCTVapor
+import Testing
+import Vapor
 
 
-class BuildResultTests: AppTestCase {
+@Suite struct BuildResultTests {
 
-    func test_query() async throws {
-        // setup
-        let pkg = try await savePackage(on: app.db, "1".url)
-        let repo = try Repository(package: pkg)
-        try await repo.save(on: app.db)
-        let version = try Version(package: pkg)
-        try await version.save(on: app.db)
-        let build = try Build(version: version, platform: .iOS, status: .ok, swiftVersion: .init(5, 3, 0))
-        try await build.save(on: app.db)
-
-        // MUT
-        let res = try await BuildResult.query(on: app.db, buildId: build.id!)
-
-        // validate
-        XCTAssertEqual(res.build.id, build.id)
-        XCTAssertEqual(res.package.id, pkg.id)
-        XCTAssertEqual(res.repository.id, repo.id)
-        XCTAssertEqual(res.version.id, version.id)
+    @Test func query() async throws {
+        try await withApp { app in
+            // setup
+            let pkg = try await savePackage(on: app.db, "1".url)
+            let repo = try Repository(package: pkg)
+            try await repo.save(on: app.db)
+            let version = try Version(package: pkg)
+            try await version.save(on: app.db)
+            let build = try Build(version: version, platform: .iOS, status: .ok, swiftVersion: .init(5, 3, 0))
+            try await build.save(on: app.db)
+            
+            // MUT
+            let res = try await BuildResult.query(on: app.db, buildId: build.id!)
+            
+            // validate
+            #expect(res.build.id == build.id)
+            #expect(res.package.id == pkg.id)
+            #expect(res.repository.id == repo.id)
+            #expect(res.version.id == version.id)
+        }
     }
 
 }
