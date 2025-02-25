@@ -14,11 +14,13 @@
 
 @testable import App
 
-import XCTVapor
+import Testing
+import Vapor
 
-class ErrorPageModelTests: AppTestCase {
 
-    func test_500() throws {
+@Suite struct ErrorPageModelTests {
+
+    @Test func error_500() throws {
         // setup
         let error = Abort(.internalServerError)
 
@@ -26,10 +28,10 @@ class ErrorPageModelTests: AppTestCase {
         let model = ErrorPage.Model(error)
 
         // validate
-        XCTAssertEqual(model.errorMessage, "500 - Internal Server Error")
+        #expect(model.errorMessage == "500 - Internal Server Error")
     }
 
-    func test_500_with_reason() throws {
+    @Test func error_500_with_reason() throws {
         // setup
         let error = Abort(.internalServerError, reason: "Reason")
 
@@ -37,7 +39,7 @@ class ErrorPageModelTests: AppTestCase {
         let model = ErrorPage.Model(error)
 
         // validate
-        XCTAssertEqual(model.errorMessage, "500 - Internal Server Error - Reason")
+        #expect(model.errorMessage == "500 - Internal Server Error - Reason")
     }
 
 }

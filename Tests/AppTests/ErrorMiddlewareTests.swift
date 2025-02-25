@@ -12,60 +12,63 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import App
 
 import Dependencies
+import Testing
 import Vapor
 
 
-class ErrorMiddlewareTests: AppTestCase {
+@Suite struct ErrorMiddlewareTests {
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-
+    func setup(_ app: Application) async throws {
         // set up some test routes
         app.get("ok") { _ in return "ok" }
         app.get("404") { req async throws -> Response in throw Abort(.notFound) }
         app.get("500") { req async throws -> Response in throw Abort(.internalServerError) }
     }
 
-    func test_custom_routes() throws {
-        // Test to ensure the test routes we've set up in setUpWithError are in effect
-        try app.test(.GET, "ok", afterResponse: { response in
-            XCTAssertEqual(response.status, .ok)
-            XCTAssertEqual(response.body.asString(), "ok")
-        })
-    }
-
-    func test_html_error() throws {
-        // Test to ensure errors are converted to html error pages via the ErrorMiddleware
-        try withDependencies {
-            $0.environment.dbId = { nil }
-        } operation: {
-            try app.test(.GET, "404", afterResponse: { response in
-                XCTAssertEqual(response.content.contentType, .html)
-                XCTAssert(response.body.asString().contains("404 - Not Found"))
+    @Test func custom_routes() async throws {
+        try await withApp(setup) { app in
+            // Test to ensure the test routes we've set up in setUpWithError are in effect
+            try await app.test(.GET, "ok", afterResponse: { response async in
+                #expect(response.status == .ok)
+                #expect(response.body.asString() == "ok")
             })
         }
     }
 
-    func test_status_code() throws {
+    @Test func html_error() async throws {
+        // Test to ensure errors are converted to html error pages via the ErrorMiddleware
+        try await withDependencies {
+            $0.environment.dbId = { nil }
+        } operation: {
+            try await withApp(setup) { app in
+                try await app.test(.GET, "404", afterResponse: { response async in
+                    #expect(response.content.contentType == .html)
+                    #expect(response.body.asString().contains("404 - Not Found"))
+                })
+            }
+        }
+    }
+
+    @Test func status_code() async throws {
         // Ensure we're still reporting the actual status code even when serving html pages
         // (Status is important for Google ranking, see
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/323)
-        try withDependencies {
+        try await withDependencies {
             $0.environment.dbId = { nil }
         } operation: {
-            try app.test(.GET, "404", afterResponse: { response in
-                XCTAssertEqual(response.status, .notFound)
-                XCTAssertEqual(response.content.contentType, .html)
-            })
-            try app.test(.GET, "500", afterResponse: { response in
-                XCTAssertEqual(response.status, .internalServerError)
-                XCTAssertEqual(response.content.contentType, .html)
-            })
+            try await withApp(setup) { app in
+                try await app.test(.GET, "404", afterResponse: { response async in
+                    #expect(response.status == .notFound)
+                    #expect(response.content.contentType == .html)
+                })
+                try await app.test(.GET, "500", afterResponse: { response async in
+                    #expect(response.status == .internalServerError)
+                    #expect(response.content.contentType == .html)
+                })
+            }
         }
     }
 
