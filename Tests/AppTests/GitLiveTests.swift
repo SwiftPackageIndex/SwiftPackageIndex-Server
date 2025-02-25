@@ -43,8 +43,10 @@ class GitLiveTests: XCTestCase {
     }
 
     override func invokeTest() {
+        prepareDependencies {
+            $0.logger = .noop
+        }
         withDependencies {
-            $0.logger.log = { @Sendable _, _ in }
             $0.shell = .liveValue
         } operation: {
             super.invokeTest()

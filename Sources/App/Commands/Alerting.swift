@@ -42,8 +42,10 @@ enum Alerting {
         }
 
         func run(using context: CommandContext, signature: Signature) async throws {
+            prepareDependencies {
+                $0.logger = Logger(component: "alerting")
+            }
             @Dependency(\.logger) var logger
-            logger.set(to: Logger(component: "alerting"))
 
             logger.info("Running alerting...")
 

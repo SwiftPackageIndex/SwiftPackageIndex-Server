@@ -42,7 +42,7 @@ extension ShellClient: DependencyKey {
             run: { command, path in
                 @Dependency(\.logger) var logger
                 do {
-                    let res = try await ShellOut.shellOut(to: command, at: path, logger: logger.logger)
+                    let res = try await ShellOut.shellOut(to: command, at: path, logger: logger)
                     if !res.stderr.isEmpty {
                         logger.warning("stderr: \(res.stderr)")
                     }

@@ -29,8 +29,9 @@ class AppTestCase: XCTestCase {
         try await super.setUp()
         app = try await setup(.testing)
 
-        @Dependency(\.logger) var logger
-        logger.set(to: .init(label: "test", factory: { _ in self.logger }))
+        prepareDependencies {
+            $0.logger = .init(label: "test", factory: { _ in self.logger })
+        }
     }
 
     func setup(_ environment: Environment) async throws -> Application {
@@ -60,7 +61,7 @@ extension AppTestCase {
         try await configure(app)
 
         // Silence app logging
-        app.logger = .init(label: "noop") { _ in SwiftLogNoOpLogHandler() }
+        app.logger = .noop
 
         return app
     }
@@ -205,3 +206,7 @@ private func withDatabase(_ databaseName: String, _ environment: Environment, _ 
     }
 }
 
+
+extension Logger {
+    static var noop: Self { .init(label: "noop") { _ in SwiftLogNoOpLogHandler() } }
+}
