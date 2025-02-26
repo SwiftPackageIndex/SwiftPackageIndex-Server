@@ -47,6 +47,10 @@ extension LoggerClient {
             set(to: logger)
         }
     }
+
+    static var noop: Self {
+        .init(log: { _, _ in }, set: { _ in })
+    }
 }
 #endif
 

@@ -12,115 +12,119 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
+import Foundation
 
 @testable import App
 
 import Dependencies
 import ShellOut
+import Testing
 
 
-// setup
-class GitLiveTests: XCTestCase {
-    static let tempDir = NSTemporaryDirectory().appending("spi-test-\(UUID())")
-    static let sampleGitRepoName = "ErrNo"
-    static let sampleGitRepoZipFile = fixturesDirectory()
-        .appendingPathComponent("\(sampleGitRepoName).zip").path
+@Suite struct GitLiveTests {
 
-    var path: String { "\(Self.tempDir)/\(Self.sampleGitRepoName)" }
-    nonisolated(unsafe) static var hasRunSetup = false
-
-    override func setUp() async throws {
-        // Simulate a class setUp (which does not exist as an async function)
-        if Self.hasRunSetup { return }
-        Self.hasRunSetup = true
-        try! Foundation.FileManager.default.createDirectory(atPath: Self.tempDir, withIntermediateDirectories: false, attributes: nil)
-        try! await ShellOut.shellOut(to: .init(command: "unzip", arguments: [Self.sampleGitRepoZipFile]), at: Self.tempDir)
+    @Test func commitCount() async throws {
+        try await withGitRepository(defaultDependencies) { path throws in
+            #expect(try await Git.commitCount(at: path) == 57)
+        }
     }
 
-    override class func tearDown() {
-        try? Foundation.FileManager.default.removeItem(atPath: tempDir)
+    @Test func firstCommitDate() async throws {
+        try await withGitRepository(defaultDependencies) { path throws in
+            #expect(try await Git.firstCommitDate(at: path)
+                    == Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
+        }
     }
 
-    override func invokeTest() {
-        withDependencies {
-            $0.logger.log = { @Sendable _, _ in }
-            $0.shell = .liveValue
-        } operation: {
-            super.invokeTest()
+    @Test func lastCommitDate() async throws {
+        try await withGitRepository(defaultDependencies) { path throws in
+            #expect(try await Git.lastCommitDate(at: path)
+                    == Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
+        }
+    }
+
+    @Test func getTags() async throws {
+        try await withGitRepository(defaultDependencies) { path throws in
+            #expect(
+                try await Git.getTags(at: path) == [
+                    .tag(0,2,0),
+                    .tag(0,2,1),
+                    .tag(0,2,2),
+                    .tag(0,2,3),
+                    .tag(0,2,4),
+                    .tag(0,2,5),
+                    .tag(0,3,0),
+                    .tag(0,4,0),
+                    .tag(0,4,1),
+                    .tag(0,4,2),
+                    .tag(0,5,0),
+                    .tag(0,5,1),
+                    .tag(0,5,2),
+                    .tag(.init(0,0,1), "v0.0.1"),
+                    .tag(.init(0,0,2), "v0.0.2"),
+                    .tag(.init(0,0,3), "v0.0.3"),
+                    .tag(.init(0,0,4), "v0.0.4"),
+                    .tag(.init(0,0,5), "v0.0.5"),
+                    .tag(.init(0,1,0), "v0.1.0")
+                ]
+            )
+        }
+    }
+
+    @Test func hasBranch() async throws {
+        try await withGitRepository(defaultDependencies) { path throws in
+            #expect(try await Git.hasBranch(.branch("master"), at: path) == true)
+            #expect(try await Git.hasBranch(.branch("main"), at: path) == false)
+        }
+    }
+
+    @Test func revisionInfo() async throws {
+        try await withGitRepository(defaultDependencies) { path throws in
+            #expect(try await Git.revisionInfo(.tag(0,5,2), at: path)
+                    == .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
+                             date: .init(timeIntervalSince1970: 1554248253)))
+            #expect(try await Git.revisionInfo(.branch("master"), at: path)
+                    == .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
+                             date: .init(timeIntervalSince1970: 1554248253)))
+        }
+    }
+
+    @Test func shortlog() async throws {
+        try await withGitRepository(defaultDependencies) { path throws in
+            #expect(try await Git.shortlog(at: path) == """
+                36\tNeil Pankey
+                21\tJacob Williams
+            """)
+        }
+    }
+
+}
+
+
+private func withGitRepository(
+    _ updateValuesForOperation: (inout DependencyValues) async throws -> Void = { _ in },
+    _ test: (_ zipFilePath: String) async throws -> Void
+) async throws {
+    try await withDependencies(updateValuesForOperation) {
+        try await withTempDir { tempDir in
+            let fixtureFile = fixturesDirectory().appendingPathComponent("ErrNo.zip").path
+            try await ShellOut.shellOut(to: .init(command: "unzip", arguments: [fixtureFile]), at: tempDir)
+            let path = "\(tempDir)/ErrNo"
+            try await test(path)
         }
     }
 }
 
 
-// Tests
 extension GitLiveTests {
-
-    func test_commitCount() async throws {
-        let path = self.path
-        try await XCTAssertEqualAsync(try await Git.commitCount(at: path), 57)
+#if compiler(>=6.1)
+#warning("Move this into a trait on @Test")
+    // See https://forums.swift.org/t/converting-xctest-invoketest-to-swift-testing/77692/4 for details
+#endif
+    var defaultDependencies: (inout DependencyValues) async throws -> Void {
+        {
+            $0.logger = .noop
+            $0.shell = .liveValue
+        }
     }
-
-    func test_firstCommitDate() async throws {
-        let path = self.path
-        try await XCTAssertEqualAsync(try await Git.firstCommitDate(at: path),
-                                      Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
-    }
-
-    func test_lastCommitDate() async throws {
-        let path = self.path
-        try await XCTAssertEqualAsync(try await Git.lastCommitDate(at: path),
-                                      Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
-    }
-
-    func test_getTags() async throws {
-        let path = self.path
-        try await XCTAssertEqualAsync(
-            try await Git.getTags(at: path),
-            [.tag(0,2,0),
-             .tag(0,2,1),
-             .tag(0,2,2),
-             .tag(0,2,3),
-             .tag(0,2,4),
-             .tag(0,2,5),
-             .tag(0,3,0),
-             .tag(0,4,0),
-             .tag(0,4,1),
-             .tag(0,4,2),
-             .tag(0,5,0),
-             .tag(0,5,1),
-             .tag(0,5,2),
-             .tag(.init(0,0,1), "v0.0.1"),
-             .tag(.init(0,0,2), "v0.0.2"),
-             .tag(.init(0,0,3), "v0.0.3"),
-             .tag(.init(0,0,4), "v0.0.4"),
-             .tag(.init(0,0,5), "v0.0.5"),
-             .tag(.init(0,1,0), "v0.1.0")]
-        )
-    }
-
-    func test_hasBranch() async throws {
-        let path = self.path
-        try await XCTAssertEqualAsync(try await Git.hasBranch(.branch("master"), at: path), true)
-        try await XCTAssertEqualAsync(try await Git.hasBranch(.branch("main"), at: path), false)
-    }
-
-    func test_revisionInfo() async throws {
-        let path = self.path
-        try await XCTAssertEqualAsync(try await Git.revisionInfo(.tag(0,5,2), at: path),
-                                      .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
-                                            date: .init(timeIntervalSince1970: 1554248253)))
-        try await XCTAssertEqualAsync(try await Git.revisionInfo(.branch("master"), at: path),
-                                      .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
-                                            date: .init(timeIntervalSince1970: 1554248253)))
-    }
-
-    func test_shortlog() async throws {
-        let path = self.path
-        try await XCTAssertEqualAsync(try await Git.shortlog(at: path), """
-                36\tNeil Pankey
-                21\tJacob Williams
-            """)
-    }
-
 }
