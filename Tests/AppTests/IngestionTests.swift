@@ -438,7 +438,8 @@ import Vapor
                 #expect(logs.count == 1)
                 let log = try #require(logs.first)
                 #expect(log.level == .critical)
-                #expect(log.message == #"Ingestion.Error(\#(try failed.requireID()), repositorySaveUniqueViolation(owner, name, duplicate key value violates unique constraint "idx_repositories_owner_name"))"#)
+                let id = try failed.requireID()
+                #expect(log.message == #"Ingestion.Error(\#(id), repositorySaveUniqueViolation(owner, name, duplicate key value violates unique constraint "idx_repositories_owner_name"))"#)
             }
 
             // ensure analysis can process these packages
