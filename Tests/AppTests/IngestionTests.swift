@@ -114,7 +114,7 @@ import Vapor
 
             // validate
             do {
-                try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
+                #expect(try await Repository.query(on: app.db).count() == 1)
                 let repo = try await Repository.query(on: app.db).first().unwrap()
                 #expect(repo.summary == "This is package foo/bar")
             }
@@ -176,7 +176,7 @@ import Vapor
 
             // validate
             do {
-                try await XCTAssertEqualAsync(try await Repository.query(on: app.db).count(), 1)
+                #expect(try await Repository.query(on: app.db).count() == 1)
                 let repo = try await Repository.query(on: app.db).first().unwrap()
                 #expect(repo.defaultBranch == "main")
                 #expect(repo.forks == 1)
@@ -463,8 +463,8 @@ import Vapor
             } operation: { [db = app.db] in
                 try await Analyze.analyze(client: app.client, database: db, mode: .id(.id0))
                 try await Analyze.analyze(client: app.client, database: db, mode: .id(.id1))
-                try await XCTAssertEqualAsync(try await Package.find(.id0, on: db)?.processingStage, .analysis)
-                try await XCTAssertEqualAsync(try await Package.find(.id1, on: db)?.processingStage, .analysis)
+                #expect(try await Package.find(.id0, on: db)?.processingStage == .analysis)
+                #expect(try await Package.find(.id1, on: db)?.processingStage == .analysis)
             }
         }
     }
@@ -521,7 +521,7 @@ import Vapor
                     try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
 
                     // validate
-                    try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+                    #expect(try await Repository.query(on: app.db).count() == 1)
                     let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
                     // Ensure fetch and store have been called, etag save to repository
                     #expect(fetchCalls.value == 1)
@@ -537,7 +537,7 @@ import Vapor
                     try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
 
                     // validate
-                    try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+                    #expect(try await Repository.query(on: app.db).count() == 1)
                     let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
                     // Ensure fetch and store have been called, etag save to repository
                     #expect(fetchCalls.value == 2)
@@ -553,7 +553,7 @@ import Vapor
                     try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(1))
 
                     // validate
-                    try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+                    #expect(try await Repository.query(on: app.db).count() == 1)
                     let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
                     // Ensure fetch and store have been called, etag save to repository
                     #expect(fetchCalls.value == 3)
@@ -640,7 +640,7 @@ import Vapor
                 }
 
                 // validate
-                try await XCTAssertEqualAsync(await Repository.query(on: app.db).count(), 1)
+                #expect(try await Repository.query(on: app.db).count() == 1)
                 let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
                 #expect(storeCalls.value == 1)
                 // Ensure an error is recorded
