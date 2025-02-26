@@ -33,9 +33,8 @@ import Testing
                 1.0.2
                 """
             )
-        } operation: {
-            let tags = try await Git.getTags(at: "ignored")
-            #expect(tags == [
+        } operation: { () async throws in
+            #expect(try await Git.getTags(at: "ignored") == [
                 .tag(.init(1, 0, 0, "pre")),
                 .tag(.init(1, 0, 0)),
                 .tag(.init(1, 0, 1)),
@@ -52,11 +51,10 @@ import Testing
                 }
                 throw TestError.unknownCommand
             }
-        } operation: {
-            let revisionInfo = try await Git.revisionInfo(.tag(2, 2, 1), at: "ignored")
-            #expect(revisionInfo ==
-                .init(commit: "63c973f3c2e632a340936c285e94d59f9ffb01d5",
-                      date: Date(timeIntervalSince1970: 1536799579)))
+        } operation: { () async throws in
+            #expect(try await Git.revisionInfo(.tag(2, 2, 1), at: "ignored")
+                    == .init(commit: "63c973f3c2e632a340936c285e94d59f9ffb01d5",
+                             date: Date(timeIntervalSince1970: 1536799579)))
         }
     }
 
@@ -70,11 +68,10 @@ import Testing
                 }
                 throw TestError.unknownCommand
             }
-        } operation: {
-            let revisionInfo = try await Git.revisionInfo(.tag(.init(2, 2, 1), "v2.2.1"), at: "ignored")
-            #expect(revisionInfo ==
-                .init(commit: "63c973f3c2e632a340936c285e94d59f9ffb01d5",
-                      date: Date(timeIntervalSince1970: 1536799579)))
+        } operation: { () async throws in
+            #expect(try await Git.revisionInfo(.tag(.init(2, 2, 1), "v2.2.1"), at: "ignored")
+                    == .init(commit: "63c973f3c2e632a340936c285e94d59f9ffb01d5",
+                             date: Date(timeIntervalSince1970: 1536799579)))
         }
     }
 
