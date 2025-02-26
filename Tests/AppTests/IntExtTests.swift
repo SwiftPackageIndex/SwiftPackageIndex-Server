@@ -12,23 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import App
 
+import Testing
 
-final class IntExtTests: XCTestCase {
 
-    func test_pluralizedCount() throws {
-        XCTAssertEqual(0.labeled("executable"), "no executables")
-        XCTAssertEqual(1.labeled("executable"), "1 executable")
-        XCTAssertEqual(2.labeled("executable"), "2 executables")
+@Suite struct IntExtTests {
 
-        XCTAssertEqual(1.labeled("library", plural: "libraries"), "1 library")
-        XCTAssertEqual(2.labeled("library", plural: "libraries"), "2 libraries")
+    @Test func pluralizedCount() throws {
+        #expect(0.labeled("executable") == "no executables")
+        #expect(1.labeled("executable") == "1 executable")
+        #expect(2.labeled("executable") == "2 executables")
 
-        XCTAssertEqual(0.labeled("executable", capitalized: true), "No executables")
-        XCTAssertEqual(0.labeled("library", plural: "libraries", capitalized: true), "No libraries")
+        #expect(1.labeled("library", plural: "libraries") == "1 library")
+        #expect(2.labeled("library", plural: "libraries") == "2 libraries")
+
+        #expect(0.labeled("executable", capitalized: true) == "No executables")
+        #expect(0.labeled("library", plural: "libraries", capitalized: true) == "No libraries")
     }
 
 }
