@@ -522,7 +522,7 @@ import Vapor
 
                     // validate
                     #expect(try await Repository.query(on: app.db).count() == 1)
-                    let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+                    let repo = try #require(await Repository.query(on: app.db).first())
                     // Ensure fetch and store have been called, etag save to repository
                     #expect(fetchCalls.value == 1)
                     #expect(storeCalls.value == 1)
@@ -538,7 +538,7 @@ import Vapor
 
                     // validate
                     #expect(try await Repository.query(on: app.db).count() == 1)
-                    let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+                    let repo = try #require(await Repository.query(on: app.db).first())
                     // Ensure fetch and store have been called, etag save to repository
                     #expect(fetchCalls.value == 2)
                     #expect(storeCalls.value == 1)
@@ -554,7 +554,7 @@ import Vapor
 
                     // validate
                     #expect(try await Repository.query(on: app.db).count() == 1)
-                    let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+                    let repo = try #require(await Repository.query(on: app.db).first())
                     // Ensure fetch and store have been called, etag save to repository
                     #expect(fetchCalls.value == 3)
                     #expect(storeCalls.value == 2)
@@ -641,7 +641,7 @@ import Vapor
 
                 // validate
                 #expect(try await Repository.query(on: app.db).count() == 1)
-                let repo = try await XCTUnwrapAsync(await Repository.query(on: app.db).first())
+                let repo = try #require(await Repository.query(on: app.db).first())
                 #expect(storeCalls.value == 1)
                 // Ensure an error is recorded
                 #expect(repo.s3Readme?.isError ?? false)
@@ -690,14 +690,14 @@ import Vapor
             try await repository.save(on: app.db)
 
             // Validation that the etag exists
-            let preMigrationFetchedRepo = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
+            let preMigrationFetchedRepo = try #require(try await Repository.query(on: app.db).first())
             #expect(preMigrationFetchedRepo.s3Readme == .cached(s3ObjectUrl: "object-url", githubEtag: "etag"))
 
             // MUT
             try await UpdateRepositoryResetReadmes().prepare(on: app.db)
 
             // Validation
-            let postMigrationFetchedRepo = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
+            let postMigrationFetchedRepo = try #require(try await Repository.query(on: app.db).first())
             #expect(postMigrationFetchedRepo.s3Readme == .cached(s3ObjectUrl: "object-url", githubEtag: ""))
         }
     }
