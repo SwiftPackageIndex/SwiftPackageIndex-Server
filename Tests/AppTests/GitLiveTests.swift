@@ -24,31 +24,29 @@ import Testing
 @Suite struct GitLiveTests {
 
     @Test func commitCount() async throws {
-        try await withGitRepository(defaultDependencies) { path in
-            let commitCount = try await Git.commitCount(at: path)
-            #expect(commitCount == 57)
+        try await withGitRepository(defaultDependencies) { path throws in
+            #expect(try await Git.commitCount(at: path) == 57)
         }
     }
 
     @Test func firstCommitDate() async throws {
-        try await withGitRepository(defaultDependencies) { path in
-            let firstCommitDate = try await Git.firstCommitDate(at: path)
-            #expect(firstCommitDate == Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
+        try await withGitRepository(defaultDependencies) { path throws in
+            #expect(try await Git.firstCommitDate(at: path)
+                    == Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
         }
     }
 
     @Test func lastCommitDate() async throws {
-        try await withGitRepository(defaultDependencies) { path in
-            let lastCommitDate = try await Git.lastCommitDate(at: path)
-            #expect(lastCommitDate == Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
+        try await withGitRepository(defaultDependencies) { path throws in
+            #expect(try await Git.lastCommitDate(at: path)
+                    == Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
         }
     }
 
     @Test func getTags() async throws {
-        try await withGitRepository(defaultDependencies) { path in
-            let tags = try await Git.getTags(at: path)
+        try await withGitRepository(defaultDependencies) { path throws in
             #expect(
-                tags == [
+                try await Git.getTags(at: path) == [
                     .tag(0,2,0),
                     .tag(0,2,1),
                     .tag(0,2,2),
@@ -74,39 +72,26 @@ import Testing
     }
 
     @Test func hasBranch() async throws {
-        try await withGitRepository(defaultDependencies) { path in
-            do {
-                let hasBranch = try await Git.hasBranch(.branch("master"), at: path)
-                #expect(hasBranch == true)
-            }
-            do {
-                let hasBranch = try await Git.hasBranch(.branch("main"), at: path)
-                #expect(hasBranch == false)
-            }
+        try await withGitRepository(defaultDependencies) { path throws in
+            #expect(try await Git.hasBranch(.branch("master"), at: path) == true)
+            #expect(try await Git.hasBranch(.branch("main"), at: path) == false)
         }
     }
 
     @Test func revisionInfo() async throws {
-        try await withGitRepository(defaultDependencies) { path in
-            do {
-                let revisionInfo = try await Git.revisionInfo(.tag(0,5,2), at: path)
-                #expect(revisionInfo
-                        == .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
-                                 date: .init(timeIntervalSince1970: 1554248253)))
-            }
-            do {
-                let revisionInfo = try await Git.revisionInfo(.branch("master"), at: path)
-                #expect(revisionInfo
-                        == .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
-                                 date: .init(timeIntervalSince1970: 1554248253)))
-            }
+        try await withGitRepository(defaultDependencies) { path throws in
+            #expect(try await Git.revisionInfo(.tag(0,5,2), at: path)
+                    == .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
+                             date: .init(timeIntervalSince1970: 1554248253)))
+            #expect(try await Git.revisionInfo(.branch("master"), at: path)
+                    == .init(commit: "178566b112afe6bef3770678f1bbab6e5c626993",
+                             date: .init(timeIntervalSince1970: 1554248253)))
         }
     }
 
     @Test func shortlog() async throws {
-        try await withGitRepository(defaultDependencies) { path in
-            let shortlog = try await Git.shortlog(at: path)
-            #expect(shortlog == """
+        try await withGitRepository(defaultDependencies) { path throws in
+            #expect(try await Git.shortlog(at: path) == """
                 36\tNeil Pankey
                 21\tJacob Williams
             """)
