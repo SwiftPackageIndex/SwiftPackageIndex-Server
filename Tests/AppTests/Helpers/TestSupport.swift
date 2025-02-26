@@ -29,11 +29,8 @@ func withApp(_ setup: (Application) async throws -> Void = { _ in },
     return try await run {
         try await setup(app)
         try await withDependencies(updateValuesForOperation) {
-            let logger = logHandler.map { handler in Logger(label: "test", factory: { _ in handler }) }
             try await withDependencies {
-                if let logger {
-                    $0.logger.set(to: logger)
-                }
+                $0.logger.set(to: logHandler)
             } operation: {
                 try await test(app)
             }
