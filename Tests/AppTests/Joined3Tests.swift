@@ -14,89 +14,97 @@
 
 @testable import App
 
+import Testing
 import Vapor
-import XCTest
 
-class Joined3Tests: AppTestCase {
 
-    func test_query_no_version() async throws {
-        // setup
-        let p = try await savePackage(on: app.db, "1")
-        try await Repository(package: p).save(on: app.db)
+@Suite struct Joined3Tests {
 
-        // MUT
-        let res = try await Joined3<Package, Repository, Version>.query(on: app.db).all()
+    @Test func query_no_version() async throws {
+        try await withApp { app in
+            // setup
+            let p = try await savePackage(on: app.db, "1")
+            try await Repository(package: p).save(on: app.db)
 
-        // validate
-        XCTAssertEqual(res.map(\.model.id), [])
+            // MUT
+            let res = try await Joined3<Package, Repository, Version>.query(on: app.db).all()
+
+            // validate
+            #expect(res.map(\.model.id) == [])
+        }
     }
 
-    func test_query_multiple_versions() async throws {
+    @Test func query_multiple_versions() async throws {
         // Ensure multiple versions don't multiply the package selection
-        // setup
-        let p = try await savePackage(on: app.db, "1")
-        try await Repository(package: p).save(on: app.db)
-        try await Version(package: p, latest: .defaultBranch).save(on: app.db)
-        try await Version(package: p, latest: .release).save(on: app.db)
+        try await withApp { app in
+            // setup
+            let p = try await savePackage(on: app.db, "1")
+            try await Repository(package: p).save(on: app.db)
+            try await Version(package: p, latest: .defaultBranch).save(on: app.db)
+            try await Version(package: p, latest: .release).save(on: app.db)
 
-        // MUT
-        let res = try await Joined3<Package, Repository, Version>
-            .query(on: app.db, version: .defaultBranch)
-            .all()
+            // MUT
+            let res = try await Joined3<Package, Repository, Version>
+                .query(on: app.db, version: .defaultBranch)
+                .all()
 
-        // validate
-        XCTAssertEqual(res.map(\.model.id), [p.id])
+            // validate
+            #expect(res.map(\.model.id) == [p.id])
+        }
     }
 
-
-    func test_query_relationship_properties() async throws {
+    @Test func query_relationship_properties() async throws {
         // Ensure relationship properties are populated by query
-        // setup
-        let p = try await savePackage(on: app.db, "1")
-        try await Repository(package: p, owner: "owner").save(on: app.db)
-        try await Version(package: p,
-                    latest: .defaultBranch,
-                    packageName: "package name").save(on: app.db)
+        try await withApp { app in
+            // setup
+            let p = try await savePackage(on: app.db, "1")
+            try await Repository(package: p, owner: "owner").save(on: app.db)
+            try await Version(package: p,
+                              latest: .defaultBranch,
+                              packageName: "package name").save(on: app.db)
 
-        // MUT
-        let res = try await Joined3<Package, Repository, Version>
-            .query(on: app.db, version: .defaultBranch)
-            .all()
+            // MUT
+            let res = try await Joined3<Package, Repository, Version>
+                .query(on: app.db, version: .defaultBranch)
+                .all()
 
-        // validate
-        XCTAssertEqual(res.map { $0.repository.owner }, ["owner"])
-        XCTAssertEqual(res.map { $0.version.packageName }, ["package name"])
+            // validate
+            #expect(res.map { $0.repository.owner } == ["owner"])
+            #expect(res.map { $0.version.packageName } == ["package name"])
+        }
     }
 
-    func test_query_missing_relations() async throws {
+    @Test func query_missing_relations() async throws {
         // Neither should be possible in practice, this is just ensuring we cannot
         // force unwrap the `repository` or `version` properties in the pathological
         // event, because there are no results to access the properties on.
-        do {  // no repository
-            let p = try await savePackage(on: app.db, "1")
-            try await Version(package: p,
-                        latest: .defaultBranch,
-                        packageName: "package name").save(on: app.db)
+        try await withApp { app in
+            do {  // no repository
+                let p = try await savePackage(on: app.db, "1")
+                try await Version(package: p,
+                                  latest: .defaultBranch,
+                                  packageName: "package name").save(on: app.db)
 
-            // MUT
-            let res = try await Joined3<Package, Repository, Version>
-                .query(on: app.db, version: .defaultBranch)
-                .all()
+                // MUT
+                let res = try await Joined3<Package, Repository, Version>
+                    .query(on: app.db, version: .defaultBranch)
+                    .all()
 
-            // validate - result is empty, `res[0].repository` cannot be called
-            XCTAssertTrue(res.isEmpty)
-        }
-        do {  // no version
-            let p = try await savePackage(on: app.db, "2")
-            try await Repository(package: p, owner: "owner").save(on: app.db)
+                // validate - result is empty, `res[0].repository` cannot be called
+                #expect(res.isEmpty)
+            }
+            do {  // no version
+                let p = try await savePackage(on: app.db, "2")
+                try await Repository(package: p, owner: "owner").save(on: app.db)
 
-            // MUT
-            let res = try await Joined3<Package, Repository, Version>
-                .query(on: app.db, version: .defaultBranch)
-                .all()
+                // MUT
+                let res = try await Joined3<Package, Repository, Version>
+                    .query(on: app.db, version: .defaultBranch)
+                    .all()
 
-            // validate - result is empty, `res[0].repository` cannot be called
-            XCTAssertTrue(res.isEmpty)
+                // validate - result is empty, `res[0].repository` cannot be called
+                #expect(res.isEmpty)
+            }
         }
     }
 
