@@ -14,41 +14,42 @@
 
 @testable import App
 
-import XCTVapor
+import Testing
 
-class LicenseTests: XCTestCase {
 
-    func test_init_from_dto() throws {
-        XCTAssertEqual(License(from: Github.Metadata.LicenseInfo(key: "mit")), .mit)
-        XCTAssertEqual(License(from: Github.Metadata.LicenseInfo(key: "agpl-3.0")), .agpl_3_0)
-        XCTAssertEqual(License(from: Github.Metadata.LicenseInfo(key: "other")), .other)
-        XCTAssertEqual(License(from: .none), .none)
+@Suite struct LicenseTests {
+
+    @Test func init_from_dto() throws {
+        #expect(License(from: Github.Metadata.LicenseInfo(key: "mit")) == .mit)
+        #expect(License(from: Github.Metadata.LicenseInfo(key: "agpl-3.0")) == .agpl_3_0)
+        #expect(License(from: Github.Metadata.LicenseInfo(key: "other")) == .other)
+        #expect(License(from: .none) == .none)
     }
 
-    func test_init_from_dto_unknown() throws {
+    @Test func init_from_dto_unknown() throws {
         // ensure unknown licenses are mapped to `.other`
-        XCTAssertEqual(License(from: Github.Metadata.LicenseInfo(key: "non-existing license")), .other)
+        #expect(License(from: Github.Metadata.LicenseInfo(key: "non-existing license")) == .other)
     }
 
-    func test_fullName() throws {
-        XCTAssertEqual(License.mit.fullName, "MIT License")
-        XCTAssertEqual(License.agpl_3_0.fullName, "GNU Affero General Public License v3.0")
-        XCTAssertEqual(License.other.fullName, "Unknown or Unrecognised License")
-        XCTAssertEqual(License.none.fullName, "No License")
+    @Test func fullName() throws {
+        #expect(License.mit.fullName == "MIT License")
+        #expect(License.agpl_3_0.fullName == "GNU Affero General Public License v3.0")
+        #expect(License.other.fullName == "Unknown or Unrecognised License")
+        #expect(License.none.fullName == "No License")
     }
 
-    func test_shortName() throws {
-        XCTAssertEqual(License.mit.shortName, "MIT")
-        XCTAssertEqual(License.agpl_3_0.shortName, "AGPL 3.0")
-        XCTAssertEqual(License.other.shortName, "Unknown license")
-        XCTAssertEqual(License.none.shortName, "No license")
+    @Test func shortName() throws {
+        #expect(License.mit.shortName == "MIT")
+        #expect(License.agpl_3_0.shortName == "AGPL 3.0")
+        #expect(License.other.shortName == "Unknown license")
+        #expect(License.none.shortName == "No license")
     }
 
-    func test_isCompatibleWithAppStore() throws {
-        XCTAssertEqual(License.mit.licenseKind, .compatibleWithAppStore)
-        XCTAssertEqual(License.agpl_3_0.licenseKind, .incompatibleWithAppStore)
-        XCTAssertEqual(License.other.licenseKind, .other)
-        XCTAssertEqual(License.none.licenseKind, .none)
+    @Test func isCompatibleWithAppStore() throws {
+        #expect(License.mit.licenseKind == .compatibleWithAppStore)
+        #expect(License.agpl_3_0.licenseKind == .incompatibleWithAppStore)
+        #expect(License.other.licenseKind == .other)
+        #expect(License.none.licenseKind == .none)
     }
 
 }
