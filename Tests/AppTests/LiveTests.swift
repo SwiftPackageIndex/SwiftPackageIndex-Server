@@ -12,18 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 @testable import App
 
 import Dependencies
-import XCTVapor
+import Testing
+import Vapor
 
 
-class LiveTests: XCTestCase {
+@Suite struct LiveTests {
 
-    func test_Mastodon_post() async throws {
-        // Only run this test manually to confirm posting works
-        try XCTSkipIf(true)
-
+    @Test(
+        .disabled("Only run this test manually to confirm posting works")
+    )
+    func Mastodon_post() async throws {
         try await withDependencies {
             $0.environment.mastodonCredentials = { .dev }
             $0.httpClient = .liveValue
