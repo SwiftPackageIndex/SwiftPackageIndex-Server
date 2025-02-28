@@ -619,8 +619,7 @@ import Vapor
                 }
 
                 // test fully qualified route
-                try await app.test(.GET, "/owner/package/~/documentation/target") { @MainActor res in
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/owner/package/~/documentation/target") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -633,8 +632,7 @@ import Vapor
                 }
 
                 // test catchall
-                try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { @MainActor res in
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -648,8 +646,7 @@ import Vapor
                 }
 
                 // Test case insensitive path.
-                try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { @MainActor res in
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -699,8 +696,7 @@ import Vapor
                 // MUT
 
                 // test fully qualified route
-                try await app.test(.GET, "/owner/package/~/documentation/target") { @MainActor res in
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/owner/package/~/documentation/target") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -713,8 +709,7 @@ import Vapor
                 }
 
                 // test catchall
-                try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { @MainActor res in
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/owner/package/~/documentation/target/a/b#anchor") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -727,8 +722,7 @@ import Vapor
                 }
 
                 // Test case insensitive path.
-                try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { @MainActor res in
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/Owner/Package/~/documentation/target/A/b#anchor") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -782,8 +776,7 @@ import Vapor
                 }
 
                 // test fully qualified route
-                try await app.test(.GET, "/owner/package/1.2.3/documentation/target") { @MainActor res in
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/owner/package/1.2.3/documentation/target") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -796,8 +789,7 @@ import Vapor
                 }
 
                 // test catchall
-                try await app.test(.GET, "/owner/package/1.2.3/documentation/target/a/b#anchor") { @MainActor res in
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/owner/package/1.2.3/documentation/target/a/b#anchor") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -810,8 +802,7 @@ import Vapor
                 }
 
                 // Test case insensitive path.
-                try await app.test(.GET, "/Owner/Package/1.2.3/documentation/target/A/b#Anchor") { @MainActor res in
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/Owner/Package/1.2.3/documentation/target/A/b#Anchor") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -1225,8 +1216,7 @@ import Vapor
                 // MUT
 
                 // test default path
-                try await app.test(.GET, "/owner/package/~/documentation/target") { @MainActor res in
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/owner/package/~/documentation/target") { res async in
                     #expect(res.status == .ok)
                     let body = String(buffer: res.body)
                     assertSnapshot(of: body, as: .html, named: "current-index")
@@ -1239,8 +1229,7 @@ import Vapor
                 }
 
                 // test reference root path
-                try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/target") { @MainActor res in
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/target") { res async in
                     #expect(res.status == .ok)
                     let body = String(buffer: res.body)
                     assertSnapshot(of: body, as: .html, named: "ref-index")
@@ -1252,8 +1241,7 @@ import Vapor
                 }
 
                 // test path a/b
-                try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/a/b") { @MainActor res in
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/owner/package/feature-1.2.3/documentation/a/b") { res async in
                     #expect(res.status == .ok)
                     #expect(res.content.contentType?.description == "text/html; charset=utf-8")
                     let body = String(buffer: res.body)
@@ -1302,16 +1290,13 @@ import Vapor
                 try await app.test(.GET, "/owner/package/~/tutorials") { res async in
                     #expect(res.status == .notFound)
                 }
-                try await app.test(.GET, "/owner/package/~/tutorials/foo") { @MainActor res in
-#warning("review if Task.yield() and @MainActor is still needed")
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/owner/package/~/tutorials/foo") { res async in
                     #expect(res.status == .ok)
                     let body = String(buffer: res.body)
                     assertSnapshot(of: body, as: .html, named: "index")
                     #expect(body.contains(#"var baseUrl = "/owner/package/~/""#))
                 }
-                try await app.test(.GET, "/owner/package/~/tutorials/foo#anchor") { @MainActor res in
-                    await Task.yield() // essential to avoid deadlocking
+                try await app.test(.GET, "/owner/package/~/tutorials/foo#anchor") { res async in
                     #expect(res.status == .ok)
                     let body = String(buffer: res.body)
                     assertSnapshot(of: body, as: .html, named: "index")
@@ -1572,8 +1557,7 @@ import Vapor
                     $0.date.now = .t1 + Constants.branchVersionRefreshDelay + 1
                 } operation: {
                     // Ensure documentation is resolved
-                    try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
-                        await Task.yield() // essential to avoid deadlocking
+                    try await app.test(.GET, "/foo/bar/~/documentation/target") { res async in
                         #expect(res.status == .ok)
                         assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
                     }
@@ -1586,8 +1570,7 @@ import Vapor
                     #expect(commit == ["new-commit"])
 
                     // Ensure documentation is still being resolved
-                    try await app.test(.GET, "/foo/bar/~/documentation/target") { @MainActor res in
-                        await Task.yield() // essential to avoid deadlocking
+                    try await app.test(.GET, "/foo/bar/~/documentation/target") { res async in
                         #expect(res.status == .ok)
                         assertSnapshot(of: String(buffer: res.body), as: .html, named: "index")
                     }
