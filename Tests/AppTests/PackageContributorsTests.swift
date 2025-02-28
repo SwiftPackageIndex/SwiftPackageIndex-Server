@@ -12,16 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import App
 
 import Dependencies
+import Testing
 
 
-class PackageContributorsTests : AppTestCase {
+@Suite struct PackageContributorsTests  {
 
-    func test_packageAuthors_hasAuthors() throws {
+    @Test func packageAuthors_hasAuthors() throws {
         let noPackageAuthors = PackageAuthors(authors: [], numberOfContributors: 0)
 
         let somePackageAuthors = PackageAuthors(authors: [
@@ -29,11 +28,11 @@ class PackageContributorsTests : AppTestCase {
             .init(name: "Person Two")
         ], numberOfContributors: 0)
 
-        XCTAssertFalse(noPackageAuthors.hasAuthors)
-        XCTAssertTrue(somePackageAuthors.hasAuthors)
+        #expect(!noPackageAuthors.hasAuthors)
+        #expect(somePackageAuthors.hasAuthors)
     }
 
-    func test_CommitSelector_primaryContributors() throws {
+    @Test func CommitSelector_primaryContributors() throws {
 
         let candidates = [PackageContributors.Contributor(numberOfCommits: 10, name: "Tim"),
                           PackageContributors.Contributor(numberOfCommits: 100, name: "John"),
@@ -43,30 +42,30 @@ class PackageContributorsTests : AppTestCase {
         // MUT
         let authors = PackageContributors.primaryContributors(candidates: candidates, threshold: 0.6)
 
-        XCTAssertEqual(authors.count, 2)
-        XCTAssertEqual(authors.map(\.name), ["Maria", "Nathalie"] )
+        #expect(authors.count == 2)
+        #expect(authors.map(\.name) == ["Maria", "Nathalie"] )
 
     }
 
-
-    func test_CommitSelector_primaryContributors_noCandidates() throws {
+    @Test func CommitSelector_primaryContributors_noCandidates() throws {
         // MUT
         let authors = PackageContributors.primaryContributors(candidates: [], threshold: 0.6)
 
-        XCTAssertEqual(authors.count, 0)
+        #expect(authors.count == 0)
     }
 
-    func test_CommitSelector_filter_singleCandidate() throws {
+    @Test func CommitSelector_filter_singleCandidate() throws {
         // MUT
-        let authors = PackageContributors.primaryContributors(candidates: [PackageContributors.Contributor(numberOfCommits: 10, name: "Tim")],
-                                                              threshold: 0.6)
+        let authors = PackageContributors
+            .primaryContributors(candidates: [PackageContributors.Contributor(numberOfCommits: 10,
+                                                                              name: "Tim")],
+                                 threshold: 0.6)
 
-        XCTAssertEqual(authors.count, 1)
-        XCTAssertEqual(authors.map(\.name), ["Tim"] )
+        #expect(authors.count == 1)
+        #expect(authors.map(\.name) == ["Tim"] )
     }
 
-
-    func test_PackageContributors_extract() async throws {
+    @Test func PackageContributors_extract() async throws {
         try await withDependencies {
             $0.fileManager.fileExists = { @Sendable _ in true }
             $0.git.shortlog = { @Sendable _ in
@@ -85,19 +84,21 @@ class PackageContributorsTests : AppTestCase {
                 """
             }
         } operation: {
-            // setup
-            let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
+            try await withApp { app in
+                // setup
+                let pkg = try await savePackage(on: app.db, "1".asGithubUrl.url)
 
-            // MUT
-            let pkgAuthors = try await PackageContributors.extract(gitCacheDirectoryPath: "",
-                                                                   packageID: pkg.id)
+                // MUT
+                let pkgAuthors = try await PackageContributors.extract(gitCacheDirectoryPath: "",
+                                                                       packageID: pkg.id)
 
-            XCTAssertEqual(pkgAuthors.authors, [Author(name: "Person 1") ,
-                                                Author(name: "Person 2"),
-                                                Author(name: "Person 3"),
-                                                Author(name: "Person 4"),
-                                                Author(name: "Person 5")])
-            XCTAssertEqual(pkgAuthors.numberOfContributors, 6)
+                #expect(pkgAuthors.authors == [Author(name: "Person 1") ,
+                                               Author(name: "Person 2"),
+                                               Author(name: "Person 3"),
+                                               Author(name: "Person 4"),
+                                               Author(name: "Person 5")])
+                #expect(pkgAuthors.numberOfContributors == 6)
+            }
         }
     }
 
