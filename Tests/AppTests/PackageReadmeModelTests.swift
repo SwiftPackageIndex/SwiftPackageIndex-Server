@@ -12,16 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 @testable import App
 
 import SnapshotTesting
 import SwiftSoup
-import XCTVapor
+import Testing
 
 
-class PackageReadmeModelTests: SnapshotTestCase {
+@Suite struct PackageReadmeModelTests {
 
-    func test_Element_extractReadme() throws {
+    @Test func Element_extractReadme() throws {
         let element = Element.extractReadme("""
             <div id="readme">
                 <article>
@@ -29,22 +31,19 @@ class PackageReadmeModelTests: SnapshotTestCase {
                 </article>
             </div>
             """)
-        XCTAssertEqual(try element?.html(), "<p>README content.</p>")
+        #expect(try element?.html() == "<p>README content.</p>")
     }
 
-    func test_URL_rewriteRelative() throws {
+    @Test func URL_rewriteRelative() throws {
         let triple = ("owner", "repo", "main")
-        XCTAssertEqual(URL(string: "https://example.com")?.rewriteRelative(to: triple, fileType: .raw), nil)
-        XCTAssertEqual(URL(string: "https://example.com/foo")?.rewriteRelative(to: triple, fileType: .raw), nil)
-        XCTAssertEqual(URL(string: "/foo")?.rewriteRelative(to: triple, fileType: .raw),
-                       "https://github.com/owner/repo/raw/main/foo")
-        XCTAssertEqual(URL(string: "/foo")?.rewriteRelative(to: triple, fileType: .blob),
-                       "https://github.com/owner/repo/blob/main/foo")
-        XCTAssertEqual(URL(string: "/foo/bar?query")?.rewriteRelative(to: triple, fileType: .raw),
-                       "https://github.com/owner/repo/raw/main/foo/bar?query")
+        #expect(URL(string: "https://example.com")?.rewriteRelative(to: triple, fileType: .raw) == nil)
+        #expect(URL(string: "https://example.com/foo")?.rewriteRelative(to: triple, fileType: .raw) == nil)
+        #expect(URL(string: "/foo")?.rewriteRelative(to: triple, fileType: .raw) == "https://github.com/owner/repo/raw/main/foo")
+        #expect(URL(string: "/foo")?.rewriteRelative(to: triple, fileType: .blob) == "https://github.com/owner/repo/blob/main/foo")
+        #expect(URL(string: "/foo/bar?query")?.rewriteRelative(to: triple, fileType: .raw) == "https://github.com/owner/repo/raw/main/foo/bar?query")
     }
 
-    func test_Element_rewriteRelativeImages() throws {
+    @Test func Element_rewriteRelativeImages() throws {
         // setup
         let element = Element.extractReadme("""
             <div id="readme">
@@ -64,11 +63,11 @@ class PackageReadmeModelTests: SnapshotTestCase {
         element?.rewriteRelativeImages(to: ("owner", "repo", "main"))
 
         // validate
-        let html = try XCTUnwrap(try element?.html())
+        let html = try #require(try element?.html())
         assertSnapshot(of: html, as: .lines)
     }
 
-    func test_Element_rewriteRelativeLinks() throws {
+    @Test func Element_rewriteRelativeLinks() throws {
         // setup
         let element = Element.extractReadme("""
             <div id="readme">
@@ -89,26 +88,26 @@ class PackageReadmeModelTests: SnapshotTestCase {
         element?.rewriteRelativeLinks(to: ("owner", "repo", "main"))
 
         // validate
-        let html = try XCTUnwrap(try element?.html())
+        let html = try #require(try element?.html())
         assertSnapshot(of: html, as: .lines)
     }
 
-    func test_URL_initWithPotentiallyUnencodedPath() throws {
+    @Test func URL_initWithPotentiallyUnencodedPath() throws {
         // Relative URLs
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "/root/relative/url")).absoluteString, "/root/relative/url")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "relative/url")).absoluteString, "relative/url")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "/encoded%20spaces")).absoluteString, "/encoded%20spaces")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "/unencoded spaces")).absoluteString, "/unencoded%20spaces")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "/multiple%20%7Bencoded%7D")).absoluteString, "/multiple%20%7Bencoded%7D")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "/multiple {unencoded}")).absoluteString, "/multiple%20%7Bunencoded%7D")
+        #expect(try #require(URL(withPotentiallyUnencodedPath: "/root/relative/url")).absoluteString == "/root/relative/url")
+        #expect(try #require(URL(withPotentiallyUnencodedPath: "relative/url")).absoluteString == "relative/url")
+        #expect(try #require(URL(withPotentiallyUnencodedPath: "/encoded%20spaces")).absoluteString == "/encoded%20spaces")
+        #expect(try #require(URL(withPotentiallyUnencodedPath: "/unencoded spaces")).absoluteString == "/unencoded%20spaces")
+        #expect(try #require(URL(withPotentiallyUnencodedPath: "/multiple%20%7Bencoded%7D")).absoluteString == "/multiple%20%7Bencoded%7D")
+        #expect(try #require(URL(withPotentiallyUnencodedPath: "/multiple {unencoded}")).absoluteString == "/multiple%20%7Bunencoded%7D")
 
         // Absolute URLs
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "https://full.host/and/path")).absoluteString, "https://full.host/and/path")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "https://full.host/encoded%20spaces")).absoluteString, "https://full.host/encoded%20spaces")
-        XCTAssertEqual(try XCTUnwrap(URL(withPotentiallyUnencodedPath: "https://full.host/unencoded spaces")).absoluteString, "https://full.host/unencoded%20spaces")
+        #expect(try #require(URL(withPotentiallyUnencodedPath: "https://full.host/and/path")).absoluteString == "https://full.host/and/path")
+        #expect(try #require(URL(withPotentiallyUnencodedPath: "https://full.host/encoded%20spaces")).absoluteString == "https://full.host/encoded%20spaces")
+        #expect(try #require(URL(withPotentiallyUnencodedPath: "https://full.host/unencoded spaces")).absoluteString == "https://full.host/unencoded%20spaces")
     }
 
-    func test_Element_fixInlineAnchors() throws {
+    @Test func Element_fixInlineAnchors() throws {
         // setup
         let element = Element.extractReadme("""
             <div id="readme">
@@ -126,11 +125,11 @@ class PackageReadmeModelTests: SnapshotTestCase {
         element?.fixInlineAnchors()
 
         // validate
-        let html = try XCTUnwrap(try element?.html())
+        let html = try #require(try element?.html())
         assertSnapshot(of: html, as: .lines)
     }
 
-    func test_Element_fixProtectedCachedImages() throws {
+    @Test func Element_fixProtectedCachedImages() throws {
         // setup
         let element = Element.extractReadme("""
             <div id="readme">
@@ -150,11 +149,11 @@ class PackageReadmeModelTests: SnapshotTestCase {
         element?.fixProtectedCachedImages()
 
         // validate
-        let html = try XCTUnwrap(try element?.html())
+        let html = try #require(try element?.html())
         assertSnapshot(of: html, as: .lines)
     }
 
-    func test_Element_disableTurboOnLinks() throws {
+    @Test func Element_disableTurboOnLinks() throws {
         // setup
         let element = Element.extractReadme("""
             <div id="readme">
@@ -172,7 +171,7 @@ class PackageReadmeModelTests: SnapshotTestCase {
         element?.disableTurboOnLinks()
 
         // validate
-        let html = try XCTUnwrap(try element?.html())
+        let html = try #require(try element?.html())
         assertSnapshot(of: html, as: .lines)
     }
 }
