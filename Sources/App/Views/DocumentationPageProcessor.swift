@@ -395,14 +395,14 @@ struct DocumentationPageProcessor {
                     if !value.lowercased().hasPrefix("/\(owner)/\(repository)/".lowercased()) {
                         // no /{owner}/{repo}/ prefix -> it's a dynamic base url resource, i.e. a "/" resource
                         //   / -> /a/b/~            (current)
-                        try e.attr(attribute, "/\(owner)/\(repository)/\(String.current)\(value)".lowercased())
+                        _ = try e.attr(attribute, "/\(owner)/\(repository)/\(String.current)\(value)".lowercased())
                     } else if let reference {
                         let fullyQualifiedPrefix = "/\(owner)/\(repository)/\(reference)".lowercased()
                         if value.lowercased().hasPrefix(fullyQualifiedPrefix) {
                             // matches expected fully qualified resource path
                             //   /a/b/1.2.3 -> /a/b/~   (current)
                             let trimmed = value.dropFirst(fullyQualifiedPrefix.count)
-                            try e.attr(attribute, "/\(owner)/\(repository)/\(String.current)\(trimmed)".lowercased())
+                            _ = try e.attr(attribute, "/\(owner)/\(repository)/\(String.current)\(trimmed)".lowercased())
                         } else {
                             // did not match expected resource prefix - leave it alone
                             // (shouldn't be possible)
@@ -417,7 +417,7 @@ struct DocumentationPageProcessor {
                     if !value.lowercased().hasPrefix("/\(owner)/\(repository)/".lowercased()) {
                         // no /{owner}/{repo}/ prefix -> it's a dynamic base url resource, i.e. a "/" resource
                         //   / -> /a/b/~            (current)
-                        try e.attr(attribute, "/\(owner)/\(repository)/\(reference)\(value)".lowercased())
+                        _ = try e.attr(attribute, "/\(owner)/\(repository)/\(reference)\(value)".lowercased())
                     } else {
                         // already prefixed resource, leave it alone
                         return
