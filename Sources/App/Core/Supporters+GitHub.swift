@@ -378,6 +378,11 @@ extension Array<Supporters.Community> {
             avatarUrl: "https://avatars.githubusercontent.com/u/48354391?v=4"
         ),
         .init(
+            login: "TTOzzi",
+            name: nil,
+            avatarUrl: "https://avatars.githubusercontent.com/u/50410213?u=1f2d2eaa941378d4001dab3caca614224751c8bb&v=4"
+        ),
+        .init(
             login: "sliemeobn",
             name: "Simon Leeb",
             avatarUrl: "https://avatars.githubusercontent.com/u/52261246?u=d04df57adcd86042fc67e40a03144cd3929ecc54&v=4"
