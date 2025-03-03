@@ -12,26 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import App
 
 import Dependencies
 import S3Store
+import Testing
 
 
-class S3StoreExtensionTests: XCTestCase {
+@Suite struct S3StoreExtensionTests {
 
-    func test_Key_readme() throws {
+    @Test func Key_readme() throws {
         try withDependencies {
             $0.environment.awsReadmeBucket = { "awsReadmeBucket" }
         } operation: {
             let imageKey = try S3Store.Key.readme(owner: "owner", repository: "repository",
                                                   imageUrl: "https://example.com/image/example-image.png")
-            XCTAssertEqual(imageKey.s3Uri, "s3://awsReadmeBucket/owner/repository/example-image.png")
+            #expect(imageKey.s3Uri == "s3://awsReadmeBucket/owner/repository/example-image.png")
 
             let readmeKey = try S3Store.Key.readme(owner: "owner", repository: "repository")
-            XCTAssertEqual(readmeKey.s3Uri, "s3://awsReadmeBucket/owner/repository/readme.html")
+            #expect(readmeKey.s3Uri == "s3://awsReadmeBucket/owner/repository/readme.html")
         }
     }
 
