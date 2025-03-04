@@ -94,6 +94,8 @@ import Testing
             #expect(app.db.renderSQL(filter.leftHandSide) == #""repo_owner""#)
             #expect(app.db.renderSQL(filter.sqlOperator) == "ILIKE")
             #expect(app.db.binds(filter.rightHandSide) == ["sherlouk"])
+
+            // test error case
             #expect {
                 try AuthorSearchFilter(expression: .init(operator: .greaterThan, value: "sherlouk"))
             } throws: {
@@ -119,6 +121,8 @@ import Testing
             #expect(app.db.binds(filter.leftHandSide) == ["cache"])
             #expect(app.db.renderSQL(filter.sqlOperator) == "ILIKE")
             #expect(app.db.renderSQL(filter.rightHandSide) == #"ANY("keywords")"#)
+
+            // test error case
             #expect {
                 try KeywordSearchFilter(expression: .init(operator: .greaterThan, value: "cache"))
             } throws: {
@@ -143,6 +147,8 @@ import Testing
             #expect(app.db.renderSQL(filter.leftHandSide) == #""last_activity_at""#)
             #expect(app.db.renderSQL(filter.sqlOperator) == "=")
             #expect(app.db.binds(filter.rightHandSide) == ["1970-01-01"])
+
+            // test error case
             #expect {
                 try LastActivitySearchFilter(expression: .init(operator: .greaterThan, value: "23rd June 2021"))
             } throws: {
@@ -167,6 +173,8 @@ import Testing
             #expect(app.db.renderSQL(filter.leftHandSide) == #""last_commit_date""#)
             #expect(app.db.renderSQL(filter.sqlOperator) == "=")
             #expect(app.db.binds(filter.rightHandSide) == ["1970-01-01"])
+
+            // test error case
             #expect {
                 try LastCommitSearchFilter(expression: .init(operator: .greaterThan, value: "23rd June 2021"))
             } throws: {
@@ -396,6 +404,8 @@ import Testing
             #expect(app.db.renderSQL(filter.leftHandSide) == #""stars""#)
             #expect(app.db.renderSQL(filter.sqlOperator) == "=")
             #expect(app.db.binds(filter.rightHandSide) == ["1234"])
+
+            // test error case
             #expect {
                 try StarsSearchFilter(expression: .init(operator: .greaterThan, value: "one"))
             } throws: {
