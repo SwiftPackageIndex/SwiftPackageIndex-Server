@@ -15,6 +15,7 @@
 @testable import App
 
 import Dependencies
+import Fluent
 import NIOConcurrencyHelpers
 import PostgresNIO
 import SQLKit
@@ -162,6 +163,43 @@ extension AppTestCase {
 
     func binds(_ query: SQLExpression?) -> [String] {
         var serializer = SQLSerializer(database: app.db as! SQLDatabase)
+        query?.serialize(to: &serializer)
+        return serializer.binds.reduce(into: []) { result, bind in
+            switch bind {
+                case let bind as Date:
+                    result.append(DateFormatter.filterParseFormatter.string(from: bind))
+                case let bind as Set<Package.PlatformCompatibility>:
+                    let s = bind.map(\.rawValue).sorted().joined(separator: ",")
+                    result.append("{\(s)}")
+                case let bind as Set<ProductTypeSearchFilter.ProductType>:
+                    let s = bind.map(\.rawValue).sorted().joined(separator: ",")
+                    result.append("{\(s)}")
+                default:
+                    result.append("\(bind)")
+            }
+        }
+    }
+}
+
+
+// FIXME: Move this once AppTestCase can be removed. These are helpers created during the transition to Swift Testing.
+extension Database {
+    func renderSQL(_ builder: SQLSelectBuilder) -> String {
+        renderSQL(builder.query)
+    }
+
+    func renderSQL(_ query: SQLExpression) -> String {
+        var serializer = SQLSerializer(database: self as! SQLDatabase)
+        query.serialize(to: &serializer)
+        return serializer.sql
+    }
+
+    func binds(_ builder: SQLSelectBuilder?) -> [String] {
+        binds(builder?.query)
+    }
+
+    func binds(_ query: SQLExpression?) -> [String] {
+        var serializer = SQLSerializer(database: self as! SQLDatabase)
         query?.serialize(to: &serializer)
         return serializer.binds.reduce(into: []) { result, bind in
             switch bind {
