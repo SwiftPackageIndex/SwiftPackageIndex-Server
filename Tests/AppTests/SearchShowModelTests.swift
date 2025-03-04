@@ -14,11 +14,12 @@
 
 @testable import App
 
-import XCTVapor
+import Testing
 
-class SearchShowModelTests: XCTestCase {
 
-    func test_SearchShow_Model_init() throws {
+@Suite struct SearchShowModelTests {
+
+    @Test func SearchShow_Model_init() throws {
         let results: [Search.Result] = .mock()
 
         // MUT
@@ -31,20 +32,20 @@ class SearchShowModelTests: XCTestCase {
                             ],
                             results: results), weightedKeywords: [])
 
-        XCTAssertEqual(model.page, 1)
-        XCTAssertEqual(model.query, "query key:value")
-        XCTAssertEqual(model.term, "query")
+        #expect(model.page == 1)
+        #expect(model.query == "query key:value")
+        #expect(model.term == "query")
 
-        XCTAssertEqual(model.filters.count, 1)
-        XCTAssertEqual(model.filters[0].key, "key")
-        XCTAssertEqual(model.filters[0].operator, "is")
-        XCTAssertEqual(model.filters[0].value, "value")
+        #expect(model.filters.count == 1)
+        #expect(model.filters[0].key == "key")
+        #expect(model.filters[0].operator == "is")
+        #expect(model.filters[0].value == "value")
 
-        XCTAssertEqual(model.response.hasMoreResults, false)
-        XCTAssertEqual(model.response.results.count, 10)
+        #expect(model.response.hasMoreResults == false)
+        #expect(model.response.results.count == 10)
     }
 
-    func test_SearchShow_Model_init_sanitized() throws {
+    @Test func SearchShow_Model_init_sanitized() throws {
         do {
             // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1409
             let query = #"'>"></script><svg/onload=confirm(42)>"#
@@ -55,13 +56,11 @@ class SearchShowModelTests: XCTestCase {
                 weightedKeywords: []
             )
 
-            XCTAssertEqual(
-                model.query,
-                "&apos;&gt;&quot;&gt;&lt;/script&gt;&lt;svg/onload=confirm(42)&gt;"
+            #expect(
+                model.query == "&apos;&gt;&quot;&gt;&lt;/script&gt;&lt;svg/onload=confirm(42)&gt;"
             )
-            XCTAssertEqual(
-                model.term,
-                "&apos;&gt;&quot;&gt;&lt;/script&gt;&lt;svg/onload=confirm(42)&gt;"
+            #expect(
+                model.term == "&apos;&gt;&quot;&gt;&lt;/script&gt;&lt;svg/onload=confirm(42)&gt;"
             )
         }
         do {
@@ -74,12 +73,12 @@ class SearchShowModelTests: XCTestCase {
                 weightedKeywords: []
             )
 
-            XCTAssertEqual(model.query, "test&apos;two")
-            XCTAssertEqual(model.term, "test&apos;two")
+            #expect(model.query == "test&apos;two")
+            #expect(model.term == "test&apos;two")
         }
     }
 
-    func test_SearchShow_Model_authorResults() throws {
+    @Test func SearchShow_Model_authorResults() throws {
         let results: [Search.Result] = .mock()
         let model = SearchShow.Model(query: .init(query: "query", page: 1),
                                      response: .init(hasMoreResults: false,
@@ -91,10 +90,10 @@ class SearchShowModelTests: XCTestCase {
         // MUT
         let authorResult = model.authorResults.first!
 
-        XCTAssertEqual(authorResult.name, "Apple")
+        #expect(authorResult.name == "Apple")
     }
 
-    func test_SearchShow_Model_keywordResults() throws {
+    @Test func SearchShow_Model_keywordResults() throws {
         let results: [Search.Result] = .mock()
         let model = SearchShow.Model(query: .init(query: "query", page:1 ),
                                      response: .init(hasMoreResults: false,
@@ -106,10 +105,10 @@ class SearchShowModelTests: XCTestCase {
         // MUT
         let keywordResult = model.keywordResults.first!
 
-        XCTAssertEqual(keywordResult.keyword, "keyword1")
+        #expect(keywordResult.keyword == "keyword1")
     }
 
-    func test_SearchShow_Model_packageResults() throws {
+    @Test func SearchShow_Model_packageResults() throws {
         let results: [Search.Result] = .mock()
         let model = SearchShow.Model(query: .init(query: "query", page: 1),
                                      response: .init(hasMoreResults: false,
@@ -121,15 +120,15 @@ class SearchShowModelTests: XCTestCase {
         // MUT
         let packageResult = model.packageResults.first!
 
-        XCTAssertEqual(packageResult.packageId, .id1)
-        XCTAssertEqual(packageResult.packageName, "Package One")
-        XCTAssertEqual(packageResult.packageURL, "https://example.com/package/one")
-        XCTAssertEqual(packageResult.repositoryName, "one")
-        XCTAssertEqual(packageResult.repositoryOwner, "package")
-        XCTAssertEqual(packageResult.summary, "This is a package filled with ones.")
+        #expect(packageResult.packageId == .id1)
+        #expect(packageResult.packageName == "Package One")
+        #expect(packageResult.packageURL == "https://example.com/package/one")
+        #expect(packageResult.repositoryName == "one")
+        #expect(packageResult.repositoryOwner == "package")
+        #expect(packageResult.summary == "This is a package filled with ones.")
     }
 
-    func test_SearchShow_Model_matchingKeywords() throws {
+    @Test func SearchShow_Model_matchingKeywords() throws {
         let results: [Search.Result] = .mock()
         let model = SearchShow.Model(query: .init(query: "query", page: 1),
                                      response: .init(hasMoreResults: false,
@@ -141,7 +140,7 @@ class SearchShowModelTests: XCTestCase {
         // MUT
         let matchingKeywords = model.matchingKeywords(packageKeywords: ["keyword2", "keyword4", "keyword5"])
 
-        XCTAssertEqual(matchingKeywords, ["keyword2", "keyword4"])
+        #expect(matchingKeywords == ["keyword2", "keyword4"])
     }
 
 }
