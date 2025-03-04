@@ -184,10 +184,18 @@ extension AppTestCase {
 
 // FIXME: Move this once AppTestCase can be removed. These are helpers created during the transition to Swift Testing.
 extension Database {
+    func renderSQL(_ builder: SQLSelectBuilder) -> String {
+        renderSQL(builder.query)
+    }
+
     func renderSQL(_ query: SQLExpression) -> String {
         var serializer = SQLSerializer(database: self as! SQLDatabase)
         query.serialize(to: &serializer)
         return serializer.sql
+    }
+
+    func binds(_ builder: SQLSelectBuilder?) -> [String] {
+        binds(builder?.query)
     }
 
     func binds(_ query: SQLExpression?) -> [String] {
