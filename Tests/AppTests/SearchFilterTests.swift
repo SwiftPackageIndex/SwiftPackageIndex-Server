@@ -16,17 +16,16 @@
 
 import SnapshotTesting
 import SQLKit
-import XCTest
-import XCTVapor
+import Testing
 
 
-class SearchFilterTests: AppTestCase {
+@Suite struct SearchFilterTests {
 
-    func test_SearchFilterKey_searchFilter() throws {
+    @Test func SearchFilterKey_searchFilter() throws {
         // Ensure all `SearchFilter.Key`s are wired correctly to their
         // `SearchFilterProtocol.Type`s (by roundtripping through the key values)
-        XCTAssertEqual(SearchFilter.Key.allCases
-                        .map { $0.searchFilter.key }, [
+        #expect(SearchFilter.Key.allCases
+                        .map { $0.searchFilter.key } == [
                             .author,
                             .keyword,
                             .lastActivity,
@@ -38,417 +37,413 @@ class SearchFilterTests: AppTestCase {
                         ])
     }
 
-    func test_Expression_init() throws {
-        XCTAssertEqual(SearchFilter.Expression(predicate: ">5"),
-                       .init(operator: .greaterThan, value: "5"))
-        XCTAssertEqual(SearchFilter.Expression(predicate: ">=5"),
-                       .init(operator: .greaterThanOrEqual, value: "5"))
-        XCTAssertEqual(SearchFilter.Expression(predicate: "<5"),
-                       .init(operator: .lessThan, value: "5"))
-        XCTAssertEqual(SearchFilter.Expression(predicate: "<=5"),
-                       .init(operator: .lessThanOrEqual, value: "5"))
-        XCTAssertEqual(SearchFilter.Expression(predicate: "!5"),
-                       .init(operator: .isNot, value: "5"))
-        XCTAssertEqual(SearchFilter.Expression(predicate: "5"),
-                       .init(operator: .is, value: "5"))
-        XCTAssertEqual(SearchFilter.Expression(predicate: ""), nil)
-        XCTAssertEqual(SearchFilter.Expression(predicate: "!with space"),
-                       .init(operator: .isNot, value: "with space"))
+    @Test func Expression_init() throws {
+        #expect(SearchFilter.Expression(predicate: ">5") == .init(operator: .greaterThan, value: "5"))
+        #expect(SearchFilter.Expression(predicate: ">=5") == .init(operator: .greaterThanOrEqual, value: "5"))
+        #expect(SearchFilter.Expression(predicate: "<5") == .init(operator: .lessThan, value: "5"))
+        #expect(SearchFilter.Expression(predicate: "<=5") == .init(operator: .lessThanOrEqual, value: "5"))
+        #expect(SearchFilter.Expression(predicate: "!5") == .init(operator: .isNot, value: "5"))
+        #expect(SearchFilter.Expression(predicate: "5") == .init(operator: .is, value: "5"))
+        #expect(SearchFilter.Expression(predicate: "") == nil)
+        #expect(SearchFilter.Expression(predicate: "!with space") == .init(operator: .isNot, value: "with space"))
     }
 
-    func test_parse() {
+    @Test func parse() {
         do { // No colon
-            XCTAssertNil(SearchFilter.parse(filterTerm: "a"))
+            #expect(SearchFilter.parse(filterTerm: "a") == nil)
         }
 
         do { // Too many colons
-            XCTAssertNil(SearchFilter.parse(filterTerm: "a:b:c"))
+            #expect(SearchFilter.parse(filterTerm: "a:b:c") == nil)
         }
 
         do { // No valid filter
-            XCTAssertNil(SearchFilter.parse(filterTerm: "invalid:true"))
+            #expect(SearchFilter.parse(filterTerm: "invalid:true") == nil)
         }
 
         do { // Valid filter
-            XCTAssertTrue(SearchFilter.parse(filterTerm: "stars:5") is StarsSearchFilter)
+            #expect(SearchFilter.parse(filterTerm: "stars:5") is StarsSearchFilter)
         }
 
     }
 
-    func test_separateTermsAndFilters() {
+    @Test func separateTermsAndFilters() {
         let output = SearchFilter.split(terms: ["a", "b", "invalid:true", "stars:5"])
 
-        XCTAssertEqual(output.terms.sorted(), ["a", "b", "invalid:true"])
+        #expect(output.terms.sorted() == ["a", "b", "invalid:true"])
 
-        XCTAssertEqual(output.filters.count, 1)
-        XCTAssertTrue(output.filters[0] is StarsSearchFilter)
+        #expect(output.filters.count == 1)
+        #expect(output.filters[0] is StarsSearchFilter)
     }
 
     // MARK: Filters
 
-    func test_authorFilter() throws {
-        let filter = try AuthorSearchFilter(expression: .init(operator: .is,
-                                                              value: "sherlouk"))
-        XCTAssertEqual(filter.key, .author)
-        XCTAssertEqual(filter.predicate, .init(operator: .caseInsensitiveLike,
-                                               bindableValue: .value("sherlouk"),
-                                               displayValue: "sherlouk"))
+    @Test func authorFilter() async throws {
+        try await withApp { app in
+            let filter = try AuthorSearchFilter(expression: .init(operator: .is,
+                                                                  value: "sherlouk"))
+            #expect(filter.key == .author)
+            #expect(filter.predicate == .init(operator: .caseInsensitiveLike,
+                                              bindableValue: .value("sherlouk"),
+                                              displayValue: "sherlouk"))
 
-        // test view representation
-        XCTAssertEqual(filter.viewModel.description, "author is sherlouk")
+            // test view representation
+            #expect(filter.viewModel.description == "author is sherlouk")
 
-        // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""repo_owner""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "ILIKE")
-        XCTAssertEqual(binds(filter.rightHandSide), ["sherlouk"])
-
-        // test error case
-        XCTAssertThrowsError(try AuthorSearchFilter(expression: .init(operator: .greaterThan,
-                                                                      value: "sherlouk"))) {
-            XCTAssertEqual($0 as? SearchFilterError, .unsupportedComparisonMethod)
+            // test sql representation
+            #expect(app.db.renderSQL(filter.leftHandSide) == #""repo_owner""#)
+            #expect(app.db.renderSQL(filter.sqlOperator) == "ILIKE")
+            #expect(app.db.binds(filter.rightHandSide) == ["sherlouk"])
+            #expect {
+                try AuthorSearchFilter(expression: .init(operator: .greaterThan, value: "sherlouk"))
+            } throws: {
+                $0 as? SearchFilterError == .unsupportedComparisonMethod
+            }
         }
     }
 
-    func test_keywordFilter() throws {
-        let filter = try KeywordSearchFilter(expression: .init(operator: .is,
-                                                               value: "cache"))
-        XCTAssertEqual(filter.key, .keyword)
-        XCTAssertEqual(filter.predicate, .init(operator: .caseInsensitiveLike,
-                                               bindableValue: .value("cache"),
-                                               displayValue: "cache"))
+    @Test func keywordFilter() async throws {
+        try await withApp { app in
+            let filter = try KeywordSearchFilter(expression: .init(operator: .is,
+                                                                   value: "cache"))
+            #expect(filter.key == .keyword)
+            #expect(filter.predicate == .init(operator: .caseInsensitiveLike,
+                                              bindableValue: .value("cache"),
+                                              displayValue: "cache"))
 
-        // test view representation
-        XCTAssertEqual(filter.viewModel.description, "keywords is cache")
+            // test view representation
+            #expect(filter.viewModel.description == "keywords is cache")
 
-        // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), "$1")
-        XCTAssertEqual(binds(filter.leftHandSide), ["cache"])
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "ILIKE")
-        XCTAssertEqual(renderSQL(filter.rightHandSide), #"ANY("keywords")"#)
-
-        // test error case
-        XCTAssertThrowsError(try KeywordSearchFilter(expression: .init(operator: .greaterThan,
-                                                                      value: "cache"))) {
-            XCTAssertEqual($0 as? SearchFilterError, .unsupportedComparisonMethod)
+            // test sql representation
+            #expect(app.db.renderSQL(filter.leftHandSide) == "$1")
+            #expect(app.db.binds(filter.leftHandSide) == ["cache"])
+            #expect(app.db.renderSQL(filter.sqlOperator) == "ILIKE")
+            #expect(app.db.renderSQL(filter.rightHandSide) == #"ANY("keywords")"#)
+            #expect {
+                try KeywordSearchFilter(expression: .init(operator: .greaterThan, value: "cache"))
+            } throws: {
+                $0 as? SearchFilterError == .unsupportedComparisonMethod
+            }
         }
     }
 
-    func test_lastActivityFilter() throws {
-        let filter = try LastActivitySearchFilter(expression: .init(operator: .is,
-                                                               value: "1970-01-01"))
-        XCTAssertEqual(filter.key, .lastActivity)
-        XCTAssertEqual(filter.predicate, .init(operator: .equal,
-                                               bindableValue: .value("1970-01-01"),
-                                               displayValue: "1 Jan 1970"))
+    @Test func lastActivityFilter() async throws {
+        try await withApp { app in
+            let filter = try LastActivitySearchFilter(expression: .init(operator: .is,
+                                                                        value: "1970-01-01"))
+            #expect(filter.key == .lastActivity)
+            #expect(filter.predicate == .init(operator: .equal,
+                                              bindableValue: .value("1970-01-01"),
+                                              displayValue: "1 Jan 1970"))
 
-        // test view representation
-        XCTAssertEqual(filter.viewModel.description, "last activity is 1 Jan 1970")
+            // test view representation
+            #expect(filter.viewModel.description == "last activity is 1 Jan 1970")
 
-        // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""last_activity_at""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "=")
-        XCTAssertEqual(binds(filter.rightHandSide), ["1970-01-01"])
-
-        // test error case
-        XCTAssertThrowsError(try LastActivitySearchFilter(
-            expression: .init(operator: .greaterThan, value: "23rd June 2021"))
-        ) {
-            XCTAssertEqual($0 as? SearchFilterError, .invalidValueType)
+            // test sql representation
+            #expect(app.db.renderSQL(filter.leftHandSide) == #""last_activity_at""#)
+            #expect(app.db.renderSQL(filter.sqlOperator) == "=")
+            #expect(app.db.binds(filter.rightHandSide) == ["1970-01-01"])
+            #expect {
+                try LastActivitySearchFilter(expression: .init(operator: .greaterThan, value: "23rd June 2021"))
+            } throws: {
+                $0 as? SearchFilterError == .invalidValueType
+            }
         }
     }
 
-    func test_lastCommitFilter() throws {
-        let filter = try LastCommitSearchFilter(expression: .init(operator: .is,
-                                                               value: "1970-01-01"))
-        XCTAssertEqual(filter.key, .lastCommit)
-        XCTAssertEqual(filter.predicate, .init(operator: .equal,
-                                               bindableValue: .value("1970-01-01"),
-                                               displayValue: "1 Jan 1970"))
+    @Test func lastCommitFilter() async throws {
+        try await withApp { app in
+            let filter = try LastCommitSearchFilter(expression: .init(operator: .is,
+                                                                      value: "1970-01-01"))
+            #expect(filter.key == .lastCommit)
+            #expect(filter.predicate == .init(operator: .equal,
+                                              bindableValue: .value("1970-01-01"),
+                                              displayValue: "1 Jan 1970"))
 
-        // test view representation
-        XCTAssertEqual(filter.viewModel.description, "last commit is 1 Jan 1970")
+            // test view representation
+            #expect(filter.viewModel.description == "last commit is 1 Jan 1970")
 
-        // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""last_commit_date""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "=")
-        XCTAssertEqual(binds(filter.rightHandSide), ["1970-01-01"])
-
-        // test error case
-        XCTAssertThrowsError(try LastCommitSearchFilter(
-            expression: .init(operator: .greaterThan, value: "23rd June 2021"))
-        ) {
-            XCTAssertEqual($0 as? SearchFilterError, .invalidValueType)
+            // test sql representation
+            #expect(app.db.renderSQL(filter.leftHandSide) == #""last_commit_date""#)
+            #expect(app.db.renderSQL(filter.sqlOperator) == "=")
+            #expect(app.db.binds(filter.rightHandSide) == ["1970-01-01"])
+            #expect {
+                try LastCommitSearchFilter(expression: .init(operator: .greaterThan, value: "23rd June 2021"))
+            } throws: {
+                $0 as? SearchFilterError == .invalidValueType
+            }
         }
     }
 
-    func test_licenseFilter_compatible() throws {
-        let filter = try LicenseSearchFilter(expression: .init(operator: .is,
-                                                               value: "compatible"))
-        XCTAssertEqual(filter.key, .license)
-        XCTAssertEqual(filter.predicate, .init(operator: .in,
-                                               bindableValue: .array(["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"]),
-                                               displayValue: "compatible with the App Store"))
+    @Test func licenseFilter_compatible() async throws {
+        try await withApp { app in
+            let filter = try LicenseSearchFilter(expression: .init(operator: .is,
+                                                                   value: "compatible"))
+            #expect(filter.key == .license)
+            #expect(filter.predicate == .init(operator: .in,
+                                              bindableValue: .array(["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"]),
+                                              displayValue: "compatible with the App Store"))
 
-        // test view representation
-        XCTAssertEqual(filter.viewModel.description, "license is compatible with the App Store")
+            // test view representation
+            #expect(filter.viewModel.description == "license is compatible with the App Store")
 
-        // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""license""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.rightHandSide), ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"])
+            // test sql representation
+            #expect(app.db.renderSQL(filter.leftHandSide) == #""license""#)
+            #expect(app.db.renderSQL(filter.sqlOperator) == "IN")
+            #expect(app.db.binds(filter.rightHandSide) == ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"])
+        }
     }
 
-    func test_licenseFilter_single() throws {
-        let filter = try LicenseSearchFilter(expression: .init(operator: .is,
-                                                               value: "mit"))
-        XCTAssertEqual(filter.key, .license)
-        XCTAssertEqual(filter.predicate, .init(operator: .in,
-                                               bindableValue: .array(["mit"]),
-                                               displayValue: "MIT"))
+    @Test func licenseFilter_single() async throws {
+        try await withApp { app in
+            let filter = try LicenseSearchFilter(expression: .init(operator: .is,
+                                                                   value: "mit"))
+            #expect(filter.key == .license)
+            #expect(filter.predicate == .init(operator: .in,
+                                              bindableValue: .array(["mit"]),
+                                              displayValue: "MIT"))
 
-        // test view representation
-        XCTAssertEqual(filter.viewModel.description, "license is MIT")
+            // test view representation
+            #expect(filter.viewModel.description == "license is MIT")
 
-        // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""license""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.rightHandSide), ["mit"])
+            // test sql representation
+            #expect(app.db.renderSQL(filter.leftHandSide) == #""license""#)
+            #expect(app.db.renderSQL(filter.sqlOperator) == "IN")
+            #expect(app.db.binds(filter.rightHandSide) == ["mit"])
+        }
     }
 
-    func test_licenseFilter_case_insensitive() throws {
-        XCTAssertEqual(
+    @Test func licenseFilter_case_insensitive() throws {
+        #expect(
             try LicenseSearchFilter(
                 expression: .init(operator: .is,
-                                  value: "mit")).bindableValue,
-            ["mit"]
+                                  value: "mit")).bindableValue == ["mit"]
         )
-        XCTAssertEqual(
+        #expect(
             try LicenseSearchFilter(
                 expression: .init(operator: .is,
-                                  value: "MIT")).bindableValue,
-            ["mit"]
+                                  value: "MIT")).bindableValue == ["mit"]
         )
-        XCTAssertEqual(
+        #expect(
             try LicenseSearchFilter(
                 expression: .init(operator: .is,
-                                  value: "Compatible")).bindableValue,
-            ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"]
+                                  value: "Compatible")).bindableValue == ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"]
         )
     }
 
-    func test_licenseFilter_incompatible() throws {
-        let filter = try LicenseSearchFilter(expression: .init(operator: .is,
-                                                               value: "incompatible"))
-        XCTAssertEqual(filter.key, .license)
-        XCTAssertEqual(filter.predicate, .init(operator: .in,
-                                               bindableValue: .array(["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"]),
-                                               displayValue: "incompatible with the App Store"))
+    @Test func licenseFilter_incompatible() async throws {
+        try await withApp { app in
+            let filter = try LicenseSearchFilter(expression: .init(operator: .is,
+                                                                   value: "incompatible"))
+            #expect(filter.key == .license)
+            #expect(filter.predicate == .init(operator: .in,
+                                              bindableValue: .array(["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"]),
+                                              displayValue: "incompatible with the App Store"))
 
-        // test view representation
-        XCTAssertEqual(filter.viewModel.description, "license is incompatible with the App Store")
+            // test view representation
+            #expect(filter.viewModel.description == "license is incompatible with the App Store")
 
-        // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""license""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.rightHandSide), ["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"])
-    }
-
-    func test_licenseFilter_none() throws {
-        let filter = try LicenseSearchFilter(expression: .init(operator: .is,
-                                                               value: "none"))
-        XCTAssertEqual(filter.key, .license)
-        XCTAssertEqual(filter.predicate, .init(operator: .in,
-                                               bindableValue: .array(["none"]),
-                                               displayValue: "not defined"))
-
-        // test view representation
-        XCTAssertEqual(filter.viewModel.description, "license is not defined")
-
-        // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""license""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.rightHandSide), ["none"])
-    }
-
-    func test_licenseFilter_other() throws {
-        let filter = try LicenseSearchFilter(expression: .init(operator: .is,
-                                                               value: "other"))
-        XCTAssertEqual(filter.key, .license)
-        XCTAssertEqual(filter.predicate, .init(operator: .in,
-                                               bindableValue: .array(["other"]),
-                                               displayValue: "unknown"))
-
-        // test view representation
-        XCTAssertEqual(filter.viewModel.description, "license is unknown")
-
-        // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""license""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.rightHandSide), ["other"])
-    }
-
-    func test_licenseFilter_error() throws {
-        // test error case
-        XCTAssertThrowsError(try LicenseSearchFilter(
-            expression: .init(operator: .greaterThan, value: "mit"))
-        ) {
-            XCTAssertEqual($0 as? SearchFilterError, .unsupportedComparisonMethod)
+            // test sql representation
+            #expect(app.db.renderSQL(filter.leftHandSide) == #""license""#)
+            #expect(app.db.renderSQL(filter.sqlOperator) == "IN")
+            #expect(app.db.binds(filter.rightHandSide) == ["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"])
         }
     }
 
-    func test_platformFilter_single_value() throws {
+    @Test func licenseFilter_none() async throws {
+        try await withApp { app in
+            let filter = try LicenseSearchFilter(expression: .init(operator: .is, value: "none"))
+            #expect(filter.key == .license)
+            #expect(filter.predicate == .init(operator: .in,
+                                              bindableValue: .array(["none"]),
+                                              displayValue: "not defined"))
+
+            // test view representation
+            #expect(filter.viewModel.description == "license is not defined")
+
+            // test sql representation
+            #expect(app.db.renderSQL(filter.leftHandSide) == #""license""#)
+            #expect(app.db.renderSQL(filter.sqlOperator) == "IN")
+            #expect(app.db.binds(filter.rightHandSide) == ["none"])
+        }
+    }
+
+    @Test func licenseFilter_other() async throws {
+        try await withApp { app in
+            let filter = try LicenseSearchFilter(expression: .init(operator: .is, value: "other"))
+            #expect(filter.key == .license)
+            #expect(filter.predicate == .init(operator: .in,
+                                              bindableValue: .array(["other"]),
+                                              displayValue: "unknown"))
+
+            // test view representation
+            #expect(filter.viewModel.description == "license is unknown")
+
+            // test sql representation
+            #expect(app.db.renderSQL(filter.leftHandSide) == #""license""#)
+            #expect(app.db.renderSQL(filter.sqlOperator) == "IN")
+            #expect(app.db.binds(filter.rightHandSide) == ["other"])
+        }
+    }
+
+    @Test func licenseFilter_error() throws {
+        #expect {
+            try LicenseSearchFilter(expression: .init(operator: .greaterThan, value: "mit"))
+        } throws: {
+            $0 as? SearchFilterError == .unsupportedComparisonMethod
+        }
+    }
+
+    @Test func platformFilter_single_value() async throws {
         // test single value happy path
-        let filter = try PlatformSearchFilter(expression: .init(operator: .is,
-                                                                value: "ios"))
-        XCTAssertEqual(filter.key, .platform)
-        XCTAssertEqual(filter.predicate, .init(operator: .contains,
-                                               bindableValue: .value("ios"),
-                                               displayValue: "iOS"))
+        try await withApp { app in
+            let filter = try PlatformSearchFilter(expression: .init(operator: .is,
+                                                                    value: "ios"))
+            #expect(filter.key == .platform)
+            #expect(filter.predicate == .init(operator: .contains,
+                                              bindableValue: .value("ios"),
+                                              displayValue: "iOS"))
 
-        // test view representation
-        XCTAssertEqual(filter.viewModel.description, "platform compatibility is iOS")
+            // test view representation
+            #expect(filter.viewModel.description == "platform compatibility is iOS")
 
-        // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""platform_compatibility""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "@>")
-        XCTAssertEqual(binds(filter.rightHandSide), ["{ios}"])
+            // test sql representation
+            #expect(app.db.renderSQL(filter.leftHandSide) == #""platform_compatibility""#)
+            #expect(app.db.renderSQL(filter.sqlOperator) == "@>")
+            #expect(app.db.binds(filter.rightHandSide) == ["{ios}"])
+        }
     }
 
-    func test_platformFilter_case_insensitive() throws {
-        XCTAssertEqual(
+    @Test func platformFilter_case_insensitive() throws {
+        #expect(
             try PlatformSearchFilter(expression: .init(operator: .is,
-                                                       value: "ios")).bindableValue,
-            [.iOS]
+                                                       value: "ios")).bindableValue == [.iOS]
         )
-        XCTAssertEqual(
+        #expect(
             try PlatformSearchFilter(expression: .init(operator: .is,
-                                                       value: "iOS")).bindableValue,
-            [.iOS]
+                                                       value: "iOS")).bindableValue == [.iOS]
         )
     }
 
-    func test_platformFilter_deduplication() throws {
+    @Test func platformFilter_deduplication() throws {
         // test de-duplication and compact-mapping of invalid terms
-        XCTAssertEqual(
+        #expect(
             try PlatformSearchFilter(expression: .init(operator: .is,
-                                                       value: "iOS,macos,MacOS X")).bindableValue,
-            [.iOS, .macOS]
+                                                       value: "iOS,macos,MacOS X")).bindableValue == [.iOS, .macOS]
         )
-        XCTAssertEqual(
+        #expect(
             try PlatformSearchFilter(expression: .init(operator: .is,
-                                                       value: "iOS,macos,ios")).bindableValue,
-            [.iOS, .macOS]
+                                                       value: "iOS,macos,ios")).bindableValue == [.iOS, .macOS]
         )
     }
 
-    func test_platformFilter_multiple_values() throws {
+    @Test func platformFilter_multiple_values() throws {
         // test predicate with multiple values
         do {
             let predicate = try PlatformSearchFilter(
                 expression: .init(operator: .is, value: "iOS,macos,ios")).predicate
-            XCTAssertEqual(predicate.bindableValue.asPlatforms,
-                           [.iOS, .macOS])
-            XCTAssertEqual(predicate.operator, .contains)
+            #expect(predicate.bindableValue.asPlatforms == [.iOS, .macOS])
+            #expect(predicate.operator == .contains)
         }
         do {
             let predicate = try PlatformSearchFilter(
                 expression: .init(operator: .is,
                                   value: "iOS,macos,linux")).predicate
-            XCTAssertEqual(predicate.bindableValue.asPlatforms,
-                           [.iOS, .linux, .macOS])
-            XCTAssertEqual(predicate.operator, .contains)
+            #expect(predicate.bindableValue.asPlatforms == [.iOS, .linux, .macOS])
+            #expect(predicate.operator == .contains)
         }
 
         // test view representation with multiple values
-        XCTAssertEqual(
+        #expect(
             try PlatformSearchFilter(expression: .init(operator: .is,
                                                        value: "iOS,macos,ios"))
-                .viewModel.description,
-            "platform compatibility is iOS and macOS"
+                .viewModel.description == "platform compatibility is iOS and macOS"
         )
-        XCTAssertEqual(
+        #expect(
             try PlatformSearchFilter(expression: .init(operator: .is,
                                                        value: "iOS,macos,linux"))
-                .viewModel.description,
-            "platform compatibility is iOS, Linux, and macOS"
+                .viewModel.description == "platform compatibility is iOS, Linux, and macOS"
         )
     }
 
-    func test_platformFilter_error() throws {
-        // test error cases
-        XCTAssertThrowsError(try PlatformSearchFilter(
-            expression: .init(operator: .isNot, value: "foo"))
-        ) {
-            XCTAssertEqual($0 as? SearchFilterError, .unsupportedComparisonMethod)
+    @Test func platformFilter_error() throws {
+        #expect {
+            try PlatformSearchFilter(expression: .init(operator: .isNot, value: "foo"))
+        } throws: {
+            $0 as? SearchFilterError == .unsupportedComparisonMethod
         }
         for value in ["foo", "", ",", "MacOS X"] {
-            XCTAssertThrowsError(try PlatformSearchFilter(
-                expression: .init(operator: .is, value: value))
-            ) {
-                XCTAssertEqual($0 as? SearchFilterError, .invalidValueType, "expected exception for value: \(value)")
+            #expect("expected exception for value: \(value)") {
+                try PlatformSearchFilter(expression: .init(operator: .is, value: value))
+            } throws: {
+                $0 as? SearchFilterError == .invalidValueType
             }
         }
     }
 
-    func test_starsFilter() throws {
-        let filter = try StarsSearchFilter(expression: .init(operator: .is, value: "1234"))
-        XCTAssertEqual(filter.key, .stars)
-        XCTAssertEqual(filter.predicate, .init(operator: .equal,
-                                               bindableValue: .value("1234"),
-                                               displayValue: "1,234"))
+    @Test func starsFilter() async throws {
+        try await withApp { app in
+            let filter = try StarsSearchFilter(expression: .init(operator: .is, value: "1234"))
+            #expect(filter.key == .stars)
+            #expect(filter.predicate == .init(operator: .equal,
+                                              bindableValue: .value("1234"),
+                                              displayValue: "1,234"))
 
-        // test view representation
-        XCTAssertEqual(filter.viewModel.description, "stars is 1,234")
+            // test view representation
+            #expect(filter.viewModel.description == "stars is 1,234")
 
-        // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""stars""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "=")
-        XCTAssertEqual(binds(filter.rightHandSide), ["1234"])
-
-        // test error case
-        XCTAssertThrowsError(try StarsSearchFilter(
-            expression: .init(operator: .greaterThan, value: "one"))
-        ) {
-            XCTAssertEqual($0 as? SearchFilterError, .invalidValueType)
+            // test sql representation
+            #expect(app.db.renderSQL(filter.leftHandSide) == #""stars""#)
+            #expect(app.db.renderSQL(filter.sqlOperator) == "=")
+            #expect(app.db.binds(filter.rightHandSide) == ["1234"])
+            #expect {
+                try StarsSearchFilter(expression: .init(operator: .greaterThan, value: "one"))
+            } throws: {
+                $0 as? SearchFilterError == .invalidValueType
+            }
         }
     }
 
-    func test_productTypeFilter() throws {
-        // test single value happy path
-        let filter = try ProductTypeSearchFilter(expression: .init(operator: .is,
-                                                                value: "executable"))
-        XCTAssertEqual(filter.key, .productType)
-        XCTAssertEqual(filter.predicate, .init(operator: .contains,
-                                               bindableValue: .value("executable"),
-                                               displayValue: "Executable"))
+    @Test func productTypeFilter() async throws {
+        try await withApp { app in
+            // test single value happy path
+            let filter = try ProductTypeSearchFilter(expression: .init(operator: .is,
+                                                                       value: "executable"))
+            #expect(filter.key == .productType)
+            #expect(filter.predicate == .init(operator: .contains,
+                                              bindableValue: .value("executable"),
+                                              displayValue: "Executable"))
 
-        // test view representation
-        XCTAssertEqual(filter.viewModel.description, "Package products contain an Executable")
+            // test view representation
+            #expect(filter.viewModel.description == "Package products contain an Executable")
 
-        // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""product_types""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "@>")
-        XCTAssertEqual(binds(filter.rightHandSide), ["{executable}"])
+            // test sql representation
+            #expect(app.db.renderSQL(filter.leftHandSide) == #""product_types""#)
+            #expect(app.db.renderSQL(filter.sqlOperator) == "@>")
+            #expect(app.db.binds(filter.rightHandSide) == ["{executable}"])
+        }
     }
 
-    func test_productTypeFilter_macro() throws {
-        // Test "virtual" macro product filter
-        let filter = try ProductTypeSearchFilter(expression: .init(operator: .is, value: "macro"))
-        XCTAssertEqual(filter.key, .productType)
-        XCTAssertEqual(filter.predicate, .init(operator: .contains,
-                                               bindableValue: .value("macro"),
-                                               displayValue: "Macro"))
+    @Test func productTypeFilter_macro() async throws {
+        try await withApp { app in
+            // Test "virtual" macro product filter
+            let filter = try ProductTypeSearchFilter(expression: .init(operator: .is, value: "macro"))
+            #expect(filter.key == .productType)
+            #expect(filter.predicate == .init(operator: .contains,
+                                              bindableValue: .value("macro"),
+                                              displayValue: "Macro"))
 
-        // test view representation
-        XCTAssertEqual(filter.viewModel.description, "Package products contain a Macro")
+            // test view representation
+            #expect(filter.viewModel.description == "Package products contain a Macro")
 
-        // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""product_types""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "@>")
-        XCTAssertEqual(binds(filter.rightHandSide), ["{macro}"])
+            // test sql representation
+            #expect(app.db.renderSQL(filter.leftHandSide) == #""product_types""#)
+            #expect(app.db.renderSQL(filter.sqlOperator) == "@>")
+            #expect(app.db.binds(filter.rightHandSide) == ["{macro}"])
+        }
     }
 
-    func test_productTypeFilter_spelling() throws {
+    @Test func productTypeFilter_spelling() throws {
         let expectedDisplayValues = [
             ProductTypeSearchFilter.ProductType.executable: "Package products contain an Executable",
             ProductTypeSearchFilter.ProductType.plugin: "Package products contain a Plugin",
@@ -458,22 +453,21 @@ class SearchFilterTests: AppTestCase {
 
         for type in ProductTypeSearchFilter.ProductType.allCases {
             let filter = try ProductTypeSearchFilter(expression: .init(operator: .is, value: type.rawValue))
-            XCTAssertEqual(filter.viewModel.description, expectedDisplayValues[type])
+            #expect(filter.viewModel.description == expectedDisplayValues[type])
         }
     }
 
-    func test_productTypeFilter_error() throws {
-        // test error cases
-        XCTAssertThrowsError(try ProductTypeSearchFilter(
-            expression: .init(operator: .isNot, value: "foo"))
-        ) {
-            XCTAssertEqual($0 as? SearchFilterError, .unsupportedComparisonMethod)
+    @Test func productTypeFilter_error() async throws {
+        #expect {
+            try ProductTypeSearchFilter(expression: .init(operator: .isNot, value: "foo"))
+        } throws: {
+            $0 as? SearchFilterError == .unsupportedComparisonMethod
         }
         for value in ["foo", "", ",", "MacOS X"] {
-            XCTAssertThrowsError(try ProductTypeSearchFilter(
-                expression: .init(operator: .is, value: value))
-            ) {
-                XCTAssertEqual($0 as? SearchFilterError, .invalidValueType, "expected exception for value: \(value)")
+            #expect("expected exception for value: \(value)") {
+                try ProductTypeSearchFilter(expression: .init(operator: .is, value: value))
+            } throws: {
+                $0 as? SearchFilterError == .invalidValueType
             }
         }
     }
@@ -526,7 +520,7 @@ extension App.SearchFilter.Predicate: Swift.Equatable {
 
 extension App.SearchFilter.Predicate.BoundValue: Swift.Equatable {
     public static func == (lhs: SearchFilter.Predicate.BoundValue, rhs: SearchFilter.Predicate.BoundValue) -> Bool {
-        renderSQL(lhs.sqlBind) == renderSQL(rhs.sqlBind)
+        renderGenericSQL(lhs.sqlBind) == renderGenericSQL(rhs.sqlBind)
     }
 
     var asPlatforms: [Package.PlatformCompatibility]? {
@@ -544,7 +538,7 @@ extension App.SearchFilter.Predicate.BoundValue: Swift.Equatable {
 // This renderSQL helper uses a dummy SQLDatabase dialect defined in `TestDatabase`.
 // It should only be used in cases where app.db (which is using the PostgresDB dialect)
 // is not available and where the exact syntax of SQL details is not relevant.
-private func renderSQL(_ query: SQLExpression) -> String {
+private func renderGenericSQL(_ query: SQLExpression) -> String {
     var serializer = SQLSerializer(database: TestDatabase())
     query.serialize(to: &serializer)
     return serializer.sql
