@@ -52,7 +52,7 @@ import Testing
             try await Repository(package: p).save(on: app.db)
 
             // MUT
-            let jpr = try await XCTUnwrapAsync(try await JPR.query(on: app.db).first())
+            let jpr = try #require(try await JPR.query(on: app.db).first())
 
             // validate
             #expect(jpr.repository != nil)
@@ -74,7 +74,7 @@ import Testing
             let p = try await savePackage(on: app.db, "1")
             try await Repository(package: p).save(on: app.db)
 
-            let jpr = try await XCTUnwrapAsync(try await JPR.query(on: app.db).first())
+            let jpr = try #require(try await JPR.query(on: app.db).first())
             let repo = try #require(jpr.repository)
             #expect(repo.name == nil)
             repo.name = "foo"
@@ -88,9 +88,9 @@ import Testing
                 #expect(jpr.repository?.name == "foo")
             }
             do { // ensure value is persisted
-                let r = try await XCTUnwrapAsync(try await Repository.query(on: app.db).first())
+                let r = try #require(try await Repository.query(on: app.db).first())
                 #expect(r.name == "foo")
-                let reloadedJPR = try await XCTUnwrapAsync(try await JPR.query(on: app.db).first())
+                let reloadedJPR = try #require(try await JPR.query(on: app.db).first())
                 #expect(reloadedJPR.repository?.name == "foo")
             }
         }

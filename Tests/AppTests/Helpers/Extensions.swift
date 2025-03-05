@@ -16,32 +16,9 @@ import Foundation
 
 @testable import App
 import Fluent
-import XCTest
 
 
 // MARK: - Useful extensions
-
-
-extension XCTestCase {
-    var isRunningInCI: Bool {
-        ProcessInfo.processInfo.environment.keys.contains("GITHUB_WORKFLOW")
-    }
-
-    var runQueryPerformanceTests: Bool {
-        ProcessInfo.processInfo.environment.keys.contains("RUN_QUERY_PERFORMANCE_TESTS")
-    }
-
-    func assertEquals<Root, Value: Equatable>(_ values: [Root],
-                                              _ keyPath: KeyPath<Root, Value>,
-                                              _ expectations: [Value],
-                                              file: StaticString = #filePath,
-                                              line: UInt = #line) {
-        XCTAssertEqual(values.map { $0[keyPath: keyPath] },
-                       expectations,
-                       "\(values.map { $0[keyPath: keyPath] }) not equal to \(expectations)",
-                       file: (file), line: line)
-    }
-}
 
 
 extension Foundation.URL: Swift.ExpressibleByStringLiteral {

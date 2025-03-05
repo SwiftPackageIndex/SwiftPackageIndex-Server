@@ -35,7 +35,7 @@ import Vapor
             try await t.save(on: app.db)
 
             // validate
-            let readBack = try await XCTUnwrapAsync(try await Target.query(on: app.db).first())
+            let readBack = try #require(try await Target.query(on: app.db).first())
             #expect(readBack.id != nil)
             #expect(readBack.$version.id == v.id)
             #expect(readBack.createdAt != nil)

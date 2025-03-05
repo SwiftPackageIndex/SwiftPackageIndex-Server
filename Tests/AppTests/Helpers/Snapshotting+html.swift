@@ -18,9 +18,13 @@ import Plot
 import SnapshotTesting
 import Dependencies
 
+
 extension Snapshotting where Value == String, Format == String {
-    public static let html = Snapshotting(pathExtension: "html", diffing: .lines)
+    public static var html: Snapshotting<String, String> {
+        Snapshotting(pathExtension: "html", diffing: .lines)
+    }
 }
+
 
 extension Snapshotting where Value == () -> HTML, Format == String {
     public static var html: Snapshotting {
@@ -34,6 +38,7 @@ extension Snapshotting where Value == () -> HTML, Format == String {
     }
 }
 
+
 extension Snapshotting where Value == () -> Node<HTML.BodyContext>, Format == String {
     public static var html: Snapshotting {
         Snapshotting<() -> HTML, String>.html.pullback { node in
@@ -41,8 +46,3 @@ extension Snapshotting where Value == () -> Node<HTML.BodyContext>, Format == St
         }
     }
 }
-
-
-#warning("drop this")
-extension Snapshotting: @unchecked Swift.Sendable {}
-extension Diffing: @unchecked Swift.Sendable {}

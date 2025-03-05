@@ -203,7 +203,7 @@ import Vapor
                             #expect(v.resolvedDependencies == [.init(packageName: "packageName",
                                                                      repositoryURL: "repositoryURL")])
                             // build failed, hence no package platform compatibility yet
-                            let p = try await XCTUnwrapAsync(try await Package.find(p.id, on: app.db))
+                            let p = try #require(try await Package.find(p.id, on: app.db))
                             #expect(p.platformCompatibility == [])
                         })
                 }
@@ -237,7 +237,7 @@ import Vapor
                             #expect(v.resolvedDependencies == [.init(packageName: "foo",
                                                                      repositoryURL: "http://foo/bar")])
                             // build ok now -> package is macos compatible
-                            let p = try await XCTUnwrapAsync(try await Package.find(p.id, on: app.db))
+                            let p = try #require(try await Package.find(p.id, on: app.db))
                             #expect(p.platformCompatibility == [.macOS])
                         })
                 }
@@ -262,7 +262,7 @@ import Vapor
                             let builds = try await Build.query(on: app.db).all()
                             #expect(Set(builds.map(\.id)) == Set([.id0, .id1]))
                             // additional ios build ok -> package is also ios compatible
-                            let p = try await XCTUnwrapAsync(try await Package.find(p.id, on: app.db))
+                            let p = try #require(try await Package.find(p.id, on: app.db))
                             #expect(p.platformCompatibility == [.iOS, .macOS])
                         })
                 }
@@ -376,10 +376,10 @@ import Vapor
                     "api/versions/\(versionId)/build-report",
                     headers: .applicationJSON,
                     body: body,
-                    afterResponse: { res in
+                    afterResponse: { res async throws in
                         // validation
                         #expect(res.status == .unauthorized)
-                        try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 0)
+                        #expect(try await Build.query(on: db).count() == 0)
                     }
                 )
 
@@ -389,10 +389,10 @@ import Vapor
                     "api/versions/\(versionId)/build-report",
                     headers: .bearerApplicationJSON("wrong"),
                     body: body,
-                    afterResponse: { res in
+                    afterResponse: { res async throws in
                         // validation
                         #expect(res.status == .unauthorized)
-                        try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 0)
+                        #expect(try await Build.query(on: db).count() == 0)
                     }
                 )
 
@@ -405,10 +405,10 @@ import Vapor
                         "api/versions/\(versionId)/build-report",
                         headers: .bearerApplicationJSON("secr3t"),
                         body: body,
-                        afterResponse: { res in
+                        afterResponse: { res async throws in
                             // validation
                             #expect(res.status == .unauthorized)
-                            try await XCTAssertEqualAsync(try await Build.query(on: db).count(), 0)
+                            #expect(try await Build.query(on: db).count() == 0)
                         }
                     )
                 }
@@ -491,7 +491,7 @@ import Vapor
                     body: body,
                     afterResponse: { res async throws in
                         // validation
-                        let p = try await XCTUnwrapAsync(await Package.find(p.id, on: app.db))
+                        let p = try #require(await Package.find(p.id, on: app.db))
 #if os(Linux)
                         if p.updatedAt == originalPackageUpdate {
                             logWarning()
@@ -707,10 +707,10 @@ import Vapor
                     "api/builds/\(buildId)/doc-report",
                     headers: .applicationJSON,
                     body: body,
-                    afterResponse: { res in
+                    afterResponse: { res async throws in
                         // validation
                         #expect(res.status == .unauthorized)
-                        try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
+                        #expect(try await DocUpload.query(on: app.db).count() == 0)
                     }
                 )
 
@@ -720,10 +720,10 @@ import Vapor
                     "api/builds/\(buildId)/doc-report",
                     headers: .bearerApplicationJSON("wrong"),
                     body: body,
-                    afterResponse: { res in
+                    afterResponse: { res async throws in
                         // validation
                         #expect(res.status == .unauthorized)
-                        try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
+                        #expect(try await DocUpload.query(on: app.db).count() == 0)
                     }
                 )
 
@@ -736,10 +736,10 @@ import Vapor
                         "api/builds/\(buildId)/doc-report",
                         headers: .bearerApplicationJSON("secr3t"),
                         body: body,
-                        afterResponse: { res in
+                        afterResponse: { res async throws in
                             // validation
                             #expect(res.status == .unauthorized)
-                            try await XCTAssertEqualAsync(try await DocUpload.query(on: app.db).count(), 0)
+                            #expect(try await DocUpload.query(on: app.db).count() == 0)
                         }
                     )
                 }

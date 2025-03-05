@@ -51,7 +51,7 @@ import Testing
             try await v.save(on: app.db)
 
             do {  // validation
-                let v = try await XCTUnwrapAsync(try await Version.find(v.id, on: app.db))
+                let v = try #require(try await Version.find(v.id, on: app.db))
                 #expect(v.commit == "commit")
                 #expect(v.latest == .defaultBranch)
                 #expect(v.packageName == "pname")
@@ -117,7 +117,7 @@ import Testing
             try await v.save(on: app.db)
 
             // validation
-            _ = try await XCTUnwrapAsync(try await Version.find(v.id, on: app.db))
+            _ = try #require(try await Version.find(v.id, on: app.db))
         }
     }
 
@@ -130,15 +130,15 @@ import Testing
             try await pkg.save(on: app.db)
             try await ver.save(on: app.db)
 
-            try await XCTAssertEqualAsync(try await Package.query(on: app.db).count(), 1)
-            try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 1)
+            #expect(try await Package.query(on: app.db).count() == 1)
+            #expect(try await Version.query(on: app.db).count() == 1)
 
             // MUT
             try await pkg.delete(on: app.db)
 
             // version should be deleted
-            try await XCTAssertEqualAsync(try await Package.query(on: app.db).count(), 0)
-            try await XCTAssertEqualAsync(try await Version.query(on: app.db).count(), 0)
+            #expect(try await Package.query(on: app.db).count() == 0)
+            #expect(try await Version.query(on: app.db).count() == 0)
         }
     }
 
@@ -193,7 +193,7 @@ import Testing
             try await v.save(on: app.db)
 
             do { // validate
-                let v = try await XCTUnwrapAsync(try await Version.find(v.id, on: app.db))
+                let v = try #require(try await Version.find(v.id, on: app.db))
                 #expect(v.resolvedDependencies == nil)
                 #expect(v.productDependencies == nil)
             }

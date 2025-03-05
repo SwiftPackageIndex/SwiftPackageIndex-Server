@@ -738,7 +738,7 @@ import Vapor
 
             do {  // validate
                 #expect(try await Version.query(on: app.db).count() == 1)
-                let v = try await XCTUnwrapAsync(await Version.query(on: app.db).first())
+                let v = try #require(await Version.query(on: app.db).first())
                 #expect(v.docArchives == [.init(name: "foo", title: "Foo")])
             }
         }
@@ -763,7 +763,7 @@ import Vapor
 
             do {  // validate
                 #expect(try await Version.query(on: app.db).count() == 2)
-                let versions = try await XCTUnwrapAsync(await Version.query(on: app.db).sort(\.$commit).all())
+                let versions = try #require(await Version.query(on: app.db).sort(\.$commit).all())
                 #expect(versions[0].docArchives == [.init(name: "foo", title: "Foo")])
                 #expect(versions[1].docArchives == nil)
             }
@@ -834,7 +834,7 @@ import Vapor
                                                 packageInfo: .init(packageManifest: manifest, spiManifest: spiManifest))
 
             // read back and validate
-            let v = try await XCTUnwrapAsync(await Version.query(on: app.db).first())
+            let v = try #require(await Version.query(on: app.db).first())
             #expect(v.packageName == "foo")
             #expect(v.resolvedDependencies?.map(\.packageName) == nil)
             #expect(v.swiftVersions == ["1", "2", "3.0.0"].asSwiftVersions)

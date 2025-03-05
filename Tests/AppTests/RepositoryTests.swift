@@ -60,7 +60,7 @@ import Testing
             try await repo.save(on: app.db)
 
             do {
-                let r = try await XCTUnwrapAsync(try await Repository.find(repo.id, on: app.db))
+                let r = try #require(try await Repository.find(repo.id, on: app.db))
                 #expect(r.$package.id == pkg.id)
                 #expect(r.authors == PackageAuthors(authors: [ .init(name: "Foo"), .init(name: "Bar")],
                                                     numberOfContributors: 0))
@@ -107,7 +107,7 @@ import Testing
             repo.lastPullRequestClosedAt = oldestDate
             try await repo.save(on: app.db)
 
-            let fetchedRepo = try await XCTUnwrapAsync(try await Repository.find(repo.id, on: app.db))
+            let fetchedRepo = try #require(try await Repository.find(repo.id, on: app.db))
             #expect(fetchedRepo.lastActivityAt == moreRecentDate)
         }
     }
@@ -126,7 +126,7 @@ import Testing
             repo.lastPullRequestClosedAt = oldestDate
             try await repo.save(on: app.db)
 
-            let fetchedRepo = try await XCTUnwrapAsync(try await Repository.find(repo.id, on: app.db))
+            let fetchedRepo = try #require(try await Repository.find(repo.id, on: app.db))
             #expect(fetchedRepo.lastActivityAt == moreRecentDate)
         }
     }
@@ -145,7 +145,7 @@ import Testing
             repo.lastPullRequestClosedAt = moreRecentDate
             try await repo.save(on: app.db)
 
-            let fetchedRepo = try await XCTUnwrapAsync(try await Repository.find(repo.id, on: app.db))
+            let fetchedRepo = try #require(try await Repository.find(repo.id, on: app.db))
             #expect(fetchedRepo.lastActivityAt == moreRecentDate)
         }
     }
@@ -163,7 +163,7 @@ import Testing
             repo.lastPullRequestClosedAt = nil
             try await repo.save(on: app.db)
 
-            let fetchedRepo = try await XCTUnwrapAsync(try await Repository.find(repo.id, on: app.db))
+            let fetchedRepo = try #require(try await Repository.find(repo.id, on: app.db))
             #expect(fetchedRepo.lastActivityAt == date)
         }
     }
@@ -177,7 +177,7 @@ import Testing
             // test some ways to resolve the relationship
             #expect(repo.$package.id == pkg.id)
             let db = app.db
-            try await XCTAssertEqualAsync(try await repo.$package.get(on: db).url, "p1")
+            #expect(try await repo.$package.get(on: db).url == "p1")
 
             // ensure one-to-one is in place
             do {
@@ -186,7 +186,7 @@ import Testing
                     try await repo.save(on: app.db)
                     Issue.record("Expected error")
                 } catch { }
-                try await XCTAssertEqualAsync(try await Repository.query(on: db).all().count, 1)
+                #expect(try await Repository.query(on: db).all().count == 1)
             }
         }
     }
@@ -200,15 +200,15 @@ import Testing
             try await repo.save(on: app.db)
 
             let db = app.db
-            try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 1)
-            try await XCTAssertEqualAsync(try await Repository.query(on: db).count(), 1)
+            #expect(try await Package.query(on: db).count() == 1)
+            #expect(try await Repository.query(on: db).count() == 1)
 
             // MUT
             try await pkg.delete(on: app.db)
 
             // version and product should be deleted
-            try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 0)
-            try await XCTAssertEqualAsync(try await Repository.query(on: db).count(), 0)
+            #expect(try await Package.query(on: db).count() == 0)
+            #expect(try await Repository.query(on: db).count() == 0)
         }
     }
 
@@ -230,7 +230,7 @@ import Testing
                     #"duplicate key value violates unique constraint "idx_repositories_owner_name""#),
                         "was: \(error.localizedDescription)"
                 )
-                try await XCTAssertEqualAsync(try await Repository.query(on: db).all().count, 1)
+                #expect(try await Repository.query(on: db).all().count == 1)
             }
 
             do {
@@ -242,7 +242,7 @@ import Testing
                     #"duplicate key value violates unique constraint "idx_repositories_owner_name""#),
                         "was: \(error.localizedDescription)"
                 )
-                try await XCTAssertEqualAsync(try await Repository.query(on: db).all().count, 1)
+                #expect(try await Repository.query(on: db).all().count == 1)
             }
 
             do {
@@ -254,7 +254,7 @@ import Testing
                     #"duplicate key value violates unique constraint "idx_repositories_owner_name""#),
                         "was: \(error.localizedDescription)"
                 )
-                try await XCTAssertEqualAsync(try await Repository.query(on: db).all().count, 1)
+                #expect(try await Repository.query(on: db).all().count == 1)
             }
         }
     }

@@ -30,7 +30,7 @@ import Testing
             try await Analyze.recordError(database: app.db,
                                           error: AppError.cacheDirectoryDoesNotExist(pkg.id, "path"))
             do {
-                let pkg = try await XCTUnwrapAsync(try await Package.find(pkg.id, on: app.db))
+                let pkg = try #require(try await Package.find(pkg.id, on: app.db))
                 #expect(pkg.status == .cacheDirectoryDoesNotExist)
                 #expect(pkg.processingStage == .analysis)
             }

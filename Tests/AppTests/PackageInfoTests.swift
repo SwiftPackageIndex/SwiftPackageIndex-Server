@@ -28,7 +28,7 @@ import Testing
                 .save(on: app.db)
             try await Version(package: p, latest: .defaultBranch, packageName: "package name")
                 .save(on: app.db)
-            let joined = try await XCTUnwrapAsync(try await Joined3<Package, Repository, Version>
+            let joined = try #require(try await Joined3<Package, Repository, Version>
                 .query(on: app.db, version: .defaultBranch)
                 .first())
 
@@ -49,7 +49,7 @@ import Testing
                 .save(on: app.db)
             try await Version(package: p, latest: .defaultBranch, packageName: nil)
                 .save(on: app.db)
-            let joined = try await XCTUnwrapAsync(try await Joined3<Package, Repository, Version>
+            let joined = try #require(try await Joined3<Package, Repository, Version>
                 .query(on: app.db, version: .defaultBranch)
                 .first())
 

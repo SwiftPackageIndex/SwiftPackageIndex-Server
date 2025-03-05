@@ -61,12 +61,12 @@ import Vapor
                 let pkg = Package()  // avoid using init with default argument in order to test db default
                 pkg.url = "1"
                 try await pkg.save(on: app.db)
-                let readBack = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                let readBack = try #require(try await Package.query(on: app.db).first())
                 #expect(readBack.status == .new)
             }
             do {  // with status
                 try await Package(url: "2", status: .ok).save(on: app.db)
-                let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).filter(by: "2").first())
+                let pkg = try #require(try await Package.query(on: app.db).filter(by: "2").first())
                 #expect(pkg.status == .ok)
             }
         }
@@ -81,7 +81,7 @@ import Vapor
                 let scoreDetails = Score.Details.mock
                 pkg.scoreDetails = scoreDetails
                 try await pkg.save(on: app.db)
-                let readBack = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                let readBack = try #require(try await Package.query(on: app.db).first())
                 #expect(readBack.scoreDetails == scoreDetails)
             }
         }
@@ -163,13 +163,13 @@ import Vapor
         try await withApp { app in
             let pkg = try await savePackage(on: app.db, "1")
             do {
-                let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).with(\.$repositories).first())
+                let pkg = try #require(try await Package.query(on: app.db).with(\.$repositories).first())
                 #expect(pkg.repositories.first == nil)
             }
             do {
                 let repo = try Repository(package: pkg)
                 try await repo.save(on: app.db)
-                let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).with(\.$repositories).first())
+                let pkg = try #require(try await Package.query(on: app.db).with(\.$repositories).first())
                 #expect(pkg.repositories.first == repo)
             }
         }
@@ -185,7 +185,7 @@ import Vapor
             ]
             try await versions.create(on: app.db)
             do {
-                let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).with(\.$versions).first())
+                let pkg = try #require(try await Package.query(on: app.db).with(\.$versions).first())
                 #expect(pkg.versions.count == 3)
             }
         }
@@ -350,11 +350,11 @@ import Vapor
                 let db = app.db
                 // run reconcile to ingest package
                 try await reconcile(client: app.client, database: app.db)
-                try await XCTAssertEqualAsync(try await Package.query(on: db).count(), 1)
+                #expect(try await Package.query(on: db).count() == 1)
 
                 // MUT & validate
                 do {
-                    let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                    let pkg = try #require(try await Package.query(on: app.db).first())
                     #expect(pkg.isNew)
                 }
 
@@ -363,7 +363,7 @@ import Vapor
 
                 // MUT & validate
                 do {
-                    let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                    let pkg = try #require(try await Package.query(on: app.db).first())
                     #expect(pkg.isNew)
                 }
 
@@ -372,7 +372,7 @@ import Vapor
 
                 // MUT & validate
                 do {
-                    let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                    let pkg = try #require(try await Package.query(on: app.db).first())
                     #expect(!pkg.isNew)
                 }
 
@@ -380,7 +380,7 @@ import Vapor
 
                 try await reconcile(client: app.client, database: app.db)
                 do {
-                    let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                    let pkg = try #require(try await Package.query(on: app.db).first())
                     #expect(!pkg.isNew)
                 }
 
@@ -390,14 +390,14 @@ import Vapor
                     try await Ingestion.ingest(client: app.client, database: app.db, mode: .limit(10))
 
                     do {
-                        let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                        let pkg = try #require(try await Package.query(on: app.db).first())
                         #expect(!pkg.isNew)
                     }
 
                     try await Analyze.analyze(client: app.client, database: app.db, mode: .limit(10))
 
                     do {
-                        let pkg = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+                        let pkg = try #require(try await Package.query(on: app.db).first())
                         #expect(!pkg.isNew)
                     }
                 }
@@ -416,7 +416,7 @@ import Vapor
         try await withApp { app in
             try await Package(url: "1".url, platformCompatibility: [.iOS, .macOS, .iOS])
                 .save(on: app.db)
-            let readBack = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+            let readBack = try #require(try await Package.query(on: app.db).first())
             #expect(readBack.platformCompatibility == [.iOS, .macOS])
         }
     }
@@ -431,7 +431,7 @@ import Vapor
             try await (app.db as! SQLDatabase).raw(
                 "update packages set platform_compatibility = '{ios,ios}'"
             ).run()
-            let readBack = try await XCTUnwrapAsync(try await Package.query(on: app.db).first())
+            let readBack = try #require(try await Package.query(on: app.db).first())
             #expect(readBack.platformCompatibility == [.iOS])
         }
     }
@@ -469,11 +469,11 @@ import Vapor
             try await Package.updatePlatformCompatibility(for: p.requireID(), on: app.db)
 
             // validate
-            let p1 = try await XCTUnwrapAsync(
+            let p1 = try #require(
                 try await Package.query(on: app.db).filter(by: "1".url).first()
             )
             #expect(p1.platformCompatibility == [.iOS, .macOS, .linux, .tvOS, .visionOS, .watchOS])
-            let p2 = try await XCTUnwrapAsync(
+            let p2 = try #require(
                 try await Package.query(on: app.db).filter(by: "2".url).first()
             )
             #expect(p2.platformCompatibility == [])

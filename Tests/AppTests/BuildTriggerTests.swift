@@ -1311,7 +1311,7 @@ import Vapor
 
 
 private func updateBuildCreatedAt(id: Build.Id, addTimeInterval timeInterval: TimeInterval, on database: Database) async throws {
-    let b = try await XCTUnwrapAsync(await Build.find(id, on: database))
+    let b = try #require(await Build.find(id, on: database))
     b.createdAt = b.createdAt?.addingTimeInterval(timeInterval)
     try await b.save(on: database)
 }

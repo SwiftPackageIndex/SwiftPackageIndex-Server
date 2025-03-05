@@ -254,7 +254,7 @@ import Vapor
                                     swiftVersion: .v2).save(on: app.db)
                 }
             }
-            let v = try await XCTUnwrapAsync(try await VersionResult.query(on: app.db,filterBy: .urls(["1"])).first?.version)
+            let v = try #require(try await VersionResult.query(on: app.db,filterBy: .urls(["1"])).first?.version)
 
             // MUT
             let res = try #require(
@@ -310,7 +310,7 @@ import Vapor
                                   type: .library(.automatic),
                                   name: "product").save(on: app.db)
             }
-            let result = try await XCTUnwrapAsync(
+            let result = try #require(
                 try await VersionResult.query(on: app.db, filterBy: .urls(["1"])).first
             )
             let group = VersionResultGroup(package: result.package,
@@ -682,7 +682,7 @@ import Vapor
                     try await Version(package: p, latest: .release).save(on: app.db)
                     try await Repository(package: p).save(on: app.db)
                 }
-                let res = try await XCTUnwrapAsync(
+                let res = try #require(
                     try await VersionResult.query(on: app.db, filterBy: .urls(["2"])).first
                 )
                 let group = VersionResultGroup(package: res.package,

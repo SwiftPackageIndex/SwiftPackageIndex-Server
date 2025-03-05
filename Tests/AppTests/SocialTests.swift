@@ -208,7 +208,7 @@ import Vapor
             }
 
             // validate
-            try await XCTAssertEqualAsync(posted.withLockedValue { $0 }, 2)
+            #expect(posted.withLockedValue { $0 } == 2)
         }
     }
 
@@ -245,7 +245,7 @@ import Vapor
             }
 
             // validate
-            try await XCTAssertEqualAsync(posted.withLockedValue { $0 }, 1)
+            #expect(posted.withLockedValue { $0 } == 1)
         }
     }
 
@@ -283,7 +283,7 @@ import Vapor
             try await Mastodon.post(message: message)
 
             // validate
-            try await XCTAssertEqualAsync(await called.value, true)
+            #expect(await called.value == true)
         }
     }
 
