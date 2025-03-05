@@ -38,7 +38,7 @@ private extension DependenciesProvider {
 
 @Suite(.dependencies(.default)) struct WebpageSnapshotTests {
 
-    @Test func HomeIndexView_document() throws {
+    @Test func HomeIndex_document() throws {
         Supporters.mock()
 
         let page = { HomeIndex.View(path: "/", model: .mock).document() }
@@ -46,7 +46,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func HomeIndexView_document_development() throws {
+    @Test func HomeIndex_document_development() throws {
         // Test home page to ensure the dev environment is showing the dev banner and `noindex` for robots
         withDependencies {
             $0.environment.current = { .development }
@@ -59,7 +59,7 @@ private extension DependenciesProvider {
         }
     }
 
-    @Test func MaintenanceMessageIndexView_document() throws {
+    @Test func MaintenanceMessageIndex_document() throws {
         let maintenanceMessage = """
             # Server Maintenance
             
@@ -74,7 +74,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document() throws {
+    @Test func PackageShow_document() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.homepageUrl = "https://swiftpackageindex.com/"
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
@@ -82,7 +82,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_binary_targets() throws {
+    @Test func PackageShow_document_binary_targets() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.homepageUrl = "https://swiftpackageindex.com/"
         model.hasBinaryTargets = true
@@ -92,7 +92,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_few_keywords() throws {
+    @Test func PackageShow_document_few_keywords() throws {
         var model = API.PackageController.GetRoute.Model.mock
         let keywordsWithCounts = [("tag1", 1),
                                   ("tag2", 10),
@@ -108,7 +108,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_many_keywords() throws {
+    @Test func PackageShow_document_many_keywords() throws {
         var model = API.PackageController.GetRoute.Model.mock
         let keywordsWithCounts = [("tag1", 1), ("tag2", 10), ("tag3", 100), ("tag4", 1000), ("tag5", 1234),
                                   ("tag6", 1250), ("tag7", 1249), ("tag8", 1251), ("tag9", 12345),
@@ -131,7 +131,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_emoji_summary() throws {
+    @Test func PackageShow_document_emoji_summary() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.summary = ":package: Nothing but Cache. :octocat:"
 
@@ -140,7 +140,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_open_source_license() throws {
+    @Test func PackageShow_document_open_source_license() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.license = .mit
         model.licenseUrl = "https://example.com/license.html"
@@ -149,7 +149,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_app_store_incompatible_license() throws {
+    @Test func PackageShow_document_app_store_incompatible_license() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.license = .gpl_3_0
         model.licenseUrl = "https://example.com/license.html"
@@ -158,7 +158,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_other_license() throws {
+    @Test func PackageShow_document_other_license() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.license = .other
         model.licenseUrl = "https://example.com/license.html"
@@ -167,7 +167,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_no_license() throws {
+    @Test func PackageShow_document_no_license() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.license = .none
         model.licenseUrl = nil
@@ -176,7 +176,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_no_authors_activity() throws {
+    @Test func PackageShow_document_no_authors_activity() throws {
         // Test to ensure we don't display empty bullet points when there is
         // no author or activity info
         var model = API.PackageController.GetRoute.Model.mock
@@ -187,7 +187,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_withPackageFundingLinks() throws {
+    @Test func PackageShow_document_withPackageFundingLinks() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.fundingLinks = [
             .init(platform: .gitHub, url: "https://github.com/sponsor-url"),
@@ -200,7 +200,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_with_documentation_link() throws {
+    @Test func PackageShow_document_with_documentation_link() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.documentationTarget = .internal(docVersion: .reference("main"), archive: "archive")
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
@@ -208,7 +208,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_single_row_tables() throws {
+    @Test func PackageShow_document_single_row_tables() throws {
         // Test display when all three significant version collapse to a single row
         var model = API.PackageController.GetRoute.Model.mock
         do {
@@ -240,7 +240,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_no_builds() throws {
+    @Test func PackageShow_document_no_builds() throws {
         // Test display when there are no builds
         var model = API.PackageController.GetRoute.Model.mock
         model.swiftVersionBuildInfo = .init(stable: nil, beta: nil, latest: nil)
@@ -250,7 +250,7 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_canonicalURL_noImageSnapshots() throws {
+    @Test func PackageShow_document_canonicalURL_noImageSnapshots() throws {
         // In production, the owner and repository name in the view model are fetched from
         // the database and have canonical capitalisation.
         var model = API.PackageController.GetRoute.Model.mock
@@ -261,12 +261,12 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_missingPackage() throws {
+    @Test func MissingPackage_document() throws {
         let page = { MissingPackage.View(path: "", model: .mock).document() }
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageReadmeView_document() throws {
+    @Test func PackageReadme_document() throws {
         let model = PackageReadme.Model.mock
         let page = { PackageReadme.View(model: model).document() }
 
@@ -274,7 +274,7 @@ private extension DependenciesProvider {
     }
 
     // Note: This snapshot test deliberately omits an image snapshot as the HTML being tested has no explicit styling.
-    @Test func PackageReadmeView_document_unparseableReadme_noImageSnapshots() throws {
+    @Test func PackageReadme_document_unparseableReadme_noImageSnapshots() throws {
         let model = PackageReadme.Model(url: "https://example.com/owner/repo/README",
                                         repositoryOwner: "owner",
                                         repositoryName: "repo",
@@ -286,14 +286,14 @@ private extension DependenciesProvider {
     }
 
     // Note: This snapshot test deliberately omits an image snapshot as the HTML being tested has no explicit styling.
-    @Test func PackageReadmeView_document_noReadme_noImageSnapshots() throws {
+    @Test func PackageReadme_document_noReadme_noImageSnapshots() throws {
         let model = PackageReadme.Model.noReadme
         let page = { PackageReadme.View(model: model).document() }
 
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageShowView_document_customCollection() throws {
+    @Test func PackageShow_document_customCollection() throws {
         var model = API.PackageController.GetRoute.Model.mock
         model.homepageUrl = "https://swiftpackageindex.com/"
         model.customCollections = [.init(key: "custom-collection",
@@ -304,20 +304,20 @@ private extension DependenciesProvider {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageReleasesView_document() throws {
+    @Test func PackageReleases_document() throws {
         let model = PackageReleases.Model.mock
         let page = { PackageReleases.View(model: model).document() }
 
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageReleasesView_document_NoModel() throws {
+    @Test func PackageReleases_document_NoModel() throws {
         let page = { PackageReleases.View(model: nil).document() }
 
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func ErrorPageView_document() throws {
+    @Test func ErrorPage_document() throws {
         let page = { ErrorPage.View(path: "", error: Abort(.notFound)).document() }
 
         assertSnapshot(of: page, as: .html)
