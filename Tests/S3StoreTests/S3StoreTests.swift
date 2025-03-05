@@ -12,36 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import S3Store
 
+import Testing
 
-final class S3StoreTests: XCTestCase {
 
-    func test_Key_path() throws {
+@Suite struct S3StoreTests {
+
+    @Test func Key_path() throws {
         do {
             let key = S3Store.Key(bucket: "bucket", path: "foo/bar")
-            XCTAssertEqual(key.path, "foo/bar")
+            #expect(key.path == "foo/bar")
         }
         do {
             let key = S3Store.Key(bucket: "bucket", path: "/foo/bar")
-            XCTAssertEqual(key.path, "foo/bar")
+            #expect(key.path == "foo/bar")
         }
         do {
             let key = S3Store.Key(bucket: "bucket", path: "//foo/bar")
-            XCTAssertEqual(key.path, "foo/bar")
+            #expect(key.path == "foo/bar")
         }
     }
 
-    func test_Key_objectUrl() throws {
+    @Test func Key_objectUrl() throws {
         let key = S3Store.Key(bucket: "bucket", path: "foo/bar")
-        XCTAssertEqual(key.objectUrl, "https://bucket.s3.us-east-2.amazonaws.com/foo/bar")
+        #expect(key.objectUrl == "https://bucket.s3.us-east-2.amazonaws.com/foo/bar")
     }
 
-    func test_Key_s3Uri() throws {
+    @Test func Key_s3Uri() throws {
         let key = S3Store.Key(bucket: "bucket", path: "foo/bar")
-        XCTAssertEqual(key.s3Uri, "s3://bucket/foo/bar")
+        #expect(key.s3Uri == "s3://bucket/foo/bar")
     }
 
 }
