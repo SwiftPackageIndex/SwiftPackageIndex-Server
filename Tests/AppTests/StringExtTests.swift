@@ -13,61 +13,59 @@
 // limitations under the License.
 
 import Foundation
-import XCTest
 
 @testable import App
 
+import Testing
 
-final class StringExtTests: XCTestCase {
 
-    func test_pluralised() throws {
-        XCTAssertEqual("version".pluralized(for: 0), "versions")
-        XCTAssertEqual("version".pluralized(for: 1), "version")
-        XCTAssertEqual("version".pluralized(for: 2), "versions")
+@Suite struct StringExtTests {
 
-        XCTAssertEqual("library".pluralized(for: 0, plural: "libraries"), "libraries")
-        XCTAssertEqual("library".pluralized(for: 1, plural: "libraries"), "library")
-        XCTAssertEqual("library".pluralized(for: 2, plural: "libraries"), "libraries")
+    @Test func pluralised() throws {
+        #expect("version".pluralized(for: 0) == "versions")
+        #expect("version".pluralized(for: 1) == "version")
+        #expect("version".pluralized(for: 2) == "versions")
+
+        #expect("library".pluralized(for: 0, plural: "libraries") == "libraries")
+        #expect("library".pluralized(for: 1, plural: "libraries") == "library")
+        #expect("library".pluralized(for: 2, plural: "libraries") == "libraries")
     }
 
-    func testDroppingGitSuffix() {
-        XCTAssertEqual(
-            "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server".droppingGitExtension,
-            "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"
+    @Test func droppingGitSuffix() {
+        #expect(
+            "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server".droppingGitExtension == "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"
         )
 
-        XCTAssertEqual(
-            "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server.git".droppingGitExtension,
-            "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"
-        )
-    }
-
-    func testDroppingGitHubPrefix() {
-        XCTAssertEqual(
-            "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server".droppingGithubComPrefix,
-            "SwiftPackageIndex/SwiftPackageIndex-Server"
+        #expect(
+            "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server.git".droppingGitExtension == "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"
         )
     }
 
-    func testTrimming() {
-        XCTAssertEqual("".trimmed, nil)
-        XCTAssertEqual("  ".trimmed, nil)
-        XCTAssertEqual(" string ".trimmed, "string")
-        XCTAssertEqual("string".trimmed, "string")
+    @Test func droppingGitHubPrefix() {
+        #expect(
+            "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server".droppingGithubComPrefix == "SwiftPackageIndex/SwiftPackageIndex-Server"
+        )
     }
 
-    func test_removingSuffix() throws {
-        XCTAssertEqual("".removingSuffix(""), "")
-        XCTAssertEqual("".removingSuffix("bob"), "")
-        XCTAssertEqual("bob".removingSuffix("bob"), "")
-        XCTAssertEqual("bobby and bob".removingSuffix("bob"), "bobby and ")
-        XCTAssertEqual("bobby and bob ".removingSuffix("bob"), "bobby and bob ")
-        XCTAssertEqual("Bobby and Bob".removingSuffix("bob"), "Bobby and ")
-        XCTAssertEqual("bobby and bob".removingSuffix("Bob"), "bobby and ")
+    @Test func trimming() {
+        #expect("".trimmed == nil)
+        #expect("  ".trimmed == nil)
+        #expect(" string ".trimmed == "string")
+        #expect("string".trimmed == "string")
     }
 
-    func test_sha256Checksum() throws {
-        XCTAssertEqual("foo".sha256Checksum, "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae")
+    @Test func removingSuffix() throws {
+        #expect("".removingSuffix("") == "")
+        #expect("".removingSuffix("bob") == "")
+        #expect("bob".removingSuffix("bob") == "")
+        #expect("bobby and bob".removingSuffix("bob") == "bobby and ")
+        #expect("bobby and bob ".removingSuffix("bob") == "bobby and bob ")
+        #expect("Bobby and Bob".removingSuffix("bob") == "Bobby and ")
+        #expect("bobby and bob".removingSuffix("Bob") == "bobby and ")
+    }
+
+    @Test func sha256Checksum() throws {
+        #expect("foo".sha256Checksum == "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae")
     }
 
 }

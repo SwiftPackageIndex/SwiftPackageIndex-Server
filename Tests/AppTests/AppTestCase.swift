@@ -182,7 +182,7 @@ extension AppTestCase {
 }
 
 
-// FIXME: Move this once AppTestCase can be removed. These are helpers created during the transition to Swift Testing.
+// FIXME: Move this once AppTestCase can be removed. These are helpers created during the transition to Swift Testing. Also check if we can just create a PostgresDB object from scratch rather than using withApp and app.db for this at the call site. That does a whole migration + reset just to render the SQL needlessly.
 extension Database {
     func renderSQL(_ builder: SQLSelectBuilder) -> String {
         renderSQL(builder.query)

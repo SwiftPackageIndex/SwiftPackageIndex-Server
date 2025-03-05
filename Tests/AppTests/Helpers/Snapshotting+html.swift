@@ -19,7 +19,7 @@ import SnapshotTesting
 import Dependencies
 
 extension Snapshotting where Value == String, Format == String {
-  public static let html = Snapshotting(pathExtension: "html", diffing: .lines)
+    public static let html = Snapshotting(pathExtension: "html", diffing: .lines)
 }
 
 extension Snapshotting where Value == () -> HTML, Format == String {
@@ -41,3 +41,8 @@ extension Snapshotting where Value == () -> Node<HTML.BodyContext>, Format == St
         }
     }
 }
+
+
+#warning("drop this")
+extension Snapshotting: @unchecked Swift.Sendable {}
+extension Diffing: @unchecked Swift.Sendable {}

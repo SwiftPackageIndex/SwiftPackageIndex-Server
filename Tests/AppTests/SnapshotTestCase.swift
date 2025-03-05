@@ -19,6 +19,7 @@ import SnapshotTesting
 import Dependencies
 
 
+@available(*, deprecated)
 class SnapshotTestCase: AppTestCase {
 
     override func setUpWithError() throws {

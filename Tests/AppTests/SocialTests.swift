@@ -12,26 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 @testable import App
 
 import Dependencies
 import InlineSnapshotTesting
 import NIOConcurrencyHelpers
-import XCTVapor
+import Testing
+import Vapor
 
 
-class SocialTests: AppTestCase {
+@Suite struct SocialTests {
 
-    func test_versionUpdateMessage() throws {
-        XCTAssertEqual(
+    @Test func versionUpdateMessage() throws {
+        #expect(
             Social.versionUpdateMessage(
                 packageName: "packageName",
                 repositoryOwnerName: "owner",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: "This is a test package",
-                maxLength: Social.postMaxLength),
-            """
+                maxLength: Social.postMaxLength) == """
             ⬆️ owner just released packageName v2.6.4 – This is a test package
 
             http://localhost:8080/owner/SuperAwesomePackage#releases
@@ -39,15 +41,14 @@ class SocialTests: AppTestCase {
         )
 
         // no summary
-        XCTAssertEqual(
+        #expect(
             Social.versionUpdateMessage(
                 packageName: "packageName",
                 repositoryOwnerName: "owner",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: nil,
-                maxLength: Social.postMaxLength),
-            """
+                maxLength: Social.postMaxLength) == """
             ⬆️ owner just released packageName v2.6.4
 
             http://localhost:8080/owner/SuperAwesomePackage#releases
@@ -55,15 +56,14 @@ class SocialTests: AppTestCase {
         )
 
         // empty summary
-        XCTAssertEqual(
+        #expect(
             Social.versionUpdateMessage(
                 packageName: "packageName",
                 repositoryOwnerName: "owner",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: "",
-                maxLength: Social.postMaxLength),
-            """
+                maxLength: Social.postMaxLength) == """
             ⬆️ owner just released packageName v2.6.4
 
             http://localhost:8080/owner/SuperAwesomePackage#releases
@@ -71,15 +71,14 @@ class SocialTests: AppTestCase {
         )
 
         // whitespace summary
-        XCTAssertEqual(
+        #expect(
             Social.versionUpdateMessage(
                 packageName: "packageName",
                 repositoryOwnerName: "owner",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: " \n",
-                maxLength: Social.postMaxLength),
-            """
+                maxLength: Social.postMaxLength) == """
             ⬆️ owner just released packageName v2.6.4
 
             http://localhost:8080/owner/SuperAwesomePackage#releases
@@ -87,7 +86,7 @@ class SocialTests: AppTestCase {
         )
     }
 
-    func test_versionUpdateMessage_trimming() throws {
+    @Test func versionUpdateMessage_trimming() throws {
         let msg = Social.versionUpdateMessage(
             packageName: "packageName",
             repositoryOwnerName: "owner",
@@ -97,24 +96,23 @@ class SocialTests: AppTestCase {
             maxLength: Social.postMaxLength
         )
 
-        XCTAssertEqual(msg.count, 490)
-        XCTAssertEqual(msg, """
+        #expect(msg.count == 490)
+        #expect(msg == """
             ⬆️ owner just released packageName v2.6.4 – xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…
 
             http://localhost:8080/owner/SuperAwesomePackage#releases
             """)
     }
 
-    func test_newPackageMessage() throws {
-        XCTAssertEqual(
+    @Test func newPackageMessage() throws {
+        #expect(
             Social.newPackageMessage(
                 packageName: "packageName",
                 repositoryOwnerName: "owner",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 summary: "This is a test package",
                 maxLength: Social.postMaxLength
-            ),
-            """
+            ) == """
             📦 owner just added a new package, packageName – This is a test package
 
             http://localhost:8080/owner/SuperAwesomePackage
@@ -122,128 +120,136 @@ class SocialTests: AppTestCase {
         )
     }
 
-    func test_firehoseMessage_new_version() async throws {
-        // setup
-        let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg,
-                             name: "repoName",
-                             owner: "owner",
-                             summary: "This is a test package").save(on: app.db)
-        let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try await version.save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
+    @Test func firehoseMessage_new_version() async throws {
+        try await withApp { app in
+            // setup
+            let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "repoName",
+                                 owner: "owner",
+                                 summary: "This is a test package").save(on: app.db)
+            let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
+            try await version.save(on: app.db)
+            let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
-        // MUT
-        let res = Social.firehoseMessage(package: jpr,
-                                         version: version,
-                                         maxLength: Social.postMaxLength)
+            // MUT
+            let res = Social.firehoseMessage(package: jpr,
+                                             version: version,
+                                             maxLength: Social.postMaxLength)
 
-        // validate
-        XCTAssertEqual(res, """
+            // validate
+            #expect(res == """
             ⬆️ owner just released MyPackage v1.2.3 – This is a test package
-
+            
             http://localhost:8080/owner/repoName#releases
             """)
+        }
     }
 
-    func test_firehoseMessage_new_package() async throws {
-        // setup
-        let pkg = Package(url: "1".asGithubUrl.url, status: .new)
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg,
-                             name: "repoName",
-                             owner: "owner",
-                             summary: "This is a test package").save(on: app.db)
-        let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try await version.save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
+    @Test func firehoseMessage_new_package() async throws {
+        try await withApp { app in
+            // setup
+            let pkg = Package(url: "1".asGithubUrl.url, status: .new)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "repoName",
+                                 owner: "owner",
+                                 summary: "This is a test package").save(on: app.db)
+            let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
+            try await version.save(on: app.db)
+            let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
 
-        // MUT
-        let res = Social.firehoseMessage(package: jpr,
-                                         version: version,
-                                         maxLength: Social.postMaxLength)
+            // MUT
+            let res = Social.firehoseMessage(package: jpr,
+                                             version: version,
+                                             maxLength: Social.postMaxLength)
 
-        // validate
-        XCTAssertEqual(res, """
+            // validate
+            #expect(res == """
             📦 owner just added a new package, MyPackage – This is a test package
-
+            
             http://localhost:8080/owner/repoName
             """)
+        }
     }
 
-    func test_postToFirehose_only_release_and_preRelease() async throws {
+    @Test func postToFirehose_only_release_and_preRelease() async throws {
         // ensure we only post about releases and pre-releases
-        // setup
-        let pkg = Package(url: "1".asGithubUrl.url)
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg,
-                             name: "repoName",
-                             owner: "repoOwner",
-                             summary: "This is a test package").save(on: app.db)
-        try await Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-            .save(on: app.db)
-        try await Version(package: pkg,
-                          commitDate: Date(timeIntervalSince1970: 0),
-                          packageName: "MyPackage",
-                          reference: .tag(2, 0, 0, "b1")).save(on: app.db)
-        try await Version(package: pkg, packageName: "MyPackage", reference: .branch("main"))
-            .save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
-        let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
+        try await withApp { app in
+            // setup
+            let pkg = Package(url: "1".asGithubUrl.url)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "repoName",
+                                 owner: "repoOwner",
+                                 summary: "This is a test package").save(on: app.db)
+            try await Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
+                .save(on: app.db)
+            try await Version(package: pkg,
+                              commitDate: Date(timeIntervalSince1970: 0),
+                              packageName: "MyPackage",
+                              reference: .tag(2, 0, 0, "b1")).save(on: app.db)
+            try await Version(package: pkg, packageName: "MyPackage", reference: .branch("main"))
+                .save(on: app.db)
+            let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
+            let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
 
-        let posted: NIOLockedValueBox<Int> = .init(0)
+            let posted: NIOLockedValueBox<Int> = .init(0)
 
-        try await withDependencies {
-            $0.environment.allowSocialPosts = { true }
-            $0.httpClient.mastodonPost = { @Sendable _ in posted.withLockedValue { $0 += 1 } }
-        } operation: {
-            // MUT
-            try await Social.postToFirehose(client: app.client,
-                                            package: jpr,
-                                            versions: versions)
-        }
-
-        // validate
-        try await XCTAssertEqualAsync(posted.withLockedValue { $0 }, 2)
-    }
-
-    func test_postToFirehose_only_latest() async throws {
-        // ensure we only post about latest versions
-        // setup
-        let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
-        try await pkg.save(on: app.db)
-        try await Repository(package: pkg,
-                             name: "repoName",
-                             owner: "repoOwner",
-                             summary: "This is a test package").save(on: app.db)
-        try await Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-            .save(on: app.db)
-        try await Version(package: pkg, packageName: "MyPackage", reference: .tag(2, 0, 0))
-            .save(on: app.db)
-        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
-        let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
-
-        let posted: NIOLockedValueBox<Int> = .init(0)
-
-        try await withDependencies {
-            $0.environment.allowSocialPosts = { true }
-            $0.httpClient.mastodonPost = { @Sendable msg in
-                XCTAssertTrue(msg.contains("v2.0.0"))
-                posted.withLockedValue { $0 += 1 }
+            try await withDependencies {
+                $0.environment.allowSocialPosts = { true }
+                $0.httpClient.mastodonPost = { @Sendable _ in posted.withLockedValue { $0 += 1 } }
+            } operation: {
+                // MUT
+                try await Social.postToFirehose(client: app.client,
+                                                package: jpr,
+                                                versions: versions)
             }
-        } operation: {
-            // MUT
-            try await Social.postToFirehose(client: app.client,
-                                            package: jpr,
-                                            versions: versions)
-        }
 
-        // validate
-        try await XCTAssertEqualAsync(posted.withLockedValue { $0 }, 1)
+            // validate
+            try await XCTAssertEqualAsync(posted.withLockedValue { $0 }, 2)
+        }
     }
 
-    func test_urlEncoding() async throws {
+    @Test func postToFirehose_only_latest() async throws {
+        // ensure we only post about latest versions
+        try await withApp { app in
+            // setup
+            let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg,
+                                 name: "repoName",
+                                 owner: "repoOwner",
+                                 summary: "This is a test package").save(on: app.db)
+            try await Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
+                .save(on: app.db)
+            try await Version(package: pkg, packageName: "MyPackage", reference: .tag(2, 0, 0))
+                .save(on: app.db)
+            let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!)
+            let versions = try await Analyze.updateLatestVersions(on: app.db, package: jpr)
+
+            let posted: NIOLockedValueBox<Int> = .init(0)
+
+            try await withDependencies {
+                $0.environment.allowSocialPosts = { true }
+                $0.httpClient.mastodonPost = { @Sendable msg in
+                    #expect(msg.contains("v2.0.0"))
+                    posted.withLockedValue { $0 += 1 }
+                }
+            } operation: {
+                // MUT
+                try await Social.postToFirehose(client: app.client,
+                                                package: jpr,
+                                                versions: versions)
+            }
+
+            // validate
+            try await XCTAssertEqualAsync(posted.withLockedValue { $0 }, 1)
+        }
+    }
+
+    @Test func urlEncoding() async throws {
         let called = ActorIsolated(false)
         try await withDependencies {
             $0.environment.mastodonCredentials = { .init(accessToken: "fakeToken") }
@@ -254,7 +260,7 @@ class SocialTests: AppTestCase {
                 https://mas.to/api/v1/statuses?status=%E2%AC%86%EF%B8%8F%20owner%20just%20released%20packageName%20v2.6.4%0A%0Ahttp://localhost:8080/owner/SuperAwesomePackage%23releases&visibility=unlisted
                 """
                 }
-                XCTAssertEqual(headers, HTTPHeaders([
+                #expect(headers == HTTPHeaders([
                     ("Authorization", "Bearer fakeToken"),
                     ("Idempotency-Key", UUID.id0.uuidString),
                 ]))
@@ -282,6 +288,3 @@ class SocialTests: AppTestCase {
     }
 
 }
-
-extension SnapshotTesting.Snapshotting: @unchecked Swift.Sendable {}
-extension SnapshotTesting.Diffing: @unchecked Swift.Sendable {}
