@@ -12,33 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 @testable import Authentication
 
 import JWTKit
+import Testing
 
 
-final class SignerTests: XCTestCase {
+@Suite struct SignerTests {
 
-    func test_generateToken_verifyToken() throws {
+    @Test func generateToken_verifyToken() throws {
         // Round trip test
         let s = Signer(secretSigningKey: "secret")
         let token = try s.generateToken(for: "foo", contact: "bar", tier: .tier1)
-        XCTAssertTrue(!token.isEmpty)
+        #expect(!token.isEmpty)
         let key = try s.verifyToken(token)
-        XCTAssertEqual(key.sub, .init(value: "foo"))
-        XCTAssertEqual(key.contact, "bar")
-        XCTAssertEqual(key.tier, .tier1)
+        #expect(key.sub == .init(value: "foo"))
+        #expect(key.contact == "bar")
+        #expect(key.tier == .tier1)
     }
 
-    func test_verifyToken_failure() throws {
+    @Test func verifyToken_failure() throws {
         // Ensure verification requires the correct secret
         let token = try Signer(secretSigningKey: "secret").generateToken(for: "foo", contact: "bar", tier: .tier1)
         let otherSigner = Signer(secretSigningKey: "other")
         do {
             _ = try otherSigner.verifyToken(token)
-            XCTFail("Expected a JWTError.signatureVerifictionFailed to the thrown")
+            Issue.record("Expected a JWTError.signatureVerifictionFailed to the thrown")
         } catch JWTError.signatureVerifictionFailed { }
     }
 
