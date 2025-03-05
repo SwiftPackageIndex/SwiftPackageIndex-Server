@@ -267,7 +267,7 @@ struct WebpageSnapshotTests {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func PackageReadmeView() throws {
+    @Test func PackageReadmeView_document() throws {
         let model = PackageReadme.Model.mock
         let page = { PackageReadme.View(model: model).document() }
 
