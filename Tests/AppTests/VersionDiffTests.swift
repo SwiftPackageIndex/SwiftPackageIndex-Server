@@ -19,17 +19,17 @@ import Foundation
 import Testing
 
 
-@Suite struct VersionImmutableReferenceDiffTests {
-    // Tests different version diffing scenarios for lower level
-    // [Version.ImmutableReference] interface.
-    // Scenarios:
-    // 1) branch changes commit hash
-    // 2) new tag is added
-    // 3) tag is removed
-    // 4) branch is removed
-    // 5) tag is moved
+// Tests different version diffing scenarios for lower level
+// [Version.ImmutableReference] interface.
+// Scenarios:
+// 1) branch changes commit hash
+// 2) new tag is added
+// 3) tag is removed
+// 4) branch is removed
+// 5) tag is moved
+@Suite struct VersionDiffTests {
 
-    @Test func diff_1() throws {
+    @Test func ImmutableReference_diff_1() throws {
         // Branch changes commit hash
         // setup
         let saved: [Version.ImmutableReference] = [
@@ -49,7 +49,7 @@ import Testing
         #expect(res.toKeep == [.init(reference: .tag(1, 2, 3), commit: "hash2")])
     }
 
-    @Test func diff_2() throws {
+    @Test func ImmutableReference_diff_2() throws {
         // New tag is incoming
         // setup
         let saved: [Version.ImmutableReference] = [
@@ -71,7 +71,7 @@ import Testing
                         .init(reference: .tag(1, 2, 3), commit: "hash2")])
     }
 
-    @Test func diff_3() throws {
+    @Test func ImmutableReference_diff_3() throws {
         // Tag was deleted upstream
         // setup
         let saved: [Version.ImmutableReference] = [
@@ -90,7 +90,7 @@ import Testing
         #expect(res.toKeep == [.init(reference: .branch("main"), commit: "hash1")])
     }
 
-    @Test func diff_4() throws {
+    @Test func ImmutableReference_diff_4() throws {
         // Branch was deleted upstream
         // setup
         let saved: [Version.ImmutableReference] = [
@@ -109,7 +109,7 @@ import Testing
         #expect(res.toKeep == [.init(reference: .tag(1, 2, 3), commit: "hash2")])
     }
 
-    @Test func diff_5() throws {
+    @Test func ImmutableReference_diff_5() throws {
         // Tag was changed - retagging a release
         // setup
         let saved: [Version.ImmutableReference] = [
@@ -129,14 +129,9 @@ import Testing
         #expect(res.toKeep == [.init(reference: .branch("main"), commit: "hash1")])
     }
 
-}
-
-
-@Suite struct VersionDiffTests {
-    // Test [Version] based diff (higher level interface)
-    // Just run an integration scenario, the details are covered in the test above
-
-    @Test func diff_1() async throws {
+    @Test func Version_diff_1() async throws {
+        // Test [Version] based diff (higher level interface)
+        // Just run an integration scenario, the details are covered in the test above
         try await withApp { app in
             // Branch changes commit hash
             // setup
