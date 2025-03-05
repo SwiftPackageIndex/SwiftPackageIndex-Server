@@ -282,6 +282,3 @@ class SocialTests: AppTestCase {
     }
 
 }
-
-extension SnapshotTesting.Snapshotting: @unchecked Swift.Sendable {}
-extension SnapshotTesting.Diffing: @unchecked Swift.Sendable {}
