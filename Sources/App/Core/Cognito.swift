@@ -18,10 +18,10 @@ struct Cognito {
             )
             req.application.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
             let response = try await req.application.cognito.authenticatable.authenticate(username: username, password: password)
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
             return response
         } catch {
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
             throw error
         }
     }
@@ -39,9 +39,9 @@ struct Cognito {
             )
             req.application.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
             let _ = try await req.application.cognito.authenticatable.authenticate(accessToken: sessionID, on: req.eventLoop)
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
         } catch {
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
             throw error
         }
     }
@@ -59,9 +59,9 @@ struct Cognito {
             )
             req.application.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
             _ = try await req.application.cognito.authenticatable.signUp(username: username, password: password, attributes: [:], on:req.eventLoop)
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
         } catch {
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
             throw error
         }
     }
@@ -79,9 +79,9 @@ struct Cognito {
             )
             req.application.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
             try await req.application.cognito.authenticatable.forgotPassword(username: username)
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
         } catch {
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
             throw error
         }
     }
@@ -99,9 +99,9 @@ struct Cognito {
             )
             req.application.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
             try await req.application.cognito.authenticatable.confirmForgotPassword(username: username, newPassword: password, confirmationCode: confirmationCode)
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
         } catch {
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
             throw error
         }
     }
@@ -119,9 +119,9 @@ struct Cognito {
             )
             req.application.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
             try await req.application.cognito.authenticatable.confirmSignUp(username: username, confirmationCode: confirmationCode)
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
         } catch {
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
             throw error
         }
     }
@@ -140,9 +140,9 @@ struct Cognito {
             req.application.cognito.authenticatable = CognitoAuthenticatable(configuration: awsCognitoConfiguration)
             let request = try CognitoIdentityProvider.DeleteUserRequest(accessToken: req.auth.require(AuthenticatedUser.self).sessionID)
             try await req.application.cognito.authenticatable.configuration.cognitoIDP.deleteUser(request)
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
         } catch {
-            try awsClient.syncShutdown()
+            try await awsClient.shutdown()
             throw error
         }
     }
