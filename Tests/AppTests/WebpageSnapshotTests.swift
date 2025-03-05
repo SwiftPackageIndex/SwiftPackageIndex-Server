@@ -330,7 +330,7 @@ struct WebpageSnapshotTests {
         assertSnapshot(of: page, as: .html)
     }
 
-    @Test func MarkdownPageStyling_document() throws {
+    @Test func MarkdownPage_document_styling() throws {
         let data = try #require(try fixtureData(for: "markdown-test.md"))
         let markdown = try #require(String(data: data, encoding: .utf8))
         let html = MarkdownParser().parse(markdown).html
