@@ -14,45 +14,45 @@
 
 @testable import App
 
-import XCTest
+import Testing
 
 
-class SwiftVersionTests: XCTestCase {
+@Suite struct SwiftVersionTests {
 
-    func test_swiftVerRegex() throws {
-        XCTAssert(SwiftVersion.swiftVerRegex.matches("1"))
-        XCTAssert(SwiftVersion.swiftVerRegex.matches("1.2"))
-        XCTAssert(SwiftVersion.swiftVerRegex.matches("1.2.3"))
-        XCTAssert(SwiftVersion.swiftVerRegex.matches("v1"))
-        XCTAssertFalse(SwiftVersion.swiftVerRegex.matches("1."))
-        XCTAssertFalse(SwiftVersion.swiftVerRegex.matches("1.2."))
-        XCTAssertFalse(SwiftVersion.swiftVerRegex.matches("1.2.3-pre"))
+    @Test func swiftVerRegex() throws {
+        #expect(SwiftVersion.swiftVerRegex.matches("1"))
+        #expect(SwiftVersion.swiftVerRegex.matches("1.2"))
+        #expect(SwiftVersion.swiftVerRegex.matches("1.2.3"))
+        #expect(SwiftVersion.swiftVerRegex.matches("v1"))
+        #expect(!SwiftVersion.swiftVerRegex.matches("1."))
+        #expect(!SwiftVersion.swiftVerRegex.matches("1.2."))
+        #expect(!SwiftVersion.swiftVerRegex.matches("1.2.3-pre"))
     }
 
-    func test_init() throws {
-        XCTAssertEqual(SwiftVersion("5"), SwiftVersion(5, 0, 0))
-        XCTAssertEqual(SwiftVersion("5.2"), SwiftVersion(5, 2, 0))
-        XCTAssertEqual(SwiftVersion("5.2.1"), SwiftVersion(5, 2, 1))
-        XCTAssertEqual(SwiftVersion("v5"), SwiftVersion(5, 0, 0))
+    @Test func SwiftVersion_init() throws {
+        #expect(SwiftVersion("5") == SwiftVersion(5, 0, 0))
+        #expect(SwiftVersion("5.2") == SwiftVersion(5, 2, 0))
+        #expect(SwiftVersion("5.2.1") == SwiftVersion(5, 2, 1))
+        #expect(SwiftVersion("v5") == SwiftVersion(5, 0, 0))
     }
 
-    func test_Comparable() throws {
-        XCTAssertTrue(SwiftVersion("5")! < SwiftVersion("5.1")!)
-        XCTAssertFalse(SwiftVersion("5")! < SwiftVersion("5.0")!)
-        XCTAssertFalse(SwiftVersion("5")! > SwiftVersion("5.0")!)
-        XCTAssertTrue(SwiftVersion("4.2")! < SwiftVersion("5")!)
+    @Test func SwiftVersion_Comparable() throws {
+        #expect(SwiftVersion("5")! < SwiftVersion("5.1")!)
+        #expect(!(SwiftVersion("5")! < SwiftVersion("5.0")!))
+        #expect(!(SwiftVersion("5")! > SwiftVersion("5.0")!))
+        #expect(SwiftVersion("4.2")! < SwiftVersion("5")!)
     }
 
-    func test_isCompatible() throws {
+    @Test func isCompatible() throws {
         let v4_2 = SwiftVersion(4, 2, 0)
-        XCTAssertTrue(v4_2.isCompatible(with: .init(4, 2, 0)))
-        XCTAssertTrue(v4_2.isCompatible(with: .init(4, 2, 4)))
-        XCTAssertFalse(v4_2.isCompatible(with: .init(4, 0, 0)))
-        XCTAssertFalse(v4_2.isCompatible(with: .init(5, 0, 0)))
+        #expect(v4_2.isCompatible(with: .init(4, 2, 0)))
+        #expect(v4_2.isCompatible(with: .init(4, 2, 4)))
+        #expect(!v4_2.isCompatible(with: .init(4, 0, 0)))
+        #expect(!v4_2.isCompatible(with: .init(5, 0, 0)))
     }
 
-    func test_latestMajor() throws {
-        XCTAssertEqual(SwiftVersion.latest.major, 6)
+    @Test func latestMajor() throws {
+        #expect(SwiftVersion.latest.major == 6)
     }
 
 }
