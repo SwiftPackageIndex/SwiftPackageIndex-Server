@@ -263,7 +263,7 @@ enum SiteURL: Resourceable, Sendable {
                 return "ready-for-swift-6"
             
             case .resetPassword:
-                return "reset"
+                return "reset-password"
 
             case .rssPackages:
                 return "packages.rss"
