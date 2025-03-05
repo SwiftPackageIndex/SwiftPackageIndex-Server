@@ -52,12 +52,12 @@ struct MaintainerInfoIndexModelTests {
 
         do {
             model.scoreDetails?.numberOfDependencies = 0
-            let categories = model.scoreCategories
+            let categories = model.scoreCategories()
             #expect(categories["Dependencies"]?.description == "Has no dependencies.")
         }
         do {
             model.scoreDetails?.numberOfDependencies = nil
-            let categories = model.scoreCategories
+            let categories = model.scoreCategories()
             #expect(categories["Dependencies"]?.description == "No dependency information available.")
         }
     }

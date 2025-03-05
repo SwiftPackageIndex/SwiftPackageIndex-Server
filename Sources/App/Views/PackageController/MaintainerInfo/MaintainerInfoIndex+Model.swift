@@ -51,13 +51,13 @@ extension MaintainerInfoIndex {
                                valueToCopy: badgeMarkdown(for: type))
         }
 
-        func packageScoreCategories() -> Node<HTML.BodyContext> {
-            .forEach(0..<scoreCategories.count, { index in
+        static func packageScoreCategories(for categories: [PackageScore]) -> Node<HTML.BodyContext> {
+            return .forEach(0..<categories.count, { index in
                     .div(
                         .class("score-trait"),
-                        .p("\(scoreCategories[index].title)"),
-                        .p("\(scoreCategories[index].score) points"),
-                        .p("\(scoreCategories[index].description)")
+                        .p("\(categories[index].title)"),
+                        .p("\(categories[index].score) points"),
+                        .p("\(categories[index].description)")
                     )
             })
         }
@@ -66,7 +66,7 @@ extension MaintainerInfoIndex {
             "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/discussions/2591"
         }
 
-        var scoreCategories: [PackageScore] {
+        func scoreCategories() -> [PackageScore] {
             guard let scoreDetails else { return [] }
             return Score.Category.allCases
                 .sorted { $0.title < $1.title }
